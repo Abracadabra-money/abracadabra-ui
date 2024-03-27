@@ -104,9 +104,11 @@ export default {
     },
 
     async createStakeInfo() {
-      this.stakeInfo = await getStakeInfo(this.account);
-      this.userPointsEarned = await fetchUserPointsStatistics(this.account);
-      this.pointsStatistics = await fetchPointsStatistics();
+      [this.stakeInfo, this.userPointsEarned, this.pointsStatistics] = await Promise.all([
+        getStakeInfo(this.account),
+        fetchUserPointsStatistics(this.account),
+        fetchPointsStatistics(),
+      ]);
     },
 
     getWindowSize() {

@@ -15,8 +15,18 @@
         </div>
 
         <CardPointsPending
-          :distributionAmount="userPointsStatistics.total"
-          :pendingDistributionAmount="userPointsStatistics.totalPending"
+          :liquidityPoints="
+            userPointsStatistics?.liquidityPoints?.total?.finalized ?? 0
+          "
+          :pendingLiquidityPoints="
+            userPointsStatistics?.liquidityPoints?.total?.pending ?? 0
+          "
+          :developerPoints="
+            userPointsStatistics?.developerPoints?.total?.finalized ?? 0
+          "
+          :pendingDeveloperPoints="
+            userPointsStatistics?.developerPoints?.total?.pending ?? 0
+          "
         />
       </div>
 
@@ -35,12 +45,18 @@
           <div class="total-item">
             <span class="total-title">Total Points Distributed</span>
             <span class="total-value">{{
-              formatTokenBalance(pointsStatistics.total)
+              formatTokenBalance(
+                pointsStatistics?.liquidityPoints?.total?.finalized ?? 0
+              )
             }}</span>
           </div>
           <div class="total-item">
             <span class="total-title">Total Gold Distributed</span>
-            <span class="total-value">{{ formatTokenBalance(0) }}</span>
+            <span class="total-value">{{
+              formatTokenBalance(
+                pointsStatistics?.developerPoints?.total?.finalized ?? 0
+              )
+            }}</span>
           </div>
         </div>
       </div>
@@ -52,7 +68,7 @@
           :withdrawLogic="true"
           @showWithdrawPopup="showWithdrawPopup = true"
         />
-        <CardPointsInfo :pointsInfo="goldPointsInfo" />
+        <CardGoldPointsInfo :pointsInfo="goldPointsInfo" />
       </div>
     </div>
 
@@ -90,30 +106,8 @@ const MIM_USDB_POOL_ID = 1;
 export default {
   data() {
     return {
-      pointsStatistics: {
-        cauldron: 0,
-        locked: 0,
-        pendingCauldron: 0,
-        pendingLocked: 0,
-        pendingUnlocked: 0,
-        total: 0,
-        totalPending: 0,
-        unlocked: 0,
-      },
-      userPointsStatistics: {
-        total: 0,
-        totalPending: 0,
-        unlocked: 0,
-        pendingUnlocked: 0,
-        locked: 0,
-        pendingLocked: 0,
-        cauldron: 0,
-        pendingCauldron: 0,
-        lp: 0,
-        pendingLp: 0,
-        founder: 0,
-        pendingFounder: 0,
-      },
+      pointsStatistics: null as any,
+      userPointsStatistics: null as any,
       poolInfo: null as any,
       cauldronInfo: null as any,
       stakeLpBalances: {
@@ -144,8 +138,10 @@ export default {
         deposited: this.cauldronInfo?.userPosition?.collateralDeposited || 0,
         depositedUsd:
           this.cauldronInfo?.userPosition?.collateralDepositedUsd || 0,
-        distributionAmount: this.userPointsStatistics.cauldron,
-        pendingDistributionAmount: this.userPointsStatistics.pendingCauldron,
+        distributionAmount:
+          this.userPointsStatistics?.liquidityPoints?.cauldron?.finalized ?? 0,
+        pendingDistributionAmount:
+          this.userPointsStatistics?.liquidityPoints?.cauldron?.pending ?? 0,
       };
     },
 
@@ -165,8 +161,10 @@ export default {
         icon: useImage("assets/images/tokens/MIM-USDB.png"),
         deposited,
         depositedUsd,
-        distributionAmount: this.userPointsStatistics.lp,
-        pendingDistributionAmount: this.userPointsStatistics.pendingLp,
+        distributionAmount:
+          this.userPointsStatistics?.liquidityPoints?.lp?.finalized ?? 0,
+        pendingDistributionAmount:
+          this.userPointsStatistics?.liquidityPoints?.lp?.pending ?? 0,
       };
     },
 
@@ -187,8 +185,14 @@ export default {
         icon: useImage("assets/images/tokens/MIM-USDB.png"),
         deposited,
         depositedUsd,
-        distributionAmount: this.userPointsStatistics.founder,
-        pendingDistributionAmount: this.userPointsStatistics.pendingFounder,
+        distributionAmount:
+          this.userPointsStatistics?.liquidityPoints?.founder?.finalized ?? 0,
+        pendingDistributionAmount:
+          this.userPointsStatistics?.liquidityPoints?.founder?.pending ?? 0,
+        goldDistributionAmount:
+          this.userPointsStatistics?.developerPoints?.founder?.finalized ?? 0,
+        goldPendingDistributionAmount:
+          this.userPointsStatistics?.developerPoints?.founder?.pending ?? 0,
       };
     },
   },
@@ -220,7 +224,7 @@ export default {
     },
 
     async getStakeLpBalance() {
-      const publicClient = getPublicClient(this.chainId);
+      const publicClient = getPublicClient(BLAST_CHAIN_ID);
 
       const [balance, locked, unlocked] = await publicClient.multicall({
         contracts: [
@@ -287,8 +291,12 @@ export default {
     },
 
     async fetchStatistics() {
-      this.pointsStatistics = await fetchPointsStatistics();
-      this.userPointsStatistics = await fetchUserPointsStatistics(this.account);
+      [this.pointsStatistics, this.userPointsStatistics] = await Promise.all([
+        fetchPointsStatistics(),
+        fetchUserPointsStatistics(this.account),
+      ]);
+
+      console.log("this.userPointsStatistics", this.userPointsStatistics);
     },
   },
 
@@ -319,6 +327,9 @@ export default {
     ),
     CardPointsInfo: defineAsyncComponent(
       () => import("@/components/ui/card/CardPointsInfo.vue")
+    ),
+    CardGoldPointsInfo: defineAsyncComponent(
+      () => import("@/components/ui/card/CardGoldPointsInfo.vue")
     ),
     WlpWithdrawPopup: defineAsyncComponent(
       () => import("@/components/blastOnboarding/WlpWithdrawPopup.vue")

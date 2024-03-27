@@ -68,7 +68,7 @@
             <div class="lock-info-row">
               <span class="lock-info-title">Points</span>
               <span class="lock-info-value">{{
-                formatTokenBalance(userPointsEarned?.total || 0)
+                formatTokenBalance(userPointsEarned?.liquidityPoints?.total?.finalized ?? 0)
               }}</span>
             </div>
 
@@ -198,7 +198,7 @@ export default {
     }),
 
     userTotalPending() {
-      const totalPending = this.userPointsEarned?.totalPending || 0;
+      const totalPending = this.userPointsEarned?.liquidityPoints?.total?.pending ?? 0;
       return formatTokenBalance(totalPending);
     },
 

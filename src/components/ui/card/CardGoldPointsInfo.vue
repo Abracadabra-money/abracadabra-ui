@@ -1,15 +1,39 @@
 <template>
-  <div :class="['card', { gold: pointsInfo?.isGold }]">
+  <div :class="['card']">
     <div class="label">{{ pointsInfo.label }}</div>
 
-    <IconButton
-      v-if="showWithdrawButton"
-      class="withdraw-button"
-      exit
-      :width="39"
-      :height="39"
-      @click="onWithdraw"
-    />
+    <div class="tabs-wrap">
+      <button
+        :class="['tabs-item', { 'tab-active': activeTab === 1 }]"
+        @click="changeTab(1)"
+      >
+        <img
+          class="tab-icon"
+          src="@/assets/images/points-dashboard/blast.png"
+          alt=""
+        />
+      </button>
+      <button
+        :class="['tabs-item', { 'tab-active': activeTab === 2 }]"
+        @click="changeTab(2)"
+      >
+        <img
+          class="tab-icon"
+          src="@/assets/images/points-dashboard/gold-points.svg"
+          alt=""
+        />
+      </button>
+      <button
+        :class="['tabs-item', { 'tab-active': activeTab === 3 }]"
+        @click="changeTab(3)"
+      >
+        <img
+          class="tab-icon"
+          src="@/assets/images/points-dashboard/potion.png"
+          alt=""
+        />
+      </button>
+    </div>
 
     <div class="source-points">
       <div class="icons-wrap">
@@ -64,29 +88,33 @@
 
     <div class="line"></div>
 
-    <ul class="list">
+    <div class="empty" v-if="activeTab === 3">Coming soon</div>
+
+    <ul class="list" v-else>
       <li class="list-item">
-        <div class="item-title">Points Earned</div>
+        <div class="item-title">{{ cardText }}</div>
         <div class="item-value">
           <div class="item-amount">
-            {{ formatTokenBalance(pointsInfo.distributionAmount) }}
+            {{ formatTokenBalance(userPointsInfo.earned) }}
           </div>
         </div>
       </li>
 
       <li class="list-item">
-        <div :class="['item-title', { 'gold-title': pointsInfo.isGold }]">
+        <div :class="['item-title', 'gold-title']">
           To Be Distributed
           <span class="boost" v-if="pointsInfo.isGold">
             <img
-              v-tooltip="'Boosted Airdrop for Founders'"
+              v-tooltip="
+                'Receiving 20% of total ecosystem points: Points, Gold, Potions'
+              "
               src="@/assets/images/points-dashboard/rocket.svg"
               alt=""
             />
           </span>
         </div>
-        <div :class="['item-value', { 'gold-title': pointsInfo.isGold }]">
-          {{ formatTokenBalance(pointsInfo.pendingDistributionAmount) }}
+        <div :class="['item-value', 'gold-title']">
+          {{ formatTokenBalance(userPointsInfo.distributed) }}
         </div>
       </li>
     </ul>
@@ -94,7 +122,6 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent } from "vue";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 
@@ -117,11 +144,27 @@ export default {
   data() {
     return {
       showWithdrawPopup: false,
+      activeTab: 1,
     };
   },
+
   computed: {
-    showWithdrawButton() {
-      return this.withdrawLogic && this.pointsInfo?.deposited > 0;
+    userPointsInfo() {
+      if (this.activeTab === 1)
+        return {
+          earned: this.pointsInfo.distributionAmount,
+          distributed: this.pointsInfo.pendingDistributionAmount,
+        };
+
+      return {
+        earned: this.pointsInfo.goldDistributionAmount,
+        distributed: this.pointsInfo.goldPendingDistributionAmount,
+      };
+    },
+
+    cardText() {
+      if (this.activeTab === 2) return "Gold earned ";
+      return "Points earned";
     },
   },
 
@@ -129,15 +172,10 @@ export default {
     getChainIcon,
     formatTokenBalance,
     formatUSD,
-    onWithdraw() {
-      this.$emit("showWithdrawPopup");
-    },
-  },
 
-  components: {
-    IconButton: defineAsyncComponent(
-      () => import("@/components/ui/buttons/IconButton.vue")
-    ),
+    changeTab(tab: number) {
+      this.activeTab = tab;
+    },
   },
 };
 </script>
@@ -149,47 +187,8 @@ export default {
   width: 100%;
   padding: 60px 16px 22px;
   border-radius: 16px;
-  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.06);
-  backdrop-filter: blur(12.5px);
   border: 1px solid #fcfd02;
   margin: 0 auto;
-}
-
-.withdraw-button {
-  border: none;
-  outline: none;
-  width: max-content;
-  padding: 0 10px;
-  border-radius: 10px;
-  background: rgb(252, 253, 2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #000;
-  font-size: 14px;
-  font-weight: 600;
-  line-height: normal;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  transition: all 0.3s ease;
-
-  &:hover {
-    top: 6px;
-    background: #fcfc06;
-    opacity: 0.8;
-  }
-
-  &:active {
-    top: 8px;
-    background: #fcfc06;
-    opacity: 0.8;
-  }
-}
-
-.gold {
   background: linear-gradient(
       104deg,
       rgba(251, 253, 3, 0.21) 0%,
@@ -210,6 +209,48 @@ export default {
     );
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.06);
   backdrop-filter: blur(12.5px);
+}
+
+.tabs-wrap {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  max-width: 228px;
+  width: 100%;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: rgba(16, 18, 23, 0.6);
+  backdrop-filter: blur(20px);
+}
+
+.tabs-item {
+  max-width: 72px;
+  width: 100%;
+  height: 36px;
+  border: none;
+  outline: transparent;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.tab-active {
+  border-radius: 8px;
+  background: #101217;
+  object-fit: cover;
+}
+
+.tab-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.gold {
 }
 
 .label {
@@ -372,5 +413,23 @@ export default {
 
 .item-amount {
   color: white;
+}
+
+.empty {
+  font-size: 20px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media screen and (max-width: 600px) {
+  .tabs-wrap {
+    max-width: 180px;
+  }
+
+  .tabs-item {
+    max-width: 60px;
+  }
 }
 </style>
