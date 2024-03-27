@@ -109,7 +109,7 @@ export default {
     },
 
     pointsEarned() {
-      return formatTokenBalance(this.userPointsStatistics?.total);
+      return formatTokenBalance(this.userPointsStatistics?.liquidityPoints?.total?.finalized);
     },
 
     lpToken() {
