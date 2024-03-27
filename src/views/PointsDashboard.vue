@@ -10,18 +10,7 @@
           </h4>
           <div class="links-wrap">
             <BaseButton class="btn" @click="goToPool">MIM/USDB Pool</BaseButton>
-
-            <div
-              class="tooltip-container"
-              v-tooltip="{
-                content: 'Finalising, Coming Soon!',
-                placement: 'top',
-              }"
-            >
-              <BaseButton disabled class="btn" @click="goToSwap"
-                >Swap</BaseButton
-              >
-            </div>
+            <BaseButton class="btn" @click="goToSwap">Swap</BaseButton>
           </div>
         </div>
 
@@ -133,6 +122,7 @@ export default {
         unlocked: 0n,
       } as any,
       updateInterval: null as any,
+      updateIntervalStatistics: null as any,
       showWithdrawPopup: false as any,
     };
   },
@@ -205,11 +195,11 @@ export default {
 
   watch: {
     async account() {
-      await this.createDashboardInfo();
+      await this.createActivityInfo();
     },
 
     async chainId() {
-      await this.createDashboardInfo();
+      await this.createActivityInfo();
     },
   },
 
@@ -226,7 +216,7 @@ export default {
     },
 
     goToSwap() {
-      // this.$router.push({ name: "MimSwap" });
+      this.$router.push({ name: "MimSwap" });
     },
 
     async getStakeLpBalance() {
@@ -270,11 +260,7 @@ export default {
     },
 
     // TODO: refactor
-    async createDashboardInfo() {
-      this.pointsStatistics = await fetchPointsStatistics();
-
-      this.userPointsStatistics = await fetchUserPointsStatistics(this.account);
-
+    async createActivityInfo() {
       this.stakeLpBalances = await this.getStakeLpBalance();
 
       this.poolInfo = await getPoolInfo(
@@ -299,14 +285,29 @@ export default {
         userSigner
       );
     },
+
+    async fetchStatistics() {
+      this.pointsStatistics = await fetchPointsStatistics();
+      this.userPointsStatistics = await fetchUserPointsStatistics(this.account);
+    },
   },
 
   async created() {
-    await this.createDashboardInfo();
+    await this.createActivityInfo();
+    await this.fetchStatistics();
 
     this.updateInterval = setInterval(async () => {
-      await this.createDashboardInfo();
+      await this.createActivityInfo();
+    }, 30000);
+
+    this.updateIntervalStatistics = setInterval(async () => {
+      await this.fetchStatistics();
     }, 60000);
+  },
+
+  beforeUnmount() {
+    clearInterval(this.updateInterval);
+    clearInterval(this.updateIntervalStatistics);
   },
 
   components: {
