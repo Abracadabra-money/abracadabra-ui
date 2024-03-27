@@ -15,8 +15,10 @@
         </div>
 
         <CardPointsPending
-          :distributionAmount="userPointsStatistics?.liquidityPoints?.total?.finalized ?? 0"
-          :pendingDistributionAmount="userPointsStatistics?.liquidityPoints?.total?.pending ?? 0"
+          :liquidityPoints="userPointsStatistics?.liquidityPoints?.total?.finalized ?? 0"
+          :pendingLiquidityPoints="userPointsStatistics?.liquidityPoints?.total?.pending ?? 0"
+          :developerPoints="userPointsStatistics?.developerPoints?.total?.finalized ?? 0"
+          :pendingDeveloperPoints="userPointsStatistics?.developerPoints?.total?.pending ?? 0"
         />
       </div>
 
@@ -40,7 +42,7 @@
           </div>
           <div class="total-item">
             <span class="total-title">Total Gold Distributed</span>
-            <span class="total-value">{{ formatTokenBalance(0) }}</span>
+            <span class="total-value">{{ formatTokenBalance(pointsStatistics?.developerPoints?.total?.finalized ?? 0) }}</span>
           </div>
         </div>
       </div>
