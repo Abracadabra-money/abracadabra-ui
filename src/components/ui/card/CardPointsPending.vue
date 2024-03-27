@@ -41,16 +41,32 @@
       <div class="total-points">
         <span class="total-title">Points</span>
         <span class="total-earned">{{
-          formatTokenBalance(distributionAmount)
+          formatTokenBalance(liquidityPoints)
         }}</span>
       </div>
 
       <div class="pending-info">
         Earning
         <span class="pending-amount">{{
-          formatTokenBalance(pendingDistributionAmount)
+          formatTokenBalance(pendingLiquidityPoints)
         }}</span>
-        Points Per Hours
+        Points Per Hour
+      </div>
+    </div>
+    <div class="card-body" v-else-if="activeTab === 2">
+      <div class="total-points">
+        <span class="total-title">Gold</span>
+        <span class="total-earned">{{
+          formatTokenBalance(developerPoints)
+        }}</span>
+      </div>
+
+      <div class="pending-info">
+        Earning
+        <span class="pending-amount">{{
+          formatTokenBalance(pendingDeveloperPoints)
+        }}</span>
+        Gold Per Hour
       </div>
     </div>
     <div v-else class="empty-info">Coming soon</div>
@@ -63,8 +79,10 @@ import { formatTokenBalance } from "@/helpers/filters";
 
 export default {
   props: {
-    distributionAmount: { type: Number, default: 0 },
-    pendingDistributionAmount: { type: Number, default: 0 },
+    liquidityPoints: { type: Number, default: 0 },
+    pendingLiquidityPoints: { type: Number, default: 0 },
+    developerPoints: { type: Number, default: 0 },
+    pendingDeveloperPoints: { type: Number, default: 0 },
   },
 
   data() {
