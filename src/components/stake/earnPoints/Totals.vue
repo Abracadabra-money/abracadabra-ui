@@ -22,7 +22,7 @@
     <div class="total">
       <h3 class="title">Total Points Distributed</h3>
       <div class="value">
-        {{ formatAmount(pointsStatistics?.total || 0) }}
+        {{ formatAmount(pointsStatistics?.liquidityPoints?.total?.finalized ?? 0) }}
       </div>
 
       <div class="line"></div>
@@ -57,7 +57,7 @@ export default {
     },
     pointsStatistics: {
       type: Object,
-      requared: true,
+      required: true,
     },
     timeInfo: {
       type: Object,
@@ -79,7 +79,7 @@ export default {
     },
 
     totalPending() {
-      const totalPending = this.pointsStatistics?.totalPending || 0;
+      const totalPending = this.pointsStatistics?.liquidityPoints?.total?.pending ?? 0;
       const percentagePassed = this.timeInfo?.percentagePassed || 0;
 
       const updatedTotalPending = totalPending * (percentagePassed / 100);

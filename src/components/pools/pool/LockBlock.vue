@@ -5,7 +5,10 @@
 
     <div class="info-item">
       <p>Lock for 3 months</p>
-      <div class="icon-wrap" v-tooltip="'Locked for 3 months'">
+      <div
+        class="icon-wrap"
+        v-tooltip="'Lock your MLP for 3 months to get a Founder Boost'"
+      >
         <svg
           class="lock-icon"
           xmlns="http://www.w3.org/2000/svg"
@@ -24,7 +27,12 @@
 
     <div class="info-item gold">
       <p>Founder boost</p>
-      <div class="icon-wrap" v-tooltip="'Boosted Airdrop for Founders'">
+      <div
+        class="icon-wrap"
+        v-tooltip="
+          'Receiving 20% of total ecosystem points: Points, Gold, Potions'
+        "
+      >
         <img src="@/assets/images/points-dashboard/rocket.svg" alt="" />
       </div>
     </div>

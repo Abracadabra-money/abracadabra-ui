@@ -498,7 +498,7 @@ export default {
 
 <style lang="scss" scoped>
 .swap-view {
-  padding: 100px 0;
+  padding: 120px 0;
   display: flex;
   flex-direction: column;
   gap: 20px;

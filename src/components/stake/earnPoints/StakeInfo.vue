@@ -68,7 +68,7 @@ export default {
     },
     pointsStatistics: {
       type: Object,
-      requared: true,
+      required: true,
     },
     mobileMode: {
       type: Boolean,

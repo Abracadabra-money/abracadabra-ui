@@ -422,10 +422,9 @@ export default {
 .farm-view {
   display: flex;
   justify-content: center;
-  align-items: center;
   width: 100%;
   min-height: 100vh;
-  padding: 100px 0 40px 0;
+  padding: 120px 0 50px 0;
   margin: 0 auto;
 }
 

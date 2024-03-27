@@ -111,7 +111,7 @@ export default {
   align-items: start;
   width: 100%;
   min-height: 100vh;
-  padding: 100px 0 40px 0;
+  padding: 120px 0 40px 0;
   margin: 0 auto;
 }
 
