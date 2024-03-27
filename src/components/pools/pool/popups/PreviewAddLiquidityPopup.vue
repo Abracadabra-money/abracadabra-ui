@@ -169,12 +169,10 @@ export default {
       const quoteToken = this.pool.tokens.quoteToken;
 
       baseToken.transactionAmount = this.previewInfo.baseTokenAmount;
-      baseToken.isApproved =
-        baseToken.userInfo.allowance > this.previewInfo.baseTokenAmount;
+      baseToken.isApproved = this.isBaseTokenApproved;
 
       quoteToken.transactionAmount = this.previewInfo.quoteTokenAmount;
-      quoteToken.isApproved =
-        quoteToken.userInfo.allowance > this.previewInfo.quoteTokenAmount;
+      quoteToken.isApproved = this.isQuoteTokenApproved;
 
       return [baseToken, quoteToken].sort(
         (a, b) => b.isApproved - a.isApproved
