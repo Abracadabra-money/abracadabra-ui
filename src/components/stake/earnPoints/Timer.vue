@@ -9,8 +9,20 @@
 <script>
 import moment from "moment";
 
+const measureUnits = { 0: "d", 1: "h", 2: "m", 3: "s" };
+
 export default {
   props: {
+    startDateTimestamp: {
+      type: Number,
+      default: 1709244000,
+    },
+
+    endDateTimestamp: {
+      type: Number,
+      default: 1711663200,
+    },
+
     small: {
       type: Boolean,
       default: false,
@@ -27,11 +39,19 @@ export default {
 
   data() {
     return {
-      startDate: moment.utc("2024-03-01 00:00:00"),
-      endDate: moment.utc("2024-03-29 02:00:00"),
       intervalId: null,
       timerValues: ["0d", "00h", "00m", "00s"],
     };
+  },
+
+  computed: {
+    startDate() {
+      return moment.utc(this.startDateTimestamp * 1000);
+    },
+
+    endDate() {
+      return moment.utc(this.endDateTimestamp * 1000);
+    },
   },
 
   methods: {
@@ -52,7 +72,6 @@ export default {
       } else {
         duration = moment.duration(this.endDate.diff(now));
         // const duration = moment.duration(this.endDate.diff(now));
-
         if (duration.asSeconds() <= 0) {
           clearInterval(this.intervalId);
           this.timerValues = ["0d", "00h", "00m", "00s"];
@@ -71,13 +90,26 @@ export default {
           `${seconds.toString().padStart(2, "0")}s`,
         ];
       } else {
-        this.timerValues = [
-          `${days.toString().padStart(2, "0")}d`,
-          `${hours.toString().padStart(2, "0")}h`,
-          `${minutes.toString().padStart(2, "0")}m`,
-          `${seconds.toString().padStart(2, "0")}s`,
-        ];
+        this.timerValues = this.createTimerValues([
+          days,
+          hours,
+          minutes,
+          seconds,
+        ]);
       }
+    },
+
+    createTimerValues(unparsedValues) {
+      const timerValues = [];
+
+      unparsedValues.forEach((value, index) => {
+        if (value > 0)
+          timerValues.push(
+            `${value.toString().padStart(2, "0")}${measureUnits[index]}`
+          );
+      });
+
+      return timerValues;
     },
   },
 

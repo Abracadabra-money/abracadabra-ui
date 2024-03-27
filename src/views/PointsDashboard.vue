@@ -1,6 +1,8 @@
 <template>
   <div class="my-points-view">
     <div class="my-points-wrapper">
+      <LiquidityLaunchEventBanner />
+      
       <div class="row head-row">
         <div class="btns-wrap">
           <h3 class="title">Points Dashboard</h3>
@@ -322,6 +324,10 @@ export default {
     ),
     WlpWithdrawPopup: defineAsyncComponent(
       () => import("@/components/blastOnboarding/WlpWithdrawPopup.vue")
+    ),
+    LiquidityLaunchEventBanner: defineAsyncComponent(
+      () =>
+        import("@/components/blastOnboarding/LiquidityLaunchEventBanner.vue")
     ),
   },
 };
