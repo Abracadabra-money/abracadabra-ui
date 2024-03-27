@@ -200,7 +200,7 @@ export default {
     },
 
     async getStakeLpBalance() {
-      const publicClient = getPublicClient(this.chainId);
+      const publicClient = getPublicClient(BLAST_CHAIN_ID);
 
       const [balance, locked, unlocked] = await publicClient.multicall({
         contracts: [
