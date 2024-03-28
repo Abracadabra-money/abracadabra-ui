@@ -1,29 +1,33 @@
 import { useImage } from "@/helpers/useImage";
 import { base } from "@wagmi/core/chains";
+import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
-export const baseConfig = {
+const http = [
+  "https://base.llamarpc.com",
+  base.rpcUrls.default.http[0],
+  "https://base.drpc.org",
+  "https://base-rpc.publicnode.com",
+  "https://base.meowrpc.com",
+];
+
+const viemConfig = {
   ...base,
   rpcUrls: {
     public: {
-      http: [
-        base.rpcUrls.default.http[0],
-        "https://base.llamarpc.com",
-        "https://base.drpc.org",
-        "https://base-rpc.publicnode.com",
-        "https://base.meowrpc.com",
-      ],
+      http,
     },
     default: {
-      http: [
-        base.rpcUrls.default.http[0],
-        "https://base.llamarpc.com",
-        "https://base.drpc.org",
-        "https://base-rpc.publicnode.com",
-        "https://base.meowrpc.com",
-      ],
+      http,
     },
   },
-  chainId: 8453,
+};
+
+const publicClient = initPublicClient(viemConfig);
+
+export const baseConfig = {
+  publicClient,
+  viemConfig: viemConfig,
+  chainId: base.id,
   chainName: "BASE",
   symbol: "Base",
   icon: useImage("assets/images/networks/base.png"),
