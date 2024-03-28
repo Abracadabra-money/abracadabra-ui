@@ -1,29 +1,33 @@
 import { kava } from "@wagmi/core/chains";
 import { RPC_KAVA } from "@/constants/rpc";
 import { useImage } from "@/helpers/useImage";
+import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
-export const kavaConfig = {
+const http = [
+  RPC_KAVA,
+  kava.rpcUrls.default.http[0],
+  "https://evm.kava.io",
+  "https://rpc.ankr.com/kava_evm",
+  "https://evm.kava.chainstacklabs.com",
+];
+
+const viemConfig = {
   ...kava,
   rpcUrls: {
     public: {
-      http: [
-        kava.rpcUrls.default.http[0],
-        RPC_KAVA,
-        "https://evm.kava.io",
-        "https://rpc.ankr.com/kava_evm",
-        "https://evm.kava.chainstacklabs.com",
-      ],
+      http,
     },
     default: {
-      http: [
-        kava.rpcUrls.default.http[0],
-        RPC_KAVA,
-        "https://evm.kava.io",
-        "https://rpc.ankr.com/kava_evm",
-        "https://evm.kava.chainstacklabs.com",
-      ],
+      http,
     },
   },
+};
+
+const publicClient = initPublicClient(viemConfig);
+
+export const kavaConfig = {
+  publicClient,
+  viemConfig: viemConfig,
   chainId: kava.id,
   chainName: "KAVA",
   symbol: "Kava EVM",
