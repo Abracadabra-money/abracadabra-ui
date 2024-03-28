@@ -180,9 +180,9 @@ export default {
         goldPendingDistributionAmount:
           this.userPointsStatistics?.developerPoints?.lp?.pending ?? 0,
         totalPendingDistributionAmount:
-          this.pointsStatistics?.liquidityPoints?.lp?.total?.pending ?? 0,
+          this.pointsStatistics?.liquidityPoints?.total?.pending ?? 0,
         totalGoldPendingDistributionAmount:
-          this.pointsStatistics?.developerPoints?.lp?.total?.pending ?? 0,
+          this.pointsStatistics?.developerPoints?.total?.pending ?? 0,
       };
     },
 
