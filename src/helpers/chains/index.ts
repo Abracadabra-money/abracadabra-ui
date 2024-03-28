@@ -42,7 +42,7 @@ export const chains = [
   polygonConfig.viemConfig,
   moonriverConfig.viemConfig,
   baseConfig.viemConfig,
-  lineaConfig,
+  lineaConfig.viemConfig,
   berachainConfig,
   blastSepoliaConfig,
 ];
@@ -58,7 +58,7 @@ export const chainsList = {
   8453: baseConfig.viemConfig,
   42161: arbitrumConfig.viemConfig,
   43114: avalancheConfig.viemConfig,
-  59144: lineaConfig,
+  59144: lineaConfig.viemConfig,
   80085: berachainConfig,
   81457: blastConfig,
   168587773: blastSepoliaConfig,
