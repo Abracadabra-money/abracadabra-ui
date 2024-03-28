@@ -279,9 +279,7 @@ export default {
   border: none;
   outline: none;
   width: max-content;
-  padding: 0 10px;
   border-radius: 10px;
-  background: rgb(252, 253, 2);
   display: flex;
   align-items: center;
   justify-content: center;
