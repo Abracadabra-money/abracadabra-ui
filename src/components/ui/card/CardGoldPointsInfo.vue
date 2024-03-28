@@ -90,38 +90,53 @@
 
     <div class="empty" v-if="activeTab === 3">Coming soon</div>
 
-    <ul class="list" v-else>
-      <li class="list-item">
-        <div class="item-title">{{ cardText }}</div>
-        <div class="item-value">
-          <div class="item-amount">
-            {{ formatTokenBalance(userPointsInfo.earned) }}
+    <template v-else>
+      <ul class="list">
+        <li class="list-item">
+          <div class="item-title">{{ cardText }}</div>
+          <div class="item-value">
+            <div class="item-amount">
+              {{ formatTokenBalance(userPointsInfo.earned) }}
+            </div>
           </div>
-        </div>
-      </li>
+        </li>
 
-      <li class="list-item">
-        <div :class="['item-title', 'gold-title']">
-          To Be Distributed
-          <span class="boost" v-if="pointsInfo.isGold">
-            <img
-              v-tooltip="
-                'Receiving 20% of total ecosystem points: Points, Gold, Potions'
-              "
-              src="@/assets/images/points-dashboard/rocket.svg"
-              alt=""
-            />
-          </span>
-        </div>
-        <div :class="['item-value', 'gold-title']">
-          {{ formatTokenBalance(userPointsInfo.distributed) }}
-        </div>
-      </li>
-    </ul>
+        <li class="list-item">
+          <div :class="['item-title', 'gold-title']">
+            Your Next Distribution
+            <span class="boost" v-if="pointsInfo.isGold">
+              <img
+                v-tooltip="
+                  'Receiving 20% of total ecosystem points: Points, Gold, Potions'
+                "
+                src="@/assets/images/points-dashboard/rocket.svg"
+                alt=""
+              />
+            </span>
+          </div>
+          <div :class="['item-value', 'gold-title']">
+            {{ formatTokenBalance(userPointsInfo.distributed) }}
+          </div>
+        </li>
+      </ul>
+
+      <div class="line"></div>
+
+      <div class="total-wrap">
+        <span class="total-title"
+          >{{ pointsInfo.rateText }}
+          <Tooltip :tooltip="pointsInfo.rateTooltip" :width="20" :height="20"
+        /></span>
+        <span class="total-value">{{
+          formatTokenBalance(pointsInfo.totalPending)
+        }}</span>
+      </div>
+    </template>
   </div>
 </template>
 
 <script lang="ts">
+import { defineAsyncComponent } from "vue";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 
@@ -154,11 +169,13 @@ export default {
         return {
           earned: this.pointsInfo.distributionAmount,
           distributed: this.pointsInfo.pendingDistributionAmount,
+          total: this.pointsInfo.totalPendingDistributionAmount,
         };
 
       return {
         earned: this.pointsInfo.goldDistributionAmount,
         distributed: this.pointsInfo.goldPendingDistributionAmount,
+        total: this.pointsInfo.totalGoldPendingDistributionAmount,
       };
     },
 
@@ -176,6 +193,12 @@ export default {
     changeTab(tab: number) {
       this.activeTab = tab;
     },
+  },
+
+  components: {
+    Tooltip: defineAsyncComponent(
+      () => import("@/components/ui/icons/Tooltip.vue")
+    ),
   },
 };
 </script>
@@ -248,9 +271,6 @@ export default {
 .tab-icon {
   width: 24px;
   height: 24px;
-}
-
-.gold {
 }
 
 .label {
@@ -417,10 +437,25 @@ export default {
 
 .empty {
   font-size: 20px;
-  height: 52px;
+  height: 92px;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.total-wrap {
+  display: flex;
+  justify-content: space-between;
+}
+
+.total-title {
+  gap: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.total-value {
+  font-weight: 500;
 }
 
 @media screen and (max-width: 600px) {

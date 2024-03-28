@@ -2,6 +2,39 @@
   <div :class="['card', { gold: pointsInfo?.isGold }]">
     <div class="label">{{ pointsInfo.label }}</div>
 
+    <div class="tabs-wrap" v-if="isTabs">
+      <button
+        :class="['tabs-item', { 'tab-active': activeTab === 1 }]"
+        @click="changeTab(1)"
+      >
+        <img
+          class="tab-icon"
+          src="@/assets/images/points-dashboard/blast.png"
+          alt=""
+        />
+      </button>
+      <button
+        :class="['tabs-item', { 'tab-active': activeTab === 2 }]"
+        @click="changeTab(2)"
+      >
+        <img
+          class="tab-icon"
+          src="@/assets/images/points-dashboard/gold-points.svg"
+          alt=""
+        />
+      </button>
+      <button
+        :class="['tabs-item', { 'tab-active': activeTab === 3 }]"
+        @click="changeTab(3)"
+      >
+        <img
+          class="tab-icon"
+          src="@/assets/images/points-dashboard/potion.png"
+          alt=""
+        />
+      </button>
+    </div>
+
     <IconButton
       v-if="showWithdrawButton"
       class="withdraw-button"
@@ -64,32 +97,48 @@
 
     <div class="line"></div>
 
-    <ul class="list">
-      <li class="list-item">
-        <div class="item-title">Points Earned</div>
-        <div class="item-value">
-          <div class="item-amount">
-            {{ formatTokenBalance(pointsInfo.distributionAmount) }}
-          </div>
-        </div>
-      </li>
+    <div class="empty" v-if="activeTab === 3">Coming soon</div>
 
-      <li class="list-item">
-        <div :class="['item-title', { 'gold-title': pointsInfo.isGold }]">
-          To Be Distributed
-          <span class="boost" v-if="pointsInfo.isGold">
-            <img
-              v-tooltip="'Boosted Airdrop for Founders'"
-              src="@/assets/images/points-dashboard/rocket.svg"
-              alt=""
-            />
-          </span>
-        </div>
-        <div :class="['item-value', { 'gold-title': pointsInfo.isGold }]">
-          {{ formatTokenBalance(pointsInfo.pendingDistributionAmount) }}
-        </div>
-      </li>
-    </ul>
+    <template v-else>
+      <ul class="list">
+        <li class="list-item">
+          <div class="item-title">{{ cardText }}</div>
+          <div class="item-value">
+            <div class="item-amount">
+              {{ formatTokenBalance(userPointsInfo.earned) }}
+            </div>
+          </div>
+        </li>
+
+        <li class="list-item">
+          <div :class="['item-title', { 'gold-title': pointsInfo.isGold }]">
+            Your Next Distribution
+            <span class="boost" v-if="pointsInfo.isGold">
+              <img
+                v-tooltip="'Boosted Airdrop for Founders'"
+                src="@/assets/images/points-dashboard/rocket.svg"
+                alt=""
+              />
+            </span>
+          </div>
+          <div :class="['item-value', { 'gold-title': pointsInfo.isGold }]">
+            {{ formatTokenBalance(userPointsInfo.distributed) }}
+          </div>
+        </li>
+      </ul>
+
+      <div class="line"></div>
+
+      <div class="total-wrap">
+        <span class="total-title"
+          >{{ pointsInfo.rateText }}
+          <Tooltip :tooltip="pointsInfo.rateTooltip" :width="20" :height="20"
+        /></span>
+        <span class="total-value">{{
+          formatTokenBalance(userPointsInfo.total)
+        }}</span>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -102,13 +151,15 @@ export default {
   emits: ["showWithdrawPopup"],
   props: {
     pointsInfo: {} as any,
-
     gold: {
       type: Boolean,
       default: false,
     },
-
     withdrawLogic: {
+      type: Boolean,
+      default: false,
+    },
+    isTabs: {
       type: Boolean,
       default: false,
     },
@@ -117,11 +168,33 @@ export default {
   data() {
     return {
       showWithdrawPopup: false,
+      activeTab: 1,
     };
   },
+
   computed: {
     showWithdrawButton() {
-      return this.withdrawLogic && this.pointsInfo?.deposited > 0;
+      return this.withdrawLogic && this.pointsInfo?.unlockedAmount > 0;
+    },
+
+    cardText() {
+      if (this.activeTab === 2) return "Gold earned ";
+      return "Points";
+    },
+
+    userPointsInfo() {
+      if (this.activeTab === 1)
+        return {
+          earned: this.pointsInfo.distributionAmount,
+          distributed: this.pointsInfo.pendingDistributionAmount,
+          total: this.pointsInfo.totalPendingDistributionAmount,
+        };
+
+      return {
+        earned: this.pointsInfo.goldDistributionAmount,
+        distributed: this.pointsInfo.goldPendingDistributionAmount,
+        total: this.pointsInfo.totalGoldPendingDistributionAmount,
+      };
     },
   },
 
@@ -129,14 +202,22 @@ export default {
     getChainIcon,
     formatTokenBalance,
     formatUSD,
+
     onWithdraw() {
       this.$emit("showWithdrawPopup");
+    },
+
+    changeTab(tab: number) {
+      this.activeTab = tab;
     },
   },
 
   components: {
     IconButton: defineAsyncComponent(
       () => import("@/components/ui/buttons/IconButton.vue")
+    ),
+    Tooltip: defineAsyncComponent(
+      () => import("@/components/ui/icons/Tooltip.vue")
     ),
   },
 };
@@ -155,13 +236,50 @@ export default {
   margin: 0 auto;
 }
 
+.tabs-wrap {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  max-width: 228px;
+  width: 100%;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: rgba(16, 18, 23, 0.6);
+  backdrop-filter: blur(20px);
+}
+
+.tabs-item {
+  max-width: 72px;
+  width: 100%;
+  height: 36px;
+  border: none;
+  outline: transparent;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.tab-active {
+  border-radius: 8px;
+  background: rgba(111, 111, 111, 0.12);
+  object-fit: cover;
+}
+
+.tab-icon {
+  width: 24px;
+  height: 24px;
+}
+
 .withdraw-button {
   border: none;
   outline: none;
   width: max-content;
-  padding: 0 10px;
   border-radius: 10px;
-  background: rgb(252, 253, 2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -172,18 +290,16 @@ export default {
   transition: all 0.3s ease;
   cursor: pointer;
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 67px;
+  right: 24px;
   transition: all 0.3s ease;
 
   &:hover {
-    top: 6px;
     background: #fcfc06;
     opacity: 0.8;
   }
 
   &:active {
-    top: 8px;
     background: #fcfc06;
     opacity: 0.8;
   }
@@ -372,5 +488,28 @@ export default {
 
 .item-amount {
   color: white;
+}
+
+.empty {
+  font-size: 20px;
+  height: 92px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.total-wrap {
+  display: flex;
+  justify-content: space-between;
+}
+
+.total-title {
+  gap: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.total-value {
+  font-weight: 500;
 }
 </style>
