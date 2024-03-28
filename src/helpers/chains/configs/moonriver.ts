@@ -1,28 +1,32 @@
 import { useImage } from "@/helpers/useImage";
 import { moonriver } from "@wagmi/core/chains";
+import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
-export const moonriverConfig = {
+const http = [
+  moonriver.rpcUrls.default.http[0],
+  "https://moonriver-rpc.publicnode.com	",
+  "https://rpc.api.moonriver.moonbeam.network",
+  "https://moonriver.public.blastapi.io",
+  "https://moonriver-rpc.dwellir.com",
+];
+
+const viemConfig = {
   ...moonriver,
   rpcUrls: {
     public: {
-      http: [
-        moonriver.rpcUrls.default.http[0],
-        "https://moonriver-rpc.publicnode.com	",
-        "https://moonriver.api.onfinality.io/ublic",
-        "https://moonriver.public.blastapi.io",
-        "https://moonriver-rpc.dwellir.com",
-      ],
+      http,
     },
     default: {
-      http: [
-        moonriver.rpcUrls.default.http[0],
-        "https://moonriver-rpc.publicnode.com	",
-        "https://moonriver.api.onfinality.io/ublic",
-        "https://moonriver.public.blastapi.io",
-        "https://moonriver-rpc.dwellir.com",
-      ],
+      http,
     },
   },
+};
+
+const publicClient = initPublicClient(viemConfig);
+
+export const moonriverConfig = {
+  publicClient,
+  viemConfig: viemConfig,
   chainId: moonriver.id,
   chainName: "Moonriver",
   symbol: "Moonriver",
