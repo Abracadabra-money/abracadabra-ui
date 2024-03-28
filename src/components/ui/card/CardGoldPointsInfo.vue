@@ -118,6 +118,15 @@
         </div>
       </li>
     </ul>
+
+    <div class="line"></div>
+
+    <div class="total-wrap">
+      <span class="total-title"
+        >Total pending <Tooltip :tooltip="'tooltip'" :width="20" :height="20"
+      /></span>
+      <span class="total-value">99999</span>
+    </div>
   </div>
 </template>
 
@@ -248,9 +257,6 @@ export default {
 .tab-icon {
   width: 24px;
   height: 24px;
-}
-
-.gold {
 }
 
 .label {
@@ -421,6 +427,21 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.total-wrap {
+  display: flex;
+  justify-content: space-between;
+}
+
+.total-title {
+  gap: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.total-value {
+  font-weight: 500;
 }
 
 @media screen and (max-width: 600px) {

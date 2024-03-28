@@ -2,6 +2,39 @@
   <div :class="['card', { gold: pointsInfo?.isGold }]">
     <div class="label">{{ pointsInfo.label }}</div>
 
+    <div class="tabs-wrap" v-if="isTabs">
+      <button
+        :class="['tabs-item', { 'tab-active': activeTab === 1 }]"
+        @click="changeTab(1)"
+      >
+        <img
+          class="tab-icon"
+          src="@/assets/images/points-dashboard/blast.png"
+          alt=""
+        />
+      </button>
+      <button
+        :class="['tabs-item', { 'tab-active': activeTab === 2 }]"
+        @click="changeTab(2)"
+      >
+        <img
+          class="tab-icon"
+          src="@/assets/images/points-dashboard/gold-points.svg"
+          alt=""
+        />
+      </button>
+      <button
+        :class="['tabs-item', { 'tab-active': activeTab === 3 }]"
+        @click="changeTab(3)"
+      >
+        <img
+          class="tab-icon"
+          src="@/assets/images/points-dashboard/potion.png"
+          alt=""
+        />
+      </button>
+    </div>
+
     <IconButton
       v-if="showWithdrawButton"
       class="withdraw-button"
@@ -90,6 +123,15 @@
         </div>
       </li>
     </ul>
+
+    <div class="line"></div>
+
+    <div class="total-wrap">
+      <span class="total-title"
+        >Total pending <Tooltip :tooltip="'tooltip'" :width="20" :height="20"
+      /></span>
+      <span class="total-value">99999</span>
+    </div>
   </div>
 </template>
 
@@ -102,13 +144,15 @@ export default {
   emits: ["showWithdrawPopup"],
   props: {
     pointsInfo: {} as any,
-
     gold: {
       type: Boolean,
       default: false,
     },
-
     withdrawLogic: {
+      type: Boolean,
+      default: false,
+    },
+    isTabs: {
       type: Boolean,
       default: false,
     },
@@ -117,6 +161,7 @@ export default {
   data() {
     return {
       showWithdrawPopup: false,
+      activeTab: 1,
     };
   },
   computed: {
@@ -129,14 +174,22 @@ export default {
     getChainIcon,
     formatTokenBalance,
     formatUSD,
+
     onWithdraw() {
       this.$emit("showWithdrawPopup");
+    },
+
+    changeTab(tab: number) {
+      this.activeTab = tab;
     },
   },
 
   components: {
     IconButton: defineAsyncComponent(
       () => import("@/components/ui/buttons/IconButton.vue")
+    ),
+    Tooltip: defineAsyncComponent(
+      () => import("@/components/ui/icons/Tooltip.vue")
     ),
   },
 };
@@ -153,6 +206,45 @@ export default {
   backdrop-filter: blur(12.5px);
   border: 1px solid #fcfd02;
   margin: 0 auto;
+}
+
+.tabs-wrap {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  max-width: 228px;
+  width: 100%;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: rgba(16, 18, 23, 0.6);
+  backdrop-filter: blur(20px);
+}
+
+.tabs-item {
+  max-width: 72px;
+  width: 100%;
+  height: 36px;
+  border: none;
+  outline: transparent;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.tab-active {
+  border-radius: 8px;
+  background: rgba(111, 111, 111, 0.12);
+  object-fit: cover;
+}
+
+.tab-icon {
+  width: 24px;
+  height: 24px;
 }
 
 .withdraw-button {
@@ -172,8 +264,8 @@ export default {
   transition: all 0.3s ease;
   cursor: pointer;
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 67px;
+  right: 24px;
   transition: all 0.3s ease;
 
   &:hover {
@@ -372,5 +464,20 @@ export default {
 
 .item-amount {
   color: white;
+}
+
+.total-wrap {
+  display: flex;
+  justify-content: space-between;
+}
+
+.total-title {
+  gap: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.total-value {
+  font-weight: 500;
 }
 </style>

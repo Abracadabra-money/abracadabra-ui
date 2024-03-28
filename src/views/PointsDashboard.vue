@@ -66,6 +66,7 @@
         <CardPointsInfo
           :pointsInfo="llePointsInfo"
           :withdrawLogic="true"
+          isTabs
           @showWithdrawPopup="showWithdrawPopup = true"
         />
         <CardGoldPointsInfo :pointsInfo="goldPointsInfo" />
