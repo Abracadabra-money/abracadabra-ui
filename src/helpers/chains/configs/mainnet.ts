@@ -1,34 +1,34 @@
+import { RPC_ETH } from "@/constants/rpc";
 import { mainnet } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
-import { RPC_ETH } from "@/constants/rpc";
+import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
-const config = JSON.parse(JSON.stringify(mainnet));
-config.rpcUrls.default.http = [RPC_ETH];
-config.rpcUrls.public.http = [RPC_ETH];
+const http = [
+  RPC_ETH,
+  "https://eth.llamarpc.com",
+  "https://ethereum-rpc.publicnode.com	",
+  "https://eth.drpc.org",
+  "https://rpc.ankr.com/eth",
+];
 
-export const mainnetConfig = {
-  ...config,
+const viemConfig = {
+  ...mainnet,
   rpcUrls: {
     public: {
-      http: [
-        "https://eth.llamarpc.com",
-        RPC_ETH,
-        "https://ethereum-rpc.publicnode.com	",
-        "https://eth.drpc.org",
-        "https://rpc.ankr.com/eth",
-      ],
+      http,
     },
     default: {
-      http: [
-        RPC_ETH,
-        "https://eth.llamarpc.com",
-        "https://ethereum-rpc.publicnode.com	",
-        "https://eth.drpc.org",
-        "https://rpc.ankr.com/eth",
-      ],
+      http,
     },
   },
-  chainId: config.id,
+};
+
+const publicClient = initPublicClient(viemConfig);
+
+export const mainnetConfig = {
+  publicClient,
+  viemConfig: viemConfig,
+  chainId: mainnet.id,
   chainName: "Ethereum",
   symbol: "ETH",
   icon: useImage("assets/images/networks/ethereum-icon.svg"),

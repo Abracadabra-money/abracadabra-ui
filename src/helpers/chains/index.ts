@@ -31,7 +31,7 @@ import {
 } from "@/constants/rpc";
 
 export const chains = [
-  mainnetConfig,
+  mainnetConfig.viemConfig,
   arbitrumConfig,
   blastConfig,
   kavaConfig,
@@ -48,7 +48,7 @@ export const chains = [
 ];
 
 export const chainsList = {
-  1: mainnetConfig,
+  1: mainnetConfig.viemConfig,
   10: optimismConfig,
   56: binanceConfig,
   137: polygonConfig,
