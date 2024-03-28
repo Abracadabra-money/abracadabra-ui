@@ -66,6 +66,7 @@
         <CardPointsInfo
           :pointsInfo="llePointsInfo"
           :withdrawLogic="true"
+          isTabs
           @showWithdrawPopup="showWithdrawPopup = true"
         />
         <CardGoldPointsInfo :pointsInfo="goldPointsInfo" />
@@ -134,6 +135,8 @@ export default {
         label: "Cauldron User",
         title: "WETH cauldron",
         subtitle: "Deposited WETH into Cauldron",
+        rateText: "Cauldron Rate",
+        rateTooltip: "Hourly distribution towards the Cauldron Users",
         icon: useImage("assets/images/tokens/WETH.png"),
         deposited: this.cauldronInfo?.userPosition?.collateralDeposited || 0,
         depositedUsd:
@@ -142,13 +145,17 @@ export default {
           this.userPointsStatistics?.liquidityPoints?.cauldron?.finalized ?? 0,
         pendingDistributionAmount:
           this.userPointsStatistics?.liquidityPoints?.cauldron?.pending ?? 0,
+        totalPending:
+          this.pointsStatistics?.liquidityPoints?.cauldron?.total?.pending ?? 0,
       };
     },
 
     llePointsInfo() {
-      const deposited = +formatUnits(
-        this.stakeLpBalances.unlocked || 0n,
-        this.poolInfo?.decimals || 18
+      const deposited = Number(
+        formatUnits(
+          this.stakeLpBalances.unlocked + this.stakeLpBalances.locked || 0n,
+          this.poolInfo?.decimals || 18
+        )
       );
 
       const depositedUsd = deposited * this.poolInfo?.price || 0;
@@ -158,13 +165,24 @@ export default {
         label: "Liquidity Provider",
         title: "MIM / USDB Pool",
         subtitle: "Staking Liquidity in Pool",
+        rateText: "Pool Rate",
+        rateTooltip: "Hourly distribution towards the entire liquidity pool",
         icon: useImage("assets/images/tokens/MIM-USDB.png"),
+        unlockedAmount: this.stakeLpBalances.unlocked,
         deposited,
         depositedUsd,
         distributionAmount:
           this.userPointsStatistics?.liquidityPoints?.lp?.finalized ?? 0,
         pendingDistributionAmount:
           this.userPointsStatistics?.liquidityPoints?.lp?.pending ?? 0,
+        goldDistributionAmount:
+          this.userPointsStatistics?.developerPoints?.lp?.finalized ?? 0,
+        goldPendingDistributionAmount:
+          this.userPointsStatistics?.developerPoints?.lp?.pending ?? 0,
+        totalPendingDistributionAmount:
+          this.pointsStatistics?.liquidityPoints?.lp?.total?.pending ?? 0,
+        totalGoldPendingDistributionAmount:
+          this.pointsStatistics?.developerPoints?.lp?.total?.pending ?? 0,
       };
     },
 
@@ -182,6 +200,8 @@ export default {
         label: "Founder Boost",
         title: "MIM / USDB Pool",
         subtitle: "Receive 20% of total ecosystem points",
+        rateText: "Founder Rate",
+        rateTooltip: "Hourly distribution towards the Founders",
         icon: useImage("assets/images/tokens/MIM-USDB.png"),
         deposited,
         depositedUsd,
@@ -193,6 +213,10 @@ export default {
           this.userPointsStatistics?.developerPoints?.founder?.finalized ?? 0,
         goldPendingDistributionAmount:
           this.userPointsStatistics?.developerPoints?.founder?.pending ?? 0,
+        totalPendingDistributionAmount:
+          this.pointsStatistics?.liquidityPoints?.founder?.total?.pending ?? 0,
+        totalGoldPendingDistributionAmount:
+          this.pointsStatistics?.developerPoints?.founder?.total?.pending ?? 0,
       };
     },
   },
@@ -295,8 +319,6 @@ export default {
         fetchPointsStatistics(),
         fetchUserPointsStatistics(this.account),
       ]);
-
-      console.log("this.userPointsStatistics", this.userPointsStatistics);
     },
   },
 
