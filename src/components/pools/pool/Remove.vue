@@ -53,31 +53,7 @@
             </span>
           </div>
         </div>
-
-        <!-- <div class="tag">
-          <span class="title">APR</span>
-          <span class="value apr"> 102.21% </span>
-        </div> -->
       </div>
-
-      <!-- <div class="info-block swap">
-        <div class="tag">
-          <span class="title">Current Price</span>
-          <CurrentPrice
-            :fromToken="pool.tokens.baseToken"
-            :toToken="pool.tokens.quoteToken"
-          />
-        </div>
-
-        <div class="tag">
-          <span class="title">Network Fee</span>
-
-          <span class="value">
-            <img class="gas-icon" src="@/assets/images/gas.svg" />
-            $0.01
-          </span>
-        </div>
-      </div> -->
     </div>
 
     <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
@@ -349,9 +325,6 @@ export default {
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")
     ),
-    // CurrentPrice: defineAsyncComponent(() =>
-    //   import("@/components/pools/CurrentPrice.vue")
-    // ),
   },
 };
 </script>

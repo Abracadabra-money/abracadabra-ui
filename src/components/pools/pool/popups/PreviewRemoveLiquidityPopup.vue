@@ -2,7 +2,7 @@
   <div class="backdrop" @click.self="closePopup">
     <div class="preview-popup">
       <div class="header">
-        <h3 class="title"><Pic></Pic>review</h3>
+        <h3 class="title">Remove review</h3>
         <img
           class="close-img"
           src="@/assets/images/cross.svg"
@@ -14,6 +14,25 @@
       <div class="preview-tokens-wrap">
         <div class="token-info-wrap">
           <div class="tokenIcon">
+            <BaseTokenIcon :icon="pool.icon" :name="pool.name" size="60px" />
+          </div>
+          <div class="token-value">
+            {{ formatTokenBalance(previewInfo.lpAmount, pool.decimals) }}
+          </div>
+        </div>
+
+        <IconButton
+          class="icon-button"
+          arrowRight
+          active
+          disable
+          :width="40"
+          :height="40"
+          borderRadius="16px"
+        />
+
+        <div class="token-info-wrap">
+          <div class="tokenIcon">
             <BaseTokenIcon
               :icon="pool.tokens.baseToken.config.icon"
               :name="pool.tokens.baseToken.config.name"
@@ -23,7 +42,7 @@
           <div class="token-value">
             {{
               formatTokenBalance(
-                previewInfo.baseAdjustedInAmount,
+                previewInfo.baseTokenAmount,
                 pool.tokens.baseToken.config.decimals
               )
             }}
@@ -51,53 +70,32 @@
           <div class="token-value">
             {{
               formatTokenBalance(
-                previewInfo.quoteAdjustedInAmount,
+                previewInfo.quoteTokenAmount,
                 pool.tokens.quoteToken.config.decimals
               )
             }}
           </div>
         </div>
-
-        <IconButton
-          class="icon-button"
-          arrowRight
-          active
-          disable
-          :width="40"
-          :height="40"
-          borderRadius="16px"
-        />
-
-        <div class="token-info-wrap">
-          <div class="tokenIcon">
-            <BaseTokenIcon :icon="pool.icon" :name="pool.name" size="60px" />
-          </div>
-          <div class="token-value">
-            {{ formatTokenBalance(previewInfo.shares, pool.decimals) }}
-          </div>
-        </div>
       </div>
 
-      <div class="info-block swap">
-        <div class="tag">
-          <span class="title">Current Price</span>
-          <CurrentPrice
-            :fromToken="pool.tokens.baseToken"
-            :toToken="pool.tokens.quoteToken"
-          />
-        </div>
+      <div class="flow-wrap">
+        <FlowBlock :stepNumber="1" isApprove :status="getApprovingStatus()">
+          Allowance
+        </FlowBlock>
 
-        <!-- <div class="tag">
-          <span class="title">Network Fee</span>
-
-          <span class="value">
-            <img class="gas-icon" src="@/assets/images/gas.svg" />
-            $0.01
-          </span>
-        </div> -->
+        <FlowBlock :stepNumber="2" :status="transactionStatus" final>
+          Remove
+        </FlowBlock>
       </div>
 
-      <BaseButton primary @click="$emit('deposit')"> Confirm </BaseButton>
+      <BaseButton
+        class="action-button"
+        primary
+        @click="actionHandler"
+        :disabled="isActionProcessing"
+      >
+        {{ buttonText }}
+      </BaseButton>
     </div>
   </div>
 </template>
@@ -106,6 +104,7 @@
 import { defineAsyncComponent } from "vue";
 import { formatUnits } from "viem";
 import { formatTokenBalance } from "@/helpers/filters";
+import { actionStatus } from "@/components/pools/pool/PoolActionBlock.vue";
 
 export default {
   props: {
@@ -116,10 +115,29 @@ export default {
     previewInfo: {
       type: Object,
     },
+
+    isActionProcessing: {
+      type: Boolean,
+      default: false,
+    },
+
+    transactionStatus: {
+      type: String,
+      default: actionStatus.WAITING,
+    },
   },
 
-  data() {
-    return {};
+  computed: {
+    isApproved() {
+      return this.pool.userInfo.allowance >= this.previewInfo.lpAmount;
+    },
+
+    buttonText() {
+      if (this.transactionStatus == actionStatus.SUCCESS) return "Close popup";
+      if (this.isActionProcessing) return "Processing...";
+      if (!this.isApproved) return `Approve`;
+      return "Remove";
+    },
   },
 
   methods: {
@@ -131,9 +149,24 @@ export default {
       return formatTokenBalance(value);
     },
 
-    confirmTransaction() {
-      this.$emit("deposit");
-      this.closePopup();
+    getApprovingStatus() {
+      if (!this.isApproved && this.isActionProcessing)
+        return actionStatus.PENDING;
+
+      if (this.isApproved) return actionStatus.SUCCESS;
+
+      return actionStatus.WAITING;
+    },
+
+    actionHandler() {
+      if (this.isActionProcessing) return false;
+
+      if (this.transactionStatus == actionStatus.SUCCESS)
+        return this.closePopup();
+
+      if (!this.isApproved) return this.$emit("approve");
+
+      this.$emit("remove");
     },
 
     closePopup() {
@@ -142,9 +175,6 @@ export default {
   },
 
   components: {
-    CurrentPrice: defineAsyncComponent(() =>
-      import("@/components/pools/CurrentPrice.vue")
-    ),
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")
     ),
@@ -153,6 +183,9 @@ export default {
     ),
     IconButton: defineAsyncComponent(() =>
       import("@/components/ui/buttons/IconButton.vue")
+    ),
+    FlowBlock: defineAsyncComponent(() =>
+      import("@/components/pools/pool/FlowBlock.vue")
     ),
   },
 };
@@ -271,5 +304,34 @@ export default {
 
 .icon-button {
   margin-bottom: 25px;
+}
+
+.flow-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.action-button {
+  margin-top: auto;
+}
+
+@media (max-width: 600px) {
+  .backdrop {
+    padding: 0;
+  }
+
+  .preview-popup {
+    max-width: 100%;
+    height: 100%;
+    border-radius: 0;
+  }
+
+  .flow-wrap {
+    flex-direction: column;
+    align-items: start;
+    height: 237px;
+  }
 }
 </style>
