@@ -1,28 +1,32 @@
 import { fantom } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
+import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
-export const fantomConfig = {
+const http = [
+  fantom.rpcUrls.default.http[0],
+  "https://1rpc.io/ftm",
+  "https://fantom-rpc.publicnode.com",
+  "https://rpcapi.fantom.network",
+  "https://fantom-mainnet.public.blastapi.io",
+];
+
+const viemConfig = {
   ...fantom,
   rpcUrls: {
     public: {
-      http: [
-        fantom.rpcUrls.default.http[0],
-        "https://1rpc.io/ftm",
-        "https://fantom-rpc.publicnode.com",
-        "https://rpcapi.fantom.network",
-        "https://fantom-mainnet.public.blastapi.io",
-      ],
+      http,
     },
     default: {
-      http: [
-        fantom.rpcUrls.default.http[0],
-        "https://1rpc.io/ftm",
-        "https://fantom-rpc.publicnode.com",
-        "https://rpcapi.fantom.network",
-        "https://fantom-mainnet.public.blastapi.io",
-      ],
+      http,
     },
   },
+};
+
+const publicClient = initPublicClient(viemConfig);
+
+export const fantomConfig = {
+  publicClient,
+  viemConfig: viemConfig,
   chainId: fantom.id,
   chainName: "Fantom",
   symbol: "FTM",
