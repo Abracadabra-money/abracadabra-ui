@@ -1,23 +1,22 @@
 import { useImage } from "@/helpers/useImage";
+import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
-export const berachainConfig = {
+const http = [
+  "https://artio.rpc.berachain.com/",
+  "https://rpc.ankr.com/berachain_testnet",
+];
+
+const viemConfig = {
   id: 80085,
-  chainId: 80085,
   name: "Berachain Artio",
   network: "berachain-testnet",
   nativeCurrency: { name: "BERA", symbol: "BERA", decimals: 18 },
   rpcUrls: {
     public: {
-      http: [
-        "https://artio.rpc.berachain.com/",
-        "https://rpc.ankr.com/berachain_testnet",
-      ],
+      http,
     },
     default: {
-      http: [
-        "https://artio.rpc.berachain.com/",
-        "https://rpc.ankr.com/berachain_testnet",
-      ],
+      http,
     },
   },
   blockExplorers: {
@@ -30,10 +29,19 @@ export const berachainConfig = {
   //       blockCreated: 5022,
   //     },
   //   },
-  symbol: "BERA",
+};
+
+const publicClient = initPublicClient(viemConfig);
+
+export const berachainConfig = {
+  publicClient,
+  viemConfig: viemConfig,
+  chainId: 80085,
   chainName: "Berachain Artio",
+  symbol: "BERA",
   icon: useImage("assets/images/networks/bera.png"),
   baseTokenIcon: useImage("assets/images/tokens/ETH.png"),
+  baseTokenSymbol: "BERA",
   networkIcon: useImage(`assets/images/networks/bera.png`),
   //   lzChainId: 184,
 };
