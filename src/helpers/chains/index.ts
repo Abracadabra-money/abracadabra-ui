@@ -38,7 +38,7 @@ export const chains = [
   avalancheConfig.viemConfig,
   optimismConfig.viemConfig,
   fantomConfig,
-  binanceConfig,
+  binanceConfig.viemConfig,
   polygonConfig,
   moonriverConfig,
   baseConfig,
@@ -50,7 +50,7 @@ export const chains = [
 export const chainsList = {
   1: mainnetConfig.viemConfig,
   10: optimismConfig.viemConfig,
-  56: binanceConfig,
+  56: binanceConfig.viemConfig,
   137: polygonConfig,
   250: fantomConfig,
   1285: moonriverConfig,
