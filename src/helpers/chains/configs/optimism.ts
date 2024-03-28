@@ -1,30 +1,32 @@
 import { optimism } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
+import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
-console.log("1111", optimism.rpcUrls.default.http[0]);
+const http = [
+  "https://optimism.llamarpc.com",
+  optimism.rpcUrls.default.http[0],
+  "https://optimism-mainnet.public.blastapi.io",
+  "https://rpc.ankr.com/optimism",
+  "https://1rpc.io/op",
+];
 
-export const optimismConfig = {
+const viemConfig = {
   ...optimism,
   rpcUrls: {
     public: {
-      http: [
-        optimism.rpcUrls.default.http[0],
-        "https://optimism.llamarpc.com",
-        "https://optimism-mainnet.public.blastapi.io",
-        "https://rpc.ankr.com/optimism",
-        "https://1rpc.io/op",
-      ],
+      http,
     },
     default: {
-      http: [
-        optimism.rpcUrls.default.http[0],
-        "https://optimism.llamarpc.com",
-        "https://optimism-mainnet.public.blastapi.io",
-        "https://rpc.ankr.com/optimism",
-        "https://1rpc.io/op",
-      ],
+      http,
     },
   },
+};
+
+const publicClient = initPublicClient(viemConfig);
+
+export const optimismConfig = {
+  publicClient,
+  viemConfig: viemConfig,
   chainId: optimism.id,
   chainName: "Optimism",
   symbol: "OP",

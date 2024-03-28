@@ -35,8 +35,8 @@ export const chains = [
   arbitrumConfig.viemConfig,
   blastConfig,
   kavaConfig,
-  avalancheConfig,
-  optimismConfig,
+  avalancheConfig.viemConfig,
+  optimismConfig.viemConfig,
   fantomConfig,
   binanceConfig,
   polygonConfig,
@@ -49,7 +49,7 @@ export const chains = [
 
 export const chainsList = {
   1: mainnetConfig.viemConfig,
-  10: optimismConfig,
+  10: optimismConfig.viemConfig,
   56: binanceConfig,
   137: polygonConfig,
   250: fantomConfig,
@@ -57,7 +57,7 @@ export const chainsList = {
   2222: kavaConfig,
   8453: baseConfig,
   42161: arbitrumConfig.viemConfig,
-  43114: avalancheConfig,
+  43114: avalancheConfig.viemConfig,
   59144: lineaConfig,
   80085: berachainConfig,
   81457: blastConfig,
