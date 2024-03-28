@@ -1,28 +1,32 @@
 import { polygon } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
+import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
-export const polygonConfig = {
+const http = [
+  polygon.rpcUrls.default.http[0],
+  "https://polygon.llamarpc.com",
+  "https://endpoints.omniatech.io/v1/matic/mainnet/public",
+  "https://rpc-mainnet.maticvigil.com",
+  "https://polygon-rpc.com",
+];
+
+const viemConfig = {
   ...polygon,
   rpcUrls: {
     public: {
-      http: [
-        polygon.rpcUrls.default.http[0],
-        "https://polygon.llamarpc.com",
-        "https://endpoints.omniatech.io/v1/matic/mainnet/public",
-        "https://rpc-mainnet.maticvigil.com",
-        "https://polygon-rpc.com",
-      ],
+      http,
     },
     default: {
-      http: [
-        polygon.rpcUrls.default.http[0],
-        "https://polygon.llamarpc.com",
-        "https://endpoints.omniatech.io/v1/matic/mainnet/public",
-        "https://rpc-mainnet.maticvigil.com",
-        "https://polygon-rpc.com",
-      ],
+      http,
     },
   },
+};
+
+const publicClient = initPublicClient(viemConfig);
+
+export const polygonConfig = {
+  publicClient,
+  viemConfig: viemConfig,
   chainId: polygon.id,
   chainName: "MATIC",
   symbol: "MATIC",
