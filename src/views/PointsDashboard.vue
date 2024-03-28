@@ -153,7 +153,7 @@ export default {
     llePointsInfo() {
       const deposited = Number(
         formatUnits(
-          this.stakeLpBalances.unlocked + this.stakeLpBalances.unlocked || 0n,
+          this.stakeLpBalances.unlocked + this.stakeLpBalances.locked || 0n,
           this.poolInfo?.decimals || 18
         )
       );
