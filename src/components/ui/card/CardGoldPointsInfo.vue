@@ -102,7 +102,7 @@
 
       <li class="list-item">
         <div :class="['item-title', 'gold-title']">
-          To Be Distributed
+          Your Next Distribution
           <span class="boost" v-if="pointsInfo.isGold">
             <img
               v-tooltip="
@@ -123,14 +123,18 @@
 
     <div class="total-wrap">
       <span class="total-title"
-        >Total pending <Tooltip :tooltip="'tooltip'" :width="20" :height="20"
+        >{{ pointsInfo.rateText }}
+        <Tooltip :tooltip="pointsInfo.rateTooltip" :width="20" :height="20"
       /></span>
-      <span class="total-value">99999</span>
+      <span class="total-value">{{
+        formatTokenBalance(pointsInfo.totalPending)
+      }}</span>
     </div>
   </div>
 </template>
 
 <script lang="ts">
+import { defineAsyncComponent } from "vue";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 
@@ -185,6 +189,12 @@ export default {
     changeTab(tab: number) {
       this.activeTab = tab;
     },
+  },
+
+  components: {
+    Tooltip: defineAsyncComponent(
+      () => import("@/components/ui/icons/Tooltip.vue")
+    ),
   },
 };
 </script>

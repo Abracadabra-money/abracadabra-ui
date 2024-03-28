@@ -97,9 +97,11 @@
 
     <div class="line"></div>
 
-    <ul class="list">
+    <div class="empty" v-if="activeTab === 3">Coming soon</div>
+
+    <ul class="list" v-else>
       <li class="list-item">
-        <div class="item-title">Points Earned</div>
+        <div class="item-title">{{ cardText }}</div>
         <div class="item-value">
           <div class="item-amount">
             {{ formatTokenBalance(pointsInfo.distributionAmount) }}
@@ -109,7 +111,7 @@
 
       <li class="list-item">
         <div :class="['item-title', { 'gold-title': pointsInfo.isGold }]">
-          To Be Distributed
+          Your Next Distribution
           <span class="boost" v-if="pointsInfo.isGold">
             <img
               v-tooltip="'Boosted Airdrop for Founders'"
@@ -128,9 +130,12 @@
 
     <div class="total-wrap">
       <span class="total-title"
-        >Total pending <Tooltip :tooltip="'tooltip'" :width="20" :height="20"
+        >{{ pointsInfo.rateText }}
+        <Tooltip :tooltip="pointsInfo.rateTooltip" :width="20" :height="20"
       /></span>
-      <span class="total-value">99999</span>
+      <span class="total-value">{{
+        formatTokenBalance(pointsInfo.totalPending)
+      }}</span>
     </div>
   </div>
 </template>
@@ -167,6 +172,11 @@ export default {
   computed: {
     showWithdrawButton() {
       return this.withdrawLogic && this.pointsInfo?.deposited > 0;
+    },
+
+    cardText() {
+      if (this.activeTab === 2) return "Gold earned ";
+      return "Points";
     },
   },
 
@@ -464,6 +474,14 @@ export default {
 
 .item-amount {
   color: white;
+}
+
+.empty {
+  font-size: 20px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .total-wrap {
