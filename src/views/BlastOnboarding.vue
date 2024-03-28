@@ -121,7 +121,7 @@ export default {
     }),
 
     totalDistributedPoints() {
-      return this.formatAmount(this.pointsStatistics?.total);
+      return this.formatAmount(this.pointsStatistics?.liquidityPoints?.total?.finalized);
     },
   },
 
@@ -216,10 +216,10 @@ export default {
         data: stakeInfo,
       };
 
-      this.userPointsEarned = (
-        await fetchUserPointsStatistics(this.account)
-      ).total;
-      this.pointsStatistics = await fetchPointsStatistics();
+      [this.userPointsEarned, this.pointsStatistics] = await Promise.all([
+        fetchUserPointsStatistics(this.account).then(({ liquidityPoints }) => liquidityPoints.total.finalized),
+        fetchPointsStatistics(),
+      ]);
     },
   },
 

@@ -11,6 +11,7 @@
       src="@/assets/images/main-mim-bottom-bg.png"
       alt="Mim"
     />
+    <LiquidityLaunchEventBanner />
     <router-view />
   </div>
   <NotificationContainer />
@@ -114,6 +115,8 @@ export default {
     TenderlyMod: defineAsyncComponent(() =>
       import("@/components/tenderly/TenderlyMod.vue")
     ),
+    LiquidityLaunchEventBanner:defineAsyncComponent(()=>import("@/components/blastOnboarding/LiquidityLaunchEventBanner.vue"))
+    
   },
 };
 </script>
