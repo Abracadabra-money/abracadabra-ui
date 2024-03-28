@@ -32,7 +32,7 @@ import {
 
 export const chains = [
   mainnetConfig.viemConfig,
-  arbitrumConfig,
+  arbitrumConfig.viemConfig,
   blastConfig,
   kavaConfig,
   avalancheConfig,
@@ -56,7 +56,7 @@ export const chainsList = {
   1285: moonriverConfig,
   2222: kavaConfig,
   8453: baseConfig,
-  42161: arbitrumConfig,
+  42161: arbitrumConfig.viemConfig,
   43114: avalancheConfig,
   59144: lineaConfig,
   80085: berachainConfig,

@@ -1,28 +1,32 @@
 import { arbitrum } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
+import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
-export const arbitrumConfig = {
+const http = [
+  arbitrum.rpcUrls.default.http[0],
+  "https://arbitrum.llamarpc.com",
+  "https://arbitrum-one.publicnode.com",
+  "https://1rpc.io/arb",
+  "https://arbitrum-one.public.blastapi.io",
+];
+
+const viemConfig = {
   ...arbitrum,
   rpcUrls: {
     public: {
-      http: [
-        arbitrum.rpcUrls.default.http[0],
-        "https://arbitrum.llamarpc.com",
-        "https://arbitrum-one.publicnode.com",
-        "https://1rpc.io/arb",
-        "https://arbitrum-one.public.blastapi.io",
-      ],
+      http,
     },
     default: {
-      http: [
-        arbitrum.rpcUrls.default.http[0],
-        "https://arbitrum.llamarpc.com",
-        "https://arbitrum-one.publicnode.com",
-        "https://1rpc.io/arb",
-        "https://arbitrum-one.public.blastapi.io",
-      ],
+      http,
     },
   },
+};
+
+const publicClient = initPublicClient(viemConfig);
+
+export const arbitrumConfig = {
+  publicClient,
+  viemConfig: viemConfig,
   chainId: arbitrum.id,
   chainName: "Arbitrum",
   symbol: "AETH",
