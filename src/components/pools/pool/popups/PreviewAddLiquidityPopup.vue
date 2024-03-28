@@ -13,7 +13,7 @@
 
       <div class="preview-tokens-wrap">
         <div class="token-info-wrap">
-          <div class="tokenIcon">
+          <div class="token-icon-wrap">
             <BaseTokenIcon
               :icon="tokensSortedByApprove[0].config.icon"
               :name="tokensSortedByApprove[0].config.name"
@@ -43,7 +43,7 @@
         </div>
 
         <div class="token-info-wrap">
-          <div class="tokenIcon">
+          <div class="token-icon-wrap">
             <BaseTokenIcon
               :icon="tokensSortedByApprove[1].config.icon"
               :name="tokensSortedByApprove[1].config.name"
@@ -73,7 +73,7 @@
         </div>
 
         <div class="token-info-wrap">
-          <div class="tokenIcon">
+          <div class="token-icon-wrap">
             <BaseTokenIcon :icon="pool.icon" :name="pool.name" size="60px" />
           </div>
           <div class="token-value">
@@ -346,15 +346,14 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  flex-grow: 1;
+  gap: 4px;
 }
 
-.token-icon {
+.token-icon-wrap {
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 8px;
-  margin-right: 0;
   border-radius: 20px;
   border: 1px solid rgba(45, 74, 150, 0);
   background: linear-gradient(
@@ -363,6 +362,10 @@ export default {
     rgba(116, 92, 210, 0.2) 100%
   );
   box-shadow: 0px 4px 29.4px 0px rgba(85, 82, 253, 0.24);
+}
+
+.token-icon {
+  margin-right: 0;
 }
 
 .icon-button-wrap {
