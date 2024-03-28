@@ -59,17 +59,6 @@
     <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
       {{ buttonText }}
     </BaseButton>
-
-    <PreviewRemoveLiquidityPopup
-      v-if="isPreviewPopupOpened"
-      :pool="pool"
-      :previewInfo="previewPopupInfo"
-      :isActionProcessing="isActionProcessing"
-      :transactionStatus="transactionStatus"
-      @approve="approveHandler"
-      @remove="removeHandler"
-      @close="closePreviewPopup"
-    />
   </div>
 </template>
 
@@ -87,7 +76,6 @@ import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut"
 import { removeLiquidity } from "@/helpers/pools/swap/actions/removeLiquidity";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
-import { actionStatus } from "@/components/pools/pool/PoolActionBlock.vue";
 
 export default {
   props: {
@@ -103,8 +91,6 @@ export default {
       inputAmount: 0n,
       inputValue: "",
       isActionProcessing: false,
-      isPreviewPopupOpened: false,
-      transactionStatus: actionStatus.WAITING,
     };
   },
 
@@ -135,14 +121,6 @@ export default {
       );
 
       return previewRemoveLiquidityResult;
-    },
-
-    previewPopupInfo() {
-      return {
-        lpAmount: this.inputAmount,
-        baseTokenAmount: this.previewRemoveLiquidityResult.baseAmountOut,
-        quoteTokenAmount: this.previewRemoveLiquidityResult.quoteAmountOut,
-      };
     },
 
     formattedTokenExpecteds() {
@@ -200,6 +178,7 @@ export default {
       if (this.inputValue == "") return "Enter amount";
 
       if (this.isActionProcessing) return "Processing...";
+      if (!this.isAllowed) return "Approve";
 
       return "Remove";
     },
@@ -242,12 +221,6 @@ export default {
       this.inputAmount = 0n;
     },
 
-    closePreviewPopup() {
-      this.isPreviewPopupOpened = false;
-      this.isActionProcessing = false;
-      this.transactionStatus = actionStatus.WAITING;
-    },
-
     createRemovePayload() {
       const { baseAmountOut, quoteAmountOut } =
         this.previewRemoveLiquidityResult;
@@ -265,8 +238,6 @@ export default {
     },
 
     async approveHandler() {
-      this.isActionProcessing = true;
-
       const notificationId = await this.createNotification(
         notification.approvePending
       );
@@ -287,13 +258,9 @@ export default {
         await this.deleteNotification(notificationId);
         await this.createNotification(errorNotification);
       }
-
-      this.isActionProcessing = false;
     },
 
     async removeHandler() {
-      this.isActionProcessing = true;
-      this.transactionStatus = "pending";
       const notificationId = await this.createNotification(
         notification.pending
       );
@@ -307,13 +274,11 @@ export default {
         );
 
         await this.$emit("updatePoolInfo");
-        this.transactionStatus = "success";
 
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.success);
         this.resetInput();
       } catch (error) {
-        this.transactionStatus = "error";
         console.log("remove liquidity err:", error);
 
         const errorNotification = {
@@ -324,8 +289,6 @@ export default {
         await this.deleteNotification(notificationId);
         await this.createNotification(errorNotification);
       }
-
-      this.isActionProcessing = false;
     },
 
     async actionHandler() {
@@ -336,7 +299,15 @@ export default {
         return this.$openWeb3modal();
       }
 
-      this.isPreviewPopupOpened = true;
+      this.isActionProcessing = true;
+
+      if (!this.isAllowed) await this.approveHandler();
+
+      await this.removeHandler();
+
+      await this.$emit("updatePoolInfo");
+
+      this.isActionProcessing = false;
     },
 
     formatTokenBalance(value, decimals) {
@@ -353,9 +324,6 @@ export default {
     ),
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")
-    ),
-    PreviewRemoveLiquidityPopup: defineAsyncComponent(() =>
-      import("@/components/pools/pool/popups/PreviewRemoveLiquidityPopup.vue")
     ),
   },
 };
