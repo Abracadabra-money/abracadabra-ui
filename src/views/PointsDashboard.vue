@@ -168,14 +168,21 @@ export default {
         rateText: "Pool Rate",
         rateTooltip: "Hourly distribution towards the entire liquidity pool",
         icon: useImage("assets/images/tokens/MIM-USDB.png"),
+        unlockedAmount: this.stakeLpBalances.unlocked,
         deposited,
         depositedUsd,
         distributionAmount:
           this.userPointsStatistics?.liquidityPoints?.lp?.finalized ?? 0,
         pendingDistributionAmount:
           this.userPointsStatistics?.liquidityPoints?.lp?.pending ?? 0,
-        totalPending:
+        goldDistributionAmount:
+          this.userPointsStatistics?.developerPoints?.lp?.finalized ?? 0,
+        goldPendingDistributionAmount:
+          this.userPointsStatistics?.developerPoints?.lp?.pending ?? 0,
+        totalPendingDistributionAmount:
           this.pointsStatistics?.liquidityPoints?.lp?.total?.pending ?? 0,
+        totalGoldPendingDistributionAmount:
+          this.pointsStatistics?.developerPoints?.lp?.total?.pending ?? 0,
       };
     },
 
@@ -206,8 +213,10 @@ export default {
           this.userPointsStatistics?.developerPoints?.founder?.finalized ?? 0,
         goldPendingDistributionAmount:
           this.userPointsStatistics?.developerPoints?.founder?.pending ?? 0,
-        totalPending:
+        totalPendingDistributionAmount:
           this.pointsStatistics?.liquidityPoints?.founder?.total?.pending ?? 0,
+        totalGoldPendingDistributionAmount:
+          this.pointsStatistics?.developerPoints?.founder?.total?.pending ?? 0,
       };
     },
   },
