@@ -946,7 +946,7 @@ const config: Array<CauldronConfig> = [
     },
     deleverageInfo: {
       address: "0x9beE1Fb5B4137ce17e47c303D3407919cdbec67c",
-      abi: reverseSwapAbi,
+      abi: ConvexWrapperSwapper,
     },
   },
   {
