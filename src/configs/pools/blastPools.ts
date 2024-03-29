@@ -3,6 +3,8 @@ import { useImage } from "@/helpers/useImage";
 import BlastMagicLpAbi from "@/abis/BlastMagicLP";
 import type { PoolConfig } from "@/configs/pools/types";
 
+import BlastLockingMultiRewardsAbi from "@/abis/BlastLockingMultiRewards";
+
 const blastPools: Array<PoolConfig> = [
   {
     id: 1,
@@ -37,8 +39,8 @@ const blastPools: Array<PoolConfig> = [
       isPopular: true,
     },
     lockContract: {
-      address: 0xf1ed28fa139f2df5cf3ed140aa9f803c79554519,
-      abi: [""],
+      address: "0xf1ed28fa139f2df5cf3ed140aa9f803c79554519",
+      abi: BlastLockingMultiRewardsAbi,
     },
     settings: {
       isNew: true,
