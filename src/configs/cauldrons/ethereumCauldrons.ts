@@ -894,7 +894,7 @@ const config: Array<CauldronConfig> = [
       hasAccountBorrowLimit: false,
       hasWithdrawableLimit: false,
       localBorrowAmountLimit: false,
-      hasCrvClaimLogic: true,
+      hasCrvClaimLogic: false,
     },
     contract: {
       name: "PrivilegedCheckpointCauldronV4",
