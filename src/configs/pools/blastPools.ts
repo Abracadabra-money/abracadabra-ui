@@ -36,6 +36,10 @@ const blastPools: Array<PoolConfig> = [
       mainColor: "#FCFC03",
       isPopular: true,
     },
+    lockContract: {
+      address: 0xf1ed28fa139f2df5cf3ed140aa9f803c79554519,
+      abi: [""],
+    },
     settings: {
       isNew: true,
       isDeprecated: false,

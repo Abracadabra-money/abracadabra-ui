@@ -9,6 +9,8 @@ import { getPoolTokenInfo } from "@/helpers/pools/swap/tokens";
 import { getCoinsPrices } from "@/helpers/prices/defiLlama/index";
 import { getSwapRouterByChain } from "@/configs/pools/routers";
 
+import { getStakeInfo } from "@/helpers/blast/stake/getStakeInfo";
+
 export const getPoolInfo = async (
   poolChainId: number,
   poolId: number,
@@ -26,12 +28,17 @@ export const getPoolInfo = async (
 
   const lpTokenPrice = getLpTokenPrice(getLpInfoResult, tokens);
 
-  return {
+  const poolInfo: any = {
     ...getLpInfoResult,
     price: lpTokenPrice,
     tokens,
     swapRouter: getSwapRouterByChain(poolChainId),
   };
+
+  if (poolConfig.lockContract)
+    poolInfo.lockInfo = await getStakeInfo(account, poolChainId);
+
+  return poolInfo;
 };
 
 const getTokensInfo = async (
@@ -79,4 +86,8 @@ export const getLpTokenPrice = (
   const lpTokenPrice = tvl / formattedTotalSupply;
 
   return lpTokenPrice;
+};
+
+export const getLockInfo = () => {
+  // balances, allowance
 };

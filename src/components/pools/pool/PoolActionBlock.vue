@@ -28,14 +28,15 @@
       </div>
     </div>
 
-    <Remove
+    <RemoveUnstakeWrap
       :pool="pool"
       :slippage="slippage"
       :deadline="deadline"
       @updatePoolInfo="$emit('getPoolInfo')"
       v-show="isRemove"
     />
-    <Deposit
+
+    <DepositStakeWrap
       :pool="pool"
       :slippage="slippage"
       :deadline="deadline"
@@ -100,11 +101,11 @@ export default {
     SwapSettingsPopup: defineAsyncComponent(() =>
       import("@/components/popups/swap/SwapSettingsPopup.vue")
     ),
-    Deposit: defineAsyncComponent(() =>
-      import("@/components/pools/pool/Deposit.vue")
+    DepositStakeWrap: defineAsyncComponent(() =>
+      import("@/components/pools/pool/DepositStakeWrap.vue")
     ),
-    Remove: defineAsyncComponent(() =>
-      import("@/components/pools/pool/Remove.vue")
+    RemoveUnstakeWrap: defineAsyncComponent(() =>
+      import("@/components/pools/pool/RemoveUnstakeWrap.vue")
     ),
   },
 };
