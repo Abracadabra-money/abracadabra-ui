@@ -238,6 +238,8 @@ export default {
     },
 
     async approveHandler() {
+      this.isActionProcessing = true;
+
       const notificationId = await this.createNotification(
         notification.approvePending
       );
@@ -258,9 +260,12 @@ export default {
         await this.deleteNotification(notificationId);
         await this.createNotification(errorNotification);
       }
+      this.isActionProcessing = false;
     },
 
     async removeHandler() {
+      this.isActionProcessing = true;
+
       const notificationId = await this.createNotification(
         notification.pending
       );
@@ -289,6 +294,7 @@ export default {
         await this.deleteNotification(notificationId);
         await this.createNotification(errorNotification);
       }
+      this.isActionProcessing = false;
     },
 
     async actionHandler() {
@@ -299,15 +305,11 @@ export default {
         return this.$openWeb3modal();
       }
 
-      this.isActionProcessing = true;
-
-      if (!this.isAllowed) await this.approveHandler();
+      if (!this.isAllowed) return await this.approveHandler();
 
       await this.removeHandler();
 
       await this.$emit("updatePoolInfo");
-
-      this.isActionProcessing = false;
     },
 
     formatTokenBalance(value, decimals) {

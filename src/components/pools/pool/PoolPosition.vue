@@ -54,7 +54,7 @@
         </ul>
       </div>
 
-      <LockBlock :pool="pool" @updateInfo="onUpdate"/>
+      <LockBlock :pool="pool" @updateInfo="onUpdate" />
     </div>
   </div>
 </template>
@@ -109,7 +109,9 @@ export default {
     },
 
     pointsEarned() {
-      return formatTokenBalance(this.userPointsStatistics?.liquidityPoints?.total?.finalized);
+      return formatTokenBalance(
+        this.userPointsStatistics?.liquidityPoints?.total?.finalized
+      );
     },
 
     lpToken() {
