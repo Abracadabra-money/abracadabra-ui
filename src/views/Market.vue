@@ -321,10 +321,7 @@ export default {
       const currentRpc =
         defaultRpc[this.routeChainId as keyof typeof defaultRpc];
 
-      const chainProvider = new providers.StaticJsonRpcProvider(
-        "https://rpc.tenderly.co/fork/4ecfaba9-80a2-4667-a16b-7d24eb50e422"
-      );
-      // const chainProvider = new providers.StaticJsonRpcProvider(currentRpc);
+      const chainProvider = new providers.StaticJsonRpcProvider(currentRpc);
 
       const userSigner =
         this.account && this.activeChainId === this.routeChainId
