@@ -15,9 +15,7 @@
 
       <ul class="popup-links">
         <li class="popup-link-wrap blast-wrap" @click="closePopup">
-          <router-link class="popup-link blast-link" :to="{ name: 'Blast' }">
-            <img src="@/assets/images/blast-text.svg" alt="" />
-          </router-link>
+          <BlastButton isMobile="" />
         </li>
 
         <li class="popup-link-wrap" @click="closePopup">
@@ -130,7 +128,7 @@ import Discord from "@/components/ui/icons/Discord.vue";
 import V2 from "@/components/ui/icons/V2.vue";
 import ConnectButton from "@/components/ui/buttons/ConnectButton.vue";
 import HeaderStakeMobilePopup from "@/components/popups/HeaderStakeMobilePopup.vue";
-
+import BlastButton from "@/components/ui/buttons/BlastButton.vue";
 export default {
   props: {
     networkIcon: { type: String },
@@ -170,6 +168,7 @@ export default {
     Discord,
     GitHub,
     V2,
+    BlastButton,
   },
 };
 </script>

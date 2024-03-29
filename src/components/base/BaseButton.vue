@@ -54,7 +54,6 @@ export default {
   position: relative;
   border-radius: 16px;
   // background: #403e4a;
-  height: 50px;
   padding: 0 20px;
   display: flex;
   align-items: center;
@@ -191,6 +190,12 @@ export default {
   }
   40% {
     height: 8px;
+  }
+}
+
+@media (max-width: 600px) {
+  .default-button {
+    height: 39px;
   }
 }
 </style>

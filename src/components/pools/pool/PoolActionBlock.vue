@@ -3,6 +3,9 @@
     <div class="pool-header">
       <div class="title-settings">
         <h3 class="title">MIM Pool</h3>
+
+        <BaseButton class="link-button" @click="goToSwap">Swap</BaseButton>
+
         <SwapSettingsPopup
           :slippage="50n"
           :defaultSlippage="50n"
@@ -91,9 +94,18 @@ export default {
     updateDeadlineValue(value) {
       this.deadline = value;
     },
+
+    goToSwap() {
+      this.$router.push({
+        name: "MimSwap",
+      });
+    },
   },
 
   components: {
+    BaseButton: defineAsyncComponent(() =>
+      import("@/components/base/BaseButton.vue")
+    ),
     Tabs: defineAsyncComponent(() => import("@/components/ui/Tabs.vue")),
     TokenPair: defineAsyncComponent(() =>
       import("@/components/pools/pool/TokenPair.vue")
@@ -121,6 +133,11 @@ export default {
   min-height: 66px;
   width: 100%;
   margin-bottom: 16px;
+}
+
+.link-button {
+  width: auto !important;
+  margin-right: auto;
 }
 
 .title-settings {
@@ -179,7 +196,6 @@ export default {
 
 @media (max-width: 600px) {
   .my-position-button {
-    height: 39px;
     font-size: 14px;
   }
 }
