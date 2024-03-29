@@ -9,6 +9,8 @@ import { getPoolTokenInfo } from "@/helpers/pools/swap/tokens";
 import { getCoinsPrices } from "@/helpers/prices/defiLlama/index";
 import { getSwapRouterByChain } from "@/configs/pools/routers";
 
+import { getPublicClient } from "@/helpers/getPublicClient";
+
 export const getPoolInfo = async (
   poolChainId: number,
   poolId: number,
@@ -26,12 +28,17 @@ export const getPoolInfo = async (
 
   const lpTokenPrice = getLpTokenPrice(getLpInfoResult, tokens);
 
-  return {
+  const poolInfo: any = {
     ...getLpInfoResult,
     price: lpTokenPrice,
     tokens,
     swapRouter: getSwapRouterByChain(poolChainId),
   };
+
+  if (account && poolConfig.lockContract)
+    poolInfo.lockInfo = await getLockInfo(account, poolChainId, poolConfig);
+
+  return poolInfo;
 };
 
 const getTokensInfo = async (
@@ -79,4 +86,40 @@ export const getLpTokenPrice = (
   const lpTokenPrice = tvl / formattedTotalSupply;
 
   return lpTokenPrice;
+};
+
+export const getLockInfo = async (
+  account: Address,
+  chainId: number,
+  config: any
+) => {
+  const publicClient = getPublicClient(chainId);
+
+  const [balances, allowance]: any = await publicClient.multicall({
+    contracts: [
+      {
+        address: config.lockContract.address,
+        abi: config.lockContract.abi,
+        functionName: "balances",
+        args: [account],
+      },
+      {
+        address: config.contract.address,
+        abi: config.contract.abi,
+        functionName: "allowance",
+        args: [account, config.lockContract.address],
+      },
+    ],
+  });
+
+  const { locked, unlocked }: any = balances.result;
+
+  return {
+    balances: {
+      unlocked,
+      locked,
+      total: locked + unlocked,
+    },
+    allowance: allowance.result,
+  };
 };

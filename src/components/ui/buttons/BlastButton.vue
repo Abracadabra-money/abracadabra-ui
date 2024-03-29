@@ -32,7 +32,6 @@ export default {
     },
     hasPostition() {
       if (!this.account || this.stakeInfo === null) return false;
-      console.log(this.stakeInfo);
       const { tokensInfo } = this.stakeInfo;
 
       const hasBalance = tokensInfo.some(
