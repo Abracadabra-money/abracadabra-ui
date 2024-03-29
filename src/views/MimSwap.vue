@@ -2,7 +2,7 @@
   <div class="swap-view">
     <div class="swap-wrapper">
       <div class="swap-head">
-        <h3 class="title">MIM SWAP</h3>
+        <h3 class="title">MIM Swap</h3>
 
         <BaseButton class="link-button" @click="goToPool">Deposit</BaseButton>
 
@@ -509,6 +509,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.link-button {
+  width: max-content!important;
+  margin: 0 auto 0 12px;
+}
+
+
 .swap-view {
   padding: 120px 0;
   display: flex;
@@ -537,11 +543,6 @@ export default {
   font-size: 32px;
   font-weight: 600;
   line-height: normal;
-}
-
-.link-button {
-  width: auto;
-  margin: 0 auto 0 12px;
 }
 
 .swap-body {
