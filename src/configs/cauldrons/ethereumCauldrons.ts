@@ -9,6 +9,8 @@ import zeroXLiqSwapperAbi from "@/abis/zeroXLiqSwapper";
 import degenBoxERC4626Wrapper from "@/abis/lp/DegenBoxERC4626Wrapper";
 import ERC4626LevSwapper from "@/abis/ERC4626LevSwapper";
 import ERC4626LiqSwapper from "@/abis/ERC4626LiqSwapper";
+import ConvexWrapperLevSwapper from "@/abis/ConvexWrapperLevSwapper";
+import YearnLevSwapper from "@/abis/YearnLevSwapper";
 import { useImage } from "@/helpers/useImage";
 import { GNOSIS_SAFE_ADDRESS } from "@/constants/global";
 
@@ -253,7 +255,7 @@ const config: Array<CauldronConfig> = [
     mimInfo,
     leverageInfo: {
       address: "0x5D611b10fd4D1702925d0A7B3dfBE08b2b69F560",
-      abi: swapAbi,
+      abi: YearnLevSwapper,
     },
     deleverageInfo: {
       address: "0x1D369DF0B996453E538524C5cE6e1747FB8534F4",
@@ -563,7 +565,7 @@ const config: Array<CauldronConfig> = [
       hasAccountBorrowLimit: false,
       hasWithdrawableLimit: false,
       localBorrowAmountLimit: false,
-      hasCrvClaimLogic: true,
+      hasCrvClaimLogic: false,
     },
     contract: {
       name: "PrivilegedCheckpointCauldronV4",
@@ -576,10 +578,24 @@ const config: Array<CauldronConfig> = [
       address: "0x9447c1413DA928aF354A114954BFc9E6114c5646",
       abi: tokensAbi.stakedThreeCrypto,
     },
+    wrapInfo: {
+      isHiddenWrap: true,
+      useUnwrappedByDefault: true,
+      unwrappedToken: {
+        name: "cvxtricrypto2",
+        icon: useImage(`assets/images/tokens/Convex-Curve3.png`),
+        address: "0xc4AD29ba4B3c580e6D59105FFf484999997675Ff",
+        abi: tokensAbi.stkcvx3Crv,
+      },
+      wrapper: {
+        address: "0xEAe3B42a83CF2d5775d8bcCC9e84bA2598F0Cf1b",
+        abi: degenBoxERC4626Wrapper,
+      },
+    },
     mimInfo,
     leverageInfo: {
       address: "0x134DD2Fa4a61d757Dc79a9d21b01E97EAdfa6A89",
-      abi: swapAbi,
+      abi: ConvexWrapperLevSwapper,
     },
     deleverageInfo: {
       address: "0xB77f57FE82CDddB5d02bb0E32e70bee75Abb511a",
@@ -907,10 +923,24 @@ const config: Array<CauldronConfig> = [
       address: "0x4985cc58C9004772c225aEC9C36Cc9A56EcC8c20",
       abi: tokensAbi.stkcvx3Crv,
     },
+    wrapInfo: {
+      isHiddenWrap: true,
+      useUnwrappedByDefault: true,
+      unwrappedToken: {
+        name: "cvx3pool",
+        icon: useImage(`assets/images/tokens/Convex-Curve.png`),
+        address: "0x6c3F90f043a72FA612cbac8115EE7e52BDe6E490",
+        abi: tokensAbi.stkcvx3Crv,
+      },
+      wrapper: {
+        address: "0x48A89a28cFfb2F519e975964aE366e710bCDC4a4",
+        abi: degenBoxERC4626Wrapper,
+      },
+    },
     mimInfo,
     leverageInfo: {
       address: "0x784AaEbD013A09dd798320e6c30Ed1ea283984CE",
-      abi: swapAbi,
+      abi: ConvexWrapperLevSwapper,
     },
     deleverageInfo: {
       address: "0x9beE1Fb5B4137ce17e47c303D3407919cdbec67c",
