@@ -35,15 +35,6 @@
       </button>
     </div>
 
-    <IconButton
-      v-if="showWithdrawButton"
-      class="withdraw-button"
-      exit
-      :width="39"
-      :height="39"
-      @click="onWithdraw"
-    />
-
     <div class="source-points">
       <div class="icons-wrap">
         <img class="source-icon" :src="pointsInfo.icon" alt="Token icon" />
@@ -173,10 +164,6 @@ export default {
   },
 
   computed: {
-    showWithdrawButton() {
-      return this.withdrawLogic && this.pointsInfo?.unlockedAmount > 0;
-    },
-
     cardText() {
       if (this.activeTab === 2) return "Gold earned ";
       return "Points";
@@ -213,9 +200,6 @@ export default {
   },
 
   components: {
-    IconButton: defineAsyncComponent(
-      () => import("@/components/ui/buttons/IconButton.vue")
-    ),
     Tooltip: defineAsyncComponent(
       () => import("@/components/ui/icons/Tooltip.vue")
     ),
