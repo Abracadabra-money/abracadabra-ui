@@ -5,7 +5,7 @@
         :name="pool.name"
         :icon="pool.icon"
         :decimals="pool.decimals"
-        :max="pool.userInfo.balance"
+        :max="pool.lockInfo.balances.unlocked"
         :value="inputValue"
         :tokenPrice="pool.price"
         @updateInputValue="updateValue($event)"
@@ -65,13 +65,16 @@
 <script>
 import { defineAsyncComponent } from "vue";
 import { mapActions, mapGetters, mapMutations } from "vuex";
-import { deposit } from "@/helpers/blast/stake/actions/deposit";
+import {
+  prepareWriteContract,
+  waitForTransaction,
+  writeContract,
+} from "@wagmi/core";
 import { formatUnits } from "viem";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification";
-import { approveTokenViem } from "@/helpers/approval";
 import { trimZeroDecimals } from "@/helpers/numbers";
-import { formatTokenBalance, formatUSD } from "@/helpers/filters";
+import { formatTokenBalance } from "@/helpers/filters";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 
 export default {
@@ -97,16 +100,12 @@ export default {
       account: "getAccount",
     }),
 
-    isAllowed() {
-      return this.pool.userInfo.allowance >= this.inputAmount;
-    },
-
     isValid() {
       return !!this.inputAmount;
     },
 
     error() {
-      if (this.inputAmount > this.pool.userInfo.balance)
+      if (this.inputAmount > this.pool.lockInfo.balances.unlocked)
         return "Insufficient balance";
 
       return null;
@@ -119,9 +118,8 @@ export default {
       if (this.inputValue == "") return "Enter amount";
 
       if (this.isActionProcessing) return "Processing...";
-      if (!this.isAllowed) return "Approve";
 
-      return "Stake";
+      return "Unstake";
     },
 
     isButtonDisabled() {
@@ -162,44 +160,22 @@ export default {
       this.inputAmount = 0n;
     },
 
-    async approveHandler() {
-      const notificationId = await this.createNotification(
-        notification.approvePending
-      );
-
-      try {
-        await approveTokenViem(
-          this.pool.contract,
-          this.pool.stakeInfo.config.contract.address
-        );
-        await this.$emit("updatePoolInfo");
-
-        await this.deleteNotification(notificationId);
-      } catch (error) {
-        console.log("approve err:", error);
-
-        const errorNotification = {
-          msg: await notificationErrorMsg(error),
-          type: "error",
-        };
-
-        await this.deleteNotification(notificationId);
-        await this.createNotification(errorNotification);
-      }
-    },
-
-    async stakeHandler() {
+    async unstakeHandler() {
       const notificationId = await this.createNotification(
         notification.pending
       );
 
       try {
-        const { error, result } = await deposit(
-          this.pool.stakeInfo.config.contract,
-          this.pool.contract.address,
-          this.inputAmount,
-          this.isLock
-        );
+        const config = await prepareWriteContract({
+          address: this.pool.lockContract.address,
+          abi: this.pool.lockContract.abi,
+          functionName: "withdraw",
+          args: [this.inputAmount],
+        });
+
+        const { hash } = await writeContract(config);
+
+        const { result, error } = await waitForTransaction({ hash });
 
         await this.$emit("updatePoolInfo");
 
@@ -207,7 +183,7 @@ export default {
         await this.createNotification(notification.success);
         this.resetInput();
       } catch (error) {
-        console.log("stake lp err:", error);
+        console.log("unstake lp err:", error);
 
         const errorNotification = {
           msg: await notificationErrorMsg(error),
@@ -229,9 +205,7 @@ export default {
 
       this.isActionProcessing = true;
 
-      if (!this.isAllowed) await this.approveHandler();
-
-      await this.stakeHandler();
+      await this.unstakeHandler();
 
       await this.$emit("updatePoolInfo");
 

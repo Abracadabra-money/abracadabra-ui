@@ -64,8 +64,13 @@
 
 <script>
 import { defineAsyncComponent } from "vue";
+import moment from "moment";
 import { mapActions, mapGetters, mapMutations } from "vuex";
-import { deposit } from "@/helpers/blast/stake/actions/deposit";
+import {
+  prepareWriteContract,
+  waitForTransaction,
+  writeContract,
+} from "@wagmi/core";
 import { formatUnits } from "viem";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification";
@@ -79,7 +84,7 @@ export default {
     pool: { type: Object },
     slippage: { type: BigInt, default: 100n },
     deadline: { type: BigInt, default: 100n },
-    isLock: { type: Boolean, default: false },
+    isLock: { type: Boolean },
   },
 
   emits: ["updatePoolInfo"],
@@ -99,7 +104,7 @@ export default {
     }),
 
     isAllowed() {
-      return this.pool.userInfo.allowance >= this.inputAmount;
+      return this.pool.lockInfo.allowance >= this.inputAmount;
     },
 
     isValid() {
@@ -122,7 +127,7 @@ export default {
       if (this.isActionProcessing) return "Processing...";
       if (!this.isAllowed) return "Approve";
 
-      return "Stake";
+      return this.isLock ? "Stake & lock" : "Stake";
     },
 
     isButtonDisabled() {
@@ -171,7 +176,7 @@ export default {
       try {
         await approveTokenViem(
           this.pool.contract,
-          this.pool.stakeInfo.config.contract.address
+          this.pool.lockContract.address
         );
         await this.$emit("updatePoolInfo");
 
@@ -195,12 +200,16 @@ export default {
       );
 
       try {
-        const { error, result } = await deposit(
-          this.pool.stakeInfo.config.contract,
-          this.pool.contract.address,
-          this.inputAmount,
-          this.isLock
-        );
+        const config = await prepareWriteContract({
+          address: this.pool.lockContract.address,
+          abi: this.pool.lockContract.abi,
+          functionName: "stake",
+          args: [this.inputAmount],
+        });
+
+        const { hash } = await writeContract(config);
+
+        const { result, error } = await waitForTransaction({ hash });
 
         await this.$emit("updatePoolInfo");
 
@@ -209,6 +218,42 @@ export default {
         this.resetInput();
       } catch (error) {
         console.log("stake lp err:", error);
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(error),
+          type: "error",
+        };
+
+        await this.deleteNotification(notificationId);
+        await this.createNotification(errorNotification);
+      }
+    },
+
+    async stakeLockedHandler() {
+      const now = moment().unix();
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
+
+      try {
+        const config = await prepareWriteContract({
+          address: this.pool.lockContract.address,
+          abi: this.pool.lockContract.abi,
+          functionName: "stakeLocked",
+          args: [this.inputAmount, now + 100],
+        });
+
+        const { hash } = await writeContract(config);
+
+        const { result, error } = await waitForTransaction({ hash });
+
+        await this.$emit("updatePoolInfo");
+
+        await this.deleteNotification(notificationId);
+        await this.createNotification(notification.success);
+        this.resetInput();
+      } catch (error) {
+        console.log("stakeLocked lp err:", error);
 
         const errorNotification = {
           msg: await notificationErrorMsg(error),
@@ -232,7 +277,11 @@ export default {
 
       if (!this.isAllowed) await this.approveHandler();
 
-      await this.stakeHandler();
+      if (this.isLock) {
+        await this.stakeLockedHandler();
+      } else {
+        await this.stakeHandler();
+      }
 
       await this.$emit("updatePoolInfo");
 

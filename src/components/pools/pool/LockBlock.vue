@@ -161,8 +161,6 @@ export default {
         args: [this.account, BlastLockingMultiRewards],
       });
 
-      console.log("allowance: ", allowance);
-
       this.lockAllowance = allowance;
     },
   },
