@@ -164,11 +164,15 @@ export default {
         amount,
         leverageSwapper.address
       );
-
+      
       if (this.cvxtricrypto2 || this.cvx3pool) {
+              // Temporary fix for cvx3pool and cvxtricrypto2
+      // TODO: review config strucrure
+      const tokenIndex = this.cvx3pool ? 2 : 0;
+
         return utils.defaultAbiCoder.encode(
           ["address", "uint256", "bytes"],
-          [MAINNET_USDT_ADDRESS, 0, swapResponse.data]
+          [MAINNET_USDT_ADDRESS, tokenIndex, swapResponse.data]
         );
       }
 
@@ -210,10 +214,9 @@ export default {
       if (this.yvWETH) selToken = MAINNET_WETH_ADDRESS;
 
       if (this.cvxtricrypto2 || this.cvx3pool) {
-        const poolId = this.cvxtricrypto2 ? 1 : 2;
         selAmount = await getCurveWithdrawOneCoinAmount(
           collateralAmount,
-          poolId
+          this.cauldron.config.id
         );
       }
 
@@ -234,9 +237,10 @@ export default {
       );
 
       if (this.cvxtricrypto2 || this.cvx3pool) {
+        const usdtTokenIndex = this.cvx3pool ? 2 : 0;
         return utils.defaultAbiCoder.encode(
           ["uint256", "bytes"],
-          [0, response.data]
+          [usdtTokenIndex, response.data]
         );
       }
 

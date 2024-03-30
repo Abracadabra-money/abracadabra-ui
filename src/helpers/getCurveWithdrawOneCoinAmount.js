@@ -22,29 +22,32 @@ const abi1 = [
 
 // TODO: set cauldrons ids
 const curvePools = {
-  1: {
+  16: {
     address: "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46", // cvxtricrypto2
     abi: abi1,
+    usdtIndex: 0,
   },
-  2: {
-    address: "0x5a6A4D54456819380173272A5E8E9B9904BdF41B", // cvx3Pool
+  25: {
+    address: "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7", // cvx3Pool
     abi: abi2,
+    usdtIndex: 2,
   },
 };
 
 export const getCurveWithdrawOneCoinAmount = async (
   collateralAmount,
-  poolId = 1,
-  tokenIndex = 0
+  poolId
 ) => {
-  const poolContract = curvePools[poolId];
+  const poolInfo = curvePools[poolId];
 
   const sellAmount = await readContract({
-    address: poolContract.address,
-    abi: poolContract.abi,
+    address: poolInfo.address,
+    abi: poolInfo.abi,
     functionName: "calc_withdraw_one_coin",
-    args: [collateralAmount, tokenIndex],
+    args: [collateralAmount, poolInfo.usdtIndex],
   });
+
+  console.log("sellAmount", sellAmount);
 
   return sellAmount;
 };
