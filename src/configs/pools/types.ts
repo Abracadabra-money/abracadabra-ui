@@ -9,6 +9,7 @@ export type PoolConfig = {
   contract: Contract;
   baseToken: TokenConfig;
   quoteToken: TokenConfig;
+  lockContract?: Contract;
   settings: PoolSettings;
 };
 

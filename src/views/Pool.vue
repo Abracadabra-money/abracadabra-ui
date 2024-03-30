@@ -80,7 +80,6 @@ export default {
 
   async created() {
     await this.getPoolInfo();
-
     this.poolsTimer = setInterval(async () => {
       await this.getPoolInfo();
     }, 60000);
