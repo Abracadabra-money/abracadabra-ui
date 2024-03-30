@@ -297,6 +297,14 @@ const config: Array<CauldronConfig> = [
       abi: tokensAbi.yvcrvIB,
     },
     mimInfo,
+    leverageInfo: {
+      address: "0xC09FAaAac10b59ce3Fc6a56539d43786049f4436",
+      abi: swapAbi,
+    },
+    deleverageInfo: {
+      address: "0x1945dC833570A040e28B6E02aAC913726e363180",
+      abi: reverseSwapAbi,
+    },
   },
   {
     icon: useImage(`assets/images/tokens/xSUSHI.png`),
@@ -807,6 +815,10 @@ const config: Array<CauldronConfig> = [
       abi: tokensAbi.sSPELL,
     },
     mimInfo,
+    deleverageInfo: {
+      address: "0x125238b61064ab2c00c3b22acb4b3b6e4732ae90",
+      abi: reverseSwapAbi,
+    },
   },
   {
     icon: useImage(`assets/images/tokens/SPELL.png`),
