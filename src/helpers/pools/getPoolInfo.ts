@@ -9,7 +9,7 @@ import { getPoolTokenInfo } from "@/helpers/pools/swap/tokens";
 import { getCoinsPrices } from "@/helpers/prices/defiLlama/index";
 import { getSwapRouterByChain } from "@/configs/pools/routers";
 
-import { getPublicClient } from "@/helpers/getPublicClient";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 
 export const getPoolInfo = async (
   poolChainId: number,
