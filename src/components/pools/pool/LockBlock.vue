@@ -1,7 +1,7 @@
 <template>
   <div class="lock-container">
     <img src="@/assets/images/lock-border.png" alt="" class="border-img" />
-    <p class="title">Get a Founder Boost</p>
+    <p class="title">Lock MLP to Get a Founder Boost</p>
 
     <div class="info-item">
       <p>Lock for 3 months</p>
@@ -38,9 +38,9 @@
     </div>
   </div>
 
-  <BaseButton primary @click="actionHandler" :disabled="disableLockButton">
+  <!-- <BaseButton primary @click="actionHandler" :disabled="disableLockButton">
     {{ lockButtonText }}
-  </BaseButton>
+  </BaseButton> -->
 </template>
 
 <script>
@@ -161,8 +161,6 @@ export default {
         args: [this.account, BlastLockingMultiRewards],
       });
 
-      console.log("allowance: ", allowance);
-
       this.lockAllowance = allowance;
     },
   },
@@ -192,8 +190,8 @@ export default {
 
   .title {
     color: #fff;
-    font-size: 18px;
-    font-weight: 500;
+    font-size: 16px;
+    font-weight: 600;
   }
 
   .info-item {

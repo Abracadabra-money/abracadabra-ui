@@ -12,7 +12,7 @@
       />
     </div>
 
-    <div class="info-blocks">
+    <!-- <div class="info-blocks">
       <div class="info-block base">
         <div class="tag">
           <span class="title">
@@ -53,32 +53,8 @@
             </span>
           </div>
         </div>
-
-        <!-- <div class="tag">
-          <span class="title">APR</span>
-          <span class="value apr"> 102.21% </span>
-        </div> -->
       </div>
-
-      <!-- <div class="info-block swap">
-        <div class="tag">
-          <span class="title">Current Price</span>
-          <CurrentPrice
-            :fromToken="pool.tokens.baseToken"
-            :toToken="pool.tokens.quoteToken"
-          />
-        </div>
-
-        <div class="tag">
-          <span class="title">Network Fee</span>
-
-          <span class="value">
-            <img class="gas-icon" src="@/assets/images/gas.svg" />
-            $0.01
-          </span>
-        </div>
-      </div> -->
-    </div>
+    </div> -->
 
     <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
       {{ buttonText }}
@@ -87,17 +63,19 @@
 </template>
 
 <script>
-import moment from "moment";
 import { defineAsyncComponent } from "vue";
+import moment from "moment";
 import { mapActions, mapGetters, mapMutations } from "vuex";
+import {
+  prepareWriteContract,
+  waitForTransaction,
+  writeContract,
+} from "@wagmi/core";
 import { formatUnits } from "viem";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification";
 import { approveTokenViem } from "@/helpers/approval";
 import { trimZeroDecimals } from "@/helpers/numbers";
-import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
-import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
-import { removeLiquidity } from "@/helpers/pools/swap/actions/removeLiquidity";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 
@@ -106,6 +84,7 @@ export default {
     pool: { type: Object },
     slippage: { type: BigInt, default: 100n },
     deadline: { type: BigInt, default: 100n },
+    isLock: { type: Boolean },
   },
 
   emits: ["updatePoolInfo"],
@@ -125,63 +104,7 @@ export default {
     }),
 
     isAllowed() {
-      return this.pool.userInfo.allowance >= this.inputAmount;
-    },
-
-    previewRemoveLiquidityResult() {
-      const previewRemoveLiquidityResult = previewRemoveLiquidity(
-        this.inputAmount,
-        this.pool
-      );
-
-      previewRemoveLiquidityResult.baseAmountOut = applySlippageToMinOutBigInt(
-        this.slippage,
-        previewRemoveLiquidityResult.baseAmountOut
-      );
-
-      previewRemoveLiquidityResult.quoteAmountOut = applySlippageToMinOutBigInt(
-        this.slippage,
-        previewRemoveLiquidityResult.quoteAmountOut
-      );
-
-      return previewRemoveLiquidityResult;
-    },
-
-    formattedTokenExpecteds() {
-      if (!this.previewRemoveLiquidityResult)
-        return {
-          base: { value: "0.0", usd: "$ 0.0" },
-          quote: { value: "0.0", usd: "$ 0.0" },
-        };
-
-      const formattedBaseValue = Number(
-        formatUnits(
-          this.previewRemoveLiquidityResult.baseAmountOut,
-          this.pool.tokens.baseToken.config.decimals
-        )
-      );
-      const formattedQuoteValue = Number(
-        formatUnits(
-          this.previewRemoveLiquidityResult.quoteAmountOut,
-          this.pool.tokens.quoteToken.config.decimals
-        )
-      );
-
-      const baseValueUsdEquivalent =
-        formattedBaseValue * this.pool.tokens.baseToken.price;
-      const quoteValueUsdEquivalent =
-        formattedQuoteValue * this.pool.tokens.quoteToken.price;
-
-      return {
-        base: {
-          value: formatTokenBalance(formattedBaseValue),
-          usd: formatUSD(baseValueUsdEquivalent),
-        },
-        quote: {
-          value: formatTokenBalance(formattedQuoteValue),
-          usd: formatUSD(quoteValueUsdEquivalent),
-        },
-      };
+      return this.pool.lockInfo.allowance >= this.inputAmount;
     },
 
     isValid() {
@@ -204,7 +127,7 @@ export default {
       if (this.isActionProcessing) return "Processing...";
       if (!this.isAllowed) return "Approve";
 
-      return "Remove";
+      return this.isLock ? "Stake & lock" : "Stake";
     },
 
     isButtonDisabled() {
@@ -245,29 +168,18 @@ export default {
       this.inputAmount = 0n;
     },
 
-    createRemovePayload() {
-      const { baseAmountOut, quoteAmountOut } =
-        this.previewRemoveLiquidityResult;
-
-      const deadline = moment().unix() + Number(this.deadline);
-
-      return {
-        lp: this.pool.contract.address,
-        to: this.account,
-        sharesIn: this.inputAmount,
-        minimumBaseAmount: baseAmountOut,
-        minimumQuoteAmount: quoteAmountOut,
-        deadline: deadline,
-      };
-    },
-
     async approveHandler() {
+      this.isActionProcessing = true;
+
       const notificationId = await this.createNotification(
         notification.approvePending
       );
 
       try {
-        await approveTokenViem(this.pool.contract, this.pool.swapRouter);
+        await approveTokenViem(
+          this.pool.contract,
+          this.pool.lockContract.address
+        );
         await this.$emit("updatePoolInfo");
 
         await this.deleteNotification(notificationId);
@@ -282,20 +194,27 @@ export default {
         await this.deleteNotification(notificationId);
         await this.createNotification(errorNotification);
       }
+      this.isActionProcessing = false;
     },
 
-    async removeHandler() {
+    async stakeHandler() {
+      this.isActionProcessing = true;
+
       const notificationId = await this.createNotification(
         notification.pending
       );
 
       try {
-        const payload = this.createRemovePayload();
+        const config = await prepareWriteContract({
+          address: this.pool.lockContract.address,
+          abi: this.pool.lockContract.abi,
+          functionName: "stake",
+          args: [this.inputAmount],
+        });
 
-        const { error, result } = await removeLiquidity(
-          this.pool.swapRouter,
-          payload
-        );
+        const { hash } = await writeContract(config);
+
+        const { result, error } = await waitForTransaction({ hash });
 
         await this.$emit("updatePoolInfo");
 
@@ -303,7 +222,7 @@ export default {
         await this.createNotification(notification.success);
         this.resetInput();
       } catch (error) {
-        console.log("remove liquidity err:", error);
+        console.log("stake lp err:", error);
 
         const errorNotification = {
           msg: await notificationErrorMsg(error),
@@ -313,6 +232,46 @@ export default {
         await this.deleteNotification(notificationId);
         await this.createNotification(errorNotification);
       }
+      this.isActionProcessing = false;
+    },
+
+    async stakeLockedHandler() {
+      this.isActionProcessing = true;
+
+      const now = moment().unix();
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
+
+      try {
+        const config = await prepareWriteContract({
+          address: this.pool.lockContract.address,
+          abi: this.pool.lockContract.abi,
+          functionName: "stakeLocked",
+          args: [this.inputAmount, now + 100],
+        });
+
+        const { hash } = await writeContract(config);
+
+        const { result, error } = await waitForTransaction({ hash });
+
+        await this.$emit("updatePoolInfo");
+
+        await this.deleteNotification(notificationId);
+        await this.createNotification(notification.success);
+        this.resetInput();
+      } catch (error) {
+        console.log("stakeLocked lp err:", error);
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(error),
+          type: "error",
+        };
+
+        await this.deleteNotification(notificationId);
+        await this.createNotification(errorNotification);
+      }
+      this.isActionProcessing = false;
     },
 
     async actionHandler() {
@@ -323,15 +282,15 @@ export default {
         return this.$openWeb3modal();
       }
 
-      this.isActionProcessing = true;
+      if (!this.isAllowed) return await this.approveHandler();
 
-      if (!this.isAllowed) await this.approveHandler();
-
-      await this.removeHandler();
+      if (this.isLock) {
+        await this.stakeLockedHandler();
+      } else {
+        await this.stakeHandler();
+      }
 
       await this.$emit("updatePoolInfo");
-
-      this.isActionProcessing = false;
     },
 
     formatTokenBalance(value, decimals) {
@@ -343,15 +302,12 @@ export default {
     BaseTokenInput: defineAsyncComponent(() =>
       import("@/components/base/BaseTokenInput.vue")
     ),
-    BaseTokenIcon: defineAsyncComponent(() =>
-      import("@/components/base/BaseTokenIcon.vue")
-    ),
+    // BaseTokenIcon: defineAsyncComponent(() =>
+    //   import("@/components/base/BaseTokenIcon.vue")
+    // ),
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")
     ),
-    // CurrentPrice: defineAsyncComponent(() =>
-    //   import("@/components/pools/CurrentPrice.vue")
-    // ),
   },
 };
 </script>
@@ -362,15 +318,6 @@ export default {
   flex-direction: column;
   align-items: center;
   gap: 24px;
-  border-radius: 20px;
-  border: 1px solid #00296b;
-  background: linear-gradient(
-    146deg,
-    rgba(0, 10, 35, 0.07) 0%,
-    rgba(0, 80, 156, 0.07) 101.49%
-  );
-  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
-  padding: 24px;
   width: 100%;
 }
 

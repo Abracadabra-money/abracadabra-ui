@@ -18,9 +18,7 @@
           MIMSwap
         </router-link>
 
-        <router-link class="header-link blast-link" :to="{ name: 'Blast' }">
-          <img src="@/assets/images/blast-text.svg" alt="" />
-        </router-link>
+        <BlastButton />
       </div>
 
       <div class="account-activities">
@@ -273,6 +271,9 @@ export default {
     ),
     BellButton: defineAsyncComponent(() =>
       import("@/components/notifi/BellButton.vue")
+    ),
+    BlastButton: defineAsyncComponent(() =>
+      import("@/components/ui/buttons/BlastButton.vue")
     ),
   },
 };
