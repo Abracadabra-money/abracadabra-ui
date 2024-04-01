@@ -27,6 +27,10 @@ export const getChainIcon = (chainId: number): string => {
       return useImage("assets/images/chains/linea.svg");
     case 80085:
       return useImage("assets/images/networks/bera.png");
+    case 168587773:
+      return useImage("assets/images/networks/blast.png");
+    case 81457:
+      return useImage("assets/images/networks/blast.png");
 
     default:
       return useImage("assets/images/chains/ethereum.svg");

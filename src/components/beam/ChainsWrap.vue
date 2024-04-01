@@ -132,6 +132,7 @@ export default {
 .chain-icon {
   width: 78px;
   height: 78px;
+  border-radius: 50%;
 }
 
 .switch-chain-button {

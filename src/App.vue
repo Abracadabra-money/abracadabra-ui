@@ -1,6 +1,6 @@
 <template>
   <AppHeader />
-  <div class="router-wrap" v-if="checkInProcess">
+  <div class="router-wrap" :style="pageBackground" v-if="checkInProcess">
     <img
       class="mim-top-bg"
       src="@/assets/images/main-mim-top-bg.png"
@@ -11,6 +11,7 @@
       src="@/assets/images/main-mim-bottom-bg.png"
       alt="Mim"
     />
+    <LiquidityLaunchEventBanner />
     <router-view />
   </div>
   <NotificationContainer />
@@ -24,7 +25,6 @@
 import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
 import axios from "axios";
-
 export default {
   data() {
     return {
@@ -60,6 +60,13 @@ export default {
       checkInProcess: "getWalletIsConnected",
       signer: "getSigner",
     }),
+
+    pageBackground() {
+      if (this.$route.name === "BlastOnboarding") {
+        return "background:#14182C";
+      }
+      return "";
+    },
   },
 
   async beforeCreate() {
@@ -108,6 +115,8 @@ export default {
     TenderlyMod: defineAsyncComponent(() =>
       import("@/components/tenderly/TenderlyMod.vue")
     ),
+    LiquidityLaunchEventBanner:defineAsyncComponent(()=>import("@/components/blastOnboarding/LiquidityLaunchEventBanner.vue"))
+    
   },
 };
 </script>

@@ -138,13 +138,13 @@ export default {
     isAllowed() {
       if (!this.account || !this.selectedFarm) return false;
       return (
-        Number(this.selectedFarm?.accountInfo?.allowance) >=
-        Number(this.inputAmount) / 1e18
+        parseUnits(this.selectedFarm?.accountInfo?.allowance) >=
+        this.inputAmount
       );
     },
 
     isValid() {
-      return !!Number(this.inputAmount);
+      return !!this.inputAmount;
     },
 
     isDeprecated() {
@@ -154,11 +154,8 @@ export default {
     max() {
       if (this.selectedFarm?.isMultiReward) {
         return !this.isUnstake
-          ? BigInt(Number(this.selectedFarm?.accountInfo?.balance || 0) * 1e18)
-          : BigInt(
-              Number(this.selectedFarm?.accountInfo?.depositedBalance || 0) *
-                1e18
-            );
+          ? parseUnits(this.selectedFarm?.accountInfo?.balance)
+          : parseUnits(this.selectedFarm?.accountInfo?.depositedBalance);
       }
       return !this.isUnstake
         ? this.selectedFarm?.accountInfo?.balance
@@ -399,7 +396,7 @@ export default {
 
   async created() {
     await this.getSelectedFarm();
-    
+
     this.farmsTimer = setInterval(async () => {
       await this.getSelectedFarm();
     }, 60000);
@@ -425,10 +422,9 @@ export default {
 .farm-view {
   display: flex;
   justify-content: center;
-  align-items: center;
   width: 100%;
   min-height: 100vh;
-  padding: 100px 0 40px 0;
+  padding: 120px 0 50px 0;
   margin: 0 auto;
 }
 
