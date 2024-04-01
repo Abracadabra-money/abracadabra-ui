@@ -1,6 +1,6 @@
 import type { Address } from "viem";
-import { getPublicClient } from "@/helpers/getPublicClient";
 import { getSwapRouterByChain } from "@/configs/pools/routers";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import type { PoolConfig, TokenConfig } from "@/configs/pools/types";
 
 export type TokenInfo = {
