@@ -1,23 +1,23 @@
 import { useImage } from "@/helpers/useImage";
 import { moonriver } from "@wagmi/core/chains";
+import { filterRpcUrls } from "@/helpers/chains/utils";
 import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
-const http = [
-  moonriver.rpcUrls.default.http[0],
+const rpcList = filterRpcUrls(moonriver, [
   "https://moonriver-rpc.publicnode.com	",
   "https://rpc.api.moonriver.moonbeam.network",
   "https://moonriver.public.blastapi.io",
   "https://moonriver-rpc.dwellir.com",
-];
+]);
 
 const viemConfig = {
   ...moonriver,
   rpcUrls: {
     public: {
-      http,
+      http: rpcList,
     },
     default: {
-      http,
+      http: rpcList,
     },
   },
 };

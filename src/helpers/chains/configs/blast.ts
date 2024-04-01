@@ -1,7 +1,8 @@
 import { useImage } from "@/helpers/useImage";
+
 import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
-const http = [
+const rpcList = [
   "https://rpc.blast.io",
   "https://blast.din.dev/rpc",
   "https://blast.blockpi.network/v1/rpc/public",
@@ -35,10 +36,10 @@ const viemConfig = {
   network: "blast-mainnet",
   rpcUrls: {
     public: {
-      http,
+      http: rpcList,
     },
     default: {
-      http,
+      http: rpcList,
     },
   },
   serializers: undefined,

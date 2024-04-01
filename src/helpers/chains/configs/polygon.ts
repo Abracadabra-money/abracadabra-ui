@@ -1,23 +1,23 @@
 import { polygon } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
+import { filterRpcUrls } from "@/helpers/chains/utils";
 import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
-const http = [
-  polygon.rpcUrls.default.http[0],
+const rpcList = filterRpcUrls(polygon, [
   "https://polygon.llamarpc.com",
   "https://endpoints.omniatech.io/v1/matic/mainnet/public",
   "https://rpc-mainnet.maticvigil.com",
   "https://polygon-rpc.com",
-];
+]);
 
 const viemConfig = {
   ...polygon,
   rpcUrls: {
     public: {
-      http,
+      http: rpcList,
     },
     default: {
-      http,
+      http: rpcList,
     },
   },
 };

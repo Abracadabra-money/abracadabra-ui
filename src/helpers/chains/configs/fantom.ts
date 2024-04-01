@@ -1,23 +1,23 @@
 import { fantom } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
+import { filterRpcUrls } from "@/helpers/chains/utils";
 import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
-const http = [
-  fantom.rpcUrls.default.http[0],
+const rpcList = filterRpcUrls(fantom, [
   "https://1rpc.io/ftm",
   "https://fantom-rpc.publicnode.com",
   "https://rpcapi.fantom.network",
   "https://fantom-mainnet.public.blastapi.io",
-];
+]);
 
 const viemConfig = {
   ...fantom,
   rpcUrls: {
     public: {
-      http,
+      http: rpcList,
     },
     default: {
-      http,
+      http: rpcList,
     },
   },
 };

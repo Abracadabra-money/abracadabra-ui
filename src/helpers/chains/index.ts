@@ -44,7 +44,7 @@ export const chains = [
   baseConfig.viemConfig,
   lineaConfig.viemConfig,
   berachainConfig.viemConfig,
-  blastSepoliaConfig,
+  blastSepoliaConfig.viemConfig,
 ];
 
 export const chainsList = {
@@ -61,7 +61,7 @@ export const chainsList = {
   59144: lineaConfig.viemConfig,
   80085: berachainConfig.viemConfig,
   81457: blastConfig.viemConfig,
-  168587773: blastSepoliaConfig,
+  168587773: blastSepoliaConfig.viemConfig,
 };
 
 export const defaultRpc = {

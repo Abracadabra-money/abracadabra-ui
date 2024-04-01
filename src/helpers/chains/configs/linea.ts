@@ -1,23 +1,23 @@
 import { linea } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
+import { filterRpcUrls } from "@/helpers/chains/utils";
 import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
-const http = [
-  linea.rpcUrls.default.http[0],
+const rpcList = filterRpcUrls(linea, [
   "https://linea.decubate.com",
   "https://linea.drpc.org",
   "https://1rpc.io/linea",
   "https://linea.blockpi.network/v1/rpc/public",
-];
+]);
 
 const viemConfig = {
   ...linea,
   rpcUrls: {
     public: {
-      http,
+      http: rpcList,
     },
     default: {
-      http,
+      http: rpcList,
     },
   },
 };

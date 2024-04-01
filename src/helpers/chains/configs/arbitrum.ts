@@ -1,32 +1,32 @@
 import { arbitrum } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
+import { filterRpcUrls } from "@/helpers/chains/utils";
 import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
-const http = [
-  arbitrum.rpcUrls.default.http[0],
+const rpcList = filterRpcUrls(arbitrum, [
   "https://arbitrum.llamarpc.com",
   "https://arbitrum-one.publicnode.com",
   "https://1rpc.io/arb",
   "https://arbitrum-one.public.blastapi.io",
-];
+]);
 
-const viemConfig = {
+const viiemConfig = {
   ...arbitrum,
   rpcUrls: {
     public: {
-      http,
+      http: rpcList,
     },
     default: {
-      http,
+      http: rpcList,
     },
   },
 };
 
-const publicClient = initPublicClient(viemConfig);
+const publicClient = initPublicClient(viiemConfig);
 
 export const arbitrumConfig = {
   publicClient,
-  viemConfig: viemConfig,
+  viemConfig: viiemConfig,
   chainId: arbitrum.id,
   chainName: "Arbitrum",
   symbol: "AETH",

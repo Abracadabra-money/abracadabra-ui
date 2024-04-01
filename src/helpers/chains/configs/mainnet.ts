@@ -1,24 +1,23 @@
-import { RPC_ETH } from "@/constants/rpc";
 import { mainnet } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
+import { filterRpcUrls } from "@/helpers/chains/utils";
 import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
-const http = [
-  RPC_ETH,
+const rpcList = filterRpcUrls(mainnet, [
   "https://eth.llamarpc.com",
-  "https://ethereum-rpc.publicnode.com	",
+  "https://ethereum.publicnode.com",
   "https://eth.drpc.org",
   "https://rpc.ankr.com/eth",
-];
+]);
 
 const viemConfig = {
   ...mainnet,
   rpcUrls: {
     public: {
-      http,
+      http: rpcList,
     },
     default: {
-      http,
+      http: rpcList,
     },
   },
 };

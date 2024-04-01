@@ -56,7 +56,9 @@ export const createBeamConfig = async (
     };
   });
 
-  const chainsInfo = chains.filter((chain) => chain.chainId !== chainId);
+  const chainsInfo = chains.filter((chain) => chain.id !== chainId);
+
+  console.log("chainsInfo", chainsInfo);
 
   const toChains = chainsInfo.map((chainItem) => {
     return {

@@ -1,7 +1,7 @@
 import { useImage } from "@/helpers/useImage";
 import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
-const http = [
+const rpcList = [
   "https://artio.rpc.berachain.com/",
   "https://rpc.ankr.com/berachain_testnet",
 ];
@@ -13,10 +13,10 @@ const viemConfig = {
   nativeCurrency: { name: "BERA", symbol: "BERA", decimals: 18 },
   rpcUrls: {
     public: {
-      http,
+      http: rpcList,
     },
     default: {
-      http,
+      http: rpcList,
     },
   },
   blockExplorers: {

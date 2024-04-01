@@ -1,23 +1,23 @@
-import { useImage } from "@/helpers/useImage";
 import { base } from "@wagmi/core/chains";
+import { useImage } from "@/helpers/useImage";
+import { filterRpcUrls } from "@/helpers/chains/utils";
 import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
-const http = [
+const rpcList = filterRpcUrls(base, [
   "https://base.llamarpc.com",
-  base.rpcUrls.default.http[0],
   "https://base.drpc.org",
   "https://base-rpc.publicnode.com",
   "https://base.meowrpc.com",
-];
+]);
 
 const viemConfig = {
   ...base,
   rpcUrls: {
     public: {
-      http,
+      http: rpcList,
     },
     default: {
-      http,
+      http: rpcList,
     },
   },
 };

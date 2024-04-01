@@ -1,23 +1,23 @@
 import { bsc } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
+import { filterRpcUrls } from "@/helpers/chains/utils";
 import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
-const http = [
-  bsc.rpcUrls.default.http[0],
+const rpcList = filterRpcUrls(bsc, [
   "https://bsc-dataseed1.ninicoin.io",
   "https://bsc-dataseed2.ninicoin.io",
   "https://bsc-dataseed3.ninicoin.io",
   "https://binance.llamarpc.com",
-];
+]);
 
 const viemConfig = {
   ...bsc,
   rpcUrls: {
     public: {
-      http,
+      http: rpcList,
     },
     default: {
-      http,
+      http: rpcList,
     },
   },
 };

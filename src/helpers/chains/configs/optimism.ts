@@ -1,23 +1,23 @@
 import { optimism } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
+import { filterRpcUrls } from "@/helpers/chains/utils";
 import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
-const http = [
+const rpcList = filterRpcUrls(optimism, [
   "https://optimism.llamarpc.com",
-  optimism.rpcUrls.default.http[0],
   "https://optimism-mainnet.public.blastapi.io",
   "https://rpc.ankr.com/optimism",
   "https://1rpc.io/op",
-];
+]);
 
 const viemConfig = {
   ...optimism,
   rpcUrls: {
     public: {
-      http,
+      http: rpcList,
     },
     default: {
-      http,
+      http: rpcList,
     },
   },
 };
