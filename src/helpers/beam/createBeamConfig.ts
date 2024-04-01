@@ -1,8 +1,9 @@
 import { markRaw } from "vue";
-import beamConfigs from "@/configs/beam/beamConfigs";
 import mimConfigs from "@/configs/tokens/mim";
-import { chains, chainsList } from "@/helpers/chains";
+import beamConfigs from "@/configs/beam/beamConfigs";
+import { chainsConfigs } from "@/helpers/chains/configs";
 import { BigNumber, Contract, providers, utils } from "ethers";
+import { getChainConfig } from "@/helpers/chains/getChainsInfo";
 import type { BeamConfig, UserInfo } from "@/helpers/beam/types";
 
 const emptyState = {
@@ -47,23 +48,23 @@ export const createBeamConfig = async (
   const beamConfig = beamConfigs.find((item) => item.chainId === chainId);
 
   const fromChains = beamConfigs.map((configItem) => {
-    const { chainId } = configItem;
+    const chainConfig: any = getChainConfig(configItem.chainId);
+
     return {
       chainId: configItem.chainId,
       title: configItem.chainName,
-      icon: chainsList[chainId as keyof typeof chainsList].networkIcon,
+      icon: chainConfig.networkIcon,
       defaultValue: configItem.defaultValue,
     };
   });
 
-  const chainsInfo = chains.filter((chain) => chain.id !== chainId);
-
-  console.log("chainsInfo", chainsInfo);
+  const chainsInfo = chainsConfigs.filter((chain) => chain.chainId !== chainId);
 
   const toChains = chainsInfo.map((chainItem) => {
     return {
       chainId: chainItem.chainId,
-      lzChainId: chainItem.lzChainId,
+      // @ts-ignore
+      lzChainId: chainItem?.lzChainId,
       title: chainItem.chainName,
       icon: chainItem.networkIcon,
     };
