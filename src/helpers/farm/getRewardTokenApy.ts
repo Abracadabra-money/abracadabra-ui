@@ -1,6 +1,8 @@
 import { Contract, utils } from "ethers";
 import store from "@/store";
 
+const ArbAddress = "0x912CE59144191C1204E64559FE8253a0e49E6548"
+
 export const getRewardTokenApy = async (
   contractAddress: string,
   contractABI: any,
@@ -58,6 +60,16 @@ export const calculateAPR = async (
     const tokensApr = [];
 
     for (const tokenInfo of rewardTokensInfo) {
+      if(tokenInfo.address === ArbAddress) {
+        tokensApr.push({
+          address: tokenInfo.address,
+          apr: 0,
+        });
+
+        continue;
+      }
+
+
       const rewardData = await publicClient.readContract({
         address: contractAddress,
         abi: contractABI,
