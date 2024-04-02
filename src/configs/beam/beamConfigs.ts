@@ -7,6 +7,11 @@ export type BeamConfig = {
     address: string;
     abi: any;
   };
+  settings: {
+    contractVersion: number;
+    disabledDestinationChains: Array<number>;
+    lzChainIdId: number;
+  };
   defaultValue: any;
 };
 
@@ -17,6 +22,11 @@ const config: Array<BeamConfig> = [
     contract: {
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
       abi: abi.OFTWrapper,
+    },
+    settings: {
+      contractVersion: 2,
+      disabledDestinationChains: [],
+      lzChainIdId: 101,
     },
     defaultValue: {
       10: "0.000000587209028",
@@ -37,6 +47,11 @@ const config: Array<BeamConfig> = [
     contract: {
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
       abi: abi.OFTWrapper,
+    },
+    settings: {
+      contractVersion: 2,
+      disabledDestinationChains: [],
+      lzChainIdId: 110,
     },
     defaultValue: {
       1: "0.008858578698816767",
@@ -59,6 +74,11 @@ const config: Array<BeamConfig> = [
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
       abi: abi.OFTWrapper,
     },
+    settings: {
+      contractVersion: 2,
+      disabledDestinationChains: [81457],
+      lzChainIdId: 177,
+    },
     defaultValue: {
       1: "0.009609676187498731",
       10: "0.00000291885122",
@@ -79,6 +99,11 @@ const config: Array<BeamConfig> = [
     contract: {
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
       abi: abi.OFTWrapper,
+    },
+    settings: {
+      contractVersion: 2,
+      disabledDestinationChains: [],
+      lzChainIdId: 106,
     },
     defaultValue: {
       1: "0.006523560791554295",
@@ -101,6 +126,11 @@ const config: Array<BeamConfig> = [
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
       abi: abi.OFTWrapper,
     },
+    settings: {
+      contractVersion: 2,
+      disabledDestinationChains: [],
+      lzChainIdId: 111,
+    },
     defaultValue: {
       1: "0.119489304809683491",
       56: "0.000548",
@@ -122,6 +152,11 @@ const config: Array<BeamConfig> = [
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
       abi: abi.OFTWrapper,
     },
+    settings: {
+      contractVersion: 2,
+      disabledDestinationChains: [],
+      lzChainIdId: 112,
+    },
     defaultValue: {
       1: "0.009609676187498731",
       10: "0.00000291885122",
@@ -142,6 +177,11 @@ const config: Array<BeamConfig> = [
     contract: {
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
       abi: abi.OFTWrapper,
+    },
+    settings: {
+      contractVersion: 2,
+      disabledDestinationChains: [],
+      lzChainIdId: 102,
     },
     defaultValue: {
       1: "0.105235446281148448",
@@ -165,6 +205,11 @@ const config: Array<BeamConfig> = [
       address: "0xE1261E47b08a22Df93af46889EE504C2Aa6DfD4c",
       abi: abi.OFTWrapper,
     },
+    settings: {
+      contractVersion: 2,
+      disabledDestinationChains: [],
+      lzChainIdId: 109,
+    },
     defaultValue: {
       1: "0.009214665824547975",
       10: "0.00000296156132",
@@ -186,6 +231,11 @@ const config: Array<BeamConfig> = [
     contract: {
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
       abi: abi.OFTWrapper,
+    },
+    settings: {
+      contractVersion: 2,
+      disabledDestinationChains: [],
+      lzChainIdId: 167,
     },
     defaultValue: {
       1: "0.009609676187498731",
@@ -209,6 +259,11 @@ const config: Array<BeamConfig> = [
       address: "0x4035957323FC05AD9704230E3dc1E7663091d262",
       abi: abi.LzIndirectOFTV2,
     },
+    settings: {
+      contractVersion: 1,
+      disabledDestinationChains: [],
+      lzChainIdId: 184,
+    },
     defaultValue: {
       1: "0.008858578698816767",
       10: "0.00000285787311",
@@ -230,6 +285,11 @@ const config: Array<BeamConfig> = [
       address: "0x60bbeFE16DC584f9AF10138Da1dfbB4CDf25A097",
       abi: abi.LzIndirectOFTV2,
     },
+    settings: {
+      contractVersion: 1,
+      disabledDestinationChains: [],
+      lzChainIdId: 183,
+    },
     defaultValue: {
       1: "0.008858578698816767",
       10: "0.00000285787311",
@@ -250,6 +310,11 @@ const config: Array<BeamConfig> = [
     contract: {
       address: "0xcA8A205a579e06Cb1bE137EA3A5E5698C091f018",
       abi: abi.LzIndirectOFTV2,
+    },
+    settings: {
+      contractVersion: 1,
+      disabledDestinationChains: [2222],
+      lzChainIdId: 243,
     },
     defaultValue: {
       1: "0.008858578698816767",
