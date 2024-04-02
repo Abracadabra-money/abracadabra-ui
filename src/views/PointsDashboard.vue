@@ -214,9 +214,9 @@ export default {
         goldPendingDistributionAmount:
           this.userPointsStatistics?.developerPoints?.founder?.pending ?? 0,
         totalPendingDistributionAmount:
-          this.pointsStatistics?.liquidityPoints?.founder?.total?.pending ?? 0,
+          this.pointsStatistics?.liquidityPoints?.founder?.pending ?? 0,
         totalGoldPendingDistributionAmount:
-          this.pointsStatistics?.developerPoints?.founder?.total?.pending ?? 0,
+          this.pointsStatistics?.developerPoints?.founder?.pending ?? 0,
       };
     },
   },
