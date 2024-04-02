@@ -14,7 +14,7 @@
       <div class="process-title">Beaming</div>
       <div class="beam-amount">
         <img class="mim-icon" src="@/assets/images/tokens/MIM.png" />
-        {{ config.mimAmount }}
+        {{ formatToFixed(config.mimAmount, 2) }}
       </div>
     </div>
 
@@ -137,6 +137,7 @@ export default {
 .indicator-icon {
   width: 100%;
   height: 100%;
+  border-radius: 50%;
 }
 
 .completed {

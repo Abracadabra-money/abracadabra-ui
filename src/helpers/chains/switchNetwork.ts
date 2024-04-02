@@ -1,5 +1,5 @@
 import { getWalletClient } from "@wagmi/core";
-import { chainsList } from "@/helpers/chains/index";
+import { getChainConfig } from "@/helpers/chains/getChainsInfo";
 import { onConnectNew } from "@/plugins/connectWallet/initConnect";
 import { createEthereumClients } from "@/plugins/connectWallet/createEthereumClients";
 
@@ -11,8 +11,9 @@ export const switchNetwork = async (chainId: number) => {
       await walletClient.switchChain({ id: chainId });
     } catch (error) {
       if (String(error).indexOf("Unrecognized chain ID") !== -1) {
+        const chainConfig: any = getChainConfig(chainId);
         await walletClient.addChain({
-          chain: chainsList[chainId as keyof typeof chainsList],
+          chain: chainConfig?.viemConfig,
         });
         await walletClient.switchChain({ id: chainId });
       }

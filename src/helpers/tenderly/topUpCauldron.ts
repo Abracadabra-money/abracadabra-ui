@@ -1,13 +1,13 @@
 import type { Address } from "viem";
-import { Wallet, providers } from "ethers";
+import type { providers } from "ethers";
 import { parseUnits, hexToBigInt } from "viem";
 import { formatAddress } from "@/helpers/filters";
 import type { TopUpCauldron } from "@/types/tenderly";
 import { MAX_ALLOWANCE_VALUE } from "@/constants/global";
 import { getMimContract } from "@/helpers/tenderly/getMimContract";
 import { sendTransaction } from "@/helpers/tenderly/sendTransaction";
-import { getMinterAddress } from "@/helpers/tenderly/getMinterAddress";
 import { getBentoBoxContract } from "@/helpers/cauldron/getBentoBoxContract";
+import { getAccount } from "@wagmi/core";
 
 export const topUpCauldron = async (
   amount: string,
@@ -22,17 +22,10 @@ export const topUpCauldron = async (
       cauldronAddress,
       provider
     );
-    const fromAddress: any = await Wallet.createRandom().address;
-    const mimContract: any = await getMimContract(chainId, provider);
-    const minterAddress = await getMinterAddress(mimContract.address, chainId);
+    const account = getAccount();
 
-    await sendTransaction(
-      mimContract,
-      minterAddress,
-      "mint",
-      [fromAddress, formattedAmount],
-      provider
-    );
+    const fromAddress: any = account.address;
+    const mimContract: any = await getMimContract(chainId, provider);
 
     await sendTransaction(
       mimContract,

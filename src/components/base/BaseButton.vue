@@ -2,7 +2,12 @@
   <a
     class="default-button"
     :style="{ 'max-width': setWidth() }"
-    :class="{ primary: primary, disabled: disabled || loading, borderless }"
+    :class="{
+      warning: warning,
+      primary: primary,
+      disabled: disabled || loading,
+      borderless,
+    }"
   >
     <div><slot></slot></div>
     <span v-if="loading" class="loader"></span>
@@ -16,6 +21,9 @@ export default {
     primary: {
       type: Boolean,
     },
+    error: {
+      type: Boolean,
+    },
     borderless: {
       type: Boolean,
     },
@@ -26,6 +34,9 @@ export default {
       type: String,
     },
     disabled: {
+      type: Boolean,
+    },
+    warning: {
       type: Boolean,
     },
   },
@@ -41,9 +52,8 @@ export default {
 .default-button {
   cursor: pointer;
   position: relative;
-  border-radius: 20px;
+  border-radius: 16px;
   // background: #403e4a;
-  height: 50px;
   padding: 0 20px;
   display: flex;
   align-items: center;
@@ -61,6 +71,15 @@ export default {
   color: #7088cc;
   transition: all 0.3s ease;
 
+  &.warning {
+    color: #fff;
+    background: #8c4040;
+    border: none;
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
   &.disabled {
     pointer-events: none;
     cursor: not-allowed;
@@ -71,6 +90,19 @@ export default {
 
     &:hover {
       background: #616068;
+    }
+  }
+
+  &.error {
+    color: white;
+    background: #8c4040;
+    border: none;
+    transition: none;
+    &:hover {
+      background: #ab4a4a;
+    }
+    &.disabled {
+      background: #642e2e;
     }
   }
 
@@ -91,7 +123,23 @@ export default {
       );
     }
   }
-  &:not(.primary, .borderless) {
+
+  &.warning {
+    border: none;
+    color: #fff;
+    background: rgba(140, 64, 64, 1);
+
+    &.disabled {
+      background: #40557e;
+      background: linear-gradient(
+        90deg,
+        rgba(35, 65, 151, 0.4) 0.01%,
+        rgba(87, 68, 143, 0.4) 100%
+      );
+    }
+  }
+
+  &:not(.primary, .borderless, .warning) {
     &:hover:not(.disabled) {
       border: 2px solid #86a2f1;
       color: #86a2f1;
@@ -142,6 +190,12 @@ export default {
   }
   40% {
     height: 8px;
+  }
+}
+
+@media (max-width: 600px) {
+  .default-button {
+    height: 39px;
   }
 }
 </style>

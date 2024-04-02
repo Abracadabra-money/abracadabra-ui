@@ -39,9 +39,9 @@
 import { mapGetters } from "vuex";
 import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
-import { getChainById } from "@/helpers/chains";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import { MAX_ALLOWANCE_VALUE } from "@/constants/global";
+import { getChainConfig } from "@/helpers/chains/getChainsInfo";
 import { applyTokenWrapperRate } from "@/helpers/cauldron/utils";
 import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
 
@@ -116,7 +116,7 @@ export default {
         this.cauldron;
       const { nativeTokenBalance } = userTokensInfo;
       const { decimals } = config.collateralInfo;
-      const { baseTokenSymbol, baseTokenIcon }: any = getChainById(
+      const { baseTokenSymbol, baseTokenIcon }: any = getChainConfig(
         config.chainId
       );
 

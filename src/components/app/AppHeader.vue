@@ -13,6 +13,12 @@
         <HeaderStakeDropdown />
 
         <HeaderMoreDropdown />
+
+        <router-link class="header-link" :to="{ name: 'MimSwap' }">
+          MIMSwap
+        </router-link>
+
+        <BlastButton />
       </div>
 
       <div class="account-activities">
@@ -266,6 +272,9 @@ export default {
     BellButton: defineAsyncComponent(() =>
       import("@/components/notifi/BellButton.vue")
     ),
+    BlastButton: defineAsyncComponent(() =>
+      import("@/components/ui/buttons/BlastButton.vue")
+    ),
   },
 };
 </script>
@@ -303,7 +312,7 @@ export default {
 }
 
 .general-activities {
-  gap: 40px;
+  gap: 25px;
 }
 
 .account-activities {
@@ -317,7 +326,7 @@ export default {
 
 .header-link {
   display: flex;
-  padding: 12px 20px;
+  padding: 10px 6px;
   align-items: center;
   gap: 10px;
   height: 50px;
@@ -327,6 +336,20 @@ export default {
   font-weight: 600;
   line-height: 22px;
   cursor: pointer;
+
+  &.blast-link {
+    height: 40px;
+    background-color: #fcfc06;
+    img {
+      width: 77px;
+      height: auto;
+    }
+
+    &:hover {
+      background: #fcfc06;
+      opacity: 0.9;
+    }
+  }
 }
 
 .header-link:hover {
@@ -346,6 +369,7 @@ export default {
 .networks-btn img {
   width: 32px;
   height: 32px;
+  border-radius: 50px;
 }
 
 .dropdown-tools {

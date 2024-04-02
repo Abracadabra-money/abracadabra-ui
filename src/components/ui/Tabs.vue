@@ -1,10 +1,12 @@
 <template>
-  <div :style="`width: ${width};`" class="switch">
+  <div class="switch">
     <button
       v-for="(item, i) in items"
+      :style="`color: ${name === item ? activeColor : ''};`"
       class="switch-btn"
       :class="{ 'switch-btn-active': name === item, small }"
       :key="i"
+      :disabled="disabledTabs.includes(item)"
       @click="$emit('select', item)"
     >
       <img class="icon" v-if="icons[i]" :src="icons[i]" alt="Tab icon" />
@@ -36,6 +38,14 @@ export default {
       type: Boolean,
       default: false,
     },
+    activeColor: {
+      type: String,
+      default: "#7088cc",
+    },
+    disabledTabs: {
+      type: Array,
+      default: () => [],
+    },
   },
 
   emits: ["select"],
@@ -47,12 +57,17 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 220px;
   height: 48px;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.04);
   background: rgba(16, 18, 23, 0.38);
   padding: 6px;
+  z-index: 1;
+
+  *:disabled {
+    color: rgba(255, 255, 255, 0.2);
+    cursor: not-allowed;
+  }
 }
 
 .switch-btn {
@@ -61,6 +76,7 @@ export default {
   text-align: center;
   font-size: 16px;
   font-weight: 500;
+  text-align: center;
   border-radius: 8px;
   background-color: transparent;
   border: none;
@@ -69,6 +85,7 @@ export default {
   text-transform: capitalize;
   gap: 10px;
   display: flex;
+  justify-content: center;
   align-items: center;
 }
 
@@ -84,5 +101,12 @@ export default {
 
 .small {
   text-transform: initial;
+}
+
+@media screen and (max-width: 600px) {
+  .switch-btn {
+    font-size: 14px;
+    padding: 6px 20px;
+  }
 }
 </style>

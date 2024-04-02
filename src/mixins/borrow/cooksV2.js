@@ -7,11 +7,11 @@ import { actions } from "@/helpers/cauldron/cook/actions";
 import { MAINNET_APE_ADDRESS } from "@/constants/tokensAddress";
 import { MAINNET_USDT_ADDRESS } from "@/constants/tokensAddress";
 import { DEFAULT_TOKEN_ADDRESS } from "@/constants/tokensAddress";
+import { MAINNET_WETH_ADDRESS } from "@/constants/tokensAddress";
 import { setMasterContractApproval } from "@/helpers/cauldron/boxes";
 import { getSetMaxBorrowData } from "@/helpers/cauldron/cook/setMaxBorrow";
 import degenBoxCookHelperMixin from "@/mixins/borrow/degenBoxCookHelper.js";
 import { USDC_ADDRESS, WETH_ADDRESS, ORDER_AGENT } from "@/constants/gm";
-
 import { getGlpLevData, getGlpLiqData } from "@/helpers/glpData/getGlpSwapData";
 import { getOpenoceanLeverageSwapData } from "@/helpers/openocean/getOpenoceanLeverageSwapData";
 import { getOpenoceanDeleverageSwapData } from "@/helpers/openocean/getOpenoceanDeleverageSwapData";
@@ -27,8 +27,10 @@ import { getDepositAmount } from "@/helpers/gm/getDepositAmount";
 import { getWithdrawalAmountsByMarket } from "@/helpers/gm/getWithdrawalAmounts";
 
 import { getOrderBalances } from "@/helpers/gm/orders";
-import { BigNumber, Contract, utils } from "ethers";
+import { Contract, utils } from "ethers";
 import OrderAgentAbi from "@/abis/gm/OrderAgentAbi";
+import { getCurveWithdrawOneCoinAmount } from "@/helpers/getCurveWithdrawOneCoinAmount";
+import { getYearnVaultWithdrawAmount } from "@/helpers/getYearnVaultWithdrawAmount";
 
 export default {
   mixins: [degenBoxCookHelperMixin],
@@ -81,6 +83,18 @@ export default {
 
     isSUSDT() {
       return this.chainId === 1 && this.cauldron.config.id === 42;
+    },
+
+    yvWETH() {
+      return this.chainId === 1 && this.cauldron.config.id === 6;
+    },
+
+    cvxtricrypto2() {
+      return this.chainId === 1 && this.cauldron.config.id === 16;
+    },
+
+    cvx3pool() {
+      return this.chainId === 1 && this.cauldron.config.id === 25;
     },
   },
   methods: {
@@ -137,7 +151,10 @@ export default {
       }
       if (this.isApe) buyToken = MAINNET_APE_ADDRESS;
 
-      if (this.isSUSDT) buyToken = MAINNET_USDT_ADDRESS;
+      if (this.isSUSDT || this.cvxtricrypto2 || this.cvx3pool)
+        buyToken = MAINNET_USDT_ADDRESS;
+
+      if (this.yvWETH) buyToken = MAINNET_WETH_ADDRESS;
 
       const swapResponse = await swap0xRequest(
         this.chainId,
@@ -147,6 +164,17 @@ export default {
         amount,
         leverageSwapper.address
       );
+      
+      if (this.cvxtricrypto2 || this.cvx3pool) {
+              // Temporary fix for cvx3pool and cvxtricrypto2
+      // TODO: review config strucrure
+      const tokenIndex = this.cvx3pool ? 2 : 0;
+
+        return utils.defaultAbiCoder.encode(
+          ["address", "uint256", "bytes"],
+          [MAINNET_USDT_ADDRESS, tokenIndex, swapResponse.data]
+        );
+      }
 
       return swapResponse.data;
     },
@@ -180,7 +208,24 @@ export default {
         selAmount = await collateral.convertToAssets(collateralAmount);
       }
 
-      if (this.isSUSDT) selToken = MAINNET_USDT_ADDRESS;
+      if (this.isSUSDT || this.cvxtricrypto2 || this.cvx3pool)
+        selToken = MAINNET_USDT_ADDRESS;
+
+      if (this.yvWETH) selToken = MAINNET_WETH_ADDRESS;
+
+      if (this.cvxtricrypto2 || this.cvx3pool) {
+        selAmount = await getCurveWithdrawOneCoinAmount(
+          collateralAmount,
+          this.cauldron.config.id
+        );
+      }
+
+      if (this.yvWETH) {
+        selAmount = await getYearnVaultWithdrawAmount(
+          collateralAmount,
+          this.account
+        );
+      }
 
       const response = await swap0xRequest(
         this.chainId,
@@ -190,6 +235,15 @@ export default {
         selAmount,
         swapper
       );
+
+      if (this.cvxtricrypto2 || this.cvx3pool) {
+        const usdtTokenIndex = this.cvx3pool ? 2 : 0;
+        return utils.defaultAbiCoder.encode(
+          ["uint256", "bytes"],
+          [usdtTokenIndex, response.data]
+        );
+      }
+
       return response.data;
     },
 

@@ -181,9 +181,8 @@ export default {
       return this.activeTab === "repay";
     },
 
-    isWrapAllowed() {
-      if (!this.cauldron?.config?.wrapInfo) return false;
-      return !this.cauldron.config.wrapInfo?.isHiddenWrap;
+    isHiddenWrap() {
+      return !!this.cauldron.config?.wrapInfo?.isHiddenWrap;
     },
   },
 
@@ -224,8 +223,8 @@ export default {
       this.actionConfig.useLeverage = false;
       this.actionConfig.useDeleverage = false;
       this.actionConfig.useNativeToken = false;
-      this.actionConfig.useUnwrapToken = false;
-      this.actionConfig.withdrawUnwrapToken = this.isWrapAllowed;
+      this.actionConfig.useUnwrapToken = this.isHiddenWrap ? true : false;
+      this.actionConfig.withdrawUnwrapToken = this.isHiddenWrap;
     },
 
     onUpdateToggle(toggle: string, isReset = false) {
@@ -352,7 +351,10 @@ export default {
     this.getWindowSize();
     window.addEventListener("resize", this.getWindowSize, false);
 
-    this.actionConfig.withdrawUnwrapToken = this.isWrapAllowed;
+    this.actionConfig.withdrawUnwrapToken = this.isHiddenWrap;
+    this.actionConfig.useUnwrapToken = this.isHiddenWrap;
+
+    console.log("this.cauldron", this.cauldron);
 
     this.updateInterval = setInterval(async () => {
       await this.createCauldronInfo();

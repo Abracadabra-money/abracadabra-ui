@@ -14,6 +14,10 @@
       </div>
 
       <ul class="popup-links">
+        <li class="popup-link-wrap blast-wrap" @click="closePopup">
+          <BlastButton isMobile="" />
+        </li>
+
         <li class="popup-link-wrap" @click="closePopup">
           <router-link
             class="popup-link my-positions"
@@ -30,6 +34,13 @@
               src="@/assets/images/header/dropdown/more/cauldrons-icon.png"
             />
             <span class="link-text"> Cauldrons </span>
+          </router-link>
+        </li>
+
+        <li class="popup-link-wrap" @click="closePopup">
+          <router-link class="popup-link" :to="{ name: 'MimSwap' }">
+            <img src="@/assets/images/header/dropdown/more/swap-icon.svg" />
+            <span class="link-text"> MimSwap </span>
           </router-link>
         </li>
 
@@ -117,7 +128,7 @@ import Discord from "@/components/ui/icons/Discord.vue";
 import V2 from "@/components/ui/icons/V2.vue";
 import ConnectButton from "@/components/ui/buttons/ConnectButton.vue";
 import HeaderStakeMobilePopup from "@/components/popups/HeaderStakeMobilePopup.vue";
-
+import BlastButton from "@/components/ui/buttons/BlastButton.vue";
 export default {
   props: {
     networkIcon: { type: String },
@@ -157,6 +168,7 @@ export default {
     Discord,
     GitHub,
     V2,
+    BlastButton,
   },
 };
 </script>
@@ -204,12 +216,17 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: start;
-  gap: 28px;
+  gap: 23px;
   list-style: none;
 }
 
 .popup-link-wrap {
   width: 100%;
+}
+
+.blast-wrap {
+  margin-top: 12px;
+  height: max-content;
 }
 
 .popup-link {
@@ -225,6 +242,24 @@ export default {
   cursor: pointer;
   transition: all 0.5s;
 
+  &.blast-link {
+    opacity: 1;
+    height: 40px;
+    background-color: #fcfc06;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    img {
+      width: 77px;
+      height: auto;
+    }
+
+    &:hover {
+      background: #fcfc06;
+      opacity: 0.9;
+    }
+  }
+
   img {
     width: 24px;
   }
@@ -235,7 +270,7 @@ export default {
 }
 
 .my-positions {
-  margin: 40px 0 12px 0;
+  margin: 12px 0 12px 0;
 }
 
 .popup-connect {
