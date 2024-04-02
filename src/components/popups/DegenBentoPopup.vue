@@ -19,7 +19,7 @@
         <span class="desc-line"> Withdraw your MIM from {{ title }} on </span>
         <span class="desc-line">
           <img :src="getChainIcon(infoObject.chainId)" class="mim-symbol" />
-          {{ chainInfo.name }} Network
+          {{ chainInfo.chainName }} Network
         </span>
       </p>
 
@@ -55,7 +55,7 @@ import { formatTokenBalance } from "@/helpers/filters";
 import actions from "@/helpers/bentoBox/actions";
 import { approveTokenViem } from "@/helpers/approval";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
-import { getChainById } from "@/helpers/chains/index";
+import { getChainConfig } from "@/helpers/chains/getChainsInfo";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import { formatUnits, parseUnits } from "viem";
 import { BigNumber, utils } from "ethers";
@@ -140,7 +140,7 @@ export default {
     },
 
     chainInfo() {
-      return getChainById(this.infoObject.chainId);
+      return getChainConfig(this.infoObject.chainId);
     },
   },
 

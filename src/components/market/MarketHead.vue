@@ -55,9 +55,9 @@
 import { utils } from "ethers";
 import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
-import { chainsList } from "@/helpers/chains";
 import { formatLargeSum } from "@/helpers/filters";
 import { getTokenLinkData } from "@/helpers/getTokenLinkData";
+import { getChainConfig } from "@/helpers/chains/getChainsInfo";
 
 export default {
   props: {
@@ -97,10 +97,9 @@ export default {
     },
 
     cauldronScanUrl() {
-      return `${
-        chainsList[this.cauldron.config.chainId as keyof typeof chainsList]
-          .blockExplorers.etherscan.url
-      }/address/${this.cauldron.config.contract.address}`;
+      const chainConfig = getChainConfig(this.cauldron.config.chainId);
+      // @ts-ignore
+      return `${chainConfig?.viemConfig?.blockExplorers?.etherscan?.url}/address/${this.cauldron.config.contract.address}`;
     },
 
     isActiveChain() {

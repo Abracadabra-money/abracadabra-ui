@@ -89,9 +89,9 @@
 </template>
 
 <script>
-import { getChainById } from "@/helpers/chains";
-import { getChainIcon } from "@/helpers/chains/getChainIcon";
 import { defineAsyncComponent } from "vue";
+import { getChainIcon } from "@/helpers/chains/getChainIcon";
+import { getChainConfig } from "@/helpers/chains/getChainsInfo";
 
 export default {
   props: {
@@ -140,7 +140,7 @@ export default {
   methods: {
     getChainIcon,
     getChainName(chainId) {
-      const chain = getChainById(chainId);
+      const chain = getChainConfig(chainId);
       return chain.chainName;
     },
 

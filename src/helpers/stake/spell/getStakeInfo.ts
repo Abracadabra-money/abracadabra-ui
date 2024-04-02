@@ -1,17 +1,17 @@
-import { createPublicClient, http, parseUnits } from "viem";
+import { parseUnits } from "viem";
 import { getAccount } from "@wagmi/core";
 import { spellConfig } from "@/configs/stake/spellConfig";
 import { tokensChainLink } from "@/configs/chainLink/config";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { getSpellInfo } from "@/helpers/stake/spell/getSpellInfo";
 import { getMSpellInfo } from "@/helpers/stake/spell/getMSpellInfo";
 import { getSSpellInfo } from "@/helpers/stake/spell/getSSpellInfo";
 import { getSpellEmptyState } from "@/helpers/stake/spell/emptyState";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 import { getSpellStakingApr } from "@/helpers/stake/spell/getSpellStakingApr";
-import { chainsList } from "@/helpers/chains";
 
 export const getStakeInfo = async () => {
-  const account: any = getAccount().address;
+  const account = getAccount().address;
 
   if (!account) {
     return await Promise.all(
@@ -29,18 +29,11 @@ export const getStakeInfo = async () => {
   const spellPrice = parseUnits(price.toString(), 18);
 
   return await Promise.all(
-    Object.keys(spellConfig).map(async (chainId: any) => {
-      const config = spellConfig[chainId as keyof typeof spellConfig];
+    Object.keys(spellConfig).map(async (chainId: string) => {
+      const currentChainId = Number(chainId);
+      const config = spellConfig[currentChainId as keyof typeof spellConfig];
 
-      const chain: any = chainsList[chainId as keyof typeof chainsList];
-
-      const publicClient = createPublicClient({
-        batch: {
-          multicall: true,
-        },
-        chain: chain,
-        transport: http(),
-      });
+      const publicClient = getPublicClient(currentChainId);
 
       const spell = await getSpellInfo(
         config,
@@ -68,7 +61,7 @@ export const getStakeInfo = async () => {
       const { sSpellApr, mSpellApr } = await getSpellStakingApr();
 
       return {
-        chainId: Number(chainId),
+        chainId: currentChainId,
         spell,
         mSpell: { ...mSpell, apr: mSpellApr },
         sSpell: { ...sSpell, apr: sSpellApr },

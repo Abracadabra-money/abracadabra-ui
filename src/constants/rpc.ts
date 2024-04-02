@@ -1,5 +1,5 @@
 export const RPC_ETH = "https://ethereum.publicnode.com";
-export const RPC_OPTIMISM = "https://mainnet.optimism.io";
+export const RPC_OPTIMISM = "https://optimism.llamarpc.com";
 export const RPC_BSC = "https://bsc-dataseed.binance.org/";
 export const RPC_POLYGON = "https://polygon-rpc.com";
 export const RPC_FTM = "https://rpc.ftm.tools/";
