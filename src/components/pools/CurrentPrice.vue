@@ -11,7 +11,7 @@
 
 <script lang="ts">
 import { defineAsyncComponent, type Prop } from "vue";
-import { formatTokenBalance, formatUSD } from "@/helpers/filters";
+import { formatToFixed, formatUSD } from "@/helpers/filters";
 
 type Token = {
   config: {
@@ -59,7 +59,7 @@ export default {
     },
 
     tokensRate() {
-      const precition = 1000000000000000000;
+      const precision = 1000000000000000000;
       const { midPrice, fromBase } = this.currentPriceInfo;
       const { from, to } = this.currentPriceInfo.amounts;
 
@@ -70,15 +70,15 @@ export default {
       if (midPrice === 0n) return this.tokensRateByDefelLama;
 
       const rate = fromBase
-        ? Number(midPrice) / precition
-        : precition / Number(midPrice);
+        ? Number(midPrice) / precision
+        : precision / Number(midPrice);
       return rate;
     },
 
     tokensRateToShow() {
       return this.toggle
-        ? formatTokenBalance(1 / this.tokensRate)
-        : formatTokenBalance(this.tokensRate);
+        ? formatToFixed(1 / this.tokensRate, 2)
+        : formatToFixed(this.tokensRate,  2);
     },
 
     fromTokenName() {
