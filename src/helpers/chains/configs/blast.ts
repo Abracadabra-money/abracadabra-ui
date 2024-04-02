@@ -52,7 +52,7 @@ export const blastConfig = {
   viemConfig: viemConfig,
   chainId: viemConfig.id,
   chainName: "Blast",
-  symbol: "ETH",
+  symbol: "Blast",
   icon: useImage("assets/images/networks/blast.png"),
   baseTokenIcon: useImage("assets/images/tokens/ETH.png"),
   baseTokenSymbol: "ETH",

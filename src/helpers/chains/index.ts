@@ -1,18 +1,3 @@
-import { mainnetConfig } from "@/helpers/chains/configs/mainnet";
-import { optimismConfig } from "@/helpers/chains/configs/optimism";
-import { binanceConfig } from "@/helpers/chains/configs/binance";
-import { polygonConfig } from "@/helpers/chains/configs/polygon";
-import { fantomConfig } from "@/helpers/chains/configs/fantom";
-import { moonriverConfig } from "@/helpers/chains/configs/moonriver";
-import { kavaConfig } from "@/helpers/chains/configs/kava";
-import { baseConfig } from "@/helpers/chains/configs/base";
-import { arbitrumConfig } from "@/helpers/chains/configs/arbitrum";
-import { avalancheConfig } from "@/helpers/chains/configs/avalanche";
-import { lineaConfig } from "@/helpers/chains/configs/linea";
-import { berachainConfig } from "@/helpers/chains/configs/bera";
-import { blastSepoliaConfig } from "@/helpers/chains/configs/blastSepolia";
-import { blastConfig } from "@/helpers/chains/configs/blast";
-
 import {
   RPC_ETH,
   RPC_OPTIMISM,
@@ -30,40 +15,6 @@ import {
   RPC_BLAST,
 } from "@/constants/rpc";
 
-export const chains = [
-  mainnetConfig.viemConfig,
-  arbitrumConfig.viemConfig,
-  blastConfig.viemConfig,
-  kavaConfig.viemConfig,
-  avalancheConfig.viemConfig,
-  optimismConfig.viemConfig,
-  fantomConfig.viemConfig,
-  binanceConfig.viemConfig,
-  polygonConfig.viemConfig,
-  moonriverConfig.viemConfig,
-  baseConfig.viemConfig,
-  lineaConfig.viemConfig,
-  berachainConfig.viemConfig,
-  blastSepoliaConfig.viemConfig,
-];
-
-export const chainsList = {
-  1: mainnetConfig.viemConfig,
-  10: optimismConfig.viemConfig,
-  56: binanceConfig.viemConfig,
-  137: polygonConfig.viemConfig,
-  250: fantomConfig.viemConfig,
-  1285: moonriverConfig.viemConfig,
-  2222: kavaConfig.viemConfig,
-  8453: baseConfig.viemConfig,
-  42161: arbitrumConfig.viemConfig,
-  43114: avalancheConfig.viemConfig,
-  59144: lineaConfig.viemConfig,
-  80085: berachainConfig.viemConfig,
-  81457: blastConfig.viemConfig,
-  168587773: blastSepoliaConfig.viemConfig,
-};
-
 export const defaultRpc = {
   1: RPC_ETH,
   10: RPC_OPTIMISM,
@@ -80,9 +31,6 @@ export const defaultRpc = {
   81457: RPC_BLAST,
   168587773: RPC_BLAST_SEPOLIA,
 };
-
-export const getChainById = (chainId: number): Object =>
-  chainsList[chainId as keyof typeof chainsList];
 
 export const getRpcByChainId = (chainId: number): string =>
   defaultRpc[chainId as keyof typeof defaultRpc];

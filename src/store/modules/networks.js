@@ -1,8 +1,8 @@
-import { chains } from "@/helpers/chains";
+import { chainsConfigs } from "@/helpers/chains/configs";
 
 export default {
   state: {
-    networks: chains,
+    networks: chainsConfigs,
     chainId: null,
   },
   mutations: {

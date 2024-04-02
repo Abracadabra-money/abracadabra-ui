@@ -43,7 +43,7 @@ export const blastSepoliaConfig = {
   publicClient,
   viemConfig: viemConfig,
   chainId: viemConfig.id,
-  symbol: "ETH",
+  symbol: "Blast Sepolia",
   chainName: "Blast Sepolia",
   icon: useImage("assets/images/networks/blast.png"),
   baseTokenIcon: useImage("assets/images/tokens/ETH.png"),

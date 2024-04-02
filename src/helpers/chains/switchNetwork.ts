@@ -1,7 +1,7 @@
 import { getWalletClient } from "@wagmi/core";
+import { getChainConfig } from "@/helpers/chains/getChainsInfo";
 import { onConnectNew } from "@/plugins/connectWallet/initConnect";
 import { createEthereumClients } from "@/plugins/connectWallet/createEthereumClients";
-import { getChainConfig } from "@/helpers/chains/getChainsInfo";
 
 export const switchNetwork = async (chainId: number) => {
   const walletClient = await getWalletClient();

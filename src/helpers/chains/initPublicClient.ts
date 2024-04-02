@@ -34,7 +34,7 @@ export const initPublicClient: any = (chainConfig: any) => {
 // };
 
 // const filterActiveRpc = async (chainId: number) => {
-//   const currentChainConfig = chainsList[chainId as keyof typeof chainsList];
+//   const currentChainConfig = getChainConfig(chainId);
 
 //   const defaultRpc: string[] = currentChainConfig.rpcUrls.default.http;
 

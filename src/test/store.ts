@@ -1,7 +1,7 @@
 import Vuex from "vuex";
 import { providers } from "ethers";
-import { chains } from "@/helpers/chains";
 import { defaultRpc } from "@/helpers/chains";
+import { chainsConfigs } from "@/helpers/chains/configs";
 
 export const testStore = new Vuex.Store({
   modules: {
@@ -9,7 +9,7 @@ export const testStore = new Vuex.Store({
       state: {
         chainId: 1,
         account: "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
-        networks: chains,
+        networks: chainsConfigs,
       },
       getters: {
         getChainId: (state) => state.chainId,
