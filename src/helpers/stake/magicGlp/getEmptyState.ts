@@ -1,11 +1,11 @@
+import { formatUnits } from "viem";
 import { BIPS } from "@/constants/global";
 import { useImage } from "@/helpers/useImage";
-import { arbitrum, avalanche } from "viem/chains";
-import { ARBITRUM_CHAIN_ID } from "@/constants/global";
-import { createPublicClient, formatUnits, http } from "viem";
-import { magicGlpConfig } from "@/configs/stake/magicGlp/magicGlpConfig";
 import { MIM_PRICE, ONE_ETHER_VIEM } from "@/constants/global";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import type { EmptyState } from "@/types/magicGlp/additionalInfo";
+import { magicGlpConfig } from "@/configs/stake/magicGlp/magicGlpConfig";
+import { ARBITRUM_CHAIN_ID, AVALANCHE_CHAIN_ID } from "@/constants/global";
 import { getTotalRewards } from "@/helpers/stake/magicGlp/subgraph/getTotalRewards";
 
 const { mainToken, stakeToken } =
@@ -39,11 +39,10 @@ export const getEmptyState = async (config: any, chainId: number) => {
   const { rewardToken, leverageInfo } = config.additionalInfo;
   const { harvestor, chainLink, stakeToken, mainToken, oracle } = config;
 
-  // todo new chain config
-  const publicClient = createPublicClient({
-    chain: chainId === arbitrum.id ? arbitrum : avalanche,
-    transport: http(),
-  });
+  const currentChain =
+    chainId === ARBITRUM_CHAIN_ID ? ARBITRUM_CHAIN_ID : AVALANCHE_CHAIN_ID;
+
+  const publicClient = getPublicClient(currentChain);
 
   const [
     totalSupply,

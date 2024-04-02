@@ -1,11 +1,10 @@
-import type { MagicLvlStakeInfo } from "@/types/magicLvl/stakeInfo";
+import { useImage } from "@/helpers/useImage";
 import { MASTER_ADDRESS } from "@/constants/lvlFinance";
 import { magicLvlConfig } from "@/configs/stake/magicLvlConfig";
-import { getAdditionalInfo } from "@/helpers/stake/magicLvl/getAdditionalInfo";
-import { bsc } from "viem/chains";
-import { createPublicClient, http } from "viem";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
+import type { MagicLvlStakeInfo } from "@/types/magicLvl/stakeInfo";
 import { BSC_CHAIN_ID, MIM_PRICE, ONE_ETHER_VIEM } from "@/constants/global";
-import { useImage } from "@/helpers/useImage";
+import { getAdditionalInfo } from "@/helpers/stake/magicLvl/getAdditionalInfo";
 
 const {
   mainToken: seniorMainToken,
@@ -123,10 +122,7 @@ const emptyState: any = {
 };
 
 const getTokenInfo = async (config: any) => {
-  const publicClient = createPublicClient({
-    chain: bsc,
-    transport: http(),
-  });
+  const publicClient = getPublicClient(BSC_CHAIN_ID);
 
   const [oracleRate, tokenRate, totalSupply]: any =
     await publicClient.multicall({

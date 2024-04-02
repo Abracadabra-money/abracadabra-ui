@@ -3,6 +3,9 @@
     <div class="pool-header">
       <div class="title-settings">
         <h3 class="title">MIM Pool</h3>
+
+        <BaseButton class="link-button" @click="goToSwap">Swap</BaseButton>
+
         <SwapSettingsPopup
           :slippage="50n"
           :defaultSlippage="50n"
@@ -28,14 +31,15 @@
       </div>
     </div>
 
-    <Remove
+    <RemoveUnstakeWrap
       :pool="pool"
       :slippage="slippage"
       :deadline="deadline"
       @updatePoolInfo="$emit('getPoolInfo')"
       v-show="isRemove"
     />
-    <Deposit
+
+    <DepositStakeWrap
       :pool="pool"
       :slippage="slippage"
       :deadline="deadline"
@@ -47,6 +51,12 @@
 
 <script>
 import { defineAsyncComponent } from "vue";
+
+export const actionStatus = {
+  SUCCESS: "success",
+  PENDING: "pending",
+  WAITING: "waiting",
+};
 
 export default {
   props: {
@@ -84,9 +94,18 @@ export default {
     updateDeadlineValue(value) {
       this.deadline = value;
     },
+
+    goToSwap() {
+      this.$router.push({
+        name: "MimSwap",
+      });
+    },
   },
 
   components: {
+    BaseButton: defineAsyncComponent(() =>
+      import("@/components/base/BaseButton.vue")
+    ),
     Tabs: defineAsyncComponent(() => import("@/components/ui/Tabs.vue")),
     TokenPair: defineAsyncComponent(() =>
       import("@/components/pools/pool/TokenPair.vue")
@@ -94,11 +113,11 @@ export default {
     SwapSettingsPopup: defineAsyncComponent(() =>
       import("@/components/popups/swap/SwapSettingsPopup.vue")
     ),
-    Deposit: defineAsyncComponent(() =>
-      import("@/components/pools/pool/Deposit.vue")
+    DepositStakeWrap: defineAsyncComponent(() =>
+      import("@/components/pools/pool/DepositStakeWrap.vue")
     ),
-    Remove: defineAsyncComponent(() =>
-      import("@/components/pools/pool/Remove.vue")
+    RemoveUnstakeWrap: defineAsyncComponent(() =>
+      import("@/components/pools/pool/RemoveUnstakeWrap.vue")
     ),
   },
 };
@@ -114,6 +133,11 @@ export default {
   min-height: 66px;
   width: 100%;
   margin-bottom: 16px;
+}
+
+.link-button {
+  width: auto !important;
+  margin-right: auto;
 }
 
 .title-settings {
@@ -172,7 +196,6 @@ export default {
 
 @media (max-width: 600px) {
   .my-position-button {
-    height: 39px;
     font-size: 14px;
   }
 }

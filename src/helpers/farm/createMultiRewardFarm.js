@@ -1,17 +1,13 @@
-import { multicall } from "@wagmi/core";
-import { formatUnits, createPublicClient, http } from "viem";
-import chainLinkAbi from "@/abis/chainLink";
-import { chainsList } from "@/helpers/chains";
-import { getRewardTokenApy, calculateAPR } from "./getRewardTokenApy";
 import { markRaw } from "vue";
+import { formatUnits } from "viem";
+import { multicall } from "@wagmi/core";
+import chainLinkAbi from "@/abis/chainLink";
+import { calculateAPR } from "@/helpers/farm/getRewardTokenApy";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
+// import { getRewardTokenApy} from "@/helpers/farm/getRewardTokenApy";
 
 export const createMultiRewardFarm = async (config, account) => {
-  const chain = chainsList[config.contractChain];
-
-  const publicClient = createPublicClient({
-    chain: chain,
-    transport: http(),
-  });
+  const publicClient = getPublicClient(config.contractChain);
 
   const { stakingToken, contract } = config;
 

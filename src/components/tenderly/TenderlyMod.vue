@@ -38,7 +38,7 @@ import {
   TENDERLY_EVENT_CHANGED_DATA,
 } from "@/constants/tenderly";
 import { mapActions, mapGetters } from "vuex";
-import { chains } from "@/helpers/chains";
+import { chainsConfigs } from "@/helpers/chains/configs";
 import notification from "@/helpers/notification/notification";
 import { addAndSwitchForkOnWallet } from "@/helpers/tenderly/addAndSwitchForkOnWallet";
 
@@ -80,7 +80,7 @@ export default {
     },
 
     async addAndSwitch() {
-      const networkConfig = chains.find(
+      const networkConfig = chainsConfigs.find(
         (network) => network.chainId === this.chainId
       );
 

@@ -80,7 +80,6 @@ export default {
 
   async created() {
     await this.getPoolInfo();
-
     this.poolsTimer = setInterval(async () => {
       await this.getPoolInfo();
     }, 60000);
@@ -111,7 +110,7 @@ export default {
   align-items: start;
   width: 100%;
   min-height: 100vh;
-  padding: 100px 0 40px 0;
+  padding: 120px 0 40px 0;
   margin: 0 auto;
 }
 

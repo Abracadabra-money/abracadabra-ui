@@ -1,5 +1,5 @@
 import type { Address } from "viem";
-import { getPublicClient } from "@/helpers/getPublicClient";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 //@ts-ignore
 import BlastMagicLPAbi from "@/abis/BlastMagicLpAbi";
 import MagicLPPrice from "@/abis/MagicLPPrice";

@@ -89,14 +89,13 @@ import { defineAsyncComponent } from "vue";
 import { formatTokenBalance } from "@/helpers/filters";
 import { blastStakeConfig } from "@/configs/blast/stake";
 import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
-import { getPublicClient } from "@/helpers/getPublicClient";
+import { BlastLockingMultiRewards } from "@/constants/blast";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import {
   getStakeTokenInfo,
   getStakeInfo,
 } from "@/helpers/blast/stake/getStakeInfo";
 import BlastLockingMultiRewardsAbi from "@/abis/BlastLockingMultiRewards";
-
-import { BlastLockingMultiRewards } from "@/constants/blast";
 
 // NOTICE: Pool ID and Chain ID are hardcoded for now
 const MIM_USDB_POOL_ID = 1;
@@ -121,7 +120,9 @@ export default {
     }),
 
     totalDistributedPoints() {
-      return this.formatAmount(this.pointsStatistics?.liquidityPoints?.total?.finalized);
+      return this.formatAmount(
+        this.pointsStatistics?.liquidityPoints?.total?.finalized
+      );
     },
   },
 
@@ -217,7 +218,9 @@ export default {
       };
 
       [this.userPointsEarned, this.pointsStatistics] = await Promise.all([
-        fetchUserPointsStatistics(this.account).then(({ liquidityPoints }) => liquidityPoints.total.finalized),
+        fetchUserPointsStatistics(this.account).then(
+          ({ liquidityPoints }) => liquidityPoints.total.finalized
+        ),
         fetchPointsStatistics(),
       ]);
     },
