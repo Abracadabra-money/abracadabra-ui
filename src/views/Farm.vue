@@ -152,6 +152,7 @@ export default {
     },
 
     max() {
+      if (!this.selectedFarm?.accountInfo) return 0n;
       if (this.selectedFarm?.isMultiReward) {
         return !this.isUnstake
           ? parseUnits(this.selectedFarm?.accountInfo?.balance)
