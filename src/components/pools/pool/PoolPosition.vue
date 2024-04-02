@@ -63,7 +63,7 @@
 import { defineAsyncComponent } from "vue";
 import { mapGetters } from "vuex";
 import { formatUnits } from "viem";
-import { getChainById } from "@/helpers/chains/index";
+import { getChainConfig } from "@/helpers/chains/getChainsInfo";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
 import { fetchUserPointsStatistics } from "@/helpers/blast/stake/points";
@@ -89,7 +89,7 @@ export default {
     }),
 
     chainIcon() {
-      return getChainById(this.selectedpool.chainId).icon;
+      return getChainConfig(this.selectedpool.chainId).icon;
     },
 
     rewardTokensInfo() {

@@ -44,11 +44,11 @@
 </template>
 
 <script>
-import { defineAsyncComponent } from "vue";
+// import { defineAsyncComponent } from "vue";
 import { mapGetters } from "vuex";
 import BlastLockingMultiRewardsAbi from "@/abis/BlastLockingMultiRewards";
 import { BlastLockingMultiRewards } from "@/constants/blast";
-import { getPublicClient } from "@/helpers/getPublicClient";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import {
   prepareWriteContract,
   waitForTransaction,
@@ -168,11 +168,11 @@ export default {
     await this.fetchLockAllowance();
   },
 
-  components: {
-    BaseButton: defineAsyncComponent(() =>
-      import("@/components/base/BaseButton.vue")
-    ),
-  },
+  // components: {
+  //   BaseButton: defineAsyncComponent(() =>
+  //     import("@/components/base/BaseButton.vue")
+  //   ),
+  // },
 };
 </script>
 

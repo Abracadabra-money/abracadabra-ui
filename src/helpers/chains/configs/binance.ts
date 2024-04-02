@@ -1,8 +1,32 @@
 import { bsc } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
+import { filterRpcUrls } from "@/helpers/chains/utils";
+import { initPublicClient } from "@/helpers/chains/initPublicClient";
+
+const rpcList = filterRpcUrls(bsc, [
+  "https://bsc-dataseed1.ninicoin.io",
+  "https://bsc-dataseed2.ninicoin.io",
+  "https://bsc-dataseed3.ninicoin.io",
+  "https://binance.llamarpc.com",
+]);
+
+const viemConfig = {
+  ...bsc,
+  rpcUrls: {
+    public: {
+      http: rpcList,
+    },
+    default: {
+      http: rpcList,
+    },
+  },
+};
+
+const publicClient = initPublicClient(viemConfig);
 
 export const binanceConfig = {
-  ...bsc,
+  publicClient,
+  viemConfig: viemConfig,
   chainId: bsc.id,
   chainName: "BNB Chain",
   symbol: "BSC",

@@ -1,5 +1,6 @@
 import { readContract } from "@wagmi/core";
-import { getPublicClient } from "@/helpers/getPublicClient";
+import { MAINNET_CHAIN_ID } from "@/constants/global";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 const abi = [
   {
     stateMutability: "view",
@@ -27,7 +28,7 @@ export const getYearnVaultWithdrawAmount = async (
   account
 ) => {
   try {
-    const publicClient = getPublicClient(1);
+    const publicClient = getPublicClient(MAINNET_CHAIN_ID);
 
     const simulateResult = await publicClient.simulateContract({
       address: vaultContract.address,
