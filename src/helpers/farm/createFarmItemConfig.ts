@@ -14,7 +14,7 @@ import type { Address } from "viem";
 import { tokensChainLink } from "@/configs/chainLink/config";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 import { createMultiRewardFarm } from "./createMultiRewardFarm";
-import { getPublicClient } from "@/helpers/getPublicClient";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 
 export const createFarmItemConfig = async (
   farmId: number | string,
@@ -32,7 +32,7 @@ export const createFarmItemConfig = async (
 
   if (!farmInfo) return null;
 
-  const publicClient = getPublicClient(chainId);
+  const publicClient = getPublicClient(Number(chainId));
 
   if (farmInfo.isMultiReward)
     return await createMultiRewardFarm(farmInfo, account);

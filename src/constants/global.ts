@@ -17,6 +17,7 @@ export const BSC_CHAIN_ID: number = 56;
 export const KAVA_CHAIN_ID: number = 2222;
 export const ARBITRUM_CHAIN_ID: number = 42161;
 export const BERA_CHAIN_ID: number = 80085;
+export const AVALANCHE_CHAIN_ID: number = 43114;
 
 export const MAX_ALLOWANCE_VALUE: any =
   "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";

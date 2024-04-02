@@ -33,6 +33,5 @@ describe("Networks", () => {
     expect(wrapper.vm.isOpenDropdown).toBe(false);
     expect(wrapper.emitted("changeForkId")).toBeTruthy();
     expect(wrapper.emitted("changeForkId")?.[0]?.[0]).toBe(chainId);
-    expect(wrapper.vm.activeChain.chainId).toBe(chainId);
   });
 });

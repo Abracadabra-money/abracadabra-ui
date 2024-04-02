@@ -11,7 +11,7 @@ import type {
 
 import { blastStakeConfig } from "@/configs/blast/stake";
 import blastCauldronsConfigs from "@/configs/cauldrons/blastCauldrons";
-import { getPublicClient } from "@/helpers/getPublicClient";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 
 const tokenInfoEmptyState = {
   allowance: 0n,
@@ -29,7 +29,7 @@ export const getStakeInfo = async (
   chainId: number = 81457
 ): Promise<BlastStakeInfo> => {
   const config = blastStakeConfig;
-  const publicClient = getPublicClient(chainId);
+  const publicClient = getPublicClient(Number(chainId));
 
   const [state, isClaimed]: any = await publicClient.multicall({
     contracts: [

@@ -64,6 +64,7 @@ export default {
 }
 
 .carousel {
+  max-width: 685px;
   width: 100%;
 }
 
@@ -81,6 +82,12 @@ export default {
 .carousel::v-deep(.carousel__pagination-button--active::after) {
   transform: scale(1.4);
   background-color: #7088cc;
+}
+
+@media screen and (max-width: 1024px) {
+  .carousel {
+    max-width: 100%;
+  }
 }
 
 @media screen and (max-width: 600px) {

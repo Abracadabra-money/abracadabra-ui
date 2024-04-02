@@ -1,17 +1,13 @@
-import { chainsList } from "@/helpers/chains";
+import { formatUnits } from "viem";
+import type { Address } from "viem";
 import chainLinkAbi from "@/abis/chainLink";
-import { createPublicClient, formatUnits, http, type Address } from "viem";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 
 export const getTokenPriceByChain = async (
   chainId: number,
   address: Address
 ) => {
-  const chain = chainsList[chainId as keyof typeof chainsList];
-
-  const publicClient = createPublicClient({
-    chain: chain,
-    transport: http(),
-  });
+  const publicClient = getPublicClient(chainId);
 
   const response: any = await publicClient.readContract({
     address,

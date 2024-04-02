@@ -1,7 +1,7 @@
 <template>
   <div class="lock-container">
     <img src="@/assets/images/lock-border.png" alt="" class="border-img" />
-    <p class="title">Get a Founder Boost</p>
+    <p class="title">Lock MLP to Get a Founder Boost</p>
 
     <div class="info-item">
       <p>Lock for 3 months</p>
@@ -38,17 +38,17 @@
     </div>
   </div>
 
-  <BaseButton primary @click="actionHandler" :disabled="disableLockButton">
+  <!-- <BaseButton primary @click="actionHandler" :disabled="disableLockButton">
     {{ lockButtonText }}
-  </BaseButton>
+  </BaseButton> -->
 </template>
 
 <script>
-import { defineAsyncComponent } from "vue";
+// import { defineAsyncComponent } from "vue";
 import { mapGetters } from "vuex";
 import BlastLockingMultiRewardsAbi from "@/abis/BlastLockingMultiRewards";
 import { BlastLockingMultiRewards } from "@/constants/blast";
-import { getPublicClient } from "@/helpers/getPublicClient";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import {
   prepareWriteContract,
   waitForTransaction,
@@ -161,8 +161,6 @@ export default {
         args: [this.account, BlastLockingMultiRewards],
       });
 
-      console.log("allowance: ", allowance);
-
       this.lockAllowance = allowance;
     },
   },
@@ -170,11 +168,11 @@ export default {
     await this.fetchLockAllowance();
   },
 
-  components: {
-    BaseButton: defineAsyncComponent(() =>
-      import("@/components/base/BaseButton.vue")
-    ),
-  },
+  // components: {
+  //   BaseButton: defineAsyncComponent(() =>
+  //     import("@/components/base/BaseButton.vue")
+  //   ),
+  // },
 };
 </script>
 
@@ -192,8 +190,8 @@ export default {
 
   .title {
     color: #fff;
-    font-size: 18px;
-    font-weight: 500;
+    font-size: 16px;
+    font-weight: 600;
   }
 
   .info-item {

@@ -96,7 +96,7 @@ import { defaultRpc } from "@/helpers/chains";
 import { formatTokenBalance } from "@/helpers/filters";
 import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
 import { mapActions, mapGetters, mapMutations } from "vuex";
-import { getPublicClient } from "@/helpers/getPublicClient";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 import BlastLockingMultiRewardsAbi from "@/abis/BlastLockingMultiRewards";
 import { BlastLockingMultiRewards } from "@/constants/blast";
@@ -354,6 +354,7 @@ export default {
       () => import("@/components/ui/card/CardGoldPointsInfo.vue")
     ),
     WlpWithdrawPopup: defineAsyncComponent(
+      // @ts-ignore
       () => import("@/components/blastOnboarding/WlpWithdrawPopup.vue")
     ),
   },

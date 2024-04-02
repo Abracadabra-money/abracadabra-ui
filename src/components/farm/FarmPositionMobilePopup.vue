@@ -94,7 +94,7 @@ import {
   waitForTransaction,
   writeContract,
 } from "@wagmi/core";
-import { getChainById } from "@/helpers/chains/index";
+import { getChainConfig } from "@/helpers/chains/getChainsInfo";
 import spellIcon from "@/assets/images/tokens/SPELL.png";
 import BaseButton from "@/components/base/BaseButton.vue";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
@@ -108,7 +108,7 @@ export default {
 
   computed: {
     chainIcon() {
-      return getChainById(this.selectedFarm.chainId).icon;
+      return getChainConfig(this.selectedFarm.chainId).icon;
     },
 
     depositedTokenInfo() {

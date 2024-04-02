@@ -32,21 +32,21 @@
 </template>
 
 <script>
-import { chains } from "@/helpers/chains";
+import { chainsConfigs } from "@/helpers/chains/configs";
 
 export default {
   data() {
     return {
-      chains,
+      chainsConfigs,
       isOpenDropdown: false,
-      activeChain: chains[0],
+      activeChain: chainsConfigs[0],
       unsupportedChain: [2222, 59144],
     };
   },
 
   computed: {
     filteredNetworks() {
-      return chains.filter(
+      return chainsConfigs.filter(
         (network) =>
           ![...this.unsupportedChain, this.activeChain.chainId].includes(
             network.chainId
@@ -67,7 +67,9 @@ export default {
     changeDropdownValue(chainId) {
       this.closeDropdown();
       this.$emit("changeForkId", chainId);
-      this.activeChain = chains.find((network) => network.chainId === chainId);
+      this.activeChain = chainsConfigs.find(
+        (network) => network.chainId === chainId
+      );
     },
   },
 };
