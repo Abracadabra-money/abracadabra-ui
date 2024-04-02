@@ -4,6 +4,7 @@ import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
 const rpcList = [
   "https://rpc.blast.io",
+  "https://base.llamarpc.com",
   "https://blast.din.dev/rpc",
   "https://blast.blockpi.network/v1/rpc/public",
   "https://blastl2-mainnet.public.blastapi.io",
