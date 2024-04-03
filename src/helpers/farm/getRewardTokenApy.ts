@@ -68,10 +68,13 @@ export const calculateAPR = async (
 
       const annualReward =
         //@ts-ignore
-        utils.formatUnits(rewardData.rewardRate, 18) *
-        (365 * 24 * 60 * 60) *
-        // rewardData.rewardsDuration *
-        rewardTokenPrice;
+        rewardData.periodFinish <= Math.floor(new Date() / 1000)
+          ? 0
+          : //@ts-ignore
+            utils.formatUnits(rewardData.rewardRate, 18) *
+            (365 * 24 * 60 * 60) *
+            // rewardData.rewardsDuration *
+            rewardTokenPrice;
 
       const tokenApr = (annualReward / totalStakedInUSD) * 100;
 
