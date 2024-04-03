@@ -98,6 +98,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.title-tooltip {
+  display: flex;
+  align-items: center;
+}
+
 .apr-efficiency {
   display: flex;
   flex-direction: column;

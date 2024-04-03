@@ -1,6 +1,11 @@
 <template>
   <div class="action">
-    <Tabs :name="activeTab" :items="tabItems" @select="changeTab" />
+    <Tabs
+      class="tabs"
+      :name="activeTab"
+      :items="tabItems"
+      @select="changeTab"
+    />
 
     <h2 class="action-title">Stake MIM</h2>
 
@@ -293,6 +298,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.tabs {
+  width: min-content;
+}
+
 .lock-promo {
   position: absolute;
   left: 0;
