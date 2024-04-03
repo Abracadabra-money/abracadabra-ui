@@ -1,16 +1,17 @@
 import abi from "@/abis/beam/";
+import type { Address } from "viem";
 
 export type BeamConfig = {
   chainId: number;
   chainName: string;
   contract: {
-    address: string;
+    address: Address;
     abi: any;
   };
   settings: {
     contractVersion: number;
     disabledDestinationChains: Array<number>;
-    lzChainIdId: number;
+    lzChainId: number;
   };
   defaultValue: any;
 };
@@ -26,7 +27,7 @@ const config: Array<BeamConfig> = [
     settings: {
       contractVersion: 2,
       disabledDestinationChains: [],
-      lzChainIdId: 101,
+      lzChainId: 101,
     },
     defaultValue: {
       10: "0.000000587209028",
@@ -51,7 +52,7 @@ const config: Array<BeamConfig> = [
     settings: {
       contractVersion: 2,
       disabledDestinationChains: [],
-      lzChainIdId: 110,
+      lzChainId: 110,
     },
     defaultValue: {
       1: "0.008858578698816767",
@@ -77,7 +78,7 @@ const config: Array<BeamConfig> = [
     settings: {
       contractVersion: 2,
       disabledDestinationChains: [81457],
-      lzChainIdId: 177,
+      lzChainId: 177,
     },
     defaultValue: {
       1: "0.009609676187498731",
@@ -103,7 +104,7 @@ const config: Array<BeamConfig> = [
     settings: {
       contractVersion: 2,
       disabledDestinationChains: [],
-      lzChainIdId: 106,
+      lzChainId: 106,
     },
     defaultValue: {
       1: "0.006523560791554295",
@@ -129,7 +130,7 @@ const config: Array<BeamConfig> = [
     settings: {
       contractVersion: 2,
       disabledDestinationChains: [],
-      lzChainIdId: 111,
+      lzChainId: 111,
     },
     defaultValue: {
       1: "0.119489304809683491",
@@ -155,7 +156,7 @@ const config: Array<BeamConfig> = [
     settings: {
       contractVersion: 2,
       disabledDestinationChains: [],
-      lzChainIdId: 112,
+      lzChainId: 112,
     },
     defaultValue: {
       1: "0.009609676187498731",
@@ -181,7 +182,7 @@ const config: Array<BeamConfig> = [
     settings: {
       contractVersion: 2,
       disabledDestinationChains: [],
-      lzChainIdId: 102,
+      lzChainId: 102,
     },
     defaultValue: {
       1: "0.105235446281148448",
@@ -208,7 +209,7 @@ const config: Array<BeamConfig> = [
     settings: {
       contractVersion: 2,
       disabledDestinationChains: [],
-      lzChainIdId: 109,
+      lzChainId: 109,
     },
     defaultValue: {
       1: "0.009214665824547975",
@@ -235,7 +236,7 @@ const config: Array<BeamConfig> = [
     settings: {
       contractVersion: 2,
       disabledDestinationChains: [],
-      lzChainIdId: 167,
+      lzChainId: 167,
     },
     defaultValue: {
       1: "0.009609676187498731",
@@ -262,7 +263,7 @@ const config: Array<BeamConfig> = [
     settings: {
       contractVersion: 1,
       disabledDestinationChains: [],
-      lzChainIdId: 184,
+      lzChainId: 184,
     },
     defaultValue: {
       1: "0.008858578698816767",
@@ -288,7 +289,7 @@ const config: Array<BeamConfig> = [
     settings: {
       contractVersion: 1,
       disabledDestinationChains: [],
-      lzChainIdId: 183,
+      lzChainId: 183,
     },
     defaultValue: {
       1: "0.008858578698816767",
@@ -314,7 +315,7 @@ const config: Array<BeamConfig> = [
     settings: {
       contractVersion: 1,
       disabledDestinationChains: [2222],
-      lzChainIdId: 243,
+      lzChainId: 243,
     },
     defaultValue: {
       1: "0.008858578698816767",
