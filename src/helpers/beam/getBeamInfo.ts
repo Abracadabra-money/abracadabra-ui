@@ -3,19 +3,65 @@ import beamConfigs from "@/configs/beam/beamConfigs";
 import type { Address } from "viem";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 
-export const createBeamConfig = async (
+//
+// import relayerAbi from "@/abis/beam/relayer.js";
+// const PACKET_TYPE: number = 0;
+// const TEST_RELAYER_ADDRESS = "0x";
+// const outboundProofTypeTEST = 0;
+
+export const getBeamInfo = async (
   chainId: number,
   account: Address
 ): Promise<any> => {
-  const mimConfig = mimConfigs.find((item) => item.chainId === chainId);
-
   const fromChainConfig = beamConfigs.find((item) => item.chainId === chainId);
+
+  if (!fromChainConfig) {
+    throw new Error("No Beam config found for chainId");
+  }
+
+  const mimConfig = mimConfigs.find(
+    (item) => item.chainId === fromChainConfig.chainId
+  );
+
   const destinationChainsConfig = filterDestinationChains(
     fromChainConfig,
     beamConfigs
   );
 
   const userInfo = await getUserInfo(mimConfig, fromChainConfig, account);
+
+  //   const publicClient = getPublicClient(fromChainConfig.chainId);
+
+  //   const results = await publicClient.multicall({
+  //     contracts: destinationChainsConfig
+  //       .map((chainConfig: any) => {
+  //         return [
+  //           {
+  //             address: fromChainConfig.contract.address,
+  //             abi: fromChainConfig.contract.abi,
+  //             functionName: "minDstGasLookup",
+  //             args: [chainConfig.settings.lzChainId, PACKET_TYPE],
+  //           },
+  //           {
+  //             address: TEST_RELAYER_ADDRESS,
+  //             abi: relayerAbi,
+  //             functionName: "dstConfigLookup",
+  //             args: [chainConfig.settings.lzChainId, outboundProofTypeTEST],
+  //           },
+  //         ];
+  //       })
+  //       .flat(2),
+  //   });
+
+  //   const parsedResults = destinationChainsConfig.map(
+  //     (chainConfig: any, index: number) => {
+  //       return {
+  //         chainConfig,
+  //         minDstGasLookupResult: results[index * 2],
+  //         dstConfigLookupResult: results[index * 2 + 1],
+  //       };
+  //     }
+  //   );
 
   return {
     config: fromChainConfig,
