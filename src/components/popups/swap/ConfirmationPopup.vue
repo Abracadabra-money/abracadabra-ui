@@ -36,6 +36,7 @@
       :actionConfig="actionConfig"
       :priceImpact="priceImpact"
       :minAmount="BigInt(localData.outputAmountWithSlippage)"
+      :currentPriceInfo="currentPriceInfo"
     />
 
     <PriceUpdatedBlock v-if="isUpdatedPrice" @updatedPrice="updatedPrice" />
@@ -66,6 +67,9 @@ export default {
       required: true,
     },
     priceImpact: { type: [String, Number], default: 0 },
+    currentPriceInfo: {
+      default: () => ({ midPrice: 0n, amounts: { from: 0n, to: 0n }, fromBase: false }),
+    },
   },
 
   data() {
