@@ -32,6 +32,7 @@
           :actionConfig="actionConfig"
           :priceImpact="priceImpactPair"
           :minAmount="swapInfo.outputAmountWithSlippage"
+          :currentPriceInfo="currentPriceInfo"
         />
 
         <SwapRouterInfoBlock
@@ -75,6 +76,7 @@
         :actionConfig="actionConfig"
         :swapInfo="swapInfo"
         :priceImpact="priceImpactPair"
+        :currentPriceInfo="currentPriceInfo"
         @confirm="closeConfirmationPopup"
       />
     </LocalPopupWrap>
@@ -198,6 +200,33 @@ export default {
       );
     },
 
+    currentPriceInfo() {
+      const amounts = {
+        from: this.actionConfig.fromInputValue,
+        to: this.actionConfig.toInputValue,
+      };
+
+      const routeInfo: RouteInfo =
+        this.swapInfo.routes[this.swapInfo.routes.length - 1];
+
+      if (!routeInfo) {
+        return {
+          midPrice: 0n,
+          amounts: amounts,
+          fromBase: false,
+        };
+      }
+
+      const midPrice = routeInfo.lpInfo.midPrice;
+      const fromBase = routeInfo.lpInfo.baseToken === routeInfo.inputToken;
+
+      return {
+        midPrice,
+        amounts,
+        fromBase,
+      };
+    },
+
     // Alternative price impact calculation
     priceImpactPair(): string | number {
       const routeInfo: RouteInfo =
@@ -225,7 +254,6 @@ export default {
         Math.abs(Number(parsedMidPrice) - executionPrice) /
         Number(parsedMidPrice);
 
-      console.log("priceImpact", priceImpact);
       return Number(priceImpact * 100).toFixed(2);
     },
 
