@@ -27,6 +27,8 @@ type Token = {
   };
 };
 
+const RATE_PRECISION = 4;
+
 export default {
   props: {
     fromToken: Object as Prop<Token | any>,
@@ -77,8 +79,8 @@ export default {
 
     tokensRateToShow() {
       return this.toggle
-        ? formatToFixed(1 / this.tokensRate, 2)
-        : formatToFixed(this.tokensRate,  2);
+        ? formatToFixed(1 / this.tokensRate, RATE_PRECISION)
+        : formatToFixed(this.tokensRate,  RATE_PRECISION);
     },
 
     fromTokenName() {
