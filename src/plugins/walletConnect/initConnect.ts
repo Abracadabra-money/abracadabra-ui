@@ -7,9 +7,10 @@ import {
   getStaticJsonRpcProvider,
 } from "@/plugins/walletConnect/utils";
 import { getAccount } from "@wagmi/core";
+import type { Config } from "@wagmi/core";
 import { watchAccount, watchChainId } from "@wagmi/core";
 
-export const initWalletConect = async (wagmiConfig: any) => {
+export const initWalletConect = async (wagmiConfig: Config) => {
   watchAccount(wagmiConfig, {
     onChange({ isConnected, isConnecting }) {
       if (!isConnected && !isConnecting) {
@@ -23,7 +24,7 @@ export const initWalletConect = async (wagmiConfig: any) => {
   });
 };
 
-const initConnect = async (wagmiConfig: any) => {
+const initConnect = async (wagmiConfig: Config) => {
   try {
     const { address, chainId } = getAccount(wagmiConfig);
     const { unsupportedChain } = checkUnSupportedChain(chainId);
@@ -45,7 +46,8 @@ const initConnect = async (wagmiConfig: any) => {
       signer!,
       address!,
       ensName,
-      true
+      true,
+      wagmiConfig
     );
 
     watchChainId(wagmiConfig, {
@@ -58,11 +60,20 @@ const initConnect = async (wagmiConfig: any) => {
   }
 };
 
-const initWithoutConnect = async (wagmiConfig: any) => {
+const initWithoutConnect = async (wagmiConfig: Config) => {
   const chainId = +(localStorage.getItem("MAGIC_MONEY_CHAIN_ID") || 1);
   const { unsupportedChain } = checkUnSupportedChain(chainId);
   const provider = await getStaticJsonRpcProvider(unsupportedChain, chainId);
-  await commitWalletData(chainId!, provider, provider, null, null, true);
+
+  await commitWalletData(
+    chainId!,
+    provider,
+    provider,
+    null,
+    null,
+    true,
+    wagmiConfig
+  );
 
   watchChainId(wagmiConfig, {
     onChange(id) {

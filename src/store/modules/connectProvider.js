@@ -8,6 +8,7 @@ export default {
     isCoinbase: false,
     isWalletConnected: false,
     walletCheckInProcess: true,
+    wagmiConfig: null,
   },
   mutations: {
     setProvider(state, payload) {
@@ -25,6 +26,9 @@ export default {
     setWalletConnection(state, payload) {
       state.isWalletConnected = payload;
     },
+    setWagmiConfig(state, payload) {
+      state.wagmiConfig = payload;
+    },
     setIsCoinbase(state, payload) {
       state.isCoinbase = payload;
     },
@@ -38,6 +42,7 @@ export default {
   },
   getters: {
     getProvider: (state) => state.provider,
+    getWagmiConfig: (state) => state.wagmiConfig,
     getSigner: (state) => state.signer,
     getAccount: (state) => state.account,
     getEnsName: (state) => state.ensName,

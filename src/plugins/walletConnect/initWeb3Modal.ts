@@ -1,26 +1,11 @@
 import { reconnect } from "@wagmi/core";
-import { getChainsConfigs } from "@/helpers/getChainsConfigs";
-import { createWeb3Modal, defaultWagmiConfig } from "@web3modal/wagmi/vue";
+import { createWeb3Modal } from "@web3modal/wagmi/vue";
+import { createWagmiConfig } from "@/plugins/walletConnect/utils";
+
+const projectId = import.meta.env.VITE_APP_CONNECT_KEY;
 
 export const initWeb3Modal = async () => {
-  // 1. Define constants
-  const { chains } = getChainsConfigs();
-  const projectId = import.meta.env.VITE_APP_CONNECT_KEY;
-
-  // 2. Create wagmiConfig
-  const metadata = {
-    name: "Web3Modal",
-    description: "Web3Modal Example",
-    url: "https://app.abracadabra.money/#/", // origin your domain & subdomain
-    icons: ["https://avatars.githubusercontent.com/u/37784886"],
-  };
-
-  const wagmiConfig = defaultWagmiConfig({
-    chains,
-    projectId,
-    metadata,
-    // ...wagmiOptions // Optional - Override createConfig parameters
-  });
+  const wagmiConfig = createWagmiConfig(projectId);
 
   reconnect(wagmiConfig);
 
