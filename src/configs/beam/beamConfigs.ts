@@ -8,6 +8,8 @@ export type BeamConfig = {
     address: Address;
     abi: any;
   };
+  outboundProofType: number;
+  relayer: Address;
   settings: {
     contractVersion: number;
     disabledDestinationChains: Array<number>;
@@ -24,6 +26,8 @@ const config: Array<BeamConfig> = [
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
       abi: abi.OFTWrapper,
     },
+    outboundProofType: 2,
+    relayer: "0x902F09715B6303d4173037652FA7377e5b98089E",
     settings: {
       contractVersion: 2,
       disabledDestinationChains: [],
@@ -49,6 +53,8 @@ const config: Array<BeamConfig> = [
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
       abi: abi.OFTWrapper,
     },
+    outboundProofType: 2,
+    relayer: "0x177d36dBE2271A4DdB2Ad8304d82628eb921d790",
     settings: {
       contractVersion: 2,
       disabledDestinationChains: [],
@@ -75,6 +81,8 @@ const config: Array<BeamConfig> = [
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
       abi: abi.OFTWrapper,
     },
+    outboundProofType: 2,
+    relayer: "0xcb566e3B6934Fa77258d68ea18E931fa75e1aaAa",
     settings: {
       contractVersion: 2,
       disabledDestinationChains: [81457],
@@ -101,6 +109,8 @@ const config: Array<BeamConfig> = [
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
       abi: abi.OFTWrapper,
     },
+    outboundProofType: 2,
+    relayer: "0xCD2E3622d483C7Dc855F72e5eafAdCD577ac78B4",
     settings: {
       contractVersion: 2,
       disabledDestinationChains: [],
@@ -127,6 +137,8 @@ const config: Array<BeamConfig> = [
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
       abi: abi.OFTWrapper,
     },
+    outboundProofType: 2,
+    relayer: "0x81E792e5a9003CC1C8BF5569A00f34b65d75b017",
     settings: {
       contractVersion: 2,
       disabledDestinationChains: [],
@@ -153,6 +165,8 @@ const config: Array<BeamConfig> = [
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
       abi: abi.OFTWrapper,
     },
+    outboundProofType: 2,
+    relayer: "0x52EEA5c490fB89c7A0084B32FEAB854eefF07c82",
     settings: {
       contractVersion: 2,
       disabledDestinationChains: [],
@@ -179,6 +193,8 @@ const config: Array<BeamConfig> = [
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
       abi: abi.OFTWrapper,
     },
+    outboundProofType: 2,
+    relayer: "0xA27A2cA24DD28Ce14Fb5f5844b59851F03DCf182",
     settings: {
       contractVersion: 2,
       disabledDestinationChains: [],
@@ -206,6 +222,8 @@ const config: Array<BeamConfig> = [
       address: "0xE1261E47b08a22Df93af46889EE504C2Aa6DfD4c",
       abi: abi.OFTWrapper,
     },
+    outboundProofType: 2,
+    relayer: "0x75dC8e5F50C8221a82CA6aF64aF811caA983B65f",
     settings: {
       contractVersion: 2,
       disabledDestinationChains: [],
@@ -233,6 +251,8 @@ const config: Array<BeamConfig> = [
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
       abi: abi.OFTWrapper,
     },
+    outboundProofType: 2,
+    relayer: "0xe9AE261D3aFf7d3fCCF38Fa2d612DD3897e07B2d",
     settings: {
       contractVersion: 2,
       disabledDestinationChains: [],
@@ -260,6 +280,8 @@ const config: Array<BeamConfig> = [
       address: "0x4035957323FC05AD9704230E3dc1E7663091d262",
       abi: abi.LzIndirectOFTV2,
     },
+    outboundProofType: 2,
+    relayer: "0xcb566e3B6934Fa77258d68ea18E931fa75e1aaAa",
     settings: {
       contractVersion: 1,
       disabledDestinationChains: [],
@@ -286,6 +308,8 @@ const config: Array<BeamConfig> = [
       address: "0x60bbeFE16DC584f9AF10138Da1dfbB4CDf25A097",
       abi: abi.LzIndirectOFTV2,
     },
+    outboundProofType: 2,
+    relayer: "0xA658742d33ebd2ce2F0bdFf73515Aa797Fd161D9",
     settings: {
       contractVersion: 1,
       disabledDestinationChains: [],
@@ -312,6 +336,8 @@ const config: Array<BeamConfig> = [
       address: "0xcA8A205a579e06Cb1bE137EA3A5E5698C091f018",
       abi: abi.LzIndirectOFTV2,
     },
+    outboundProofType: 2,
+    relayer: "0xA658742d33ebd2ce2F0bdFf73515Aa797Fd161D9",
     settings: {
       contractVersion: 1,
       disabledDestinationChains: [2222],

@@ -1,13 +1,13 @@
 import mimConfigs from "@/configs/tokens/mim";
-import beamConfigs from "@/configs/beam/beamConfigs";
+import beamConfigs, { type BeamConfig } from "@/configs/beam/beamConfigs";
 import type { Address } from "viem";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
+import { getNativeTokensPrice } from "../prices/defiLlama";
+import relayerAbi from "@/abis/beam/relayer.js";
+import { tokensChainLink } from "@/configs/chainLink/config";
+import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 
-//
-// import relayerAbi from "@/abis/beam/relayer.js";
-// const PACKET_TYPE: number = 0;
-// const TEST_RELAYER_ADDRESS = "0x";
-// const outboundProofTypeTEST = 0;
+const PACKET_TYPE: number = 0;
 
 export const getBeamInfo = async (
   chainId: number,
@@ -30,42 +30,55 @@ export const getBeamInfo = async (
 
   const userInfo = await getUserInfo(mimConfig, fromChainConfig, account);
 
-  //   const publicClient = getPublicClient(fromChainConfig.chainId);
+  const publicClient = getPublicClient(fromChainConfig.chainId);
 
-  //   const results = await publicClient.multicall({
-  //     contracts: destinationChainsConfig
-  //       .map((chainConfig: any) => {
-  //         return [
-  //           {
-  //             address: fromChainConfig.contract.address,
-  //             abi: fromChainConfig.contract.abi,
-  //             functionName: "minDstGasLookup",
-  //             args: [chainConfig.settings.lzChainId, PACKET_TYPE],
-  //           },
-  //           {
-  //             address: TEST_RELAYER_ADDRESS,
-  //             abi: relayerAbi,
-  //             functionName: "dstConfigLookup",
-  //             args: [chainConfig.settings.lzChainId, outboundProofTypeTEST],
-  //           },
-  //         ];
-  //       })
-  //       .flat(2),
-  //   });
+  const results = await publicClient.multicall({
+    contracts: destinationChainsConfig
+      .map((chainConfig: any) => {
+        return [
+          {
+            address: fromChainConfig.contract.address,
+            abi: fromChainConfig.contract.abi,
+            functionName: "minDstGasLookup",
+            args: [chainConfig.settings.lzChainId, PACKET_TYPE],
+          },
+          {
+            address: fromChainConfig.relayer,
+            abi: relayerAbi,
+            functionName: "dstConfigLookup",
+            args: [
+              chainConfig.settings.lzChainId,
+              fromChainConfig.outboundProofType,
+            ],
+          },
+        ];
+      })
+      .flat(2),
+  });
 
-  //   const parsedResults = destinationChainsConfig.map(
-  //     (chainConfig: any, index: number) => {
-  //       return {
-  //         chainConfig,
-  //         minDstGasLookupResult: results[index * 2],
-  //         dstConfigLookupResult: results[index * 2 + 1],
-  //       };
-  //     }
-  //   );
+  const prices = await getNativeTokensPrice(
+    beamConfigs.map((config: BeamConfig) => config.chainId)
+  );
+
+  const destinationChainsInfo = destinationChainsConfig.map(
+    (chainConfig: any, index: number) => {
+      return {
+        chainConfig,
+        minDstGasLookupResult: results[index * 2],
+        dstConfigLookupResult: results[index * 2 + 1],
+        nativePrice: prices[chainConfig.chainId],
+      };
+    }
+  );
+
+  const mimPrice = await getTokenPriceByChain(
+    tokensChainLink.mim.chainId,
+    tokensChainLink.mim.address
+  );
 
   return {
     config: fromChainConfig,
-    destinationChainsConfig,
+    destinationChainsInfo,
     tokenConfig: mimConfig,
     userInfo,
   };
@@ -95,7 +108,7 @@ const getUserInfo = async (
     ],
   });
 
-  const nativeBalance = await publicClient.getBalance(account);
+  const nativeBalance = await publicClient.getBalance({ address: account });
 
   return {
     balance: balance.response,
