@@ -9,7 +9,7 @@
       />
 
       <Toggle
-        v-if="isStake"
+        v-if="isStake && !isLockEnded"
         text="Lock"
         :selected="isLock"
         @updateToggle="changeLockToggle"
@@ -37,6 +37,7 @@
 
 <script>
 import { defineAsyncComponent } from "vue";
+import moment from "moment";
 
 export default {
   props: {
@@ -52,6 +53,8 @@ export default {
       activeTab: "deposit",
       tabItems: ["deposit", "stake"],
       isLock: false,
+      lockEndTimestamp: 1712364937,
+      isLockEnded: true,
     };
   },
 
@@ -73,6 +76,13 @@ export default {
     changeLockToggle() {
       this.isLock = !this.isLock;
     },
+  },
+
+  created() {
+    const now = moment().utc();
+    const end = moment.utc(this.lockEndTimestamp * 1000);
+    const isEnded = now.isAfter(end);
+    this.isLockEnded = isEnded;
   },
 
   components: {
