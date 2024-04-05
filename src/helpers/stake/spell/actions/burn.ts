@@ -1,5 +1,8 @@
-import { waitForTransaction } from "@wagmi/core";
-import { prepareWriteContract, writeContract } from "@wagmi/core";
+import {
+  prepareWriteContract,
+  writeContract,
+  waitForTransaction,
+} from "@wagmi/core";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 
 export const burn = async (contract: any, account: string, amount: any) => {

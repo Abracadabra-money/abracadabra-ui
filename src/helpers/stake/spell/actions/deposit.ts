@@ -1,5 +1,8 @@
-import { waitForTransaction } from "@wagmi/core";
-import { prepareWriteContract, writeContract } from "@wagmi/core";
+import {
+  prepareWriteContract,
+  writeContract,
+  waitForTransaction,
+} from "@wagmi/core";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 
 export const deposit = async (contract: any, amount: any) => {

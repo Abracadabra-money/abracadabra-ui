@@ -1,6 +1,7 @@
 import { utils } from "ethers";
+import { multicall } from "@wagmi/core";
+import { erc20Abi, type Address } from "viem";
 import { holdersConfig } from "@/configs/tenderly/holdersConfig";
-import { erc20ABI, type Address, multicall } from "@wagmi/core";
 
 export const getTokenHolders = async (
   chainId: number,
@@ -17,7 +18,7 @@ export const getTokenHolders = async (
   const multicallArray = holders.map((address) => {
     return {
       address: tokenAddress,
-      abi: erc20ABI,
+      abi: erc20Abi,
       functionName: "balanceOf",
       args: [address],
     };

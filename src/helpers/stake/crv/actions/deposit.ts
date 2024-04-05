@@ -1,5 +1,9 @@
-import { waitForTransaction, type Address } from "@wagmi/core";
-import { prepareWriteContract, writeContract } from "@wagmi/core";
+import type { Address } from "viem";
+import {
+  prepareWriteContract,
+  writeContract,
+  waitForTransaction,
+} from "@wagmi/core";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import type { ContractInfo } from "@/types/global";
 

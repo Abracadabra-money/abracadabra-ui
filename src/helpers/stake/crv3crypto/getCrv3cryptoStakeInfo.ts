@@ -1,4 +1,5 @@
-import { multicall, type Address } from "@wagmi/core";
+import type { Address } from "viem";
+import { multicall } from "@wagmi/core";
 import type { CrvStakeInfo } from "@/types/crv/stakeInfo";
 import { crv3cryptoConfig } from "@/configs/stake/crv3cryptoConfig";
 

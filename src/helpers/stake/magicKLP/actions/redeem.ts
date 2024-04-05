@@ -3,7 +3,7 @@ import {
   waitForTransaction,
   writeContract,
 } from "@wagmi/core";
-import type { Address } from "@wagmi/core";
+import type { Address } from "viem";
 import type { ContractInfo } from "@/types/global";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 

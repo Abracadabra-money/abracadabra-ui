@@ -1,7 +1,8 @@
 import bentoBoxAbi from "@/abis/bentoBox";
 import { Contract, type providers } from "ethers";
 import cauldronAbi from "@/abis/cauldronAbi";
-import { readContract, type Address } from "@wagmi/core";
+import { readContract } from "@wagmi/core";
+import type { Address } from "viem";
 
 export const getBentoBoxContract = async (
   cauldronAddress: Address,
