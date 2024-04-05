@@ -310,7 +310,8 @@ export default {
         MIM_USDB_POOL_ID,
         BLAST_CHAIN_ID,
         chainProvider,
-        userSigner
+        userSigner,
+        this.account
       );
     },
 

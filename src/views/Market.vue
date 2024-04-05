@@ -332,7 +332,8 @@ export default {
         this.routeCauldronId,
         this.routeChainId,
         chainProvider,
-        userSigner
+        userSigner,
+        this.account
       );
     },
   },
@@ -353,8 +354,6 @@ export default {
 
     this.actionConfig.withdrawUnwrapToken = this.isHiddenWrap;
     this.actionConfig.useUnwrapToken = this.isHiddenWrap;
-
-    console.log("this.cauldron", this.cauldron);
 
     this.updateInterval = setInterval(async () => {
       await this.createCauldronInfo();

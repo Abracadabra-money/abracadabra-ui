@@ -57,6 +57,7 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 import { utils, providers } from "ethers";
 import { defaultRpc } from "@/helpers/chains";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
@@ -76,6 +77,10 @@ export default {
   },
 
   computed: {
+    ...mapGetters({
+      account: "getAccount",
+    }),
+
     isOpenPosition() {
       return (
         this.cauldronInfo.userPosition.collateralInfo.userCollateralShare.gt(
@@ -112,7 +117,8 @@ export default {
         this.cauldronId,
         this.cauldronChainId,
         chainProvider,
-        chainProvider
+        chainProvider,
+        this.account
       );
     },
   },

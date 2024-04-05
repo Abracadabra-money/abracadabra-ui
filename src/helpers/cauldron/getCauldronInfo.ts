@@ -1,21 +1,21 @@
-import { getAccount } from "@wagmi/core";
+import type { Address } from "viem";
+import type { providers } from "ethers";
 import cauldronsConfig from "@/configs/cauldrons";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 import { MulticallWrapper } from "ethers-multicall-provider";
 import { getContracts } from "@/helpers/cauldron/getContracts";
 import { getMainParams } from "@/helpers/cauldron/getMainParams";
 import { getUserPositions } from "@/helpers/cauldron/getUserPositions";
 import { getUserTokensInfo } from "@/helpers/cauldron/getUserTokensInfo";
 import { getAdditionalInfo } from "@/helpers/cauldron/getAdditionalInfo";
-import type { providers } from "ethers";
-import type { CauldronInfo } from "@/helpers/cauldron/types";
 
 export const getCauldronInfo = async (
   cauldronId: number,
   chainId: number,
   provider: providers.BaseProvider,
-  signer: providers.JsonRpcSigner
+  signer: providers.JsonRpcSigner,
+  address: Address
 ): Promise<CauldronInfo | null> => {
-  const { address } = getAccount();
   const userSigner = address ? signer : provider;
 
   // const multicallProvider = MulticallWrapper.wrap(provider);
