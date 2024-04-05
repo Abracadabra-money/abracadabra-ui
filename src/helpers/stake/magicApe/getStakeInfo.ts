@@ -1,11 +1,11 @@
-import { getAccount } from "@wagmi/core";
+import { getAccountHelper } from "@/helpers/walletClienHelper";
 import { magicApeConfig } from "@/configs/stake/magicApeConfig";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { getTokensInfo } from "@/helpers/stake/magicApe/getTokensInfo";
 import { getAdditionalInfo } from "@/helpers/stake/magicApe/getAdditionalInfo";
 
 export const getStakeInfo = async () => {
-  const account: any = getAccount().address;
+  const { address } = await getAccountHelper();
 
   return await Promise.all(
     Object.keys(magicApeConfig).map(async (chainId: string) => {
@@ -15,7 +15,7 @@ export const getStakeInfo = async () => {
       const publicClient = getPublicClient(Number(chainId));
 
       const { mainToken, stakeToken } = await getTokensInfo(
-        account,
+        address,
         config,
         publicClient
       );

@@ -4,10 +4,10 @@ import { parseUnits, hexToBigInt } from "viem";
 import { formatAddress } from "@/helpers/filters";
 import type { TopUpCauldron } from "@/types/tenderly";
 import { MAX_ALLOWANCE_VALUE } from "@/constants/global";
+import { getAccountHelper } from "@/helpers/walletClienHelper";
 import { getMimContract } from "@/helpers/tenderly/getMimContract";
 import { sendTransaction } from "@/helpers/tenderly/sendTransaction";
 import { getBentoBoxContract } from "@/helpers/cauldron/getBentoBoxContract";
-import { getAccount } from "@wagmi/core";
 
 export const topUpCauldron = async (
   amount: string,
@@ -22,9 +22,9 @@ export const topUpCauldron = async (
       cauldronAddress,
       provider
     );
-    const account = getAccount();
+    const { address } = await getAccountHelper();
 
-    const fromAddress: any = account.address;
+    const fromAddress: any = address;
     const mimContract: any = await getMimContract(chainId, provider);
 
     await sendTransaction(

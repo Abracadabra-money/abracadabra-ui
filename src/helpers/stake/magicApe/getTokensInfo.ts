@@ -2,7 +2,7 @@ import type { Address } from "viem";
 import { ONE_ETHER_VIEM, MIM_PRICE } from "@/constants/global";
 
 export const getTokensInfo = async (
-  account: Address,
+  account: Address | undefined,
   config: any,
   publicClient: any
 ) => {

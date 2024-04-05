@@ -1,5 +1,5 @@
 import { parseUnits } from "viem";
-import { getAccount } from "@wagmi/core";
+import { getAccountHelper } from "@/helpers/walletClienHelper";
 import { spellConfig } from "@/configs/stake/spellConfig";
 import { tokensChainLink } from "@/configs/chainLink/config";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
@@ -11,9 +11,9 @@ import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 import { getSpellStakingApr } from "@/helpers/stake/spell/getSpellStakingApr";
 
 export const getStakeInfo = async () => {
-  const account = getAccount().address;
+  const { address } = await getAccountHelper();
 
-  if (!account) {
+  if (!address) {
     return await Promise.all(
       Object.keys(spellConfig).map(async (chainId: any) => {
         return await getSpellEmptyState(Number(chainId));
@@ -38,7 +38,7 @@ export const getStakeInfo = async () => {
       const spell = await getSpellInfo(
         config,
         spellPrice,
-        account,
+        address,
         publicClient
       );
 
@@ -46,7 +46,7 @@ export const getStakeInfo = async () => {
         config,
         spell,
         spellPrice,
-        account,
+        address,
         publicClient
       );
 
@@ -54,7 +54,7 @@ export const getStakeInfo = async () => {
         config,
         spell,
         spellPrice,
-        account,
+        address,
         publicClient
       );
 
