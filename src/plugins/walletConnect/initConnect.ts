@@ -60,7 +60,7 @@ const initConnect = async (wagmiConfig: Config) => {
   }
 };
 
-const initWithoutConnect = async (wagmiConfig: Config) => {
+export const initWithoutConnect = async (wagmiConfig: Config) => {
   const chainId = +(localStorage.getItem("MAGIC_MONEY_CHAIN_ID") || 1);
   const { unsupportedChain } = checkUnSupportedChain(chainId);
   const provider = await getStaticJsonRpcProvider(unsupportedChain, chainId);
@@ -77,7 +77,7 @@ const initWithoutConnect = async (wagmiConfig: Config) => {
 
   watchChainId(wagmiConfig, {
     onChange(id) {
-      if (chainId !== id) initConnect(wagmiConfig);
+      if (chainId !== id) initWithoutConnect(wagmiConfig);
     },
   });
 };
