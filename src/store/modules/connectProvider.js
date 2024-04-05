@@ -1,6 +1,3 @@
-import { ethers } from "ethers";
-import { RPC_ETH } from "@/constants/rpc";
-
 export default {
   state: {
     provider: null,
@@ -37,19 +34,6 @@ export default {
 
     SET_WALLET_CHECK_IN_PROCCESS(state, payload) {
       state.walletCheckInProcess = payload;
-    },
-  },
-  actions: {
-    async checkENSName({ commit }, address) {
-      try {
-        const ensName = await new ethers.providers.StaticJsonRpcProvider(
-          RPC_ETH
-        ).lookupAddress(address);
-
-        if (ensName) commit("setENSName", ensName);
-      } catch (error) {
-        console.log("fetchENSName ERR:", error);
-      }
     },
   },
   getters: {
