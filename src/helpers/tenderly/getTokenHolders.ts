@@ -1,7 +1,7 @@
 import { utils } from "ethers";
-import { multicall } from "@wagmi/core";
 import { erc20Abi, type Address } from "viem";
 import { holdersConfig } from "@/configs/tenderly/holdersConfig";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 
 export const getTokenHolders = async (
   chainId: number,
@@ -24,7 +24,9 @@ export const getTokenHolders = async (
     };
   });
 
-  const multicallData: any = await multicall({
+  const publicClient = getPublicClient(chainId);
+
+  const multicallData: any = await publicClient.multicall({
     contracts: multicallArray,
   });
 

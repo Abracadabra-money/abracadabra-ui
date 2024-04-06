@@ -5,6 +5,7 @@ import {
   writeContract,
   getWalletClient,
   simulateContract,
+  estimateFeesPerGas,
   waitForTransactionReceipt,
 } from "@wagmi/core";
 
@@ -34,4 +35,8 @@ export const waitForTransactionReceiptHelper = async (hash: any) => {
 
 export const getAccountHelper = () => {
   return getAccount(store.getters.getWagmiConfig);
+};
+
+export const estimateFeesPerGasHelper = async () => {
+  return await estimateFeesPerGas(store.getters.getWagmiConfig);
 };

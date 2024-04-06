@@ -18,7 +18,7 @@ export const tokenTransfer = async (
     tokenAddress,
     holdersAddresses
   );
-  const decimals = await getTokenDecimals(tokenAddress);
+  const decimals = await getTokenDecimals(tokenAddress, chainId);
   let parsedAmount = parseUnits(amount.toString(), decimals);
   const tokenContract = await new Contract(tokenAddress, erc20Abi, provider);
 

@@ -20,7 +20,8 @@ export const topUpCauldron = async (
     const formattedAmount = parseUnits(amount, tokenDecimals);
     const bentoBoxContract: any = await getBentoBoxContract(
       cauldronAddress,
-      provider
+      provider,
+      chainId
     );
     const { address } = await getAccountHelper();
 
