@@ -1,4 +1,3 @@
-import { readContract } from "@wagmi/core";
 import { MAINNET_CHAIN_ID } from "@/constants/global";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 const abi = [
@@ -27,9 +26,9 @@ export const getYearnVaultWithdrawAmount = async (
   collateralAmount,
   account
 ) => {
-  try {
-    const publicClient = getPublicClient(MAINNET_CHAIN_ID);
+  const publicClient = getPublicClient(MAINNET_CHAIN_ID);
 
+  try {
     const simulateResult = await publicClient.simulateContract({
       address: vaultContract.address,
       abi: vaultContract.abi,
@@ -38,16 +37,11 @@ export const getYearnVaultWithdrawAmount = async (
       account: account,
     });
 
-    console.log(
-      "getYearnVaultWithdrawAmount simulateResult: ",
-      simulateResult.result
-    );
-
     return simulateResult.result;
   } catch (error) {
     console.log("getYearnVaultWithdrawAmount error: ", error);
 
-    const pricePerShare = await readContract({
+    const pricePerShare = await publicClient.readContract({
       address: vaultContract.address,
       abi: vaultContract.abi,
       functionName: "pricePerShare",

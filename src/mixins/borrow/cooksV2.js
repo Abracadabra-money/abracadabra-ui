@@ -164,11 +164,11 @@ export default {
         amount,
         leverageSwapper.address
       );
-      
+
       if (this.cvxtricrypto2 || this.cvx3pool) {
-              // Temporary fix for cvx3pool and cvxtricrypto2
-      // TODO: review config strucrure
-      const tokenIndex = this.cvx3pool ? 2 : 0;
+        // Temporary fix for cvx3pool and cvxtricrypto2
+        // TODO: review config strucrure
+        const tokenIndex = this.cvx3pool ? 2 : 0;
 
         return utils.defaultAbiCoder.encode(
           ["address", "uint256", "bytes"],
@@ -216,7 +216,8 @@ export default {
       if (this.cvxtricrypto2 || this.cvx3pool) {
         selAmount = await getCurveWithdrawOneCoinAmount(
           collateralAmount,
-          this.cauldron.config.id
+          this.cauldron.config.id,
+          this.cauldron.config.chainId
         );
       }
 
