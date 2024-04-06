@@ -47,7 +47,9 @@ export const approveTokenViem = async (
 
     const hash = await writeContractHelper(request);
 
-    await waitForTransactionReceiptHelper({ hash });
+    await waitForTransactionReceiptHelper({
+      hash,
+    });
 
     return true;
   } catch (error) {
