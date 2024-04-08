@@ -128,7 +128,7 @@
           <Tooltip :tooltip="pointsInfo.rateTooltip" :width="20" :height="20"
         /></span>
         <span class="total-value">{{
-          formatTokenBalance(pointsInfo.totalPending)
+          formatTokenBalance(userPointsInfo.total)
         }}</span>
       </div>
     </template>
