@@ -12,7 +12,7 @@ export const switchNetwork = async (chainId: number) => {
   if (walletClient) {
     try {
       localStorage.setItem("MAGIC_MONEY_CHAIN_ID", chainId.toString());
-      await switchChainHelper(chainId);
+      await switchChainHelper(+chainId);
     } catch (error) {
       if (String(error).indexOf("Chain not configured") !== -1) {
         const chainConfig: any = getChainConfig(chainId);
