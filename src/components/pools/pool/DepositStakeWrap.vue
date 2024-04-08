@@ -14,12 +14,20 @@
         :selected="isLock"
         @updateToggle="changeLockToggle"
       />
+
+      <Toggle
+        v-if="!isStake"
+        text="Single Side"
+        :selected="isSingleSide"
+        @updateToggle="changeSingleSideToggle"
+      />
     </div>
 
     <Deposit
       :pool="pool"
       :slippage="slippage"
       :deadline="deadline"
+      :isSingleSide="isSingleSide"
       @updatePoolInfo="$emit('updatePoolInfo')"
       v-if="!isStake"
     />
@@ -55,6 +63,7 @@ export default {
       isLock: false,
       lockEndTimestamp: 1712364937,
       isLockEnded: true,
+      isSingleSide: true,
     };
   },
 
@@ -76,6 +85,10 @@ export default {
     changeLockToggle() {
       this.isLock = !this.isLock;
     },
+
+    changeSingleSideToggle() {
+      this.isSingleSide = !this.isSingleSide;
+    },
   },
 
   created() {
@@ -91,7 +104,7 @@ export default {
     Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
 
     Deposit: defineAsyncComponent(() =>
-      import("@/components/pools/pool/actions/Deposit.vue")
+      import("@/components/pools/pool/actions/deposit/Deposit.vue")
     ),
 
     Stake: defineAsyncComponent(() =>
