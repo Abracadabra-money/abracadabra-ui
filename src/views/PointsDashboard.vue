@@ -180,9 +180,9 @@ export default {
         goldPendingDistributionAmount:
           this.userPointsStatistics?.developerPoints?.lp?.pending ?? 0,
         totalPendingDistributionAmount:
-          this.pointsStatistics?.liquidityPoints?.total?.pending ?? 0,
+          this.pointsStatistics?.liquidityPoints?.lp?.pending ?? 0,
         totalGoldPendingDistributionAmount:
-          this.pointsStatistics?.developerPoints?.total?.pending ?? 0,
+          this.pointsStatistics?.developerPoints?.lp?.pending ?? 0,
       };
     },
 
@@ -200,7 +200,7 @@ export default {
         label: "Founder Boost",
         title: "MIM / USDB Pool",
         subtitle: "Receive 20% of total ecosystem points",
-        rateText: "Founder Rate",
+        rateText: "Pending Founder Rewards",
         rateTooltip: "Hourly distribution towards the Founders",
         icon: useImage("assets/images/tokens/MIM-USDB.png"),
         deposited,
