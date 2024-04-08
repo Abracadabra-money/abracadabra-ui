@@ -14,7 +14,7 @@ export const switchNetwork = async (chainId: number) => {
       localStorage.setItem("MAGIC_MONEY_CHAIN_ID", chainId.toString());
       await switchChainHelper(chainId);
     } catch (error) {
-      if (String(error).indexOf("Unrecognized chain ID") !== -1) {
+      if (String(error).indexOf("Chain not configured") !== -1) {
         const chainConfig: any = getChainConfig(chainId);
         await walletClient.addChain({
           chain: chainConfig?.viemConfig,

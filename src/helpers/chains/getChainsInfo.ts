@@ -6,5 +6,5 @@ export const getPublicClient = (chainId: number) => {
 };
 
 export const getChainConfig = (chainId: number) => {
-  return chainsConfigs.find((chain) => chain.viemConfig.id === chainId);
+  return chainsConfigs.find((chain) => chain.viemConfig.id === +chainId);
 };
