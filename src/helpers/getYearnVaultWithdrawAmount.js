@@ -38,11 +38,6 @@ export const getYearnVaultWithdrawAmount = async (
       account: account,
     });
 
-    console.log(
-      "getYearnVaultWithdrawAmount simulateResult: ",
-      simulateResult.result
-    );
-
     return simulateResult.result;
   } catch (error) {
     console.log("getYearnVaultWithdrawAmount error: ", error);
@@ -55,7 +50,7 @@ export const getYearnVaultWithdrawAmount = async (
     });
 
     const resultByPrice =
-      (collateralAmount * pricePerShare) / 10000000000000000000n;
+      (collateralAmount.toBigInt() * pricePerShare) / 1000000000000000000n;
 
     return resultByPrice;
   }
