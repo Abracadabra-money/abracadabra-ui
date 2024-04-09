@@ -68,6 +68,7 @@ import { actionStatus } from "@/components/pools/pool/PoolActionBlock.vue";
 
 //
 import { addLiquidityOneSideOptimal } from "@/helpers/pools/pool/addLiquidityOneSide";
+import { addLiquidityOneSide } from "@/helpers/pools/pool/actions/addLiquidityOneSide";
 
 export default {
   props: {
@@ -82,8 +83,8 @@ export default {
     return {
       inputAmount: 0n,
       inputValue: "",
-      expectedLp: 0n,
-      isExpectedLpCalculating: false,
+      expectedOptimal: { inAmountToSwap: 0n, shares: 0n },
+      isExpectedOptimalCalculating: false,
       isBase: true,
       isActionProcessing: false,
       transactionStatus: actionStatus.WAITING,
@@ -120,6 +121,7 @@ export default {
       if (this.error) return this.error;
       if (this.inputValue == "") return `Enter amount`;
 
+      if (this.isExpectedOptimalCalculating) return "Calculating...";
       if (this.isActionProcessing) return "Processing...";
 
       return "Deposit";
@@ -127,7 +129,10 @@ export default {
 
     isButtonDisabled() {
       return (
-        (!this.isValid || !!this.error || this.isActionProcessing) &&
+        (!this.isValid ||
+          !!this.error ||
+          this.isActionProcessing ||
+          this.isExpectedOptimalCalculating) &&
         this.isProperNetwork &&
         !!this.account
       );
@@ -138,9 +143,9 @@ export default {
     },
 
     formattedLpTokenExpected() {
-      if (this.isExpectedLpCalculating) return { value: "-", usd: "-" };
+      if (this.isExpectedOptimalCalculating) return { value: "-", usd: "-" };
       const formattedLpTokenValue = Number(
-        formatUnits(this.expectedLp, this.pool.decimals)
+        formatUnits(this.expectedOptimal.shares, this.pool.decimals)
       );
       const lpTokenValueUsdEquivalent = formattedLpTokenValue * this.pool.price;
 
@@ -173,25 +178,42 @@ export default {
         formatUnits(value, this.activeToken.config.decimals)
       );
 
-      this.calculateExpectedLP();
+      this.calculateExpectedOptimal();
     },
 
-    async calculateExpectedLP() {
-      this.isExpectedLpCalculating = true;
+    async calculateExpectedOptimal() {
+      this.isExpectedOptimalCalculating = true;
 
-      this.expectedLp = (
-        await addLiquidityOneSideOptimal(
-          this.account,
-          this.chainId,
-          this.pool.contract.address,
-          this.inputAmount,
-          this.isBase,
-          //default step 100n == 1%
-          100n
-        )
-      ).shares;
+      this.expectedOptimal = await addLiquidityOneSideOptimal(
+        this.account,
+        this.chainId,
+        this.pool.contract.address,
+        this.inputAmount,
+        this.isBase,
+        //default step 100n == 1%
+        100n
+      );
 
-      this.isExpectedLpCalculating = false;
+      this.isExpectedOptimalCalculating = false;
+    },
+
+    createAddLiquidityOneSidePayload() {
+      const deadline = moment().unix() + Number(this.deadline);
+
+      const minimumShares = applySlippageToMinOutBigInt(
+        this.slippage,
+        this.expectedOptimal.shares
+      );
+
+      return {
+        lp: this.pool.contract.address,
+        to: this.account,
+        inAmountIsBase: this.isBase,
+        inAmount: this.inputAmount,
+        inAmountToSwap: this.expectedOptimal.inAmountToSwap,
+        minimumShares,
+        deadline,
+      };
     },
 
     chooseActiveToken(isBase) {
@@ -224,7 +246,7 @@ export default {
       this.isActionProcessing = false;
     },
 
-    async depositHandler() {
+    async depositOneSideHandler() {
       this.isActionProcessing = true;
       this.transactionStatus = "pending";
       const notificationId = await this.createNotification(
@@ -232,8 +254,8 @@ export default {
       );
 
       try {
-        const payload = this.createDepositPayload();
-        const { error, result } = await addLiquidity(
+        const payload = this.createAddLiquidityOneSidePayload();
+        const { error, result } = await addLiquidityOneSide(
           this.pool?.swapRouter,
           payload
         );
@@ -266,7 +288,7 @@ export default {
         return this.$openWeb3modal();
       }
 
-      this.isPreviewPopupOpened = true;
+      this.depositOneSideHandler();
     },
 
     formatTokenBalance(value, decimals) {

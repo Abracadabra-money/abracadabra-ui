@@ -29,7 +29,7 @@ export const addLiquidityOneSideOptimal = async (
   //default 100n == 1%
   stepInBips: bigint = 100n
 ) => {
-  if (amountIn == 0n) return { bestAmountSwapIn: 0n, shares: 0n };
+  if (amountIn == 0n) return { inAmountToSwap: 0n, shares: 0n };
 
   //use when old router address will be replace in routers.ts
   //   const routerAddress = getSwapRouterByChain(chainId);
@@ -118,7 +118,7 @@ export const addLiquidityOneSideOptimal = async (
     )}`
   );
 
-  return { bestAmountSwapIn, shares: bestShares };
+  return { inAmountToSwap: bestAmountSwapIn, shares: bestShares };
 };
 
 const simulateAddLiquidityOneSide = async (

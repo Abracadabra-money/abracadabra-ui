@@ -61,9 +61,9 @@ export default {
       activeTab: "deposit",
       tabItems: ["deposit", "stake"],
       isLock: false,
+      isSingleSide: false,
       lockEndTimestamp: 1712364937,
       isLockEnded: true,
-      isSingleSide: true,
     };
   },
 
