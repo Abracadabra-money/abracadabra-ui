@@ -89,17 +89,16 @@ import {
   fetchUserPointsStatistics,
 } from "@/helpers/blast/stake/points";
 import { formatUnits } from "viem";
-import { providers } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
-import { defaultRpc } from "@/helpers/chains";
 import { formatTokenBalance } from "@/helpers/filters";
 import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
 import { mapActions, mapGetters, mapMutations } from "vuex";
+import { BlastLockingMultiRewards } from "@/constants/blast";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
+import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 import BlastLockingMultiRewardsAbi from "@/abis/BlastLockingMultiRewards";
-import { BlastLockingMultiRewards } from "@/constants/blast";
 
 const BLAST_CHAIN_ID = 81457;
 const MIM_USDB_POOL_ID = 1;
@@ -297,9 +296,7 @@ export default {
         this.account
       );
 
-      const currentRpc = defaultRpc[BLAST_CHAIN_ID as keyof typeof defaultRpc];
-
-      const chainProvider = new providers.StaticJsonRpcProvider(currentRpc);
+      const chainProvider = getEthersProvider(BLAST_CHAIN_ID);
 
       const userSigner =
         this.account && this.chainId === BLAST_CHAIN_ID

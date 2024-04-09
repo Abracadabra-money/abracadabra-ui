@@ -1,6 +1,6 @@
-import { providers, Contract } from "ethers";
+import { Contract } from "ethers";
 import { MulticallWrapper } from "ethers-multicall-provider";
-import { rpc } from "@/helpers/collateralsApy/getMagicGlpApy/constants";
+import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
 import { contracts } from "@/helpers/collateralsApy/getMagicGlpApy/constants";
 
 export const getContracts = async (chainId: number) => {
@@ -14,12 +14,10 @@ export const getContracts = async (chainId: number) => {
     magicGlpHarvestor,
   } = contracts[chainId as keyof typeof contracts];
 
-  const provider = new providers.StaticJsonRpcProvider(
-    rpc[chainId as keyof typeof rpc]
-  );
+  const provider = getEthersProvider(chainId);
 
   const multicallProvider = MulticallWrapper.wrap(provider);
-  
+
   const glpManagerContract = new Contract(
     glpManager.address,
     JSON.stringify(glpManager.abi),

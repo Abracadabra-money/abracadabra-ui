@@ -60,21 +60,6 @@ export const checkSanctionAddress = async (address: Address) => {
   return isSanctioned;
 };
 
-export const getStaticJsonRpcProvider = (
-  unsupportedChain: boolean,
-  chainId = 1
-) => {
-  const { rpcUrls } = getChainsConfigs();
-
-  const currentRpc = unsupportedChain
-    ? defaultRpc[1]
-    : rpcUrls
-    ? rpcUrls[0]
-    : defaultRpc[chainId as keyof typeof defaultRpc];
-
-  return markRaw(new providers.StaticJsonRpcProvider(currentRpc));
-};
-
 export const getJsonRpcSigner = async (
   unsupportedChain: boolean,
   staticJsonRpcProvider: providers.StaticJsonRpcProvider,

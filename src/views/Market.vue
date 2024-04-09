@@ -72,11 +72,11 @@
 <script lang="ts">
 import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
-import { defaultRpc } from "@/helpers/chains";
-import { BigNumber, providers, utils } from "ethers";
-import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
-import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
+import { BigNumber, utils } from "ethers";
 import { useImage } from "@/helpers/useImage";
+import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
+import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
+import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 
 export default {
   data() {
@@ -318,10 +318,7 @@ export default {
 
       this.checkAndSetQuerySettings();
 
-      const currentRpc =
-        defaultRpc[this.routeChainId as keyof typeof defaultRpc];
-
-      const chainProvider = new providers.StaticJsonRpcProvider(currentRpc);
+      const chainProvider = getEthersProvider(this.routeChainId);
 
       const userSigner =
         this.account && this.activeChainId === this.routeChainId

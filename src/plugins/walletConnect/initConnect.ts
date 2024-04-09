@@ -4,11 +4,12 @@ import {
   getJsonRpcSigner,
   checkUnSupportedChain,
   checkSanctionAddress,
-  getStaticJsonRpcProvider,
 } from "@/plugins/walletConnect/utils";
+import { markRaw } from "vue";
 import { getAccount } from "@wagmi/core";
 import type { Config } from "@wagmi/core";
 import { watchAccount, watchChainId } from "@wagmi/core";
+import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
 
 export const initWalletConect = async (wagmiConfig: Config) => {
   watchAccount(wagmiConfig, {
@@ -31,7 +32,8 @@ const initConnect = async (wagmiConfig: Config) => {
 
     if (await checkSanctionAddress(address!)) return false;
 
-    const provider = await getStaticJsonRpcProvider(unsupportedChain, chainId);
+    const provider = markRaw(getEthersProvider(chainId));
+
     const signer = await getJsonRpcSigner(
       unsupportedChain,
       provider,
@@ -62,8 +64,7 @@ const initConnect = async (wagmiConfig: Config) => {
 
 export const initWithoutConnect = async (wagmiConfig: Config) => {
   const chainId = +(localStorage.getItem("MAGIC_MONEY_CHAIN_ID") || 1);
-  const { unsupportedChain } = checkUnSupportedChain(chainId);
-  const provider = await getStaticJsonRpcProvider(unsupportedChain, chainId);
+  const provider = markRaw(getEthersProvider(chainId));
 
   await commitWalletData(
     chainId!,
