@@ -36,7 +36,7 @@ export const createWagmiConfig = (projectId: string): Config => {
 export const checkUnSupportedChain = (chainId = 1) => {
   const unsupportedChain = !defaultRpc[chainId as keyof typeof defaultRpc];
 
-  if (!unsupportedChain) {
+  if (unsupportedChain) {
     localStorage.setItem("MAGIC_MONEY_CHAIN_ID", chainId.toString());
   }
 
