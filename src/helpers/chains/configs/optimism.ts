@@ -2,6 +2,7 @@ import { optimism } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
 import { filterRpcUrls } from "@/helpers/chains/utils";
 import { initPublicClient } from "@/helpers/chains/initPublicClient";
+import { initStaticJsonRpcProvider } from "@/helpers/chains/initStaticJsonRpcProvider";
 
 const rpcList = filterRpcUrls(optimism, [
   "https://optimism.llamarpc.com",
@@ -23,9 +24,11 @@ const viemConfig = {
 };
 
 const publicClient = initPublicClient(viemConfig);
+const ethersProvider = await initStaticJsonRpcProvider(optimism.id);
 
 export const optimismConfig = {
   publicClient,
+  ethersProvider,
   viemConfig: viemConfig,
   chainId: optimism.id,
   chainName: "Optimism",
