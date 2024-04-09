@@ -23,7 +23,7 @@
     </div>
 
     <div class="info-blocks">
-      <!-- <div class="info-block lp">
+      <div class="info-block lp">
         <div class="tag">
           <span class="title">
             <BaseTokenIcon
@@ -42,7 +42,7 @@
             </span>
           </div>
         </div>
-      </div> -->
+      </div>
     </div>
 
     <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
@@ -66,6 +66,9 @@ import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut"
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { actionStatus } from "@/components/pools/pool/PoolActionBlock.vue";
 
+//
+import { addLiquidityOneSideOptimal } from "@/helpers/pools/pool/addLiquidityOneSide";
+
 export default {
   props: {
     pool: { type: Object },
@@ -79,6 +82,8 @@ export default {
     return {
       inputAmount: 0n,
       inputValue: "",
+      expectedLp: 0n,
+      isExpectedLpCalculating: false,
       isBase: true,
       isActionProcessing: false,
       transactionStatus: actionStatus.WAITING,
@@ -131,6 +136,19 @@ export default {
     isProperNetwork() {
       return this.chainId == this.pool.chainId;
     },
+
+    formattedLpTokenExpected() {
+      if (this.isExpectedLpCalculating) return { value: "-", usd: "-" };
+      const formattedLpTokenValue = Number(
+        formatUnits(this.expectedLp, this.pool.decimals)
+      );
+      const lpTokenValueUsdEquivalent = formattedLpTokenValue * this.pool.price;
+
+      return {
+        value: formatTokenBalance(formattedLpTokenValue),
+        usd: formatUSD(lpTokenValueUsdEquivalent),
+      };
+    },
   },
 
   methods: {
@@ -154,9 +172,30 @@ export default {
       this.inputValue = trimZeroDecimals(
         formatUnits(value, this.activeToken.config.decimals)
       );
+
+      this.calculateExpectedLP();
+    },
+
+    async calculateExpectedLP() {
+      this.isExpectedLpCalculating = true;
+
+      this.expectedLp = (
+        await addLiquidityOneSideOptimal(
+          this.account,
+          this.chainId,
+          this.pool.contract.address,
+          this.inputAmount,
+          this.isBase,
+          //default step 100n == 1%
+          100n
+        )
+      ).shares;
+
+      this.isExpectedLpCalculating = false;
     },
 
     chooseActiveToken(isBase) {
+      this.clearData();
       this.isBase = isBase;
     },
 
