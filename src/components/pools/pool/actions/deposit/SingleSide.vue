@@ -55,20 +55,18 @@
 import moment from "moment";
 import { defineAsyncComponent } from "vue";
 import { mapActions, mapGetters, mapMutations } from "vuex";
-import { formatUnits, parseUnits } from "viem";
+import { formatUnits } from "viem";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification";
 import { approveTokenViem } from "@/helpers/approval";
 import { trimZeroDecimals } from "@/helpers/numbers";
-import { addLiquidity } from "@/helpers/pools/swap/actions/addLiquidity";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { actionStatus } from "@/components/pools/pool/PoolActionBlock.vue";
 
-//
-import { addLiquidityOneSideOptimal } from "@/helpers/pools/pool/addLiquidityOneSide";
-import { addLiquidityOneSide } from "@/helpers/pools/pool/actions/addLiquidityOneSide";
+import { addLiquidityOneSideOptimal } from "@/helpers/pools/swap/addLiquidityOneSideOptimal";
+import { addLiquidityOneSide } from "@/helpers/pools/swap/actions/addLiquidityOneSide";
 
 export default {
   props: {
@@ -165,6 +163,7 @@ export default {
     clearData() {
       this.inputAmount = 0n;
       this.inputValue = "";
+      this.expectedOptimal = { inAmountToSwap: 0n, shares: 0n };
     },
 
     updateInput(value) {
@@ -401,3 +400,6 @@ export default {
   font-weight: 400;
 }
 </style>
+@/helpers/pools/pool/addLiquidityOneSideOptimal
+@/helpers/pools/swap/actions/addLiquidityOneSide
+@/helpers/pools/swap/addLiquidityOneSideOptimal
