@@ -1,7 +1,7 @@
 import { waitForTransaction } from "@wagmi/core";
 import BlastMIMSwapRouterAbi from "@/abis/BlastMIMSwapRouter";
 import { prepareWriteContract, writeContract } from "@wagmi/core";
-import { type Address } from "viem";
+import type { Address } from "viem";
 
 export type AddLiquidityPayload = {
   lp: Address;

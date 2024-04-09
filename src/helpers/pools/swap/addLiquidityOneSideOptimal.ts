@@ -115,7 +115,7 @@ const simulateAddLiquidityOneSide = async (
   const router = getSwapRouterByChain(chainId);
 
   try {
-    const { result } = await simulateContract(client, {
+    const { result }: any = await simulateContract(client, {
       account,
       address: router,
       abi: BlastMIMSwapRouterAbi,
@@ -130,6 +130,8 @@ const simulateAddLiquidityOneSide = async (
         maxUint256,
       ],
     });
+    console.log(result);
+
     return result[2];
   } catch (error) {
     // console.log("simulateAddLiquidityOneSide error", error);
