@@ -53,6 +53,7 @@
 
 <script>
 import moment from "moment";
+import debounce from "lodash.debounce";
 import { defineAsyncComponent } from "vue";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { formatUnits } from "viem";
@@ -183,22 +184,25 @@ export default {
         formatUnits(value, this.activeToken.config.decimals)
       );
 
+      this.isExpectedOptimalCalculating = true;
+
       this.calculateExpectedOptimal();
     },
 
-    async calculateExpectedOptimal() {
-      this.isExpectedOptimalCalculating = true;
+    calculateExpectedOptimal: debounce(
+      async function calculateExpectedOptimal() {
+        this.expectedOptimal = await addLiquidityOneSideOptimal(
+          this.pool,
+          this.inputAmount,
+          this.isBase,
+          //default step 100n == 1%
+          100n
+        );
 
-      this.expectedOptimal = await addLiquidityOneSideOptimal(
-        this.pool,
-        this.inputAmount,
-        this.isBase,
-        //default step 100n == 1%
-        100n
-      );
-
-      this.isExpectedOptimalCalculating = false;
-    },
+        this.isExpectedOptimalCalculating = false;
+      },
+      500
+    ),
 
     createAddLiquidityOneSidePayload() {
       const deadline = moment().unix() + Number(this.deadline);
