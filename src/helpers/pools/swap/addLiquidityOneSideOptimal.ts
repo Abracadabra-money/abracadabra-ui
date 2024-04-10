@@ -1,14 +1,8 @@
-import { type Address, formatUnits, maxUint256, parseAbi } from "viem";
-import { simulateContract } from "viem/actions";
-import store from "@/store";
-
-import BlastMIMSwapRouterAbi from "@/abis/BlastMIMSwapRouter";
-import { getSwapRouterByChain } from "@/configs/pools/routers";
+import type { MagicLPInfo } from "@/helpers/pools/swap/types";
+import { previewAddLiquiditySingleSide } from "@/helpers/pools/swap/liquidity";
 
 export const addLiquidityOneSideOptimal = async (
-  account: Address,
-  chainId: number = 81457,
-  lp: Address,
+  lpInfo: MagicLPInfo,
   amountIn: bigint,
   amountInIsBase: boolean,
   //default 100n == 1%
@@ -25,14 +19,15 @@ export const addLiquidityOneSideOptimal = async (
 
   while (left <= right) {
     const amountSwapIn = left + (right - left) / 2n;
-    const shares = await simulateAddLiquidityOneSide(
-      account,
-      chainId,
-      lp,
-      amountIn,
-      amountInIsBase,
-      amountSwapIn
-    );
+
+    const shares = (
+      await previewAddLiquiditySingleSide(
+        lpInfo,
+        amountIn,
+        amountSwapIn,
+        amountInIsBase
+      )
+    ).shares;
 
     if (shares > bestShares) {
       bestShares = shares;
@@ -46,27 +41,29 @@ export const addLiquidityOneSideOptimal = async (
     // Explore left and right sides
     const leftSwapIn = bestAmountSwapIn - amountInStep;
     const rightSwapIn = bestAmountSwapIn + amountInStep;
+
     const leftShares =
       leftSwapIn >= left
-        ? await simulateAddLiquidityOneSide(
-            account,
-            chainId,
-            lp,
-            amountIn,
-            amountInIsBase,
-            leftSwapIn
-          )
+        ? (
+            await previewAddLiquiditySingleSide(
+              lpInfo,
+              amountIn,
+              leftSwapIn,
+              amountInIsBase
+            )
+          ).shares
         : 0n;
+
     const rightShares =
       rightSwapIn <= right
-        ? await simulateAddLiquidityOneSide(
-            account,
-            chainId,
-            lp,
-            amountIn,
-            amountInIsBase,
-            rightSwapIn
-          )
+        ? (
+            await previewAddLiquiditySingleSide(
+              lpInfo,
+              amountIn,
+              rightSwapIn,
+              amountInIsBase
+            )
+          ).shares
         : 0n;
 
     // doesn't lead to better results, consider the search done
@@ -89,53 +86,7 @@ export const addLiquidityOneSideOptimal = async (
       left = bestAmountSwapIn + 1n;
       direction = "right";
     }
-
-    //console.log(`amountSwapIn = ${bestAmountSwapIn}, Shares = ${formatUnits(shares, 18)}`);
   }
-
-  // console.log(
-  //   `Best amountSwapIn: ${bestAmountSwapIn}, Best Shares: ${formatUnits(
-  //     bestShares,
-  //     18
-  //   )}`
-  // );
 
   return { inAmountToSwap: bestAmountSwapIn, shares: bestShares };
-};
-
-const simulateAddLiquidityOneSide = async (
-  account: Address,
-  chainId: number,
-  lp: Address,
-  amountIn: bigint,
-  amountInIsBase: boolean,
-  amountSwapIn: bigint
-): Promise<bigint> => {
-  const client = store.getters.getChainById(chainId).publicClient;
-  const router = getSwapRouterByChain(chainId);
-
-  try {
-    const { result }: any = await simulateContract(client, {
-      account,
-      address: router,
-      abi: BlastMIMSwapRouterAbi,
-      functionName: "addLiquidityOneSide",
-      args: [
-        lp,
-        account,
-        amountInIsBase,
-        amountIn,
-        amountSwapIn,
-        0n,
-        maxUint256,
-      ],
-    });
-    console.log(result);
-
-    return result[2];
-  } catch (error) {
-    // console.log("simulateAddLiquidityOneSide error", error);
-
-    return 0n;
-  }
 };

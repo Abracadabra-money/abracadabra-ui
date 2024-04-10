@@ -1,5 +1,6 @@
 import type { MagicLPInfo } from "./types";
 import DecimalMath, { divFloor, mulFloor, mulCeil } from "./libs/DecimalMath";
+import { querySellQuote, querySellBase } from "@/helpers/pools/swap/magicLp";
 
 export const previewAddLiquidity = (
   baseInAmount: bigint,
@@ -231,4 +232,41 @@ export const previewAddLiquidityAlternative = (
     lpInfo
   );
   return buyShares(baseAdjustedInAmount, quoteAdjustedInAmount, lpInfo);
+};
+
+export const previewAddLiquiditySingleSide = (
+  lpInfo: MagicLPInfo,
+  inAmount: bigint,
+  inAmountToSwap: bigint,
+  inAmountIsBase: boolean
+) => {
+  let baseAmount = 0n;
+  let quoteAmount = 0n;
+
+  // base -> quote
+  if (inAmountIsBase) {
+    baseAmount = inAmount - inAmountToSwap;
+    quoteAmount = querySellBase(
+      inAmountToSwap,
+      lpInfo,
+      lpInfo.userInfo
+    ).receiveQuoteAmount;
+  }
+  // quote -> base
+  else {
+    quoteAmount = inAmount - inAmountToSwap;
+    baseAmount = querySellQuote(
+      inAmountToSwap,
+      lpInfo,
+      lpInfo.userInfo
+    ).receiveBaseAmount;
+  }
+
+  const previewAddLiquidityResult = previewAddLiquidity(
+    baseAmount,
+    quoteAmount,
+    lpInfo
+  );
+
+  return previewAddLiquidityResult;
 };

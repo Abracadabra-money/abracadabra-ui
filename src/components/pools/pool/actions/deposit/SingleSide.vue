@@ -103,6 +103,10 @@ export default {
         : this.pool.tokens.quoteToken;
     },
 
+    isAllowed() {
+      return this.activeToken.userInfo.allowance >= this.inputAmount;
+    },
+
     isValid() {
       return !!this.inputAmount && !!this.inputAmount;
     },
@@ -121,6 +125,8 @@ export default {
 
       if (this.isExpectedOptimalCalculating) return "Calculating...";
       if (this.isActionProcessing) return "Processing...";
+
+      if (!this.isAllowed) return `Approve ${this.activeToken.config.name}`;
 
       return "Deposit";
     },
@@ -184,9 +190,7 @@ export default {
       this.isExpectedOptimalCalculating = true;
 
       this.expectedOptimal = await addLiquidityOneSideOptimal(
-        this.account,
-        this.chainId,
-        this.pool.contract.address,
+        this.pool,
         this.inputAmount,
         this.isBase,
         //default step 100n == 1%
@@ -220,14 +224,17 @@ export default {
       this.isBase = isBase;
     },
 
-    async approveHandler(token) {
+    async approveHandler() {
       this.isActionProcessing = true;
       const notificationId = await this.createNotification(
         notification.approvePending
       );
 
       try {
-        await approveTokenViem(token.contract, this.pool.swapRouter);
+        await approveTokenViem(
+          this.activeToken.config.contract,
+          this.pool.swapRouter
+        );
         await this.$emit("updatePoolInfo");
 
         await this.deleteNotification(notificationId);
@@ -286,6 +293,8 @@ export default {
         // @ts-ignore
         return this.$openWeb3modal();
       }
+
+      if (!this.isAllowed) return await this.approveHandler();
 
       this.depositOneSideHandler();
     },
