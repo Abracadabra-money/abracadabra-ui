@@ -51,17 +51,11 @@ export const getMarketList = async (
 
       const provider = getEthersProvider(chainId);
 
-      // const multicallProvider = MulticallWrapper.wrap(provider);
-
       // NOTICE: BERA TEST
       const multicallProvider =
         +chainId === 80085 ? provider : MulticallWrapper.wrap(provider);
 
-      const mainParams = await getMainParams(
-        filteredConfigs,
-        multicallProvider,
-        chainId
-      );
+      const mainParams = await getMainParams(filteredConfigs, chainId);
 
       const cauldronContracts = filteredConfigs.map((config: any) => {
         return new Contract(

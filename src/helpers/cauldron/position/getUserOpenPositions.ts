@@ -46,11 +46,7 @@ export const getUserOpenPositions = async (
         chainId
       );
 
-      const mainParams = await getMainParams(
-        configs,
-        multicallProvider,
-        chainId
-      );
+      const mainParams = await getMainParams(configs, chainId);
 
       positions.push(
         ...userPositions.map((position: any, idx: any) => {

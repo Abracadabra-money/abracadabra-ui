@@ -1,53 +1,91 @@
-import type { providers } from "ethers";
+import { BigNumber } from "ethers";
+import type { Address } from "viem";
 import lensAbi from "@/abis/marketLens.js";
-import { Contract, BigNumber } from "ethers";
 import type { MainParams } from "@/helpers/cauldron/types";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { getLensAddress } from "@/helpers/cauldron/getLensAddress";
 import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
 
+interface MarketInfoResponse {
+  result: {
+    borrowFee: bigint;
+    cauldron: Address;
+    collateralPrice: bigint;
+    interestPerYear: bigint;
+    liquidationFee: bigint;
+    marketMaxBorrow: bigint;
+    maximumCollateralRatio: bigint;
+    oracleExchangeRate: bigint;
+    totalBorrowed: bigint;
+    totalCollateral: {
+      amount: bigint;
+      value: bigint;
+    };
+    userMaxBorrow: bigint;
+  };
+  status: string;
+}
+
+interface CauldronContractConfig {
+  name: string;
+  address: string;
+  abi: any;
+}
+
 export const getMainParams = async (
   configs: Array<CauldronConfig>,
-  provider: providers.BaseProvider,
   chainId: number,
-  cauldron?: Contract | undefined
+  cauldron?: CauldronContractConfig | undefined
 ): Promise<Array<MainParams>> => {
   const lensAddress = getLensAddress(chainId);
-  const lensContract = new Contract(lensAddress, lensAbi, provider);
 
-  const marketInfoResp = await Promise.all(
-    configs.map((config: any) =>
-      config.version === 2
-        ? lensContract.getMarketInfoCauldronV2(config.contract.address)
-        : lensContract.getMarketInfoCauldronV3(config.contract.address)
-    )
-  );
+  const publicClient = getPublicClient(chainId);
 
-  const contractExchangeRate: BigNumber[] | null = cauldron
-    ? await Promise.all([cauldron?.exchangeRate()])
+  const marketInfo: MarketInfoResponse[] = await publicClient.multicall({
+    contracts: configs.map((config: any) => {
+      const methodName =
+        config.version === 2
+          ? "getMarketInfoCauldronV2"
+          : "getMarketInfoCauldronV3";
+
+      return {
+        address: lensAddress,
+        abi: lensAbi,
+        functionName: methodName,
+        args: [config.contract.address],
+      };
+    }),
+  });
+
+  const contractExchangeRate: bigint | null = cauldron
+    ? await publicClient.readContract({
+        ...cauldron,
+        functionName: "exchangeRate",
+      })
     : null;
 
-  return marketInfoResp.map((info: any, index) => {
-    const localInterest: any = configs[index].interest;
+  return marketInfo.map(({ result }: MarketInfoResponse, index: number) => {
+    const localInterest: number | undefined = configs[index].interest;
 
     const updatePrice = contractExchangeRate
-      ? !contractExchangeRate[0].eq(info.oracleExchangeRate)
+      ? !BigNumber.from(contractExchangeRate).eq(result.oracleExchangeRate)
       : false;
 
     const interest = localInterest
       ? localInterest
-      : Number(info.interestPerYear) / 100;
+      : Number(result.interestPerYear) / 100;
 
     return {
-      borrowFee: Number(info.borrowFee) / 100,
+      borrowFee: Number(result.borrowFee) / 100,
       interest,
-      liquidationFee: Number(info.liquidationFee) / 100,
-      collateralPrice: info.collateralPrice,
-      mimLeftToBorrow: info.marketMaxBorrow,
-      maximumCollateralRatio: info.maximumCollateralRatio,
-      oracleExchangeRate: info.oracleExchangeRate,
-      totalBorrowed: info.totalBorrowed,
-      tvl: info.totalCollateral.value,
-      userMaxBorrow: info.userMaxBorrow,
+      liquidationFee: Number(result.liquidationFee) / 100,
+      collateralPrice: BigNumber.from(result.collateralPrice),
+      mimLeftToBorrow: BigNumber.from(result.marketMaxBorrow),
+      maximumCollateralRatio: BigNumber.from(result.maximumCollateralRatio),
+      oracleExchangeRate: BigNumber.from(result.oracleExchangeRate),
+      totalBorrowed: BigNumber.from(result.totalBorrowed),
+      tvl: BigNumber.from(result.totalCollateral.value),
+      userMaxBorrow: BigNumber.from(result.userMaxBorrow),
       updatePrice,
     };
   });
