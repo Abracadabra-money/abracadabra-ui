@@ -80,7 +80,7 @@
         <li class="popup-link-wrap" @click="closePopup">
           <a
             class="popup-link"
-            href="https://analytics.abracadabra.money/fee-statistics"
+            href="https://analytics.abracadabra.money/"
             target="_blank"
           >
             <img src="@/assets/images/header/dropdown/more/bars-icon.svg" />
