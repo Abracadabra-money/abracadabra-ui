@@ -25,14 +25,12 @@
 
       <div class="beam-actions" v-if="!isOpenNetworkPopup && !isSettingsOpened">
         <ChainsWrap
-          :fromChain="originChain"
-          :toChain="dstChain"
-          :selectChain="isSelectedChain"
-          @switch-chain="switchChain"
-          @change-network="openNetworkPopup"
+          :fromChain="fromChain"
+          :toChain="toChain"
+          @onChainSelectClick="openNetworkPopup"
         />
 
-        <div class="inputs-wrap">
+        <!-- <div class="inputs-wrap">
           <div>
             <h4 class="input-label">MIM to Beam</h4>
             <BaseTokenInput
@@ -78,22 +76,24 @@
             src="@/assets/images/beam/layer-zero.svg"
             alt=""
           />
-        </p>
+        </p> -->
       </div>
 
       <ChainsPopup
-        :isOpen="isOpenNetworkPopup"
-        :networksArr="popupNetworksArr"
-        :activeChain="activePopupChain"
-        :popupType="popupType"
-        :selectChain="isSelectedChain"
-        :currentChainId="chainId"
-        @close-popup="closeNetworkPopup"
-        @enter-chain="changeChain"
         v-if="isOpenNetworkPopup"
+        :isOpen="isOpenNetworkPopup"
+        :popupType="popupType"
+
+        :beamInfoObject="beamInfoObject"
+        :selectedFromChain="fromChain"
+        :selectedToChain="toChain"
+
+        @closePopup="closeNetworkPopup"
+        @changeChain="changeChain"
+
       />
 
-      <SettingsPopup
+      <!-- <SettingsPopup
         :value="dstTokenAmount"
         :mimAmount="amountError ? '0' : inputValue"
         :max="dstMaxAmount"
@@ -103,18 +103,19 @@
         @close-settings="isSettingsOpened = false"
         @error-settings="errorSettings"
         v-if="isSettingsOpened"
-      />
+      /> -->
+      </div>
     </div>
   </div>
 
-  <SuccessPopup
+  <!-- <SuccessPopup
     :config="successData"
     v-if="isOpenSuccessPopup"
     @close-popup="isOpenSuccessPopup = false"
-  />
+  /> -->
 </template>
 
-<script>
+<script lang="ts">
 import {
   waitForMessageReceived,
   createClient,
@@ -133,22 +134,23 @@ import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { nativeTokenschainLink } from "@/configs/chainLink/config";
 import { getDstTokenMax } from "@/helpers/beam/getDstTokenMax.ts";
 import notification from "@/helpers/notification/notification";
-import { createBeamConfig } from "@/helpers/beam/createBeamConfig";
+
 import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFee";
-import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
+
+import { getBeamInfo } from "@/helpers/beam/getBeamInfo";
 
 export default {
   data() {
     return {
       acceptedNetworks: [
-        1, 10, 56, 137, 250, 1285, 2222, 42161, 43114, 8453, 59144, 81457
+        1, 10, 56, 137, 250, 1285, 2222, 42161, 43114, 8453, 59144, 81457,
       ],
       isShowDstAddress: false,
       toChainId: null,
       dstAddress: null,
       dstAddressError: false,
       dstTokenAmount: "",
-      popupType: null,
+      popupType: "to",
       inputAmount: BigNumber.from(0),
       inputValue: "",
       isOpenNetworkPopup: false,
@@ -169,6 +171,10 @@ export default {
       isApproving: false,
       isBeaming: false,
       isUpdateFeesData: false,
+
+      beamInfoObject: null,
+      fromChain: null,
+      toChain: null,
     };
   },
 
@@ -398,22 +404,6 @@ export default {
   },
 
   watch: {
-    async chainId() {
-      this.isUpdateFeesData = this.account ? true : false;
-      this.inputAmount = BigNumber.from(0);
-      await this.updateBeamData();
-
-      if (this.isSelectedChain) {
-        this.estimateSendFee = await this.getEstimatedFees();
-      }
-
-      this.isUpdateFeesData = false;
-    },
-
-    async account() {
-      await this.updateBeamData();
-    },
-
     inputAmount(value) {
       if (value.eq(0)) {
         this.inputValue = "";
@@ -445,12 +435,12 @@ export default {
       await switchNetwork(this.dstChain.chainId);
     },
 
-    openNetworkPopup(type) {
+    openNetworkPopup(type: "from" | "to") {
       this.popupType = type;
       this.isOpenNetworkPopup = !this.isOpenNetworkPopup;
     },
 
-    async updateMainValue(value) {
+    async updateMainValue(value: any) {
       if (value === null) return (this.inputAmount = BigNumber.from(0));
       this.inputAmount = value;
     },
@@ -506,29 +496,8 @@ export default {
       await this.seendBeam(notificationId);
     },
 
-    async getChainsTokensPrices() {
-      const dstNativeToken = nativeTokenschainLink[this.toChainId];
-      this.dstTokenPrice = await getTokenPriceByChain(
-        dstNativeToken.chainId,
-        dstNativeToken.address
-      );
-      const srcNativeToken = nativeTokenschainLink[this.chainId];
-      this.srcTokenPrice = await getTokenPriceByChain(
-        srcNativeToken.chainId,
-        srcNativeToken.address
-      );
-    },
-
     async seendBeam(notificationId) {
       this.isBeaming = true;
-
-      await this.getChainsTokensPrices();
-
-      const mimPrice = await getTokenPriceByChain(
-        tokensChainLink.mim.chainId,
-        tokensChainLink.mim.address
-      );
-      this.mimToUsd = formatUSD(+this.inputValue * +mimPrice);
 
       try {
         const { fees, params } = await this.getEstimatedFees(true);
@@ -609,66 +578,19 @@ export default {
     },
 
     async changeChain(chainId, type) {
-      if (type === "to") {
-        this.isSelectedChain = true;
-        this.dstTokenAmount = "";
-        this.estimateSendFee = 0;
-        this.toChainId = chainId;
-        this.startFee = 0;
-        this.isUpdateFeesData = this.account ? true : false;
-        this.dstMaxAmount = await getDstTokenMax(
-          this.beamConfig.contractInstance,
-          this.signer,
-          this.dstChainId
-        );
-        if (!this.startFee) {
-          const startFee = await this.getEstimatedFees();
-          this.startFee = this.$ethers.utils.formatEther(startFee[0]);
-        }
+      const chainConfig = this.beamInfoObject.beamConfigs.find(
+        (chain) => chain.chainId === chainId
+      );
 
-        this.estimateSendFee = await this.getEstimatedFees();
-        this.isUpdateFeesData = false;
-        await this.getChainsTokensPrices();
+      if (type === "from") {
+        this.fromChain = chainConfig;
       } else {
-        if (this.dstChain.chainId !== chainId && !this.isUnsupportedNetwork) {
-          localStorage.setItem("previous_chain_id", this.dstChain.chainId);
-        }
-
-        if (this.dstChain.chainId === chainId) {
-          this.isSelectedChain = false;
-        }
-
-        await switchNetwork(chainId);
+        this.toChain = chainConfig;
       }
     },
 
     async beamNotAvailable() {
       return await this.createNotification(notification.beamNotAvailable);
-    },
-
-    async createBeamData() {
-      this.beamConfig = await createBeamConfig(
-        this.chainId,
-        this.signer,
-        this.account,
-        this.provider
-      );
-
-      this.updateInterval = setInterval(async () => {
-        this.beamConfig = await createBeamConfig(
-          this.chainId,
-          this.signer,
-          this.account,
-          this.provider
-        );
-      }, 15000);
-    },
-
-    async updateBeamData() {
-      if (this.isUnsupportedNetwork) await this.beamNotAvailable();
-      else {
-        await this.createBeamData();
-      }
     },
 
     closeSuccessPopup() {
@@ -683,57 +605,47 @@ export default {
 
       return messages[0];
     },
+
+    async initBeamInfo() {
+      try {
+        this.beamInfoObject = await getBeamInfo(this.chainId);
+      } catch (error) {
+        console.log("Beam Info Error:", error);
+      }
+    },
   },
 
   async created() {
-    if (!this.chainId) return false;
-
-    if (this.isUnsupportedNetwork) await this.beamNotAvailable();
-
-    await this.createBeamData();
-
-    const previousChainId = localStorage.getItem("previous_chain_id");
-    if (
-      previousChainId &&
-      !this.isUnsupportedNetwork &&
-      previousChainId != this.chainId
-    ) {
-      await this.changeChain(+previousChainId, "to");
-    }
-    localStorage.removeItem("previous_chain_id");
-  },
-
-  beforeUnmount() {
-    clearInterval(this.updateInterval);
+    await this.initBeamInfo();
   },
 
   components: {
-    BaseTokenInput: defineAsyncComponent(() =>
-      import("@/components/base/BaseTokenInput.vue")
+    BaseTokenInput: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenInput.vue")
     ),
-    BaseButton: defineAsyncComponent(() =>
-      import("@/components/base/BaseButton.vue")
+    BaseButton: defineAsyncComponent(
+      () => import("@/components/base/BaseButton.vue")
     ),
-    ChainsWrap: defineAsyncComponent(() =>
-      import("@/components/beam/ChainsWrap.vue")
+    ChainsWrap: defineAsyncComponent(
+      () => import("@/components/beam/ChainsWrap.vue")
     ),
-    ChainsPopup: defineAsyncComponent(() =>
-      import("@/components/beam/ChainsPopup.vue")
+    ChainsPopup: defineAsyncComponent(
+      () => import("@/components/beam/ChainsPopup.vue")
     ),
-    SettingsPopup: defineAsyncComponent(() =>
-      import("@/components/beam/SettingsPopup.vue")
+    SettingsPopup: defineAsyncComponent(
+      () => import("@/components/beam/SettingsPopup.vue")
     ),
-    SuccessPopup: defineAsyncComponent(() =>
-      import("@/components/beam/successPopup/SuccessPopup.vue")
+    SuccessPopup: defineAsyncComponent(
+      () => import("@/components/beam/successPopup/SuccessPopup.vue")
     ),
-    BeamSettingsButton: defineAsyncComponent(() =>
-      import("@/components/ui/buttons/BeamSettingsButton.vue")
+    BeamSettingsButton: defineAsyncComponent(
+      () => import("@/components/ui/buttons/BeamSettingsButton.vue")
     ),
-    InputAddress: defineAsyncComponent(() =>
-      import("@/components/beam/InputAddress.vue")
+    InputAddress: defineAsyncComponent(
+      () => import("@/components/beam/InputAddress.vue")
     ),
-    ExpectedBlock: defineAsyncComponent(() =>
-      import("@/components/beam/ExpectedBlock.vue")
+    ExpectedBlock: defineAsyncComponent(
+      () => import("@/components/beam/ExpectedBlock.vue")
     ),
   },
 };

@@ -2,17 +2,17 @@
   <div class="chains-wrap">
     <h4 class="select-title">Select Networks</h4>
     <div class="chains-swap">
-      <button class="select-item" @click="$emit('changeNetwork', 'from')">
+      <button class="select-item" @click="chainSelectHandler('from')">
         <div class="icon-wrap">
-          <img class="chain-icon" :src="fromChain.icon" alt="Icon" />
+          <img class="chain-icon" :src="fromChainInfo.icon" alt="Icon" />
         </div>
-        <p class="select-button-text">From: {{ fromChain.title }}</p>
+        <p class="select-button-text">From: {{ fromChainInfo.title }}</p>
       </button>
 
       <button
         class="switch-chain-button"
-        :disabled="isNetworkToChangeDisabled"
-        @click="$emit('switch-chain')"
+        :disabled="isSwitchChainsDisabled"
+        @click="switchChains"
       >
         <img
           class="switch-chain-image"
@@ -21,54 +21,75 @@
         />
       </button>
 
-      <button class="select-item" @click="$emit('changeNetwork', 'to')">
+      <button class="select-item" @click="chainSelectHandler('to')">
         <div class="icon-wrap">
-          <img class="chain-icon" :src="destinationChain.icon" alt="Icon" />
+          <img class="chain-icon" :src="toChainInfo.icon" alt="Icon" />
         </div>
-        <p class="select-button-text">To: {{ destinationChain.title }}</p>
+        <p class="select-button-text">To: {{ toChainInfo.title }}</p>
       </button>
     </div>
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import type { BeamConfig } from "@/helpers/beam/types";
+
 import { mapGetters } from "vuex";
 import { useImage } from "@/helpers/useImage";
+import type { PropType } from "vue";
+
+const EmptyChain = {
+  title: "Select Chain",
+  icon: useImage(`assets/images/networks/no-chain.svg`),
+};
+
 export default {
+  emits: ["onChainSelectClick", "switchChains"],
   props: {
-    selectChain: {
-      type: Boolean,
-      default: false,
+    beamConfigs: {
+      type: Array as PropType<BeamConfig[]>,
+      required: true,
     },
     fromChain: {
-      type: [Object],
-      require: true,
+      type: Object as PropType<BeamConfig> | null,
     },
     toChain: {
-      type: Object,
-      require: true,
+      type: Object as PropType<BeamConfig> | null,
     },
   },
 
   computed: {
     ...mapGetters({ account: "getAccount" }),
 
-    destinationChain() {
-      if (!this.selectChain || !this.toChain)
-        return {
-          title: "Select Chain",
-          icon: useImage(`assets/images/networks/no-chain.svg`),
-        };
-      return this.toChain;
+    fromChainInfo() {
+      if (!this.fromChain) return EmptyChain;
+
+      return {
+        title: this.fromChain.chainName,
+        icon: this.fromChain.icon,
+      };
     },
 
-    isNetworkToChangeDisabled() {
-      return (
-        this.fromChain.isUnsupportedNetwork ||
-        !this.account ||
-        !this.toChain ||
-        !this.selectChain
-      );
+    toChainInfo() {
+      if (!this.fromChain) return EmptyChain;
+
+      return {
+        title: this.fromChain.chainName,
+        icon: this.fromChain.icon,
+      };
+    },
+
+    isSwitchChainsDisabled() {
+      return !this.fromChain || !this.toChain;
+    },
+  },
+
+  methods: {
+    chainSelectHandler(type: "from" | "to") {
+      this.$emit("onChainSelectClick", type);
+    },
+    switchChains() {
+      this.$emit("switchChains");
     },
   },
 };

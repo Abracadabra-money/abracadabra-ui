@@ -1,26 +1,12 @@
 import abi from "@/abis/beam/";
 import type { Address } from "viem";
-
-export type BeamConfig = {
-  chainId: number;
-  chainName: string;
-  contract: {
-    address: Address;
-    abi: any;
-  };
-  outboundProofType: number;
-  relayer: Address;
-  settings: {
-    contractVersion: number;
-    disabledDestinationChains: Array<number>;
-    lzChainId: number;
-  };
-  defaultValue: any;
-};
+import type { BeamConfig } from "@/helpers/beam/types";
+import { getChainIcon } from "@/helpers/chains/getChainIcon";
 
 const config: Array<BeamConfig> = [
   {
     chainId: 1,
+    icon: getChainIcon(1),
     chainName: "Ethereum",
     contract: {
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
@@ -48,6 +34,7 @@ const config: Array<BeamConfig> = [
   },
   {
     chainId: 42161,
+    icon: getChainIcon(42161),
     chainName: "Arbitrum",
     contract: {
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
@@ -76,6 +63,7 @@ const config: Array<BeamConfig> = [
   },
   {
     chainId: 2222,
+    icon: getChainIcon(2222),
     chainName: "KAVA",
     contract: {
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
@@ -104,6 +92,7 @@ const config: Array<BeamConfig> = [
   },
   {
     chainId: 43114,
+    icon: getChainIcon(43114),
     chainName: "Avalanche",
     contract: {
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
@@ -132,6 +121,7 @@ const config: Array<BeamConfig> = [
   },
   {
     chainId: 10,
+    icon: getChainIcon(10),
     chainName: "Optimism",
     contract: {
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
@@ -160,6 +150,7 @@ const config: Array<BeamConfig> = [
   },
   {
     chainId: 250,
+    icon: getChainIcon(250),
     chainName: "Fantom",
     contract: {
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
@@ -188,6 +179,7 @@ const config: Array<BeamConfig> = [
   },
   {
     chainId: 56,
+    icon: getChainIcon(56),
     chainName: "BNB Chain",
     contract: {
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
@@ -214,9 +206,9 @@ const config: Array<BeamConfig> = [
       81457: "0.000918881105354775",
     },
   },
-
   {
     chainId: 137,
+    icon: getChainIcon(137),
     chainName: "Polygon",
     contract: {
       address: "0xE1261E47b08a22Df93af46889EE504C2Aa6DfD4c",
@@ -243,9 +235,9 @@ const config: Array<BeamConfig> = [
       81457: "0.000514784975414775",
     },
   },
-
   {
     chainId: 1285,
+    icon: getChainIcon(1285),
     chainName: "Moonriver",
     contract: {
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
@@ -272,9 +264,9 @@ const config: Array<BeamConfig> = [
       81457: "0.000278362471171267",
     },
   },
-
   {
     chainId: 8453,
+    icon: getChainIcon(8453),
     chainName: "BASE",
     contract: {
       address: "0x4035957323FC05AD9704230E3dc1E7663091d262",
@@ -303,6 +295,7 @@ const config: Array<BeamConfig> = [
   },
   {
     chainId: 59144,
+    icon: getChainIcon(59144),
     chainName: "Linea",
     contract: {
       address: "0x60bbeFE16DC584f9AF10138Da1dfbB4CDf25A097",
@@ -331,6 +324,7 @@ const config: Array<BeamConfig> = [
   },
   {
     chainId: 81457,
+    icon: getChainIcon(81457),
     chainName: "Blast",
     contract: {
       address: "0xcA8A205a579e06Cb1bE137EA3A5E5698C091f018",

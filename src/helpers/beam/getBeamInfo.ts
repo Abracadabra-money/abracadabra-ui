@@ -1,18 +1,24 @@
 import mimConfigs from "@/configs/tokens/mim";
-import beamConfigs, { type BeamConfig } from "@/configs/beam/beamConfigs";
+import beamConfigs from "@/configs/beam/beamConfigs";
 import type { Address } from "viem";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { getNativeTokensPrice } from "../prices/defiLlama";
 import relayerAbi from "@/abis/beam/relayer.js";
 import { tokensChainLink } from "@/configs/chainLink/config";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
+import type {
+  BeamInfo,
+  BeamTokenConfig,
+  BeamUserInfo,
+  BeamConfig,
+} from "./types";
 
 const PACKET_TYPE: number = 0;
 
 export const getBeamInfo = async (
   chainId: number,
   account: Address
-): Promise<any> => {
+): Promise<BeamInfo> => {
   const fromChainConfig = beamConfigs.find((item) => item.chainId === chainId);
 
   if (!fromChainConfig) {
@@ -77,9 +83,11 @@ export const getBeamInfo = async (
   );
 
   return {
-    config: fromChainConfig,
+    beamConfigs: beamConfigs,
+    fromChainConfig: fromChainConfig,
     destinationChainsInfo,
-    tokenConfig: mimConfig,
+    tokenConfig: mimConfig as BeamTokenConfig,
+    mimPrice,
     userInfo,
   };
 };
@@ -88,7 +96,7 @@ const getUserInfo = async (
   tokenConfig: any,
   beamConfig: any,
   account: Address
-): Promise<any> => {
+): Promise<BeamUserInfo> => {
   const publicClient = getPublicClient(beamConfig.chainId);
 
   const [balance, allowance] = await publicClient.multicall({

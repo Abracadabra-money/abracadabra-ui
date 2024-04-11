@@ -1,30 +1,51 @@
-import type { Contract, BigNumber } from "ethers";
-
-type NetworksConfig = {
-  chainId: number;
-  title: string;
-  icon: string;
-};
-
-type ChainsConfig = {
-  chainId: number;
-  name: string;
-  icon: string;
-};
+import type { Address } from "viem";
 
 export type BeamConfig = {
-  contractInstance: Contract | null;
-  balance: string;
-  nativeTokenBalance: string | BigNumber | undefined;
-  approvedAmount: BigNumber;
-  tokenContractInstance: Contract | null;
-  chainsInfo: Array<any>;
-  fromChains: Array<NetworksConfig>;
-  toChains: Array<NetworksConfig>;
+  chainId: number;
+  icon: string;
+  chainName: string;
+  contract: {
+    address: Address;
+    abi: any;
+  };
+  outboundProofType: number;
+  relayer: Address;
+  settings: {
+    contractVersion: number;
+    disabledDestinationChains: Array<number>;
+    lzChainId: number;
+  };
+  defaultValue: any;
 };
 
-export type UserInfo = {
-  balance: string;
-  nativeTokenBalance: string | BigNumber | undefined;
-  approvedAmount: BigNumber;
+export type BeamTokenConfig = {
+  name: string;
+  symbol: string;
+  chainId: number;
+  decimals: number;
+  address: string;
+  abi: any;
+  image: string;
+};
+
+export type DestinationChainInfo = {
+  chainConfig: BeamConfig;
+  minDstGasLookupResult: bigint;
+  dstConfigLookupResult: bigint;
+  nativePrice: number;
+};
+
+export type BeamUserInfo = {
+  balance: bigint;
+  allowance: bigint;
+  nativeBalance: bigint;
+};
+
+export type BeamInfo = {
+  beamConfigs: Array<BeamConfig>;
+  fromChainConfig: BeamConfig;
+  destinationChainsInfo: DestinationChainInfo;
+  tokenConfig: BeamTokenConfig;
+  mimPrice: number;
+  userInfo: BeamUserInfo;
 };

@@ -12,53 +12,70 @@
     <div class="content-wrap">
       <div
         class="select-item"
-        v-for="(network, inx) in networksArr"
-        :key="inx"
-        @click="enterChain(network.chainId)"
+        v-for="(chain, index) in chainsArray"
+        :key="index"
+        @click="onChainClick(chain.chainId)"
       >
         <div class="description">
           <div class="chain-icon-wrap">
             <img
               class="current-chain-marker"
               src="@/assets/images/beam/current-chain-marker.png"
-              v-if="network.chainId == activeChain"
+              v-if="chain.chainId == activeChain"
             />
-            <img class="chain-icon" :src="network.icon" alt="Icon" />
+            <img class="chain-icon" :src="chain.icon" alt="Icon" />
           </div>
-          <p class="chain-title">{{ network.title }}</p>
+          <p class="chain-title">{{ chain.chainName }}</p>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import type { PropType } from "vue";
+import type { BeamInfo, BeamConfig } from "@/helpers/beam/types";
 export default {
   props: {
     isOpen: {
       type: Boolean,
       default: false,
     },
-    networksArr: {
-      type: Array,
-      default: () => [],
-    },
-    activeChain: {
-      type: [String, Number],
-    },
     popupType: {
-      type: String,
+      type: String as PropType<"from" | "to">,
     },
-    selectChain: {
-      type: Boolean,
+    beamInfoObject: {
+      type: Object as PropType<BeamInfo>,
+      required: true,
     },
-    currentChainId: { type: Number },
+    selectedFromChain: {
+      type: Object as PropType<BeamConfig> | null,
+    },
+    selectedToChain: {
+      type: Object as PropType<BeamConfig> | null,
+    },
   },
 
   computed: {
     popupTitle() {
       return this.popupType == "to" ? "destination" : "origin";
     },
+    chainsArray(): BeamConfig[] {
+      if (this.popupType == "from") {
+        return this.beamInfoObject.beamConfigs;
+      } else {
+        return this.beamInfoObject.destinationChainsInfo.map((info) => {
+          return info.chainConfig;
+        });
+      }
+    },
+    activeChainId() {
+      if(this.popupType == "from") {
+        return this.selectedFromChain?.chainId;
+      } else {
+        return this.selectedToChain?.chainId;
+      }
+    }
   },
 
   methods: {
@@ -66,8 +83,8 @@ export default {
       this.$emit("closePopup");
     },
 
-    enterChain(chainId) {
-      this.$emit("enterChain", chainId, this.popupType);
+    onChainClick(chainId) {
+      this.$emit("changeChain", chainId, this.popupType);
       this.closePopup();
     },
   },
