@@ -52,7 +52,7 @@
       >
 
       <a
-        href="https://analytics.abracadabra.money/fee-statistics"
+        href="https://analytics.abracadabra.money"
         class="list-link"
         target="_blank"
         ><div class="link-title">
