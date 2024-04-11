@@ -270,3 +270,35 @@ export const previewAddLiquiditySingleSide = (
 
   return previewAddLiquidityResult;
 };
+
+
+export const previewAddLiquidityImbalanced = (lpInfo: MagicLPInfo, baseInAmount: bigint, quoteInAmount: bigint, remainingAmountToSwapIsBase: boolean, remainingAmountToSwap: bigint) => {
+
+  let { baseAdjustedInAmount, quoteAdjustedInAmount } = previewAddLiquidity(baseInAmount, quoteInAmount, lpInfo);
+
+  // base -> quote
+  if (remainingAmountToSwapIsBase) {
+    baseAdjustedInAmount += (baseInAmount - baseAdjustedInAmount) - remainingAmountToSwap;
+    quoteAdjustedInAmount += querySellBase(
+      remainingAmountToSwap,
+      lpInfo,
+      lpInfo.userInfo
+    ).receiveQuoteAmount;
+  }
+  // quote -> base
+  else {
+    baseAdjustedInAmount += querySellQuote(
+      remainingAmountToSwap,
+      lpInfo,
+      lpInfo.userInfo
+    ).receiveBaseAmount;
+    quoteAdjustedInAmount += (quoteInAmount - quoteAdjustedInAmount) - remainingAmountToSwap;
+  }
+  const previewAddLiquidityImbalancedResult = previewAddLiquidity(
+    baseAdjustedInAmount,
+    quoteAdjustedInAmount,
+    lpInfo
+  );
+
+  return previewAddLiquidityImbalancedResult;
+}
