@@ -3,7 +3,7 @@ import BlastMIMSwapRouterAbi from "@/abis/BlastMIMSwapRouter";
 import { prepareWriteContract, writeContract } from "@wagmi/core";
 import type { Address } from "viem";
 
-export type AddLiquidityPayload = {
+export type AddLiquidityOneSidePayload = {
   lp: Address;
   to: Address;
   inAmountIsBase: boolean;
@@ -15,7 +15,7 @@ export type AddLiquidityPayload = {
 
 export const addLiquidityOneSide = async (
   swapRouterAddress: Address,
-  payload: AddLiquidityPayload
+  payload: AddLiquidityOneSidePayload
 ) => {
   const {
     lp,

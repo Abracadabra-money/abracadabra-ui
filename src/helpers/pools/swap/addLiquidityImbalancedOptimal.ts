@@ -78,11 +78,5 @@ export const addLiquidityImbalancedOptimal = async (
         }
     }
 
-    console.log({
-        shares: bestShares,
-    });
-
-
-    return bestShares;
+    return { remainingAmountToSwapIsBase, remainingAmountToSwap: bestAmountSwapIn, shares: bestShares };
 };
-

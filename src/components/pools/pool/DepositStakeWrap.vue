@@ -17,9 +17,9 @@
 
       <Toggle
         v-if="!isStake"
-        text="Single Side"
-        :selected="isSingleSide"
-        @updateToggle="changeSingleSideToggle"
+        text="Balanced"
+        :selected="isBalanced"
+        @updateToggle="changeBalancedToggle"
       />
     </div>
 
@@ -27,7 +27,7 @@
       :pool="pool"
       :slippage="slippage"
       :deadline="deadline"
-      :isSingleSide="isSingleSide"
+      :isBalanced="isBalanced"
       @updatePoolInfo="$emit('updatePoolInfo')"
       v-if="!isStake"
     />
@@ -61,7 +61,7 @@ export default {
       activeTab: "deposit",
       tabItems: ["deposit", "stake"],
       isLock: false,
-      isSingleSide: false,
+      isBalanced: false,
       lockEndTimestamp: 1712364937,
       isLockEnded: true,
     };
@@ -86,8 +86,8 @@ export default {
       this.isLock = !this.isLock;
     },
 
-    changeSingleSideToggle() {
-      this.isSingleSide = !this.isSingleSide;
+    changeBalancedToggle() {
+      this.isBalanced = !this.isBalanced;
     },
   },
 

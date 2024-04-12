@@ -5,15 +5,15 @@
       :slippage="slippage"
       :deadline="deadline"
       @updatePoolInfo="$emit('updatePoolInfo')"
-      v-if="!isSingleSide"
+      v-if="isBalanced"
     />
 
-    <SingleSide
+    <Imbalanced
       :pool="pool"
       :slippage="slippage"
       :deadline="deadline"
       @updatePoolInfo="$emit('updatePoolInfo')"
-      v-if="isSingleSide"
+      v-if="!isBalanced"
     />
   </div>
 </template>
@@ -26,7 +26,7 @@ export default {
     pool: { type: Object },
     slippage: { type: BigInt, default: 100n },
     deadline: { type: BigInt, default: 100n },
-    isSingleSide: { type: Boolean },
+    isBalanced: { type: Boolean },
   },
 
   emits: ["updatePoolInfo"],
@@ -35,8 +35,8 @@ export default {
     Default: defineAsyncComponent(() =>
       import("@/components/pools/pool/actions/deposit/Default.vue")
     ),
-    SingleSide: defineAsyncComponent(() =>
-      import("@/components/pools/pool/actions/deposit/SingleSide.vue")
+    Imbalanced: defineAsyncComponent(() =>
+      import("@/components/pools/pool/actions/deposit/Imbalanced.vue")
     ),
   },
 };
