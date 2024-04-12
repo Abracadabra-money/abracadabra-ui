@@ -111,6 +111,12 @@ export default {
     },
   },
 
+  watch: {
+    account() {
+      this.createCauldronsList();
+    },
+  },
+
   methods: {
     async createCauldronsList() {
       this.cauldrons = await getMarketList(this.account);
