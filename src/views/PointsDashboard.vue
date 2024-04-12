@@ -62,14 +62,17 @@
       </div>
 
       <div class="row card-info-row">
-        <CardPointsInfo :pointsInfo="cauldronPointsInfo" />
-        <CardPointsInfo
+        <CauldronPointsInfoCard :pointsInfo="cauldronPointsInfo" />
+        <StakePointsInfoCard
           :pointsInfo="llePointsInfo"
           :withdrawLogic="true"
           isTabs
           @showWithdrawPopup="showWithdrawPopup = true"
         />
-        <CardGoldPointsInfo :pointsInfo="goldPointsInfo" />
+        <LockPointsInfoCard
+          :pointsInfo="goldPointsInfo"
+          :userLocks="stakeLpBalances.userLocks"
+        />
       </div>
     </div>
 
@@ -249,36 +252,56 @@ export default {
     async getStakeLpBalance() {
       const publicClient = getPublicClient(BLAST_CHAIN_ID);
 
-      const [balance, locked, unlocked] = await publicClient.multicall({
-        contracts: [
-          {
-            address: BlastLockingMultiRewards,
-            // @ts-ignore
-            abi: BlastLockingMultiRewardsAbi,
-            functionName: "balanceOf",
-            args: [this.account],
-          },
-          {
-            address: BlastLockingMultiRewards,
-            // @ts-ignore
-            abi: BlastLockingMultiRewardsAbi,
-            functionName: "locked",
-            args: [this.account],
-          },
-          {
-            address: BlastLockingMultiRewards,
-            // @ts-ignore
-            abi: BlastLockingMultiRewardsAbi,
-            functionName: "unlocked",
-            args: [this.account],
-          },
-        ],
-      });
+      const [balance, locked, unlocked, userLocksArr] =
+        await publicClient.multicall({
+          contracts: [
+            {
+              address: BlastLockingMultiRewards,
+              abi: BlastLockingMultiRewardsAbi,
+              functionName: "balanceOf",
+              args: [this.account],
+            },
+            {
+              address: BlastLockingMultiRewards,
+              abi: BlastLockingMultiRewardsAbi,
+              functionName: "locked",
+              args: [this.account],
+            },
+            {
+              address: BlastLockingMultiRewards,
+              abi: BlastLockingMultiRewardsAbi,
+              functionName: "unlocked",
+              args: [this.account],
+            },
+            {
+              address: BlastLockingMultiRewards,
+              abi: BlastLockingMultiRewardsAbi,
+              functionName: "userLocks",
+              args: [this.account],
+            },
+          ],
+        });
+
+      const userLocks = userLocksArr.result.map(
+        ({ amount, unlockTime }: { amount: bigint; unlockTime: bigint }) => {
+          const formatAmount = +formatUnits(
+            amount,
+            this.poolInfo?.decimals || 18
+          );
+
+          return {
+            amount: formatAmount,
+            amountUsd: formatAmount * this.poolInfo?.price || 0,
+            unlockTime,
+          };
+        }
+      );
 
       return {
         balance: balance.result,
         locked: locked.result,
         unlocked: unlocked.result,
+        userLocks,
       };
     },
 
@@ -288,13 +311,13 @@ export default {
 
     // TODO: refactor
     async createActivityInfo() {
-      this.stakeLpBalances = await this.getStakeLpBalance();
-
       this.poolInfo = await getPoolInfo(
         BLAST_CHAIN_ID,
         MIM_USDB_POOL_ID,
         this.account
       );
+
+      this.stakeLpBalances = await this.getStakeLpBalance();
 
       const chainProvider = getEthersProvider(BLAST_CHAIN_ID);
 
@@ -345,14 +368,16 @@ export default {
     CardPointsPending: defineAsyncComponent(
       () => import("@/components/ui/card/CardPointsPending.vue")
     ),
-    CardPointsInfo: defineAsyncComponent(
-      () => import("@/components/ui/card/CardPointsInfo.vue")
+    CauldronPointsInfoCard: defineAsyncComponent(
+      () => import("@/components/ui/card/CauldronPointsInfoCard.vue")
     ),
-    CardGoldPointsInfo: defineAsyncComponent(
-      () => import("@/components/ui/card/CardGoldPointsInfo.vue")
+    StakePointsInfoCard: defineAsyncComponent(
+      () => import("@/components/ui/card/StakePointsInfoCard.vue")
+    ),
+    LockPointsInfoCard: defineAsyncComponent(
+      () => import("@/components/ui/card/LockPointsInfoCard.vue")
     ),
     WlpWithdrawPopup: defineAsyncComponent(
-      // @ts-ignore
       () => import("@/components/blastOnboarding/WlpWithdrawPopup.vue")
     ),
   },

@@ -2,6 +2,8 @@
   <div :class="['card', { gold: pointsInfo?.isGold }]">
     <div class="label">{{ pointsInfo.label }}</div>
 
+    <router-link to="/market/81457/1" class="manage-btn"> Manage </router-link>
+
     <div class="tabs-wrap" v-if="isTabs">
       <button
         :class="['tabs-item', { 'tab-active': activeTab === 1 }]"
@@ -212,12 +214,31 @@ export default {
   position: relative;
   max-width: 411px;
   width: 100%;
-  padding: 52px 16px 22px;
+  padding: 42px 16px 22px;
   border-radius: 16px;
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.06);
   backdrop-filter: blur(12.5px);
   border: 1px solid #fcfd02;
   margin: 0 auto;
+}
+
+.manage-btn {
+  box-sizing: border-box;
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  max-width: 107px;
+  width: 100%;
+  height: 38px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  border: 2px solid #fff;
+  background: rgba(255, 255, 255, 0.01);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .tabs-wrap {

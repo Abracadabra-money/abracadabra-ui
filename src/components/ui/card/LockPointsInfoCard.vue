@@ -158,6 +158,39 @@
         <div class="tab-caming-soon" v-if="activeTab === 3">Coming soon</div>
       </div>
     </div>
+
+    <div class="user-locks" v-else>
+      <div
+        class="lock-item"
+        v-for="(userLock, index) in userLocks"
+        :key="index"
+      >
+        <div class="pool-info">
+          <img src="@/assets/images/tokens/MIM-USDB.png" alt="MIM/USDB Pool" />
+
+          <div>
+            <div class="lock-amount">
+              {{ formatTokenBalance(userLock.amount) }}
+            </div>
+            <div class="lock-amount-usd">
+              {{ formatUSD(userLock.amountUsd) }}
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <Timer
+            class="timer"
+            :endDateTimestamp="Number(userLock.unlockTime)"
+            small
+            gap="4px"
+            padding="6px"
+            width="44px"
+          />
+          <div class="unlocks-text">Unlocks in</div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -178,6 +211,7 @@ export default {
       type: Boolean,
       default: false,
     },
+    userLocks: {} as any,
   },
 
   data() {
@@ -246,16 +280,21 @@ export default {
     Tooltip: defineAsyncComponent(
       () => import("@/components/ui/icons/Tooltip.vue")
     ),
+    Timer: defineAsyncComponent(
+      () => import("@/components/stake/earnPoints/Timer.vue")
+    ),
   },
 };
 </script>
 
 <style lang="scss" scoped>
+@include scrollbar;
+
 .card {
   position: relative;
   max-width: 411px;
   width: 100%;
-  padding: 52px 16px 16px;
+  padding: 42px 16px 16px;
   margin: 0 auto;
   border-radius: 16px;
   border: 1px solid #fcfd02;
@@ -485,108 +524,38 @@ export default {
   justify-content: center;
 }
 
-// -----
-
-.withdraw-button {
-  border: none;
-  outline: none;
-  width: max-content;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #000;
-  font-size: 14px;
-  font-weight: 600;
-  line-height: normal;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  position: absolute;
-  top: 67px;
-  right: 24px;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: #fcfc06;
-    opacity: 0.8;
-  }
-
-  &:active {
-    background: #fcfc06;
-    opacity: 0.8;
-  }
-}
-
-.boost {
-  cursor: pointer;
-  width: 20px;
-  height: 20px;
-  border-radius: 17px;
-  background: rgba(255, 255, 255, 0.16);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.list {
-  gap: 4px;
+.user-locks {
+  max-height: 170px;
+  overflow-y: scroll;
+  gap: 8px;
   display: flex;
   flex-direction: column;
-  list-style: none;
 }
 
-.list-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.item-title {
-  gap: 4px;
+.lock-item {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid #fcfd02;
+  background: rgba(0, 0, 0, 0.2);
+  box-shadow: 0px 4px 33px 0px rgba(0, 0, 0, 0.06);
   display: flex;
   align-items: center;
-}
-
-.boost {
-  box-shadow: 0px 0px 10px 0px rgba(237, 232, 96, 0.1);
-}
-
-.gold-title {
-  color: #fcfd02;
-  text-shadow: 0px 0px 16px #ede860;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.item-value {
-  font-weight: 500;
-  color: #fcfd02;
-}
-
-.item-amount {
-  color: white;
-}
-
-.empty {
-  font-size: 20px;
-  height: 92px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.total-wrap {
-  display: flex;
   justify-content: space-between;
 }
 
-.total-title {
-  gap: 4px;
-  display: flex;
-  align-items: center;
+.lock-amount {
+  font-weight: 500;
 }
 
-.total-value {
+.lock-amount-usd {
+  color: #878b93;
+  font-size: 14px;
   font-weight: 500;
+}
+
+.unlocks-text {
+  text-align: center;
+  color: #878b93;
+  font-size: 12px;
 }
 </style>

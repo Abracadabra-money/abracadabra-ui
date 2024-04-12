@@ -1,6 +1,14 @@
 <template>
-  <div :class="['timer', { small }, { airdrop }, { dark }]">
-    <div class="time-block" v-for="(value, index) in timerValues" :key="index">
+  <div
+    :class="['timer', { small }, { airdrop }, { dark }]"
+    :style="{ gap: gap }"
+  >
+    <div
+      class="time-block"
+      :style="{ padding: padding, 'min-width': width }"
+      v-for="(value, index) in timerValues"
+      :key="index"
+    >
       {{ value }}
     </div>
   </div>
@@ -34,6 +42,15 @@ export default {
     dark: {
       type: Boolean,
       default: false,
+    },
+    gap: {
+      type: String,
+    },
+    padding: {
+      type: String,
+    },
+    width: {
+      type: String,
     },
   },
 

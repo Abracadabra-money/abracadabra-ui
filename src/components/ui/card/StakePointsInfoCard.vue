@@ -2,25 +2,7 @@
   <div class="card">
     <div class="label">Liquidity Provider</div>
 
-    <button class="withdraw-btn">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="25"
-        viewBox="0 0 24 25"
-        fill="none"
-      >
-        <path
-          d="M15 4.50101H5V18.501C5 19.0314 5.21071 19.5401 5.58579 19.9152C5.96086 20.2903 6.46957 20.501 7 20.501H15M16 15.501L19 12.501M19 12.501L16 9.50101M19 12.501H9"
-          stroke="#7088CC"
-          stroke-width="1.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-      </svg>
-    </button>
-
-    <router-link to="/" class="manage-btn"> Manage </router-link>
+    <router-link to="/pool/1/81457" class="manage-btn"> Manage </router-link>
 
     <div class="pool-info">
       <div class="pool-icon-warp">
@@ -214,7 +196,7 @@ export default {
   position: relative;
   max-width: 411px;
   width: 100%;
-  padding: 52px 16px 16px;
+  padding: 42px 16px 16px;
   margin: 0 auto;
   border-radius: 16px;
   border: 1px solid #fcfd02;
