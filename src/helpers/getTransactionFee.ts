@@ -1,10 +1,10 @@
-import { fetchFeeData } from "@wagmi/core";
 import { parseUnits, type Address } from "viem";
 import { ethers, providers, utils } from "ethers";
 import { getRpcByChainId } from "@/helpers/chains";
 import { getGasPrice } from "@/helpers/gm/fee/getGasPrice";
 import BlastMIMSwapRouterAbi from "@/abis/BlastMIMSwapRouter";
 import { getSwapRouterByChain } from "@/configs/pools/routers";
+import { estimateFeesPerGasHelper } from "@/helpers/walletClienHelper";
 
 export const getTransactionFee = async (
   chainId: number,
@@ -35,7 +35,7 @@ export const getTransactionFee = async (
 
     const gasPrice = await getGasPrice(provider);
 
-    const feeData = await fetchFeeData();
+    const feeData = await estimateFeesPerGasHelper();
 
     // console.log("feeData", feeData);
 

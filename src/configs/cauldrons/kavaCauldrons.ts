@@ -1,14 +1,12 @@
+import { erc20Abi } from "viem";
+import { useImage } from "@/helpers/useImage";
 import tokensAbi from "@/abis/tokensAbi/index";
 import poolsAbi from "@/abis/borrowPoolsAbi/index";
-import { erc20ABI } from "@wagmi/core";
-import degenBoxERC4626Wrapper from "@/abis/lp/DegenBoxERC4626Wrapper";
-import MagicCurveLpLevSwapper from "@/abis/lp/MagicCurveLpLevSwapper";
+import StargateLPSwapper from "@/abis/lp/StargateLPSwapper";
 import MagicCurveLpSwapper from "@/abis/lp/MagicCurveLpSwapper";
 import StargateLPLevSwapper from "@/abis/lp/StargateLPLevSwapper";
-import StargateLPSwapper from "@/abis/lp/StargateLPSwapper";
-
-import { useImage } from "@/helpers/useImage";
-
+import degenBoxERC4626Wrapper from "@/abis/lp/DegenBoxERC4626Wrapper";
+import MagicCurveLpLevSwapper from "@/abis/lp/MagicCurveLpLevSwapper";
 import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
 
 const mimInfo = {
@@ -64,7 +62,7 @@ const config: Array<CauldronConfig> = [
         name: "MIMUSDt-f",
         icon: useImage(`assets/images/tokens/Curve-MIM-USDT.png`),
         address: "0x591199E16E006Dec3eDcf79AE0fCea1Dd0F5b69D",
-        abi: erc20ABI, //todo
+        abi: erc20Abi, //todo
       },
       wrapper: {
         address: "0x9b2794Aeff2E6Bd2b3e32e095E878bF17EB6BdCC",

@@ -1,13 +1,11 @@
-import { Contract, providers } from "ethers";
-import { getRpcByChainId } from "@/helpers/chains";
+import { Contract } from "ethers";
 import { formatToFixed } from "@/helpers/filters";
 import { MulticallWrapper } from "ethers-multicall-provider";
+import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
 import { config } from "@/helpers/collateralsApy/getMagicApeApy/config";
 
 export const getMagicApeApy = async (chainId: number): Promise<number> => {
-  const provider = new providers.StaticJsonRpcProvider(
-    getRpcByChainId(chainId)
-  );
+  const provider = getEthersProvider(chainId);
 
   const { magicApe, lens } = config;
   const multicallProvider = MulticallWrapper.wrap(provider);

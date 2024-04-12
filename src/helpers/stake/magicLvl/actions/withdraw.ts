@@ -1,6 +1,10 @@
+import {
+  writeContractHelper,
+  simulateContractHelper,
+  waitForTransactionReceiptHelper,
+} from "@/helpers/walletClienHelper";
+import type { Address } from "viem";
 import type { ContractInfo } from "@/types/global";
-import { waitForTransaction, type Address } from "@wagmi/core";
-import { prepareWriteContract, writeContract } from "@wagmi/core";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 
 export const withdraw = async (
@@ -11,16 +15,15 @@ export const withdraw = async (
   chainId = 56
 ) => {
   try {
-    const config = await prepareWriteContract({
+    const { request } = await simulateContractHelper({
       ...contract,
       functionName: "withdraw",
       args: [pid, withdrawAmount, account],
     });
 
-    const { hash } = await writeContract(config);
+    const hash = await writeContractHelper(request);
 
-    const data = await waitForTransaction({ chainId, hash });
-    return data;
+    return await waitForTransactionReceiptHelper({ chainId, hash });
   } catch (error) {
     console.log("Magic LVL Stake Withdraw Error:", error);
     return {

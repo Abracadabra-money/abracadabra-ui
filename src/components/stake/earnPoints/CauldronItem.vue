@@ -57,12 +57,13 @@
 </template>
 
 <script>
-import { utils, providers } from "ethers";
-import { defaultRpc } from "@/helpers/chains";
-import { getChainIcon } from "@/helpers/chains/getChainIcon";
-import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
+import { utils } from "ethers";
+import { mapGetters } from "vuex";
 import { formatLargeSum } from "@/helpers/filters";
 import ethIcon from "@/assets/images/tokens/ETH.png";
+import { getChainIcon } from "@/helpers/chains/getChainIcon";
+import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
+import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 
 export default {
   data() {
@@ -76,6 +77,10 @@ export default {
   },
 
   computed: {
+    ...mapGetters({
+      account: "getAccount",
+    }),
+
     isOpenPosition() {
       return (
         this.cauldronInfo.userPosition.collateralInfo.userCollateralShare.gt(
@@ -104,15 +109,14 @@ export default {
     },
 
     async createCauldronInfo() {
-      const currentRpc = defaultRpc[this.cauldronChainId];
-
-      const chainProvider = new providers.StaticJsonRpcProvider(currentRpc);
+      const chainProvider = getEthersProvider(this.cauldronChainId);
 
       this.cauldronInfo = await getCauldronInfo(
         this.cauldronId,
         this.cauldronChainId,
         chainProvider,
-        chainProvider
+        chainProvider,
+        this.account
       );
     },
   },

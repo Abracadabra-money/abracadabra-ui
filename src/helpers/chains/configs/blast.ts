@@ -1,6 +1,6 @@
 import { useImage } from "@/helpers/useImage";
-
 import { initPublicClient } from "@/helpers/chains/initPublicClient";
+import { initStaticJsonRpcProvider } from "@/helpers/chains/initStaticJsonRpcProvider";
 
 const rpcList = [
   "https://rpc.blast.io",
@@ -47,9 +47,11 @@ const viemConfig = {
 };
 
 const publicClient = initPublicClient(viemConfig);
+const ethersProvider = await initStaticJsonRpcProvider(viemConfig.id);
 
 export const blastConfig = {
   publicClient,
+  ethersProvider,
   viemConfig: viemConfig,
   chainId: viemConfig.id,
   chainName: "Blast",

@@ -36,13 +36,13 @@
 
 <script>
 import { providers } from "ethers";
-import { getAccount } from "@wagmi/core";
 import { defineAsyncComponent } from "vue";
 import { mapGetters, mapActions } from "vuex";
+import { getAccountHelper } from "@/helpers/walletClienHelper";
 import notification from "@/helpers/notification/notification";
 import { tenderlyAddBalance } from "@/helpers/tenderly/tenderlyAddBalance";
 
-const account = getAccount();
+const account = getAccountHelper();
 
 export default {
   props: {

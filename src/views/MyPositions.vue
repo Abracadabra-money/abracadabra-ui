@@ -64,11 +64,10 @@ import {
   formatToFixed,
 } from "@/helpers/filters";
 import { mapGetters } from "vuex";
-import { providers } from "ethers";
 import { APR_KEY } from "@/constants/global";
-import { defaultRpc } from "@/helpers/chains";
 import BaseLoader from "@/components/base/BaseLoader.vue";
 import SortButton from "@/components/ui/buttons/SortButton.vue";
+import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
 import BaseSearchEmpty from "@/components/base/BaseSearchEmpty.vue";
 import FiltersPopup from "@/components/myPositions/FiltersPopup.vue";
 import BentoBoxBlock from "@/components/myPositions/BentoBoxBlock.vue";
@@ -234,7 +233,7 @@ export default {
     },
 
     async fetchCollateralApy(cauldron, chainId, address) {
-      const provider = new providers.StaticJsonRpcProvider(defaultRpc[chainId]);
+      const provider = getEthersProvider(chainId);
       const apr = await fetchTokenApy(cauldron, chainId, provider);
       const localData = localStorage.getItem(APR_KEY);
       const parsedData = localData ? JSON.parse(localData) : {};

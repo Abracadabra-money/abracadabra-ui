@@ -1,7 +1,7 @@
-import { getAccount } from "@wagmi/core";
+import { getAccountHelper } from "@/helpers/walletClienHelper";
 
 export const validateConnection = () => {
-  const { isConnected } = getAccount();
+  const { isConnected } = getAccountHelper();
 
   if (!isConnected)
     return {
