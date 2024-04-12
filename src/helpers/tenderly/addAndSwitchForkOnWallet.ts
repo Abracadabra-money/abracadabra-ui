@@ -1,14 +1,14 @@
-import { getWalletClient } from "@wagmi/core";
 import type { LocalForkData } from "@/types/tenderly";
 import { TENDERLY_FORK_URL } from "@/constants/tenderly";
 import { getChainConfig } from "@/helpers/chains/getChainsInfo";
+import { getWalletClientHelper } from "@/helpers/walletClienHelper";
 
 export const addAndSwitchForkOnWallet = async ({
   forkChainId,
   forkId,
 }: LocalForkData): Promise<boolean> => {
   try {
-    const walletClient = await getWalletClient();
+    const walletClient = await getWalletClientHelper();
 
     if (walletClient) {
       const baseChainConfig: any = getChainConfig(forkChainId)?.viemConfig;

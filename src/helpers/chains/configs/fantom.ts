@@ -2,6 +2,7 @@ import { fantom } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
 import { filterRpcUrls } from "@/helpers/chains/utils";
 import { initPublicClient } from "@/helpers/chains/initPublicClient";
+import { initStaticJsonRpcProvider } from "@/helpers/chains/initStaticJsonRpcProvider";
 
 const rpcList = filterRpcUrls(fantom, [
   "https://1rpc.io/ftm",
@@ -23,9 +24,11 @@ const viemConfig = {
 };
 
 const publicClient = initPublicClient(viemConfig);
+const ethersProvider = await initStaticJsonRpcProvider(fantom.id);
 
 export const fantomConfig = {
   publicClient,
+  ethersProvider,
   viemConfig: viemConfig,
   chainId: fantom.id,
   chainName: "Fantom",

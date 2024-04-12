@@ -1,6 +1,10 @@
+import {
+  writeContractHelper,
+  simulateContractHelper,
+  waitForTransactionReceiptHelper,
+} from "@/helpers/walletClienHelper";
+import type { Address } from "viem";
 import type { ContractInfo } from "@/types/global";
-import { waitForTransaction, type Address } from "@wagmi/core";
-import { prepareWriteContract, writeContract } from "@wagmi/core";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 
 export const withdraw = async (
@@ -10,15 +14,15 @@ export const withdraw = async (
   amount: bigint
 ) => {
   try {
-    const config = await prepareWriteContract({
+    const { request } = await simulateContractHelper({
       ...contract,
       functionName: "withdraw",
       args: [tokenAddress, account, account, amount, "0"],
     });
 
-    const { hash } = await writeContract(config);
+    const hash = await writeContractHelper(request);
 
-    return await waitForTransaction({ hash });
+    return await waitForTransactionReceiptHelper({ hash });
   } catch (error) {
     console.log("Bento withdraw error:", error);
     return {

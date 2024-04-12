@@ -1,10 +1,10 @@
 import {
-  prepareWriteContract,
-  waitForTransaction,
-  writeContract,
-} from "@wagmi/core";
+  writeContractHelper,
+  simulateContractHelper,
+  waitForTransactionReceiptHelper,
+} from "@/helpers/walletClienHelper";
+import type { Address } from "viem";
 import type { Contract } from "ethers";
-import type { Address } from "@wagmi/core";
 import type { ContractInfo } from "@/types/global";
 import { MAX_ALLOWANCE_VALUE } from "@/constants/global";
 
@@ -39,14 +39,17 @@ export const approveTokenViem = async (
   spender: Address
 ) => {
   try {
-    const config = await prepareWriteContract({
+    const { request } = await simulateContractHelper({
       ...contract,
       functionName: "approve",
       args: [spender, MAX_ALLOWANCE_VALUE],
     });
 
-    const { hash } = await writeContract(config);
-    await waitForTransaction({ hash });
+    const hash = await writeContractHelper(request);
+
+    await waitForTransactionReceiptHelper({
+      hash,
+    });
 
     return true;
   } catch (error) {

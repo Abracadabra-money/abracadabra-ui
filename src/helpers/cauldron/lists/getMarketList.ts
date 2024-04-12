@@ -1,10 +1,11 @@
-import { providers, Contract, utils } from "ethers";
+import { Contract, utils } from "ethers";
 import { defaultRpc } from "@/helpers/chains";
 import cauldronsConfig from "@/configs/cauldrons";
 import { MulticallWrapper } from "ethers-multicall-provider";
 import { getMainParams } from "@/helpers/cauldron/getMainParams";
-import { getUserPositions } from "@/helpers/cauldron/getUserPositions";
+import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
 import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
+import { getUserPositions } from "@/helpers/cauldron/getUserPositions";
 
 type CauldronListItem = {
   apr: object;
@@ -48,9 +49,7 @@ export const getMarketList = async (
 
       if (filteredConfigs.length === 0) return [];
 
-      const provider = new providers.StaticJsonRpcProvider(
-        defaultRpc[chainId as keyof typeof defaultRpc]
-      );
+      const provider = getEthersProvider(chainId);
 
       // const multicallProvider = MulticallWrapper.wrap(provider);
 

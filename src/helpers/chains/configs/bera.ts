@@ -1,5 +1,6 @@
 import { useImage } from "@/helpers/useImage";
 import { initPublicClient } from "@/helpers/chains/initPublicClient";
+import { initStaticJsonRpcProvider } from "@/helpers/chains/initStaticJsonRpcProvider";
 
 const rpcList = [
   "https://artio.rpc.berachain.com/",
@@ -32,9 +33,11 @@ const viemConfig = {
 };
 
 const publicClient = initPublicClient(viemConfig);
+const ethersProvider = await initStaticJsonRpcProvider(80085);
 
 export const berachainConfig = {
   publicClient,
+  ethersProvider,
   viemConfig: viemConfig,
   chainId: 80085,
   chainName: "Berachain Artio",

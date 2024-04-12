@@ -63,21 +63,21 @@
 </template>
 
 <script>
-import { defineAsyncComponent } from "vue";
-import moment from "moment";
-import { mapActions, mapGetters, mapMutations } from "vuex";
 import {
-  prepareWriteContract,
-  waitForTransaction,
-  writeContract,
-} from "@wagmi/core";
+  writeContractHelper,
+  simulateContractHelper,
+  waitForTransactionReceiptHelper,
+} from "@/helpers/walletClienHelper";
+import moment from "moment";
 import { formatUnits } from "viem";
-import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import notification from "@/helpers/notification/notification";
-import { approveTokenViem } from "@/helpers/approval";
+import { defineAsyncComponent } from "vue";
 import { trimZeroDecimals } from "@/helpers/numbers";
-import { formatTokenBalance, formatUSD } from "@/helpers/filters";
+import { approveTokenViem } from "@/helpers/approval";
+import { formatTokenBalance } from "@/helpers/filters";
+import { mapActions, mapGetters, mapMutations } from "vuex";
+import notification from "@/helpers/notification/notification";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 
 export default {
   props: {
@@ -205,16 +205,18 @@ export default {
       );
 
       try {
-        const config = await prepareWriteContract({
+        const { request } = await simulateContractHelper({
           address: this.pool.lockContract.address,
           abi: this.pool.lockContract.abi,
           functionName: "stake",
           args: [this.inputAmount],
         });
 
-        const { hash } = await writeContract(config);
+        const hash = await writeContractHelper(request);
 
-        const { result, error } = await waitForTransaction({ hash });
+        const { result, error } = await waitForTransactionReceiptHelper({
+          hash,
+        });
 
         await this.$emit("updatePoolInfo");
 
@@ -244,16 +246,18 @@ export default {
       );
 
       try {
-        const config = await prepareWriteContract({
+        const { request } = await simulateContractHelper({
           address: this.pool.lockContract.address,
           abi: this.pool.lockContract.abi,
           functionName: "stakeLocked",
           args: [this.inputAmount, now + 100],
         });
 
-        const { hash } = await writeContract(config);
+        const hash = await writeContractHelper(request);
 
-        const { result, error } = await waitForTransaction({ hash });
+        const { result, error } = await waitForTransactionReceiptHelper({
+          hash,
+        });
 
         await this.$emit("updatePoolInfo");
 

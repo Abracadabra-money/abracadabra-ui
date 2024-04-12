@@ -4,7 +4,7 @@ import { getExpectedPostition } from "./getExpectedPosition";
 import { expandDecimals } from "../gm/fee/expandDecials";
 import { getMaxToBorrow, getMaxCollateralToRemove } from "./utils";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
-import { getAccount } from "@wagmi/core";
+import { getAccountHelper } from "@/helpers/walletClienHelper";
 
 export const WARNING_TYPES = {
   DEPOSIT_ALLOWANCE: 0,
@@ -81,10 +81,7 @@ export const validateCookByAction = (
     actionConfig
   );
 
-  validationErrors = validateGmOrderCreation(
-    validationErrors,
-    cauldron,
-  );
+  validationErrors = validateGmOrderCreation(validationErrors, cauldron);
 
   switch (cookType) {
     case ACTION_TYPES.ACTION_DEPOSIT:
@@ -454,7 +451,7 @@ const validateChain = (
 };
 
 const validateConnection = (validationErrors: any) => {
-  const { isConnected } = getAccount();
+  const { isConnected } = getAccountHelper();
 
   if (!isConnected) validationErrors.push(WARNING_TYPES.CONNECTION);
 

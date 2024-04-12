@@ -1,5 +1,6 @@
-import { multicall, type Address } from "@wagmi/core";
+import type { Address } from "viem";
 import type { CrvStakeInfo } from "@/types/crv/stakeInfo";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { crv3cryptoConfig } from "@/configs/stake/crv3cryptoConfig";
 
 export const getCrv3cryptoStakeInfo = async (
@@ -11,8 +12,10 @@ export const getCrv3cryptoStakeInfo = async (
 
   const { mainToken, stakeToken, tokensRate }: any = config;
 
+  const publicClient = getPublicClient(chainId);
+
   const [userMainTokenBalance, userStakeTokenBalance, approvedAmount] =
-    await multicall({
+    await publicClient.multicall({
       contracts: [
         {
           ...mainToken.contract,

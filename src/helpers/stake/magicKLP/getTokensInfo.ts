@@ -1,5 +1,5 @@
 import { formatUnits } from "viem";
-import type { Address } from "@wagmi/core";
+import type { Address } from "viem";
 import type { TokensInfo } from "@/types/magicKlp/tokensInfo";
 import { ONE_ETHER_VIEM, RANDOM_ACCOUNT } from "@/constants/global";
 
