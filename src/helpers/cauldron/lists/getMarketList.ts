@@ -1,9 +1,7 @@
-import { Contract, utils } from "ethers";
+import { utils } from "ethers";
 import { defaultRpc } from "@/helpers/chains";
 import cauldronsConfig from "@/configs/cauldrons";
-import { MulticallWrapper } from "ethers-multicall-provider";
 import { getMainParams } from "@/helpers/cauldron/getMainParams";
-import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
 import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
 import { getUserPositions } from "@/helpers/cauldron/getUserPositions";
 
@@ -49,33 +47,11 @@ export const getMarketList = async (
 
       if (filteredConfigs.length === 0) return [];
 
-      const provider = getEthersProvider(chainId);
-
-      // const multicallProvider = MulticallWrapper.wrap(provider);
-
-      // NOTICE: BERA TEST
-      const multicallProvider =
-        +chainId === 80085 ? provider : MulticallWrapper.wrap(provider);
-
-      const mainParams = await getMainParams(
-        filteredConfigs,
-        multicallProvider,
-        chainId
-      );
-
-      const cauldronContracts = filteredConfigs.map((config: any) => {
-        return new Contract(
-          config.contract.address,
-          config.contract.abi,
-          multicallProvider
-        );
-      });
+      const mainParams = await getMainParams(filteredConfigs, chainId);
 
       const userPositions = await getUserPositions(
         filteredConfigs,
-        multicallProvider,
         account,
-        cauldronContracts,
         chainId
       );
 
