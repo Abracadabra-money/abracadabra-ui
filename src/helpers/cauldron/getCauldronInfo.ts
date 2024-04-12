@@ -33,13 +33,7 @@ export const getCauldronInfo = async (
 
   const mainParams = await getMainParams([config], chainId, config.contract);
 
-  const userPositions = await getUserPositions(
-    [config],
-    multicallProvider,
-    address,
-    [multicallContracts?.cauldron],
-    chainId
-  );
+  const userPositions = await getUserPositions([config], address, chainId);
 
   const userTokensInfo = await getUserTokensInfo(
     multicallContracts,

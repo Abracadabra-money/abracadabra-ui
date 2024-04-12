@@ -38,7 +38,6 @@ export const getMainParams = async (
   cauldron?: CauldronContractConfig | undefined
 ): Promise<Array<MainParams>> => {
   const lensAddress = getLensAddress(chainId);
-
   const publicClient = getPublicClient(chainId);
 
   const marketInfo: MarketInfoResponse[] = await publicClient.multicall({
