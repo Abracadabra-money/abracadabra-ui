@@ -1,6 +1,5 @@
 import { markRaw } from "vue";
 import { formatUnits } from "viem";
-import { multicall } from "@wagmi/core";
 import chainLinkAbi from "@/abis/chainLink";
 import { calculateAPR } from "@/helpers/farm/getRewardTokenApy";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
@@ -11,7 +10,7 @@ export const createMultiRewardFarm = async (config, account) => {
 
   const { stakingToken, contract } = config;
 
-  const [virtualPrice, totalSupply] = await multicall({
+  const [virtualPrice, totalSupply] = await publicClient.multicall({
     chainId: config.contractChain,
     contracts: [
       {

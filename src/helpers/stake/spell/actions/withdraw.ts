@@ -1,18 +1,21 @@
-import { prepareWriteContract, writeContract } from "@wagmi/core";
-import { waitForTransaction } from "@wagmi/core";
+import {
+  writeContractHelper,
+  simulateContractHelper,
+  waitForTransactionReceiptHelper,
+} from "@/helpers/walletClienHelper";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 
 export const withdraw = async (contract: any, amount: any) => {
   try {
-    const config = await prepareWriteContract({
+    const { request } = await simulateContractHelper({
       ...contract,
       functionName: "withdraw",
       args: [amount],
     });
 
-    const { hash } = await writeContract(config);
+    const hash = await writeContractHelper(request);
 
-    return await waitForTransaction({ hash });
+    return await waitForTransactionReceiptHelper({ hash });
   } catch (error) {
     console.log("Stake Withdraw Handler Error:", error);
     return {

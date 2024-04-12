@@ -1,4 +1,4 @@
-import { readContract } from "@wagmi/core";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 
 const abi2 = [
   {
@@ -36,18 +36,16 @@ const curvePools = {
 
 export const getCurveWithdrawOneCoinAmount = async (
   collateralAmount,
-  poolId
+  poolId,
+  chainId
 ) => {
   const poolInfo = curvePools[poolId];
+  const publicClient = getPublicClient(chainId);
 
-  const sellAmount = await readContract({
+  return await publicClient.readContract({
     address: poolInfo.address,
     abi: poolInfo.abi,
     functionName: "calc_withdraw_one_coin",
     args: [collateralAmount, poolInfo.usdtIndex],
   });
-
-  console.log("sellAmount", sellAmount);
-
-  return sellAmount;
 };

@@ -1,5 +1,6 @@
 import { useImage } from "@/helpers/useImage";
 import { initPublicClient } from "@/helpers/chains/initPublicClient";
+import { initStaticJsonRpcProvider } from "@/helpers/chains/initStaticJsonRpcProvider";
 
 const rpcList = ["https://blast-sepolia.blockpi.network/v1/rpc/public"];
 
@@ -38,9 +39,11 @@ const viemConfig = {
 };
 
 const publicClient = initPublicClient(viemConfig);
+const ethersProvider = await initStaticJsonRpcProvider(viemConfig.id);
 
 export const blastSepoliaConfig = {
   publicClient,
+  ethersProvider,
   viemConfig: viemConfig,
   chainId: viemConfig.id,
   symbol: "Blast Sepolia",

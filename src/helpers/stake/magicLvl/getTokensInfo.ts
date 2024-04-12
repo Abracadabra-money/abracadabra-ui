@@ -1,5 +1,5 @@
 import type { ContractInfo } from "@/types/global";
-import type { Address } from "@wagmi/core";
+import type { Address } from "viem";
 import { BIPS, MIM_PRICE, ONE_ETHER_VIEM } from "@/constants/global";
 import type { MagicLvlTokensConfig } from "@/types/magicLvl/configsInfo";
 import type { MagicLvlTokensInfo } from "@/types/magicLvl/stakeInfo";

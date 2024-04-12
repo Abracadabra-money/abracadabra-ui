@@ -1,6 +1,3 @@
-import { ethers } from "ethers";
-import { RPC_ETH } from "@/constants/rpc";
-
 export default {
   state: {
     provider: null,
@@ -11,6 +8,7 @@ export default {
     isCoinbase: false,
     isWalletConnected: false,
     walletCheckInProcess: true,
+    wagmiConfig: null,
   },
   mutations: {
     setProvider(state, payload) {
@@ -28,6 +26,9 @@ export default {
     setWalletConnection(state, payload) {
       state.isWalletConnected = payload;
     },
+    setWagmiConfig(state, payload) {
+      state.wagmiConfig = payload;
+    },
     setIsCoinbase(state, payload) {
       state.isCoinbase = payload;
     },
@@ -39,21 +40,9 @@ export default {
       state.walletCheckInProcess = payload;
     },
   },
-  actions: {
-    async checkENSName({ commit }, address) {
-      try {
-        const ensName = await new ethers.providers.StaticJsonRpcProvider(
-          RPC_ETH
-        ).lookupAddress(address);
-
-        if (ensName) commit("setENSName", ensName);
-      } catch (error) {
-        console.log("fetchENSName ERR:", error);
-      }
-    },
-  },
   getters: {
     getProvider: (state) => state.provider,
+    getWagmiConfig: (state) => state.wagmiConfig,
     getSigner: (state) => state.signer,
     getAccount: (state) => state.account,
     getEnsName: (state) => state.ensName,

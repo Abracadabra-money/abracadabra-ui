@@ -1,13 +1,15 @@
-import { Contract, BigNumber, utils } from "ethers";
-import lensAbi from "@/abis/marketLens.js";
-import type { providers } from "ethers";
-import type { UserPositions } from "@/helpers/cauldron/types";
-import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
-import { getLensAddress } from "@/helpers/cauldron/getLensAddress";
-
+import { formatUnits } from "viem";
 import orderAbi from "@/abis/gm/order";
+import { BigNumber, utils } from "ethers";
+import lensAbi from "@/abis/marketLens.js";
 import { ZERO_ADDRESS } from "@/constants/gm";
-import bentoBoxAbi from "@/abis/bentoBox";
+import { ARBITRUM_CHAIN_ID } from "@/constants/global";
+import degenBoxInfo from "@/configs/contracts/degenBox";
+import type { UserPositions } from "@/helpers/cauldron/types";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
+import { getLensAddress } from "@/helpers/cauldron/getLensAddress";
+import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
+import type { ExtendedContractInfo } from "@/configs/contracts/types";
 
 const emptyPosition = {
   oracleRate: BigNumber.from("0"),
@@ -24,134 +26,121 @@ const emptyPosition = {
 
 export const getUserPositions = async (
   configs: Array<CauldronConfig | undefined>,
-  provider: providers.BaseProvider,
   account: string | undefined,
-  cauldronContracts: Array<Contract | undefined>,
   chainId: number
 ): Promise<Array<UserPositions>> => {
   if (!account) configs.map(() => emptyPosition);
 
   const lensAddress = getLensAddress(chainId);
-  const lensContract = new Contract(lensAddress, lensAbi, provider);
+  const publicClient = getPublicClient(chainId);
 
-  const positions = await Promise.all(
-    configs.map((config: any) => {
-      return lensContract
-        .getUserPosition(config.contract.address, account)
-        .catch(() => null);
-    })
-  );
-
-  const oracleExchangeRate = await Promise.all(
-    configs.map((config: any) => {
-      return lensContract
-        .getOracleExchangeRate(config.contract.address)
-        .catch(() => "0x00");
-    })
-  );
-  const decimals: any = configs.map((config: any) => {
-    return { decimals: config.collateralInfo.decimals };
+  const userPositions: any = await publicClient.multicall({
+    contracts: configs
+      .map((config: any) => {
+        return [
+          {
+            address: lensAddress,
+            abi: lensAbi,
+            functionName: "getUserPosition",
+            args: [config.contract.address, account],
+          },
+          {
+            address: lensAddress,
+            abi: lensAbi,
+            functionName: "getOracleExchangeRate",
+            args: [config.contract.address],
+          },
+          {
+            address: config.contract.address,
+            abi: config.contract.abi,
+            functionName: "userCollateralShare",
+            args: [account],
+          },
+          {
+            address: config.contract.address,
+            abi: config.contract.abi,
+            functionName: "userBorrowPart",
+            args: [account],
+          },
+        ];
+      })
+      .flat(2),
   });
 
-  const userCollateralShares = await Promise.all(
-    cauldronContracts.map((contract: any) =>
-      contract.userCollateralShare(account).catch(() => "0x00")
-    )
-  );
-
-  const userBorrowPart = await Promise.all(
-    cauldronContracts.map((contract: any) =>
-      contract.userBorrowPart(account).catch(() => "0x00")
-    )
-  );
-
   const collaterallInOrders = await getOrdersCollateralBalance(
-    //@ts-ignore
     configs,
-    provider,
     account,
-    cauldronContracts,
     chainId
   );
 
-  return await Promise.all(
-    positions.map(async (position: any, idx: number) => {
-      if (!position) return emptyPosition;
+  return configs.map((config: any, index: number) => {
+    if (!userPositions) return emptyPosition;
+    const userPosition = userPositions[index * 4]?.result;
+    if (!userPosition) return emptyPosition;
 
-      const collateralPrice =
-        1 /
-        //@ts-ignore
-        utils.formatUnits(
-          oracleExchangeRate[idx],
-          //@ts-ignore
-          configs[idx].collateralInfo.decimals
-        );
+    const decimals = config.collateralInfo.decimals;
+    const mcr = config.mcr;
+    const oracleExchangeRate: bigint = userPositions[index * 4 + 1].result;
+    const userCollateralShare: bigint = userPositions[index * 4 + 2].result;
+    const collaterallInOrder = collaterallInOrders[index];
+    const userBorrowPart: bigint = userPositions[index * 4 + 3].result;
 
-      const liquidationPrice = getLiquidationPrice(
-        position.borrowValue,
-        position.collateral.amount.add(collaterallInOrders[idx].amount),
-        //@ts-ignore
-        configs[idx].mcr,
-        //@ts-ignore
-        configs[idx].collateralInfo.decimals
-      );
+    const collateralPrice =
+      1 / Number(formatUnits(oracleExchangeRate, decimals));
 
-      const leftToDrop = collateralPrice - liquidationPrice;
+    const liquidationPrice = getLiquidationPrice(
+      BigNumber.from(userPosition.borrowValue),
+      BigNumber.from(userPosition.collateral.amount).add(
+        BigNumber.from(collaterallInOrders[index].amount)
+      ),
+      mcr,
+      decimals
+    );
 
-      const positionHealth = calculatePositionHealth(
-        liquidationPrice,
-        collateralPrice,
-        configs[idx]?.cauldronSettings.healthMultiplier,
-        position.borrowValue,
-        leftToDrop
-      );
+    const leftToDrop = collateralPrice - liquidationPrice;
 
-      const userCollateralAmount = position.collateral.amount.add(
-        collaterallInOrders[idx].amount
-      );
+    const positionHealth = calculatePositionHealth(
+      liquidationPrice,
+      collateralPrice,
+      config?.cauldronSettings.healthMultiplier,
+      Number(userPosition.borrowValue),
+      leftToDrop
+    );
 
-      const userBorrowAmount = position.borrowValue;
+    const userCollateralAmount = BigNumber.from(
+      userPosition.collateral.amount
+    ).add(BigNumber.from(collaterallInOrders[index].amount));
 
-      const collateralDeposited = Number(
-        utils.formatUnits(
-          userCollateralAmount,
-          configs[idx]?.collateralInfo.decimals
-        )
-      );
+    const userBorrowAmount = BigNumber.from(userPosition.borrowValue);
 
-      const collateralDepositedUsd = collateralDeposited * collateralPrice;
+    const collateralDeposited = Number(
+      utils.formatUnits(userCollateralAmount, config?.collateralInfo.decimals)
+    );
 
-      const mimBorrowed = Number(utils.formatUnits(userBorrowAmount));
+    const collateralDepositedUsd = collateralDeposited * collateralPrice;
 
-      const activeOrder = configs[idx]?.cauldronSettings.isGMXMarket
-        ? await cauldronContracts[idx]?.orders(account)
-        : ZERO_ADDRESS;
+    const mimBorrowed = Number(utils.formatUnits(userBorrowAmount));
 
-      return {
-        collateralInfo: {
-          userCollateralShare: userCollateralShares[idx].add(
-            collaterallInOrders[idx].share
-          ),
-          userCollateralAmount,
-        },
-        borrowInfo: {
-          userBorrowAmount,
-          userBorrowPart: userBorrowPart[idx],
-        },
-        // liquidationPrice: utils.formatUnits(
-        //   position.liquidationPrice,
-        //   configs[idx]?.collateralInfo.decimals
-        // ),
-        oracleRate: oracleExchangeRate[idx],
-        liquidationPrice,
-        positionHealth,
-        collateralDeposited,
-        collateralDepositedUsd,
-        mimBorrowed,
-        hasActiveGmOrder: activeOrder == ZERO_ADDRESS ? false : activeOrder,
-      };
-    })
-  );
+    return {
+      collateralInfo: {
+        userCollateralShare: BigNumber.from(userCollateralShare).add(
+          BigNumber.from(collaterallInOrder.share)
+        ),
+        userCollateralAmount,
+      },
+      borrowInfo: {
+        userBorrowAmount,
+        userBorrowPart: BigNumber.from(userBorrowPart),
+      },
+      oracleRate: BigNumber.from(oracleExchangeRate),
+      liquidationPrice,
+      positionHealth,
+      collateralDeposited,
+      collateralDepositedUsd,
+      mimBorrowed,
+      hasActiveGmOrder: collaterallInOrder.activeOrder,
+    };
+  });
 };
 
 const getLiquidationPrice = (
@@ -171,57 +160,74 @@ const getLiquidationPrice = (
 };
 
 const getOrdersCollateralBalance = async (
-  configs: Array<CauldronConfig>,
-  provider: providers.BaseProvider,
-  account: string,
-  cauldronContracts: Array<Contract>,
+  configs: Array<CauldronConfig | undefined>,
+  account: string | undefined,
   chainId: number
 ) => {
-  if (chainId !== 42161 || !account)
-    return cauldronContracts.map(() => {
+  if (!configs || !configs.length) return [];
+  if (chainId !== ARBITRUM_CHAIN_ID || !account) {
+    return configs.map(() => {
       return {
         share: BigNumber.from(0),
         amount: BigNumber.from(0),
       };
     });
+  }
 
-  const bentoBoxAddress = "0x7C8FeF8eA9b1fE46A7689bfb8149341C90431D38"; //TODO
+  const publicClient = getPublicClient(ARBITRUM_CHAIN_ID);
 
-  const bentoBox = new Contract(bentoBoxAddress, bentoBoxAbi, provider);
-
-  const orders = await Promise.all(
-    configs.map((config: any, index) => {
-      if (config.cauldronSettings.isGMXMarket)
-        return cauldronContracts[index].orders(account);
-      return ZERO_ADDRESS;
-    })
+  const degenBoxContractInfo = degenBoxInfo.find(
+    (contractInfo: ExtendedContractInfo) =>
+      contractInfo.chainId === ARBITRUM_CHAIN_ID
   );
 
-  const orderContracts = orders.map((order: any) => {
-    const itsZero = order === ZERO_ADDRESS;
-
-    return itsZero ? null : new Contract(order, orderAbi, provider);
+  const orders = await publicClient.multicall({
+    contracts: configs.map((config: any) => {
+      return {
+        address: config.contract.address,
+        abi: config.contract.abi,
+        functionName: "orders",
+        args: [account],
+      };
+    }),
   });
 
-  const collaterallInOrders = await Promise.all(
-    orderContracts.map((contract: any) => {
-      return contract ? contract.orderValueInCollateral() : BigNumber.from(0);
-    })
-  );
+  const collaterallInOrders: any = await publicClient.multicall({
+    contracts: orders.map((response: any) => {
+      return {
+        address: response?.error ? ZERO_ADDRESS : response?.result,
+        abi: orderAbi,
+        functionName: "orderValueInCollateral",
+        args: [],
+      };
+    }),
+  });
 
-  const collaterallInShare = await Promise.all(
-    collaterallInOrders.map((amount: any, index) => {
-      const collateral = configs[index].collateralInfo.address;
-      return amount.gt(0)
-        ? bentoBox.toShare(collateral, amount, false)
-        : BigNumber.from(0);
-    })
-  );
+  const collaterallInShare: any = await publicClient.multicall({
+    contracts: collaterallInOrders.map((response: any, index: number) => {
+      const collateral = configs[index]!.collateralInfo.address;
+      const amount = response?.error ? BigNumber.from(0) : response?.result;
+      return {
+        address: degenBoxContractInfo?.address,
+        abi: degenBoxContractInfo?.abi,
+        functionName: "toShare",
+        args: [collateral, amount, false],
+      };
+    }),
+  });
 
-  return collaterallInOrders.map((amount, index) => {
+  return collaterallInOrders.map((response: any, index: number) => {
+    const activeOrder =
+      orders[index]?.error || orders[index]?.result.includes(ZERO_ADDRESS)
+        ? false
+        : orders[index]?.result;
+
     return {
-      amount,
-      share: collaterallInShare[index],
+      amount: response?.error
+        ? BigNumber.from(0)
+        : BigNumber.from(response?.result),
+      share: BigNumber.from(collaterallInShare[index].result),
+      activeOrder,
     };
   });
 };

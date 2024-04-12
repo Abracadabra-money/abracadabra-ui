@@ -2,6 +2,7 @@ import { polygon } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
 import { filterRpcUrls } from "@/helpers/chains/utils";
 import { initPublicClient } from "@/helpers/chains/initPublicClient";
+import { initStaticJsonRpcProvider } from "@/helpers/chains/initStaticJsonRpcProvider";
 
 const rpcList = filterRpcUrls(polygon, [
   "https://polygon.llamarpc.com",
@@ -23,9 +24,11 @@ const viemConfig = {
 };
 
 const publicClient = initPublicClient(viemConfig);
+const ethersProvider = await initStaticJsonRpcProvider(polygon.id);
 
 export const polygonConfig = {
   publicClient,
+  ethersProvider,
   viemConfig: viemConfig,
   chainId: polygon.id,
   chainName: "MATIC",

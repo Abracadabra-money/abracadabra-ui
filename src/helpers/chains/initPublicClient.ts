@@ -1,20 +1,25 @@
 import { createPublicClient, fallback, http } from "viem";
+import { checkUseTenderlyFork } from "@/helpers/tenderly/checkUseTenderlyFork";
 
 export const initPublicClient: any = (chainConfig: any) => {
   const defaultRpc: string[] = chainConfig.rpcUrls.default.http;
 
-  const transport = fallback(
-    defaultRpc.map((rpc: string) => http(rpc)),
-    {
-      rank: {
-        interval: 15000,
-        sampleCount: 10,
-        timeout: 500,
-      },
-      retryCount: 5,
-      retryDelay: 1000,
-    }
-  );
+  const useForkRpc = checkUseTenderlyFork(chainConfig.id);
+
+  const transport = useForkRpc
+    ? fallback([http(useForkRpc)])
+    : fallback(
+        defaultRpc.map((rpc: string) => http(rpc)),
+        {
+          rank: {
+            interval: 15000,
+            sampleCount: 10,
+            timeout: 500,
+          },
+          retryCount: 5,
+          retryDelay: 1000,
+        }
+      );
 
   return createPublicClient({
     chain: chainConfig,
@@ -24,40 +29,3 @@ export const initPublicClient: any = (chainConfig: any) => {
     },
   });
 };
-
-// import { ethers, providers } from "ethers";
-
-// export const getEtherStaticJsonRpcProvider = async (chainId: number) => {
-//   const activeRpc = await filterActiveRpc(chainId);
-
-//   return new providers.StaticJsonRpcProvider(activeRpc);
-// };
-
-// const filterActiveRpc = async (chainId: number) => {
-//   const currentChainConfig = getChainConfig(chainId);
-
-//   const defaultRpc: string[] = currentChainConfig.rpcUrls.default.http;
-
-//   let index = 0;
-
-//   while (defaultRpc.length) {
-//     const provider = new providers.StaticJsonRpcProvider(defaultRpc[index]);
-//     const response = await simulatedGetUserBalance(provider);
-//     if (response) return response;
-//     index++;
-//   }
-// };
-
-// const simulatedGetUserBalance = async (
-//   provider: providers.StaticJsonRpcProvider
-// ) => {
-//   try {
-//     const { address } = ethers.Wallet.createRandom();
-
-//     await provider.getBalance(address);
-
-//     return provider.connection.url;
-//   } catch (error) {
-//     return null;
-//   }
-// };

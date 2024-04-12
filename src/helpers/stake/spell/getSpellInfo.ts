@@ -1,4 +1,4 @@
-import type { Address } from "@wagmi/core";
+import type { Address } from "viem";
 import type { SpellInfo } from "@/types/spell/stakeInfo";
 import type { ChainSpellConfig } from "@/types/spell/configsInfo";
 
