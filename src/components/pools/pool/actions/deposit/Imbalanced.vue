@@ -193,7 +193,6 @@ export default {
     },
 
     isProperNetwork() {
-      console.log({ pool: this.pool });
       return this.chainId == this.pool.chainId;
     },
   },

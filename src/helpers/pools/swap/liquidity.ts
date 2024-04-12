@@ -271,14 +271,23 @@ export const previewAddLiquiditySingleSide = (
   return previewAddLiquidityResult;
 };
 
-
-export const previewAddLiquidityImbalanced = (lpInfo: MagicLPInfo, baseInAmount: bigint, quoteInAmount: bigint, remainingAmountToSwapIsBase: boolean, remainingAmountToSwap: bigint) => {
-
-  let { baseAdjustedInAmount, quoteAdjustedInAmount } = previewAddLiquidity(baseInAmount, quoteInAmount, lpInfo);
+export const previewAddLiquidityImbalanced = (
+  lpInfo: MagicLPInfo,
+  baseInAmount: bigint,
+  quoteInAmount: bigint,
+  remainingAmountToSwapIsBase: boolean,
+  remainingAmountToSwap: bigint
+) => {
+  let { baseAdjustedInAmount, quoteAdjustedInAmount } = previewAddLiquidity(
+    baseInAmount,
+    quoteInAmount,
+    lpInfo
+  );
 
   // base -> quote
   if (remainingAmountToSwapIsBase) {
-    baseAdjustedInAmount += (baseInAmount - baseAdjustedInAmount) - remainingAmountToSwap;
+    baseAdjustedInAmount +=
+      baseInAmount - baseAdjustedInAmount - remainingAmountToSwap;
     quoteAdjustedInAmount += querySellBase(
       remainingAmountToSwap,
       lpInfo,
@@ -292,7 +301,8 @@ export const previewAddLiquidityImbalanced = (lpInfo: MagicLPInfo, baseInAmount:
       lpInfo,
       lpInfo.userInfo
     ).receiveBaseAmount;
-    quoteAdjustedInAmount += (quoteInAmount - quoteAdjustedInAmount) - remainingAmountToSwap;
+    quoteAdjustedInAmount +=
+      quoteInAmount - quoteAdjustedInAmount - remainingAmountToSwap;
   }
   const previewAddLiquidityImbalancedResult = previewAddLiquidity(
     baseAdjustedInAmount,
@@ -301,4 +311,27 @@ export const previewAddLiquidityImbalanced = (lpInfo: MagicLPInfo, baseInAmount:
   );
 
   return previewAddLiquidityImbalancedResult;
-}
+};
+
+export const previewRemoveLiquidityOneSide = async (
+  sharesIn: bigint,
+  lpInfo: MagicLPInfo
+) => {
+  const previewRemoveLiquidityResult = await previewRemoveLiquidity(
+    sharesIn,
+    lpInfo
+  );
+
+  const baseAmount = previewRemoveLiquidityResult.baseAmountOut;
+  const quoteAmount = previewRemoveLiquidityResult.quoteAmountOut;
+
+  const baseAmountOut =
+    baseAmount +
+    querySellQuote(quoteAmount, lpInfo, lpInfo.userInfo).receiveBaseAmount;
+
+  const quoteAmountOut =
+    quoteAmount +
+    querySellBase(baseAmount, lpInfo, lpInfo.userInfo).receiveQuoteAmount;
+
+  return { baseAmountOut, quoteAmountOut };
+};

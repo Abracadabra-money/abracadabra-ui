@@ -7,12 +7,20 @@
         :items="tabItems"
         @select="selectTab"
       />
+
+      <Toggle
+        v-if="!isUnstake"
+        text="Single Side"
+        :selected="isSingleSide"
+        @updateToggle="changeSingleSideToggle"
+      />
     </div>
 
     <Remove
       :pool="pool"
       :slippage="slippage"
       :deadline="deadline"
+      :isSingleSide="isSingleSide"
       @updatePoolInfo="$emit('updatePoolInfo')"
       v-if="!isUnstake"
     />
@@ -43,6 +51,7 @@ export default {
     return {
       activeTab: "remove",
       tabItems: ["remove", "unstake"],
+      isSingleSide: false,
     };
   },
 
@@ -60,10 +69,16 @@ export default {
     selectTab(action) {
       this.activeTab = action;
     },
+
+    changeSingleSideToggle() {
+      this.isSingleSide = !this.isSingleSide;
+    },
   },
 
   components: {
     Tabs: defineAsyncComponent(() => import("@/components/ui/Tabs.vue")),
+
+    Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
 
     Remove: defineAsyncComponent(() =>
       import("@/components/pools/pool/actions/Remove.vue")

@@ -82,6 +82,7 @@ export default {
     pool: { type: Object },
     slippage: { type: BigInt, default: 100n },
     deadline: { type: BigInt, default: 100n },
+    isSingleSide: { type: Boolean },
   },
 
   emits: ["updatePoolInfo"],
