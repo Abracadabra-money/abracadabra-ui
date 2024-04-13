@@ -151,7 +151,7 @@ export default {
       dstAddressError: false,
       dstTokenAmount: "",
       popupType: "to",
-      inputAmount: BigNumber.from(0),
+      inputAmount: 0n,
       inputValue: "",
       isOpenNetworkPopup: false,
       updateInterval: null,
@@ -207,7 +207,7 @@ export default {
       if (this.chainId === 8453) return true;
       if (this.chainId === 59144) return true;
 
-      return this.beamConfig.approvedAmount.gte(this.inputAmount);
+      return this.beamInfoObject.userInfo.allowance > this.inputAmount;
     },
 
     amountError() {
@@ -217,60 +217,9 @@ export default {
       return "";
     },
 
-    popupNetworksArr() {
-      if (this.popupType === "from") return this.beamConfig?.fromChains;
-      return this.beamConfig?.toChains.filter(({ chainId }) => {
-        return chainId !== BERA_CHAIN_ID;
-      });
-    },
-
-    activePopupChain() {
-      if (this.popupType === "from" && this.originChain)
-        return this.originChain.chainId;
-      else if (this.dstChain && this.isSelectedChain) {
-        return this.dstChain.chainId;
-      }
-
-      return 0;
-    },
-
-    originChain() {
-      let originChain = this.beamConfig?.fromChains.find(
-        (chain) => chain.chainId === this.chainId
-      );
-
-      return originChain
-        ? originChain
-        : {
-            title: "Select chain",
-            icon: useImage(`assets/images/networks/no-chain.svg`),
-            isUnsupportedNetwork: this.isUnsupportedNetwork,
-          };
-    },
-
     targetToChain() {
       if (this.toChainId) return this.toChainId;
       return this.beamConfig.chainsInfo[0].chainId;
-    },
-
-    dstChainId() {
-      return this.beamConfig.chainsInfo.find(
-        (item) => item.chainId === this.targetToChain
-      )?.lzChainId;
-    },
-
-    lzChainId() {
-      const lzChainId = this.beamConfig.chainsInfo.find(
-        (item) => item.chainId === this.targetToChain
-      )?.lzChainId;
-
-      return this.$ethers.BigNumber.from(lzChainId);
-    },
-
-    dstChain() {
-      return this.beamConfig?.toChains.find(
-        (chain) => chain.chainId === this.targetToChain
-      );
     },
 
     isEnterDstAddress() {
@@ -315,19 +264,7 @@ export default {
     },
 
     dstDefaultValue() {
-      return (
-        this.beamConfig.fromChains.find(
-          (chain) => chain.chainId === this.originChain.chainId
-        )?.defaultValue[this.targetToChain] || "0"
-      );
-    },
-
-    srcTokenInfo() {
-      return this.getChainById(this.chainId);
-    },
-
-    dstTokenInfo() {
-      return this.getChainById(this.targetToChain);
+      return this.fromChain?.chainConfig?.defaultValue[this.toChain?.chainConfig.?chainId] || "0"
     },
 
     getFee() {
@@ -335,72 +272,67 @@ export default {
       return this.$ethers.utils.formatEther(this.estimateSendFee[0]);
     },
 
-    formatFee() {
-      if (!this.getFee) return "0.0";
-      return formatToFixed(this.getFee, 8);
-    },
+    // expectedConfig() {
+    //   return {
+    //     mimAmount: this.inputValue,
+    //     dstTokenAmount: this.dstTokenAmount,
+    //     dstTokenPrice: this.dstTokenPrice || 0,
+    //     dstTokenSymbol: this.isSelectedChain
+    //       ? this.dstTokenInfo?.baseTokenSymbol
+    //       : "",
+    //     dstTokenIcon: this.isSelectedChain
+    //       ? this.dstTokenInfo?.baseTokenIcon
+    //       : "",
+    //     gasCost: this.isSelectedChain ? this.formatFee : "0.0",
+    //     srcTokenPrice: this.srcTokenPrice || 0,
+    //     srcTokenSymbol: this.srcTokenInfo?.baseTokenSymbol,
+    //     srcTokenIcon: this.srcTokenInfo?.baseTokenIcon,
+    //   };
+    // },
 
-    expectedConfig() {
-      return {
-        mimAmount: this.inputValue,
-        dstTokenAmount: this.dstTokenAmount,
-        dstTokenPrice: this.dstTokenPrice || 0,
-        dstTokenSymbol: this.isSelectedChain
-          ? this.dstTokenInfo?.baseTokenSymbol
-          : "",
-        dstTokenIcon: this.isSelectedChain
-          ? this.dstTokenInfo?.baseTokenIcon
-          : "",
-        gasCost: this.isSelectedChain ? this.formatFee : "0.0",
-        srcTokenPrice: this.srcTokenPrice || 0,
-        srcTokenSymbol: this.srcTokenInfo?.baseTokenSymbol,
-        srcTokenIcon: this.srcTokenInfo?.baseTokenIcon,
-      };
-    },
+    // settingConfig() {
+    //   return {
+    //     icon: this.dstTokenInfo.baseTokenIcon,
+    //     symbol: this.dstTokenInfo.baseTokenSymbol,
+    //     nativeTokenBalance: this.beamConfig.nativeTokenBalance,
+    //     nativeSymbol: this.srcTokenInfo?.symbol,
+    //     contract: this.beamConfig.contractInstance,
+    //     address: this.toAddress,
+    //     dstChainId: this.lzChainId,
+    //   };
+    // },
 
-    settingConfig() {
-      return {
-        icon: this.dstTokenInfo.baseTokenIcon,
-        symbol: this.dstTokenInfo.baseTokenSymbol,
-        nativeTokenBalance: this.beamConfig.nativeTokenBalance,
-        nativeSymbol: this.srcTokenInfo?.symbol,
-        contract: this.beamConfig.contractInstance,
-        address: this.toAddress,
-        dstChainId: this.lzChainId,
-      };
-    },
+    // txConfig() {
+    //   return {
+    //     contract: this.beamConfig.contractInstance,
+    //     account: this.account,
+    //     dstChainId: this.lzChainId,
+    //     toAddressBytes: this.toAddressBytes,
+    //   };
+    // },
 
-    txConfig() {
-      return {
-        contract: this.beamConfig.contractInstance,
-        account: this.account,
-        dstChainId: this.lzChainId,
-        toAddressBytes: this.toAddressBytes,
-      };
-    },
-
-    successConfig() {
-      return {
-        sendFrom: this.account,
-        sendTo: this.toAddress,
-        originChain: this.originChain,
-        mimAmount: this.inputValue,
-        nativeSymbol: this.srcTokenInfo?.baseTokenSymbol,
-        srcTokenIcon: this.srcTokenInfo?.baseTokenIcon,
-        srcTokenPrice: this.srcTokenPrice,
-        gasOnDst: formatToFixed(+this.getFee - +this.startFee, 3),
-        dstTokenSymbol: this.dstTokenInfo.baseTokenSymbol,
-        dstTokenIcon: this.dstTokenInfo?.baseTokenIcon,
-        dstTokenAmount: this.dstTokenAmount,
-        dstTokenPrice: this.dstTokenPrice,
-        dstChain: this.dstChain,
-        tx: this.tx,
-        txInfo: this.txInfo,
-        mimToUsd: this.mimToUsd,
-        dstChainId: this.dstChainId,
-        totalGas: this.formatFee,
-      };
-    },
+    // successConfig() {
+    //   return {
+    //     sendFrom: this.account,
+    //     sendTo: this.toAddress,
+    //     originChain: this.originChain,
+    //     mimAmount: this.inputValue,
+    //     nativeSymbol: this.srcTokenInfo?.baseTokenSymbol,
+    //     srcTokenIcon: this.srcTokenInfo?.baseTokenIcon,
+    //     srcTokenPrice: this.srcTokenPrice,
+    //     gasOnDst: formatToFixed(+this.getFee - +this.startFee, 3),
+    //     dstTokenSymbol: this.dstTokenInfo.baseTokenSymbol,
+    //     dstTokenIcon: this.dstTokenInfo?.baseTokenIcon,
+    //     dstTokenAmount: this.dstTokenAmount,
+    //     dstTokenPrice: this.dstTokenPrice,
+    //     dstChain: this.dstChain,
+    //     tx: this.tx,
+    //     txInfo: this.txInfo,
+    //     mimToUsd: this.mimToUsd,
+    //     dstChainId: this.dstChainId,
+    //     totalGas: this.formatFee,
+    //   };
+    // },
   },
 
   watch: {
@@ -429,149 +361,139 @@ export default {
       this.isSettingsOpened = !this.isSettingsOpened;
     },
 
-    async switchChain() {
-      if (!this.isSelectedChain) return false;
-      localStorage.setItem("previous_chain_id", this.chainId);
-      await switchNetwork(this.dstChain.chainId);
-    },
-
     openNetworkPopup(type: "from" | "to") {
       this.popupType = type;
       this.isOpenNetworkPopup = !this.isOpenNetworkPopup;
     },
 
     async updateMainValue(value: any) {
-      if (value === null) return (this.inputAmount = BigNumber.from(0));
+      if (value === null) return (this.inputAmount = 0n);
       this.inputAmount = value;
     },
 
-    updateDestinationAddress(address, error) {
-      this.dstAddress = address;
-      this.dstAddressError = error;
-    },
+    // updateDestinationAddress(address, error) {
+    //   this.dstAddress = address;
+    //   this.dstAddressError = error;
+    // },
 
-    errorDestinationAddress(error) {
-      this.dstAddressError = error;
-    },
+    // errorDestinationAddress(error) {
+    //   this.dstAddressError = error;
+    // },
 
-    async actionHandler() {
-      if (this.disableBtn) return false;
+    // async actionHandler() {
+    //   if (this.disableBtn) return false;
 
-      if (!this.account) {
-        // @ts-ignore
-        return this.$openWeb3modal();
-      }
+    //   if (!this.account) {
+    //     // @ts-ignore
+    //     return this.$openWeb3modal();
+    //   }
 
-      const notificationId = await this.createNotification(
-        notification.pending
-      );
+    //   const notificationId = await this.createNotification(
+    //     notification.pending
+    //   );
 
-      if (!this.isTokenApproved) {
-        this.isApproving = true;
+    //   if (!this.isTokenApproved) {
+    //     this.isApproving = true;
 
-        this.updateNotification({
-          title: "1/2: Approve MIM",
-          id: notificationId,
-        });
+    //     this.updateNotification({
+    //       title: "1/2: Approve MIM",
+    //       id: notificationId,
+    //     });
 
-        const isTokenApproved = await approveToken(
-          this.beamConfig.tokenContractInstance,
-          this.beamConfig.contractInstance.address
-        );
+    //     const isTokenApproved = await approveToken(
+    //       this.beamConfig.tokenContractInstance,
+    //       this.beamConfig.contractInstance.address
+    //     );
 
-        this.isApproving = false;
+    //     this.isApproving = false;
 
-        if (!isTokenApproved) {
-          await this.deleteNotification(notificationId);
-          await this.createNotification(notification.approveError);
-          return false;
-        }
+    //     if (!isTokenApproved) {
+    //       await this.deleteNotification(notificationId);
+    //       await this.createNotification(notification.approveError);
+    //       return false;
+    //     }
 
-        this.updateNotification({
-          title: "Step 2/2: Confirm Beam",
-          id: notificationId,
-        });
-      }
+    //     this.updateNotification({
+    //       title: "Step 2/2: Confirm Beam",
+    //       id: notificationId,
+    //     });
+    //   }
 
-      await this.seendBeam(notificationId);
-    },
+    //   await this.seendBeam(notificationId);
+    // },
 
-    async seendBeam(notificationId) {
-      this.isBeaming = true;
+    // async seendBeam(notificationId) {
+    //   this.isBeaming = true;
 
-      try {
-        const { fees, params } = await this.getEstimatedFees(true);
-        this.tx = await sendFrom(fees, params, this.inputAmount, this.txConfig);
-        await this.deleteNotification(notificationId);
-        this.isBeaming = false;
-        this.isOpenSuccessPopup = true;
-        this.successData = this.successConfig;
-        this.inputValue = "";
+    //   try {
+    //     const { fees, params } = await this.getEstimatedFees(true);
+    //     this.tx = await sendFrom(fees, params, this.inputAmount, this.txConfig);
+    //     await this.deleteNotification(notificationId);
+    //     this.isBeaming = false;
+    //     this.isOpenSuccessPopup = true;
+    //     this.successData = this.successConfig;
+    //     this.inputValue = "";
 
-        await this.tx.wait();
+    //     await this.tx.wait();
 
-        const txInfo = await waitForMessageReceived(
-          this.dstChainId,
-          this.tx.hash
-        );
+    //     const txInfo = await waitForMessageReceived(
+    //       this.dstChainId,
+    //       this.tx.hash
+    //     );
 
-        this.successData = this.successConfig;
-        this.successData.txInfo = txInfo;
-      } catch (error) {
-        console.log("Seend Beam Error:", error);
-        this.isBeaming = false;
-        this.errorTransaction(error, notificationId);
-      }
-    },
+    //     this.successData = this.successConfig;
+    //     this.successData.txInfo = txInfo;
+    //   } catch (error) {
+    //     console.log("Seend Beam Error:", error);
+    //     this.isBeaming = false;
+    //     this.errorTransaction(error, notificationId);
+    //   }
+    // },
 
-    async getEstimatedFees(getParams = false) {
-      const { fees, params } = await getEstimateSendFee(
-        this.beamConfig.contractInstance,
-        this.toAddress,
-        this.lzChainId,
-        this.dstTokenAmount || "0",
-        this.inputValue || "1"
-      );
+    // async getEstimatedFees(getParams = false) {
+    //   const { fees, params } = await getEstimateSendFee(
+    //     this.beamConfig.contractInstance,
+    //     this.toAddress,
+    //     this.lzChainId,
+    //     this.dstTokenAmount || "0",
+    //     this.inputValue || "1"
+    //   );
 
-      const additionalFee = fees[0].div(100);
-      const updatedFee = fees[0].add(additionalFee); // add 1% from base fee to be sure tx success
+    //   const additionalFee = fees[0].div(100);
+    //   const updatedFee = fees[0].add(additionalFee); // add 1% from base fee to be sure tx success
 
-      if (getParams) return { fees: [updatedFee], params };
-      else return [updatedFee];
-    },
+    //   if (getParams) return { fees: [updatedFee], params };
+    //   else return [updatedFee];
+    // },
 
-    async errorTransaction(error, notificationId) {
-      const errorNotification = {
-        msg: "Transaction encountered an Error",
-        type: "error",
-      };
+    // async errorTransaction(error, notificationId) {
+    //   const errorNotification = {
+    //     msg: "Transaction encountered an Error",
+    //     type: "error",
+    //   };
 
-      if (
-        String(error?.data?.message).indexOf("insufficient funds") !== -1 ||
-        String(error?.data?.message).indexOf(
-          "insufficient balance for transfer"
-        ) !== -1 ||
-        String(error).indexOf("insufficient funds") !== -1 ||
-        String(error?.message).indexOf("insufficient funds") !== -1
-      ) {
-        errorNotification.msg = "Insufficient balance for transfer";
-      }
+    //   if (
+    //     String(error?.data?.message).indexOf("insufficient funds") !== -1 ||
+    //     String(error?.data?.message).indexOf(
+    //       "insufficient balance for transfer"
+    //     ) !== -1 ||
+    //     String(error).indexOf("insufficient funds") !== -1 ||
+    //     String(error?.message).indexOf("insufficient funds") !== -1
+    //   ) {
+    //     errorNotification.msg = "Insufficient balance for transfer";
+    //   }
 
-      await this.deleteNotification(notificationId);
-      await this.createNotification(errorNotification);
-    },
+    //   await this.deleteNotification(notificationId);
+    //   await this.createNotification(errorNotification);
+    // },
 
-    async changeSettings(value) {
-      if (!value || this.isSettingsError) this.dstTokenAmount = "";
-      else this.dstTokenAmount = value;
-      this.isUpdateFeesData = this.account ? true : false;
-      this.estimateSendFee = await this.getEstimatedFees();
-      this.isUpdateFeesData = false;
-    },
-
-    errorSettings(value) {
-      this.isSettingsError = value;
-    },
+    // async changeSettings(value) {
+    //   if (!value || this.isSettingsError) this.dstTokenAmount = "";
+    //   else this.dstTokenAmount = value;
+    //   this.isUpdateFeesData = this.account ? true : false;
+    //   this.estimateSendFee = await this.getEstimatedFees();
+    //   this.isUpdateFeesData = false;
+    // },
 
     closeNetworkPopup() {
       this.isOpenNetworkPopup = false;
@@ -589,22 +511,22 @@ export default {
       }
     },
 
-    async beamNotAvailable() {
-      return await this.createNotification(notification.beamNotAvailable);
-    },
+    // async beamNotAvailable() {
+    //   return await this.createNotification(notification.beamNotAvailable);
+    // },
 
-    closeSuccessPopup() {
-      this.isOpenSuccessPopup = false;
-    },
+    // closeSuccessPopup() {
+    //   this.isOpenSuccessPopup = false;
+    // },
 
-    async getMessagesBySrcTxHash() {
-      const client = createClient("mainnet");
-      const { messages } = await client.getMessagesBySrcTxHash(
-        this.successData.tx.hash
-      );
+    // async getMessagesBySrcTxHash() {
+    //   const client = createClient("mainnet");
+    //   const { messages } = await client.getMessagesBySrcTxHash(
+    //     this.successData.tx.hash
+    //   );
 
-      return messages[0];
-    },
+    //   return messages[0];
+    // },
 
     async initBeamInfo() {
       try {

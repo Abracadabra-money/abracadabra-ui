@@ -69,39 +69,42 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import Tooltip from "@/components/ui/icons/Tooltip.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
 import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFee.ts";
+import { trimZeroDecimals } from "@/helpers/numbers";
+import { formatUnit, parseUnits } from "viem";
+import type { BeamInfo } from "@/helpers/beam/types";
+import type {PropType} from "vue";
 
 export default {
   props: {
-    value: {
-      type: [Number, String],
-      default: "",
+    beamInfoObject: {
+      type: Object as PropType<BeamInfo>,
+      required: true,
     },
-    mimAmount: {
-      type: [Number, String],
-      default: "",
-    },
-    config: {
+
+    dstChainInfo: {
       type: Object,
       required: true,
     },
-    max: {
-      type: [Number, String],
-      default: 0,
-    },
-    defaultValue: {
-      type: String,
-      default: "0",
+
+    dstNativeTokenAmount: {
+      type: bigint,
+      default: 0n
+    }
+
+    mimAmount: {
+      type: bigint,
+      default: 0n
     },
   },
 
   data() {
     return {
       fee: 0,
-      inputValue: this.value,
+      inputValue: trimZeroDecimals(formatUnits(this.dstNativeTokenAmount, this.tokenDecimal)),
       tooltip:
         "The default amount allows you to perform a couple of transactions (e.g. Approve + Swap). Once you approve the transfer in your wallet, the transaction gas amount will be higher than a regular transaction as this includes the selected amount of destination gas to be sent.",
     };
@@ -116,48 +119,44 @@ export default {
       return this.inputValue === 0;
     },
 
-    isDisabledBtn() {
-      if (!this.inputValue.toString().length) return true;
-      return !!this.error;
+    isValueChanged() {
+      return this.parsedValue !== this.dstNativeTokenAmount;
+    },
+
+    tokenDecimal() {
+      return this.beamInfoObject.tokenConfig.decimals;
+    },
+
+    parsedValue(){
+      return parseUnits(this.inputValue, this.tokenDecimal);
+    },
+
+    isExceedMax() {
+      return this.parsedValue > this.dstChainInfo.dstConfigLookupResult.dstNativeAmtCap;
     },
 
     error() {
-      if (+this.inputValue > +this.max) {
-        this.$emit("errorSettings", true);
-        return `Error max value ${this.max}`;
-      }
+      if (isExceedMax) { return `Error max value ${this.dstChainInfo.dstConfigLookupResult.dstNativeAmtCap}`;
 
-      if (+this.fee > +this.config.nativeTokenBalance && this.inputValue) {
-        this.$emit("errorSettings", true);
-        return `Not enough gas ${+this.fee - +this.config.nativeTokenBalance} ${
-          this.config.nativeSymbol
-        } needed`;
-      }
+      // if (+this.fee > +this.config.nativeTokenBalance && this.inputValue) {
+      //   this.$emit("errorSettings", true);
+      //   return `Not enough gas ${+this.fee - +this.config.nativeTokenBalance} ${
+      //     this.config.nativeSymbol
+      //   } needed`;
+      // }
 
-      this.$emit("errorSettings", false);
       return false;
     },
   },
 
-  watch: {
-    async inputValue(value, oldValue) {
-      if (isNaN(value)) {
-        this.inputValue = oldValue;
-        return false;
-      }
-
-      this.fee = await this.updateFee(value);
+    isDisableBtn() {
+      return this.error || !this.isValueChanged;
     },
   },
 
   methods: {
-    isDisableBtn() {
-      return !!this.error;
-    },
-
     actionHandler() {
-      if (this.error || !this.inputValue.toString().length) return false;
-      this.$emit("changeSettings", this.inputValue);
+      this.$emit("changeSettings", this.parsedValue);
       this.$emit("closeSettings");
     },
 
@@ -165,21 +164,21 @@ export default {
       this.inputValue = value;
     },
 
-    async updateFee(value) {
-      if (!this.mimAmount || value > this.max) return 0;
-      const { fees } = await getEstimateSendFee(
-        this.config.contract,
-        this.config.address,
-        this.config.dstChainId,
-        value,
-        this.mimAmount || "0"
-      );
+    // async updateFee(value) {
+    //   if (!this.mimAmount || value > this.max) return 0;
+    //   const { fees } = await getEstimateSendFee(
+    //     this.config.contract,
+    //     this.config.address,
+    //     this.config.dstChainId,
+    //     value,
+    //     this.mimAmount || "0"
+    //   );
 
-      const additionalFee = fees[0].div(100);
-      const updatedFee = fees[0].add(additionalFee); // add 1% from base fee to be sure tx success
-      if (!updatedFee) return 0;
-      return this.$ethers.utils.formatEther(updatedFee);
-    },
+    //   const additionalFee = fees[0].div(100);
+    //   const updatedFee = fees[0].add(additionalFee); // add 1% from base fee to be sure tx success
+    //   if (!updatedFee) return 0;
+    //   return this.$ethers.utils.formatEther(updatedFee);
+    // },
   },
 
   components: {
