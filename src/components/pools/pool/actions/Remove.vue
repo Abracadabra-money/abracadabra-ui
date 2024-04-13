@@ -12,49 +12,13 @@
       />
     </div>
 
-    <div class="info-blocks">
-      <div class="info-block base">
-        <div class="tag">
-          <span class="title">
-            <BaseTokenIcon
-              :name="this.pool.tokens.baseToken.config.name"
-              :icon="this.pool.tokens.baseToken.config.icon"
-              size="24px"
-            />
-            {{ this.pool.tokens.baseToken.config.name }}
-          </span>
-
-          <div class="token-amount">
-            <span class="value">
-              {{ formattedTokenExpecteds.base.value }}
-            </span>
-            <span class="usd">
-              {{ formattedTokenExpecteds.base.usd }}
-            </span>
-          </div>
-        </div>
-
-        <div class="tag">
-          <span class="title">
-            <BaseTokenIcon
-              :name="this.pool.tokens.quoteToken.config.name"
-              :icon="this.pool.tokens.quoteToken.config.icon"
-              size="24px"
-            />
-            {{ this.pool.tokens.quoteToken.config.name }}
-          </span>
-
-          <div class="token-amount">
-            <span class="value">
-              {{ formattedTokenExpecteds.quote.value }}
-            </span>
-            <span class="usd">
-              {{ formattedTokenExpecteds.quote.usd }}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
+    <PreviewRemove
+      :pool="pool"
+      :previewRemoveLiquidityResult="previewRemoveLiquidityResult"
+      :isBase="isBase"
+      :isSingleSide="isSingleSide"
+      @chooseToken="chooseToken($event)"
+    />
 
     <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
       {{ buttonText }}
@@ -74,7 +38,7 @@ import { trimZeroDecimals } from "@/helpers/numbers";
 import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
 import { removeLiquidity } from "@/helpers/pools/swap/actions/removeLiquidity";
-import { formatTokenBalance, formatUSD } from "@/helpers/filters";
+import { formatTokenBalance } from "@/helpers/filters";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 
 export default {
@@ -91,6 +55,7 @@ export default {
     return {
       inputAmount: 0n,
       inputValue: "",
+      isBase: true,
       isActionProcessing: false,
     };
   },
@@ -122,43 +87,6 @@ export default {
       );
 
       return previewRemoveLiquidityResult;
-    },
-
-    formattedTokenExpecteds() {
-      if (!this.previewRemoveLiquidityResult)
-        return {
-          base: { value: "0.0", usd: "$ 0.0" },
-          quote: { value: "0.0", usd: "$ 0.0" },
-        };
-
-      const formattedBaseValue = Number(
-        formatUnits(
-          this.previewRemoveLiquidityResult.baseAmountOut,
-          this.pool.tokens.baseToken.config.decimals
-        )
-      );
-      const formattedQuoteValue = Number(
-        formatUnits(
-          this.previewRemoveLiquidityResult.quoteAmountOut,
-          this.pool.tokens.quoteToken.config.decimals
-        )
-      );
-
-      const baseValueUsdEquivalent =
-        formattedBaseValue * this.pool.tokens.baseToken.price;
-      const quoteValueUsdEquivalent =
-        formattedQuoteValue * this.pool.tokens.quoteToken.price;
-
-      return {
-        base: {
-          value: formatTokenBalance(formattedBaseValue),
-          usd: formatUSD(baseValueUsdEquivalent),
-        },
-        quote: {
-          value: formatTokenBalance(formattedQuoteValue),
-          usd: formatUSD(quoteValueUsdEquivalent),
-        },
-      };
     },
 
     isValid() {
@@ -220,6 +148,10 @@ export default {
     resetInput() {
       this.inputValue = "";
       this.inputAmount = 0n;
+    },
+
+    chooseToken(isBase) {
+      this.isBase = isBase;
     },
 
     createRemovePayload() {
@@ -327,6 +259,9 @@ export default {
     ),
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")
+    ),
+    PreviewRemove: defineAsyncComponent(() =>
+      import("@/components/pools/pool/PreviewRemove.vue")
     ),
   },
 };
