@@ -35,9 +35,13 @@ import { notificationErrorMsg } from "@/helpers/notification/notificationError.j
 import notification from "@/helpers/notification/notification";
 import { approveTokenViem } from "@/helpers/approval";
 import { trimZeroDecimals } from "@/helpers/numbers";
-import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
+import {
+  previewRemoveLiquidity,
+  previewRemoveLiquidityOneSide,
+} from "@/helpers/pools/swap/liquidity";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
 import { removeLiquidity } from "@/helpers/pools/swap/actions/removeLiquidity";
+import { removeLiquidityOneSide } from "@/helpers/pools/swap/actions/removeLiquidityOneSide";
 import { formatTokenBalance } from "@/helpers/filters";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 
@@ -71,10 +75,9 @@ export default {
     },
 
     previewRemoveLiquidityResult() {
-      const previewRemoveLiquidityResult = previewRemoveLiquidity(
-        this.inputAmount,
-        this.pool
-      );
+      const previewRemoveLiquidityResult = this.isSingleSide
+        ? previewRemoveLiquidityOneSide(this.inputAmount, this.pool)
+        : previewRemoveLiquidity(this.inputAmount, this.pool);
 
       previewRemoveLiquidityResult.baseAmountOut = applySlippageToMinOutBigInt(
         this.slippage,
@@ -170,6 +173,24 @@ export default {
       };
     },
 
+    createRemoveOneSidePayload() {
+      const { baseAmountOut, quoteAmountOut } =
+        this.previewRemoveLiquidityResult;
+
+      const minAmountOut = this.isBase ? baseAmountOut : quoteAmountOut;
+
+      const deadline = moment().unix() + Number(this.deadline);
+
+      return {
+        lp: this.pool.contract.address,
+        to: this.account,
+        withdrawBase: this.isBase,
+        sharesIn: this.inputAmount,
+        minAmountOut,
+        deadline,
+      };
+    },
+
     async approveHandler() {
       this.isActionProcessing = true;
 
@@ -230,6 +251,40 @@ export default {
       this.isActionProcessing = false;
     },
 
+    async removeOneSideHandler() {
+      this.isActionProcessing = true;
+
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
+
+      try {
+        const payload = this.createRemoveOneSidePayload();
+
+        const { error, result } = await removeLiquidityOneSide(
+          this.pool.swapRouter,
+          payload
+        );
+
+        await this.$emit("updatePoolInfo");
+
+        await this.deleteNotification(notificationId);
+        await this.createNotification(notification.success);
+        this.resetInput();
+      } catch (error) {
+        console.log("remove liquidity err:", error);
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(error),
+          type: "error",
+        };
+
+        await this.deleteNotification(notificationId);
+        await this.createNotification(errorNotification);
+      }
+      this.isActionProcessing = false;
+    },
+
     async actionHandler() {
       if (this.isButtonDisabled) return false;
       if (!this.isProperNetwork) return switchNetwork(this.pool.chainId);
@@ -240,7 +295,11 @@ export default {
 
       if (!this.isAllowed) return await this.approveHandler();
 
-      await this.removeHandler();
+      if (this.isSingleSide) {
+        await this.removeOneSideHandler();
+      } else {
+        await this.removeHandler();
+      }
 
       await this.$emit("updatePoolInfo");
     },

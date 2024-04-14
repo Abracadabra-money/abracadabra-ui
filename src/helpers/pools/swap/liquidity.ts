@@ -313,14 +313,13 @@ export const previewAddLiquidityImbalanced = (
   return previewAddLiquidityImbalancedResult;
 };
 
-export const previewRemoveLiquidityOneSide = async (
+export const previewRemoveLiquidityOneSide = (
   sharesIn: bigint,
   lpInfo: MagicLPInfo
 ) => {
-  const previewRemoveLiquidityResult = await previewRemoveLiquidity(
-    sharesIn,
-    lpInfo
-  );
+  if (sharesIn == 0n) return { baseAmountOut: 0n, quoteAmountOut: 0n };
+
+  const previewRemoveLiquidityResult = previewRemoveLiquidity(sharesIn, lpInfo);
 
   const baseAmount = previewRemoveLiquidityResult.baseAmountOut;
   const quoteAmount = previewRemoveLiquidityResult.quoteAmountOut;
