@@ -8,6 +8,7 @@ import stake from "@/store/modules/stake";
 import borrowPools from "@/store/modules/borrowPools";
 import farms from "@/store/modules/farms";
 import notifi from "@/store/modules/notifi";
+import data from "@/store/modules/data";
 
 export default createStore({
   state: {
@@ -22,6 +23,7 @@ export default createStore({
     getRouteData: (state) => state.routeData,
   },
   modules: {
+    data,
     connectProvider,
     networks,
     notifications,
@@ -29,6 +31,6 @@ export default createStore({
     stake,
     borrowPools,
     farms,
-    notifi
+    notifi,
   },
 });
