@@ -104,6 +104,7 @@ export default {
     ...mapGetters({
       account: "getAccount",
       chainId: "getChainId",
+      cauldronsList: "getCauldronsList",
     }),
 
     isArbitrumChain() {
@@ -119,12 +120,14 @@ export default {
 
   methods: {
     async createCauldronsList() {
-      this.cauldrons = await getMarketList(this.account);
-      this.cauldronsLoading = false;
-      this.updateInterval = setInterval(
-        await getMarketList(this.account),
-        60000
-      );
+      if (this.cauldronsList.length) {
+        this.cauldrons = this.cauldronsList;
+        this.cauldronsLoading = false;
+      } else {
+        this.cauldrons = await getMarketList(this.account);
+        this.cauldronsLoading = false;
+        await this.$store.commit("setCauldronsList", this.cauldrons);
+      }
     },
 
     async getCollateralsApr() {
@@ -135,6 +138,8 @@ export default {
           return cauldron;
         })
       );
+
+      await this.$store.commit("setCauldronsList", this.cauldrons);
     },
 
     getFarmConfig(farmId, chainId) {
@@ -153,6 +158,9 @@ export default {
   },
 
   async created() {
+    await this.createCauldronsList();
+    await this.getCollateralsApr();
+
     const farmConfig = this.getFarmConfig(4, ARBITRUM_CHAIN_ID);
 
     this.farmCardInfo = await createFarmItemConfig(
@@ -162,8 +170,10 @@ export default {
       true
     );
 
-    await this.createCauldronsList();
-    await this.getCollateralsApr();
+    this.updateInterval = setInterval(async () => {
+      this.cauldrons = await getMarketList(this.account);
+      await this.$store.commit("setCauldronsList", this.cauldrons);
+    }, 60000);
   },
 
   beforeUnmount() {
