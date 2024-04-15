@@ -13,15 +13,11 @@
     <div class="pool-info">
       <div class="pool-icon-warp">
         <img
-          class="pool-icon icon"
+          class="pool-icon"
           src="@/assets/images/tokens/MIM-USDB.png"
           alt="MIM/USDB Pool"
         />
-        <img
-          class="chain-icon"
-          :src="getChainIcon(pointsInfo.chainId)"
-          alt="Blast chain icon"
-        />
+        <img class="chain-icon" :src="blastIcon" alt="Blast chain icon" />
       </div>
 
       <div>
@@ -57,10 +53,10 @@
             src="@/assets/images/tokens/MIM-USDB.png"
             alt="MIM/USDB Pool icon"
           />
-          {{ formatTokenBalance(pointsInfo.deposited) }}
+          {{ formatTokenBalance(userDeposit) }}
         </div>
         <div class="deposited-price">
-          {{ formatUSD(pointsInfo.depositedUsd) }}
+          {{ userDepositUsd }}
         </div>
       </div>
     </div>
@@ -68,38 +64,13 @@
     <div class="point-tabs-wrap" v-if="!showLockList">
       <div class="point-tabs">
         <button
-          :class="['point-tab', { active: activeTab === 1 }]"
-          @click="changeTab(1)"
+          :class="['point-tab', { active: activeTab === index + 1 }]"
+          v-for="(tabInfo, index) in tabsInfo"
+          :key="index"
+          @click="changeTab(index + 1)"
         >
-          <img
-            class="tab-icon"
-            src="@/assets/images/points-dashboard/blast.png"
-            alt=""
-          />
-
-          <span>Points</span>
-        </button>
-        <button
-          :class="['point-tab', { active: activeTab === 2 }]"
-          @click="changeTab(2)"
-        >
-          <img
-            class="tab-icon"
-            src="@/assets/images/points-dashboard/gold-points.svg"
-            alt=""
-          />
-          <span>Gold</span>
-        </button>
-        <button
-          :class="['point-tab', { active: activeTab === 3 }]"
-          @click="changeTab(3)"
-        >
-          <img
-            class="tab-icon"
-            src="@/assets/images/points-dashboard/potion.png"
-            alt=""
-          />
-          <span>Potions</span>
+          <img class="tab-icon" :src="tabInfo.icon" :alt="tabInfo.title" />
+          <span>{{ tabInfo.title }}</span>
         </button>
       </div>
 
@@ -107,27 +78,13 @@
         <template v-if="activeTab === 1">
           <div class="tab-row">
             <span class="tab-row-title">Points</span>
-            <span class="tab-row-value">{{
-              formatTokenBalance(pointsInfo.distributionAmount)
-            }}</span>
+            <span class="tab-row-value">{{ distributionAmount }}</span>
           </div>
 
           <div class="tab-row">
-            <span class="tab-row-title primary"
-              >Your Next Distribution
-
-              <span class="boost" v-if="pointsInfo.isGold">
-                <img
-                  v-tooltip="'Boosted Airdrop for Founders'"
-                  src="@/assets/images/points-dashboard/rocket.svg"
-                  alt=""
-                />
-              </span>
-            </span>
+            <span class="tab-row-title primary">Your Next Distribution </span>
             <span class="tab-row-value primary">
-              {{
-                formatTokenBalance(pointsInfo.pendingDistributionAmount)
-              }}</span
+              {{ pendingDistributionAmount }}</span
             >
           </div>
 
@@ -142,7 +99,7 @@
                 tooltip="Pending rewards for the Founders"
             /></span>
             <span class="tab-row-value">{{
-              formatTokenBalance(pointsInfo.totalPendingDistributionAmount)
+              totalPendingDistributionAmount
             }}</span>
           </div>
         </template>
@@ -150,16 +107,12 @@
         <template v-if="activeTab === 2">
           <div class="tab-row">
             <span class="tab-row-title">Gold earned</span>
-            <span class="tab-row-value">{{
-              formatTokenBalance(pointsInfo.goldDistributionAmount)
-            }}</span>
+            <span class="tab-row-value">{{ goldDistributionAmount }}</span>
           </div>
           <div class="tab-row">
             <span class="tab-row-title">Your Next Distribution</span>
             <span class="tab-row-value">
-              {{
-                formatTokenBalance(pointsInfo.goldPendingDistributionAmount)
-              }}</span
+              {{ goldPendingDistributionAmount }}</span
             >
           </div>
 
@@ -174,7 +127,7 @@
                 tooltip="Pending rewards for the Founders"
             /></span>
             <span class="tab-row-value">{{
-              formatTokenBalance(pointsInfo.totalGoldPendingDistributionAmount)
+              totalGoldPendingDistributionAmount
             }}</span>
           </div>
         </template>
@@ -225,21 +178,30 @@
 </template>
 
 <script lang="ts">
+import { formatUnits } from "viem";
 import { defineAsyncComponent } from "vue";
+import { BLAST_CHAIN_ID } from "@/constants/global";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
+import { useImage } from "@/helpers/useImage";
 
 export default {
-  emits: ["showWithdrawPopup"],
   props: {
-    pointsInfo: {} as any,
-    gold: {
-      type: Boolean,
-      default: false,
+    poolInfo: {
+      type: Object,
+      default: () => ({}),
     },
-    withdrawLogic: {
-      type: Boolean,
-      default: false,
+    stakeLpBalances: {
+      type: Object,
+      default: () => ({}),
+    },
+    userPointsStatistics: {
+      type: Object,
+      default: () => ({}),
+    },
+    pointsStatistics: {
+      type: Object,
+      default: () => ({}),
     },
     userLocks: {
       type: Array,
@@ -249,42 +211,83 @@ export default {
 
   data() {
     return {
-      showWithdrawPopup: false,
       activeTab: 1,
       showLockList: false,
+      tabsInfo: [
+        {
+          icon: useImage("assets/images/points-dashboard/blast.png"),
+          title: "Points",
+        },
+        {
+          icon: useImage("assets/images/points-dashboard/gold-points.svg"),
+          title: "Gold",
+        },
+        {
+          icon: useImage("assets/images/points-dashboard/potion.png"),
+          title: "Potions",
+        },
+      ],
     };
   },
 
   computed: {
-    cardText() {
-      if (this.activeTab === 2) return "Gold earned ";
-      return "Points earned";
+    blastIcon() {
+      return getChainIcon(BLAST_CHAIN_ID);
     },
 
-    userPointsInfo() {
-      if (this.activeTab === 1)
-        return {
-          earned: this.pointsInfo.distributionAmount,
-          distributed: this.pointsInfo.pendingDistributionAmount,
-          total: this.pointsInfo.totalPendingDistributionAmount,
-        };
+    userDeposit() {
+      return Number(
+        formatUnits(
+          this.stakeLpBalances.locked || 0n,
+          this.poolInfo?.decimals || 18
+        )
+      );
+    },
 
-      return {
-        earned: this.pointsInfo.goldDistributionAmount,
-        distributed: this.pointsInfo.goldPendingDistributionAmount,
-        total: this.pointsInfo.totalGoldPendingDistributionAmount,
-      };
+    userDepositUsd() {
+      return formatUSD(this.userDeposit * this.poolInfo?.price || 0);
+    },
+
+    distributionAmount() {
+      return formatTokenBalance(
+        this.userPointsStatistics?.liquidityPoints?.founder?.finalized ?? 0
+      );
+    },
+
+    pendingDistributionAmount() {
+      return formatTokenBalance(
+        this.userPointsStatistics?.liquidityPoints?.founder?.pending ?? 0
+      );
+    },
+
+    goldDistributionAmount() {
+      return formatTokenBalance(
+        this.userPointsStatistics?.developerPoints?.founder?.finalized ?? 0
+      );
+    },
+
+    goldPendingDistributionAmount() {
+      return formatTokenBalance(
+        this.userPointsStatistics?.developerPoints?.founder?.pending ?? 0
+      );
+    },
+
+    totalPendingDistributionAmount() {
+      return formatTokenBalance(
+        this.pointsStatistics?.liquidityPoints?.founder?.pending ?? 0
+      );
+    },
+
+    totalGoldPendingDistributionAmount() {
+      return formatTokenBalance(
+        this.pointsStatistics?.developerPoints?.founder?.pending ?? 0
+      );
     },
   },
 
   methods: {
-    getChainIcon,
-    formatTokenBalance,
     formatUSD,
-
-    onWithdraw() {
-      this.$emit("showWithdrawPopup");
-    },
+    formatTokenBalance,
 
     changeTab(tab: number) {
       this.activeTab = tab;

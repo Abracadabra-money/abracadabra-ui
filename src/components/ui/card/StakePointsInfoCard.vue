@@ -40,38 +40,13 @@
     <div class="point-tabs-wrap">
       <div class="point-tabs">
         <button
-          :class="['point-tab', { active: activeTab === 1 }]"
-          @click="changeTab(1)"
+          :class="['point-tab', { active: activeTab === index + 1 }]"
+          v-for="(tabInfo, index) in tabsInfo"
+          :key="index"
+          @click="changeTab(index + 1)"
         >
-          <img
-            class="tab-icon"
-            src="@/assets/images/points-dashboard/blast.png"
-            alt=""
-          />
-
-          <span>Points</span>
-        </button>
-        <button
-          :class="['point-tab', { active: activeTab === 2 }]"
-          @click="changeTab(2)"
-        >
-          <img
-            class="tab-icon"
-            src="@/assets/images/points-dashboard/gold-points.svg"
-            alt=""
-          />
-          <span>Gold</span>
-        </button>
-        <button
-          :class="['point-tab', { active: activeTab === 3 }]"
-          @click="changeTab(3)"
-        >
-          <img
-            class="tab-icon"
-            src="@/assets/images/points-dashboard/potion.png"
-            alt=""
-          />
-          <span>Potions</span>
+          <img class="tab-icon" :src="tabInfo.icon" :alt="tabInfo.title" />
+          <span>{{ tabInfo.title }}</span>
         </button>
       </div>
 
@@ -142,6 +117,7 @@
 <script lang="ts">
 import { formatUnits } from "viem";
 import { defineAsyncComponent } from "vue";
+import { useImage } from "@/helpers/useImage";
 import { BLAST_CHAIN_ID } from "@/constants/global";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
@@ -169,6 +145,20 @@ export default {
   data() {
     return {
       activeTab: 1,
+      tabsInfo: [
+        {
+          icon: useImage("assets/images/points-dashboard/blast.png"),
+          title: "Points",
+        },
+        {
+          icon: useImage("assets/images/points-dashboard/gold-points.svg"),
+          title: "Gold",
+        },
+        {
+          icon: useImage("assets/images/points-dashboard/potion.png"),
+          title: "Potions",
+        },
+      ],
     };
   },
 

@@ -64,20 +64,23 @@
       <div class="row card-info-row">
         <CauldronPointsInfoCard
           :cauldronInfo="cauldronInfo"
-          :userPointsStatistics="userPointsStatistics"
           :pointsStatistics="pointsStatistics"
+          :userPointsStatistics="userPointsStatistics"
         />
 
         <StakePointsInfoCard
           :poolInfo="poolInfo"
           :stakeLpBalances="stakeLpBalances"
-          :userPointsStatistics="userPointsStatistics"
           :pointsStatistics="pointsStatistics"
+          :userPointsStatistics="userPointsStatistics"
         />
 
         <LockPointsInfoCard
-          :pointsInfo="goldPointsInfo"
+          :poolInfo="poolInfo"
+          :stakeLpBalances="stakeLpBalances"
+          :pointsStatistics="pointsStatistics"
           :userLocks="stakeLpBalances.userLocks"
+          :userPointsStatistics="userPointsStatistics"
         />
       </div>
     </div>
@@ -127,49 +130,12 @@ export default {
       account: "getAccount",
       signer: "getSigner",
     }),
-
-    goldPointsInfo() {
-      const deposited = +formatUnits(
-        this.stakeLpBalances.locked || 0n,
-        this.poolInfo?.decimals || 18
-      );
-
-      const depositedUsd = deposited * this.poolInfo?.price || 0;
-
-      return {
-        chainId: BLAST_CHAIN_ID,
-        isGold: true,
-        label: "Founder Boost",
-        title: "MIM / USDB Pool",
-        subtitle: "Receive 20% of total ecosystem points",
-        rateText: "Pending Founder Rewards",
-        rateTooltip: "Pending rewards for the Founders",
-        icon: useImage("assets/images/tokens/MIM-USDB.png"),
-        deposited,
-        depositedUsd,
-        distributionAmount:
-          this.userPointsStatistics?.liquidityPoints?.founder?.finalized ?? 0,
-        pendingDistributionAmount:
-          this.userPointsStatistics?.liquidityPoints?.founder?.pending ?? 0,
-        goldDistributionAmount:
-          this.userPointsStatistics?.developerPoints?.founder?.finalized ?? 0,
-        goldPendingDistributionAmount:
-          this.userPointsStatistics?.developerPoints?.founder?.pending ?? 0,
-        totalPendingDistributionAmount:
-          this.pointsStatistics?.liquidityPoints?.founder?.pending ?? 0,
-        totalGoldPendingDistributionAmount:
-          this.pointsStatistics?.developerPoints?.founder?.pending ?? 0,
-      };
-    },
   },
 
   watch: {
     async account() {
       await this.createActivityInfo();
-    },
-
-    async chainId() {
-      await this.createActivityInfo();
+      await this.fetchStatistics();
     },
   },
 
