@@ -61,7 +61,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapMutations } from "vuex";
 import FarmItem from "@/components/farm/FarmItem.vue";
 import Toggle from "@/components/ui/Toggle.vue";
 import ChainsDropdown from "@/components/ui/dropdown/ChainsDropdown.vue";
@@ -134,6 +134,10 @@ export default {
   },
 
   methods: {
+    ...mapMutations({
+      setFarmList: "setFarmList",
+    }),
+
     filterBySearch(farms, search) {
       return search
         ? farms.filter(
@@ -221,23 +225,24 @@ export default {
         return acc;
       }, []);
     },
+
+    checkLocalData() {
+      if (this.localFarmList.isCreated) {
+        this.farms = this.localFarmList;
+        this.isFarmsLoading = false;
+      }
+    },
   },
 
   async created() {
     this.isFarmsLoading = true;
-    if (this.localFarmList.length) {
-      this.farms = this.localFarmList;
-      this.isFarmsLoading = false;
-    } else {
-      this.farms = await getFarmsList(this.chainId);
-      this.isFarmsLoading = false;
-      await this.$store.commit("setFarmList", this.farms);
-    }
-
+    this.checkLocalData();
+    this.farms = await getFarmsList(this.chainId);
+    this.isFarmsLoading = false;
+    this.setFarmList(this.farms);
     this.selectedChains = this.getActiveChain();
     this.farmsInterval = setInterval(async () => {
       this.farms = await getFarmsList(this.chainId, this);
-      await this.$store.commit("setFarmList", this.farms);
     }, 60000);
   },
 

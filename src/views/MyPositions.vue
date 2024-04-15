@@ -63,7 +63,7 @@ import {
   formatTokenBalance,
   formatToFixed,
 } from "@/helpers/filters";
-import { mapGetters } from "vuex";
+import { mapGetters, mapMutations } from "vuex";
 import { APR_KEY } from "@/constants/global";
 import BaseLoader from "@/components/base/BaseLoader.vue";
 import SortButton from "@/components/ui/buttons/SortButton.vue";
@@ -165,6 +165,10 @@ export default {
   },
 
   methods: {
+    ...mapMutations({
+      setUserPositions: "setUserPositions",
+    }),
+
     sortByKey(cauldrons = [], key) {
       if (this.sortOrder === null) return this.cauldrons;
       const sortedByKey = cauldrons.sort((a, b) => b[key] - a[key]);
@@ -296,8 +300,7 @@ export default {
   async created() {
     this.checkLocalData();
     await this.createOpenPositions();
-    await this.$store.commit("setUserPositions", this.cauldrons);
-
+    this.setUserPositions(this.cauldrons);
     this.updateInterval = setInterval(async () => {
       this.cauldrons = await getUserOpenPositions(this.account);
       await this.getCollateralsApr();

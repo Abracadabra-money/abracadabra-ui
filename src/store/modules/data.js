@@ -8,7 +8,10 @@ export default {
       isCreated: false,
       data: [],
     },
-    farmList: [],
+    farmList: {
+      isCreated: false,
+      data: [],
+    },
   },
 
   mutations: {
@@ -21,7 +24,8 @@ export default {
       state.userPositions.data = payload;
     },
     setFarmList(state, payload) {
-      state.farmList = payload;
+      state.farmList.isCreated = true;
+      state.farmList.data = payload;
     },
   },
 
