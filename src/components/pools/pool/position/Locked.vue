@@ -1,58 +1,12 @@
 <template>
-  <div class="deposited">
-    <PoolCompoundCard :lpToken="lpToken" :tokensList="tokensList" />
+  <div class="locked">
+    <FounderBoostCard :lpToken="lpToken" :tokensList="tokensList" />
 
-    <div class="rewards-wrap">
-      <h4 class="title">Stake your LP tokens</h4>
+    <ul class="locks-list">
+      <UserLock v-for="(lock, index) in 10" :key="index" />
+    </ul>
 
-      <h5 class="subtitle-wrap">
-        <span class="subtitle">Rewards</span>
-        <span class="pool-rate">
-          Pool Rate
-          <Tooltip tooltip="tooltip" :width="20" :height="20" />
-        </span>
-      </h5>
-
-      <ul class="rewards-list">
-        <li class="list-item">
-          <span class="item-title">
-            <img
-              src="@/assets/images/points-dashboard/blast.png"
-              class="reward-icon"
-            />
-            Points
-          </span>
-
-          <span class="item-value">xx per hour</span>
-        </li>
-
-        <li class="list-item">
-          <span class="item-title">
-            <img
-              src="@/assets/images/points-dashboard/gold-points.svg"
-              class="reward-icon"
-            />
-            Gold
-          </span>
-
-          <span class="item-value">xx per hour</span>
-        </li>
-
-        <li class="list-item">
-          <span class="item-title">
-            <img
-              src="@/assets/images/points-dashboard/potion.png"
-              class="reward-icon"
-            />
-            Potion
-          </span>
-
-          <span class="item-value">xx per hour</span>
-        </li>
-      </ul>
-    </div>
-
-    <BaseButton primary>Stake now</BaseButton>
+    <BaseButton primary>See dashbord</BaseButton>
   </div>
 </template>
 
@@ -187,76 +141,33 @@ export default {
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")
     ),
-    Tooltip: defineAsyncComponent(() =>
-      import("@/components/ui/icons/Tooltip.vue")
+    FounderBoostCard: defineAsyncComponent(() =>
+      import("@/components/pools/pool/position/cards/FounderBoostCard.vue")
     ),
-    PoolCompoundCard: defineAsyncComponent(() =>
-      import("@/components/pools/pool/position/cards/PoolCompoundCard.vue")
+    UserLock: defineAsyncComponent(() =>
+      import("@/components/pools/pool/position/UserLock.vue")
     ),
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.deposited {
+@include scrollbar;
+
+.locked {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.subtitle-wrap {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.subtitle {
-  color: #fff;
-  font-size: 16px;
-  font-weight: 500;
-  letter-spacing: 0.45px;
-}
-
-.pool-rate {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.rewards-wrap {
+.locks-list {
   display: flex;
   flex-direction: column;
-  gap: 7px;
-}
-
-.rewards-list {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
+  gap: 16px;
+  max-height: 122px;
+  padding-right: 10px;
+  margin-right: -18px;
   list-style: none;
-}
-
-.list-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.item-title {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.reward-icon {
-  width: 24px;
-}
-
-.item-value {
-  font-size: 16px;
-  font-weight: 400;
+  overflow: auto;
 }
 </style>

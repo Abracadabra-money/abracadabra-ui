@@ -84,7 +84,6 @@ export default {
         Number(this.id),
         this.account
       );
-      console.log({ pool: this.pool });
     },
   },
 

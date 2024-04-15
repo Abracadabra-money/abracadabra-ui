@@ -8,22 +8,50 @@
       </div>
     </div>
 
-    <ul class="deposited-token-parts token-list">
-      <li
-        class="deposited-token-part list-item"
-        v-for="token in tokensList"
-        :key="token.name"
-      >
-        <span class="token-name">
-          <BaseTokenIcon :icon="token.icon" :name="token.name" size="28px" />
-          {{ token.name }}</span
-        >
-        <div class="token-amount">
-          <span class="value">{{ token.amount }}</span>
-          <span class="usd">{{ token.amountUsd }}</span>
-        </div>
-      </li>
-    </ul>
+    <div class="rewards-wrap">
+      <h4 class="title">
+        Founder boost
+        <RocketIcon class="rocket-icon" tooltip="tooltip" fill="black" />
+      </h4>
+
+      <ul class="rewards-list">
+        <li class="list-item">
+          <span class="item-title">
+            <img
+              src="@/assets/images/points-dashboard/blast.png"
+              class="reward-icon"
+            />
+            Points
+          </span>
+
+          <span class="item-value">5,311.55</span>
+        </li>
+
+        <li class="list-item">
+          <span class="item-title">
+            <img
+              src="@/assets/images/points-dashboard/gold-points.svg"
+              class="reward-icon"
+            />
+            Gold
+          </span>
+
+          <span class="item-value">5,311.55</span>
+        </li>
+
+        <li class="list-item">
+          <span class="item-title">
+            <img
+              src="@/assets/images/points-dashboard/potion.png"
+              class="reward-icon"
+            />
+            Potion
+          </span>
+
+          <span class="item-value">5,311.55</span>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
@@ -82,6 +110,9 @@ export default {
     BaseTokenIcon: defineAsyncComponent(() =>
       import("@/components/base/BaseTokenIcon.vue")
     ),
+    RocketIcon: defineAsyncComponent(() =>
+      import("@/components/ui/icons/RocketIcon.vue")
+    ),
   },
 };
 </script>
@@ -93,7 +124,15 @@ export default {
   gap: 12px;
   padding: 15px 20px;
   border-radius: 16px;
-  background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
+  background: linear-gradient(
+    104deg,
+    #fde403d8 0%,
+    #fdfd03da 28.64%,
+    #feffacda 52.14%,
+    #ffff00d7 70.64%,
+    #ffff00df 100%
+  );
+  color: black;
 }
 
 .lp-token {
@@ -115,51 +154,60 @@ export default {
 }
 
 .lp-token .token-amount .usd {
-  color: rgba(255, 255, 255, 0.8);
   font-size: 12px;
   font-weight: 400;
   line-height: 16px;
 }
 
-.token-list {
+.rewards-wrap {
   display: flex;
   flex-direction: column;
+  gap: 7px;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.rocket-icon {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 3px;
+  border-radius: 17px;
+  background: rgba(0, 0, 0, 0.16);
+}
+
+.rewards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
   list-style: none;
 }
 
 .list-item {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
 }
 
-.token-name {
+.item-title {
   display: flex;
   align-items: center;
   gap: 4px;
+}
+
+.reward-icon {
+  width: 24px;
+}
+
+.item-value {
   font-size: 16px;
-  font-weight: 500;
-}
-
-.token-amount {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-}
-
-.list-item .token-amount .value {
-  margin-bottom: -8px;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.list-item .token-amount .usd {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 12px;
   font-weight: 400;
-}
-
-.token-icon {
-  margin-right: 0;
 }
 </style>

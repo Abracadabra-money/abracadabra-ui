@@ -108,6 +108,7 @@ export default {
         );
       });
 
+      if (timerValues.length > 3) return timerValues.slice(0, -1);
       return timerValues;
     },
   },

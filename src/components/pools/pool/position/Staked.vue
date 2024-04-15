@@ -1,17 +1,9 @@
 <template>
-  <div class="deposited">
+  <div class="staked">
     <PoolCompoundCard :lpToken="lpToken" :tokensList="tokensList" />
 
     <div class="rewards-wrap">
-      <h4 class="title">Stake your LP tokens</h4>
-
-      <h5 class="subtitle-wrap">
-        <span class="subtitle">Rewards</span>
-        <span class="pool-rate">
-          Pool Rate
-          <Tooltip tooltip="tooltip" :width="20" :height="20" />
-        </span>
-      </h5>
+      <h4 class="title">Staking rewards earned</h4>
 
       <ul class="rewards-list">
         <li class="list-item">
@@ -23,7 +15,7 @@
             Points
           </span>
 
-          <span class="item-value">xx per hour</span>
+          <span class="item-value">5,311.55</span>
         </li>
 
         <li class="list-item">
@@ -35,7 +27,7 @@
             Gold
           </span>
 
-          <span class="item-value">xx per hour</span>
+          <span class="item-value">5,311.55</span>
         </li>
 
         <li class="list-item">
@@ -47,12 +39,12 @@
             Potion
           </span>
 
-          <span class="item-value">xx per hour</span>
+          <span class="item-value">5,311.55</span>
         </li>
       </ul>
     </div>
 
-    <BaseButton primary>Stake now</BaseButton>
+    <BaseButton primary>See dashborad</BaseButton>
   </div>
 </template>
 
@@ -187,9 +179,6 @@ export default {
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")
     ),
-    Tooltip: defineAsyncComponent(() =>
-      import("@/components/ui/icons/Tooltip.vue")
-    ),
     PoolCompoundCard: defineAsyncComponent(() =>
       import("@/components/pools/pool/position/cards/PoolCompoundCard.vue")
     ),
@@ -198,7 +187,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.deposited {
+.staked {
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -230,6 +219,7 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 7px;
+  margin-bottom: 31px;
 }
 
 .rewards-list {

@@ -26,6 +26,18 @@
         v-if="activeTab === 'deposited'"
       />
 
+      <Staked
+        :pool="pool"
+        :isProperNetwork="isProperNetwork"
+        v-if="activeTab === 'staked'"
+      />
+
+      <Locked
+        :pool="pool"
+        :isProperNetwork="isProperNetwork"
+        v-if="activeTab === 'locked'"
+      />
+
       <!-- <LockBlock :pool="pool" @updateInfo="onUpdate" /> -->
     </div>
   </div>
@@ -90,6 +102,12 @@ export default {
     ),
     Deposited: defineAsyncComponent(() =>
       import("@/components/pools/pool/position/Deposited.vue")
+    ),
+    Staked: defineAsyncComponent(() =>
+      import("@/components/pools/pool/position/Staked.vue")
+    ),
+    Locked: defineAsyncComponent(() =>
+      import("@/components/pools/pool/position/Locked.vue")
     ),
     // LockBlock: defineAsyncComponent(() =>
     //   import("@/components/pools/pool/LockBlock.vue")
