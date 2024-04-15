@@ -56,8 +56,8 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
+import { mapGetters, mapMutations } from "vuex";
 import farmsConfig from "@/configs/farms/farms";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 import { getCollateralApr } from "@/helpers/collateralsApy";
@@ -119,6 +119,10 @@ export default {
   },
 
   methods: {
+    ...mapMutations({
+      setCauldronsList: "setCauldronsList",
+    }),
+
     async getCollateralsApr() {
       this.cauldrons = await Promise.all(
         this.cauldrons.map(async (cauldron) => {
@@ -127,8 +131,6 @@ export default {
           return cauldron;
         })
       );
-
-      await this.$store.commit("setCauldronsList", this.cauldrons);
     },
 
     getFarmConfig(farmId, chainId) {
@@ -158,6 +160,7 @@ export default {
 
     this.cauldrons = await getMarketList(this.account);
     this.cauldronsLoading = false;
+    this.setCauldronsList(this.cauldrons);
 
     await this.getCollateralsApr();
 
