@@ -118,7 +118,7 @@ import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
 import { trimZeroDecimals } from "@/helpers/numbers";
-import { approveToken } from "@/helpers/approval.ts";
+import { approveTokenViem } from "@/helpers/approval.ts";
 import { sendFrom } from "@/helpers/beam/sendFrom.ts";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { formatUSD, formatToFixed } from "@/helpers/filters";
@@ -129,6 +129,7 @@ import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFeeNew";
 
 import { getBeamInfo } from "@/helpers/beam/getBeamInfo";
 import { formatUnits, parseUnits } from "viem";
+
 export default {
   data() {
     return {
@@ -138,9 +139,6 @@ export default {
       isOpenNetworkPopup: false,
       updateInterval: null,
       isSettingsOpened: false,
-      beamConfig: null,
-      isSettingsError: false,
-      startFee: 0,
       isOpenSuccessPopup: false,
       tx: null,
       successData: null,
@@ -167,17 +165,9 @@ export default {
   computed: {
     ...mapGetters({
       account: "getAccount",
-      signer: "getSigner",
-      provider: "getProvider",
       chainId: "getChainId",
       getChainById: "getChainById",
     }),
-
-    isUnsupportedNetwork() {
-      return !!this.beamInfoObject.beamConfigs.find(
-        (config) => config.chainId === this.chainId
-      );
-    },
 
     toAddress() {
       return this.dstAddress ? this.dstAddress : this.account;
@@ -224,8 +214,15 @@ export default {
       return this.inputAmount > this.maxMimAmount;
     },
 
+    isWrongChain() {
+      return this.fromChain?.chainId !== this.chainId;
+    },
+
     actionState() {
-      if (!this.account) return { disable: true, text: "Connect wallet" };
+      if (!this.account) return { disable: false, text: "Connect wallet" };
+
+      if (this.isWrongChain) return { disable: false, text: "Switch Chain" };
+
       if (!this.fromChain)
         return { disable: true, text: "Select Origin Chain" };
       if (!this.toChain)
@@ -339,35 +336,47 @@ export default {
     async actionHandler() {
       if (this.actionState.disable) return false;
 
-      //   if (!this.account) {
-      //     // @ts-ignore
-      //     return this.$openWeb3modal();
-      //   }
+      if (!this.account) {
+        // @ts-ignore
+        return this.$openWeb3modal();
+      }
 
-      //   const notificationId = await this.createNotification(
-      //     notification.pending
-      //   );
+      if (this.isWrongChain) {
+        await switchNetwork(this.fromChain.chainId);
+        return false;
+      }
 
-      //   if (!this.isTokenApproved) {
-      //     this.isApproving = true;
+      const beamContract = this.beamInfoObject.fromChainConfig.contract;
+      const mimContract = {
+        address: this.beamInfoObject.tokenConfig.address,
+        abi: this.beamInfoObject.tokenConfig.abi,
+      };
 
-      //     this.updateNotification({
-      //       title: "1/2: Approve MIM",
-      //       id: notificationId,
-      //     });
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
 
-      //     const isTokenApproved = await approveToken(
-      //       this.beamConfig.tokenContractInstance,
-      //       this.beamConfig.contractInstance.address
-      //     );
+      if (!this.isTokenApproved) {
+        this.isApproving = true;
 
-      //     this.isApproving = false;
+        this.updateNotification({
+          title: "1/2: Approve MIM",
+          id: notificationId,
+        });
 
-      //     if (!isTokenApproved) {
-      //       await this.deleteNotification(notificationId);
-      //       await this.createNotification(notification.approveError);
-      //       return false;
-      //     }
+        const isTokenApproved = await approveTokenViem(
+          mimContract,
+          beamContract.address
+        );
+
+        this.isApproving = false;
+
+        if (!isTokenApproved) {
+          await this.deleteNotification(notificationId);
+          await this.createNotification(notification.approveError);
+          return false;
+        }
+      }
 
       //     this.updateNotification({
       //       title: "Step 2/2: Confirm Beam",
