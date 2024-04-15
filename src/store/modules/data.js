@@ -1,13 +1,17 @@
 export default {
   state: {
-    cauldronsList: [],
+    cauldronsList: {
+      isCreated: false,
+      data: [],
+    },
     userPositions: [],
     farmList: [],
   },
 
   mutations: {
     setCauldronsList(state, payload) {
-      state.cauldronsList = payload;
+      state.cauldronsList.isCreated = true;
+      state.cauldronsList.data = payload;
     },
     setUserPositions(state, payload) {
       state.userPositions = payload;

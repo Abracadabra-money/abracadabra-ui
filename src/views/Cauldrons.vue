@@ -104,7 +104,7 @@ export default {
     ...mapGetters({
       account: "getAccount",
       chainId: "getChainId",
-      cauldronsList: "getCauldronsList",
+      localCauldronsList: "getCauldronsList",
     }),
 
     isArbitrumChain() {
@@ -114,26 +114,11 @@ export default {
 
   watch: {
     async account() {
-      await this.updateCauldronsList();
+      this.cauldrons = await getMarketList(this.account);
     },
   },
 
   methods: {
-    async createCauldronsList() {
-      if (this.cauldronsList.length) {
-        this.cauldrons = this.cauldronsList;
-        this.cauldronsLoading = false;
-      } else {
-        await this.updateCauldronsList();
-        this.cauldronsLoading = false;
-      }
-    },
-
-    async updateCauldronsList() {
-      this.cauldrons = await getMarketList(this.account);
-      await this.$store.commit("setCauldronsList", this.cauldrons);
-    },
-
     async getCollateralsApr() {
       this.cauldrons = await Promise.all(
         this.cauldrons.map(async (cauldron) => {
@@ -159,10 +144,21 @@ export default {
     updateSortKeys(key, order) {
       this.$refs.cauldronsTable.updateSortKeys(key, order);
     },
+
+    checkLocalData() {
+      if (this.localCauldronsList.isCreated) {
+        this.cauldrons = this.localCauldronsList.data;
+        this.cauldronsLoading = false;
+      }
+    },
   },
 
   async created() {
-    await this.createCauldronsList();
+    this.checkLocalData();
+
+    this.cauldrons = await getMarketList(this.account);
+    this.cauldronsLoading = false;
+
     await this.getCollateralsApr();
 
     const farmConfig = this.getFarmConfig(4, ARBITRUM_CHAIN_ID);
@@ -175,7 +171,7 @@ export default {
     );
 
     this.updateInterval = setInterval(async () => {
-      await this.updateCauldronsList();
+      this.cauldrons = await getMarketList(this.account);
     }, 60000);
   },
 
