@@ -63,7 +63,7 @@ import {
   formatTokenBalance,
   formatToFixed,
 } from "@/helpers/filters";
-import { mapGetters } from "vuex";
+import { mapGetters, mapMutations } from "vuex";
 import { APR_KEY } from "@/constants/global";
 import BaseLoader from "@/components/base/BaseLoader.vue";
 import SortButton from "@/components/ui/buttons/SortButton.vue";
@@ -99,6 +99,7 @@ export default {
       chainId: "getChainId",
       provider: "getProvider",
       signer: "getSigner",
+      localUserPositions: "getUserPositions",
     }),
 
     isSelectAllChains() {
@@ -158,16 +159,16 @@ export default {
       await this.createOpenPositions();
     },
 
-    async chainId() {
-      await this.createOpenPositions();
-    },
-
     cauldrons() {
       this.selectedChains = this.getActiveChain();
     },
   },
 
   methods: {
+    ...mapMutations({
+      setUserPositions: "setUserPositions",
+    }),
+
     sortByKey(cauldrons = [], key) {
       if (this.sortOrder === null) return this.cauldrons;
       const sortedByKey = cauldrons.sort((a, b) => b[key] - a[key]);
@@ -287,10 +288,19 @@ export default {
         return acc;
       }, []);
     },
+
+    checkLocalData() {
+      if (this.localUserPositions.isCreated) {
+        this.cauldrons = this.localUserPositions.data;
+        this.positionsIsLoading = false;
+      }
+    },
   },
 
   async created() {
+    this.checkLocalData();
     await this.createOpenPositions();
+    this.setUserPositions(this.cauldrons);
     this.updateInterval = setInterval(async () => {
       this.cauldrons = await getUserOpenPositions(this.account);
       await this.getCollateralsApr();
