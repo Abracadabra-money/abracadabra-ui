@@ -4,7 +4,10 @@ export default {
       isCreated: false,
       data: [],
     },
-    userPositions: [],
+    userPositions: {
+      isCreated: false,
+      data: [],
+    },
     farmList: [],
   },
 
@@ -14,7 +17,8 @@ export default {
       state.cauldronsList.data = payload;
     },
     setUserPositions(state, payload) {
-      state.userPositions = payload;
+      state.userPositions.isCreated = true;
+      state.userPositions.data = payload;
     },
     setFarmList(state, payload) {
       state.farmList = payload;
