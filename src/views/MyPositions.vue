@@ -99,6 +99,7 @@ export default {
       chainId: "getChainId",
       provider: "getProvider",
       signer: "getSigner",
+      localUserPositions: "getUserPositions",
     }),
 
     isSelectAllChains() {
@@ -155,11 +156,7 @@ export default {
 
   watch: {
     async account() {
-      await this.createOpenPositions();
-    },
-
-    async chainId() {
-      await this.createOpenPositions();
+      await this.updateUserOpenPositions();
     },
 
     cauldrons() {
@@ -226,10 +223,22 @@ export default {
         return false;
       }
 
+      if (this.localUserPositions.length) {
+        this.cauldrons = this.localUserPositions;
+        this.totalAssets = getUsersTotalAssets(this.cauldrons);
+        this.positionsIsLoading = false;
+        return false;
+      } else {
+        await this.updateUserOpenPositions();
+        this.positionsIsLoading = false;
+      }
+    },
+
+    async updateUserOpenPositions() {
       this.cauldrons = await getUserOpenPositions(this.account);
+      await this.$store.commit("setUserPositions", this.cauldrons);
       await this.getCollateralsApr();
       this.totalAssets = getUsersTotalAssets(this.cauldrons);
-      this.positionsIsLoading = false;
     },
 
     async fetchCollateralApy(cauldron, chainId, address) {
@@ -279,6 +288,8 @@ export default {
           return cauldron;
         })
       );
+
+      await this.$store.commit("setUserPositions", this.cauldrons);
     },
 
     getActiveChain() {
@@ -292,9 +303,7 @@ export default {
   async created() {
     await this.createOpenPositions();
     this.updateInterval = setInterval(async () => {
-      this.cauldrons = await getUserOpenPositions(this.account);
-      await this.getCollateralsApr();
-      this.totalAssets = getUsersTotalAssets(this.cauldrons);
+      await this.updateUserOpenPositions();
     }, 60000);
 
     this.selectedChains = this.getActiveChain();

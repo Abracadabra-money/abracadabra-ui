@@ -113,8 +113,8 @@ export default {
   },
 
   watch: {
-    account() {
-      this.createCauldronsList();
+    async account() {
+      await this.updateCauldronsList();
     },
   },
 
@@ -124,10 +124,14 @@ export default {
         this.cauldrons = this.cauldronsList;
         this.cauldronsLoading = false;
       } else {
-        this.cauldrons = await getMarketList(this.account);
+        await this.updateCauldronsList();
         this.cauldronsLoading = false;
-        await this.$store.commit("setCauldronsList", this.cauldrons);
       }
+    },
+
+    async updateCauldronsList() {
+      this.cauldrons = await getMarketList(this.account);
+      await this.$store.commit("setCauldronsList", this.cauldrons);
     },
 
     async getCollateralsApr() {
@@ -171,8 +175,7 @@ export default {
     );
 
     this.updateInterval = setInterval(async () => {
-      this.cauldrons = await getMarketList(this.account);
-      await this.$store.commit("setCauldronsList", this.cauldrons);
+      await this.updateCauldronsList();
     }, 60000);
   },
 
