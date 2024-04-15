@@ -15,7 +15,7 @@
       <div class="btns-wrap">
         <button
           :class="['setting-btn', { active: isNone }]"
-          @click="updateInputValue(0)"
+          @click="updateInputValue('0')"
         >
           None
         </button>
@@ -38,11 +38,11 @@
         <div class="input-token-info">
           <img
             class="input-icon"
-            :src="config.icon"
+            :src="dstNativeTokenInfo.icon"
             alt="Icon"
-            @click="updateInputValue(max)"
+            @click="updateInputValue(maxAmount)"
           />
-          {{ config.symbol }}
+          {{ dstNativeTokenInfo.symbol }}
         </div>
       </div>
       <p class="value-error">
@@ -52,7 +52,7 @@
     </div>
 
     <div class="popup-footer">
-      <BaseButton primary @click="actionHandler" :disabled="isDisabledBtn"
+      <BaseButton primary @click="actionHandler" :disabled="isDisableBtn"
         >Save</BaseButton
       >
       <p class="footer-text">
@@ -72,13 +72,16 @@
 <script lang="ts">
 import Tooltip from "@/components/ui/icons/Tooltip.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
-import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFee.ts";
+import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFeeNew.ts";
 import { trimZeroDecimals } from "@/helpers/numbers";
-import { formatUnit, parseUnits } from "viem";
-import type { BeamInfo } from "@/helpers/beam/types";
-import type {PropType} from "vue";
+import { formatUnits, parseUnits } from "viem";
+import type { BeamInfo, BeamConfig } from "@/helpers/beam/types";
+import type { PropType } from "vue";
+import { chainsConfigs } from "@/helpers/chains/configs";
+import { mapGetters } from "vuex";
 
 export default {
+  emits: ["onUpdateAmount", "closeSettings"],
   props: {
     beamInfoObject: {
       type: Object as PropType<BeamInfo>,
@@ -86,37 +89,91 @@ export default {
     },
 
     dstChainInfo: {
-      type: Object,
+      type: Object as PropType<BeamConfig>,
       required: true,
     },
 
     dstNativeTokenAmount: {
-      type: bigint,
-      default: 0n
-    }
+      type: BigInt as any as PropType<bigint>,
+      default: 0n,
+    },
 
     mimAmount: {
-      type: bigint,
-      default: 0n
+      type: BigInt as any as PropType<bigint>,
+      default: 0n,
     },
   },
 
   data() {
     return {
-      fee: 0,
-      inputValue: trimZeroDecimals(formatUnits(this.dstNativeTokenAmount, this.tokenDecimal)),
+      fee: 0n,
+      inputValue: trimZeroDecimals(
+        formatUnits(
+          this.dstNativeTokenAmount,
+          this.beamInfoObject.tokenConfig.decimals
+        )
+      ),
       tooltip:
         "The default amount allows you to perform a couple of transactions (e.g. Approve + Swap). Once you approve the transfer in your wallet, the transaction gas amount will be higher than a regular transaction as this includes the selected amount of destination gas to be sent.",
     };
   },
 
   computed: {
+    ...mapGetters({
+      account: "getAccount",
+    }),
+    
+    dstUpdatedInfo() {
+      return this.beamInfoObject.destinationChainsInfo.find(
+        (chain) => chain.chainConfig.chainId === this.dstChainInfo.chainId
+      );
+    },
+
+    dstNativeTokenInfo() {
+      const chainInfo = chainsConfigs.find(
+        (chain) => chain.chainId === this.dstChainInfo.chainId
+      );
+
+      console.log("chainInfo", chainInfo);
+
+      return {
+        icon: chainInfo!.baseTokenIcon,
+        symbol: chainInfo!.baseTokenSymbol,
+        decimals: 18,
+      };
+    },
+
+    fromNativeTokenInfo() {
+      const chainInfo = chainsConfigs.find(
+        (chain) => chain.chainId === this.beamInfoObject.fromChainConfig.chainId
+      );
+
+      console.log("chainInfo", chainInfo);
+
+      return {
+        icon: chainInfo!.baseTokenIcon,
+        symbol: chainInfo!.baseTokenSymbol,
+        balance: this.beamInfoObject.userInfo.nativeBalance,
+        decimals: 18,
+      };
+    },
+
     isDefaultValue() {
       return this.inputValue == this.defaultValue;
     },
 
+    defaultValue() {
+      return this.beamInfoObject.fromChainConfig.defaultValue[
+        this.dstChainInfo.chainId
+      ];
+    },
+
+    maxAmount() {
+      return formatUnits(this.dstUpdatedInfo.dstConfigLookupResult, 18);
+    },
+
     isNone() {
-      return this.inputValue === 0;
+      return +this.inputValue === 0;
     },
 
     isValueChanged() {
@@ -127,36 +184,55 @@ export default {
       return this.beamInfoObject.tokenConfig.decimals;
     },
 
-    parsedValue(){
+    parsedValue() {
       return parseUnits(this.inputValue, this.tokenDecimal);
     },
 
     isExceedMax() {
-      return this.parsedValue > this.dstChainInfo.dstConfigLookupResult.dstNativeAmtCap;
+      return this.parsedValue > this.dstUpdatedInfo.dstConfigLookupResult;
     },
 
     error() {
-      if (isExceedMax) { return `Error max value ${this.dstChainInfo.dstConfigLookupResult.dstNativeAmtCap}`;
+      if (isNaN(+this.inputValue)) return "Invalid value";
 
-      // if (+this.fee > +this.config.nativeTokenBalance && this.inputValue) {
-      //   this.$emit("errorSettings", true);
-      //   return `Not enough gas ${+this.fee - +this.config.nativeTokenBalance} ${
-      //     this.config.nativeSymbol
-      //   } needed`;
-      // }
+      if (this.isExceedMax)
+        return `Error max value ${formatUnits(
+          this.dstUpdatedInfo.dstConfigLookupResult,
+          18
+        )}`;
+
+      if (this.fee > this.fromNativeTokenInfo.balance && this.inputValue) {
+        const gasAmount = parseFloat(
+          formatUnits(this.fee - this.fromNativeTokenInfo.balance, 18)
+        ).toFixed(4);
+
+        return `Not enough gas ${gasAmount} ${this.fromNativeTokenInfo.symbol} needed`;
+      }
 
       return false;
     },
-  },
 
     isDisableBtn() {
-      return this.error || !this.isValueChanged;
+      return !!this.error || !this.isValueChanged;
+    },
+  },
+
+  watch: {
+    async inputValue(value, oldValue) {
+      if (isNaN(value)) {
+        this.inputValue = oldValue;
+        return false;
+      }
+
+      console.log("inputValue", value);
+
+      this.updateFee();
     },
   },
 
   methods: {
     actionHandler() {
-      this.$emit("changeSettings", this.parsedValue);
+      this.$emit("onUpdateAmount", this.parsedValue);
       this.$emit("closeSettings");
     },
 
@@ -164,21 +240,24 @@ export default {
       this.inputValue = value;
     },
 
-    // async updateFee(value) {
-    //   if (!this.mimAmount || value > this.max) return 0;
-    //   const { fees } = await getEstimateSendFee(
-    //     this.config.contract,
-    //     this.config.address,
-    //     this.config.dstChainId,
-    //     value,
-    //     this.mimAmount || "0"
-    //   );
+    async updateFee() {
+      if (this.isExceedMax) return 0;
+      const { fees } = await getEstimateSendFee(
+        this.beamInfoObject,
+        this.dstChainInfo,
+        this.account,
+        this.parsedValue,
+        this.mimAmount
+      );
 
-    //   const additionalFee = fees[0].div(100);
-    //   const updatedFee = fees[0].add(additionalFee); // add 1% from base fee to be sure tx success
-    //   if (!updatedFee) return 0;
-    //   return this.$ethers.utils.formatEther(updatedFee);
-    // },
+      const additionalFee = fees[0] / 100n;
+      const updatedFee = fees[0] + additionalFee; // add 1% from base fee to be sure tx success
+      if (!updatedFee) {
+        this.fee = 0n;
+        return;
+      }
+      this.fee = updatedFee;
+    },
   },
 
   components: {

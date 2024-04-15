@@ -1,5 +1,5 @@
 <template>
-  <div class="beam-view" v-if="beamConfig">
+  <div class="beam-view" v-if="beamInfoObject">
     <div class="beam">
       <div class="beam-header">
         <div class="title-desc">
@@ -11,14 +11,12 @@
           <BeamSettingsButton
             :active="isSettingsOpened"
             @click="toggleSettings"
-            :disabled="isActionsDisabled"
             buttonType="settings"
-            v-if="isSelectedChain"
+            v-if="fromChain && toChain"
           />
           <BeamSettingsButton
             :active="isShowDstAddress"
             @click="toggleDstAddress"
-            :disabled="isActionsDisabled"
           />
         </div>
       </div>
@@ -28,22 +26,21 @@
           :fromChain="fromChain"
           :toChain="toChain"
           @onChainSelectClick="openNetworkPopup"
+          @switchChains="switchChains"
         />
 
-        <!-- <div class="inputs-wrap">
+        <div class="inputs-wrap">
           <div>
             <h4 class="input-label">MIM to Beam</h4>
             <BaseTokenInput
               class="beam-input"
-              :decimals="18"
-              :max="parsedMimBalance"
+              :decimals="tokenConfig.decimals"
+              :max="maxMimAmount"
               :value="inputValue"
-              :name="'MIM'"
-              :icon="$image('assets/images/tokens/MIM.png')"
-              :error="amountError"
-              isBigNumber
+              :name="tokenConfig.symbol"
+              :icon="tokenConfig.image"
               @updateInputValue="updateMainValue"
-              :disabled="isActionsDisabled"
+              :error="amountError"
             />
           </div>
 
@@ -55,17 +52,20 @@
         </div>
 
         <ExpectedBlock
-          :data="expectedConfig"
+          v-if="beamInfoObject"
+          :beamInfoObject="beamInfoObject"
+          :dstChainConfig="toChain"
+          :gasFee="estimateSendFee"
+          :dstNativeTokenAmount="dstTokenAmount"
           :isLoading="isUpdateFeesData"
-          @open-settings="isSettingsOpened = true"
         />
 
         <div class="wrap-btn">
           <BaseButton
             :primary="true"
-            :disabled="disableBtn"
+            :disabled="actionState.disable"
             @click="actionHandler"
-            >{{ actionBtnText }}</BaseButton
+            >{{ actionState.text }}</BaseButton
           >
         </div>
 
@@ -76,35 +76,29 @@
             src="@/assets/images/beam/layer-zero.svg"
             alt=""
           />
-        </p> -->
+        </p>
       </div>
 
       <ChainsPopup
         v-if="isOpenNetworkPopup"
         :isOpen="isOpenNetworkPopup"
         :popupType="popupType"
-
         :beamInfoObject="beamInfoObject"
         :selectedFromChain="fromChain"
         :selectedToChain="toChain"
-
         @closePopup="closeNetworkPopup"
         @changeChain="changeChain"
-
       />
 
-      <!-- <SettingsPopup
-        :value="dstTokenAmount"
-        :mimAmount="amountError ? '0' : inputValue"
-        :max="dstMaxAmount"
-        :defaultValue="dstDefaultValue"
-        :config="settingConfig"
-        @change-settings="changeSettings"
-        @close-settings="isSettingsOpened = false"
-        @error-settings="errorSettings"
+      <SettingsPopup
         v-if="isSettingsOpened"
-      /> -->
-      </div>
+        :beamInfoObject="beamInfoObject"
+        :dstChainInfo="toChain"
+        :dstNativeTokenAmount="dstTokenAmount"
+        :mimAmount="inputAmount"
+        @onUpdateAmount="updateDstNativeTokenAmount"
+        @closeSettings="isSettingsOpened = false"
+      />
     </div>
   </div>
 
@@ -123,51 +117,34 @@ import {
 import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
-import { BERA_CHAIN_ID } from "@/constants/global";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import { approveToken } from "@/helpers/approval.ts";
 import { sendFrom } from "@/helpers/beam/sendFrom.ts";
-import { tokensChainLink } from "@/configs/chainLink/config";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { formatUSD, formatToFixed } from "@/helpers/filters";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
-import { nativeTokenschainLink } from "@/configs/chainLink/config";
-import { getDstTokenMax } from "@/helpers/beam/getDstTokenMax.ts";
 import notification from "@/helpers/notification/notification";
 
-import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFee";
+import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFeeNew";
 
 import { getBeamInfo } from "@/helpers/beam/getBeamInfo";
-
+import { formatUnits, parseUnits } from "viem";
 export default {
   data() {
     return {
-      acceptedNetworks: [
-        1, 10, 56, 137, 250, 1285, 2222, 42161, 43114, 8453, 59144, 81457,
-      ],
-      isShowDstAddress: false,
-      toChainId: null,
       dstAddress: null,
       dstAddressError: false,
-      dstTokenAmount: "",
       popupType: "to",
-      inputAmount: 0n,
-      inputValue: "",
       isOpenNetworkPopup: false,
       updateInterval: null,
       isSettingsOpened: false,
       beamConfig: null,
-      estimateSendFee: 0,
-      dstMaxAmount: 0,
-      dstTokenPrice: null,
-      srcTokenPrice: null,
       isSettingsError: false,
       startFee: 0,
-      isSelectedChain: false,
       isOpenSuccessPopup: false,
       tx: null,
       successData: null,
-      mimToUsd: 0,
+
       isApproving: false,
       isBeaming: false,
       isUpdateFeesData: false,
@@ -175,6 +152,15 @@ export default {
       beamInfoObject: null,
       fromChain: null,
       toChain: null,
+
+      dstTokenAmount: 0n,
+
+      inputAmount: 0n,
+      inputValue: "",
+
+      isShowDstAddress: false,
+
+      estimateSendFee: 0n,
     };
   },
 
@@ -188,18 +174,21 @@ export default {
     }),
 
     isUnsupportedNetwork() {
-      return this.acceptedNetworks.indexOf(this.chainId) === -1;
+      return !!this.beamInfoObject.beamConfigs.find(
+        (config) => config.chainId === this.chainId
+      );
     },
 
     toAddress() {
       return this.dstAddress ? this.dstAddress : this.account;
     },
 
+    tokenConfig() {
+      return this.beamInfoObject.tokenConfig;
+    },
+
     toAddressBytes() {
-      return this.$ethers.utils.defaultAbiCoder.encode(
-        ["address"],
-        [this.toAddress]
-      );
+      return utils.defaultAbiCoder.encode(["address"], [this.toAddress]);
     },
 
     // TODO: fix naming & conditions
@@ -211,96 +200,52 @@ export default {
     },
 
     amountError() {
-      if (+this.inputValue > +this.beamConfig.balance) {
-        return `The value cannot be greater than ${this.beamConfig.balance}`;
+      if (this.inputAmount > this.beamInfoObject.userInfo.balance) {
+        return `The value cannot be greater than ${this.maxMimAmountParsed}`;
       }
       return "";
-    },
-
-    targetToChain() {
-      if (this.toChainId) return this.toChainId;
-      return this.beamConfig.chainsInfo[0].chainId;
     },
 
     isEnterDstAddress() {
       return !this.dstAddress && this.isShowDstAddress;
     },
 
-    actionBtnText() {
-      if (!this.account) return "Connect wallet";
-      if (this.isInsufficientBalance) return "Insufficient balance";
-      if (this.isEnterDstAddress) return "Set destination address";
-      if (this.dstAddressError) return "Set destination address";
-      if (!this.isSelectedChain) return "Choose Destination Chain";
-      if (this.isApproving) return "Approving";
-      if (!this.isTokenApproved) return "Approve";
-      if (this.isBeaming) return "Beaming";
-      return "Beam";
+    maxMimAmount() {
+      if (!this.beamInfoObject) return 0n;
+
+      return this.beamInfoObject.userInfo.balance;
     },
 
-    parsedMimBalance() {
-      return this.$ethers.utils.parseUnits(this.beamConfig?.balance);
-    },
-
-    isActionsDisabled() {
-      return this.isUnsupportedNetwork || !this.account;
+    maxMimAmountParsed() {
+      return formatUnits(this.maxMimAmount, 18);
     },
 
     isInsufficientBalance() {
-      return +this.inputValue > +this.beamConfig?.balance;
+      return this.inputAmount > this.maxMimAmount;
     },
 
-    disableBtn() {
-      if (!this.account) return false;
-      if (+this.inputValue === 0) return true;
-      if (this.isInsufficientBalance) return true;
-      if (this.isApproving || this.isBeaming) return true;
-      if (!this.account || !this.isSelectedChain) return true;
-      if (this.isEnterDstAddress) return true;
-      if (this.dstAddressError) return true;
-      if (this.isTokenApproved) return false;
+    actionState() {
+      if (!this.account) return { disable: true, text: "Connect wallet" };
+      if (!this.fromChain)
+        return { disable: true, text: "Select Origin Chain" };
+      if (!this.toChain)
+        return { disable: true, text: "Select Destination Chain" };
 
-      return !!this.amountError;
+      if (this.inputAmount === 0n) return { disable: true, text: "Set amount" };
+      if (this.isInsufficientBalance)
+        return { disable: true, text: "Insufficient balance" };
+
+      if (this.isEnterDstAddress)
+        return { disable: true, text: "Set destination address" };
+      if (this.dstAddressError)
+        return { disable: true, text: "Set destination address" };
+
+      if (!this.isTokenApproved) return { disable: false, text: "Approve" };
+      if (this.isApproving) return { disable: true, text: "Approving" };
+
+      if (this.isBeaming) return { disable: true, text: "Beaming" };
+      return { disable: false, text: "Beam" };
     },
-
-    dstDefaultValue() {
-      return this.fromChain?.chainConfig?.defaultValue[this.toChain?.chainConfig.?chainId] || "0"
-    },
-
-    getFee() {
-      if (!this.estimateSendFee[0]) return 0;
-      return this.$ethers.utils.formatEther(this.estimateSendFee[0]);
-    },
-
-    // expectedConfig() {
-    //   return {
-    //     mimAmount: this.inputValue,
-    //     dstTokenAmount: this.dstTokenAmount,
-    //     dstTokenPrice: this.dstTokenPrice || 0,
-    //     dstTokenSymbol: this.isSelectedChain
-    //       ? this.dstTokenInfo?.baseTokenSymbol
-    //       : "",
-    //     dstTokenIcon: this.isSelectedChain
-    //       ? this.dstTokenInfo?.baseTokenIcon
-    //       : "",
-    //     gasCost: this.isSelectedChain ? this.formatFee : "0.0",
-    //     srcTokenPrice: this.srcTokenPrice || 0,
-    //     srcTokenSymbol: this.srcTokenInfo?.baseTokenSymbol,
-    //     srcTokenIcon: this.srcTokenInfo?.baseTokenIcon,
-    //   };
-    // },
-
-    // settingConfig() {
-    //   return {
-    //     icon: this.dstTokenInfo.baseTokenIcon,
-    //     symbol: this.dstTokenInfo.baseTokenSymbol,
-    //     nativeTokenBalance: this.beamConfig.nativeTokenBalance,
-    //     nativeSymbol: this.srcTokenInfo?.symbol,
-    //     contract: this.beamConfig.contractInstance,
-    //     address: this.toAddress,
-    //     dstChainId: this.lzChainId,
-    //   };
-    // },
 
     // txConfig() {
     //   return {
@@ -337,12 +282,18 @@ export default {
 
   watch: {
     inputAmount(value) {
-      if (value.eq(0)) {
+      if (value === 0n) {
         this.inputValue = "";
         return false;
       }
 
-      this.inputValue = trimZeroDecimals(utils.formatUnits(value, 18));
+      this.inputValue = trimZeroDecimals(formatUnits(value, 18));
+    },
+    fromChain(value) {
+      if (this.beamInfoObject.fromChainConfig.chainId !== value.chainId) {
+        this.clearData();
+        this.initBeamInfo(value.chainId);
+      }
     },
   },
 
@@ -367,60 +318,65 @@ export default {
     },
 
     async updateMainValue(value: any) {
-      if (value === null) return (this.inputAmount = 0n);
+      if (value === null) {
+        this.inputAmount = 0n;
+        this.estimateSendFee = 0n;
+        return false;
+      }
       this.inputAmount = value;
+      this.estimateSendFee = await this.getEstimatedFees();
     },
 
-    // updateDestinationAddress(address, error) {
-    //   this.dstAddress = address;
-    //   this.dstAddressError = error;
-    // },
+    updateDestinationAddress(address, error) {
+      this.dstAddress = address;
+      this.dstAddressError = error;
+    },
 
-    // errorDestinationAddress(error) {
-    //   this.dstAddressError = error;
-    // },
+    errorDestinationAddress(error) {
+      this.dstAddressError = error;
+    },
 
-    // async actionHandler() {
-    //   if (this.disableBtn) return false;
+    async actionHandler() {
+      if (this.actionState.disable) return false;
 
-    //   if (!this.account) {
-    //     // @ts-ignore
-    //     return this.$openWeb3modal();
-    //   }
+      //   if (!this.account) {
+      //     // @ts-ignore
+      //     return this.$openWeb3modal();
+      //   }
 
-    //   const notificationId = await this.createNotification(
-    //     notification.pending
-    //   );
+      //   const notificationId = await this.createNotification(
+      //     notification.pending
+      //   );
 
-    //   if (!this.isTokenApproved) {
-    //     this.isApproving = true;
+      //   if (!this.isTokenApproved) {
+      //     this.isApproving = true;
 
-    //     this.updateNotification({
-    //       title: "1/2: Approve MIM",
-    //       id: notificationId,
-    //     });
+      //     this.updateNotification({
+      //       title: "1/2: Approve MIM",
+      //       id: notificationId,
+      //     });
 
-    //     const isTokenApproved = await approveToken(
-    //       this.beamConfig.tokenContractInstance,
-    //       this.beamConfig.contractInstance.address
-    //     );
+      //     const isTokenApproved = await approveToken(
+      //       this.beamConfig.tokenContractInstance,
+      //       this.beamConfig.contractInstance.address
+      //     );
 
-    //     this.isApproving = false;
+      //     this.isApproving = false;
 
-    //     if (!isTokenApproved) {
-    //       await this.deleteNotification(notificationId);
-    //       await this.createNotification(notification.approveError);
-    //       return false;
-    //     }
+      //     if (!isTokenApproved) {
+      //       await this.deleteNotification(notificationId);
+      //       await this.createNotification(notification.approveError);
+      //       return false;
+      //     }
 
-    //     this.updateNotification({
-    //       title: "Step 2/2: Confirm Beam",
-    //       id: notificationId,
-    //     });
-    //   }
+      //     this.updateNotification({
+      //       title: "Step 2/2: Confirm Beam",
+      //       id: notificationId,
+      //     });
+      //   }
 
-    //   await this.seendBeam(notificationId);
-    // },
+      //   await this.seendBeam(notificationId);
+    },
 
     // async seendBeam(notificationId) {
     //   this.isBeaming = true;
@@ -450,21 +406,26 @@ export default {
     //   }
     // },
 
-    // async getEstimatedFees(getParams = false) {
-    //   const { fees, params } = await getEstimateSendFee(
-    //     this.beamConfig.contractInstance,
-    //     this.toAddress,
-    //     this.lzChainId,
-    //     this.dstTokenAmount || "0",
-    //     this.inputValue || "1"
-    //   );
+    async getEstimatedFees(getParams = false) {
+      if (!this.toChain || !this.fromChain) return 0n;
+      if (this.inputAmount === 0n) return 0n;
 
-    //   const additionalFee = fees[0].div(100);
-    //   const updatedFee = fees[0].add(additionalFee); // add 1% from base fee to be sure tx success
+      this.isUpdateFeesData = true;
+      const { fees, params } = await getEstimateSendFee(
+        this.beamInfoObject,
+        this.toChain,
+        this.account,
+        this.dstTokenAmount,
+        this.inputAmount
+      );
 
-    //   if (getParams) return { fees: [updatedFee], params };
-    //   else return [updatedFee];
-    // },
+      const additionalFee = fees[0] / 100n;
+      const updatedFee = fees[0] + additionalFee; // add 1% from base fee to be sure tx success
+
+      this.isUpdateFeesData = false;
+      if (getParams) return { fees: updatedFee, params };
+      else return updatedFee;
+    },
 
     // async errorTransaction(error, notificationId) {
     //   const errorNotification = {
@@ -487,33 +448,39 @@ export default {
     //   await this.createNotification(errorNotification);
     // },
 
-    // async changeSettings(value) {
-    //   if (!value || this.isSettingsError) this.dstTokenAmount = "";
-    //   else this.dstTokenAmount = value;
-    //   this.isUpdateFeesData = this.account ? true : false;
-    //   this.estimateSendFee = await this.getEstimatedFees();
-    //   this.isUpdateFeesData = false;
-    // },
+    async updateDstNativeTokenAmount(value: bigint) {
+      this.dstTokenAmount = value;
+      this.estimateSendFee = await this.getEstimatedFees();
+    },
 
     closeNetworkPopup() {
       this.isOpenNetworkPopup = false;
     },
 
     async changeChain(chainId, type) {
+      console.log("changeChain", { chainId, type });
       const chainConfig = this.beamInfoObject.beamConfigs.find(
         (chain) => chain.chainId === chainId
       );
 
       if (type === "from") {
         this.fromChain = chainConfig;
+        this.clearData();
       } else {
         this.toChain = chainConfig;
       }
     },
 
-    // async beamNotAvailable() {
-    //   return await this.createNotification(notification.beamNotAvailable);
-    // },
+    async switchChains() {
+      const fromChain = this.fromChain;
+      const toChain = this.toChain;
+
+      this.clearData();
+      this.fromChain = toChain;
+      this.toChain = null;
+      await this.initBeamInfo(this.fromChain.chainId);
+      this.toChain = fromChain;
+    },
 
     // closeSuccessPopup() {
     //   this.isOpenSuccessPopup = false;
@@ -528,17 +495,33 @@ export default {
     //   return messages[0];
     // },
 
-    async initBeamInfo() {
+    async initBeamInfo(chainId) {
       try {
-        this.beamInfoObject = await getBeamInfo(this.chainId);
+        this.beamInfoObject = await getBeamInfo(chainId, this.account);
       } catch (error) {
         console.log("Beam Info Error:", error);
       }
     },
+
+    setDefaulChain() {
+      this.fromChain = this.beamInfoObject.beamConfigs.find(
+        (chain) => chain.chainId === this.chainId
+      );
+    },
+
+    clearData() {
+      this.dstAddress = null;
+      this.dstAddressError = false;
+      this.inputAmount = 0n;
+      this.inputValue = "";
+      this.isShowDstAddress = false;
+      this.estimateSendFee = 0n;
+    },
   },
 
   async created() {
-    await this.initBeamInfo();
+    await this.initBeamInfo(this.chainId);
+    this.setDefaulChain();
   },
 
   components: {

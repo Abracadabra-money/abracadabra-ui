@@ -47,5 +47,6 @@ export type BeamInfo = {
   destinationChainsInfo: DestinationChainInfo;
   tokenConfig: BeamTokenConfig;
   mimPrice: number;
+  nativePrice: number;
   userInfo: BeamUserInfo;
 };

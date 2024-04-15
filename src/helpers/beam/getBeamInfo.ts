@@ -6,6 +6,7 @@ import { getNativeTokensPrice } from "../prices/defiLlama";
 import relayerAbi from "@/abis/beam/relayer.js";
 import { tokensChainLink } from "@/configs/chainLink/config";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
+import { useImage } from "@/helpers/useImage";
 import type {
   BeamInfo,
   BeamTokenConfig,
@@ -28,6 +29,8 @@ export const getBeamInfo = async (
   const mimConfig = mimConfigs.find(
     (item) => item.chainId === fromChainConfig.chainId
   );
+
+  mimConfig.image = useImage("assets/images/tokens/MIM.png");
 
   const destinationChainsConfig = filterDestinationChains(
     fromChainConfig,
@@ -70,9 +73,9 @@ export const getBeamInfo = async (
     (chainConfig: any, index: number) => {
       return {
         chainConfig,
-        minDstGasLookupResult: results[index * 2],
-        dstConfigLookupResult: results[index * 2 + 1],
-        nativePrice: prices[chainConfig.chainId],
+        minDstGasLookupResult: results[index * 2].result,
+        dstConfigLookupResult: results[index * 2 + 1].result[0],
+        nativePrice: prices.find(info => info.chainId === chainConfig.chainId)?.price || 0,
       };
     }
   );
@@ -88,6 +91,7 @@ export const getBeamInfo = async (
     destinationChainsInfo,
     tokenConfig: mimConfig as BeamTokenConfig,
     mimPrice,
+    nativePrice: prices.find(info => info.chainId === fromChainConfig.chainId)?.price || 0,
     userInfo,
   };
 };
@@ -119,8 +123,8 @@ const getUserInfo = async (
   const nativeBalance = await publicClient.getBalance({ address: account });
 
   return {
-    balance: balance.response,
-    allowance: allowance.response,
+    balance: balance.result,
+    allowance: allowance.result,
     nativeBalance,
   };
 };

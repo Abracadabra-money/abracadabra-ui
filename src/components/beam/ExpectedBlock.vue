@@ -5,8 +5,12 @@
       <RowSkeleton v-if="isLoading" />
       <p class="value" v-else>
         <span class="token">
-          <img :src="data.srcTokenIcon" class="token-icon" /> {{ data.gasCost }}
-          {{ data.srcTokenSymbol }}
+          <img
+            :src="fromChainInfo.icon"
+            v-if="fromChainInfo"
+            class="token-icon"
+          />
+          {{ fromGasText }}
         </span>
         <span class="usd">{{ estimatedGasCostUsd }}</span>
       </p>
@@ -19,12 +23,11 @@
       <p class="value pointer" @click="$emit('open-settings')">
         <span class="token">
           <img
-            :src="data.dstTokenIcon"
+            :src="dstChainInfo.icon"
             class="token-icon"
-            v-if="data.dstTokenIcon"
+            v-if="dstChainInfo"
           />
-          {{ data.dstTokenAmount || "0.0" }}
-          {{ data.dstTokenSymbol }}
+          {{ dstNativeTokenText }}
         </span>
         <span class="usd">{{ gasOnDestinationUsd }}</span>
       </p>
@@ -37,15 +40,29 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { defineAsyncComponent } from "vue";
-import { formatUSD } from "@/helpers/filters";
+import { formatUSD, formatTokenBalance } from "@/helpers/filters";
+import type { BeamInfo, BeamConfig } from "@/helpers/beam/types";
+import type { PropType } from "vue";
+import { chainsConfigs } from "@/helpers/chains/configs";
+import { formatUnits } from "viem";
 
 export default {
   props: {
-    data: {
-      type: Object,
-      required: true,
+    beamInfoObject: {
+      type: Object as PropType<BeamInfo>,
+    },
+    dstChainConfig: {
+      type: Object as PropType<BeamConfig>,
+    },
+    gasFee: {
+      type: BigInt as any as PropType<bigint>,
+      default: 0n,
+    },
+    dstNativeTokenAmount: {
+      type: BigInt as any as PropType<bigint>,
+      default: 0n,
     },
     isLoading: {
       type: Boolean,
@@ -54,21 +71,86 @@ export default {
   },
 
   computed: {
+    fromChainInfo() {
+      if (!this.beamInfoObject) return null;
+
+      const chainInfo = chainsConfigs.find(
+        (chain) => chain.chainId === this.beamInfoObject.fromChainConfig.chainId
+      );
+
+      return {
+        symbol: chainInfo.baseTokenSymbol,
+        icon: chainInfo.baseTokenIcon,
+        price: this.beamInfoObject.nativePrice,
+      };
+    },
+    dstChainInfo() {
+      if (!this.dstChainConfig || !this.beamInfoObject) return null;
+
+      const chainInfo = chainsConfigs.find(
+        (chain) => chain.chainId === this.dstChainConfig.chainId
+      );
+
+      const dstChainInfoUpdated =
+        this.beamInfoObject.destinationChainsInfo.find(
+          (chain) => chain.chainConfig.chainId === this.dstChainConfig.chainId
+        );
+
+      console.log(this.beamInfoObject)
+
+      console.log(dstChainInfoUpdated);
+
+      return {
+        symbol: chainInfo.baseTokenSymbol,
+        icon: chainInfo.baseTokenIcon,
+        price: dstChainInfoUpdated.nativePrice,
+      };
+    },
+
+    parsedGasFee() {
+      return formatUnits(this.gasFee, 18);
+    },
+
+    parsedDstNativeTokenAmount() {
+      return formatUnits(this.dstNativeTokenAmount, 18);
+    },
+
+    fromGasText() {
+      if (this.fromChainInfo === null)
+        return formatTokenBalance(this.parsedGasFee);
+      return `${formatTokenBalance(this.parsedGasFee)} ${
+        this.fromChainInfo.symbol
+      }`;
+    },
+
+    dstNativeTokenText() {
+      if (this.dstChainInfo === null)
+        return formatTokenBalance(this.parsedDstNativeTokenAmount);
+      return `${formatTokenBalance(this.parsedDstNativeTokenAmount)} ${
+        this.dstChainInfo.symbol
+      }`;
+    },
+
     estimatedGasCostUsd() {
-      const estimatedGasCostUsd = this.data.gasCost * this.data.srcTokenPrice;
+      if (this.gasFee === 0n) return formatUSD(0);
+
+      const estimatedGasCostUsd =
+        formatUnits(this.gasFee, 18) * this.fromChainInfo.price;
       return formatUSD(estimatedGasCostUsd);
     },
 
     gasOnDestinationUsd() {
+      if (this.dstNativeTokenAmount === 0n) return formatUSD(0);
+
       const gasOnDestinationUsd =
-        this.data.dstTokenAmount * this.data.dstTokenPrice;
+        formatUnits(this.dstNativeTokenAmount, 18) * this.dstChainInfo.price;
       return formatUSD(gasOnDestinationUsd);
     },
   },
 
   components: {
-    RowSkeleton: defineAsyncComponent(() =>
-      import("@/components/ui/skeletons/RowSkeleton.vue")
+    RowSkeleton: defineAsyncComponent(
+      () => import("@/components/ui/skeletons/RowSkeleton.vue")
     ),
   },
 };

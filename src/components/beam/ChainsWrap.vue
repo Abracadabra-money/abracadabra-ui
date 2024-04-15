@@ -71,11 +71,11 @@ export default {
     },
 
     toChainInfo() {
-      if (!this.fromChain) return EmptyChain;
+      if (!this.toChain) return EmptyChain;
 
       return {
-        title: this.fromChain.chainName,
-        icon: this.fromChain.icon,
+        title: this.toChain.chainName,
+        icon: this.toChain.icon,
       };
     },
 
