@@ -228,7 +228,7 @@ export default {
 
     checkLocalData() {
       if (this.localFarmList.isCreated) {
-        this.farms = this.localFarmList;
+        this.farms = this.localFarmList.data;
         this.isFarmsLoading = false;
       }
     },
