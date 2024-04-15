@@ -1,7 +1,10 @@
-import { waitForTransaction } from "@wagmi/core";
-import BlastMIMSwapRouterAbi from "@/abis/BlastMIMSwapRouter";
-import { prepareWriteContract, writeContract } from "@wagmi/core";
+import {
+  writeContractHelper,
+  simulateContractHelper,
+  waitForTransactionReceiptHelper,
+} from "@/helpers/walletClienHelper";
 import type { Address } from "viem";
+import BlastMIMSwapRouterAbi from "@/abis/BlastMIMSwapRouter";
 
 export type AddLiquidityOneSidePayload = {
   lp: Address;
@@ -27,7 +30,7 @@ export const addLiquidityOneSide = async (
     deadline,
   } = payload;
 
-  const config = await prepareWriteContract({
+  const { request } = await simulateContractHelper({
     address: swapRouterAddress,
     abi: BlastMIMSwapRouterAbi,
     functionName: "addLiquidityOneSide",
@@ -42,6 +45,6 @@ export const addLiquidityOneSide = async (
     ],
   });
 
-  const { hash } = await writeContract(config);
-  return await waitForTransaction({ hash });
+  const hash = await writeContractHelper(request);
+  return await waitForTransactionReceiptHelper({ hash });
 };
