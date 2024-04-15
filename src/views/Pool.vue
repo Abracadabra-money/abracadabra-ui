@@ -17,6 +17,10 @@
         @updateInfo="getPoolInfo"
         v-if="isUserPositionOpen && account"
       />
+
+      <div class="chart-wrap" v-if="pool">
+        <PieChart :option="chartOption" />
+      </div>
     </div>
   </div>
 </template>
@@ -25,6 +29,7 @@
 import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
 import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
+import { getPoolTvlPieChartOption } from "@/helpers/pools/charts/getPoolTvlPieChartOption";
 
 export default {
   props: {
@@ -49,6 +54,10 @@ export default {
 
     isUserPositionOpen() {
       return this.pool?.userInfo?.balance > 0n;
+    },
+
+    chartOption() {
+      return getPoolTvlPieChartOption(this.pool);
     },
   },
 
@@ -75,6 +84,7 @@ export default {
         Number(this.id),
         this.account
       );
+      console.log({ pool: this.pool });
     },
   },
 
@@ -97,7 +107,10 @@ export default {
       import("@/components/pools/pool/PoolComposition.vue")
     ),
     PoolPosition: defineAsyncComponent(() =>
-      import("@/components/pools/pool/PoolPosition.vue")
+      import("@/components/pools/pool/position/PoolPosition.vue")
+    ),
+    PieChart: defineAsyncComponent(() =>
+      import("@/components/pools/pool/charts/PieChart.vue")
     ),
   },
 };
@@ -121,6 +134,25 @@ export default {
   gap: 12px;
   padding: 0 30px;
   width: 593px;
+}
+
+.chart-wrap {
+  position: absolute;
+  top: 129px;
+  left: -302px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid #00296b;
+  background: linear-gradient(
+    146deg,
+    rgba(0, 10, 35, 0.07) 0%,
+    rgba(0, 80, 156, 0.07) 101.49%
+  );
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
 }
 
 @media (max-width: 1300px) {

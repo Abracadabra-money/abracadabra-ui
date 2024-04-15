@@ -1,61 +1,6 @@
 <template>
-  <div
-    :class="['backdrop', { isOpened: isMyPositionPopupOpened }]"
-    @click.self="closePopup"
-  ></div>
-  <div :class="['pool-position-wrap', { isOpened: isMyPositionPopupOpened }]">
-    <img
-      class="close"
-      src="@/assets/images/close-icon.png"
-      alt="Close popup"
-      @click="closePopup"
-    />
-
-    <PointsEarned
-      class="points-earned"
-      :pointsEarned="pointsEarned"
-      v-if="pointsEarned"
-    />
-
-    <div class="pool-position">
-      <div class="deposited">
-        <h4 class="subtitle">My Position</h4>
-
-        <div class="deposited-token">
-          <span class="token-name">
-            <BaseTokenIcon :name="pool.name" :icon="pool.icon" size="44px" />
-            {{ pool.name }}
-          </span>
-          <div class="token-amount">
-            <span class="value">{{ lpToken.amount }}</span>
-            <span class="usd">{{ lpToken.amountUsd }}</span>
-          </div>
-        </div>
-
-        <ul class="deposited-token-parts token-list">
-          <li
-            class="deposited-token-part list-item"
-            v-for="token in tokensList"
-            :key="token.name"
-          >
-            <span class="token-name">
-              <BaseTokenIcon
-                :icon="token.icon"
-                :name="token.name"
-                size="28px"
-              />
-              {{ token.name }}</span
-            >
-            <div class="token-amount">
-              <span class="value">{{ token.amount }}</span>
-              <span class="usd">{{ token.amountUsd }}</span>
-            </div>
-          </li>
-        </ul>
-      </div>
-
-      <LockBlock :pool="pool" @updateInfo="onUpdate" />
-    </div>
+  <div class="deposited">
+    <PoolCompoundCard :lpToken="lpToken" :tokensList="tokensList"/>
   </div>
 </template>
 
@@ -72,14 +17,13 @@ export default {
   props: {
     pool: { type: Object },
     isProperNetwork: { type: Boolean },
-    isMyPositionPopupOpened: { type: Boolean, default: false },
   },
-
-  emits: ["closePopup", "updateInfo"],
 
   data() {
     return {
       userPointsStatistics: null,
+      activeTab: "deposited",
+      tabItems: ["deposited", "staked", "locked"],
     };
   },
 
@@ -90,28 +34,6 @@ export default {
 
     chainIcon() {
       return getChainConfig(this.selectedpool.chainId).icon;
-    },
-
-    rewardTokensInfo() {
-      return [
-        {
-          ...this.prepBalanceData(11.55, 11.55),
-          icon: "",
-          name: "MIM",
-        },
-
-        {
-          ...this.prepBalanceData(11.55, 11.55),
-          icon: "",
-          name: "USDT",
-        },
-      ];
-    },
-
-    pointsEarned() {
-      return formatTokenBalance(
-        this.userPointsStatistics?.liquidityPoints?.total?.finalized
-      );
     },
 
     lpToken() {
@@ -192,6 +114,10 @@ export default {
       };
     },
 
+    selectTab(action) {
+      this.activeTab = action;
+    },
+
     onUpdate() {
       this.$emit("updateInfo");
     },
@@ -206,17 +132,11 @@ export default {
   },
 
   components: {
-    BaseTokenIcon: defineAsyncComponent(() =>
-      import("@/components/base/BaseTokenIcon.vue")
-    ),
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")
     ),
-    PointsEarned: defineAsyncComponent(() =>
-      import("@/components/pools/pool/PointsEarned.vue")
-    ),
-    LockBlock: defineAsyncComponent(() =>
-      import("@/components/pools/pool/LockBlock.vue")
+    PoolCompoundCard: defineAsyncComponent(() =>
+      import("@/components/pools/pool/position/cards/PoolCompoundCard.vue")
     ),
   },
 };
@@ -225,8 +145,8 @@ export default {
 <style lang="scss" scoped>
 .pool-position-wrap {
   position: absolute;
-  top: 92px;
-  right: -300px;
+  top: 128px;
+  right: -380px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -237,17 +157,20 @@ export default {
 .pool-position {
   display: flex;
   flex-direction: column;
-  width: 300px;
+  width: 385px;
   padding: 16px;
-  gap: 24px;
-  border-radius: 20px;
-  border: 1px solid rgba(45, 74, 150, 0);
+  gap: 16px;
+  border-radius: 16px;
+  border: 1px solid #00296b;
+
   background: linear-gradient(
-    90deg,
-    rgba(45, 74, 150, 0.12) 0%,
-    rgba(116, 92, 210, 0.12) 100%
+    146deg,
+    rgba(0, 10, 35, 0.07) 0%,
+    rgba(0, 80, 156, 0.07) 101.49%
   );
+
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
 }
 
 .subtitle {
