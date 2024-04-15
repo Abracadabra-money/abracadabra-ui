@@ -7,15 +7,11 @@
     <div class="pool-info">
       <div class="pool-icon-warp">
         <img
-          class="pool-icon icon"
+          class="pool-icon"
           src="@/assets/images/tokens/MIM-USDB.png"
           alt="MIM/USDB Pool"
         />
-        <img
-          class="chain-icon"
-          :src="getChainIcon(pointsInfo.chainId)"
-          alt="Blast chain icon"
-        />
+        <img class="chain-icon" :src="blastIcon" alt="Blast chain icon" />
       </div>
 
       <div>
@@ -33,10 +29,10 @@
             src="@/assets/images/tokens/MIM-USDB.png"
             alt="MIM/USDB Pool icon"
           />
-          {{ formatTokenBalance(pointsInfo.deposited) }}
+          {{ formatTokenBalance(userDeposit) }}
         </div>
         <div class="deposited-price">
-          {{ formatUSD(pointsInfo.depositedUsd) }}
+          {{ userDepositUsd }}
         </div>
       </div>
     </div>
@@ -83,17 +79,13 @@
         <template v-if="activeTab === 1">
           <div class="tab-row">
             <span class="tab-row-title">Points</span>
-            <span class="tab-row-value">{{
-              formatTokenBalance(pointsInfo.distributionAmount)
-            }}</span>
+            <span class="tab-row-value">{{ distributionAmount }}</span>
           </div>
 
           <div class="tab-row">
             <span class="tab-row-title">Your Next Distribution</span>
             <span class="tab-row-value primary">
-              {{
-                formatTokenBalance(pointsInfo.pendingDistributionAmount)
-              }}</span
+              {{ pendingDistributionAmount }}</span
             >
           </div>
 
@@ -108,7 +100,7 @@
                 tooltip="Hourly distribution towards the entire liquidity pool"
             /></span>
             <span class="tab-row-value">{{
-              formatTokenBalance(pointsInfo.totalPendingDistributionAmount)
+              totalPendingDistributionAmount
             }}</span>
           </div>
         </template>
@@ -116,16 +108,12 @@
         <template v-if="activeTab === 2">
           <div class="tab-row">
             <span class="tab-row-title">Gold earned</span>
-            <span class="tab-row-value">{{
-              formatTokenBalance(pointsInfo.goldDistributionAmount)
-            }}</span>
+            <span class="tab-row-value">{{ goldDistributionAmount }}</span>
           </div>
           <div class="tab-row">
             <span class="tab-row-title">Your Next Distribution</span>
             <span class="tab-row-value">
-              {{
-                formatTokenBalance(pointsInfo.goldPendingDistributionAmount)
-              }}</span
+              {{ goldPendingDistributionAmount }}</span
             >
           </div>
 
@@ -140,7 +128,7 @@
                 tooltip="Hourly distribution towards the entire liquidity pool"
             /></span>
             <span class="tab-row-value">{{
-              formatTokenBalance(pointsInfo.totalGoldPendingDistributionAmount)
+              totalGoldPendingDistributionAmount
             }}</span>
           </div>
         </template>
@@ -152,39 +140,95 @@
 </template>
 
 <script lang="ts">
+import { formatUnits } from "viem";
 import { defineAsyncComponent } from "vue";
+import { BLAST_CHAIN_ID } from "@/constants/global";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 
 export default {
-  emits: ["showWithdrawPopup"],
   props: {
-    pointsInfo: {} as any,
-    gold: {
-      type: Boolean,
-      default: false,
+    poolInfo: {
+      type: Object,
+      default: () => ({}),
     },
-    withdrawLogic: {
-      type: Boolean,
-      default: false,
+    stakeLpBalances: {
+      type: Object,
+      default: () => ({}),
+    },
+    userPointsStatistics: {
+      type: Object,
+      default: () => ({}),
+    },
+    pointsStatistics: {
+      type: Object,
+      default: () => ({}),
     },
   },
 
   data() {
     return {
-      showWithdrawPopup: false,
       activeTab: 1,
     };
   },
 
-  methods: {
-    getChainIcon,
-    formatTokenBalance,
-    formatUSD,
-
-    onWithdraw() {
-      this.$emit("showWithdrawPopup");
+  computed: {
+    blastIcon() {
+      return getChainIcon(BLAST_CHAIN_ID);
     },
+
+    userDeposit() {
+      return Number(
+        formatUnits(
+          this.stakeLpBalances.unlocked + this.stakeLpBalances.locked || 0n,
+          this.poolInfo?.decimals || 18
+        )
+      );
+    },
+
+    userDepositUsd() {
+      return formatUSD(this.userDeposit * this.poolInfo?.price || 0);
+    },
+
+    distributionAmount() {
+      return formatTokenBalance(
+        this.userPointsStatistics?.liquidityPoints?.lp?.finalized ?? 0
+      );
+    },
+
+    pendingDistributionAmount() {
+      return formatTokenBalance(
+        this.userPointsStatistics?.liquidityPoints?.lp?.pending ?? 0
+      );
+    },
+
+    goldDistributionAmount() {
+      return formatTokenBalance(
+        this.userPointsStatistics?.developerPoints?.lp?.finalized ?? 0
+      );
+    },
+
+    goldPendingDistributionAmount() {
+      return formatTokenBalance(
+        this.userPointsStatistics?.developerPoints?.lp?.pending ?? 0
+      );
+    },
+
+    totalPendingDistributionAmount() {
+      return formatTokenBalance(
+        this.pointsStatistics?.liquidityPoints?.lp?.pending ?? 0
+      );
+    },
+
+    totalGoldPendingDistributionAmount() {
+      return formatTokenBalance(
+        this.pointsStatistics?.developerPoints?.lp?.pending ?? 0
+      );
+    },
+  },
+
+  methods: {
+    formatTokenBalance,
 
     changeTab(tab: number) {
       this.activeTab = tab;
@@ -233,23 +277,6 @@ export default {
   color: #000;
   font-size: 12px;
   font-weight: 500;
-}
-
-.withdraw-btn {
-  position: absolute;
-  top: 12px;
-  right: 131px;
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  border: 1px solid #2d4a96;
-  background: rgba(25, 31, 47, 0.38);
-  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
-  backdrop-filter: blur(12.5px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
 }
 
 .manage-btn {
@@ -419,110 +446,5 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-// -----
-
-.withdraw-button {
-  border: none;
-  outline: none;
-  width: max-content;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #000;
-  font-size: 14px;
-  font-weight: 600;
-  line-height: normal;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  position: absolute;
-  top: 67px;
-  right: 24px;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: #fcfc06;
-    opacity: 0.8;
-  }
-
-  &:active {
-    background: #fcfc06;
-    opacity: 0.8;
-  }
-}
-
-.boost {
-  cursor: pointer;
-  width: 20px;
-  height: 20px;
-  border-radius: 17px;
-  background: rgba(255, 255, 255, 0.16);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.list {
-  gap: 4px;
-  display: flex;
-  flex-direction: column;
-  list-style: none;
-}
-
-.list-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.item-title {
-  gap: 4px;
-  display: flex;
-  align-items: center;
-}
-
-.boost {
-  box-shadow: 0px 0px 10px 0px rgba(237, 232, 96, 0.1);
-}
-
-.gold-title {
-  color: #fcfd02;
-  text-shadow: 0px 0px 16px #ede860;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.item-value {
-  font-weight: 500;
-  color: #fcfd02;
-}
-
-.item-amount {
-  color: white;
-}
-
-.empty {
-  font-size: 20px;
-  height: 92px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.total-wrap {
-  display: flex;
-  justify-content: space-between;
-}
-
-.total-title {
-  gap: 4px;
-  display: flex;
-  align-items: center;
-}
-
-.total-value {
-  font-weight: 500;
 }
 </style>
