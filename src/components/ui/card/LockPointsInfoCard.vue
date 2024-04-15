@@ -1,8 +1,14 @@
 <template>
   <div class="card">
-    <div class="label">Liquidity Provider</div>
+    <div class="label">Founder Boost</div>
 
-    <button class="lock-btn" @click="showLockList = !showLockList">Lock</button>
+    <button
+      class="lock-btn"
+      v-if="userLocks.length"
+      @click="showLockList = !showLockList"
+    >
+      Lock
+    </button>
 
     <div class="pool-info">
       <div class="pool-icon-warp">
@@ -107,7 +113,17 @@
           </div>
 
           <div class="tab-row">
-            <span class="tab-row-title">Your Next Distribution</span>
+            <span class="tab-row-title primary"
+              >Your Next Distribution
+
+              <span class="boost" v-if="pointsInfo.isGold">
+                <img
+                  v-tooltip="'Boosted Airdrop for Founders'"
+                  src="@/assets/images/points-dashboard/rocket.svg"
+                  alt=""
+                />
+              </span>
+            </span>
             <span class="tab-row-value primary">
               {{
                 formatTokenBalance(pointsInfo.pendingDistributionAmount)
@@ -119,7 +135,11 @@
 
           <div class="tab-row">
             <span class="tab-row-title"
-              >Pool Rate <Tooltip :width="20" :height="20"
+              >Pool Rate
+              <Tooltip
+                :width="20"
+                :height="20"
+                tooltip="Pending rewards for the Founders"
             /></span>
             <span class="tab-row-value">{{
               formatTokenBalance(pointsInfo.totalPendingDistributionAmount)
@@ -147,7 +167,11 @@
 
           <div class="tab-row">
             <span class="tab-row-title"
-              >Pool Rate <Tooltip :width="20" :height="20"
+              >Pool Rate
+              <Tooltip
+                :width="20"
+                :height="20"
+                tooltip="Pending rewards for the Founders"
             /></span>
             <span class="tab-row-value">{{
               formatTokenBalance(pointsInfo.totalGoldPendingDistributionAmount)
@@ -166,7 +190,11 @@
         :key="index"
       >
         <div class="pool-info">
-          <img src="@/assets/images/tokens/MIM-USDB.png" alt="MIM/USDB Pool" />
+          <img
+            class="pool-lock-icon"
+            src="@/assets/images/tokens/MIM-USDB.png"
+            alt="MIM/USDB Pool"
+          />
 
           <div>
             <div class="lock-amount">
@@ -181,11 +209,13 @@
         <div>
           <Timer
             class="timer"
-            :endDateTimestamp="Number(userLock.unlockTime)"
             small
+            isLock
             gap="4px"
-            padding="6px"
             width="44px"
+            padding="4px"
+            height="26px"
+            :endDateTimestamp="Number(userLock.unlockTime)"
           />
           <div class="unlocks-text">Unlocks in</div>
         </div>
@@ -211,7 +241,10 @@ export default {
       type: Boolean,
       default: false,
     },
-    userLocks: {} as any,
+    userLocks: {
+      type: Array,
+      default: () => [],
+    } as any,
   },
 
   data() {
@@ -223,27 +256,9 @@ export default {
   },
 
   computed: {
-    tabsContentData() {
-      return [
-        {
-          title: "Points",
-          earned: this.pointsInfo.distributionAmount,
-          distributed: this.pointsInfo.pendingDistributionAmount,
-          total: this.pointsInfo.totalPendingDistributionAmount,
-        },
-        {
-          title: "Gold earned",
-          earned: this.pointsInfo.goldDistributionAmount,
-          distributed: this.pointsInfo.goldPendingDistributionAmount,
-          total: this.pointsInfo.totalGoldPendingDistributionAmount,
-        },
-        null,
-      ];
-    },
-
     cardText() {
       if (this.activeTab === 2) return "Gold earned ";
-      return "Points";
+      return "Points earned";
     },
 
     userPointsInfo() {
@@ -503,6 +518,19 @@ export default {
 
 .primary {
   color: #fcfd02;
+  text-shadow: 0px 0px 16px #ede860;
+}
+
+.boost {
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  border-radius: 17px;
+  background: rgba(255, 255, 255, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0px 0px 10px 0px rgba(237, 232, 96, 0.1);
 }
 
 .line {
@@ -526,6 +554,7 @@ export default {
 
 .user-locks {
   max-height: 170px;
+  min-height: 170px;
   overflow-y: scroll;
   gap: 8px;
   display: flex;
@@ -543,19 +572,27 @@ export default {
   justify-content: space-between;
 }
 
+.pool-lock-icon {
+  width: 32px;
+  height: 32px;
+}
+
 .lock-amount {
   font-weight: 500;
+  line-height: 120%;
 }
 
 .lock-amount-usd {
   color: #878b93;
   font-size: 14px;
   font-weight: 500;
+  line-height: 120%;
 }
 
 .unlocks-text {
   text-align: center;
   color: #878b93;
   font-size: 12px;
+  line-height: 120%;
 }
 </style>

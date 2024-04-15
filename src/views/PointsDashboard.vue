@@ -62,7 +62,11 @@
       </div>
 
       <div class="row card-info-row">
-        <CauldronPointsInfoCard :pointsInfo="cauldronPointsInfo" />
+        <CauldronPointsInfoCard
+          :cauldronInfo="cauldronInfo"
+          :userPointsStatistics="userPointsStatistics"
+          :pointsStatistics="pointsStatistics"
+        />
         <StakePointsInfoCard
           :pointsInfo="llePointsInfo"
           :withdrawLogic="true"
@@ -130,27 +134,6 @@ export default {
       account: "getAccount",
       signer: "getSigner",
     }),
-
-    cauldronPointsInfo() {
-      return {
-        chainId: BLAST_CHAIN_ID,
-        label: "Cauldron User",
-        title: "WETH cauldron",
-        subtitle: "Deposited WETH into Cauldron",
-        rateText: "Cauldron Rate",
-        rateTooltip: "Hourly distribution towards the Cauldron Users",
-        icon: useImage("assets/images/tokens/WETH.png"),
-        deposited: this.cauldronInfo?.userPosition?.collateralDeposited || 0,
-        depositedUsd:
-          this.cauldronInfo?.userPosition?.collateralDepositedUsd || 0,
-        distributionAmount:
-          this.userPointsStatistics?.liquidityPoints?.cauldron?.finalized ?? 0,
-        pendingDistributionAmount:
-          this.userPointsStatistics?.liquidityPoints?.cauldron?.pending ?? 0,
-        totalPending:
-          this.pointsStatistics?.liquidityPoints?.cauldron?.total?.pending ?? 0,
-      };
-    },
 
     llePointsInfo() {
       const deposited = Number(
@@ -251,6 +234,14 @@ export default {
 
     async getStakeLpBalance() {
       const publicClient = getPublicClient(BLAST_CHAIN_ID);
+
+      if (!this.account)
+        return {
+          balance: 0n,
+          locked: 0n,
+          unlocked: 0n,
+          userLocks: [],
+        };
 
       const [balance, locked, unlocked, userLocksArr] =
         await publicClient.multicall({
@@ -573,7 +564,7 @@ export default {
   }
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 768px) {
   .my-points-wrapper {
     gap: 16px;
   }
@@ -604,7 +595,7 @@ export default {
 
   .description {
     padding: 13px;
-    justify-content: center;
+    justify-content: flex-start;
   }
 
   .description-title {

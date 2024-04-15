@@ -5,7 +5,7 @@
   >
     <div
       class="time-block"
-      :style="{ padding: padding, 'min-width': width }"
+      :style="{ padding: padding, 'min-width': width, height: height }"
       v-for="(value, index) in timerValues"
       :key="index"
     >
@@ -25,12 +25,10 @@ export default {
       type: Number,
       default: 1709244000,
     },
-
     endDateTimestamp: {
       type: Number,
       default: 1711663200,
     },
-
     small: {
       type: Boolean,
       default: false,
@@ -51,6 +49,13 @@ export default {
     },
     width: {
       type: String,
+    },
+    height: {
+      type: String,
+    },
+    isLock: {
+      type: Boolean,
+      default: false,
     },
   },
 
@@ -76,6 +81,8 @@ export default {
       const now = moment().utc();
 
       let duration;
+
+      if (this.isLock) return this.updateLockTimer();
 
       if (this.airdrop) {
         const nextHour = moment.utc().startOf("hour").add(1, "hours"); // next hour
@@ -113,6 +120,26 @@ export default {
           minutes,
           seconds,
         ]);
+      }
+    },
+
+    updateLockTimer() {
+      const now = moment().utc();
+      const duration = moment.duration(this.endDate.diff(now));
+
+      const days = Math.max(Math.floor(duration.asDays()), 0);
+      const hours = Math.max(duration.hours(), 0);
+      const minutes = Math.max(duration.minutes(), 0);
+      const seconds = Math.max(duration.seconds(), 0);
+
+      if (duration.asHours() <= 24) {
+        this.timerValues = [
+          `${hours.toString().padStart(2, "0")}h`,
+          `${minutes.toString().padStart(2, "0")}m`,
+          `${seconds.toString().padStart(2, "0")}s`,
+        ];
+      } else {
+        this.timerValues = this.createTimerValues([days, hours, minutes]);
       }
     },
 

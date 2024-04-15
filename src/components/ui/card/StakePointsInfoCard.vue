@@ -101,7 +101,11 @@
 
           <div class="tab-row">
             <span class="tab-row-title"
-              >Pool Rate <Tooltip :width="20" :height="20"
+              >Pool Rate
+              <Tooltip
+                :width="20"
+                :height="20"
+                tooltip="Hourly distribution towards the entire liquidity pool"
             /></span>
             <span class="tab-row-value">{{
               formatTokenBalance(pointsInfo.totalPendingDistributionAmount)
@@ -129,7 +133,11 @@
 
           <div class="tab-row">
             <span class="tab-row-title"
-              >Pool Rate <Tooltip :width="20" :height="20"
+              >Pool Rate
+              <Tooltip
+                :width="20"
+                :height="20"
+                tooltip="Hourly distribution towards the entire liquidity pool"
             /></span>
             <span class="tab-row-value">{{
               formatTokenBalance(pointsInfo.totalGoldPendingDistributionAmount)
