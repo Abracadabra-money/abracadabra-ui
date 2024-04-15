@@ -82,7 +82,16 @@
           </div>
 
           <div class="tab-row">
-            <span class="tab-row-title primary">Your Next Distribution </span>
+            <span class="tab-row-title primary"
+              >Your Next Distribution
+              <span class="boost">
+                <img
+                  v-tooltip="'Boosted Airdrop for Founders'"
+                  src="@/assets/images/points-dashboard/rocket.svg"
+                  alt=""
+                />
+              </span>
+            </span>
             <span class="tab-row-value primary">
               {{ pendingDistributionAmount }}</span
             >
@@ -110,8 +119,16 @@
             <span class="tab-row-value">{{ goldDistributionAmount }}</span>
           </div>
           <div class="tab-row">
-            <span class="tab-row-title">Your Next Distribution</span>
-            <span class="tab-row-value">
+            <span class="tab-row-title primary"
+              >Your Next Distribution
+              <span class="boost">
+                <img
+                  v-tooltip="'Boosted Airdrop for Founders'"
+                  src="@/assets/images/points-dashboard/rocket.svg"
+                  alt=""
+                /> </span
+            ></span>
+            <span class="tab-row-value primary">
               {{ goldPendingDistributionAmount }}</span
             >
           </div>

@@ -94,7 +94,6 @@ import {
 } from "@/helpers/blast/stake/points";
 import { formatUnits } from "viem";
 import { defineAsyncComponent } from "vue";
-import { useImage } from "@/helpers/useImage";
 import { formatTokenBalance } from "@/helpers/filters";
 import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
 import { mapActions, mapGetters, mapMutations } from "vuex";
