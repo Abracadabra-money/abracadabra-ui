@@ -91,6 +91,7 @@ export default {
     ...mapGetters({
       signer: "getSigner",
       chainId: "getChainId",
+      localFarmList: "getFarmList",
     }),
 
     isSelectAllChains() {
@@ -224,11 +225,19 @@ export default {
 
   async created() {
     this.isFarmsLoading = true;
-    this.farms = await getFarmsList(this.chainId);
-    this.isFarmsLoading = false;
+    if (this.localFarmList.length) {
+      this.farms = this.localFarmList;
+      this.isFarmsLoading = false;
+    } else {
+      this.farms = await getFarmsList(this.chainId);
+      this.isFarmsLoading = false;
+      await this.$store.commit("setFarmList", this.farms);
+    }
+
     this.selectedChains = this.getActiveChain();
     this.farmsInterval = setInterval(async () => {
       this.farms = await getFarmsList(this.chainId, this);
+      await this.$store.commit("setFarmList", this.farms);
     }, 60000);
   },
 

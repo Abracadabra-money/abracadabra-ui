@@ -2,6 +2,7 @@ export default {
   state: {
     cauldronsList: [],
     userPositions: [],
+    farmList: [],
   },
 
   mutations: {
@@ -11,10 +12,14 @@ export default {
     setUserPositions(state, payload) {
       state.userPositions = payload;
     },
+    setFarmList(state, payload) {
+      state.farmList = payload;
+    },
   },
 
   getters: {
     getCauldronsList: (state) => state.cauldronsList,
     getUserPositions: (state) => state.userPositions,
+    getFarmList: (state) => state.farmList,
   },
 };
