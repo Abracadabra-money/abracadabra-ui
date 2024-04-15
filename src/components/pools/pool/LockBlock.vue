@@ -44,18 +44,18 @@
 </template>
 
 <script>
-// import { defineAsyncComponent } from "vue";
-import { mapGetters } from "vuex";
-import BlastLockingMultiRewardsAbi from "@/abis/BlastLockingMultiRewards";
-import { BlastLockingMultiRewards } from "@/constants/blast";
-import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import {
-  prepareWriteContract,
-  waitForTransaction,
-  writeContract,
-} from "@wagmi/core";
-import { switchNetwork } from "@/helpers/chains/switchNetwork";
+  writeContractHelper,
+  simulateContractHelper,
+  waitForTransactionReceiptHelper,
+} from "@/helpers/walletClienHelper";
 import moment from "moment";
+import { mapGetters } from "vuex";
+// import { defineAsyncComponent } from "vue";
+import { BlastLockingMultiRewards } from "@/constants/blast";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
+import BlastLockingMultiRewardsAbi from "@/abis/BlastLockingMultiRewards";
 
 export default {
   props: {
@@ -113,16 +113,16 @@ export default {
     },
 
     async approve() {
-      const config = await prepareWriteContract({
+      const { request } = await simulateContractHelper({
         address: this.pool.contract.address,
         abi: this.pool.contract.abi,
         functionName: "approve",
         args: [BlastLockingMultiRewards, this.pool.userInfo.balance],
       });
 
-      const { hash } = await writeContract(config);
+      const hash = await writeContractHelper(request);
 
-      const result = await waitForTransaction({ hash });
+      const result = await waitForTransactionReceiptHelper({ hash });
 
       if (result.status === "success") {
         this.lockAllowance = await this.fetchLockAllowance();
@@ -132,16 +132,16 @@ export default {
     async lock() {
       const now = moment().unix(); // current Unix timestamp
       //   const inNinetyDays = moment().add(90, "days").unix(); // Unix timestamp 90 days from now
-      const config = await prepareWriteContract({
+      const { request } = await simulateContractHelper({
         address: BlastLockingMultiRewards,
         abi: BlastLockingMultiRewardsAbi,
         functionName: "stakeLocked",
         args: [this.pool.userInfo.balance, now + 100],
       });
 
-      const { hash } = await writeContract(config);
+      const hash = await writeContractHelper(request);
 
-      const result = await waitForTransaction({ hash });
+      const result = await waitForTransactionReceiptHelper({ hash });
 
       if (result.status === "success") {
         this.$emit("updateInfo");

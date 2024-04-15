@@ -1,7 +1,7 @@
 import { formatUnits } from "viem";
-import { multicall } from "@wagmi/core";
 import lensAbi from "@/abis/marketLens.js";
 import cauldronsConfig from "@/configs/cauldrons";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { getLensAddress } from "@/helpers/cauldron/getLensAddress";
 
 export const getCauldronList = async (chainId: number) => {
@@ -22,7 +22,9 @@ export const getCauldronList = async (chainId: number) => {
     };
   });
 
-  const data = await multicall({
+  const publicClient = getPublicClient(chainId);
+
+  const data = await publicClient.multicall({
     contracts: multicallArr,
   });
 

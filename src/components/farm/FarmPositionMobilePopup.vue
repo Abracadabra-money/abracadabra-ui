@@ -90,13 +90,13 @@
 
 <script>
 import {
-  prepareWriteContract,
-  waitForTransaction,
-  writeContract,
-} from "@wagmi/core";
-import { getChainConfig } from "@/helpers/chains/getChainsInfo";
+  writeContractHelper,
+  simulateContractHelper,
+  waitForTransactionReceiptHelper,
+} from "@/helpers/walletClienHelper";
 import spellIcon from "@/assets/images/tokens/SPELL.png";
 import BaseButton from "@/components/base/BaseButton.vue";
+import { getChainConfig } from "@/helpers/chains/getChainsInfo";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 
@@ -194,7 +194,7 @@ export default {
     async harvest() {
       if (this.disableEarnedButton) return;
       try {
-        const config = await prepareWriteContract({
+        const { request } = await simulateContractHelper({
           ...this.selectedFarm.contractInfo,
           functionName: this.selectedFarm.isMultiReward
             ? "getRewards"
@@ -204,9 +204,9 @@ export default {
             : [this.selectedFarm.poolId, 0],
         });
 
-        const { hash } = await writeContract(config);
+        const hash = await writeContractHelper(request);
 
-        await waitForTransaction({ hash });
+        await waitForTransactionReceiptHelper({ hash });
       } catch (error) {
         console.log("harvest err:", error);
       }
