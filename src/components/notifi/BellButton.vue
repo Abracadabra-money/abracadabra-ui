@@ -129,11 +129,10 @@ export default {
   align-items: center;
   padding: 0;
   cursor: default;
-  margin-right: 15px;
   background: rgba(111, 111, 111, 0.06);
   border-radius: 8px;
   color: #fff;
-  transition: all .3s ease;
+  transition: all 0.3s ease;
 
   &:hover {
     background: rgba(255, 255, 255, 0.06);

@@ -1,43 +1,29 @@
 <template>
   <header class="header">
-    <router-link :to="{ name: 'Home' }" v-if="!mobileMenu">
-      <img src="@/assets/images/logo.svg" class="main-logo" />
+    <router-link
+      class="logo-wrap"
+      :to="{ name: isClassicHeader ? 'Home' : 'MimSwap' }"
+    >
+      <component
+        :is="isClassicHeader ? 'MainLogoIcon' : 'SwapLogoIcon'"
+        :width="42"
+        :height="42"
+      />
     </router-link>
 
     <nav class="nav">
-      <div class="general-activities">
-        <router-link class="header-link" :to="{ name: 'Cauldrons' }">
-          Cauldrons
-        </router-link>
+      <component :is="isClassicHeader ? 'HeaderNav' : 'SwapHeaderNav'" />
 
-        <HeaderStakeDropdown />
+      <div class="line"></div>
 
-        <HeaderMoreDropdown />
+      <SwapLink :isClassicHeader="isClassicHeader" />
 
-        <router-link class="header-link" :to="{ name: 'MimSwap' }">
-          MIMSwap
-        </router-link>
-
-        <BlastButton />
-      </div>
-
-      <div class="account-activities">
-        <router-link class="header-link" :to="{ name: 'MyPositions' }">
-          <img src="@/assets/images/header/positions-header-icon.png" />
-          My Positions
-        </router-link>
-
-        <div
-          class="header-link networks-btn"
-          @click.stop="openNetworkPopup"
-          v-tooltip="unsupportedTooltip"
-        >
-          <img v-if="!!networkIcon" :src="networkIcon" />
-        </div>
-      </div>
+      <BlastButton />
     </nav>
 
-    <div class="user-actions-wrap">
+    <div class="user-actions">
+      <ChainButton />
+
       <BellButton
         v-if="notifiCardId && notifiWalletBlockchain"
         :notifiCardId="notifiCardId"
@@ -47,103 +33,46 @@
         :isOpenNotifiModal="isOpenNotifiModal"
         @toggleNotifiModal="toggleNotifiModal"
       />
-      <NotifiSubscriptionCardModal
-        :isOpenNotifiModal="isOpenNotifiModal"
-        @toggleNotifiModal="toggleNotifiModal"
-      />
 
       <ConnectButton class="connect-button" />
+
+      <MimTokenBlock />
     </div>
 
-    <MimTokenBlock />
-
-    <div class="burger" @click="toggleMobileMenu">
-      <div class="burger-line"></div>
-    </div>
-
-    <MobileMenu
-      v-if="mobileMenu"
-      :networkIcon="networkIcon"
-      :unsupportedTooltip="unsupportedTooltip"
-      @closePopup="closeMobilePopup"
-      @openNetworksPopup="isOpenNetworkPopup = !isOpenNetworkPopup"
-    />
-
-    <NetworkPopup
-      :isOpen="isOpenNetworkPopup"
-      @closePopup="closeNetworkPopup"
-      :networksArr="networksArr"
-      :activeChain="chainId"
-    />
+    <BurgerButton />
   </header>
+
+  <NotifiSubscriptionCardModal
+    :isOpenNotifiModal="isOpenNotifiModal"
+    @toggleNotifiModal="toggleNotifiModal"
+  />
 </template>
 
 <script>
 import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
-import { useImage } from "@/helpers/useImage";
 import { newFrontendClient } from "@notifi-network/notifi-frontend-client";
 
 export default {
   data() {
     return {
-      isDropdownTools: false,
-      isDropdownStake: false,
-      isDropdownOther: false,
-      isOpenNetworkPopup: false,
-      mobileMenu: false,
-
       isOpenNotifiModal: false,
       unreadNotificationCount: 0,
       unreadNotificationCountChecker: null,
       isSignedUp: false,
+      alternativeHeader: ["MimSwap", "Pools", "Pool"],
     };
   },
 
   computed: {
     ...mapGetters({
-      chainId: "getChainId",
       account: "getAccount",
-      networksArr: "getAvailableNetworks",
       notifiCardId: "getNotifiCardId",
       notifiWalletBlockchain: "getNotifiWalletBlockchain",
     }),
 
-    networkIcon() {
-      if (!this.chainId) return "";
-      if (this.networksArr.length && this.chainId) {
-        const chain = this.networksArr.find((chain) => {
-          if (chain.chainId === this.chainId) return chain;
-        });
-
-        if (chain) return chain.networkIcon;
-      }
-
-      return useImage("assets/images/networks/unsupportedChain.svg");
-    },
-
-    isUnsupportedChain() {
-      const chain = this.networksArr.find((chain) => {
-        if (chain.chainId === this.chainId) return chain;
-      });
-
-      return !!chain;
-    },
-
-    unsupportedTooltip() {
-      if (!this.isUnsupportedChain)
-        return "Your wallet's current network is unsupported.";
-      return "";
-    },
-  },
-
-  watch: {
-    mobileMenu() {
-      if (this.mobileMenu) {
-        document.documentElement.style.overflow = "hidden";
-      } else {
-        document.documentElement.style.overflow = "auto";
-      }
+    isClassicHeader() {
+      return !this.alternativeHeader.includes(this.$route.name);
     },
   },
 
@@ -172,67 +101,14 @@ export default {
     toggleNotifiModal() {
       this.isOpenNotifiModal = !this.isOpenNotifiModal;
     },
-
-    toHome() {
-      this.$router.push({ name: "Home" });
-    },
-
-    toggleDropdown(nameDropdown) {
-      if (nameDropdown === "stake") {
-        this.isDropdownStake = !this.isDropdownStake;
-      }
-
-      if (nameDropdown === "tools") {
-        this.isDropdownTools = !this.isDropdownTools;
-      }
-
-      if (nameDropdown === "other") {
-        this.isDropdownOther = !this.isDropdownOther;
-      }
-    },
-
-    closeDropdownTools() {
-      this.isDropdownTools = false;
-    },
-
-    closeDropdownStake() {
-      this.isDropdownStake = false;
-    },
-
-    closeDropdownOther() {
-      this.isDropdownOther = false;
-    },
-
-    openNetworkPopup() {
-      this.isOpenNetworkPopup = !this.isOpenNetworkPopup;
-    },
-
-    closeNetworkPopup() {
-      this.isOpenNetworkPopup = false;
-    },
-
-    toggleMobileMenu() {
-      this.mobileMenu = !this.mobileMenu;
-    },
-
-    closeMobilePopup() {
-      this.mobileMenu = false;
-    },
-
-    hideAllDropdowns() {
-      this.isDropdownTools = false;
-      this.isDropdownStake = false;
-      this.isDropdownOther = false;
-    },
   },
 
   mounted() {
-    window.addEventListener("popstate", this.hideAllDropdowns, false);
-
     setTimeout(() => {
       // wait for indexedDB to be ready
       this.updateUnreadNotificationCount();
     }, 1000);
+
     this.unreadNotificationCountChecker = setInterval(
       () => {
         this.updateUnreadNotificationCount();
@@ -243,49 +119,51 @@ export default {
   },
 
   beforeUnmount() {
-    window.removeEventListener("popstate", this.hideAllDropdowns);
-    clearInterval(this.unreadCountNotificationChecker);
+    clearInterval(this.unreadNotificationCountChecker);
   },
 
   components: {
+    MainLogoIcon: defineAsyncComponent(() =>
+      import("@/components/ui/icons/MainLogoIcon.vue")
+    ),
+    SwapLogoIcon: defineAsyncComponent(() =>
+      import("@/components/ui/icons/SwapLogoIcon.vue")
+    ),
+    HeaderNav: defineAsyncComponent(() =>
+      import("@/components/ui/navigation/HeaderNav.vue")
+    ),
+    SwapHeaderNav: defineAsyncComponent(() =>
+      import("@/components/ui/navigation/SwapHeaderNav.vue")
+    ),
+    SwapLink: defineAsyncComponent(() =>
+      import("@/components/ui/links/SwapLink.vue")
+    ),
+    BlastButton: defineAsyncComponent(() =>
+      import("@/components/ui/buttons/BlastButton.vue")
+    ),
+    ChainButton: defineAsyncComponent(() =>
+      import("@/components/ui/buttons/ChainButton.vue")
+    ),
+    BellButton: defineAsyncComponent(() =>
+      import("@/components/notifi/BellButton.vue")
+    ),
     ConnectButton: defineAsyncComponent(() =>
       import("@/components/ui/buttons/ConnectButton.vue")
     ),
     MimTokenBlock: defineAsyncComponent(() =>
       import("@/components/ui/MimTokenBlock.vue")
     ),
-    NetworkPopup: defineAsyncComponent(() =>
-      import("@/components/popups/NetworkPopup.vue")
-    ),
-    MobileMenu: defineAsyncComponent(() =>
-      import("@/components/popups/MobileMenu.vue")
-    ),
-    HeaderMoreDropdown: defineAsyncComponent(() =>
-      import("@/components/ui/dropdown/HeaderMoreDropdown.vue")
-    ),
-    HeaderStakeDropdown: defineAsyncComponent(() =>
-      import("@/components/ui/dropdown/HeaderStakeDropdown.vue")
+    BurgerButton: defineAsyncComponent(() =>
+      import("@/components/ui/buttons/BurgerButton.vue")
     ),
     NotifiSubscriptionCardModal: defineAsyncComponent(() =>
       import("@/components/notifi/NotifiSubscriptionCardModal.vue")
-    ),
-    BellButton: defineAsyncComponent(() =>
-      import("@/components/notifi/BellButton.vue")
-    ),
-    BlastButton: defineAsyncComponent(() =>
-      import("@/components/ui/buttons/BlastButton.vue")
     ),
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.main-logo {
-  width: 42px;
-  height: 42px;
-  margin-right: 48px;
-}
-
 .header {
   position: absolute;
   top: 28px;
@@ -295,246 +173,61 @@ export default {
   padding: 0 15px;
   margin: 0 auto;
   z-index: 101;
+  gap: 12px;
   display: flex;
   align-items: center;
+}
+
+.logo-wrap {
+  margin-right: 14px;
 }
 
 .nav {
-  display: flex;
   flex: 1;
-  justify-content: space-between;
-}
-
-.general-activities,
-.account-activities {
+  gap: 12px;
   display: flex;
   align-items: center;
-}
-
-.general-activities {
-  gap: 25px;
-}
-
-.account-activities {
-  gap: 16px;
-  margin-right: 16px;
-}
-
-.connect-button {
-  margin-right: 16px;
-}
-
-.header-link {
-  display: flex;
-  padding: 10px 6px;
-  align-items: center;
-  gap: 10px;
-  height: 50px;
-  border-radius: 8px;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 22px;
-  cursor: pointer;
-
-  &.blast-link {
-    height: 40px;
-    background-color: #fcfc06;
-    img {
-      width: 77px;
-      height: auto;
-    }
-
-    &:hover {
-      background: #fcfc06;
-      opacity: 0.9;
-    }
-  }
-}
-
-.header-link:hover {
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(20px);
-}
-
-.networks-btn {
-  padding: 0;
-  height: 100%;
-  min-width: 55px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.networks-btn img {
-  width: 32px;
-  height: 32px;
-  border-radius: 50px;
-}
-
-.dropdown-tools {
-  position: relative;
-
-  .dropdown-title {
-    display: flex;
-    align-items: center;
-  }
-}
-
-.dropdown-other {
-  display: flex;
-  justify-content: center;
-  width: 90px;
-  position: relative;
-
-  .dropdown-title {
-    max-width: 20px;
-  }
-}
-
-.arrow {
-  margin-left: 5px;
-  transition: all 300ms ease-in-out;
-}
-
-.list {
-  position: absolute;
-  top: calc(100% + 12.5px);
-
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: 233px;
-  padding: 16px;
-  gap: 16px;
-  border-radius: 12px;
-  border: 1px solid #2d4a96;
-  background: #101622;
-  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
-  backdrop-filter: blur(12.5px);
-}
-
-.list-link {
-  padding: 13px 0;
-  display: flex;
-  justify-content: center;
-  color: #fff;
-  font-size: 16px;
-  line-height: 24px;
-}
-
-.list-link:hover {
-  color: #76c3f5;
-}
-
-.list-row {
-  display: flex;
-  justify-content: space-evenly;
-
-  .list-link {
-    border-bottom: none;
-  }
-
-  img {
-    max-width: 24px;
-  }
-}
-
-.active {
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(20px);
-}
-
-.active .arrow {
-  transform: rotate(180deg);
 }
 
 .line {
-  transition: all 0.25s;
-  content: "";
-  width: 20px;
-  height: 2px;
-  border-radius: 20px;
-  background: #fff;
+  height: 46px;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.2) 46.5%,
+    rgba(255, 255, 255, 0) 100%
+  );
 }
 
-.burger {
-  display: none;
-  align-items: center;
-  height: 16px;
-  position: relative;
-  cursor: pointer;
-}
-
-.burger-line {
-  @extend .line;
-  &:before {
-    @extend .line;
-    position: absolute;
-    top: 0;
-  }
-  &:after {
-    @extend .line;
-    position: absolute;
-    bottom: 0;
-  }
-}
-
-.burger-active {
-  .burger-line {
-    background-color: transparent;
-    transition: all 0.25s;
-    &:before {
-      top: 45%;
-      transform: rotate(45deg);
-    }
-    &:after {
-      transform: rotate(-45deg);
-      bottom: 45%;
-    }
-  }
-}
-
-.user-actions-wrap {
+.user-actions {
+  gap: 16px;
   display: flex;
   align-items: center;
+  z-index: 0;
 }
 
-@media (max-width: 1500px) {
-  .header {
-    padding: 0 15px;
-  }
-}
-
-@media (max-width: 1110px) {
-  .user-actions-wrap {
-    margin-left: auto;
-  }
-  .header-link {
-    display: none;
-  }
-
+@media (max-width: 1200px) {
   .nav {
     display: none;
+  }
+
+  .user-actions {
+    margin-left: auto;
   }
 
   .connect-button::v-deep(.btn-text) {
     display: none;
   }
-
-  .burger {
-    display: flex;
-    margin-left: 20px;
-  }
 }
 
 @media (max-width: 600px) {
+  .logo-wrap {
+    margin-right: 0;
+  }
+
   .nav {
     width: 0;
-  }
-  .main-logo {
-    margin-right: 0;
   }
 }
 </style>
