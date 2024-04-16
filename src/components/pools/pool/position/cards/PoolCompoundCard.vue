@@ -29,53 +29,11 @@
 
 <script>
 import { defineAsyncComponent } from "vue";
-import { formatTokenBalance } from "@/helpers/filters";
-import { fetchUserPointsStatistics } from "@/helpers/blast/stake/points";
 
 export default {
   props: {
     lpToken: { type: Object },
     tokensList: { type: Array },
-  },
-
-  emits: ["closePopup", "updateInfo"],
-
-  data() {
-    return {
-      userPointsStatistics: null,
-      activeTab: "deposited",
-      tabItems: ["deposited", "staked", "locked"],
-    };
-  },
-
-  computed: {
-    pointsEarned() {
-      return formatTokenBalance(
-        this.userPointsStatistics?.liquidityPoints?.total?.finalized
-      );
-    },
-
-    disableEarnedButton() {
-      return true;
-    },
-  },
-
-  methods: {
-    selectTab(action) {
-      this.activeTab = action;
-    },
-
-    onUpdate() {
-      this.$emit("updateInfo");
-    },
-
-    closePopup() {
-      this.$emit("closePopup");
-    },
-  },
-
-  async created() {
-    this.userPointsStatistics = await fetchUserPointsStatistics(this.account);
   },
 
   components: {

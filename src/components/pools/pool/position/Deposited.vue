@@ -14,40 +14,17 @@
       </h5>
 
       <ul class="rewards-list">
-        <li class="list-item">
+        <li
+          class="list-item"
+          v-for="(reward, index) in rewardsList"
+          :key="index"
+        >
           <span class="item-title">
-            <img
-              src="@/assets/images/points-dashboard/blast.png"
-              class="reward-icon"
-            />
-            Points
+            <img :src="reward.icon" class="reward-icon" />
+            {{ reward.title }}
           </span>
 
-          <span class="item-value">xx per hour</span>
-        </li>
-
-        <li class="list-item">
-          <span class="item-title">
-            <img
-              src="@/assets/images/points-dashboard/gold-points.svg"
-              class="reward-icon"
-            />
-            Gold
-          </span>
-
-          <span class="item-value">xx per hour</span>
-        </li>
-
-        <li class="list-item">
-          <span class="item-title">
-            <img
-              src="@/assets/images/points-dashboard/potion.png"
-              class="reward-icon"
-            />
-            Potion
-          </span>
-
-          <span class="item-value">xx per hour</span>
+          <span class="item-value">{{ reward.value }}</span>
         </li>
       </ul>
     </div>
@@ -63,20 +40,13 @@ import { formatUnits } from "viem";
 import { getChainConfig } from "@/helpers/chains/getChainsInfo";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
-import { fetchUserPointsStatistics } from "@/helpers/blast/stake/points";
+import { useImage } from "@/helpers/useImage";
 
 export default {
   props: {
     pool: { type: Object },
+    userPointsStatistics: { type: Object },
     isProperNetwork: { type: Boolean },
-  },
-
-  data() {
-    return {
-      userPointsStatistics: null,
-      activeTab: "deposited",
-      tabItems: ["deposited", "staked", "locked"],
-    };
   },
 
   computed: {
@@ -145,8 +115,28 @@ export default {
       return tokensList.length ? tokensList : false;
     },
 
-    disableEarnedButton() {
-      return true;
+    rewardsList() {
+      return [
+        {
+          title: "Points",
+          icon: useImage("assets/images/points-dashboard/blast.png"),
+          value: formatTokenBalance(
+            this.userPointsStatistics?.liquidityPoints?.total?.pending || 0
+          ),
+        },
+        {
+          title: "Gold",
+          icon: useImage("assets/images/points-dashboard/gold-points.svg"),
+          value: formatTokenBalance(
+            this.userPointsStatistics?.developerPoints?.total?.pending || 0
+          ),
+        },
+        {
+          title: "Potion",
+          icon: useImage("assets/images/points-dashboard/potion.png"),
+          value: "Coming soon",
+        },
+      ];
     },
   },
 
@@ -156,31 +146,9 @@ export default {
     formatTokenBalance(value, decimals) {
       return formatTokenBalance(formatUnits(value, decimals));
     },
-
-    prepBalanceData(tokenValue, priceValue) {
-      const usd = formatUSD(tokenValue * priceValue);
-      const earned = formatTokenBalance(tokenValue);
-      return {
-        earned,
-        usd,
-      };
-    },
-
-    selectTab(action) {
-      this.activeTab = action;
-    },
-
     onUpdate() {
       this.$emit("updateInfo");
     },
-
-    closePopup() {
-      this.$emit("closePopup");
-    },
-  },
-
-  async created() {
-    this.userPointsStatistics = await fetchUserPointsStatistics(this.account);
   },
 
   components: {

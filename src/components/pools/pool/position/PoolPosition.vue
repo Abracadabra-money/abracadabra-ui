@@ -22,23 +22,24 @@
 
       <Deposited
         :pool="pool"
+        :userPointsStatistics="userPointsStatistics"
         :isProperNetwork="isProperNetwork"
         v-if="activeTab === 'deposited'"
       />
 
       <Staked
         :pool="pool"
+        :userPointsStatistics="userPointsStatistics"
         :isProperNetwork="isProperNetwork"
         v-if="activeTab === 'staked'"
       />
 
       <Locked
         :pool="pool"
+        :userPointsStatistics="userPointsStatistics"
         :isProperNetwork="isProperNetwork"
         v-if="activeTab === 'locked'"
       />
-
-      <!-- <LockBlock :pool="pool" @updateInfo="onUpdate" /> -->
     </div>
   </div>
 </template>
@@ -109,9 +110,6 @@ export default {
     Locked: defineAsyncComponent(() =>
       import("@/components/pools/pool/position/Locked.vue")
     ),
-    // LockBlock: defineAsyncComponent(() =>
-    //   import("@/components/pools/pool/LockBlock.vue")
-    // ),
   },
 };
 </script>
@@ -169,7 +167,7 @@ export default {
   opacity: 0.5;
 }
 
-@media (max-width: 1300px) {
+@media (max-width: 1400px) {
   .backdrop {
     position: absolute;
     top: 0;
@@ -204,8 +202,10 @@ export default {
   }
 
   .pool-position {
-    min-width: 375px;
+    width: 100%;
+    max-width: 385px;
     padding: 0;
+    border: none;
     background: transparent;
     box-shadow: none;
   }

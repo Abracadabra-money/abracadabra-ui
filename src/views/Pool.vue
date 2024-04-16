@@ -18,7 +18,7 @@
         v-if="isUserPositionOpen && account"
       />
 
-      <div class="chart-wrap" v-if="pool">
+      <div class="chart-wrap" v-if="chartOption">
         <PieChart :option="chartOption" />
       </div>
     </div>
@@ -57,6 +57,7 @@ export default {
     },
 
     chartOption() {
+      if (!this.pool.lockInfo) return null;
       return getPoolTvlPieChartOption(this.pool);
     },
   },
@@ -154,8 +155,12 @@ export default {
   backdrop-filter: blur(12.5px);
 }
 
-@media (max-width: 1300px) {
+@media (max-width: 1400px) {
   .pool {
+    position: static;
+  }
+
+  .chart-wrap {
     position: static;
   }
 }

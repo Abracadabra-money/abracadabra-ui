@@ -6,91 +6,50 @@
       <h4 class="title">Staking rewards earned</h4>
 
       <ul class="rewards-list">
-        <li class="list-item">
+        <li
+          class="list-item"
+          v-for="(reward, index) in rewardsList"
+          :key="index"
+        >
           <span class="item-title">
-            <img
-              src="@/assets/images/points-dashboard/blast.png"
-              class="reward-icon"
-            />
-            Points
+            <img :src="reward.icon" class="reward-icon" />
+            {{ reward.title }}
           </span>
 
-          <span class="item-value">5,311.55</span>
-        </li>
-
-        <li class="list-item">
-          <span class="item-title">
-            <img
-              src="@/assets/images/points-dashboard/gold-points.svg"
-              class="reward-icon"
-            />
-            Gold
-          </span>
-
-          <span class="item-value">5,311.55</span>
-        </li>
-
-        <li class="list-item">
-          <span class="item-title">
-            <img
-              src="@/assets/images/points-dashboard/potion.png"
-              class="reward-icon"
-            />
-            Potion
-          </span>
-
-          <span class="item-value">5,311.55</span>
+          <span class="item-value">{{ reward.value }}</span>
         </li>
       </ul>
     </div>
 
-    <BaseButton primary>See dashborad</BaseButton>
+    <BaseButton primary @click="goToDashboard()">See dashborad</BaseButton>
   </div>
 </template>
 
 <script>
 import { defineAsyncComponent } from "vue";
-import { mapGetters } from "vuex";
 import { formatUnits } from "viem";
-import { getChainConfig } from "@/helpers/chains/getChainsInfo";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
-import { fetchUserPointsStatistics } from "@/helpers/blast/stake/points";
+import { useImage } from "@/helpers/useImage";
 
 export default {
   props: {
     pool: { type: Object },
-    isProperNetwork: { type: Boolean },
-  },
-
-  data() {
-    return {
-      userPointsStatistics: null,
-      activeTab: "deposited",
-      tabItems: ["deposited", "staked", "locked"],
-    };
+    userPointsStatistics: { type: Object },
   },
 
   computed: {
-    ...mapGetters({
-      account: "getAccount",
-    }),
-
-    chainIcon() {
-      return getChainConfig(this.selectedpool.chainId).icon;
-    },
-
     lpToken() {
       return {
         name: this.pool.name,
         icon: this.pool.icon,
         amount: this.formatTokenBalance(
-          this.pool.userInfo.balance,
+          this.pool.lockInfo.balances.unlocked || 0n,
           this.pool.decimals
         ),
         amountUsd: this.formatUSD(
           this.formatTokenBalance(
-            this.pool.userInfo.balance,
+            this.pool.lockInfo.balances.unlocked || 0n,
             this.pool.decimals
           ) * this.pool.price
         ),
@@ -99,7 +58,7 @@ export default {
 
     tokensList() {
       const previewRemoveLiquidityResult = previewRemoveLiquidity(
-        this.pool.userInfo.balance,
+        this.pool.lockInfo.balances.unlocked || 0n,
         this.pool
       );
 
@@ -137,8 +96,28 @@ export default {
       return tokensList.length ? tokensList : false;
     },
 
-    disableEarnedButton() {
-      return true;
+    rewardsList() {
+      return [
+        {
+          title: "Points",
+          icon: useImage("assets/images/points-dashboard/blast.png"),
+          value: formatTokenBalance(
+            this.userPointsStatistics?.liquidityPoints?.lp?.finalized || 0
+          ),
+        },
+        {
+          title: "Gold",
+          icon: useImage("assets/images/points-dashboard/gold-points.svg"),
+          value: formatTokenBalance(
+            this.userPointsStatistics?.developerPoints?.lp?.finalized || 0
+          ),
+        },
+        {
+          title: "Potion",
+          icon: useImage("assets/images/points-dashboard/potion.png"),
+          value: "Coming soon",
+        },
+      ];
     },
   },
 
@@ -149,30 +128,11 @@ export default {
       return formatTokenBalance(formatUnits(value, decimals));
     },
 
-    prepBalanceData(tokenValue, priceValue) {
-      const usd = formatUSD(tokenValue * priceValue);
-      const earned = formatTokenBalance(tokenValue);
-      return {
-        earned,
-        usd,
-      };
+    goToDashboard() {
+      this.$router.push({
+        name: "PointsDashboard",
+      });
     },
-
-    selectTab(action) {
-      this.activeTab = action;
-    },
-
-    onUpdate() {
-      this.$emit("updateInfo");
-    },
-
-    closePopup() {
-      this.$emit("closePopup");
-    },
-  },
-
-  async created() {
-    this.userPointsStatistics = await fetchUserPointsStatistics(this.account);
   },
 
   components: {
@@ -220,6 +180,10 @@ export default {
   flex-direction: column;
   gap: 7px;
   margin-bottom: 31px;
+}
+
+.title {
+  font-weight: 500;
 }
 
 .rewards-list {

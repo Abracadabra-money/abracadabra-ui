@@ -123,3 +123,20 @@ export const getLockInfo = async (
     allowance: allowance.result,
   };
 };
+
+export const getUserLocks = async (
+  account: Address,
+  chainId: number,
+  config: any
+) => {
+  const publicClient = getPublicClient(chainId);
+
+  const userLocks: any = await publicClient.readContract({
+    address: config.lockContract.address,
+    abi: config.lockContract.abi,
+    functionName: "userLocks",
+    args: [account],
+  });
+
+  return userLocks;
+};

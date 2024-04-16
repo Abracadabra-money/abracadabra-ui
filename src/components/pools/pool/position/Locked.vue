@@ -1,12 +1,21 @@
 <template>
   <div class="locked">
-    <FounderBoostCard :lpToken="lpToken" :tokensList="tokensList" />
+    <FounderBoostCard
+      :lpToken="lpToken"
+      :tokensList="tokensList"
+      :rewardsList="rewardsList"
+    />
 
     <ul class="locks-list">
-      <UserLock v-for="(lock, index) in 10" :key="index" />
+      <UserLock
+        :pool="pool"
+        :lock="lock"
+        v-for="(lock, index) in userLocks"
+        :key="index"
+      />
     </ul>
 
-    <BaseButton primary>See dashbord</BaseButton>
+    <BaseButton primary @click="goToDashboard()">See dashbord</BaseButton>
   </div>
 </template>
 
@@ -14,45 +23,39 @@
 import { defineAsyncComponent } from "vue";
 import { mapGetters } from "vuex";
 import { formatUnits } from "viem";
-import { getChainConfig } from "@/helpers/chains/getChainsInfo";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
-import { fetchUserPointsStatistics } from "@/helpers/blast/stake/points";
+import { getUserLocks } from "@/helpers/pools/getPoolInfo";
+import { useImage } from "@/helpers/useImage";
 
 export default {
   props: {
     pool: { type: Object },
-    isProperNetwork: { type: Boolean },
+    userPointsStatistics: { type: Object },
   },
 
   data() {
-    return {
-      userPointsStatistics: null,
-      activeTab: "deposited",
-      tabItems: ["deposited", "staked", "locked"],
-    };
+    return { userLocks: [] };
   },
 
   computed: {
     ...mapGetters({
+      chainId: "getChainId",
       account: "getAccount",
     }),
-
-    chainIcon() {
-      return getChainConfig(this.selectedpool.chainId).icon;
-    },
 
     lpToken() {
       return {
         name: this.pool.name,
         icon: this.pool.icon,
         amount: this.formatTokenBalance(
-          this.pool.userInfo.balance,
+          this.pool.lockInfo.balances.locked || 0n,
           this.pool.decimals
         ),
         amountUsd: this.formatUSD(
           this.formatTokenBalance(
-            this.pool.userInfo.balance,
+            this.pool.lockInfo.balances.locked || 0n,
+
             this.pool.decimals
           ) * this.pool.price
         ),
@@ -61,7 +64,7 @@ export default {
 
     tokensList() {
       const previewRemoveLiquidityResult = previewRemoveLiquidity(
-        this.pool.userInfo.balance,
+        this.pool.lockInfo.balances.locked || 0n,
         this.pool
       );
 
@@ -99,8 +102,28 @@ export default {
       return tokensList.length ? tokensList : false;
     },
 
-    disableEarnedButton() {
-      return true;
+    rewardsList() {
+      return [
+        {
+          title: "Points",
+          icon: useImage("assets/images/points-dashboard/blast.png"),
+          value: formatTokenBalance(
+            this.userPointsStatistics?.liquidityPoints?.founder?.finalized || 0
+          ),
+        },
+        {
+          title: "Gold",
+          icon: useImage("assets/images/points-dashboard/gold-points.svg"),
+          value: formatTokenBalance(
+            this.userPointsStatistics?.liquidityPoints?.founder?.finalized || 0
+          ),
+        },
+        {
+          title: "Potion",
+          icon: useImage("assets/images/points-dashboard/potion.png"),
+          value: "Coming soon",
+        },
+      ];
     },
   },
 
@@ -111,30 +134,15 @@ export default {
       return formatTokenBalance(formatUnits(value, decimals));
     },
 
-    prepBalanceData(tokenValue, priceValue) {
-      const usd = formatUSD(tokenValue * priceValue);
-      const earned = formatTokenBalance(tokenValue);
-      return {
-        earned,
-        usd,
-      };
-    },
-
-    selectTab(action) {
-      this.activeTab = action;
-    },
-
-    onUpdate() {
-      this.$emit("updateInfo");
-    },
-
-    closePopup() {
-      this.$emit("closePopup");
+    goToDashboard() {
+      this.$router.push({
+        name: "PointsDashboard",
+      });
     },
   },
 
   async created() {
-    this.userPointsStatistics = await fetchUserPointsStatistics(this.account);
+    this.userLocks = await getUserLocks(this.account, this.chainId, this.pool);
   },
 
   components: {
@@ -164,6 +172,7 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  height: 122px;
   max-height: 122px;
   padding-right: 10px;
   margin-right: -18px;

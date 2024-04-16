@@ -15,40 +15,17 @@
       </h4>
 
       <ul class="rewards-list">
-        <li class="list-item">
+        <li
+          class="list-item"
+          v-for="(reward, index) in rewardsList"
+          :key="index"
+        >
           <span class="item-title">
-            <img
-              src="@/assets/images/points-dashboard/blast.png"
-              class="reward-icon"
-            />
-            Points
+            <img :src="reward.icon" class="reward-icon" />
+            {{ reward.title }}
           </span>
 
-          <span class="item-value">5,311.55</span>
-        </li>
-
-        <li class="list-item">
-          <span class="item-title">
-            <img
-              src="@/assets/images/points-dashboard/gold-points.svg"
-              class="reward-icon"
-            />
-            Gold
-          </span>
-
-          <span class="item-value">5,311.55</span>
-        </li>
-
-        <li class="list-item">
-          <span class="item-title">
-            <img
-              src="@/assets/images/points-dashboard/potion.png"
-              class="reward-icon"
-            />
-            Potion
-          </span>
-
-          <span class="item-value">5,311.55</span>
+          <span class="item-value"> {{ reward.value }}</span>
         </li>
       </ul>
     </div>
@@ -57,53 +34,12 @@
 
 <script>
 import { defineAsyncComponent } from "vue";
-import { formatTokenBalance } from "@/helpers/filters";
-import { fetchUserPointsStatistics } from "@/helpers/blast/stake/points";
 
 export default {
   props: {
     lpToken: { type: Object },
     tokensList: { type: Array },
-  },
-
-  emits: ["closePopup", "updateInfo"],
-
-  data() {
-    return {
-      userPointsStatistics: null,
-      activeTab: "deposited",
-      tabItems: ["deposited", "staked", "locked"],
-    };
-  },
-
-  computed: {
-    pointsEarned() {
-      return formatTokenBalance(
-        this.userPointsStatistics?.liquidityPoints?.total?.finalized
-      );
-    },
-
-    disableEarnedButton() {
-      return true;
-    },
-  },
-
-  methods: {
-    selectTab(action) {
-      this.activeTab = action;
-    },
-
-    onUpdate() {
-      this.$emit("updateInfo");
-    },
-
-    closePopup() {
-      this.$emit("closePopup");
-    },
-  },
-
-  async created() {
-    this.userPointsStatistics = await fetchUserPointsStatistics(this.account);
+    rewardsList: { type: Array },
   },
 
   components: {

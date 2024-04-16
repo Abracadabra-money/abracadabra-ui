@@ -180,7 +180,7 @@ export default {
   opacity: 0.7;
 }
 
-@media (max-width: 1300px) {
+@media (max-width: 1400px) {
   .pool-management {
     width: 100%;
   }
