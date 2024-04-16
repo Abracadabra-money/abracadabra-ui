@@ -119,7 +119,7 @@ import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import { approveTokenViem } from "@/helpers/approval.ts";
-import { sendFrom } from "@/helpers/beam/sendFrom.ts";
+import { sendFrom } from "@/helpers/beam/sendFromNew.ts";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { formatUSD, formatToFixed } from "@/helpers/filters";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
@@ -186,7 +186,7 @@ export default {
       if (this.chainId === 8453) return true;
       if (this.chainId === 59144) return true;
 
-      return this.beamInfoObject.userInfo.allowance > this.inputAmount;
+      return this.beamInfoObject.userInfo.allowance >= this.inputAmount;
     },
 
     amountError() {
@@ -372,48 +372,58 @@ export default {
         this.isApproving = false;
 
         if (!isTokenApproved) {
-          await this.deleteNotification(notificationId);
+          this.deleteNotification(notificationId);
           await this.createNotification(notification.approveError);
           return false;
         }
-      }
+          this.updateNotification({
+            title: "Step 2/2: Confirm Beam",
+            id: notificationId,
+          });
+        }
 
-      //     this.updateNotification({
-      //       title: "Step 2/2: Confirm Beam",
-      //       id: notificationId,
-      //     });
-      //   }
-
-      //   await this.seendBeam(notificationId);
+        await this.seendBeam(notificationId);
     },
 
-    // async seendBeam(notificationId) {
-    //   this.isBeaming = true;
+    async seendBeam(notificationId) {
+      this.isBeaming = true;
 
-    //   try {
-    //     const { fees, params } = await this.getEstimatedFees(true);
-    //     this.tx = await sendFrom(fees, params, this.inputAmount, this.txConfig);
-    //     await this.deleteNotification(notificationId);
-    //     this.isBeaming = false;
-    //     this.isOpenSuccessPopup = true;
-    //     this.successData = this.successConfig;
-    //     this.inputValue = "";
+      try {
+        const { fees, params } = await this.getEstimatedFees(true);
 
-    //     await this.tx.wait();
+        const payload = {
+          fees,
+          params,
+          amount: this.inputAmount,
+          dstLzChainId: this.toChain.settings.lzChainId,
+          to: this.toAddressBytes,
+          account: this.account,
+        }
 
-    //     const txInfo = await waitForMessageReceived(
-    //       this.dstChainId,
-    //       this.tx.hash
-    //     );
+        const hash = await sendFrom(this.beamInfoObject.fromChainConfig, payload);
 
-    //     this.successData = this.successConfig;
-    //     this.successData.txInfo = txInfo;
-    //   } catch (error) {
-    //     console.log("Seend Beam Error:", error);
-    //     this.isBeaming = false;
-    //     this.errorTransaction(error, notificationId);
-    //   }
-    // },
+        this.deleteNotification(notificationId);
+        this.isBeaming = false;
+
+        // this.isOpenSuccessPopup = true;
+        // this.successData = this.successConfig;
+        // this.inputValue = "";
+
+        // await this.tx.wait();
+
+        // const txInfo = await waitForMessageReceived(
+        //   this.dstChainId,
+        //   this.tx.hash
+        // );
+
+        // this.successData = this.successConfig;
+        // this.successData.txInfo = txInfo;
+      } catch (error) {
+        console.log("Seend Beam Error:", error);
+        this.isBeaming = false;
+        this.errorTransaction(error, notificationId);
+      }
+    },
 
     async getEstimatedFees(getParams = false) {
       if (!this.toChain || !this.fromChain) return 0n;
@@ -436,26 +446,26 @@ export default {
       else return updatedFee;
     },
 
-    // async errorTransaction(error, notificationId) {
-    //   const errorNotification = {
-    //     msg: "Transaction encountered an Error",
-    //     type: "error",
-    //   };
+    async errorTransaction(error, notificationId) {
+      const errorNotification = {
+        msg: "Transaction encountered an Error",
+        type: "error",
+      };
 
-    //   if (
-    //     String(error?.data?.message).indexOf("insufficient funds") !== -1 ||
-    //     String(error?.data?.message).indexOf(
-    //       "insufficient balance for transfer"
-    //     ) !== -1 ||
-    //     String(error).indexOf("insufficient funds") !== -1 ||
-    //     String(error?.message).indexOf("insufficient funds") !== -1
-    //   ) {
-    //     errorNotification.msg = "Insufficient balance for transfer";
-    //   }
+      if (
+        String(error?.data?.message).indexOf("insufficient funds") !== -1 ||
+        String(error?.data?.message).indexOf(
+          "insufficient balance for transfer"
+        ) !== -1 ||
+        String(error).indexOf("insufficient funds") !== -1 ||
+        String(error?.message).indexOf("insufficient funds") !== -1
+      ) {
+        errorNotification.msg = "Insufficient balance for transfer";
+      }
 
-    //   await this.deleteNotification(notificationId);
-    //   await this.createNotification(errorNotification);
-    // },
+      this.deleteNotification(notificationId);
+      await this.createNotification(errorNotification);
+    },
 
     async updateDstNativeTokenAmount(value: bigint) {
       this.dstTokenAmount = value;

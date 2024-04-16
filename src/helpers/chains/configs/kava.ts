@@ -4,6 +4,7 @@ import { filterRpcUrls } from "@/helpers/chains/utils";
 import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
 const rpcList = filterRpcUrls(kava, [
+  "https://evm.kava-rpc.com",
   "https://kava-evm.publicnode.com",
   "https://evm.kava.io",
   "https://rpc.ankr.com/kava_evm",
