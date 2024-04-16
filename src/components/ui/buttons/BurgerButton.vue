@@ -5,7 +5,7 @@
 
   <MobileMenu
     v-if="mobileMenu"
-    :networkIcon="chainIcon"
+    :chainIcon="chainIcon"
     :unsupportedTooltip="unsupportedTooltip"
     @closePopup="closeMobilePopup"
     @openNetworksPopup="isOpenNetworkPopup = !isOpenNetworkPopup"

@@ -61,6 +61,8 @@ export default {
       unreadNotificationCountChecker: null,
       isSignedUp: false,
       alternativeHeader: ["MimSwap", "Pools", "Pool"],
+      exception: ["Blast"],
+      isClassicHeader: true,
     };
   },
 
@@ -70,9 +72,13 @@ export default {
       notifiCardId: "getNotifiCardId",
       notifiWalletBlockchain: "getNotifiWalletBlockchain",
     }),
+  },
 
-    isClassicHeader() {
-      return !this.alternativeHeader.includes(this.$route.name);
+  watch: {
+    $route() {
+      if (!this.exception.includes(this.$route.name)) {
+        this.checkTypeHeader();
+      }
     },
   },
 
@@ -101,9 +107,15 @@ export default {
     toggleNotifiModal() {
       this.isOpenNotifiModal = !this.isOpenNotifiModal;
     },
+
+    checkTypeHeader() {
+      this.isClassicHeader = !this.alternativeHeader.includes(this.$route.name);
+    },
   },
 
   mounted() {
+    this.checkTypeHeader();
+
     setTimeout(() => {
       // wait for indexedDB to be ready
       this.updateUnreadNotificationCount();
@@ -214,6 +226,12 @@ export default {
 
   .user-actions {
     margin-left: auto;
+
+    &::v-deep {
+      .chain-button {
+        display: none;
+      }
+    }
   }
 
   .connect-button::v-deep(.btn-text) {
