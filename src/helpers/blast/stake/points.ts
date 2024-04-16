@@ -2,8 +2,8 @@ import axios from "axios";
 import type { Address } from "viem";
 
 export type IterableElement<TargetIterable> =
-	TargetIterable extends Iterable<infer ElementType> ?
-		ElementType : never;
+  TargetIterable extends Iterable<infer ElementType> ?
+  ElementType : never;
 
 const pointsApiClient = axios.create({
   baseURL: "https://ymlcxloffmrsfereuhfa.supabase.co/rest/v1",
@@ -27,6 +27,7 @@ const reasons = [
   "lle_deposit_borrowed_mim",
   "founder",
   "deposit_mim_usdb_lp",
+  "phase_one_founder_bonus",
 ] as const;
 type Reason = IterableElement<typeof reasons>;
 
@@ -44,9 +45,10 @@ const reasonMap = {
   lle_deposit_borrowed_mim: "cauldron",
   founder: "founder",
   deposit_mim_usdb_lp: "lp",
+  phase_one_founder_bonus: "phaseOneFounderBonus",
 } as const satisfies Record<Reason, string>;
 
-const buildStatistics = (data: Array<{ 
+const buildStatistics = (data: Array<{
   state: State,
   kind: Kind,
   reason: Reason,
@@ -78,6 +80,10 @@ const buildStatistics = (data: Array<{
         pending: 0,
         finalized: 0,
       },
+      phaseOneFounderBonus: {
+        pending: 0,
+        finalized: 0,
+      },
     },
     developerPoints: {
       total: {
@@ -104,6 +110,10 @@ const buildStatistics = (data: Array<{
         pending: 0,
         finalized: 0,
       },
+      phaseOneFounderBonus: {
+        pending: 0,
+        finalized: 0,
+      },
     }
   };
 
@@ -120,7 +130,7 @@ const buildStatistics = (data: Array<{
 
 export const fetchPointsStatistics = async () => {
   try {
-    const { data } = await pointsApiClient.get<Array<{ 
+    const { data } = await pointsApiClient.get<Array<{
       state: State,
       kind: Kind,
       reason: Reason,
@@ -140,7 +150,7 @@ export const fetchUserPointsStatistics = async (address: Address) => {
   }
 
   try {
-    const { data } = await pointsApiClient.get<Array<{ 
+    const { data } = await pointsApiClient.get<Array<{
       state: State,
       kind: Kind,
       reason: Reason,
