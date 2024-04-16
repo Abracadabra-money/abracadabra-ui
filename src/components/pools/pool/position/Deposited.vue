@@ -29,33 +29,80 @@
       </ul>
     </div>
 
-    <BaseButton primary>Stake now</BaseButton>
+    <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
+      {{ buttonText }}
+    </BaseButton>
   </div>
 </template>
 
 <script>
 import { defineAsyncComponent } from "vue";
-import { mapGetters } from "vuex";
+import { mapActions, mapGetters, mapMutations } from "vuex";
 import { formatUnits } from "viem";
-import { getChainConfig } from "@/helpers/chains/getChainsInfo";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
+import { getRewardsPerHour } from "@/helpers/pools/getRewardsPerHour";
+import {
+  writeContractHelper,
+  simulateContractHelper,
+  waitForTransactionReceiptHelper,
+} from "@/helpers/walletClienHelper";
+import { approveTokenViem } from "@/helpers/approval";
+import notification from "@/helpers/notification/notification";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { useImage } from "@/helpers/useImage";
 
 export default {
   props: {
     pool: { type: Object },
     userPointsStatistics: { type: Object },
-    isProperNetwork: { type: Boolean },
+  },
+
+  data() {
+    return {
+      rewardsPerHour: {
+        pointsReward: 0,
+        goldReward: 0,
+      },
+      isActionProcessing: false,
+    };
   },
 
   computed: {
     ...mapGetters({
       account: "getAccount",
+      chainId: "getChainId",
     }),
 
-    chainIcon() {
-      return getChainConfig(this.selectedpool.chainId).icon;
+    isAllowed() {
+      return this.pool.lockInfo.allowance >= this.pool.userInfo.balance;
+    },
+
+    isValid() {
+      return !!this.pool.userInfo.balance;
+    },
+
+    buttonText() {
+      if (!this.isProperNetwork) return "Switch network";
+      if (!this.account) return "Connect wallet";
+
+      if (this.isActionProcessing) return "Processing...";
+      if (!this.isAllowed) return "Approve";
+
+      return "Stake now";
+    },
+
+    isProperNetwork() {
+      return this.chainId == this.pool.chainId;
+    },
+
+    isButtonDisabled() {
+      return (
+        (!this.isValid || this.isActionProcessing) &&
+        this.isProperNetwork &&
+        !!this.account
+      );
     },
 
     lpToken() {
@@ -120,16 +167,12 @@ export default {
         {
           title: "Points",
           icon: useImage("assets/images/points-dashboard/blast.png"),
-          value: formatTokenBalance(
-            this.userPointsStatistics?.liquidityPoints?.total?.pending || 0
-          ),
+          value: formatTokenBalance(this.rewardsPerHour.pointsReward || 0),
         },
         {
           title: "Gold",
           icon: useImage("assets/images/points-dashboard/gold-points.svg"),
-          value: formatTokenBalance(
-            this.userPointsStatistics?.developerPoints?.total?.pending || 0
-          ),
+          value: formatTokenBalance(this.rewardsPerHour.goldReward || 0),
         },
         {
           title: "Potion",
@@ -141,14 +184,114 @@ export default {
   },
 
   methods: {
+    ...mapActions({ createNotification: "notifications/new" }),
+    ...mapMutations({ deleteNotification: "notifications/delete" }),
+
     formatUSD,
+
+    async getRewardsPerHour() {
+      const deposit = Number(
+        formatUnits(this.pool.userInfo.balance, this.pool.decimals)
+      );
+
+      this.rewardsPerHour = await getRewardsPerHour(this.pool, deposit);
+    },
+
+    async approveHandler() {
+      this.isActionProcessing = true;
+
+      const notificationId = await this.createNotification(
+        notification.approvePending
+      );
+
+      try {
+        await approveTokenViem(
+          this.pool.contract,
+          this.pool.lockContract.address
+        );
+        await this.$emit("updatePoolInfo");
+
+        await this.deleteNotification(notificationId);
+      } catch (error) {
+        console.log("approve err:", error);
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(error),
+          type: "error",
+        };
+
+        await this.deleteNotification(notificationId);
+        await this.createNotification(errorNotification);
+      }
+      this.isActionProcessing = false;
+    },
+
+    async stakeHandler() {
+      this.isActionProcessing = true;
+
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
+
+      try {
+        const { request } = await simulateContractHelper({
+          address: this.pool.lockContract.address,
+          abi: this.pool.lockContract.abi,
+          functionName: "stake",
+          args: [this.pool.userInfo.balance],
+        });
+
+        const hash = await writeContractHelper(request);
+
+        const { result, error } = await waitForTransactionReceiptHelper({
+          hash,
+        });
+
+        await this.$emit("updatePoolInfo");
+
+        await this.deleteNotification(notificationId);
+        await this.createNotification(notification.success);
+        this.resetInput();
+      } catch (error) {
+        console.log("stake lp err:", error);
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(error),
+          type: "error",
+        };
+
+        await this.deleteNotification(notificationId);
+        await this.createNotification(errorNotification);
+      }
+      this.isActionProcessing = false;
+    },
+
+    async actionHandler() {
+      if (this.isButtonDisabled) return false;
+      if (!this.isProperNetwork) return switchNetwork(this.pool.chainId);
+      if (!this.account) {
+        // @ts-ignore
+        return this.$openWeb3modal();
+      }
+
+      if (!this.isAllowed) return await this.approveHandler();
+
+      await this.stakeHandler();
+
+      await this.$emit("updatePoolInfo");
+    },
 
     formatTokenBalance(value, decimals) {
       return formatTokenBalance(formatUnits(value, decimals));
     },
+
     onUpdate() {
       this.$emit("updateInfo");
     },
+  },
+
+  async created() {
+    await this.getRewardsPerHour();
   },
 
   components: {

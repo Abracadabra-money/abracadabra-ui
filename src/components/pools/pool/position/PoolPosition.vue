@@ -11,34 +11,26 @@
       @click="closePopup"
     />
 
-    <PointsEarned
-      class="points-earned"
-      :pointsEarned="pointsEarned"
-      v-if="pointsEarned"
-    />
-
     <div class="pool-position">
       <Tabs :name="activeTab" :items="tabItems" @select="selectTab" />
 
       <Deposited
         :pool="pool"
         :userPointsStatistics="userPointsStatistics"
-        :isProperNetwork="isProperNetwork"
-        v-if="activeTab === 'deposited'"
+        @updatePoolInfo="$emit('updateInfo')"
+        v-show="activeTab === 'deposited'"
       />
 
       <Staked
         :pool="pool"
         :userPointsStatistics="userPointsStatistics"
-        :isProperNetwork="isProperNetwork"
-        v-if="activeTab === 'staked'"
+        v-show="activeTab === 'staked'"
       />
 
       <Locked
         :pool="pool"
         :userPointsStatistics="userPointsStatistics"
-        :isProperNetwork="isProperNetwork"
-        v-if="activeTab === 'locked'"
+        v-show="activeTab === 'locked'"
       />
     </div>
   </div>
@@ -46,13 +38,11 @@
 
 <script>
 import { defineAsyncComponent } from "vue";
-import { formatTokenBalance } from "@/helpers/filters";
-import { fetchUserPointsStatistics } from "@/helpers/blast/stake/points";
 
 export default {
   props: {
     pool: { type: Object },
-    isProperNetwork: { type: Boolean },
+    userPointsStatistics: { type: Object },
     isMyPositionPopupOpened: { type: Boolean, default: false },
   },
 
@@ -60,22 +50,9 @@ export default {
 
   data() {
     return {
-      userPointsStatistics: null,
       activeTab: "deposited",
       tabItems: ["deposited", "staked", "locked"],
     };
-  },
-
-  computed: {
-    pointsEarned() {
-      return formatTokenBalance(
-        this.userPointsStatistics?.liquidityPoints?.total?.finalized
-      );
-    },
-
-    disableEarnedButton() {
-      return true;
-    },
   },
 
   methods: {
@@ -92,15 +69,8 @@ export default {
     },
   },
 
-  async created() {
-    this.userPointsStatistics = await fetchUserPointsStatistics(this.account);
-  },
-
   components: {
     Tabs: defineAsyncComponent(() => import("@/components/ui/Tabs.vue")),
-    PointsEarned: defineAsyncComponent(() =>
-      import("@/components/pools/pool/PointsEarned.vue")
-    ),
     Deposited: defineAsyncComponent(() =>
       import("@/components/pools/pool/position/Deposited.vue")
     ),

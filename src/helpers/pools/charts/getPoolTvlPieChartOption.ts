@@ -1,8 +1,9 @@
 import { formatUnits } from "viem";
 import { formatLargeSum } from "@/helpers/filters";
+import store from "@/store";
 
-export const getPoolTvlPieChartOption = (pool: any) => {
-  const tvlByCategory: TvlByCategory = getTvlByCategory(pool);
+export const getPoolTvlPieChartOption = async (pool: any) => {
+  const tvlByCategory: TvlByCategory = await getTvlByCategory(pool);
 
   return {
     title: {
@@ -89,19 +90,19 @@ export const getPoolTvlPieChartOption = (pool: any) => {
   };
 };
 
-const getTvlByCategory = (pool: any) => {
-  const price = pool.price;
-  const decimals = pool.decimals;
-  const locked =
-    Number(formatUnits(pool.lockInfo.balances.locked, decimals)) * price;
+const getTvlByCategory = async (pool: any) => {
+  const publicClient = store.getters.getChainById(pool.chainId).publicClient;
 
   const total =
-    Number(
-      formatUnits(
-        pool.userInfo.balance + pool.lockInfo.balances.unlocked,
-        decimals
-      )
-    ) + locked;
+    Number(formatUnits(pool.totalSupply, pool.decimals)) * pool.price;
+
+  const lockedSupply: any = await publicClient.readContract({
+    address: pool.lockContract.address,
+    abi: pool.lockContract.abi,
+    functionName: "lockedSupply",
+  });
+
+  const locked = Number(formatUnits(lockedSupply, pool.decimals)) * pool.price;
 
   const staked = total - locked;
 

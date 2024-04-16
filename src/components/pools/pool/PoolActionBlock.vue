@@ -19,7 +19,12 @@
       <div class="pool-management">
         <TokenPair class="token-pair" :pool="pool" />
 
-        <Tabs :name="activeTab" :items="tabItems" @select="selectTab" />
+        <Tabs
+          class="tabs"
+          :name="activeTab"
+          :items="tabItems"
+          @select="selectTab"
+        />
 
         <button
           class="my-position-button"
@@ -183,14 +188,23 @@ export default {
 @media (max-width: 1400px) {
   .pool-management {
     width: 100%;
+    flex-wrap: wrap;
+    gap: 16px;
   }
 
   .token-pair {
-    display: none !important;
+    order: 1;
+  }
+
+  .tabs {
+    order: 3;
+    margin-right: auto;
   }
 
   .my-position-button {
     display: block;
+    order: 2;
+    margin-left: auto;
   }
 }
 

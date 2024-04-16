@@ -2,7 +2,6 @@
   <div class="pool-composition-wrap">
     <div class="pool-composition-header">
       <h3 class="title">Pool composition</h3>
-      <span class="tvl">TVL {{ formatUSD(tvl, pool.decimals) }}</span>
     </div>
 
     <div class="pool-composition">
@@ -48,33 +47,6 @@
         </div>
       </div>
     </div>
-
-    <!-- 
-    <div class="pool-composition-info">
-      <div class="info-tag">
-        <span class="info-tag-title">
-          Volume 24h
-          <Tooltip
-            :tooltip="'Annual Return on Staked tokens at current price'"
-          />
-        </span>
-        <span class="value">
-          {{ formatTokenBalance(pool.statisticsData.dayVolume, pool.decimals) }}
-        </span>
-      </div>
-
-      <div class="divider"></div>
-
-      <div class="info-tag">
-        <span class="info-tag-title">
-          Fees 24h
-          <Tooltip :tooltip="'Total Value Locked in Farm'" />
-        </span>
-        <span class="value">
-          {{ formatTokenBalance(pool.statisticsData.dayFees, pool.decimals) }}
-        </span>
-      </div>
-    </div> -->
   </div>
 </template>
 

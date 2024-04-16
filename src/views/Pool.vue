@@ -3,6 +3,7 @@
     <div class="pool" v-if="pool">
       <PoolActionBlock
         :pool="pool"
+        :userPointsStatistics="userPointsStatistics"
         :isUserPositionOpen="isUserPositionOpen"
         @getPoolInfo="getPoolInfo"
         @openPositionPopup="isMyPositionPopupOpened = true"
@@ -12,6 +13,7 @@
 
       <PoolPosition
         :pool="pool"
+        :userPointsStatistics="userPointsStatistics"
         :isMyPositionPopupOpened="isMyPositionPopupOpened"
         @closePopup="isMyPositionPopupOpened = false"
         @updateInfo="getPoolInfo"
@@ -30,6 +32,7 @@ import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
 import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
 import { getPoolTvlPieChartOption } from "@/helpers/pools/charts/getPoolTvlPieChartOption";
+import { fetchUserPointsStatistics } from "@/helpers/blast/stake/points";
 
 export default {
   props: {
@@ -40,8 +43,10 @@ export default {
   data() {
     return {
       pool: null,
+      userPointsStatistics: null,
       isMyPositionPopupOpened: false,
       poolsTimer: null,
+      chartOption: null,
     };
   },
 
@@ -54,11 +59,6 @@ export default {
 
     isUserPositionOpen() {
       return this.pool?.userInfo?.balance > 0n;
-    },
-
-    chartOption() {
-      if (!this.pool.lockInfo) return null;
-      return getPoolTvlPieChartOption(this.pool);
     },
   },
 
@@ -90,6 +90,11 @@ export default {
 
   async created() {
     await this.getPoolInfo();
+
+    this.userPointsStatistics = await fetchUserPointsStatistics(this.account);
+
+    this.chartOption = await getPoolTvlPieChartOption(this.pool);
+
     this.poolsTimer = setInterval(async () => {
       await this.getPoolInfo();
     }, 60000);

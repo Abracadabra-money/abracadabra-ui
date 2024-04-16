@@ -172,7 +172,7 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  height: 122px;
+  height: 111px;
   max-height: 122px;
   padding-right: 10px;
   margin-right: -18px;
