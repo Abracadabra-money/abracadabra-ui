@@ -290,7 +290,7 @@ export default {
     },
   },
 
-  async created() {
+  async updated() {
     await this.getRewardsPerHour();
   },
 

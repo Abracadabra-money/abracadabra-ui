@@ -68,7 +68,7 @@
       :isActionProcessing="isActionProcessing"
       :transactionStatus="transactionStatus"
       @approve="approveHandler"
-      @deposit="depositHandler"
+      @deposit="imbalanceHandler"
       @close="closePreviewPopup"
     />
   </div>
@@ -126,6 +126,19 @@ export default {
     },
     quoteToken() {
       return this.pool.tokens.quoteToken;
+    },
+
+    previewPopupInfo() {
+      const minimumShares = applySlippageToMinOutBigInt(
+        this.slippage,
+        this.expectedOptimal.shares
+      );
+
+      return {
+        lpAmount: minimumShares,
+        baseTokenAmount: this.baseInputAmount,
+        quoteTokenAmount: this.quoteInputAmount,
+      };
     },
 
     isBaseTokenApproved() {
@@ -194,6 +207,10 @@ export default {
 
     isProperNetwork() {
       return this.chainId == this.pool.chainId;
+    },
+
+    isOneSide() {
+      return !this.baseInputAmount || !this.quoteInputAmount;
     },
   },
 
@@ -309,6 +326,7 @@ export default {
 
     async imbalanceHandler() {
       this.isActionProcessing = true;
+      this.transactionStatus = "pending";
 
       const notificationId = await this.createNotification(
         notification.pending
@@ -322,6 +340,7 @@ export default {
           payload
         );
 
+        this.transactionStatus = "success";
         await this.$emit("updatePoolInfo");
         await this.deleteNotification(notificationId);
 
@@ -329,6 +348,7 @@ export default {
 
         this.clearData();
       } catch (error) {
+        this.transactionStatus = "error";
         console.log("add liquidity err:", error);
 
         const errorNotification = {
@@ -349,6 +369,12 @@ export default {
         // @ts-ignore
         return this.$openWeb3modal();
       }
+
+      if (!this.isOneSide) {
+        this.isPreviewPopupOpened = true;
+        return;
+      }
+
       if (!this.isBaseTokenApproved)
         return await this.approveHandler(this.baseToken);
       if (!this.isQuoteTokenApproved)
