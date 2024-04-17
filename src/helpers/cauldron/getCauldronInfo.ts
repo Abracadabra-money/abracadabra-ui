@@ -5,6 +5,7 @@ import type { CauldronInfo } from "@/helpers/cauldron/types";
 import { MulticallWrapper } from "ethers-multicall-provider";
 import { getContracts } from "@/helpers/cauldron/getContracts";
 import { getMainParams } from "@/helpers/cauldron/getMainParams";
+import { getBentoBoxContract } from "@/helpers/publicClientHelper";
 import { getUserPositions } from "@/helpers/cauldron/getUserPositions";
 import { getUserTokensInfo } from "@/helpers/cauldron/getUserTokensInfo";
 import { getAdditionalInfo } from "@/helpers/cauldron/getAdditionalInfo";
@@ -29,6 +30,12 @@ export const getCauldronInfo = async (
 
   if (!config) return null;
 
+  const bentoBoxContract = await getBentoBoxContract(
+    chainId,
+    config.contract.address,
+    config.contract.abi
+  );
+
   const multicallContracts = await getContracts(config, multicallProvider);
 
   const mainParams = await getMainParams([config], chainId, config.contract);
@@ -36,9 +43,10 @@ export const getCauldronInfo = async (
   const userPositions = await getUserPositions([config], address, chainId);
 
   const userTokensInfo = await getUserTokensInfo(
-    multicallContracts,
+    chainId,
     address,
-    provider
+    config,
+    bentoBoxContract
   );
 
   const additionalInfo = await getAdditionalInfo(
