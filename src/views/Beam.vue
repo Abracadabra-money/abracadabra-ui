@@ -103,7 +103,7 @@
   </div>
 
   <!-- <SuccessPopup
-    :config="successData"
+    :successData="successData"
     v-if="isOpenSuccessPopup"
     @close-popup="isOpenSuccessPopup = false"
   /> -->
@@ -243,38 +243,6 @@ export default {
       if (this.isBeaming) return { disable: true, text: "Beaming" };
       return { disable: false, text: "Beam" };
     },
-
-    // txConfig() {
-    //   return {
-    //     contract: this.beamConfig.contractInstance,
-    //     account: this.account,
-    //     dstChainId: this.lzChainId,
-    //     toAddressBytes: this.toAddressBytes,
-    //   };
-    // },
-
-    // successConfig() {
-    //   return {
-    //     sendFrom: this.account,
-    //     sendTo: this.toAddress,
-    //     originChain: this.originChain,
-    //     mimAmount: this.inputValue,
-    //     nativeSymbol: this.srcTokenInfo?.baseTokenSymbol,
-    //     srcTokenIcon: this.srcTokenInfo?.baseTokenIcon,
-    //     srcTokenPrice: this.srcTokenPrice,
-    //     gasOnDst: formatToFixed(+this.getFee - +this.startFee, 3),
-    //     dstTokenSymbol: this.dstTokenInfo.baseTokenSymbol,
-    //     dstTokenIcon: this.dstTokenInfo?.baseTokenIcon,
-    //     dstTokenAmount: this.dstTokenAmount,
-    //     dstTokenPrice: this.dstTokenPrice,
-    //     dstChain: this.dstChain,
-    //     tx: this.tx,
-    //     txInfo: this.txInfo,
-    //     mimToUsd: this.mimToUsd,
-    //     dstChainId: this.dstChainId,
-    //     totalGas: this.formatFee,
-    //   };
-    // },
   },
 
   watch: {
@@ -405,19 +373,18 @@ export default {
         this.deleteNotification(notificationId);
         this.isBeaming = false;
 
+        const successPopupData = {
+          originChain:this.fromChain,
+          dstChain: this.toChain,
+          txPayload: payload,
+          txHash: hash,
+          dstNativeTokenAmount: this.dstTokenAmount,
+        }
+
+        this.successData = successPopupData;
         // this.isOpenSuccessPopup = true;
-        // this.successData = this.successConfig;
-        // this.inputValue = "";
 
-        // await this.tx.wait();
-
-        // const txInfo = await waitForMessageReceived(
-        //   this.dstChainId,
-        //   this.tx.hash
-        // );
-
-        // this.successData = this.successConfig;
-        // this.successData.txInfo = txInfo;
+        this.clearData()
       } catch (error) {
         console.log("Seend Beam Error:", error);
         this.isBeaming = false;

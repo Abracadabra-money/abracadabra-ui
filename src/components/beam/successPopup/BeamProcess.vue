@@ -35,7 +35,7 @@ import { formatToFixed } from "@/helpers/filters";
 
 export default {
   props: {
-    config: {
+    successData: {
       type: Object,
       required: true,
     },

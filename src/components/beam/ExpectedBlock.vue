@@ -96,10 +96,6 @@ export default {
           (chain) => chain.chainConfig.chainId === this.dstChainConfig.chainId
         );
 
-      console.log(this.beamInfoObject)
-
-      console.log(dstChainInfoUpdated);
-
       return {
         symbol: chainInfo.baseTokenSymbol,
         icon: chainInfo.baseTokenIcon,

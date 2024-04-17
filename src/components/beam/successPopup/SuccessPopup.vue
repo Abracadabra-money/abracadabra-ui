@@ -10,11 +10,11 @@
           alt="Close popup"
         />
       </h1>
-      <BeamProcess :config="config" />
+      <BeamProcess :successData="successData" />
 
-      <BeamInfo :config="config" />
+      <BeamInfo :successData="successData" />
 
-      <TransactionProgressBlock :config="config" />
+      <TransactionProgressBlock :successData="successData" />
     </div>
   </div>
 </template>
@@ -24,12 +24,70 @@ import BeamProcess from "@/components/beam/successPopup/BeamProcess.vue";
 import BeamInfo from "@/components/beam/successPopup/BeamInfo.vue";
 import TransactionProgressBlock from "@/components/beam/successPopup/TransactionProgressBlock.vue";
 
+import { waitForMessageReceived } from "@layerzerolabs/scan-client";
+
+import { chainsConfigs } from "@/helpers/chains/configs";
+
 export default {
   props: {
-    config: {
+    beamInfoObject: {
       type: Object,
       required: true,
     },
+    successData: {
+      type: Object,
+      required: true,
+    },
+  },
+  data() {
+    return {
+      lzTxInfo: null,
+    };
+  },
+  computed: {
+    originChainNativeToken() {
+      if (!this.beamInfoObject) return null;
+
+      const chainInfo = chainsConfigs.find(
+        (chain) => chain.chainId === this.successData.originChain.chainId
+      );
+
+      return {
+        symbol: chainInfo.baseTokenSymbol,
+        icon: chainInfo.baseTokenIcon,
+        price: this.beamInfoObject.nativePrice,
+      };
+    },
+    dstChainNativeToken() {
+      if (!this.beamInfoObject) return null;
+
+      const chainInfo = chainsConfigs.find(
+        (chain) => chain.chainId === this.successData.dstChain.chainId
+      );
+
+      const dstChainInfoUpdated =
+        this.beamInfoObject.destinationChainsInfo.find(
+          (chain) =>
+            chain.chainConfig.chainId === this.successData.dstChain.chainId
+        );
+
+      return {
+        symbol: chainInfo.baseTokenSymbol,
+        icon: chainInfo.baseTokenIcon,
+        price: dstChainInfoUpdated.nativePrice,
+      };
+    },
+  },
+  methods: {
+    async waitForTransaction() {
+      const sourceChain = this.successData.originChain.chainId;
+      const hash = this.successData.tx.hash;
+
+      this.lzTxInfo = await waitForMessageReceived(sourceChain, hash);
+    },
+  },
+  cteated() {
+    this.waitForTransaction();
   },
   components: {
     BeamProcess,
