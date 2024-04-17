@@ -58,7 +58,11 @@ export default {
     }),
 
     isUserPositionOpen() {
-      return this.pool?.userInfo?.balance > 0n;
+      return (
+        this.pool?.userInfo?.balance > 0n ||
+        this.pool.lockInfo.balances.locked > 0n ||
+        this.pool.lockInfo.balances.unlocked > 0n
+      );
     },
   },
 

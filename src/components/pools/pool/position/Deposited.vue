@@ -190,9 +190,9 @@ export default {
     formatUSD,
 
     async getRewardsPerHour() {
-      const deposit = Number(
-        formatUnits(this.pool.userInfo.balance, this.pool.decimals)
-      );
+      const deposit =
+        Number(formatUnits(this.pool.userInfo.balance, this.pool.decimals)) *
+        this.pool.price;
 
       this.rewardsPerHour = await getRewardsPerHour(this.pool, deposit);
     },
