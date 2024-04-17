@@ -115,7 +115,7 @@ export default {
           title: "Gold",
           icon: useImage("assets/images/points-dashboard/gold-points.svg"),
           value: formatTokenBalance(
-            this.userPointsStatistics?.liquidityPoints?.founder?.finalized || 0
+            this.userPointsStatistics?.developerPoints?.founder?.finalized || 0
           ),
         },
         {
