@@ -31,7 +31,7 @@ export const getUserTokensInfo = async (
 
   const { collateralInfo, mimInfo, wrapInfo } = config;
 
-  const contractsNew = [
+  const contracts = [
     {
       address: collateralInfo.address,
       abi: collateralInfo.abi,
@@ -60,14 +60,14 @@ export const getUserTokensInfo = async (
 
   if (wrapInfo?.unwrappedToken) {
     const { address, abi } = wrapInfo.unwrappedToken;
-    contractsNew.push({
+    contracts.push({
       address,
       abi,
       functionName: "balanceOf",
       args: [account],
     });
 
-    contractsNew.push({
+    contracts.push({
       address,
       abi,
       functionName: "allowance",
@@ -83,7 +83,7 @@ export const getUserTokensInfo = async (
     unwrappedTokenBalance,
     unwrappedTokenAllowance,
   ] = await publicClient.multicall({
-    contracts: contractsNew,
+    contracts: contracts,
   });
 
   return {

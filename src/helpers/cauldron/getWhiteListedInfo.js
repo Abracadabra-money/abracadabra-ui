@@ -1,34 +1,34 @@
-import { Contract, utils } from "ethers";
-import whitelisterAbi from "@/abis/Whitelister";
+import { formatUnits } from "viem";
+import { getWhitelisterContract } from "@/helpers/publicClientHelper";
 import yvcrvSTETHWhitelist from "@/configs/whitelists/yvcrvSTETHWhitelist";
 
 const userNotWhitelisted = { isUserWhitelisted: false };
 
 export const getWhiteListedInfo = async (
   config,
-  contract,
-  account,
   chainId,
-  signer
+  publicClient,
+  account
 ) => {
   try {
-    if (config.id !== 33) return null;
-    if (chainId !== 1) return null;
+    if (config.id !== 33 || chainId !== 1) return null;
 
-    const whitelisterAddress = await contract.whitelister();
-
-    const whitelisterContract = new Contract(
-      whitelisterAddress,
-      JSON.stringify(whitelisterAbi),
-      signer
+    const whitelisterContract = await getWhitelisterContract(
+      chainId,
+      config.contract.address,
+      config.contract.abi
     );
 
-    const amountAllowed = await whitelisterContract.amountAllowed(account);
-
-    let userWhitelistedInfo = null;
+    const amountAllowed = await publicClient.readContract({
+      address: whitelisterContract.address,
+      abi: whitelisterContract.abi,
+      functionName: "amountAllowed",
+      args: [account],
+    });
 
     const whitelist = yvcrvSTETHWhitelist;
 
+    let userWhitelistedInfo = null;
     Object.keys(whitelist).forEach(function (key) {
       if (key.toLocaleLowerCase() === account.toLocaleLowerCase()) {
         userWhitelistedInfo = whitelist[key];
@@ -38,10 +38,10 @@ export const getWhiteListedInfo = async (
     if (!userWhitelistedInfo) return userNotWhitelisted;
 
     return {
-      amountAllowedParsed: utils.formatUnits(amountAllowed),
-      userBorrowPart: utils.formatUnits(userWhitelistedInfo.userBorrowPart),
+      amountAllowedParsed: formatUnits(amountAllowed),
+      userBorrowPart: formatUnits(userWhitelistedInfo.userBorrowPart, 18),
       userWhitelistedInfo,
-      whitelisterContract,
+      contract: whitelisterContract,
     };
   } catch (error) {
     console.log("Get White Listed Info Error", error);

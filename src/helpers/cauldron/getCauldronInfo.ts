@@ -1,14 +1,52 @@
 import type { Address } from "viem";
 import type { providers } from "ethers";
+import bentoBoxAbi from "@/abis/bentoBox";
 import cauldronsConfig from "@/configs/cauldrons";
 import type { CauldronInfo } from "@/helpers/cauldron/types";
-import { MulticallWrapper } from "ethers-multicall-provider";
 import { getContracts } from "@/helpers/cauldron/getContracts";
 import { getMainParams } from "@/helpers/cauldron/getMainParams";
-import { getBentoBoxContract } from "@/helpers/publicClientHelper";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { getUserPositions } from "@/helpers/cauldron/getUserPositions";
 import { getUserTokensInfo } from "@/helpers/cauldron/getUserTokensInfo";
 import { getAdditionalInfo } from "@/helpers/cauldron/getAdditionalInfo";
+
+const getContractsInfo = async (
+  chainId: number,
+  address: Address | string,
+  abi: any
+) => {
+  const publicClient = getPublicClient(chainId);
+
+  const [bentoBoxAddress, masterContractAddress] = await publicClient.multicall(
+    {
+      contracts: [
+        {
+          address: address,
+          abi: abi,
+          functionName: "bentoBox",
+          args: [],
+        },
+        {
+          address: address,
+          abi: abi,
+          functionName: "masterContract",
+          args: [],
+        },
+      ],
+    }
+  );
+
+  return {
+    bentoBoxContract: {
+      address: bentoBoxAddress.result,
+      abi: bentoBoxAbi,
+    },
+    masterContract: {
+      address: masterContractAddress.result,
+      abi: null,
+    },
+  };
+};
 
 export const getCauldronInfo = async (
   cauldronId: number,
@@ -19,24 +57,17 @@ export const getCauldronInfo = async (
 ): Promise<CauldronInfo | null> => {
   const userSigner = address ? signer : provider;
 
-  // const multicallProvider = MulticallWrapper.wrap(provider);
-  // NOTICE: BERA TEST
-  const multicallProvider =
-    +chainId === 80085 ? provider : MulticallWrapper.wrap(provider);
-
   const config = cauldronsConfig.find(
     (config) => +config.id === +cauldronId && +config.chainId === +chainId
   );
 
   if (!config) return null;
 
-  const bentoBoxContract = await getBentoBoxContract(
+  const { bentoBoxContract, masterContract } = await getContractsInfo(
     chainId,
     config.contract.address,
     config.contract.abi
   );
-
-  const multicallContracts = await getContracts(config, multicallProvider);
 
   const mainParams = await getMainParams([config], chainId, config.contract);
 
@@ -50,10 +81,11 @@ export const getCauldronInfo = async (
   );
 
   const additionalInfo = await getAdditionalInfo(
-    multicallContracts,
-    address,
-    config,
     chainId,
+    config,
+    address,
+    masterContract,
+    bentoBoxContract,
     userSigner
   );
 
