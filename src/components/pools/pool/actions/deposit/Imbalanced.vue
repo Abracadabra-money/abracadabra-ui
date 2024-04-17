@@ -189,6 +189,8 @@ export default {
 
       if (this.isActionProcessing) return "Processing...";
 
+      if (!this.isOneSide) return "Deposit";
+
       if (!this.isBaseTokenApproved)
         return `Approve ${this.baseToken.config.name}`;
       if (!this.isQuoteTokenApproved)
