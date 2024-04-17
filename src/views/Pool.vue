@@ -17,7 +17,7 @@
         :isMyPositionPopupOpened="isMyPositionPopupOpened"
         @closePopup="isMyPositionPopupOpened = false"
         @updateInfo="getPoolInfo"
-        v-if="isUserPositionOpen && account"
+        v-if="isUserPositionOpen"
       />
 
       <div class="chart-wrap" v-if="chartOption">
@@ -59,9 +59,10 @@ export default {
 
     isUserPositionOpen() {
       return (
-        this.pool?.userInfo?.balance > 0n ||
-        this.pool.lockInfo.balances.locked > 0n ||
-        this.pool.lockInfo.balances.unlocked > 0n
+        this.account &&
+        (this.pool?.userInfo?.balance > 0n ||
+          this.pool.lockInfo?.balances.locked > 0n ||
+          this.pool.lockInfo?.balances.unlocked > 0n)
       );
     },
   },

@@ -24,7 +24,7 @@
             {{ reward.title }}
           </span>
 
-          <span class="item-value">{{ reward.value }}</span>
+          <span class="item-value">{{ reward.value }} per hour</span>
         </li>
       </ul>
     </div>
@@ -177,7 +177,7 @@ export default {
         {
           title: "Potion",
           icon: useImage("assets/images/points-dashboard/potion.png"),
-          value: "Coming soon",
+          value: "0.0",
         },
       ];
     },

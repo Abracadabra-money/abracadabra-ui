@@ -12,7 +12,11 @@
       />
     </div>
 
-    <RewardsList :rewards="rewardsPerHour" :inputAmount="inputAmount" />
+    <RewardsList
+      :rewards="rewardsPerHour"
+      :inputAmount="inputAmount"
+      :isRewardsCalculating="isRewardsCalculating"
+    />
 
     <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
       {{ buttonText }}
@@ -55,6 +59,7 @@ export default {
       inputAmount: 0n,
       inputValue: "",
       isActionProcessing: false,
+      isRewardsCalculating: false,
       rewardsPerHour: {
         pointsReward: 0,
         goldReward: 0,
@@ -110,6 +115,7 @@ export default {
 
   watch: {
     async inputAmount(value) {
+      this.isRewardsCalculating = true;
       await this.getRewardsPerHour();
 
       if (value == 0) {
@@ -141,6 +147,7 @@ export default {
           this.pool.price || 1000;
 
       this.rewardsPerHour = await getRewardsPerHour(this.pool, deposit);
+      this.isRewardsCalculating = false;
     }, 500),
 
     async approveHandler() {
@@ -278,6 +285,7 @@ export default {
   },
 
   async created() {
+    this.isRewardsCalculating = true;
     await this.getRewardsPerHour();
   },
 

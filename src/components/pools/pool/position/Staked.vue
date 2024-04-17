@@ -115,7 +115,7 @@ export default {
         {
           title: "Potion",
           icon: useImage("assets/images/points-dashboard/potion.png"),
-          value: "Coming soon",
+          value: "0.0",
         },
       ];
     },

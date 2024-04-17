@@ -18,7 +18,7 @@
       </p>
 
       <div class="value-wrap">
-        <div class="value">~{{ reward.value }}</div>
+        <div class="value">{{ reward.value }}</div>
         <p class="for-thousand" v-if="!inputAmount">for $1K</p>
       </div>
     </li>
@@ -35,6 +35,7 @@ export default {
   props: {
     rewards: { type: Object },
     inputAmount: { default: 0n },
+    isRewardsCalculating: { type: Boolean },
   },
 
   computed: {
@@ -44,19 +45,23 @@ export default {
           title: "Points",
           icon: useImage("assets/images/points-dashboard/blast.png"),
           tooltip: "Points",
-          value: formatTokenBalance(this.rewards.pointsReward),
+          value: this.isRewardsCalculating
+            ? "-"
+            : `~${formatTokenBalance(this.rewards.pointsReward)}`,
         },
         {
           title: "Gold",
           icon: useImage("assets/images/points-dashboard/gold-points.svg"),
           tooltip: "Gold",
-          value: formatTokenBalance(this.rewards.goldReward),
+          value: this.isRewardsCalculating
+            ? "-"
+            : `~${formatTokenBalance(this.rewards.goldReward)}`,
         },
         {
           title: "Potion",
           icon: useImage("assets/images/points-dashboard/potion.png"),
           tooltip: "Potion",
-          value: "0",
+          value: this.isRewardsCalculating ? "-" : "~0.0",
         },
       ];
     },
@@ -144,8 +149,16 @@ export default {
     width: 100%;
   }
 
+  .reward-icon {
+    width: 28px;
+  }
+
   .value-wrap {
     margin-left: auto;
+  }
+
+  .value {
+    font-size: 18px;
   }
 }
 </style>

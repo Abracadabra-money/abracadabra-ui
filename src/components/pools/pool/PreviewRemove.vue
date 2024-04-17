@@ -1,5 +1,5 @@
 <template>
-  <div class="info-block base">
+  <div class="info-block">
     <div class="tag">
       <span class="title">
         <RadioButton
@@ -10,7 +10,7 @@
         <BaseTokenIcon
           :name="this.pool.tokens.baseToken.config.name"
           :icon="this.pool.tokens.baseToken.config.icon"
-          size="24px"
+          size="32px"
         />
         {{ this.pool.tokens.baseToken.config.name }}
       </span>
@@ -35,7 +35,7 @@
         <BaseTokenIcon
           :name="this.pool.tokens.quoteToken.config.name"
           :icon="this.pool.tokens.quoteToken.config.icon"
-          size="24px"
+          size="32px"
         />
         {{ this.pool.tokens.quoteToken.config.name }}
       </span>
