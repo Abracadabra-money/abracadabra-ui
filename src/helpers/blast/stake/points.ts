@@ -1,15 +1,18 @@
 import axios from "axios";
 import type { Address } from "viem";
 
-export type IterableElement<TargetIterable> =
-	TargetIterable extends Iterable<infer ElementType> ?
-		ElementType : never;
+export type IterableElement<TargetIterable> = TargetIterable extends Iterable<
+  infer ElementType
+>
+  ? ElementType
+  : never;
 
 const pointsApiClient = axios.create({
   baseURL: "https://ymlcxloffmrsfereuhfa.supabase.co/rest/v1",
   headers: {
-    "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltbGN4bG9mZm1yc2ZlcmV1aGZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDk1NTM4MDMsImV4cCI6MjAyNTEyOTgwM30.hhfUPn4fw9WUdRpeXDIk6s5LskQ1HM4qMZy6G5AKjsk",
-  }
+    apikey:
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltbGN4bG9mZm1yc2ZlcmV1aGZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDk1NTM4MDMsImV4cCI6MjAyNTEyOTgwM30.hhfUPn4fw9WUdRpeXDIk6s5LskQ1HM4qMZy6G5AKjsk",
+  },
 });
 
 const states = ["pending", "finalized"] as const;
@@ -27,12 +30,13 @@ const reasons = [
   "lle_deposit_borrowed_mim",
   "founder",
   "deposit_mim_usdb_lp",
+  "phase_one_founder_bonus",
 ] as const;
 type Reason = IterableElement<typeof reasons>;
 
 const kindMap = {
-  "liquidity_points": "liquidityPoints",
-  "developer_points": "developerPoints",
+  liquidity_points: "liquidityPoints",
+  developer_points: "developerPoints",
 } as const satisfies Record<Kind, string>;
 
 const reasonMap = {
@@ -44,14 +48,20 @@ const reasonMap = {
   lle_deposit_borrowed_mim: "cauldron",
   founder: "founder",
   deposit_mim_usdb_lp: "lp",
+  phase_one_founder_bonus: "phaseOneFounderBonus",
 } as const satisfies Record<Reason, string>;
 
-const buildStatistics = (data: Array<{ 
-  state: State,
-  kind: Kind,
-  reason: Reason,
-  amount: number
-}>): Record<typeof kindMap[Kind], Record<"total" | typeof reasonMap[Reason], Record<State, number>>> => {
+const buildStatistics = (
+  data: Array<{
+    state: State;
+    kind: Kind;
+    reason: Reason;
+    amount: number;
+  }>
+): Record<
+  (typeof kindMap)[Kind],
+  Record<"total" | (typeof reasonMap)[Reason], Record<State, number>>
+> => {
   const statistics = {
     liquidityPoints: {
       total: {
@@ -75,6 +85,10 @@ const buildStatistics = (data: Array<{
         finalized: 0,
       },
       founder: {
+        pending: 0,
+        finalized: 0,
+      },
+      phaseOneFounderBonus: {
         pending: 0,
         finalized: 0,
       },
@@ -104,7 +118,11 @@ const buildStatistics = (data: Array<{
         pending: 0,
         finalized: 0,
       },
-    }
+      phaseOneFounderBonus: {
+        pending: 0,
+        finalized: 0,
+      },
+    },
   };
 
   for (const { state, kind, reason, amount } of data) {
@@ -116,16 +134,20 @@ const buildStatistics = (data: Array<{
   }
 
   return statistics;
-}
+};
 
 export const fetchPointsStatistics = async () => {
   try {
-    const { data } = await pointsApiClient.get<Array<{ 
-      state: State,
-      kind: Kind,
-      reason: Reason,
-      amount: number
-    }>>("distribution_sum_by_kind_by_reason", { params: { select: "state,kind,reason,amount" } });
+    const { data } = await pointsApiClient.get<
+      Array<{
+        state: State;
+        kind: Kind;
+        reason: Reason;
+        amount: number;
+      }>
+    >("distribution_sum_by_kind_by_reason", {
+      params: { select: "state,kind,reason,amount" },
+    });
 
     return buildStatistics(data);
   } catch (error) {
@@ -140,16 +162,23 @@ export const fetchUserPointsStatistics = async (address: Address) => {
   }
 
   try {
-    const { data } = await pointsApiClient.get<Array<{ 
-      state: State,
-      kind: Kind,
-      reason: Reason,
-      amount: number
-    }>>("distribution_sum_by_address_by_kind_by_reason", { params: { address: `eq.${address.toLowerCase()}`, select: "state,kind,reason,amount" } });
+    const { data } = await pointsApiClient.get<
+      Array<{
+        state: State;
+        kind: Kind;
+        reason: Reason;
+        amount: number;
+      }>
+    >("distribution_sum_by_address_by_kind_by_reason", {
+      params: {
+        address: `eq.${address.toLowerCase()}`,
+        select: "state,kind,reason,amount",
+      },
+    });
 
     return buildStatistics(data);
   } catch (error) {
     console.log("Error fetching user points statistics", error);
-    return buildStatistics([])
+    return buildStatistics([]);
   }
 };
