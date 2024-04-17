@@ -19,7 +19,7 @@
 
       <div class="value-wrap">
         <div class="value">~{{ reward.value }}</div>
-        <p class="for-thousand" v-if="!inputAmount && index == 0">for $1K</p>
+        <p class="for-thousand" v-if="!inputAmount">for $1K</p>
       </div>
     </li>
   </ul>
