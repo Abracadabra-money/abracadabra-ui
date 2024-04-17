@@ -61,6 +61,57 @@
       </div>
     </div>
 
+    <div class="bonus-wrap" v-if="+oneFounderBonus || +goldOneFounderBonus">
+      Early Founder’s bonus
+
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="21"
+        viewBox="0 0 20 21"
+        fill="none"
+        @mousemove="isBonusTooltipOpen = true"
+        @mouseleave="isBonusTooltipOpen = false"
+      >
+        <path
+          d="M10 3.125L9.99943 3.125C8.04429 3.12722 6.16986 3.90488 4.78737 5.28737C3.40488 6.66987 2.62722 8.5443 2.625 10.4994V10.5C2.625 11.9586 3.05754 13.3845 3.86791 14.5973C4.67829 15.8101 5.8301 16.7554 7.17771 17.3136C8.52531 17.8718 10.0082 18.0179 11.4388 17.7333C12.8694 17.4487 14.1835 16.7463 15.2149 15.7149C16.2463 14.6835 16.9487 13.3694 17.2333 11.9388C17.5179 10.5082 17.3718 9.02532 16.8136 7.67771C16.2554 6.33011 15.3101 5.17829 14.0973 4.36791C12.8845 3.55754 11.4586 3.125 10 3.125ZM9.63623 6.81944L9.24948 6.56102L9.63623 6.81944C9.6843 6.7475 9.75263 6.69142 9.83258 6.65831C9.91252 6.62519 10.0005 6.61653 10.0854 6.63341C10.1702 6.65029 10.2482 6.69196 10.3094 6.75314C10.3705 6.81433 10.4122 6.89229 10.4291 6.97715C10.446 7.06202 10.4373 7.14998 10.4042 7.22993C10.3711 7.30987 10.315 7.3782 10.2431 7.42627C10.1711 7.47434 10.0865 7.5 10 7.5C9.88397 7.5 9.77269 7.45391 9.69064 7.37186C9.60859 7.28981 9.5625 7.17853 9.5625 7.0625C9.5625 6.97597 9.58816 6.89139 9.63623 6.81944ZM14.2362 16.84C12.9824 17.6777 11.5084 18.1249 10.0005 18.125C7.97875 18.1229 6.04042 17.3188 4.61082 15.8892C3.18128 14.4596 2.3772 12.5214 2.375 10.4997C2.37505 8.99174 2.82225 7.51763 3.66004 6.26378C4.49789 5.00986 5.68875 4.03254 7.08204 3.45542C8.47533 2.8783 10.0085 2.7273 11.4876 3.02152C12.9667 3.31573 14.3253 4.04194 15.3917 5.10831C16.4581 6.17469 17.1843 7.53333 17.4785 9.01244C17.7727 10.4915 17.6217 12.0247 17.0446 13.418C16.4675 14.8113 15.4901 16.0021 14.2362 16.84ZM10.125 9.875V14.25C10.125 14.2832 10.1118 14.3149 10.0884 14.3384C10.0649 14.3618 10.0331 14.375 10 14.375C9.96685 14.375 9.93505 14.3618 9.91161 14.3384C9.88817 14.3149 9.875 14.2832 9.875 14.25V9.875C9.875 9.84185 9.88817 9.81006 9.91161 9.78661C9.93505 9.76317 9.96685 9.75 10 9.75C10.0332 9.75 10.0649 9.76317 10.0884 9.78662C10.1118 9.81006 10.125 9.84185 10.125 9.875Z"
+          fill="black"
+          stroke="black"
+        />
+      </svg>
+
+      <div class="bonus-tooltip triangle" v-show="isBonusTooltipOpen">
+        <div class="bonus-row">
+          <span class="bonus-info">
+            <img
+              class="bonus-icon"
+              src="@/assets/images/points-dashboard/blast.png"
+              alt=""
+            />
+            Amet
+          </span>
+          <span>{{ oneFounderBonus }}</span>
+        </div>
+
+        <div class="bonus-row">
+          <span class="bonus-info">
+            <img
+              class="bonus-icon"
+              src="@/assets/images/points-dashboard/gold-points.svg"
+              alt=""
+            />
+            Amet
+          </span>
+          <span>{{ goldOneFounderBonus }}</span>
+        </div>
+
+        <div class="bonus-discription">
+          Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet
+          sint.
+        </div>
+      </div>
+    </div>
+
     <div class="point-tabs-wrap" v-if="!showLockList">
       <div class="point-tabs">
         <button
@@ -244,6 +295,7 @@ export default {
           title: "Potions",
         },
       ],
+      isBonusTooltipOpen: false,
     };
   },
 
@@ -267,25 +319,47 @@ export default {
 
     distributionAmount() {
       return formatTokenBalance(
-        this.userPointsStatistics?.liquidityPoints?.founder?.finalized ?? 0
+        this.userPointsStatistics?.liquidityPoints?.founder?.finalized +
+          this.userPointsStatistics?.liquidityPoints?.phaseOneFounderBonus
+            ?.finalized ?? 0
+      );
+    },
+
+    oneFounderBonus() {
+      return formatTokenBalance(
+        this.userPointsStatistics?.liquidityPoints?.phaseOneFounderBonus
+          ?.finalized ?? 0
       );
     },
 
     pendingDistributionAmount() {
       return formatTokenBalance(
-        this.userPointsStatistics?.liquidityPoints?.founder?.pending ?? 0
+        this.userPointsStatistics?.liquidityPoints?.founder?.pending +
+          this.userPointsStatistics?.liquidityPoints?.phaseOneFounderBonus
+            ?.pending ?? 0
       );
     },
 
     goldDistributionAmount() {
       return formatTokenBalance(
-        this.userPointsStatistics?.developerPoints?.founder?.finalized ?? 0
+        this.userPointsStatistics?.developerPoints?.founder?.finalized +
+          this.userPointsStatistics?.developerPoints?.phaseOneFounderBonus
+            ?.finalized ?? 0
+      );
+    },
+
+    goldOneFounderBonus() {
+      return formatTokenBalance(
+        this.userPointsStatistics?.developerPoints?.phaseOneFounderBonus
+          ?.finalized ?? 0
       );
     },
 
     goldPendingDistributionAmount() {
       return formatTokenBalance(
-        this.userPointsStatistics?.developerPoints?.founder?.pending ?? 0
+        this.userPointsStatistics?.developerPoints?.founder?.pending +
+          this.userPointsStatistics?.developerPoints?.phaseOneFounderBonus
+            ?.pending ?? 0
       );
     },
 
@@ -471,6 +545,78 @@ export default {
   font-size: 14px;
 }
 
+.bonus-wrap {
+  position: relative;
+  width: 100%;
+  height: 25px;
+  background-image: url("@/assets/images/blast/early-label.svg");
+  background-repeat: no-repeat;
+  background-size: contain;
+  gap: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #000;
+  font-weight: 500;
+}
+
+.bonus-tooltip {
+  position: absolute;
+  bottom: 150%;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  width: 100%;
+  z-index: 10;
+  padding: 12px 20px;
+  border-radius: 12px;
+  background: #070b14;
+  backdrop-filter: blur(16px);
+  gap: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.triangle::after {
+  content: "";
+  position: absolute;
+  transition: all 0.3s ease-in;
+  bottom: -20px;
+  left: 71%;
+  border-top: 10px solid black;
+  border-bottom: 10px solid transparent;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+}
+
+.bonus-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #fff;
+}
+
+.bonus-info {
+  gap: 4px;
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 150%;
+}
+
+.bonus-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.bonus-discription {
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 150%;
+}
+
 .point-tabs-wrap {
   border-radius: 16px;
   background: rgba(0, 0, 0, 0.2);
@@ -614,5 +760,11 @@ export default {
   color: #878b93;
   font-size: 12px;
   line-height: 120%;
+}
+
+@media screen and (max-width: 1200px) {
+  .triangle::after {
+    left: calc(50% - 10px);
+  }
 }
 </style>
