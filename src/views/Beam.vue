@@ -91,7 +91,7 @@
       />
 
       <SettingsPopup
-        v-if="isSettingsOpened"
+        v-if="isSettingsOpened && toChain"
         :beamInfoObject="beamInfoObject"
         :dstChainInfo="toChain"
         :dstNativeTokenAmount="dstTokenAmount"
@@ -115,42 +115,47 @@ import {
   waitForMessageReceived,
   createClient,
 } from "@layerzerolabs/scan-client";
-import { BigNumber, utils } from "ethers";
+import { utils } from "ethers";
 import { defineAsyncComponent } from "vue";
-import { useImage } from "@/helpers/useImage";
 import { trimZeroDecimals } from "@/helpers/numbers";
-import { approveTokenViem } from "@/helpers/approval.ts";
-import { sendFrom } from "@/helpers/beam/sendFromNew.ts";
+import { approveTokenViem } from "@/helpers/approval";
+import { sendFrom } from "@/helpers/beam/sendFromNew";
 import { mapGetters, mapActions, mapMutations } from "vuex";
-import { formatUSD, formatToFixed } from "@/helpers/filters";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
 
 import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFeeNew";
 
 import { getBeamInfo } from "@/helpers/beam/getBeamInfo";
-import { formatUnits, parseUnits } from "viem";
+import { formatUnits, type Address } from "viem";
+
+import type {
+  BeamConfig,
+  BeamInfo,
+  DestinationChainInfo,
+} from "@/helpers/beam/types";
+import type { ContractInfo } from "@/types/global";
 
 export default {
   data() {
     return {
-      dstAddress: null,
+      dstAddress: null as string | null,
       dstAddressError: false,
-      popupType: "to",
+      popupType: "to" as "to" | "from",
       isOpenNetworkPopup: false,
       updateInterval: null,
       isSettingsOpened: false,
       isOpenSuccessPopup: false,
       tx: null,
-      successData: null,
+      successData: null as any,
 
       isApproving: false,
       isBeaming: false,
       isUpdateFeesData: false,
 
-      beamInfoObject: null,
-      fromChain: null,
-      toChain: null,
+      beamInfoObject: undefined as BeamInfo | undefined,
+      fromChain: undefined as BeamConfig | undefined,
+      toChain: undefined as BeamConfig | undefined,
 
       dstTokenAmount: 0n,
 
@@ -175,15 +180,17 @@ export default {
     },
 
     tokenConfig() {
-      return this.beamInfoObject.tokenConfig;
+      return this.beamInfoObject?.tokenConfig;
     },
 
     toAddressBytes() {
       return utils.defaultAbiCoder.encode(["address"], [this.toAddress]);
     },
 
-    // TODO: fix naming & conditions
     isTokenApproved() {
+      if (!this.beamInfoObject) return false;
+
+      // TODO: fix naming & conditions
       if (this.chainId === 8453) return true;
       if (this.chainId === 59144) return true;
 
@@ -191,6 +198,8 @@ export default {
     },
 
     amountError() {
+      if (!this.beamInfoObject) return "";
+
       if (this.inputAmount > this.beamInfoObject.userInfo.balance) {
         return `The value cannot be greater than ${this.maxMimAmountParsed}`;
       }
@@ -256,7 +265,10 @@ export default {
       this.inputValue = trimZeroDecimals(formatUnits(value, 18));
     },
     fromChain(value) {
-      if (this.beamInfoObject.fromChainConfig.chainId !== value.chainId) {
+      if (
+        this.beamInfoObject &&
+        this.beamInfoObject.fromChainConfig.chainId !== value.chainId
+      ) {
         this.clearData();
         this.initBeamInfo(value.chainId);
       }
@@ -293,12 +305,12 @@ export default {
       this.estimateSendFee = await this.getEstimatedFees();
     },
 
-    updateDestinationAddress(address, error) {
+    updateDestinationAddress(address: string, error: boolean) {
       this.dstAddress = address;
       this.dstAddressError = error;
     },
 
-    errorDestinationAddress(error) {
+    errorDestinationAddress(error: boolean) {
       this.dstAddressError = error;
     },
 
@@ -311,14 +323,14 @@ export default {
       }
 
       if (this.isWrongChain) {
-        await switchNetwork(this.fromChain.chainId);
+        await switchNetwork(this.fromChain!.chainId);
         return false;
       }
 
-      const beamContract = this.beamInfoObject.fromChainConfig.contract;
-      const mimContract = {
-        address: this.beamInfoObject.tokenConfig.address,
-        abi: this.beamInfoObject.tokenConfig.abi,
+      const beamContract = this.beamInfoObject!.fromChainConfig.contract;
+      const mimContract: ContractInfo = {
+        address: this.beamInfoObject!.tokenConfig.address as Address,
+        abi: this.beamInfoObject!.tokenConfig.abi,
       };
 
       const notificationId = await this.createNotification(
@@ -354,7 +366,7 @@ export default {
       await this.seendBeam(notificationId);
     },
 
-    async seendBeam(notificationId) {
+    async seendBeam(notificationId: number) {
       this.isBeaming = true;
 
       try {
@@ -364,29 +376,35 @@ export default {
           fees,
           params,
           amount: this.inputAmount,
-          dstLzChainId: this.toChain.settings.lzChainId,
+          dstLzChainId: this.toChain!.settings.lzChainId,
           to: this.toAddressBytes,
           account: this.account,
         };
 
         const hash = await sendFrom(
-          this.beamInfoObject.fromChainConfig,
+          this.beamInfoObject!.fromChainConfig,
           payload
         );
 
         this.deleteNotification(notificationId);
         this.isBeaming = false;
 
+        const dstChainFullInfo =
+          this.beamInfoObject!.destinationChainsInfo.find(
+            (chain: DestinationChainInfo) =>
+              chain.chainConfig.chainId === this.toChain!.chainId
+          );
+
+        const dstNativePrice = dstChainFullInfo!.nativePrice;
+
         const successPopupData = {
           originChain: {
             ...this.fromChain,
-            nativePrice: this.beamInfoObject.nativePrice,
+            nativePrice: this.beamInfoObject!.nativePrice,
           },
           dstChain: {
             ...this.toChain,
-            nativePrice: this.beamInfoObject.destinationChainsInfo.find(
-              (chain) => chain.chainConfig.chainId === this.toChain.chainId
-            ).nativePrice,
+            nativePrice: dstNativePrice,
           },
           txPayload: {
             ...payload,
@@ -414,8 +432,10 @@ export default {
       if (this.inputAmount === 0n) return 0n;
 
       this.isUpdateFeesData = true;
+
+      // @ts-ignore
       const { fees, params } = await getEstimateSendFee(
-        this.beamInfoObject,
+        this.beamInfoObject!,
         this.toChain,
         this.account,
         this.dstTokenAmount,
@@ -430,7 +450,7 @@ export default {
       else return updatedFee;
     },
 
-    async errorTransaction(error, notificationId) {
+    async errorTransaction(error: any, notificationId: any) {
       const errorNotification = {
         msg: "Transaction encountered an Error",
         type: "error",
@@ -460,9 +480,9 @@ export default {
       this.isOpenNetworkPopup = false;
     },
 
-    async changeChain(chainId, type) {
+    async changeChain(chainId: number, type: string) {
       console.log("changeChain", { chainId, type });
-      const chainConfig = this.beamInfoObject.beamConfigs.find(
+      const chainConfig = this.beamInfoObject!.beamConfigs.find(
         (chain) => chain.chainId === chainId
       );
 
@@ -480,8 +500,8 @@ export default {
 
       this.clearData();
       this.fromChain = toChain;
-      this.toChain = null;
-      await this.initBeamInfo(this.fromChain.chainId);
+      this.toChain = undefined;
+      await this.initBeamInfo(this.fromChain!.chainId);
       this.toChain = fromChain;
     },
 
@@ -498,7 +518,7 @@ export default {
     //   return messages[0];
     // },
 
-    async initBeamInfo(chainId) {
+    async initBeamInfo(chainId: number) {
       try {
         this.beamInfoObject = await getBeamInfo(chainId, this.account);
       } catch (error) {
@@ -507,6 +527,8 @@ export default {
     },
 
     setDefaulChain() {
+      if (!this.beamInfoObject) return;
+
       this.fromChain = this.beamInfoObject.beamConfigs.find(
         (chain) => chain.chainId === this.chainId
       );

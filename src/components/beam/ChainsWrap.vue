@@ -46,15 +46,11 @@ const EmptyChain = {
 export default {
   emits: ["onChainSelectClick", "switchChains"],
   props: {
-    beamConfigs: {
-      type: Array as PropType<BeamConfig[]>,
-      required: true,
-    },
     fromChain: {
-      type: Object as PropType<BeamConfig> | null,
+      type: Object as PropType<BeamConfig>,
     },
     toChain: {
-      type: Object as PropType<BeamConfig> | null,
+      type: Object as PropType<BeamConfig>,
     },
   },
 

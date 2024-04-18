@@ -44,7 +44,7 @@ export type BeamUserInfo = {
 export type BeamInfo = {
   beamConfigs: Array<BeamConfig>;
   fromChainConfig: BeamConfig;
-  destinationChainsInfo: DestinationChainInfo;
+  destinationChainsInfo: Array<DestinationChainInfo>;
   tokenConfig: BeamTokenConfig;
   mimPrice: number;
   nativePrice: number;
