@@ -88,9 +88,8 @@
               src="@/assets/images/points-dashboard/blast.png"
               alt=""
             />
-            Amet
+            {{ oneFounderBonus }}
           </span>
-          <span>{{ oneFounderBonus }}</span>
         </div>
 
         <div class="bonus-row">
@@ -100,14 +99,13 @@
               src="@/assets/images/points-dashboard/gold-points.svg"
               alt=""
             />
-            Amet
+            {{ goldOneFounderBonus }}
           </span>
-          <span>{{ goldOneFounderBonus }}</span>
         </div>
 
         <div class="bonus-discription">
-          Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet
-          sint.
+          Early Founder only rewards distribution. Thanks for participating in
+          LLE
         </div>
       </div>
     </div>
@@ -597,7 +595,7 @@ export default {
 }
 
 .bonus-info {
-  gap: 4px;
+  gap: 8px;
   display: flex;
   align-items: center;
   font-size: 12px;
