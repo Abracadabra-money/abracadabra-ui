@@ -336,15 +336,6 @@ export default {
   font-weight: 500;
 }
 
-.pool-rate {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 500;
-}
-
 .rewards-wrap {
   display: flex;
   flex-direction: column;

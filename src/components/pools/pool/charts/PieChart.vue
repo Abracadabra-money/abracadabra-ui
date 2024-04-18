@@ -62,7 +62,4 @@ onMounted(() => {
   height: 300px;
   width: 300px;
 }
-
-@media screen and (max-width: 1024px) {
-}
 </style>

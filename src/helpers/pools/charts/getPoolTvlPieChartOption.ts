@@ -8,7 +8,7 @@ export const getPoolTvlPieChartOption = async (pool: any) => {
   return {
     title: {
       show: true,
-      text: `Total`,
+      text: `TVL`,
       textStyle: {
         color: "rgba(153, 160, 178, 1)",
         fontSize: 14,

@@ -3,7 +3,10 @@
     <PoolCompoundCard :lpToken="lpToken" :tokensList="tokensList" />
 
     <div class="rewards-wrap">
-      <h4 class="title">Staking rewards earned</h4>
+      <h4 class="title">
+        Staking rewards earned
+        <Tooltip tooltip="tooltip" :width="20" :height="20" />
+      </h4>
 
       <ul class="rewards-list">
         <li
@@ -142,6 +145,9 @@ export default {
     PoolCompoundCard: defineAsyncComponent(() =>
       import("@/components/pools/pool/position/cards/PoolCompoundCard.vue")
     ),
+    Tooltip: defineAsyncComponent(() =>
+      import("@/components/ui/icons/Tooltip.vue")
+    ),
   },
 };
 </script>
@@ -153,25 +159,11 @@ export default {
   gap: 16px;
 }
 
-.subtitle-wrap {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.subtitle {
-  color: #fff;
-  font-size: 16px;
-  font-weight: 500;
-  letter-spacing: 0.45px;
-}
-
-.pool-rate {
+.title {
   display: flex;
   align-items: center;
   gap: 4px;
-  color: #fff;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 500;
 }
 
