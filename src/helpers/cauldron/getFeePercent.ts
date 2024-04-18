@@ -1,22 +1,25 @@
-import { Contract } from "ethers";
-import type { providers } from "ethers";
-
-const CONTRACT_ABI = ["function feePercent() external view returns(uint8)"];
+const CONTRACT_ABI = [
+  {
+    inputs: [],
+    name: "feePercent",
+    outputs: [{ internalType: "uint8", name: "", type: "uint8" }],
+    stateMutability: "view",
+    type: "function",
+  },
+];
 
 export const getFeePercent = async (
-  config: Object,
-  provider: providers.BaseProvider,
-  chainId: number
+  config: any,
+  chainId: number,
+  publicClient: any
 ) => {
-  const { id, collateralInfo }: any = config;
-  if (chainId === 42161 && id === 2) {
-    const contract = await new Contract(
-      collateralInfo.address,
-      CONTRACT_ABI,
-      provider
-    );
-
-    return await contract.feePercent();
+  if (chainId === 42161 && config.id === 2) {
+    return await publicClient.readContract({
+      address: config.collateralInfo.address,
+      abi: CONTRACT_ABI,
+      functionName: "feePercent",
+      args: [],
+    });
   }
 
   return null;
