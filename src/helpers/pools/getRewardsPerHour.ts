@@ -1,11 +1,12 @@
-import { fetchPointsStatistics } from "@/helpers/blast/stake/points";
 import { formatUnits } from "viem";
 import store from "@/store";
 
-export const getRewardsPerHour = async (pool: any, deposit = 0) => {
+export const getRewardsPerHour = async (
+  pool: any,
+  pointsStatistics: any,
+  deposit = 0
+) => {
   const publicClient = store.getters.getChainById(pool.chainId).publicClient;
-
-  const pointsStatistics = await fetchPointsStatistics();
 
   const pointsRate = pointsStatistics?.liquidityPoints?.lp?.pending || 0;
 

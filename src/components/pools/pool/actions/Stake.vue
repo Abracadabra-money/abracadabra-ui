@@ -46,7 +46,7 @@ import { notificationErrorMsg } from "@/helpers/notification/notificationError.j
 export default {
   props: {
     pool: { type: Object },
-    userPointsStatistics: { type: Object },
+    pointsStatistics: { type: Object },
     slippage: { type: BigInt, default: 100n },
     deadline: { type: BigInt, default: 100n },
     isLock: { type: Boolean },
@@ -146,7 +146,11 @@ export default {
         Number(formatUnits(this.inputAmount, this.pool.decimals)) *
           this.pool.price || 1000;
 
-      this.rewardsPerHour = await getRewardsPerHour(this.pool, deposit);
+      this.rewardsPerHour = await getRewardsPerHour(
+        this.pool,
+        this.pointsStatistics.global,
+        deposit
+      );
       this.isRewardsCalculating = false;
     }, 500),
 

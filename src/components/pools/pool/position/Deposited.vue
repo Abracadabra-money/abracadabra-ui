@@ -3,15 +3,10 @@
     <PoolCompoundCard :lpToken="lpToken" :tokensList="tokensList" />
 
     <div class="rewards-wrap">
-      <h4 class="title">Stake your LP tokens</h4>
-
-      <h5 class="subtitle-wrap">
-        <span class="subtitle">Rewards</span>
-        <span class="pool-rate">
-          Pool Rate
-          <Tooltip tooltip="tooltip" :width="20" :height="20" />
-        </span>
-      </h5>
+      <h4 class="title">
+        Stake your LP tokens
+        <Tooltip tooltip="tooltip" :width="20" :height="20" />
+      </h4>
 
       <ul class="rewards-list">
         <li
@@ -24,7 +19,8 @@
             {{ reward.title }}
           </span>
 
-          <span class="item-value">{{ reward.value }} per hour</span>
+          <RowSkeleton v-if="isRewardsCalculating" />
+          <span class="item-value" v-else>{{ reward.value }} per hour</span>
         </li>
       </ul>
     </div>
@@ -56,7 +52,7 @@ import { useImage } from "@/helpers/useImage";
 export default {
   props: {
     pool: { type: Object },
-    userPointsStatistics: { type: Object },
+    pointsStatistics: { type: Object },
   },
 
   data() {
@@ -66,6 +62,7 @@ export default {
         goldReward: 0,
       },
       isActionProcessing: false,
+      isRewardsCalculating: false,
     };
   },
 
@@ -183,6 +180,16 @@ export default {
     },
   },
 
+  watch: {
+    pointsStatistics: {
+      async handler() {
+        this.isRewardsCalculating = true;
+        await this.getRewardsPerHour();
+      },
+      deep: true,
+    },
+  },
+
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
@@ -194,7 +201,13 @@ export default {
         Number(formatUnits(this.pool.userInfo.balance, this.pool.decimals)) *
         this.pool.price;
 
-      this.rewardsPerHour = await getRewardsPerHour(this.pool, deposit);
+      this.rewardsPerHour = await getRewardsPerHour(
+        this.pool,
+        this.pointsStatistics.global,
+        deposit
+      );
+
+      this.isRewardsCalculating = false;
     },
 
     async approveHandler() {
@@ -284,13 +297,10 @@ export default {
     formatTokenBalance(value, decimals) {
       return formatTokenBalance(formatUnits(value, decimals));
     },
-
-    onUpdate() {
-      this.$emit("updateInfo");
-    },
   },
 
-  async updated() {
+  async created() {
+    this.isRewardsCalculating = true;
     await this.getRewardsPerHour();
   },
 
@@ -304,6 +314,9 @@ export default {
     PoolCompoundCard: defineAsyncComponent(() =>
       import("@/components/pools/pool/position/cards/PoolCompoundCard.vue")
     ),
+    RowSkeleton: defineAsyncComponent(() =>
+      import("@/components/ui/skeletons/RowSkeleton.vue")
+    ),
   },
 };
 </script>
@@ -315,17 +328,12 @@ export default {
   gap: 16px;
 }
 
-.subtitle-wrap {
+.title {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-}
-
-.subtitle {
-  color: #fff;
-  font-size: 16px;
+  gap: 4px;
+  font-size: 18px;
   font-weight: 500;
-  letter-spacing: 0.45px;
 }
 
 .pool-rate {
@@ -341,6 +349,7 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 7px;
+  margin-bottom: 31px;
 }
 
 .rewards-list {
@@ -369,5 +378,15 @@ export default {
 .item-value {
   font-size: 16px;
   font-weight: 400;
+}
+
+.row-skeleton {
+  height: 13px !important;
+  background-image: linear-gradient(
+    90deg,
+    rgb(23, 30, 59) 0px,
+    rgb(36, 43, 67) 60px,
+    rgb(23, 30, 59) 120px
+  ) !important;
 }
 </style>

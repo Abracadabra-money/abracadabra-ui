@@ -34,6 +34,7 @@
 
     <Stake
       :pool="pool"
+      :pointsStatistics="pointsStatistics"
       :slippage="slippage"
       :deadline="deadline"
       :isLock="isLock"
@@ -50,6 +51,7 @@ import moment from "moment";
 export default {
   props: {
     pool: { type: Object },
+    pointsStatistics: { type: Object },
     slippage: { type: BigInt },
     deadline: { type: BigInt },
   },

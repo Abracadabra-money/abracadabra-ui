@@ -1,29 +1,29 @@
 <template>
-  <div class="pool-view">
-    <div class="pool" v-if="pool">
+  <div class="pool-view" v-if="pool">
+    <div class="chart-wrap" v-if="chartOption">
+      <PieChart :option="chartOption" />
+    </div>
+
+    <div class="pool">
       <PoolActionBlock
         :pool="pool"
-        :userPointsStatistics="userPointsStatistics"
+        :pointsStatistics="pointsStatistics"
         :isUserPositionOpen="isUserPositionOpen"
         @getPoolInfo="getPoolInfo"
         @openPositionPopup="isMyPositionPopupOpened = true"
       />
 
       <PoolComposition :pool="this.pool" />
-
-      <PoolPosition
-        :pool="pool"
-        :userPointsStatistics="userPointsStatistics"
-        :isMyPositionPopupOpened="isMyPositionPopupOpened"
-        @closePopup="isMyPositionPopupOpened = false"
-        @updateInfo="getPoolInfo"
-        v-if="isUserPositionOpen"
-      />
-
-      <div class="chart-wrap" v-if="chartOption">
-        <PieChart :option="chartOption" />
-      </div>
     </div>
+
+    <PoolPosition
+      :pool="pool"
+      :pointsStatistics="pointsStatistics"
+      :isMyPositionPopupOpened="isMyPositionPopupOpened"
+      @closePopup="isMyPositionPopupOpened = false"
+      @updateInfo="getPoolInfo"
+      v-if="isUserPositionOpen"
+    />
   </div>
 </template>
 
@@ -32,7 +32,10 @@ import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
 import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
 import { getPoolTvlPieChartOption } from "@/helpers/pools/charts/getPoolTvlPieChartOption";
-import { fetchUserPointsStatistics } from "@/helpers/blast/stake/points";
+import {
+  fetchUserPointsStatistics,
+  fetchPointsStatistics,
+} from "@/helpers/blast/stake/points";
 
 export default {
   props: {
@@ -43,6 +46,10 @@ export default {
   data() {
     return {
       pool: null,
+      pointsStatistics: {
+        user: null,
+        global: null,
+      },
       userPointsStatistics: null,
       isMyPositionPopupOpened: false,
       poolsTimer: null,
@@ -96,7 +103,8 @@ export default {
   async created() {
     await this.getPoolInfo();
 
-    this.userPointsStatistics = await fetchUserPointsStatistics(this.account);
+    this.pointsStatistics.user = await fetchUserPointsStatistics(this.account);
+    this.pointsStatistics.global = await fetchPointsStatistics();
 
     this.chartOption = await getPoolTvlPieChartOption(this.pool);
 
@@ -142,14 +150,15 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 0 30px;
-  width: 593px;
+  padding: 0 20px;
+  width: 583px;
 }
 
 .chart-wrap {
-  position: absolute;
-  top: 129px;
-  left: -302px;
+  margin-top: 129px;
+}
+
+.chart {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -166,12 +175,26 @@ export default {
 }
 
 @media (max-width: 1400px) {
+  .pool-view {
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 16px;
+  }
+
   .pool {
     position: static;
   }
 
   .chart-wrap {
+    padding: 0 20px;
+    margin-top: 0;
+    width: 100%;
+    max-width: 583px;
+  }
+
+  .chart {
     position: static;
+    width: 100% !important;
   }
 }
 

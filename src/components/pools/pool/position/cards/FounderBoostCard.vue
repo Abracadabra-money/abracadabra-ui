@@ -104,6 +104,7 @@ export default {
 .title {
   display: flex;
   align-items: center;
+  gap: 4px;
   font-size: 16px;
   font-weight: 500;
 }

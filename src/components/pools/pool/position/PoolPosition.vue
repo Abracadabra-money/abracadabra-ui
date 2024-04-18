@@ -16,20 +16,20 @@
 
       <Deposited
         :pool="pool"
-        :userPointsStatistics="userPointsStatistics"
+        :pointsStatistics="pointsStatistics"
         @updatePoolInfo="$emit('updateInfo')"
         v-show="activeTab === 'deposited'"
       />
 
       <Staked
         :pool="pool"
-        :userPointsStatistics="userPointsStatistics"
+        :userPointsStatistics="pointsStatistics.user"
         v-show="activeTab === 'staked'"
       />
 
       <Locked
         :pool="pool"
-        :userPointsStatistics="userPointsStatistics"
+        :userPointsStatistics="pointsStatistics.user"
         v-show="activeTab === 'locked'"
       />
     </div>
@@ -42,7 +42,7 @@ import { defineAsyncComponent } from "vue";
 export default {
   props: {
     pool: { type: Object },
-    userPointsStatistics: { type: Object },
+    pointsStatistics: { type: Object },
     isMyPositionPopupOpened: { type: Boolean, default: false },
   },
 
@@ -60,17 +60,15 @@ export default {
       this.activeTab = action;
     },
 
-    onUpdate() {
-      this.$emit("updateInfo");
-    },
-
     closePopup() {
       this.$emit("closePopup");
     },
   },
 
   components: {
-    Tabs: defineAsyncComponent(() => import("@/components/ui/Tabs.vue")),
+    Tabs: defineAsyncComponent(() =>
+      import("@/components/pools/pool/position/Tabs.vue")
+    ),
     Deposited: defineAsyncComponent(() =>
       import("@/components/pools/pool/position/Deposited.vue")
     ),
@@ -86,20 +84,18 @@ export default {
 
 <style lang="scss" scoped>
 .pool-position-wrap {
-  position: absolute;
-  top: 128px;
-  right: -380px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 12px;
+  margin-top: 129px;
   z-index: 3;
 }
 
 .pool-position {
   display: flex;
   flex-direction: column;
-  width: 385px;
+  width: 354px;
   padding: 16px;
   gap: 16px;
   border-radius: 16px;

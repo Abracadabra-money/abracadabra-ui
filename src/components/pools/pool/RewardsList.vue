@@ -8,7 +8,7 @@
       <img class="reward-icon" :src="reward.icon" />
 
       <p class="reward-title">
-        {{ reward.title }} per hour
+        Hourly rate
         <Tooltip
           :tooltip="reward.tooltip"
           :height="20"
@@ -17,9 +17,16 @@
         />
       </p>
 
-      <div class="value-wrap">
-        <div class="value">{{ reward.value }}</div>
-        <p class="for-thousand" v-if="!inputAmount">for $1K</p>
+      <div class="value-wrap" v-if="index == 2">
+        <div class="value">~0.0</div>
+        <p class="for-thousand">Coming soon</p>
+      </div>
+      <div class="value-wrap" v-else>
+        <RowSkeleton v-if="isRewardsCalculating" />
+        <div class="value" v-else>{{ reward.value }}</div>
+        <p class="for-thousand" v-if="!inputAmount && !isRewardsCalculating">
+          per $1K
+        </p>
       </div>
     </li>
   </ul>
@@ -45,23 +52,19 @@ export default {
           title: "Points",
           icon: useImage("assets/images/points-dashboard/blast.png"),
           tooltip: "Points",
-          value: this.isRewardsCalculating
-            ? "-"
-            : `~${formatTokenBalance(this.rewards.pointsReward)}`,
+          value: `~${formatTokenBalance(this.rewards.pointsReward)}`,
         },
         {
           title: "Gold",
           icon: useImage("assets/images/points-dashboard/gold-points.svg"),
           tooltip: "Gold",
-          value: this.isRewardsCalculating
-            ? "-"
-            : `~${formatTokenBalance(this.rewards.goldReward)}`,
+          value: `~${formatTokenBalance(this.rewards.goldReward)}`,
         },
         {
           title: "Potion",
           icon: useImage("assets/images/points-dashboard/potion.png"),
           tooltip: "Potion",
-          value: this.isRewardsCalculating ? "-" : "~0.0",
+          value: "~0.0",
         },
       ];
     },
@@ -76,6 +79,9 @@ export default {
   components: {
     Tooltip: defineAsyncComponent(() =>
       import("@/components/ui/icons/Tooltip.vue")
+    ),
+    RowSkeleton: defineAsyncComponent(() =>
+      import("@/components/ui/skeletons/RowSkeleton.vue")
     ),
   },
 };
@@ -123,6 +129,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
 }
 
 .value {
@@ -135,6 +142,16 @@ export default {
   font-size: 12px;
   font-weight: 500;
   line-height: 12px;
+}
+
+.row-skeleton {
+  height: 13px !important;
+  background-image: linear-gradient(
+    90deg,
+    rgb(23, 30, 59) 0px,
+    rgb(36, 43, 67) 60px,
+    rgb(23, 30, 59) 120px
+  ) !important;
 }
 
 @media (max-width: 600px) {
@@ -154,6 +171,8 @@ export default {
   }
 
   .value-wrap {
+    min-width: 60px;
+    width: auto;
     margin-left: auto;
   }
 

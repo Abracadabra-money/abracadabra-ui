@@ -59,9 +59,8 @@ onMounted(() => {
 .chart {
   max-width: 100%;
   max-height: 100%;
-  height: 252px;
-  width: 252px;
-  margin: auto;
+  height: 300px;
+  width: 300px;
 }
 
 @media screen and (max-width: 1024px) {

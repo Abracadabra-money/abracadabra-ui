@@ -142,7 +142,11 @@ export default {
   },
 
   async created() {
-    this.userLocks = await getUserLocks(this.account, this.chainId, this.pool);
+    this.userLocks = await getUserLocks(
+      this.account,
+      this.pool.chainId,
+      this.pool
+    );
   },
 
   components: {

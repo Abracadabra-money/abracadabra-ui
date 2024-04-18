@@ -4,8 +4,6 @@
       <div class="title-settings">
         <h3 class="title">MIM Pool</h3>
 
-        <BaseButton class="link-button" @click="goToSwap">Swap</BaseButton>
-
         <SwapSettingsPopup
           :slippage="50n"
           :defaultSlippage="50n"
@@ -46,6 +44,7 @@
 
     <DepositStakeWrap
       :pool="pool"
+      :pointsStatistics="pointsStatistics"
       :slippage="slippage"
       :deadline="deadline"
       @updatePoolInfo="$emit('getPoolInfo')"
@@ -66,6 +65,7 @@ export const actionStatus = {
 export default {
   props: {
     pool: { type: Object },
+    pointsStatistics: { type: Object },
     isUserPositionOpen: { type: Boolean, default: false },
   },
 
@@ -99,18 +99,9 @@ export default {
     updateDeadlineValue(value) {
       this.deadline = value;
     },
-
-    goToSwap() {
-      this.$router.push({
-        name: "MimSwap",
-      });
-    },
   },
 
   components: {
-    BaseButton: defineAsyncComponent(() =>
-      import("@/components/base/BaseButton.vue")
-    ),
     Tabs: defineAsyncComponent(() => import("@/components/ui/Tabs.vue")),
     TokenPair: defineAsyncComponent(() =>
       import("@/components/pools/pool/TokenPair.vue")
@@ -204,7 +195,6 @@ export default {
   .my-position-button {
     display: block;
     order: 2;
-    margin-left: auto;
   }
 }
 
