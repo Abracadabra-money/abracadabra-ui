@@ -9,7 +9,7 @@
       </li>
 
       <li @click="$emit('close-popup')">
-        <MobileHeaderLink to="Pools">
+        <MobileHeaderLink to="Pool" :params="blastMimUsdbPool">
           <img src="@/assets/images/header/dropdown/more/pool-icon.png" />
           Pools
         </MobileHeaderLink>
@@ -22,6 +22,15 @@
 import { defineAsyncComponent } from "vue";
 
 export default {
+  data() {
+    return {
+      blastMimUsdbPool: {
+        id: 1,
+        poolChainId: 81457,
+      },
+    };
+  },
+
   methods: {
     closePopup() {
       this.$emit("close-popup");

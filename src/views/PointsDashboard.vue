@@ -8,10 +8,6 @@
             Track your Blast, Potion and Gold points earned by taking part in
             the Abracadabra Ecosystem.
           </h4>
-          <div class="links-wrap">
-            <BaseButton class="btn" @click="goToPool">MIM/USDB Pool</BaseButton>
-            <BaseButton class="btn" @click="goToSwap">Swap</BaseButton>
-          </div>
         </div>
 
         <CardPointsPending
@@ -143,17 +139,6 @@ export default {
     ...mapMutations({ deleteNotification: "notifications/delete" }),
     formatTokenBalance,
 
-    goToPool() {
-      this.$router.push({
-        name: "Pool",
-        params: { id: MIM_USDB_POOL_ID, poolChainId: BLAST_CHAIN_ID },
-      });
-    },
-
-    goToSwap() {
-      this.$router.push({ name: "MimSwap" });
-    },
-
     async getStakeLpBalance() {
       const publicClient = getPublicClient(BLAST_CHAIN_ID);
 
@@ -275,9 +260,6 @@ export default {
   },
 
   components: {
-    BaseButton: defineAsyncComponent(
-      () => import("@/components/base/BaseButton.vue")
-    ),
     CardPointsPending: defineAsyncComponent(
       () => import("@/components/ui/card/CardPointsPending.vue")
     ),
@@ -316,16 +298,11 @@ export default {
   gap: 24px;
 }
 
-.row,
-.links-wrap {
+.row {
   gap: 12px;
   width: 100%;
   display: flex;
   justify-content: space-between;
-}
-
-.links-wrap {
-  max-width: 426px;
 }
 
 .btns-wrap {

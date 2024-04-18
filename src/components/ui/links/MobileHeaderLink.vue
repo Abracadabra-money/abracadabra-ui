@@ -3,7 +3,7 @@
     <slot />
   </a>
 
-  <router-link class="mobile-link" v-else :to="{ name: to }">
+  <router-link class="mobile-link" v-else :to="{ name: to, params: params }">
     <slot />
   </router-link>
 </template>
@@ -17,6 +17,10 @@ export default {
     },
     href: {
       type: String,
+    },
+    params: {
+      type: Object,
+      default: () => ({}),
     },
   },
 };

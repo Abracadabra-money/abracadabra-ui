@@ -1,5 +1,5 @@
 <template>
-  <router-link class="header-link" :to="{ name: to }">
+  <router-link class="header-link" :to="{ name: to, params: params }">
     <slot />
   </router-link>
 </template>
@@ -10,6 +10,10 @@ export default {
     to: {
       type: String,
       required: true,
+    },
+    params: {
+      type: Object,
+      default: () => ({}),
     },
   },
 };

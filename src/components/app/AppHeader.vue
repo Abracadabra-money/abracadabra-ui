@@ -6,7 +6,7 @@
     >
       <component
         :is="isClassicHeader ? 'MainLogoIcon' : 'SwapLogoIcon'"
-        :width="42"
+        :width="isClassicHeader ? 42 : 52"
         :height="42"
       />
     </router-link>
@@ -61,7 +61,7 @@ export default {
       unreadNotificationCountChecker: null,
       isSignedUp: false,
       alternativeHeader: ["MimSwap", "Pools", "Pool"],
-      exception: ["Blast"],
+      exception: ["Blast", "PointsDashboard"],
       isClassicHeader: true,
     };
   },
