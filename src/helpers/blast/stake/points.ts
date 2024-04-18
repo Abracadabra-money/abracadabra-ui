@@ -54,6 +54,15 @@ const reasonMap = {
 const USER_POINTS_LOCAL_STORAGE_KEY = "USER_POINTS_STATISTICS";
 const GLOBAL_POINTS_LOCAL_STORAGE_KEY = "GLOBAL_POINTS_STATISTICS";
 
+type DataToCache = {
+  pointsStatistics: Record<
+    (typeof kindMap)[Kind],
+    Record<"total" | (typeof reasonMap)[Reason], Record<State, number>>
+  >;
+  time: number;
+  account?: Address | null;
+};
+
 const buildStatistics = (
   data: Array<{
     state: State;
@@ -173,7 +182,10 @@ export const fetchUserPointsStatistics = async (address: Address) => {
     return userPointsStatistics;
   }
 
-  const cachedData = checkAndGetCachedData(USER_POINTS_LOCAL_STORAGE_KEY);
+  const cachedData = checkAndGetCachedData(
+    USER_POINTS_LOCAL_STORAGE_KEY,
+    address
+  );
   if (cachedData) return cachedData;
 
   try {
@@ -198,7 +210,7 @@ export const fetchUserPointsStatistics = async (address: Address) => {
     userPointsStatistics = buildStatistics([]);
   }
 
-  setCachedData(userPointsStatistics, USER_POINTS_LOCAL_STORAGE_KEY);
+  setCachedData(userPointsStatistics, USER_POINTS_LOCAL_STORAGE_KEY, address);
   return userPointsStatistics;
 };
 
@@ -207,33 +219,41 @@ const setCachedData = (
     (typeof kindMap)[Kind],
     Record<"total" | (typeof reasonMap)[Reason], Record<State, number>>
   >,
-  localStorageKey: string
+  localStorageKey: string,
+  account: Address | null = null
 ) => {
   const time = new Date().getTime();
-  localStorage.setItem(
-    localStorageKey,
-    JSON.stringify({
-      pointsStatistics,
-      time,
-    })
-  );
+
+  const dataToCache: DataToCache = {
+    pointsStatistics,
+    time,
+  };
+
+  if (account) dataToCache.account = account;
+
+  localStorage.setItem(localStorageKey, JSON.stringify(dataToCache));
 };
 
-const checkAndGetCachedData = (localStorageKey: string) => {
+const checkAndGetCachedData = (
+  localStorageKey: string,
+  account: Address | null = null
+) => {
   const cachedData = localStorage.getItem(localStorageKey);
   const allowedTime = 5; // 5 min
 
   if (!cachedData) return false;
 
   try {
-    const { pointsStatistics, time } = JSON.parse(cachedData);
+    const parsedCacheData = JSON.parse(cachedData);
+
+    if (parsedCacheData.account != account) return false;
 
     const currentTime = new Date().getTime();
-    const timeDiff = currentTime - time;
+    const timeDiff = currentTime - parsedCacheData.time;
     const minutes = Math.floor(timeDiff / 1000 / 60);
     if (minutes > allowedTime) return false;
 
-    return pointsStatistics;
+    return parsedCacheData.pointsStatistics;
   } catch (error) {
     console.log("checkAndGetCachedData err:", error);
     return false;
