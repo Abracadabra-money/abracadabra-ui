@@ -81,6 +81,7 @@ export default {
       immediate: true,
       async handler() {
         await this.getPoolInfo();
+        await this.getPointsStatistics();
       },
     },
 
@@ -100,13 +101,19 @@ export default {
         this.account
       );
     },
+
+    async getPointsStatistics() {
+      [this.pointsStatistics.global, this.pointsStatistics.user] =
+        await Promise.all([
+          fetchPointsStatistics(),
+          fetchUserPointsStatistics(this.account),
+        ]);
+    },
   },
 
   async created() {
     await this.getPoolInfo();
-
-    this.pointsStatistics.user = await fetchUserPointsStatistics(this.account);
-    this.pointsStatistics.global = await fetchPointsStatistics();
+    await this.getPointsStatistics();
 
     this.chartOption = await getPoolTvlPieChartOption(this.pool);
 
