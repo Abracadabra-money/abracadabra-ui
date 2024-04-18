@@ -6,27 +6,43 @@ import {
 import type { Address } from "viem";
 import BlastMIMSwapRouterAbi from "@/abis/BlastMIMSwapRouter";
 
-export type RemoveLiquidityPayload = {
+export type AddLiquidityOneSidePayload = {
   lp: Address;
   to: Address;
-  sharesIn: bigint;
-  minimumBaseAmount: bigint;
-  minimumQuoteAmount: bigint;
+  inAmountIsBase: boolean;
+  inAmount: bigint;
+  inAmountToSwap: bigint;
+  minimumShares: bigint;
   deadline: bigint;
 };
 
-export const removeLiquidity = async (
+export const addLiquidityOneSide = async (
   swapRouterAddress: Address,
-  payload: RemoveLiquidityPayload
+  payload: AddLiquidityOneSidePayload
 ) => {
-  const { lp, to, sharesIn, minimumBaseAmount, minimumQuoteAmount, deadline } =
-    payload;
+  const {
+    lp,
+    to,
+    inAmountIsBase,
+    inAmount,
+    inAmountToSwap,
+    minimumShares,
+    deadline,
+  } = payload;
 
   const { request } = await simulateContractHelper({
     address: swapRouterAddress,
     abi: BlastMIMSwapRouterAbi,
-    functionName: "removeLiquidity",
-    args: [lp, to, sharesIn, minimumBaseAmount, minimumQuoteAmount, deadline],
+    functionName: "addLiquidityOneSide",
+    args: [
+      lp,
+      to,
+      inAmountIsBase,
+      inAmount,
+      inAmountToSwap,
+      minimumShares,
+      deadline,
+    ],
   });
 
   const hash = await writeContractHelper(request);

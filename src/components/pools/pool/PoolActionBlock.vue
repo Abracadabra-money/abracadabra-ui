@@ -4,8 +4,6 @@
       <div class="title-settings">
         <h3 class="title">MIM Pool</h3>
 
-        <BaseButton class="link-button" @click="goToSwap">Swap</BaseButton>
-
         <SwapSettingsPopup
           :slippage="50n"
           :defaultSlippage="50n"
@@ -19,7 +17,12 @@
       <div class="pool-management">
         <TokenPair class="token-pair" :pool="pool" />
 
-        <Tabs :name="activeTab" :items="tabItems" @select="selectTab" />
+        <Tabs
+          class="tabs"
+          :name="activeTab"
+          :items="tabItems"
+          @select="selectTab"
+        />
 
         <button
           class="my-position-button"
@@ -41,6 +44,7 @@
 
     <DepositStakeWrap
       :pool="pool"
+      :pointsStatistics="pointsStatistics"
       :slippage="slippage"
       :deadline="deadline"
       @updatePoolInfo="$emit('getPoolInfo')"
@@ -61,6 +65,7 @@ export const actionStatus = {
 export default {
   props: {
     pool: { type: Object },
+    pointsStatistics: { type: Object },
     isUserPositionOpen: { type: Boolean, default: false },
   },
 
@@ -94,18 +99,9 @@ export default {
     updateDeadlineValue(value) {
       this.deadline = value;
     },
-
-    goToSwap() {
-      this.$router.push({
-        name: "MimSwap",
-      });
-    },
   },
 
   components: {
-    BaseButton: defineAsyncComponent(() =>
-      import("@/components/base/BaseButton.vue")
-    ),
     Tabs: defineAsyncComponent(() => import("@/components/ui/Tabs.vue")),
     TokenPair: defineAsyncComponent(() =>
       import("@/components/pools/pool/TokenPair.vue")
@@ -180,17 +176,25 @@ export default {
   opacity: 0.7;
 }
 
-@media (max-width: 1300px) {
+@media (max-width: 1400px) {
   .pool-management {
     width: 100%;
+    flex-wrap: wrap;
+    gap: 16px;
   }
 
   .token-pair {
-    display: none !important;
+    order: 1;
+  }
+
+  .tabs {
+    order: 3;
+    margin-right: auto;
   }
 
   .my-position-button {
     display: block;
+    order: 2;
   }
 }
 

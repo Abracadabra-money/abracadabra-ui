@@ -2,23 +2,48 @@
   <div class="pool-action-block">
     <div class="inputs-wrap">
       <BaseTokenInput
-        :name="pool.name"
-        :icon="pool.icon"
-        :decimals="pool.decimals"
-        :max="pool.userInfo.balance"
+        :name="activeToken.config.name"
+        :icon="activeToken.config.icon"
+        :decimals="activeToken.config.decimals"
+        :max="activeToken.userInfo.balance"
         :value="inputValue"
-        :tokenPrice="pool.price"
-        @updateInputValue="updateValue($event)"
+        :tokenPrice="activeToken.price"
+        allowSelectToken
+        @onSelectClick="isDropdownOpened = !isDropdownOpened"
+        @updateInputValue="updateInput($event)"
+      />
+
+      <SingleTokenDropdown
+        v-if="isDropdownOpened"
+        :activeToken="activeToken"
+        :tokensList="[this.pool.tokens.baseToken, this.pool.tokens.quoteToken]"
+        @chooseActiveToken="chooseActiveToken($event)"
+        @closeDropdown="isDropdownOpened = false"
       />
     </div>
 
-    <PreviewRemove
-      :pool="pool"
-      :previewRemoveLiquidityResult="previewRemoveLiquidityResult"
-      :isBase="isBase"
-      :isSingleSide="isSingleSide"
-      @chooseToken="chooseToken($event)"
-    />
+    <div class="info-blocks">
+      <div class="info-block lp">
+        <div class="tag">
+          <span class="title">
+            <BaseTokenIcon
+              :name="this.pool.name"
+              :icon="this.pool.icon"
+              size="24px"
+            />
+            {{ this.pool.name }}
+          </span>
+          <div class="token-amount">
+            <span class="value">
+              {{ formattedLpTokenExpected.value }}
+            </span>
+            <span class="usd">
+              {{ formattedLpTokenExpected.usd }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
       {{ buttonText }}
@@ -28,6 +53,7 @@
 
 <script>
 import moment from "moment";
+import debounce from "lodash.debounce";
 import { defineAsyncComponent } from "vue";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { formatUnits } from "viem";
@@ -35,22 +61,19 @@ import { notificationErrorMsg } from "@/helpers/notification/notificationError.j
 import notification from "@/helpers/notification/notification";
 import { approveTokenViem } from "@/helpers/approval";
 import { trimZeroDecimals } from "@/helpers/numbers";
-import {
-  previewRemoveLiquidity,
-  previewRemoveLiquidityOneSide,
-} from "@/helpers/pools/swap/liquidity";
+import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
-import { removeLiquidity } from "@/helpers/pools/swap/actions/removeLiquidity";
-import { removeLiquidityOneSide } from "@/helpers/pools/swap/actions/removeLiquidityOneSide";
-import { formatTokenBalance } from "@/helpers/filters";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import { actionStatus } from "@/components/pools/pool/PoolActionBlock.vue";
+
+import { addLiquidityOneSideOptimal } from "@/helpers/pools/swap/addLiquidityOneSideOptimal";
+import { addLiquidityOneSide } from "@/helpers/pools/swap/actions/addLiquidityOneSide";
 
 export default {
   props: {
     pool: { type: Object },
     slippage: { type: BigInt, default: 100n },
     deadline: { type: BigInt, default: 100n },
-    isSingleSide: { type: Boolean },
   },
 
   emits: ["updatePoolInfo"],
@@ -59,8 +82,13 @@ export default {
     return {
       inputAmount: 0n,
       inputValue: "",
+      expectedOptimal: { inAmountToSwap: 0n, shares: 0n },
+      isExpectedOptimalCalculating: false,
       isBase: true,
       isActionProcessing: false,
+      transactionStatus: actionStatus.WAITING,
+      isPreviewPopupOpened: false,
+      isDropdownOpened: false,
     };
   },
 
@@ -70,36 +98,23 @@ export default {
       account: "getAccount",
     }),
 
-    isAllowed() {
-      return this.pool.userInfo.allowance >= this.inputAmount;
+    activeToken() {
+      return this.isBase
+        ? this.pool.tokens.baseToken
+        : this.pool.tokens.quoteToken;
     },
 
-    previewRemoveLiquidityResult() {
-      const previewRemoveLiquidityResult = this.isSingleSide
-        ? previewRemoveLiquidityOneSide(this.inputAmount, this.pool)
-        : previewRemoveLiquidity(this.inputAmount, this.pool);
-
-      previewRemoveLiquidityResult.baseAmountOut = applySlippageToMinOutBigInt(
-        this.slippage,
-        previewRemoveLiquidityResult.baseAmountOut
-      );
-
-      previewRemoveLiquidityResult.quoteAmountOut = applySlippageToMinOutBigInt(
-        this.slippage,
-        previewRemoveLiquidityResult.quoteAmountOut
-      );
-
-      return previewRemoveLiquidityResult;
+    isAllowed() {
+      return this.activeToken.userInfo.allowance >= this.inputAmount;
     },
 
     isValid() {
-      return !!this.inputAmount;
+      return !!this.inputAmount && !!this.inputAmount;
     },
 
     error() {
-      if (this.inputAmount > this.pool.userInfo.balance)
-        return "Insufficient balance";
-
+      if (this.inputAmount > this.activeToken.userInfo?.balance)
+        return `Insufficient ${this.activeToken.config.name} balance`;
       return null;
     },
 
@@ -107,17 +122,22 @@ export default {
       if (!this.isProperNetwork) return "Switch network";
       if (!this.account) return "Connect wallet";
       if (this.error) return this.error;
-      if (this.inputValue == "") return "Enter amount";
+      if (this.inputValue == "") return `Enter amount`;
 
+      if (this.isExpectedOptimalCalculating) return "Calculating...";
       if (this.isActionProcessing) return "Processing...";
-      if (!this.isAllowed) return "Approve";
 
-      return "Remove";
+      if (!this.isAllowed) return `Approve ${this.activeToken.config.name}`;
+
+      return "Deposit";
     },
 
     isButtonDisabled() {
       return (
-        (!this.isValid || !!this.error || this.isActionProcessing) &&
+        (!this.isValid ||
+          !!this.error ||
+          this.isActionProcessing ||
+          this.isExpectedOptimalCalculating) &&
         this.isProperNetwork &&
         !!this.account
       );
@@ -126,16 +146,18 @@ export default {
     isProperNetwork() {
       return this.chainId == this.pool.chainId;
     },
-  },
 
-  watch: {
-    inputAmount(value) {
-      if (value == 0) {
-        this.inputValue = "";
-        return false;
-      }
+    formattedLpTokenExpected() {
+      if (this.isExpectedOptimalCalculating) return { value: "-", usd: "-" };
+      const formattedLpTokenValue = Number(
+        formatUnits(this.expectedOptimal.shares, this.pool.decimals)
+      );
+      const lpTokenValueUsdEquivalent = formattedLpTokenValue * this.pool.price;
 
-      this.inputValue = trimZeroDecimals(formatUnits(value, 18));
+      return {
+        value: formatTokenBalance(formattedLpTokenValue),
+        usd: formatUSD(lpTokenValueUsdEquivalent),
+      };
     },
   },
 
@@ -143,63 +165,80 @@ export default {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
-    updateValue(value) {
-      if (value === null) return (this.inputAmount = 0n);
-      this.inputAmount = value;
-    },
+    formatUSD,
 
-    resetInput() {
-      this.inputValue = "";
+    clearData() {
       this.inputAmount = 0n;
+      this.inputValue = "";
+      this.expectedOptimal = { inAmountToSwap: 0n, shares: 0n };
     },
 
-    chooseToken(isBase) {
-      this.isBase = isBase;
+    updateInput(value) {
+      if (value === null) {
+        this.clearData();
+        return false;
+      }
+
+      this.inputAmount = value;
+      this.inputValue = trimZeroDecimals(
+        formatUnits(value, this.activeToken.config.decimals)
+      );
+
+      this.isExpectedOptimalCalculating = true;
+
+      this.calculateExpectedOptimal();
     },
 
-    createRemovePayload() {
-      const { baseAmountOut, quoteAmountOut } =
-        this.previewRemoveLiquidityResult;
+    calculateExpectedOptimal: debounce(
+      async function calculateExpectedOptimal() {
+        this.expectedOptimal = await addLiquidityOneSideOptimal(
+          this.pool,
+          this.inputAmount,
+          this.isBase,
+          //default step 100n == 1%
+          100n
+        );
 
+        this.isExpectedOptimalCalculating = false;
+      },
+      500
+    ),
+
+    createAddLiquidityOneSidePayload() {
       const deadline = moment().unix() + Number(this.deadline);
+
+      const minimumShares = applySlippageToMinOutBigInt(
+        this.slippage,
+        this.expectedOptimal.shares
+      );
 
       return {
         lp: this.pool.contract.address,
         to: this.account,
-        sharesIn: this.inputAmount,
-        minimumBaseAmount: baseAmountOut,
-        minimumQuoteAmount: quoteAmountOut,
-        deadline: deadline,
-      };
-    },
-
-    createRemoveOneSidePayload() {
-      const { baseAmountOut, quoteAmountOut } =
-        this.previewRemoveLiquidityResult;
-
-      const minAmountOut = this.isBase ? baseAmountOut : quoteAmountOut;
-
-      const deadline = moment().unix() + Number(this.deadline);
-
-      return {
-        lp: this.pool.contract.address,
-        to: this.account,
-        withdrawBase: this.isBase,
-        sharesIn: this.inputAmount,
-        minAmountOut,
+        inAmountIsBase: this.isBase,
+        inAmount: this.inputAmount,
+        inAmountToSwap: this.expectedOptimal.inAmountToSwap,
+        minimumShares,
         deadline,
       };
     },
 
+    chooseActiveToken(isBase) {
+      this.clearData();
+      this.isBase = isBase;
+    },
+
     async approveHandler() {
       this.isActionProcessing = true;
-
       const notificationId = await this.createNotification(
         notification.approvePending
       );
 
       try {
-        await approveTokenViem(this.pool.contract, this.pool.swapRouter);
+        await approveTokenViem(
+          this.activeToken.config.contract,
+          this.pool.swapRouter
+        );
         await this.$emit("updatePoolInfo");
 
         await this.deleteNotification(notificationId);
@@ -217,62 +256,28 @@ export default {
       this.isActionProcessing = false;
     },
 
-    async removeHandler() {
+    async depositOneSideHandler() {
       this.isActionProcessing = true;
-
+      this.transactionStatus = "pending";
       const notificationId = await this.createNotification(
         notification.pending
       );
 
       try {
-        const payload = this.createRemovePayload();
-
-        const { error, result } = await removeLiquidity(
-          this.pool.swapRouter,
+        const payload = this.createAddLiquidityOneSidePayload();
+        const { error, result } = await addLiquidityOneSide(
+          this.pool?.swapRouter,
           payload
         );
-
+        this.transactionStatus = "success";
         await this.$emit("updatePoolInfo");
-
         await this.deleteNotification(notificationId);
+
         await this.createNotification(notification.success);
-        this.resetInput();
+        this.clearData();
       } catch (error) {
-        console.log("remove liquidity err:", error);
-
-        const errorNotification = {
-          msg: await notificationErrorMsg(error),
-          type: "error",
-        };
-
-        await this.deleteNotification(notificationId);
-        await this.createNotification(errorNotification);
-      }
-      this.isActionProcessing = false;
-    },
-
-    async removeOneSideHandler() {
-      this.isActionProcessing = true;
-
-      const notificationId = await this.createNotification(
-        notification.pending
-      );
-
-      try {
-        const payload = this.createRemoveOneSidePayload();
-
-        const { error, result } = await removeLiquidityOneSide(
-          this.pool.swapRouter,
-          payload
-        );
-
-        await this.$emit("updatePoolInfo");
-
-        await this.deleteNotification(notificationId);
-        await this.createNotification(notification.success);
-        this.resetInput();
-      } catch (error) {
-        console.log("remove liquidity err:", error);
+        this.transactionStatus = "error";
+        console.log("add liquidity err:", error);
 
         const errorNotification = {
           msg: await notificationErrorMsg(error),
@@ -295,13 +300,7 @@ export default {
 
       if (!this.isAllowed) return await this.approveHandler();
 
-      if (this.isSingleSide) {
-        await this.removeOneSideHandler();
-      } else {
-        await this.removeHandler();
-      }
-
-      await this.$emit("updatePoolInfo");
+      this.depositOneSideHandler();
     },
 
     formatTokenBalance(value, decimals) {
@@ -319,8 +318,8 @@ export default {
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")
     ),
-    PreviewRemove: defineAsyncComponent(() =>
-      import("@/components/pools/pool/PreviewRemove.vue")
+    SingleTokenDropdown: defineAsyncComponent(() =>
+      import("@/components/pools/pool/SingleTokenDropdown.vue")
     ),
   },
 };
@@ -414,3 +413,6 @@ export default {
   font-weight: 400;
 }
 </style>
+@/helpers/pools/pool/addLiquidityOneSideOptimal
+@/helpers/pools/swap/actions/addLiquidityOneSide
+@/helpers/pools/swap/addLiquidityOneSideOptimal

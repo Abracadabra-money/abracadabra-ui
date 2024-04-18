@@ -51,6 +51,9 @@ const reasonMap = {
   phase_one_founder_bonus: "phaseOneFounderBonus",
 } as const satisfies Record<Reason, string>;
 
+const USER_POINTS_LOCAL_STORAGE_KEY = "USER_POINTS_STATISTICS";
+const GLOBAL_POINTS_LOCAL_STORAGE_KEY = "GLOBAL_POINTS_STATISTICS";
+
 const buildStatistics = (
   data: Array<{
     state: State;
@@ -137,6 +140,11 @@ const buildStatistics = (
 };
 
 export const fetchPointsStatistics = async () => {
+  const cachedData = checkAndGetCachedData(GLOBAL_POINTS_LOCAL_STORAGE_KEY);
+  if (cachedData) return cachedData;
+
+  let globalPointsStatistics = buildStatistics([]);
+
   try {
     const { data } = await pointsApiClient.get<
       Array<{
@@ -149,17 +157,24 @@ export const fetchPointsStatistics = async () => {
       params: { select: "state,kind,reason,amount" },
     });
 
-    return buildStatistics(data);
+    globalPointsStatistics = buildStatistics(data);
   } catch (error) {
     console.log("Error fetching points statistics", error);
-    return buildStatistics([]);
+    globalPointsStatistics = buildStatistics([]);
   }
+
+  setCachedData(globalPointsStatistics, GLOBAL_POINTS_LOCAL_STORAGE_KEY);
+  return globalPointsStatistics;
 };
 
 export const fetchUserPointsStatistics = async (address: Address) => {
+  let userPointsStatistics = buildStatistics([]);
   if (!address) {
-    return buildStatistics([]);
+    return userPointsStatistics;
   }
+
+  const cachedData = checkAndGetCachedData(USER_POINTS_LOCAL_STORAGE_KEY);
+  if (cachedData) return cachedData;
 
   try {
     const { data } = await pointsApiClient.get<
@@ -176,9 +191,51 @@ export const fetchUserPointsStatistics = async (address: Address) => {
       },
     });
 
-    return buildStatistics(data);
+    userPointsStatistics = buildStatistics(data);
   } catch (error) {
     console.log("Error fetching user points statistics", error);
-    return buildStatistics([]);
+
+    userPointsStatistics = buildStatistics([]);
+  }
+
+  setCachedData(userPointsStatistics, USER_POINTS_LOCAL_STORAGE_KEY);
+  return userPointsStatistics;
+};
+
+const setCachedData = (
+  pointsStatistics: Record<
+    (typeof kindMap)[Kind],
+    Record<"total" | (typeof reasonMap)[Reason], Record<State, number>>
+  >,
+  localStorageKey: string
+) => {
+  const time = new Date().getTime();
+  localStorage.setItem(
+    localStorageKey,
+    JSON.stringify({
+      pointsStatistics,
+      time,
+    })
+  );
+};
+
+const checkAndGetCachedData = (localStorageKey: string) => {
+  const cachedData = localStorage.getItem(localStorageKey);
+  const allowedTime = 5; // 5 min
+
+  if (!cachedData) return false;
+
+  try {
+    const { pointsStatistics, time } = JSON.parse(cachedData);
+
+    const currentTime = new Date().getTime();
+    const timeDiff = currentTime - time;
+    const minutes = Math.floor(timeDiff / 1000 / 60);
+    if (minutes > allowedTime) return false;
+
+    return pointsStatistics;
+  } catch (error) {
+    console.log("checkAndGetCachedData err:", error);
+    return false;
   }
 };
