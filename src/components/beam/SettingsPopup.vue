@@ -72,7 +72,7 @@
 <script lang="ts">
 import Tooltip from "@/components/ui/icons/Tooltip.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
-import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFeeNew.ts";
+import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFeeNew";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import { formatUnits, parseUnits } from "viem";
 import type { BeamInfo, BeamConfig } from "@/helpers/beam/types";
@@ -169,7 +169,7 @@ export default {
     },
 
     maxAmount() {
-      return formatUnits(this.dstUpdatedInfo.dstConfigLookupResult, 18);
+      return formatUnits(this.dstUpdatedInfo!.dstConfigLookupResult, 18);
     },
 
     isNone() {
@@ -189,7 +189,7 @@ export default {
     },
 
     isExceedMax() {
-      return this.parsedValue > this.dstUpdatedInfo.dstConfigLookupResult;
+      return this.parsedValue > this.dstUpdatedInfo!.dstConfigLookupResult;
     },
 
     error() {
@@ -197,7 +197,7 @@ export default {
 
       if (this.isExceedMax)
         return `Error max value ${formatUnits(
-          this.dstUpdatedInfo.dstConfigLookupResult,
+          this.dstUpdatedInfo!.dstConfigLookupResult,
           18
         )}`;
 
@@ -236,12 +236,13 @@ export default {
       this.$emit("closeSettings");
     },
 
-    updateInputValue(value) {
+    updateInputValue(value: any) {
       this.inputValue = value;
     },
 
     async updateFee() {
       if (this.isExceedMax) return 0;
+      // @ts-ignore
       const { fees } = await getEstimateSendFee(
         this.beamInfoObject,
         this.dstChainInfo,

@@ -75,12 +75,13 @@ export default {
       if (!this.beamInfoObject) return null;
 
       const chainInfo = chainsConfigs.find(
-        (chain) => chain.chainId === this.beamInfoObject.fromChainConfig.chainId
+        (chain) =>
+          chain.chainId === this.beamInfoObject!.fromChainConfig.chainId
       );
 
       return {
-        symbol: chainInfo.baseTokenSymbol,
-        icon: chainInfo.baseTokenIcon,
+        symbol: chainInfo!.baseTokenSymbol,
+        icon: chainInfo!.baseTokenIcon,
         price: this.beamInfoObject.nativePrice,
       };
     },
@@ -88,18 +89,18 @@ export default {
       if (!this.dstChainConfig || !this.beamInfoObject) return null;
 
       const chainInfo = chainsConfigs.find(
-        (chain) => chain.chainId === this.dstChainConfig.chainId
+        (chain) => chain.chainId === this.dstChainConfig!.chainId
       );
 
       const dstChainInfoUpdated =
         this.beamInfoObject.destinationChainsInfo.find(
-          (chain) => chain.chainConfig.chainId === this.dstChainConfig.chainId
+          (chain) => chain.chainConfig.chainId === this.dstChainConfig!.chainId
         );
 
       return {
-        symbol: chainInfo.baseTokenSymbol,
-        icon: chainInfo.baseTokenIcon,
-        price: dstChainInfoUpdated.nativePrice,
+        symbol: chainInfo!.baseTokenSymbol,
+        icon: chainInfo!.baseTokenIcon,
+        price: dstChainInfoUpdated!.nativePrice,
       };
     },
 
@@ -131,7 +132,8 @@ export default {
       if (this.gasFee === 0n) return formatUSD(0);
 
       const estimatedGasCostUsd =
-        formatUnits(this.gasFee, 18) * this.fromChainInfo.price;
+        // @ts-ignore
+        formatUnits(this.gasFee, 18) * this.fromChainInfo!.price;
       return formatUSD(estimatedGasCostUsd);
     },
 
@@ -139,7 +141,8 @@ export default {
       if (this.dstNativeTokenAmount === 0n) return formatUSD(0);
 
       const gasOnDestinationUsd =
-        formatUnits(this.dstNativeTokenAmount, 18) * this.dstChainInfo.price;
+        // @ts-ignore
+        formatUnits(this.dstNativeTokenAmount, 18) * this.dstChainInfo!.price;
       return formatUSD(gasOnDestinationUsd);
     },
   },

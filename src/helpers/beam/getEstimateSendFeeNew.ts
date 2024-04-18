@@ -16,7 +16,7 @@ export const getEstimateSendFee = async (
     (config) => config.chainConfig.chainId === dstChainInfo.chainId
   );
 
-  const minGas = dstInfo.minDstGasLookupResult;
+  const minGas = dstInfo!.minDstGasLookupResult;
 
   const params = ethers.utils.solidityPack(
     ["uint16", "uint256", "uint256", "address"],

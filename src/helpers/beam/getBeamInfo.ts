@@ -30,7 +30,7 @@ export const getBeamInfo = async (
     (item) => item.chainId === fromChainConfig.chainId
   );
 
-  mimConfig.image = useImage("assets/images/tokens/MIM.png");
+  mimConfig!.image = useImage("assets/images/tokens/MIM.png");
 
   const destinationChainsConfig = filterDestinationChains(
     fromChainConfig,

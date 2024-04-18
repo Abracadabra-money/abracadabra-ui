@@ -29,7 +29,7 @@
           @switchChains="switchChains"
         />
 
-        <div class="inputs-wrap">
+        <div class="inputs-wrap" v-if="tokenConfig">
           <div>
             <h4 class="input-label">MIM to Beam</h4>
             <BaseTokenInput
@@ -103,9 +103,9 @@
   </div>
 
   <SuccessPopup
+    v-if="isOpenSuccessPopup && beamInfoObject"
     :beamInfoObject="beamInfoObject"
     :successData="successData"
-    v-if="isOpenSuccessPopup"
     @close-popup="isOpenSuccessPopup = false"
   />
 </template>

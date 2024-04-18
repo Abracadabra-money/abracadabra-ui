@@ -21,7 +21,7 @@
             <img
               class="current-chain-marker"
               src="@/assets/images/beam/current-chain-marker.png"
-              v-if="chain.chainId == activeChain"
+              v-if="chain.chainId == activeChainId"
             />
             <img class="chain-icon" :src="chain.icon" alt="Icon" />
           </div>
@@ -83,7 +83,7 @@ export default {
       this.$emit("closePopup");
     },
 
-    onChainClick(chainId) {
+    onChainClick(chainId: number) {
       this.$emit("changeChain", chainId, this.popupType);
       this.closePopup();
     },
