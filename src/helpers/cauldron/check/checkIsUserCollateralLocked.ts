@@ -1,20 +1,26 @@
 import moment from "moment";
-import type { Contract } from "ethers";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 
 export const checkIsUserCollateralLocked = async (
   config: any,
-  contract: Contract,
-  account: string | undefined,
-  chainId: number
+  chainId: number,
+  account: string | undefined
 ): Promise<any> => {
   try {
     const { isSSpell } = config.cauldronSettings;
 
-    if (chainId !== 1) return false;
-    if (!isSSpell) return false;
+    if (chainId !== 1 || !isSSpell) return false;
 
-    const { lockedUntil } = await contract.users(account);
-    const lockTimestamp = lockedUntil.toString();
+    const publicClient = getPublicClient(chainId);
+
+    const [lockAmount, timestamp] = await publicClient.readContract({
+      address: config.collateralInfo.address,
+      abi: config.collateralInfo.abi,
+      functionName: "users",
+      args: [account],
+    });
+
+    const lockTimestamp = timestamp.toString();
     const currentTimestamp = moment().unix().toString();
 
     if (lockTimestamp && lockTimestamp > currentTimestamp) return lockTimestamp;

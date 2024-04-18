@@ -249,8 +249,14 @@ export default {
     },
 
     async recipeSetMaxBorrow(cookData, whitelistedInfo, user) {
+      const whitelisterContract = new Contract(
+        whitelistedInfo.contract.address,
+        JSON.stringify(whitelistedInfo.abi),
+        this.signer
+      );
+
       const data = await getSetMaxBorrowData(
-        whitelistedInfo.whitelisterContract,
+        whitelisterContract,
         user,
         whitelistedInfo.userWhitelistedInfo.userBorrowPart,
         whitelistedInfo.userWhitelistedInfo.proof
@@ -258,7 +264,7 @@ export default {
 
       cookData = await actions.call(
         cookData,
-        whitelistedInfo.whitelisterContract.address,
+        whitelisterContract.address,
         data,
         false,
         false,
