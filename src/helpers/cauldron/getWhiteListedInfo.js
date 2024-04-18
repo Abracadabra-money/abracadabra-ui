@@ -1,5 +1,5 @@
 import { formatUnits } from "viem";
-import { getWhitelisterContract } from "@/helpers/publicClientHelper";
+import whitelisterAbi from "@/abis/Whitelister";
 import yvcrvSTETHWhitelist from "@/configs/whitelists/yvcrvSTETHWhitelist";
 
 const userNotWhitelisted = { isUserWhitelisted: false };
@@ -13,15 +13,16 @@ export const getWhiteListedInfo = async (
   try {
     if (config.id !== 33 || chainId !== 1) return null;
 
-    const whitelisterContract = await getWhitelisterContract(
-      chainId,
-      config.contract.address,
-      config.contract.abi
-    );
+    const whitelisterAddress = await publicClient.readContract({
+      address: config.contract.address,
+      abi: config.contract.abi,
+      functionName: "whitelister",
+      args: [],
+    });
 
     const amountAllowed = await publicClient.readContract({
-      address: whitelisterContract.address,
-      abi: whitelisterContract.abi,
+      address: whitelisterAddress,
+      abi: whitelisterAbi,
       functionName: "amountAllowed",
       args: [account],
     });
@@ -41,7 +42,10 @@ export const getWhiteListedInfo = async (
       amountAllowedParsed: formatUnits(amountAllowed),
       userBorrowPart: formatUnits(userWhitelistedInfo.userBorrowPart, 18),
       userWhitelistedInfo,
-      contract: whitelisterContract,
+      contract: {
+        address: whitelisterAddress,
+        abi: whitelisterAbi,
+      },
     };
   } catch (error) {
     console.log("Get White Listed Info Error", error);
