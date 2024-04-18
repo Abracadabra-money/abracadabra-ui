@@ -18,7 +18,7 @@ const PACKET_TYPE: number = 0;
 
 export const getBeamInfo = async (
   chainId: number,
-  account: Address
+  account: Address | null = null
 ): Promise<BeamInfo> => {
   const fromChainConfig = beamConfigs.find((item) => item.chainId === chainId);
 
@@ -103,8 +103,16 @@ export const getBeamInfo = async (
 const getUserInfo = async (
   tokenConfig: any,
   beamConfig: any,
-  account: Address
+  account: Address | null
 ): Promise<BeamUserInfo> => {
+  if (!account) {
+    return {
+      balance: 0n,
+      allowance: 0n,
+      nativeBalance: 0n,
+    };
+  }
+  
   const publicClient = getPublicClient(beamConfig.chainId);
 
   const [balance, allowance] = await publicClient.multicall({

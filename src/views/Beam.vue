@@ -123,7 +123,7 @@ import { sendFrom } from "@/helpers/beam/sendFromNew";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
-
+import beamConfigs from "@/configs/beam/beamConfigs";
 import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFeeNew";
 
 import { getBeamInfo } from "@/helpers/beam/getBeamInfo";
@@ -271,6 +271,22 @@ export default {
       ) {
         this.clearData();
         this.initBeamInfo(value.chainId);
+      }
+    },
+    account() {
+      const currentChain = this.beamInfoObject
+        ? this.beamInfoObject.fromChainConfig.chainId
+        : this.chainId;
+      this.clearData();
+      this.initBeamInfo(currentChain);
+    },
+    chainId(value) {
+      if (
+        this.beamInfoObject &&
+        this.beamInfoObject.fromChainConfig.chainId !== value
+      ) {
+        this.clearData();
+        this.initBeamInfo(value);
       }
     },
   },
@@ -518,19 +534,26 @@ export default {
     //   return messages[0];
     // },
 
-    async initBeamInfo(chainId: number) {
+    async initBeamInfo(chainId: number): Promise<number | undefined> {
       try {
-        this.beamInfoObject = await getBeamInfo(chainId, this.account);
+        const isChainIdValid = beamConfigs.some(
+          (item) => item.chainId === chainId
+        );
+        const beamChainId = isChainIdValid ? chainId : beamConfigs[0].chainId;
+
+        this.beamInfoObject = await getBeamInfo(beamChainId, this.account);
+
+        return this.beamInfoObject.fromChainConfig.chainId;
       } catch (error) {
         console.log("Beam Info Error:", error);
       }
     },
 
-    setDefaulChain() {
+    setDefaulChain(chainId: number) {
       if (!this.beamInfoObject) return;
 
       this.fromChain = this.beamInfoObject.beamConfigs.find(
-        (chain) => chain.chainId === this.chainId
+        (chain) => chain.chainId === chainId
       );
     },
 
@@ -546,8 +569,8 @@ export default {
   },
 
   async created() {
-    await this.initBeamInfo(this.chainId);
-    this.setDefaulChain();
+    const chainId = await this.initBeamInfo(this.chainId);
+    if (chainId) this.setDefaulChain(chainId);
   },
 
   components: {
