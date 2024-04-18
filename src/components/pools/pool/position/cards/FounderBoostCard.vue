@@ -11,7 +11,11 @@
     <div class="rewards-wrap">
       <h4 class="title">
         Founder boost
-        <RocketIcon class="rocket-icon" tooltip="tooltip" fill="black" />
+        <RocketIcon
+          class="rocket-icon"
+          tooltip="Locked LPs benefit from both rewards distributions: Staked and Locked. Upon unlocking, locked LPs transition to Staked LPs"
+          fill="black"
+        />
       </h4>
 
       <ul class="rewards-list">

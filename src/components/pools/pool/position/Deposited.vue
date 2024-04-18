@@ -5,7 +5,11 @@
     <div class="rewards-wrap">
       <h4 class="title">
         Stake your LP tokens
-        <Tooltip tooltip="tooltip" :width="20" :height="20" />
+        <Tooltip
+          tooltip="Your potential hourly rewards are displayed based on staking all of your LP tokens"
+          :width="20"
+          :height="20"
+        />
       </h4>
 
       <ul class="rewards-list">

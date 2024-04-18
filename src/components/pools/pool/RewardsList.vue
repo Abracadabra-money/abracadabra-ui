@@ -51,19 +51,22 @@ export default {
         {
           title: "Points",
           icon: useImage("assets/images/points-dashboard/blast.png"),
-          tooltip: "Points",
+          tooltip:
+            "Points to be distributed every hour per 1$k worth of LP. Enter your desired number into the input field to see the hourly rate for a specific LP amount",
           value: `~${formatTokenBalance(this.rewards.pointsReward)}`,
         },
         {
           title: "Gold",
           icon: useImage("assets/images/points-dashboard/gold-points.svg"),
-          tooltip: "Gold",
+          tooltip:
+            "Gold to be distributed every hour per 1$k worth of LP. Enter your desired number into the input field to see the hourly rate for a specific LP amount",
           value: `~${formatTokenBalance(this.rewards.goldReward)}`,
         },
         {
           title: "Potion",
           icon: useImage("assets/images/points-dashboard/potion.png"),
-          tooltip: "Potion",
+          tooltip:
+            "Potions to be distributed every hour per 1$k worth of LP. Enter your desired number into the input field to see the hourly rate for a specific LP amount",
           value: "~0.0",
         },
       ];

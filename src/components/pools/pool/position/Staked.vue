@@ -5,7 +5,11 @@
     <div class="rewards-wrap">
       <h4 class="title">
         Staking rewards earned
-        <Tooltip tooltip="tooltip" :width="20" :height="20" />
+        <Tooltip
+          tooltip="Total earned from Staked LPs position for each reward"
+          :width="20"
+          :height="20"
+        />
       </h4>
 
       <ul class="rewards-list">
