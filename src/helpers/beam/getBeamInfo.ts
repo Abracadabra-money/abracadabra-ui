@@ -75,7 +75,9 @@ export const getBeamInfo = async (
         chainConfig,
         minDstGasLookupResult: results[index * 2].result,
         dstConfigLookupResult: results[index * 2 + 1].result[0],
-        nativePrice: prices.find(info => info.chainId === chainConfig.chainId)?.price || 0,
+        nativePrice:
+          prices.find((info) => info.chainId === chainConfig.chainId)?.price ||
+          0,
       };
     }
   );
@@ -91,7 +93,9 @@ export const getBeamInfo = async (
     destinationChainsInfo,
     tokenConfig: mimConfig as BeamTokenConfig,
     mimPrice,
-    nativePrice: prices.find(info => info.chainId === fromChainConfig.chainId)?.price || 0,
+    nativePrice:
+      prices.find((info) => info.chainId === fromChainConfig.chainId)?.price ||
+      0,
     userInfo,
   };
 };

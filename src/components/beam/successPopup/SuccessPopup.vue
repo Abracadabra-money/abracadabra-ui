@@ -10,11 +10,18 @@
           alt="Close popup"
         />
       </h1>
-      <BeamProcess :successData="successData" />
+      <BeamProcess :successData="successData" :lzTxInfo="lzTxInfo" />
 
-      <BeamInfo :successData="successData" />
+      <BeamInfo
+        :successData="successData"
+        :originChainNativeToken="originChainNativeToken"
+        :dstChainNativeToken="dstChainNativeToken"
+      />
 
-      <TransactionProgressBlock :successData="successData" />
+      <TransactionProgressBlock
+        :successData="successData"
+        :lzTxInfo="lzTxInfo"
+      />
     </div>
   </div>
 </template>
@@ -80,13 +87,13 @@ export default {
   },
   methods: {
     async waitForTransaction() {
-      const sourceChain = this.successData.originChain.chainId;
-      const hash = this.successData.tx.hash;
+      const sourceChain = this.successData.originChain.settings.lzChainId;
+      const hash = this.successData.txHash;
 
       this.lzTxInfo = await waitForMessageReceived(sourceChain, hash);
     },
   },
-  cteated() {
+  created() {
     this.waitForTransaction();
   },
   components: {

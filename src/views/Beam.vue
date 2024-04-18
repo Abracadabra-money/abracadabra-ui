@@ -102,11 +102,12 @@
     </div>
   </div>
 
-  <!-- <SuccessPopup
+  <SuccessPopup
+    :beamInfoObject="beamInfoObject"
     :successData="successData"
     v-if="isOpenSuccessPopup"
     @close-popup="isOpenSuccessPopup = false"
-  /> -->
+  />
 </template>
 
 <script lang="ts">
@@ -344,13 +345,13 @@ export default {
           await this.createNotification(notification.approveError);
           return false;
         }
-          this.updateNotification({
-            title: "Step 2/2: Confirm Beam",
-            id: notificationId,
-          });
-        }
+        this.updateNotification({
+          title: "Step 2/2: Confirm Beam",
+          id: notificationId,
+        });
+      }
 
-        await this.seendBeam(notificationId);
+      await this.seendBeam(notificationId);
     },
 
     async seendBeam(notificationId) {
@@ -366,25 +367,41 @@ export default {
           dstLzChainId: this.toChain.settings.lzChainId,
           to: this.toAddressBytes,
           account: this.account,
-        }
+        };
 
-        const hash = await sendFrom(this.beamInfoObject.fromChainConfig, payload);
+        const hash = await sendFrom(
+          this.beamInfoObject.fromChainConfig,
+          payload
+        );
 
         this.deleteNotification(notificationId);
         this.isBeaming = false;
 
         const successPopupData = {
-          originChain:this.fromChain,
-          dstChain: this.toChain,
-          txPayload: payload,
+          originChain: {
+            ...this.fromChain,
+            nativePrice: this.beamInfoObject.nativePrice,
+          },
+          dstChain: {
+            ...this.toChain,
+            nativePrice: this.beamInfoObject.destinationChainsInfo.find(
+              (chain) => chain.chainConfig.chainId === this.toChain.chainId
+            ).nativePrice,
+          },
+          txPayload: {
+            ...payload,
+            to: this.toAddress,
+          },
           txHash: hash,
           dstNativeTokenAmount: this.dstTokenAmount,
-        }
+        };
+
+        console.log("Success Popup Data:", successPopupData);
 
         this.successData = successPopupData;
-        // this.isOpenSuccessPopup = true;
+        this.isOpenSuccessPopup = true;
 
-        this.clearData()
+        this.clearData();
       } catch (error) {
         console.log("Seend Beam Error:", error);
         this.isBeaming = false;
@@ -502,6 +519,7 @@ export default {
       this.inputValue = "";
       this.isShowDstAddress = false;
       this.estimateSendFee = 0n;
+      this.dstTokenAmount = 0n;
     },
   },
 
