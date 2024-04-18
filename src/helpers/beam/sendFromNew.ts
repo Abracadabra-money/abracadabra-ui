@@ -1,10 +1,10 @@
 import { ethers } from "ethers";
 
 import {
-  prepareWriteContract,
-  waitForTransaction,
-  writeContract,
-} from "@wagmi/core";
+  writeContractHelper,
+  simulateContractHelper,
+  waitForTransactionReceiptHelper,
+} from "@/helpers/walletClienHelper";
 
 export const sendFrom = async (
   fromChainConfig: any,
@@ -21,20 +21,20 @@ export const sendFrom = async (
   ];
 
   if (!itsV2) args.unshift(payload.account); // 'from' address to send tokens
-  
+
   console.log("methodName", methodName);
   console.log("args", args);
 
-  const config = await prepareWriteContract({
+  const { request } = await simulateContractHelper({
     ...fromChainConfig.contract,
     functionName: methodName,
     args,
-    value: payload.fees
+    value: payload.fees,
   });
 
-  const { hash } = await writeContract(config);
+  const hash = await writeContractHelper(request);
 
-  await waitForTransaction({ hash });
+  await waitForTransactionReceiptHelper({ hash });
 
   return hash;
 };
