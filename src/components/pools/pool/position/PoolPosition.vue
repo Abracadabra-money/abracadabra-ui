@@ -95,7 +95,7 @@ export default {
 .pool-position {
   display: flex;
   flex-direction: column;
-  width: 354px;
+  min-width: 354px;
   padding: 16px;
   gap: 16px;
   border-radius: 16px;

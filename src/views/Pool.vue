@@ -156,6 +156,7 @@ export default {
 
 .chart-wrap {
   margin-top: 129px;
+  min-width: 302px;
 }
 
 .chart {
