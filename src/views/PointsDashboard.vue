@@ -89,17 +89,16 @@ import {
   fetchUserPointsStatistics,
 } from "@/helpers/blast/stake/points";
 import { formatUnits } from "viem";
-import { providers } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
-import { defaultRpc } from "@/helpers/chains";
 import { formatTokenBalance } from "@/helpers/filters";
 import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
 import { mapActions, mapGetters, mapMutations } from "vuex";
+import { BlastLockingMultiRewards } from "@/constants/blast";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
+import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 import BlastLockingMultiRewardsAbi from "@/abis/BlastLockingMultiRewards";
-import { BlastLockingMultiRewards } from "@/constants/blast";
 
 const BLAST_CHAIN_ID = 81457;
 const MIM_USDB_POOL_ID = 1;
@@ -180,9 +179,9 @@ export default {
         goldPendingDistributionAmount:
           this.userPointsStatistics?.developerPoints?.lp?.pending ?? 0,
         totalPendingDistributionAmount:
-          this.pointsStatistics?.liquidityPoints?.total?.pending ?? 0,
+          this.pointsStatistics?.liquidityPoints?.lp?.pending ?? 0,
         totalGoldPendingDistributionAmount:
-          this.pointsStatistics?.developerPoints?.total?.pending ?? 0,
+          this.pointsStatistics?.developerPoints?.lp?.pending ?? 0,
       };
     },
 
@@ -200,8 +199,8 @@ export default {
         label: "Founder Boost",
         title: "MIM / USDB Pool",
         subtitle: "Receive 20% of total ecosystem points",
-        rateText: "Founder Rate",
-        rateTooltip: "Hourly distribution towards the Founders",
+        rateText: "Pending Founder Rewards",
+        rateTooltip: "Pending rewards for the Founders",
         icon: useImage("assets/images/tokens/MIM-USDB.png"),
         deposited,
         depositedUsd,
@@ -297,9 +296,7 @@ export default {
         this.account
       );
 
-      const currentRpc = defaultRpc[BLAST_CHAIN_ID as keyof typeof defaultRpc];
-
-      const chainProvider = new providers.StaticJsonRpcProvider(currentRpc);
+      const chainProvider = getEthersProvider(BLAST_CHAIN_ID);
 
       const userSigner =
         this.account && this.chainId === BLAST_CHAIN_ID
@@ -310,7 +307,8 @@ export default {
         MIM_USDB_POOL_ID,
         BLAST_CHAIN_ID,
         chainProvider,
-        userSigner
+        userSigner,
+        this.account
       );
     },
 

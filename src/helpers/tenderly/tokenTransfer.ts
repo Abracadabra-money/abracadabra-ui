@@ -1,6 +1,6 @@
 import { parseUnits } from "viem";
 import { Contract, providers } from "ethers";
-import { erc20ABI, type Address } from "@wagmi/core";
+import { erc20Abi, type Address } from "viem";
 import { sendTransaction } from "@/helpers/tenderly/sendTransaction";
 import { getTokenHolders } from "@/helpers/tenderly/getTokenHolders";
 import { getTokenDecimals } from "@/helpers/tenderly/getTokenDecimals";
@@ -18,9 +18,9 @@ export const tokenTransfer = async (
     tokenAddress,
     holdersAddresses
   );
-  const decimals = await getTokenDecimals(tokenAddress);
+  const decimals = await getTokenDecimals(tokenAddress, chainId);
   let parsedAmount = parseUnits(amount.toString(), decimals);
-  const tokenContract = await new Contract(tokenAddress, erc20ABI, provider);
+  const tokenContract = await new Contract(tokenAddress, erc20Abi, provider);
 
   for (let index = 0; index < holders.length; index++) {
     const { address, amount } = holders[index];

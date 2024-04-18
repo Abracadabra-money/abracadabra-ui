@@ -19,9 +19,12 @@ const spellEmptyState: EmptyTokenState = {
 };
 
 export const getSSpellEmptyState = async (): Promise<EmptyTokenState> => {
-  const spellToSSpellRate = await getSpellToSSpellRate(spell, sSpell.contract);
-
   const publicClient = getPublicClient(1);
+  const spellToSSpellRate = await getSpellToSSpellRate(
+    spell,
+    sSpell.contract,
+    publicClient
+  );
 
   const totalSupply: any = await publicClient.readContract({
     ...sSpell.contract,

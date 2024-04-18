@@ -30,7 +30,9 @@
         />
 
         <div class="action-form" v-if="isMobileView">
-          <Tabs :name="activeTab" :items="tabItems" @select="changeTab" />
+          <div class="tabs-wrap">
+            <Tabs :name="activeTab" :items="tabItems" @select="changeTab" />
+          </div>
 
           <div class="input-wrap">
             <h4 class="title">Select amount</h4>
@@ -667,6 +669,11 @@ export default {
   gap: 16px;
   display: flex;
   flex-direction: column;
+}
+
+.tabs-wrap {
+  max-width: 220px;
+  width: 100%;
 }
 
 .input-wrap {

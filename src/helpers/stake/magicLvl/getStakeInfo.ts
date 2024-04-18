@@ -1,4 +1,4 @@
-import { getAccount } from "@wagmi/core";
+import { getAccountHelper } from "@/helpers/walletClienHelper";
 import { magicLvlConfig } from "@/configs/stake/magicLvlConfig";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import type { MagicLvlTokensInfo } from "@/types/magicLvl/stakeInfo";
@@ -10,9 +10,9 @@ import { getAdditionalInfo } from "@/helpers/stake/magicLvl/getAdditionalInfo";
 
 // : Promise<MagicLvlStakeInfo>
 export const getStakeInfo = async () => {
-  const account = getAccount().address;
+  const { address } = await getAccountHelper();
 
-  if (!account) {
+  if (!address) {
     return await Promise.all(
       Object.keys(magicLvlConfig).map(async (chainId: string) => {
         const config: any =
@@ -38,7 +38,7 @@ export const getStakeInfo = async () => {
             master,
             harvestor,
             config,
-            account,
+            address,
             publicClient
           );
         })

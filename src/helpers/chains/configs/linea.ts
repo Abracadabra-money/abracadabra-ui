@@ -2,6 +2,7 @@ import { linea } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
 import { filterRpcUrls } from "@/helpers/chains/utils";
 import { initPublicClient } from "@/helpers/chains/initPublicClient";
+import { initStaticJsonRpcProvider } from "@/helpers/chains/initStaticJsonRpcProvider";
 
 const rpcList = filterRpcUrls(linea, [
   "https://linea.decubate.com",
@@ -23,9 +24,11 @@ const viemConfig = {
 };
 
 const publicClient = initPublicClient(viemConfig);
+const ethersProvider = await initStaticJsonRpcProvider(linea.id);
 
 export const lineaConfig = {
   publicClient,
+  ethersProvider,
   viemConfig: viemConfig,
   chainId: linea.id,
   chainName: "Linea",

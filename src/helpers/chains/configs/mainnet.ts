@@ -2,6 +2,7 @@ import { mainnet } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
 import { filterRpcUrls } from "@/helpers/chains/utils";
 import { initPublicClient } from "@/helpers/chains/initPublicClient";
+import { initStaticJsonRpcProvider } from "@/helpers/chains/initStaticJsonRpcProvider";
 
 const rpcList = filterRpcUrls(mainnet, [
   "https://eth.llamarpc.com",
@@ -23,9 +24,11 @@ const viemConfig = {
 };
 
 const publicClient = initPublicClient(viemConfig);
+const ethersProvider = await initStaticJsonRpcProvider(mainnet.id);
 
 export const mainnetConfig = {
   publicClient,
+  ethersProvider,
   viemConfig: viemConfig,
   chainId: mainnet.id,
   chainName: "Ethereum",

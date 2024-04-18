@@ -1,12 +1,8 @@
-import cauldronsConfig from "@/configs/cauldrons";
-import { Contract, providers } from "ethers";
-import { MulticallWrapper } from "ethers-multicall-provider";
-import { getUserPositions } from "@/helpers/cauldron/getUserPositions";
-import { getMainParams } from "@/helpers/cauldron/getMainParams";
 import { defaultRpc } from "@/helpers/chains";
-
+import cauldronsConfig from "@/configs/cauldrons";
+import { getMainParams } from "@/helpers/cauldron/getMainParams";
 import type { CauldronPositionItem } from "@/helpers/cauldron/types";
-import { markRaw } from "vue";
+import { getUserPositions } from "@/helpers/cauldron/getUserPositions";
 
 export const getUserOpenPositions = async (
   account: string,
@@ -23,38 +19,13 @@ export const getUserOpenPositions = async (
       );
       if (!configs) return [];
 
-      const provider = markRaw(
-        new providers.StaticJsonRpcProvider(
-          defaultRpc[chainId as keyof typeof defaultRpc]
-        )
-      );
-
-      // const multicallProvider = MulticallWrapper.wrap(provider);
-      // NOTICE: BERA TEST
-      const multicallProvider =
-        +chainId === 80085 ? provider : MulticallWrapper.wrap(provider);
-
-      const cauldronContracts = configs.map((config: any) => {
-        return new Contract(
-          config.contract.address,
-          config.contract.abi,
-          multicallProvider
-        );
-      });
-
       const userPositions: any = await getUserPositions(
         configs,
-        multicallProvider,
         account,
-        cauldronContracts,
         chainId
       );
 
-      const mainParams = await getMainParams(
-        configs,
-        multicallProvider,
-        chainId
-      );
+      const mainParams = await getMainParams(configs, chainId);
 
       positions.push(
         ...userPositions.map((position: any, idx: any) => {

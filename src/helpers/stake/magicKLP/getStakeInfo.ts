@@ -1,4 +1,4 @@
-import { getAccount } from "@wagmi/core";
+import { getAccountHelper } from "@/helpers/walletClienHelper";
 import { magicKlpConfig } from "@/configs/stake/magicKlpConfig";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { getEmptyState } from "@/helpers/stake/magicKLP/getEmptyState";
@@ -6,9 +6,9 @@ import { getTokensInfo } from "@/helpers/stake/magicKLP/getTokensInfo";
 import type { StakeInfo, EmptyState } from "@/types/magicKlp/stakeInfo";
 
 export const getStakeInfo = async (): Promise<StakeInfo[] | EmptyState[]> => {
-  const account = getAccount().address;
+  const { address } = await getAccountHelper();
 
-  if (!account) {
+  if (!address) {
     return await Promise.all(
       Object.keys(magicKlpConfig).map(async (chainId: string) => {
         const config: any =
@@ -27,7 +27,7 @@ export const getStakeInfo = async (): Promise<StakeInfo[] | EmptyState[]> => {
       const publicClient = getPublicClient(+chainId);
 
       const { mainToken, stakeToken } = await getTokensInfo(
-        account,
+        address,
         config,
         publicClient
       );
