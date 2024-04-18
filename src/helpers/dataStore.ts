@@ -1,5 +1,7 @@
 import { BigNumber } from "ethers";
 
+export const LS_FARMS_LIST_KEY = "abracadabraFarmList";
+export const LS_USER_POSITION_KEY = "abracadabraUserPositions";
 export const LS_CAULDRONS_LIST_KEY = "abracadabraCauldronsList";
 
 export const jsonBigNumberTransform = (item: any) => {
@@ -27,13 +29,45 @@ export const getAndParseCaldronsList = () => {
   }
 
   const cauldronsList = JSON.parse(lsCauldronsList);
+  const data = cauldronsList.map((item: any) => jsonBigNumberTransform(item));
 
-  const data = cauldronsList.map((item: any) => {
-    const keys = Object.keys(item);
-    const configIndex = keys.indexOf("config");
-    keys.splice(configIndex, 1);
-    return jsonBigNumberTransform(item);
-  });
+  return {
+    isCreated: true,
+    data: data,
+  };
+};
+
+export const getAndParseUserPositions = () => {
+  const lsUserPositions = localStorage.getItem(LS_USER_POSITION_KEY);
+
+  if (!lsUserPositions) {
+    return {
+      isCreated: false,
+      data: [],
+    };
+  }
+
+  const userPositions = JSON.parse(lsUserPositions);
+  const data = userPositions.map((item: any) => jsonBigNumberTransform(item));
+
+  return {
+    isCreated: true,
+    data: data,
+  };
+};
+
+export const getAndParseFarmsList = () => {
+  const lsFarmList = localStorage.getItem(LS_FARMS_LIST_KEY);
+
+  if (!lsFarmList) {
+    return {
+      isCreated: false,
+      data: [],
+    };
+  }
+
+  const farmList = JSON.parse(lsFarmList);
+  const data = farmList.map((item: any) => jsonBigNumberTransform(item));
 
   return {
     isCreated: true,
