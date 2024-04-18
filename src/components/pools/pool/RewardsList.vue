@@ -92,6 +92,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
   gap: 8px;
 }
 
@@ -99,6 +100,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
+  flex-grow: 1;
   gap: 4px;
   min-height: 126px;
   padding: 12px;

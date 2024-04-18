@@ -4,8 +4,6 @@
       <div class="swap-head">
         <h3 class="title">MIM Swap</h3>
 
-        <BaseButton class="link-button" @click="goToPool">Deposit</BaseButton>
-
         <SwapSettingsPopup
           :slippage="actionConfig.slippage"
           :defaultSlippage="30n"
@@ -401,13 +399,6 @@ export default {
       this.updateFromValue(this.actionConfig.fromInputValue);
     },
 
-    goToPool() {
-      this.$router.push({
-        name: "Pool",
-        params: { id: MIM_USDB_POOL_ID, poolChainId: BLAST_CHAIN_ID },
-      });
-    },
-
     async getTokensPrices(poolsConfig: PoolConfig[]) {
       const uniqueTokens = getAllUniqueTokens(poolsConfig);
       const coins = uniqueTokens.map(({ contract }) => contract.address);
@@ -538,10 +529,9 @@ export default {
 
 <style lang="scss" scoped>
 .link-button {
-  width: max-content!important;
+  width: max-content !important;
   margin: 0 auto 0 12px;
 }
-
 
 .swap-view {
   padding: 120px 0;
