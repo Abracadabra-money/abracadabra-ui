@@ -1,7 +1,7 @@
 <template>
   <div class="pool-view" v-if="pool">
-    <div class="chart-wrap" v-if="chartOption">
-      <PieChart :option="chartOption" />
+    <div class="chart-wrap">
+      <PieChart :option="chartOption" v-if="chartOption" />
     </div>
 
     <div class="pool">
@@ -16,14 +16,16 @@
       <PoolComposition :pool="this.pool" />
     </div>
 
-    <PoolPosition
-      :pool="pool"
-      :pointsStatistics="pointsStatistics"
-      :isMyPositionPopupOpened="isMyPositionPopupOpened"
-      @closePopup="isMyPositionPopupOpened = false"
-      @updateInfo="getPoolInfo"
-      v-if="isUserPositionOpen"
-    />
+    <div class="pool-position-wrap">
+      <PoolPosition
+        :pool="pool"
+        :pointsStatistics="pointsStatistics"
+        :isMyPositionPopupOpened="isMyPositionPopupOpened"
+        @closePopup="isMyPositionPopupOpened = false"
+        @updateInfo="getPoolInfo"
+        v-if="isUserPositionOpen"
+      />
+    </div>
   </div>
 </template>
 
@@ -173,6 +175,10 @@ export default {
   );
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
   backdrop-filter: blur(12.5px);
+}
+
+.pool-position-wrap {
+  min-width: 354px;
 }
 
 @media (max-width: 1400px) {
