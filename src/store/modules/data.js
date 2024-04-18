@@ -1,9 +1,8 @@
+import { getAndParseCaldronsList } from "@/helpers/dataStore";
+
 export default {
   state: {
-    cauldronsList: {
-      isCreated: false,
-      data: [],
-    },
+    cauldronsList: getAndParseCaldronsList(),
     userPositions: {
       isCreated: false,
       data: [],
@@ -18,6 +17,7 @@ export default {
     setCauldronsList(state, payload) {
       state.cauldronsList.isCreated = true;
       state.cauldronsList.data = payload;
+      localStorage.setItem("abracadabraCauldronsList", JSON.stringify(payload));
     },
     setUserPositions(state, payload) {
       state.userPositions.isCreated = true;
