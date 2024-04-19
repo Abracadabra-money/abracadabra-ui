@@ -1,13 +1,19 @@
 import { markRaw } from "vue";
 import { Contract } from "ethers";
+import store from "@/store";
 import type { ContractInfo } from "@/types/global";
+import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
 
 export const getContracts = async (
   config: any,
-  contractProvider: any,
   bentoBoxContract: ContractInfo
 ) => {
   try {
+    const address = store.getters.getAccount;
+    const signer = store.getters.getSigner;
+    const provider = getEthersProvider(config.chainId);
+    const contractProvider = address ? signer : provider;
+
     if (!contractProvider) return null;
 
     const cauldron = new Contract(

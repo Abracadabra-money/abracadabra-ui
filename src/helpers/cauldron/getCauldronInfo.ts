@@ -51,12 +51,8 @@ const getContractsInfo = async (
 export const getCauldronInfo = async (
   cauldronId: number,
   chainId: number,
-  provider: providers.BaseProvider,
-  signer: providers.JsonRpcSigner,
   address: Address
 ): Promise<CauldronInfo | null> => {
-  const userSigner = address ? signer : provider;
-
   const config = cauldronsConfig.find(
     (config) => +config.id === +cauldronId && +config.chainId === +chainId
   );
@@ -85,11 +81,10 @@ export const getCauldronInfo = async (
     config,
     address,
     masterContract,
-    bentoBoxContract,
-    userSigner
+    bentoBoxContract
   );
 
-  const contracts = await getContracts(config, userSigner, bentoBoxContract);
+  const contracts = await getContracts(config, bentoBoxContract);
 
   return {
     config,

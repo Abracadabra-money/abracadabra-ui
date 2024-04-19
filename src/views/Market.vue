@@ -75,7 +75,6 @@ import { defineAsyncComponent } from "vue";
 import { BigNumber, utils } from "ethers";
 import { useImage } from "@/helpers/useImage";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
-import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 
 export default {
@@ -318,18 +317,9 @@ export default {
 
       this.checkAndSetQuerySettings();
 
-      const chainProvider = getEthersProvider(this.routeChainId);
-
-      const userSigner =
-        this.account && this.activeChainId === this.routeChainId
-          ? this.signer
-          : chainProvider;
-
       this.cauldron = await getCauldronInfo(
         this.routeCauldronId,
         this.routeChainId,
-        chainProvider,
-        userSigner,
         this.account
       );
     },

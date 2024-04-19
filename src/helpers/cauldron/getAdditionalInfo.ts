@@ -25,8 +25,7 @@ export const getAdditionalInfo = async (
   config: any,
   account: string | undefined,
   masterContract: ContractInfo,
-  bentoBoxContract: ContractInfo,
-  contractProvider: any
+  bentoBoxContract: ContractInfo
 ): Promise<AdditionalInfo> => {
   if (!account) return EMPTY_STATE;
 
@@ -103,9 +102,8 @@ export const getAdditionalInfo = async (
 
   const hasActiveGmOrder = activeOrder !== ZERO_ADDRESS;
 
-  // todo move to viem
   const gmInfo = config.cauldronSettings.isGMXMarket
-    ? await getGmInfo(config.collateralInfo.address, contractProvider)
+    ? await getGmInfo(config.collateralInfo.address, chainId)
     : null;
 
   return {
