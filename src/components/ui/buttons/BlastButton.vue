@@ -1,6 +1,11 @@
 <template>
   <router-link :class="classes" :to="{ name: toRouteName }">
-    <img src="@/assets/images/blast-text.svg" alt="" />
+    <span class="popup-link" v-if="isMobile">
+      <img src="@/assets/images/blast/blast-icon.png" alt="" />
+      <span> Blast</span>
+    </span>
+
+    <img v-else src="@/assets/images/blast-text.svg" alt="" />
   </router-link>
 </template>
 
@@ -25,8 +30,7 @@ export default {
     ...mapGetters({ account: "getAccount" }),
     classes() {
       return {
-        "blast-link": true,
-        "popup-link": this.isMobile,
+        "blast-link": !this.isMobile,
         "header-link": !this.isMobile,
       };
     },
@@ -97,43 +101,15 @@ export default {
 }
 
 .popup-link {
+  gap: 6px;
   display: flex;
   align-items: center;
-  width: 100%;
-  gap: 6px;
-  background: transparent;
-  border-radius: 8px;
   color: #fff;
-  border: none;
-  outline: transparent;
-  cursor: pointer;
-  transition: all 0.5s;
+  font-weight: 500;
 
-  &.blast-link {
-    opacity: 1;
-    height: 40px;
-    background-color: #fcfc06;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    img {
-      width: 77px;
-      height: auto;
-    }
-
-    &:hover {
-      background: #fcfc06;
-      opacity: 0.9;
-    }
+  &:hover {
+    opacity: 0.7;
   }
-
-  img {
-    width: 24px;
-  }
-}
-
-.popup-link:hover {
-  opacity: 0.7;
 }
 
 @media (max-width: 1110px) {

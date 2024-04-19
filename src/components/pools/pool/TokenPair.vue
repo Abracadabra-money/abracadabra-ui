@@ -16,7 +16,6 @@
     </div>
 
     <div class="pair-info">
-      <p class="title">Pool</p>
       <p class="name">
         {{ pool.name }}
       </p>
