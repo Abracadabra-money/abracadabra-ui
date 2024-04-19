@@ -36,13 +36,14 @@ export const approveToken = async (
 
 export const approveTokenViem = async (
   contract: ContractInfo,
-  spender: Address
+  spender: Address,
+  allowanceValue: bigint = MAX_ALLOWANCE_VALUE
 ) => {
   try {
     const { request } = await simulateContractHelper({
       ...contract,
       functionName: "approve",
-      args: [spender, MAX_ALLOWANCE_VALUE],
+      args: [spender, allowanceValue],
     });
 
     const hash = await writeContractHelper(request);

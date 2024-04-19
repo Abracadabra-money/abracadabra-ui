@@ -423,7 +423,8 @@ export default {
       const approve = await approveTokenViem(
         contract,
         // @ts-ignore
-        this.swapInfo.transactionInfo.swapRouterAddress
+        this.swapInfo.transactionInfo.swapRouterAddress,
+        this.actionConfig.fromInputValue
       );
 
       await this.deleteNotification(notificationId);
@@ -538,10 +539,9 @@ export default {
 
 <style lang="scss" scoped>
 .link-button {
-  width: max-content!important;
+  width: max-content !important;
   margin: 0 auto 0 12px;
 }
-
 
 .swap-view {
   padding: 120px 0;
