@@ -1,5 +1,6 @@
 import type { MagicLPInfo } from "./types";
 import DecimalMath, { divFloor, mulFloor, mulCeil } from "./libs/DecimalMath";
+import { querySellQuote, querySellBase } from "@/helpers/pools/swap/magicLp";
 
 export const previewAddLiquidity = (
   baseInAmount: bigint,
@@ -231,4 +232,105 @@ export const previewAddLiquidityAlternative = (
     lpInfo
   );
   return buyShares(baseAdjustedInAmount, quoteAdjustedInAmount, lpInfo);
+};
+
+export const previewAddLiquiditySingleSide = (
+  lpInfo: MagicLPInfo,
+  inAmount: bigint,
+  inAmountToSwap: bigint,
+  inAmountIsBase: boolean
+) => {
+  let baseAmount = 0n;
+  let quoteAmount = 0n;
+
+  // base -> quote
+  if (inAmountIsBase) {
+    baseAmount = inAmount - inAmountToSwap;
+    quoteAmount = querySellBase(
+      inAmountToSwap,
+      lpInfo,
+      lpInfo.userInfo
+    ).receiveQuoteAmount;
+  }
+  // quote -> base
+  else {
+    quoteAmount = inAmount - inAmountToSwap;
+    baseAmount = querySellQuote(
+      inAmountToSwap,
+      lpInfo,
+      lpInfo.userInfo
+    ).receiveBaseAmount;
+  }
+
+  const previewAddLiquidityResult = previewAddLiquidity(
+    baseAmount,
+    quoteAmount,
+    lpInfo
+  );
+
+  return previewAddLiquidityResult;
+};
+
+export const previewAddLiquidityImbalanced = (
+  lpInfo: MagicLPInfo,
+  baseInAmount: bigint,
+  quoteInAmount: bigint,
+  remainingAmountToSwapIsBase: boolean,
+  remainingAmountToSwap: bigint
+) => {
+  let { baseAdjustedInAmount, quoteAdjustedInAmount } = previewAddLiquidity(
+    baseInAmount,
+    quoteInAmount,
+    lpInfo
+  );
+
+  // base -> quote
+  if (remainingAmountToSwapIsBase) {
+    baseAdjustedInAmount +=
+      baseInAmount - baseAdjustedInAmount - remainingAmountToSwap;
+    quoteAdjustedInAmount += querySellBase(
+      remainingAmountToSwap,
+      lpInfo,
+      lpInfo.userInfo
+    ).receiveQuoteAmount;
+  }
+  // quote -> base
+  else {
+    baseAdjustedInAmount += querySellQuote(
+      remainingAmountToSwap,
+      lpInfo,
+      lpInfo.userInfo
+    ).receiveBaseAmount;
+    quoteAdjustedInAmount +=
+      quoteInAmount - quoteAdjustedInAmount - remainingAmountToSwap;
+  }
+  const previewAddLiquidityImbalancedResult = previewAddLiquidity(
+    baseAdjustedInAmount,
+    quoteAdjustedInAmount,
+    lpInfo
+  );
+
+  return previewAddLiquidityImbalancedResult;
+};
+
+export const previewRemoveLiquidityOneSide = (
+  sharesIn: bigint,
+  lpInfo: MagicLPInfo
+) => {
+  if (sharesIn == 0n) return { baseAmountOut: 0n, quoteAmountOut: 0n };
+
+  const previewRemoveLiquidityResult = previewRemoveLiquidity(sharesIn, lpInfo);
+
+  const baseAmount = previewRemoveLiquidityResult.baseAmountOut;
+  const quoteAmount = previewRemoveLiquidityResult.quoteAmountOut;
+
+  const baseAmountOut =
+    baseAmount +
+    querySellQuote(quoteAmount, lpInfo, lpInfo.userInfo).receiveBaseAmount;
+
+  const quoteAmountOut =
+    quoteAmount +
+    querySellBase(baseAmount, lpInfo, lpInfo.userInfo).receiveQuoteAmount;
+
+  return { baseAmountOut, quoteAmountOut };
 };

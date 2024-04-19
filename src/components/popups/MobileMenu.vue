@@ -2,105 +2,33 @@
   <div class="popup-wrap" @click.self="closePopup">
     <div class="popup" v-if="!showStake">
       <div class="popup-header">
-        <ConnectButton />
+        <ConnectButton @click="closePopup" />
 
         <img
-          class="network-icon"
-          v-if="!!networkIcon"
-          :src="networkIcon"
-          @click.stop="$emit('openNetworksPopup')"
+          class="chain-icon"
+          v-if="!!chainIcon"
+          :src="chainIcon"
           v-tooltip="unsupportedTooltip"
+          @click.stop="$emit('openNetworksPopup')"
         />
       </div>
 
-      <ul class="popup-links">
-        <li class="popup-link-wrap blast-wrap" @click="closePopup">
-          <BlastButton isMobile="" />
-        </li>
+      <div class="primary-block">
+        <BlastButton isMobile />
 
-        <li class="popup-link-wrap" @click="closePopup">
-          <router-link
-            class="popup-link my-positions"
-            :to="{ name: 'MyPositions' }"
-          >
-            <img src="@/assets/images/header/positions-header-icon.png" />
-            <span class="link-text"> My Positions </span>
-          </router-link>
-        </li>
+        <SwapMobileButton
+          :isClassicHeader="isClassicHeader"
+          @change-view="isClassicHeader = !isClassicHeader"
+        />
+      </div>
 
-        <li class="popup-link-wrap" @click="closePopup">
-          <router-link class="popup-link" :to="{ name: 'Cauldrons' }">
-            <img
-              src="@/assets/images/header/dropdown/more/cauldrons-icon.png"
-            />
-            <span class="link-text"> Cauldrons </span>
-          </router-link>
-        </li>
+      <component
+        :is="isClassicHeader ? 'MobileHeaderNav' : 'SwapMobileHeaderNav'"
+        @close-popup="closePopup"
+        @open-inner-popup="openInnerPopup"
+      />
 
-        <li class="popup-link-wrap" @click="closePopup">
-          <router-link class="popup-link" :to="{ name: 'MimSwap' }">
-            <img src="@/assets/images/header/dropdown/more/swap-icon.svg" />
-            <span class="link-text"> MimSwap </span>
-          </router-link>
-        </li>
-
-        <li class="popup-link-wrap" @click.stop="openInnerPopup()">
-          <button class="popup-link">
-            <img src="@/assets/images/header/dropdown/more/stake-icon.svg" />
-            <span class="link-text"> Stake </span>
-            <img class="arrow" src="@/assets/images/arrow.svg" />
-          </button>
-        </li>
-
-        <li class="popup-link-wrap" @click="closePopup">
-          <router-link class="popup-link" :to="{ name: 'MarketsFarm' }">
-            <img src="@/assets/images/header/dropdown/more/farms-icon.svg" />
-            <span class="link-text"> Farms </span>
-          </router-link>
-        </li>
-
-        <li class="popup-link-wrap" @click="closePopup">
-          <router-link class="popup-link" :to="{ name: 'Beam' }">
-            <img src="@/assets/images/header/dropdown/more/beam-icon.svg" />
-            <span class="link-text"> Beam </span>
-          </router-link>
-        </li>
-
-        <li class="popup-link-wrap" @click="closePopup">
-          <a
-            class="popup-link"
-            href="https://curve.fi/#/ethereum/pools/mim/swap"
-            target="_blank"
-          >
-            <img src="@/assets/images/header/dropdown/more/swap-icon.svg" />
-            <span class="link-text"> Swap </span>
-          </a>
-        </li>
-
-        <li class="popup-link-wrap" @click="closePopup">
-          <a
-            class="popup-link"
-            href="https://analytics.abracadabra.money/"
-            target="_blank"
-          >
-            <img src="@/assets/images/header/dropdown/more/bars-icon.svg" />
-            <span class="link-text"> Analytics </span>
-          </a>
-        </li>
-
-        <li class="popup-link-wrap" @click="closePopup">
-          <a
-            class="popup-link"
-            href="https://docs.abracadabra.money/learn/"
-            target="_blank"
-          >
-            <img src="@/assets/images/header/dropdown/more/docs-icon.svg" />
-            <span class="link-text"> Documentation </span>
-          </a>
-        </li>
-      </ul>
-
-      <div class="social-media">
+      <div class="social-wrap">
         <Lens width="20" height="20" />
         <GitHub />
         <Discord />
@@ -120,24 +48,19 @@
 
 <script>
 import { mapGetters } from "vuex";
-import Lens from "@/components/ui/icons/Lens.vue";
-import Mirror from "@/components/ui/icons/Mirror.vue";
-import GitHub from "@/components/ui/icons/GitHub.vue";
-import Twitter from "@/components/ui/icons/Twitter.vue";
-import Discord from "@/components/ui/icons/Discord.vue";
-import V2 from "@/components/ui/icons/V2.vue";
-import ConnectButton from "@/components/ui/buttons/ConnectButton.vue";
-import HeaderStakeMobilePopup from "@/components/popups/HeaderStakeMobilePopup.vue";
-import BlastButton from "@/components/ui/buttons/BlastButton.vue";
+import { defineAsyncComponent } from "vue";
+
 export default {
   props: {
-    networkIcon: { type: String },
+    chainIcon: { type: String },
     unsupportedTooltip: { type: String },
   },
 
   data() {
     return {
       showStake: false,
+      isClassicHeader: true,
+      alternativeHeader: ["MimSwap", "Pools", "Pool"],
     };
   },
 
@@ -159,16 +82,43 @@ export default {
     },
   },
 
+  created() {
+    this.isClassicHeader = !this.alternativeHeader.includes(this.$route.name);
+  },
+
   components: {
-    HeaderStakeMobilePopup,
-    ConnectButton,
-    Lens,
-    Mirror,
-    Twitter,
-    Discord,
-    GitHub,
-    V2,
-    BlastButton,
+    ConnectButton: defineAsyncComponent(() =>
+      import("@/components/ui/buttons/ConnectButton.vue")
+    ),
+    BlastButton: defineAsyncComponent(() =>
+      import("@/components/ui/buttons/BlastButton.vue")
+    ),
+    SwapMobileButton: defineAsyncComponent(() =>
+      import("@/components/ui/buttons/SwapMobileButton.vue")
+    ),
+    MobileHeaderNav: defineAsyncComponent(() =>
+      import("@/components/ui/navigation/MobileHeaderNav.vue")
+    ),
+    SwapMobileHeaderNav: defineAsyncComponent(() =>
+      import("@/components/ui/navigation/SwapMobileHeaderNav.vue")
+    ),
+    Lens: defineAsyncComponent(() => import("@/components/ui/icons/Lens.vue")),
+    GitHub: defineAsyncComponent(() =>
+      import("@/components/ui/icons/GitHub.vue")
+    ),
+    Discord: defineAsyncComponent(() =>
+      import("@/components/ui/icons/Discord.vue")
+    ),
+    Twitter: defineAsyncComponent(() =>
+      import("@/components/ui/icons/Twitter.vue")
+    ),
+    Mirror: defineAsyncComponent(() =>
+      import("@/components/ui/icons/Mirror.vue")
+    ),
+    V2: defineAsyncComponent(() => import("@/components/ui/icons/V2.vue")),
+    HeaderStakeMobilePopup: defineAsyncComponent(() =>
+      import("@/components/popups/HeaderStakeMobilePopup.vue")
+    ),
   },
 };
 </script>
@@ -188,6 +138,7 @@ export default {
 }
 
 .popup {
+  gap: 30px;
   display: flex;
   flex-direction: column;
   width: 266px;
@@ -206,78 +157,19 @@ export default {
   border-bottom: 1px solid #7089cc44;
 }
 
-.network-icon {
+.chain-icon {
   height: 32px;
   width: 32px;
   cursor: pointer;
 }
 
-.popup-links {
+.primary-block {
   display: flex;
   flex-direction: column;
-  align-items: start;
-  gap: 23px;
-  list-style: none;
+  gap: 20px;
 }
 
-.popup-link-wrap {
-  width: 100%;
-}
-
-.blast-wrap {
-  margin-top: 12px;
-  height: max-content;
-}
-
-.popup-link {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  gap: 6px;
-  background: transparent;
-  border-radius: 8px;
-  color: #fff;
-  border: none;
-  outline: transparent;
-  cursor: pointer;
-  transition: all 0.5s;
-
-  &.blast-link {
-    opacity: 1;
-    height: 40px;
-    background-color: #fcfc06;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    img {
-      width: 77px;
-      height: auto;
-    }
-
-    &:hover {
-      background: #fcfc06;
-      opacity: 0.9;
-    }
-  }
-
-  img {
-    width: 24px;
-  }
-}
-
-.popup-link:hover {
-  opacity: 0.7;
-}
-
-.my-positions {
-  margin: 12px 0 12px 0;
-}
-
-.popup-connect {
-  padding: 0;
-}
-
-.social-media {
+.social-wrap {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -286,19 +178,5 @@ export default {
   padding-top: 8px;
   margin: auto auto 0 auto;
   border-top: 1px solid #7089cc44;
-}
-
-.router-link-active {
-  opacity: 0.5;
-}
-
-.arrow {
-  height: 8px;
-  width: 8px;
-  transform: rotate(-90deg);
-  margin-left: auto;
-}
-
-.link-v2 {
 }
 </style>
