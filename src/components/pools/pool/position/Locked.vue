@@ -1,10 +1,6 @@
 <template>
   <div class="locked">
-    <FounderBoostCard
-      :lpToken="lpToken"
-      :tokensList="tokensList"
-      :rewardsList="rewardsList"
-    />
+    <FounderBoostCard :lpToken="lpToken" :rewardsList="rewardsList" />
 
     <ul class="locks-list">
       <UserLock
@@ -24,7 +20,6 @@ import { defineAsyncComponent } from "vue";
 import { mapGetters } from "vuex";
 import { formatUnits } from "viem";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
-import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
 import { getUserLocks } from "@/helpers/pools/getPoolInfo";
 import { useImage } from "@/helpers/useImage";
 
@@ -53,53 +48,12 @@ export default {
           this.pool.decimals
         ),
         amountUsd: this.formatUSD(
-          this.formatTokenBalance(
+          formatUnits(
             this.pool.lockInfo.balances.locked || 0n,
-
             this.pool.decimals
           ) * this.pool.price
         ),
       };
-    },
-
-    tokensList() {
-      const previewRemoveLiquidityResult = previewRemoveLiquidity(
-        this.pool.lockInfo.balances.locked || 0n,
-        this.pool
-      );
-
-      const tokensList = [
-        {
-          name: this.pool.tokens.baseToken.config.name,
-          icon: this.pool.tokens.baseToken.config.icon,
-          amount: this.formatTokenBalance(
-            previewRemoveLiquidityResult.baseAmountOut,
-            this.pool.tokens.baseToken.config.decimals
-          ),
-          amountUsd: this.formatUSD(
-            this.formatTokenBalance(
-              previewRemoveLiquidityResult.baseAmountOut,
-              this.pool.tokens.baseToken.config.decimals
-            ) * this.pool.tokens.baseToken.price
-          ),
-        },
-        {
-          name: this.pool.tokens.quoteToken.config.name,
-          icon: this.pool.tokens.quoteToken.config.icon,
-          amount: this.formatTokenBalance(
-            previewRemoveLiquidityResult.quoteAmountOut,
-            this.pool.tokens.quoteToken.config.decimals
-          ),
-          amountUsd: this.formatUSD(
-            this.formatTokenBalance(
-              previewRemoveLiquidityResult.quoteAmountOut,
-              this.pool.tokens.quoteToken.config.decimals
-            ) * this.pool.tokens.quoteToken.price
-          ),
-        },
-      ].filter((e) => e.name && e.amount);
-
-      return tokensList.length ? tokensList : false;
     },
 
     rewardsList() {

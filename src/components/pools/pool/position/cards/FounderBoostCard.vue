@@ -42,7 +42,6 @@ import { defineAsyncComponent } from "vue";
 export default {
   props: {
     lpToken: { type: Object },
-    tokensList: { type: Array },
     rewardsList: { type: Array },
   },
 

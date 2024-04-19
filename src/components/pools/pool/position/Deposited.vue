@@ -115,10 +115,8 @@ export default {
           this.pool.decimals
         ),
         amountUsd: this.formatUSD(
-          this.formatTokenBalance(
-            this.pool.userInfo.balance,
-            this.pool.decimals
-          ) * this.pool.price
+          formatUnits(this.pool.userInfo.balance, this.pool.decimals) *
+            this.pool.price
         ),
       };
     },
@@ -138,7 +136,7 @@ export default {
             this.pool.tokens.baseToken.config.decimals
           ),
           amountUsd: this.formatUSD(
-            this.formatTokenBalance(
+            formatUnits(
               previewRemoveLiquidityResult.baseAmountOut,
               this.pool.tokens.baseToken.config.decimals
             ) * this.pool.tokens.baseToken.price
@@ -152,7 +150,7 @@ export default {
             this.pool.tokens.quoteToken.config.decimals
           ),
           amountUsd: this.formatUSD(
-            this.formatTokenBalance(
+            formatUnits(
               previewRemoveLiquidityResult.quoteAmountOut,
               this.pool.tokens.quoteToken.config.decimals
             ) * this.pool.tokens.quoteToken.price
