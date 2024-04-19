@@ -89,7 +89,7 @@ export const getCauldronInfo = async (
     userSigner
   );
 
-  const contracts = await getContracts(config, userSigner);
+  const contracts = await getContracts(config, userSigner, bentoBoxContract);
 
   return {
     config,

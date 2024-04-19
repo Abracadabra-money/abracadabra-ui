@@ -1,8 +1,12 @@
 import { markRaw } from "vue";
 import { Contract } from "ethers";
-import bentoBoxAbi from "@/abis/bentoBox";
+import type { ContractInfo } from "@/types/global";
 
-export const getContracts = async (config: any, contractProvider: any) => {
+export const getContracts = async (
+  config: any,
+  contractProvider: any,
+  bentoBoxContract: ContractInfo
+) => {
   try {
     if (!contractProvider) return null;
 
@@ -12,11 +16,9 @@ export const getContracts = async (config: any, contractProvider: any) => {
       contractProvider
     );
 
-    const bentoBoxAddress = await cauldron.bentoBox();
-
     const bentoBox = new Contract(
-      bentoBoxAddress,
-      bentoBoxAbi,
+      bentoBoxContract.address,
+      bentoBoxContract.abi,
       contractProvider
     );
 
