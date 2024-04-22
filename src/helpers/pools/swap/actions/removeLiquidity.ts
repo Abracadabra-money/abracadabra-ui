@@ -30,6 +30,5 @@ export const removeLiquidity = async (
   });
 
   const hash = await writeContractHelper(request);
-
   return await waitForTransactionReceiptHelper({ hash });
 };
