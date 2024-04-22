@@ -8,10 +8,24 @@
 </template>
 
 <script lang="ts">
+import {
+  writeContractHelper,
+  simulateContractHelper,
+} from "@/helpers/walletClienHelper";
 import { mapGetters } from "vuex";
-import { handleClaimCrvReward } from "@/helpers/cauldron/handleClaimCrvReward";
-import { getCvxClaimableReward } from "@/helpers/cauldron/getCvxClaimableReward";
+import { formatUnits } from "viem";
 import { defineAsyncComponent } from "vue";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
+
+const cvxClaimableRewardAbi = [
+  {
+    inputs: [{ internalType: "address", name: "", type: "address" }],
+    name: "cvx_claimable_reward",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+];
 
 export default {
   props: {
@@ -20,7 +34,7 @@ export default {
 
   data() {
     return {
-      reward: null as null | number,
+      reward: 0,
     };
   },
 
@@ -32,31 +46,56 @@ export default {
 
   watch: {
     async account() {
-      await this.getReward();
+      this.reward = await this.getCvxClaimableReward();
     },
   },
 
   methods: {
-    async actionHandler() {
-      const { collateral } = this.cauldron.contracts;
-      await handleClaimCrvReward(collateral, this.account);
+    async getCvxClaimableReward() {
+      if (!this.cauldron.config.cauldronSettings.hasCrvClaimLogic) return 0;
+
+      const { chainId, collateralInfo } = this.cauldron.config;
+      const publicClient = getPublicClient(chainId);
+
+      try {
+        return Number(
+          formatUnits(
+            await publicClient.readContract({
+              address: collateralInfo.address,
+              abi: cvxClaimableRewardAbi,
+              functionName: "cvx_claimable_reward",
+              args: [this.account],
+            }),
+            collateralInfo.decimals
+          )
+        );
+      } catch (error) {
+        console.log("Get Cvx Claimable Reward Error:", error);
+        return 0;
+      }
     },
 
-    async getReward() {
-      if (!this.cauldron.config.cauldronSettings.hasCrvClaimLogic) return;
+    async actionHandler() {
+      try {
+        const { collateralInfo } = this.cauldron.config;
+        const { address, abi } = collateralInfo;
 
-      const { collateral } = this.cauldron.contracts;
-      const { decimals } = this.cauldron.config.collateralInfo;
-      this.reward = await getCvxClaimableReward(
-        collateral,
-        this.account,
-        decimals
-      );
+        const { request } = await simulateContractHelper({
+          address,
+          abi,
+          functionName: "getReward",
+          args: [this.account],
+        });
+
+        await writeContractHelper(request);
+      } catch (error) {
+        console.log("Handle Claim Crv Reward Error:", error);
+      }
     },
   },
 
   async created() {
-    await this.getReward();
+    this.reward = await this.getCvxClaimableReward();
   },
 
   components: {

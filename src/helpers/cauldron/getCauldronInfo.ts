@@ -1,5 +1,4 @@
 import type { Address } from "viem";
-import type { providers } from "ethers";
 import bentoBoxAbi from "@/abis/bentoBox";
 import cauldronsConfig from "@/configs/cauldrons";
 import type { CauldronInfo } from "@/helpers/cauldron/types";
