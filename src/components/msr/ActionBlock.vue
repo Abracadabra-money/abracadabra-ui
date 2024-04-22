@@ -30,11 +30,7 @@
 </template>
 
 <script>
-import Stake from "@/components/msr/actions/Stake.vue";
-import Lock from "@/components/msr/actions/Lock.vue";
-import Claim from "@/components/msr/actions/Claim.vue";
-
-import AvailableNetworksBlock from "@/components/stake/AvailableNetworksBlock.vue";
+import { defineAsyncComponent } from "vue";
 
 export default {
   emits: ["chooseLockAction", "updateMimSavingRateInfo"],
@@ -44,19 +40,19 @@ export default {
     mimSavingRateInfo: { type: Object, required: true },
   },
 
-  data() {
-    return {};
-  },
-
-  computed: {},
-
-  methods: {},
-
   components: {
-    Stake,
-    Lock,
-    Claim,
-    AvailableNetworksBlock,
+    Stake: defineAsyncComponent(() =>
+      import("@/components/msr/actions/Stake.vue")
+    ),
+    Lock: defineAsyncComponent(() =>
+      import("@/components/msr/actions/Lock.vue")
+    ),
+    Claim: defineAsyncComponent(() =>
+      import("@/components/msr/actions/Claim.vue")
+    ),
+    AvailableNetworksBlock: defineAsyncComponent(() =>
+      import("@/components/stake/AvailableNetworksBlock.vue")
+    ),
   },
 };
 </script>

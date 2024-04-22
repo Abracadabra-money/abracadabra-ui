@@ -1,11 +1,11 @@
 import mimTokenInfo from "@/configs/tokens/mim";
 import bentoContractsInfo from "@/configs/contracts/master";
 import degenBoxInfo from "@/configs/contracts/degenBox";
-import type { Address } from "@wagmi/core";
+import type { Address } from "viem";
 import type { ExtendedContractInfo } from "@/configs/contracts/types";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 import { tokensChainLink } from "@/configs/chainLink/config";
-import { getPublicClient } from "@/helpers/getPublicClient";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 
 export const createBentoBoxConfig = async (
   chainId: number,

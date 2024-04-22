@@ -40,12 +40,8 @@
 </template>
 
 <script>
+import { defineAsyncComponent } from "vue";
 import { mapActions, mapGetters, mapMutations } from "vuex";
-import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
-import BaseButton from "@/components/base/BaseButton.vue";
-import Toggle from "@/components/ui/Toggle.vue";
-import EpochTimeLine from "@/components/msr/EpochTimeLine.vue";
-import LockInfo from "@/components/msr/LockInfo.vue";
 import { formatUnits } from "viem";
 import notification from "@/helpers/notification/notification";
 import { approveTokenViem } from "@/helpers/approval";
@@ -222,7 +218,21 @@ export default {
     },
   },
 
-  components: { BaseTokenInput, BaseButton, Toggle, EpochTimeLine, LockInfo },
+  components: {
+    BaseTokenInput: defineAsyncComponent(() =>
+      import("@/components/base/BaseTokenInput.vue")
+    ),
+    BaseButton: defineAsyncComponent(() =>
+      import("@/components/base/BaseButton.vue")
+    ),
+    Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
+    EpochTimeLine: defineAsyncComponent(() =>
+      import("@/components/msr/EpochTimeLine.vue")
+    ),
+    LockInfo: defineAsyncComponent(() =>
+      import("@/components/msr/LockInfo.vue")
+    ),
+  },
 };
 </script>
 

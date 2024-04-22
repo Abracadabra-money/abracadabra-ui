@@ -14,7 +14,7 @@ export const getTotalAmountByHolders = async (
     holdersAddresses
   );
 
-  const decimals = await getTokenDecimals(tokenAddress);
+  const decimals = await getTokenDecimals(tokenAddress, chainId);
 
   if (holders.length === 0) return 0;
   if (holders.length === 1) {

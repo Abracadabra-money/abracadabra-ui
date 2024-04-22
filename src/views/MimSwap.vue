@@ -4,8 +4,6 @@
       <div class="swap-head">
         <h3 class="title">MIM Swap</h3>
 
-        <BaseButton class="link-button" @click="goToPool">Deposit</BaseButton>
-
         <SwapSettingsPopup
           :slippage="actionConfig.slippage"
           :defaultSlippage="30n"
@@ -32,6 +30,7 @@
           :actionConfig="actionConfig"
           :priceImpact="priceImpactPair"
           :minAmount="swapInfo.outputAmountWithSlippage"
+          :currentPriceInfo="currentPriceInfo"
         />
 
         <SwapRouterInfoBlock
@@ -75,6 +74,7 @@
         :actionConfig="actionConfig"
         :swapInfo="swapInfo"
         :priceImpact="priceImpactPair"
+        :currentPriceInfo="currentPriceInfo"
         @confirm="closeConfirmationPopup"
       />
     </LocalPopupWrap>
@@ -198,6 +198,33 @@ export default {
       );
     },
 
+    currentPriceInfo() {
+      const amounts = {
+        from: this.actionConfig.fromInputValue,
+        to: this.actionConfig.toInputValue,
+      };
+
+      const routeInfo: RouteInfo =
+        this.swapInfo.routes[this.swapInfo.routes.length - 1];
+
+      if (!routeInfo) {
+        return {
+          midPrice: 0n,
+          amounts: amounts,
+          fromBase: false,
+        };
+      }
+
+      const midPrice = routeInfo.lpInfo.midPrice;
+      const fromBase = routeInfo.lpInfo.baseToken === routeInfo.inputToken;
+
+      return {
+        midPrice,
+        amounts,
+        fromBase,
+      };
+    },
+
     // Alternative price impact calculation
     priceImpactPair(): string | number {
       const routeInfo: RouteInfo =
@@ -225,7 +252,6 @@ export default {
         Math.abs(Number(parsedMidPrice) - executionPrice) /
         Number(parsedMidPrice);
 
-      console.log("priceImpact", priceImpact);
       return Number(priceImpact * 100).toFixed(2);
     },
 
@@ -373,13 +399,6 @@ export default {
       this.updateFromValue(this.actionConfig.fromInputValue);
     },
 
-    goToPool() {
-      this.$router.push({
-        name: "Pool",
-        params: { id: MIM_USDB_POOL_ID, poolChainId: BLAST_CHAIN_ID },
-      });
-    },
-
     async getTokensPrices(poolsConfig: PoolConfig[]) {
       const uniqueTokens = getAllUniqueTokens(poolsConfig);
       const coins = uniqueTokens.map(({ contract }) => contract.address);
@@ -510,10 +529,9 @@ export default {
 
 <style lang="scss" scoped>
 .link-button {
-  width: max-content!important;
+  width: max-content !important;
   margin: 0 auto 0 12px;
 }
-
 
 .swap-view {
   padding: 120px 0;

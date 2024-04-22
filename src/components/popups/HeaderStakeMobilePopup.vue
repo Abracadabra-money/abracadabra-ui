@@ -101,12 +101,12 @@
             <img class="link-icon" src="@/assets/images/stake/tokens/KLP.png" />
             KLP
           </span>
-          <span class="apr" v-if="klpApr"
+          <!-- <span class="apr" v-if="klpApr"
             >APR: {{ formatPercent(klpApr) }}</span
           >
           <div class="loader-wrap" v-else>
             <BaseLoader type="loader" />
-          </div>
+          </div> -->
         </div>
         <p class="link-description">Stake KLP</p>
       </router-link>
@@ -181,7 +181,7 @@ export default {
     await this.getGlpApr();
     await this.getApeApr();
     await this.getLvlApr();
-    await this.getKlpApr();
+    // await this.getKlpApr();
   },
 
   components: {

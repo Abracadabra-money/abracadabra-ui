@@ -1,19 +1,22 @@
-import { waitForTransaction } from "@wagmi/core";
+import {
+  writeContractHelper,
+  simulateContractHelper,
+  waitForTransactionReceiptHelper,
+} from "@/helpers/walletClienHelper";
 import type { ContractInfo } from "@/types/global";
-import { prepareWriteContract, writeContract } from "@wagmi/core";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 
 export const getRewards = async (contract: ContractInfo) => {
   try {
-    const prepareResponse = await prepareWriteContract({
+    const { request } = await simulateContractHelper({
       ...contract,
       functionName: "getRewards",
       args: [],
     });
 
-    const { hash } = await writeContract(prepareResponse);
+    const hash = await writeContractHelper(request);
 
-    return await waitForTransaction({ hash });
+    return await waitForTransactionReceiptHelper({ hash });
   } catch (error) {
     console.log("Get Rewards Handler Error:", error);
 

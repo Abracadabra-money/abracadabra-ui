@@ -1,19 +1,19 @@
-import { createPublicClient, http, parseUnits } from "viem";
-import { getAccount } from "@wagmi/core";
+import { parseUnits } from "viem";
+import { getAccountHelper } from "@/helpers/walletClienHelper";
 import { spellConfig } from "@/configs/stake/spellConfig";
 import { tokensChainLink } from "@/configs/chainLink/config";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { getSpellInfo } from "@/helpers/stake/spell/getSpellInfo";
 import { getMSpellInfo } from "@/helpers/stake/spell/getMSpellInfo";
 import { getSSpellInfo } from "@/helpers/stake/spell/getSSpellInfo";
 import { getSpellEmptyState } from "@/helpers/stake/spell/emptyState";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 import { getSpellStakingApr } from "@/helpers/stake/spell/getSpellStakingApr";
-import { chainsList } from "@/helpers/chains";
 
 export const getStakeInfo = async () => {
-  const account: any = getAccount().address;
+  const { address } = await getAccountHelper();
 
-  if (!account) {
+  if (!address) {
     return await Promise.all(
       Object.keys(spellConfig).map(async (chainId: any) => {
         return await getSpellEmptyState(Number(chainId));
@@ -29,23 +29,16 @@ export const getStakeInfo = async () => {
   const spellPrice = parseUnits(price.toString(), 18);
 
   return await Promise.all(
-    Object.keys(spellConfig).map(async (chainId: any) => {
-      const config = spellConfig[chainId as keyof typeof spellConfig];
+    Object.keys(spellConfig).map(async (chainId: string) => {
+      const currentChainId = Number(chainId);
+      const config = spellConfig[currentChainId as keyof typeof spellConfig];
 
-      const chain: any = chainsList[chainId as keyof typeof chainsList];
-
-      const publicClient = createPublicClient({
-        batch: {
-          multicall: true,
-        },
-        chain: chain,
-        transport: http(),
-      });
+      const publicClient = getPublicClient(currentChainId);
 
       const spell = await getSpellInfo(
         config,
         spellPrice,
-        account,
+        address,
         publicClient
       );
 
@@ -53,7 +46,7 @@ export const getStakeInfo = async () => {
         config,
         spell,
         spellPrice,
-        account,
+        address,
         publicClient
       );
 
@@ -61,14 +54,14 @@ export const getStakeInfo = async () => {
         config,
         spell,
         spellPrice,
-        account,
+        address,
         publicClient
       );
 
       const { sSpellApr, mSpellApr } = await getSpellStakingApr();
 
       return {
-        chainId: Number(chainId),
+        chainId: currentChainId,
         spell,
         mSpell: { ...mSpell, apr: mSpellApr },
         sSpell: { ...sSpell, apr: sSpellApr },

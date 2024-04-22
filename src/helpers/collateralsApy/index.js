@@ -1,12 +1,11 @@
 import store from "@/store";
-import { providers } from "ethers";
 import { APR_KEY } from "@/constants/global";
-import { defaultRpc } from "@/helpers/chains";
 import { formatToFixed } from "@/helpers/filters";
 import { getGMApr } from "@//helpers/collateralsApy/getGMApr";
 import { getCrvApy } from "@/helpers/collateralsApy/getCrvApy";
 import { getVeloApy } from "@/helpers/collateralsApy/getVeloApy";
 import { getLUSDApy } from "@/helpers/collateralsApy/getLUSDApy";
+import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
 import { getStargateApy } from "@/helpers/collateralsApy/getStargateApy";
 import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
 import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
@@ -76,7 +75,7 @@ export const fetchTokenApy = async (pool, chainId, provider) => {
 };
 
 const fetchCollateralApy = async (cauldron, chainId, address) => {
-  const provider = new providers.StaticJsonRpcProvider(defaultRpc[chainId]);
+  const provider = getEthersProvider(chainId);
 
   const apr = await fetchTokenApy(cauldron, chainId, provider);
 

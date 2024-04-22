@@ -66,7 +66,6 @@ import { approveTokenViem } from "@/helpers/approval";
 import actions from "@/helpers/mimSavingRate/actions";
 import { formatTokenBalance } from "@/helpers/filters";
 import { mapActions, mapGetters, mapMutations } from "vuex";
-import { lock } from "@/helpers/mimSavingRate/actions/lock";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
 import { validateAction } from "@/helpers/mimSavingRate/validators";
@@ -265,7 +264,7 @@ export default {
         notification.pending
       );
 
-      const { error }: any = await lock(
+      const { error }: any = await actions.lock(
         this.mimSavingRateInfo.lockingMultiRewardsContract,
         this.actionConfig.lockAmount
       );

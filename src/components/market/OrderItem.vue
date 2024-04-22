@@ -68,11 +68,6 @@
 </template>
 
 <script lang="ts">
-import { mapGetters } from "vuex";
-import { utils, BigNumber } from "ethers";
-import { defineAsyncComponent } from "vue";
-import { useImage } from "@/helpers/useImage";
-import { formatTokenBalance } from "@/helpers/filters";
 import {
   ORDER_PENDING,
   ORDER_SUCCESS,
@@ -85,11 +80,16 @@ import {
   getOrderType,
   // @ts-ignore
 } from "@/helpers/gm/orders";
-import { getProviderByChainId } from "@/helpers/getProviderByChainId";
-
+import { mapGetters } from "vuex";
+import { utils, BigNumber } from "ethers";
+import { defineAsyncComponent } from "vue";
+import { useImage } from "@/helpers/useImage";
+import { formatTokenBalance } from "@/helpers/filters";
 import FAIL_ICON from "@/assets/images/order-fail.svg";
 import SUCCESS_ICON from "@/assets/images/order-success.svg";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
+import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
+
 const DEFAULT_SLIPPAGE = utils.parseUnits("1", PERCENT_PRESITION);
 
 export default {
@@ -153,7 +153,7 @@ export default {
     }),
 
     provider() {
-      return getProviderByChainId(this.cauldronObject.config.chainId);
+      return getEthersProvider(this.cauldronObject.config.chainId);
     },
 
     orderType() {

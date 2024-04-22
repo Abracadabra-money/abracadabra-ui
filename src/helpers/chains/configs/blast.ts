@@ -1,23 +1,17 @@
 import { useImage } from "@/helpers/useImage";
+import { initPublicClient } from "@/helpers/chains/initPublicClient";
+import { initStaticJsonRpcProvider } from "@/helpers/chains/initStaticJsonRpcProvider";
 
-export const blastConfig = {
-  id: 81457,
-  chainId: 81457,
-  name: "Blast",
-  network: "blast-mainnet",
-  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
-  rpcUrls: {
-    public: {
-      http: ["https://rpc.blast.io"],
-    },
-    default: {
-      http: [
-        "https://rpc.blast.io",
-        "https://blast.blockpi.network/v1/rpc/public",
-        "https://blastl2-mainnet.public.blastapi.io",
-      ],
-    },
-  },
+const rpcList = [
+  "https://rpc.blast.io",
+  "https://base.llamarpc.com",
+  "https://blast.din.dev/rpc",
+  "https://blast.blockpi.network/v1/rpc/public",
+  "https://blastl2-mainnet.public.blastapi.io",
+  "https://rpc.ankr.com/blast",
+];
+
+const viemConfig = {
   blockExplorers: {
     etherscan: {
       name: "Blast Sepolia Explorer",
@@ -34,8 +28,34 @@ export const blastConfig = {
       blockCreated: 88189,
     },
   },
-  symbol: "ETH",
+  id: 81457,
+  fees: undefined,
+  formatters: undefined,
+  chainId: 81457,
+  name: "Blast",
+  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
+  network: "blast-mainnet",
+  rpcUrls: {
+    public: {
+      http: rpcList,
+    },
+    default: {
+      http: rpcList,
+    },
+  },
+  serializers: undefined,
+};
+
+const publicClient = initPublicClient(viemConfig);
+const ethersProvider = await initStaticJsonRpcProvider(viemConfig.id);
+
+export const blastConfig = {
+  publicClient,
+  ethersProvider,
+  viemConfig: viemConfig,
+  chainId: viemConfig.id,
   chainName: "Blast",
+  symbol: "Blast",
   icon: useImage("assets/images/networks/blast.png"),
   baseTokenIcon: useImage("assets/images/tokens/ETH.png"),
   baseTokenSymbol: "ETH",

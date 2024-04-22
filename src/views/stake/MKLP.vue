@@ -65,11 +65,11 @@
         <KlpSpecialInfoBlock v-if="isAction" />
 
         <template v-if="isChartView">
-          <ChartBlock
+          <!-- <ChartBlock
             :chainId="selectedNetwork"
             :chartConfig="chartConfig"
             :getChartOptions="getChartOptions"
-          />
+          /> -->
 
           <AdditionalInfoBlock :configs="additionalConfig" />
         </template>
@@ -419,9 +419,9 @@ export default {
     KlpSpecialInfoBlock: defineAsyncComponent(
       () => import("@/components/stake/magicKlp/KlpSpecialInfoBlock.vue")
     ),
-    ChartBlock: defineAsyncComponent(
-      () => import("@/components/stake/ChartBlock.vue")
-    ),
+    // ChartBlock: defineAsyncComponent(
+    //   () => import("@/components/stake/ChartBlock.vue")
+    // ),
     AdditionalInfoBlock: defineAsyncComponent(
       () => import("@/components/stake/AdditionalInfoBlock.vue")
     ),

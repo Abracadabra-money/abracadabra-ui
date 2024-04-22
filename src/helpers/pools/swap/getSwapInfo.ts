@@ -5,7 +5,7 @@ import type { MagicLPInfo } from "@/helpers/pools/swap/types";
 import { getSwapRouterByChain } from "@/configs/pools/routers";
 import { querySellBase, querySellQuote } from "@/helpers/pools/swap/magicLp";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
-import { getPublicClient } from "@/helpers/getPublicClient";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import DecimalMath from "./libs/DecimalMath";
 
 const EMPTY_TOKEN_NAME = "Select Token";

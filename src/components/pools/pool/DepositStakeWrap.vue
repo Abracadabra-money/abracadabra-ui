@@ -9,10 +9,17 @@
       />
 
       <Toggle
-        v-if="isStake"
+        v-if="isStake && !isLockEnded"
         text="Lock"
         :selected="isLock"
         @updateToggle="changeLockToggle"
+      />
+
+      <Toggle
+        v-if="!isStake"
+        text="Balanced"
+        :selected="isBalanced"
+        @updateToggle="changeBalancedToggle"
       />
     </div>
 
@@ -20,12 +27,14 @@
       :pool="pool"
       :slippage="slippage"
       :deadline="deadline"
+      :isBalanced="isBalanced"
       @updatePoolInfo="$emit('updatePoolInfo')"
       v-if="!isStake"
     />
 
     <Stake
       :pool="pool"
+      :pointsStatistics="pointsStatistics"
       :slippage="slippage"
       :deadline="deadline"
       :isLock="isLock"
@@ -37,10 +46,12 @@
 
 <script>
 import { defineAsyncComponent } from "vue";
+import moment from "moment";
 
 export default {
   props: {
     pool: { type: Object },
+    pointsStatistics: { type: Object },
     slippage: { type: BigInt },
     deadline: { type: BigInt },
   },
@@ -52,6 +63,9 @@ export default {
       activeTab: "deposit",
       tabItems: ["deposit", "stake"],
       isLock: false,
+      isBalanced: false,
+      lockEndTimestamp: 1712364937,
+      isLockEnded: true,
     };
   },
 
@@ -73,6 +87,17 @@ export default {
     changeLockToggle() {
       this.isLock = !this.isLock;
     },
+
+    changeBalancedToggle() {
+      this.isBalanced = !this.isBalanced;
+    },
+  },
+
+  created() {
+    const now = moment().utc();
+    const end = moment.utc(this.lockEndTimestamp * 1000);
+    const isEnded = now.isAfter(end);
+    this.isLockEnded = isEnded;
   },
 
   components: {
@@ -81,7 +106,7 @@ export default {
     Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
 
     Deposit: defineAsyncComponent(() =>
-      import("@/components/pools/pool/actions/Deposit.vue")
+      import("@/components/pools/pool/actions/deposit/Deposit.vue")
     ),
 
     Stake: defineAsyncComponent(() =>

@@ -53,11 +53,12 @@ import { defineAsyncComponent } from "vue";
 
 const BLAST_CHAIN_ID = 81457;
 const MIM_USDB_POOL_ID = 1;
-
+import moment from "moment";
 export default {
   data() {
     return {
-      showBanner: true,
+      showBanner: false,
+      endTimestamp: 1712364937,
     };
   },
 
@@ -68,6 +69,16 @@ export default {
         params: { id: MIM_USDB_POOL_ID, poolChainId: BLAST_CHAIN_ID },
       });
     },
+  },
+
+  created() {
+    const now = moment().utc();
+    const end = moment.utc(this.endTimestamp * 1000);
+    const isEnded = now.isAfter(end);
+
+    if (!isEnded) {
+      this.showBanner = true;
+    }
   },
 
   components: {

@@ -1,12 +1,12 @@
-import { BigNumber, providers, Contract } from "ethers";
-import { RPC_ETH } from "@/constants/rpc";
-import { Percent, CurrencyAmount, Token } from "@uniswap/sdk";
-
-import lpStakingAbi from "@/abis/StargateLPStaking";
 import poolAbi from "@/abis/StargatePool";
+import { BigNumber, Contract } from "ethers";
+import lpStakingAbi from "@/abis/StargateLPStaking";
+import { MAINNET_CHAIN_ID } from "@/constants/global";
+import { Percent, CurrencyAmount, Token } from "@uniswap/sdk";
+import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
 
-const provider = new providers.StaticJsonRpcProvider(RPC_ETH);
 const YEAR = 31536000;
+const provider = getEthersProvider(MAINNET_CHAIN_ID);
 
 const stgToken = new Token(1, "0xAf5191B0De278C7286d6C7CC6ab6BB8A73bA2Cd6", 18);
 const susdc = new Token(1, "0xdf0770dF86a8034b3EFEf0A1Bb3c889B8332FF56", 6);

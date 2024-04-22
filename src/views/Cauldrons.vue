@@ -56,8 +56,8 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
+import { mapGetters, mapMutations } from "vuex";
 import farmsConfig from "@/configs/farms/farms";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 import { getCollateralApr } from "@/helpers/collateralsApy";
@@ -104,6 +104,7 @@ export default {
     ...mapGetters({
       account: "getAccount",
       chainId: "getChainId",
+      localCauldronsList: "getCauldronsList",
     }),
 
     isArbitrumChain() {
@@ -111,15 +112,16 @@ export default {
     },
   },
 
-  methods: {
-    async createCauldronsList() {
+  watch: {
+    async account() {
       this.cauldrons = await getMarketList(this.account);
-      this.cauldronsLoading = false;
-      this.updateInterval = setInterval(
-        await getMarketList(this.account),
-        60000
-      );
     },
+  },
+
+  methods: {
+    ...mapMutations({
+      setCauldronsList: "setCauldronsList",
+    }),
 
     async getCollateralsApr() {
       this.cauldrons = await Promise.all(
@@ -144,9 +146,24 @@ export default {
     updateSortKeys(key, order) {
       this.$refs.cauldronsTable.updateSortKeys(key, order);
     },
+
+    checkLocalData() {
+      if (this.localCauldronsList.isCreated) {
+        this.cauldrons = this.localCauldronsList.data;
+        this.cauldronsLoading = false;
+      }
+    },
   },
 
   async created() {
+    this.checkLocalData();
+
+    this.cauldrons = await getMarketList(this.account);
+    this.cauldronsLoading = false;
+    this.setCauldronsList(this.cauldrons);
+
+    await this.getCollateralsApr();
+
     const farmConfig = this.getFarmConfig(4, ARBITRUM_CHAIN_ID);
 
     this.farmCardInfo = await createFarmItemConfig(
@@ -156,8 +173,9 @@ export default {
       true
     );
 
-    await this.createCauldronsList();
-    await this.getCollateralsApr();
+    this.updateInterval = setInterval(async () => {
+      this.cauldrons = await getMarketList(this.account);
+    }, 60000);
   },
 
   beforeUnmount() {

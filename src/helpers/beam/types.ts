@@ -18,7 +18,7 @@ export type BeamConfig = {
   nativeTokenBalance: string | BigNumber | undefined;
   approvedAmount: BigNumber;
   tokenContractInstance: Contract | null;
-  chainsInfo: Array<ChainsConfig>;
+  chainsInfo: Array<any>;
   fromChains: Array<NetworksConfig>;
   toChains: Array<NetworksConfig>;
 };

@@ -1,7 +1,9 @@
 <template>
   <div class="current-price" v-if="isSelectedTokens">
     <SwapIcon pointer fill="#7088CC" @click="toggle = !toggle" />
-    <span>1 {{ fromTokenName }} = {{ tokensRate }} {{ toTokenName }}</span>
+    <span
+      >1 {{ fromTokenName }} = {{ tokensRateToShow }} {{ toTokenName }}</span
+    >
     <span>({{ price }})</span>
   </div>
   <div v-else>-</div>
@@ -9,7 +11,7 @@
 
 <script lang="ts">
 import { defineAsyncComponent, type Prop } from "vue";
-import { formatTokenBalance, formatUSD } from "@/helpers/filters";
+import { formatToFixed, formatUSD } from "@/helpers/filters";
 
 type Token = {
   config: {
@@ -25,10 +27,19 @@ type Token = {
   };
 };
 
+const RATE_PRECISION = 4;
+
 export default {
   props: {
     fromToken: Object as Prop<Token | any>,
     toToken: Object as Prop<Token | any>,
+    currentPriceInfo: {
+      default: () => ({
+        midPrice: 0n,
+        amounts: { from: 0n, to: 0n },
+        fromBase: false,
+      }),
+    },
   },
 
   data() {
@@ -45,10 +56,31 @@ export default {
       return ![toTokenName, fromTokenName].includes("Select Token");
     },
 
+    tokensRateByDefelLama() {
+      return this.fromToken.price / this.toToken.price;
+    },
+
     tokensRate() {
+      const precision = 1000000000000000000;
+      const { midPrice, fromBase } = this.currentPriceInfo;
+      const { from, to } = this.currentPriceInfo.amounts;
+
+      if (from > 0n && to > 0n) {
+        return Number(to) / Number(from);
+      }
+
+      if (midPrice === 0n) return this.tokensRateByDefelLama;
+
+      const rate = fromBase
+        ? Number(midPrice) / precision
+        : precision / Number(midPrice);
+      return rate;
+    },
+
+    tokensRateToShow() {
       return this.toggle
-        ? formatTokenBalance(this.toToken.price / this.fromToken.price)
-        : formatTokenBalance(this.fromToken.price / this.toToken.price);
+        ? formatToFixed(1 / this.tokensRate, RATE_PRECISION)
+        : formatToFixed(this.tokensRate,  RATE_PRECISION);
     },
 
     fromTokenName() {
@@ -56,7 +88,6 @@ export default {
         ? this.toToken.config.name
         : this.fromToken.config.name;
     },
-
     toTokenName() {
       return this.toggle
         ? this.fromToken.config.name
@@ -65,8 +96,8 @@ export default {
 
     price() {
       return this.toggle
-        ? formatUSD(this.toToken.price)
-        : formatUSD(this.fromToken.price);
+        ? formatUSD(1 / this.tokensRate * this.fromToken.price)
+        : formatUSD(this.tokensRate * this.toToken.price);
     },
   },
 

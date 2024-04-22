@@ -9,7 +9,7 @@ import { getPoolTokenInfo } from "@/helpers/pools/swap/tokens";
 import { getCoinsPrices } from "@/helpers/prices/defiLlama/index";
 import { getSwapRouterByChain } from "@/configs/pools/routers";
 
-import { getPublicClient } from "@/helpers/getPublicClient";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 
 export const getPoolInfo = async (
   poolChainId: number,
@@ -122,4 +122,21 @@ export const getLockInfo = async (
     },
     allowance: allowance.result,
   };
+};
+
+export const getUserLocks = async (
+  account: Address,
+  chainId: number,
+  config: any
+) => {
+  const publicClient = getPublicClient(chainId);
+
+  const userLocks: any = await publicClient.readContract({
+    address: config.lockContract.address,
+    abi: config.lockContract.abi,
+    functionName: "userLocks",
+    args: [account],
+  });
+
+  return userLocks;
 };

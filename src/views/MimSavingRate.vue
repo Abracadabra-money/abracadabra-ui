@@ -42,12 +42,10 @@
 </template>
 
 <script>
+import { defineAsyncComponent } from "vue";
 import { mapGetters } from "vuex";
-import { ARBITRUM_CHAIN_ID } from "@/constants/global.ts";
-import ActionBlock from "@/components/msr/ActionBlock.vue";
-import CarouselNavigation from "@/components/msr/CarouselNavigation.vue";
-import { getPublicClient } from "@/helpers/getPublicClient";
 import { getMimSavingRateInfo } from "@/helpers/mimSavingRate/getMimSavingRateInfo";
+import { ARBITRUM_CHAIN_ID } from "@/constants/global.ts";
 
 export default {
   data() {
@@ -66,6 +64,7 @@ export default {
   computed: {
     ...mapGetters({
       account: "getAccount",
+      getChainById: "getChainById",
     }),
 
     translateOffset() {
@@ -124,7 +123,7 @@ export default {
     },
 
     async createMimSavingRateInfo() {
-      const publicClient = getPublicClient(ARBITRUM_CHAIN_ID);
+      const publicClient = this.getChainById(ARBITRUM_CHAIN_ID).publicClient;
 
       this.mimSavingRateInfo = await getMimSavingRateInfo(
         this.account,
@@ -140,8 +139,12 @@ export default {
   },
 
   components: {
-    ActionBlock,
-    CarouselNavigation,
+    ActionBlock: defineAsyncComponent(() =>
+      import("@/components/msr/ActionBlock.vue")
+    ),
+    CarouselNavigation: defineAsyncComponent(() =>
+      import("@/components/msr/CarouselNavigation.vue")
+    ),
   },
 };
 </script>

@@ -1,26 +1,35 @@
 import { useImage } from "@/helpers/useImage";
 import { avalanche } from "@wagmi/core/chains";
+import { filterRpcUrls } from "@/helpers/chains/utils";
+import { initPublicClient } from "@/helpers/chains/initPublicClient";
+import { initStaticJsonRpcProvider } from "@/helpers/chains/initStaticJsonRpcProvider";
 
-export const avalancheConfig = {
+const rpcList = filterRpcUrls(avalanche, [
+  "https://avalanche.drpc.org",
+  "https://rpc.ankr.com/avalanche",
+  "https://avalanche-c-chain-rpc.publicnode.com",
+  "https://api.avax.network/ext/bc/C/rpc",
+]);
+
+const viemConfig = {
   ...avalanche,
   rpcUrls: {
     public: {
-      http: [
-        "https://api.avax.network/ext/bc/C/rpc",
-        "https://avalanche.drpc.org",
-        "https://rpc.tornadoeth.cash/avax",
-        "https://avalanche.drpc.org",
-      ],
+      http: rpcList,
     },
     default: {
-      http: [
-        "https://api.avax.network/ext/bc/C/rpc",
-        "https://avalanche.drpc.org",
-        "https://rpc.tornadoeth.cash/avax",
-        "https://avalanche.drpc.org"
-      ],
+      http: rpcList,
     },
   },
+};
+
+const publicClient = initPublicClient(viemConfig);
+const ethersProvider = await initStaticJsonRpcProvider(avalanche.id);
+
+export const avalancheConfig = {
+  publicClient,
+  ethersProvider,
+  viemConfig: viemConfig,
   chainId: avalanche.id,
   chainName: "Avalanche",
   symbol: "AVAX",

@@ -1,19 +1,18 @@
-import { getAccount } from "@wagmi/core";
+import { getAccountHelper } from "@/helpers/walletClienHelper";
 import { magicLvlConfig } from "@/configs/stake/magicLvlConfig";
-// import type { MagicLvlStakeInfo } from "@/types/magicLvl/stakeInfo";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import type { MagicLvlTokensInfo } from "@/types/magicLvl/stakeInfo";
+// import type { MagicLvlStakeInfo } from "@/types/magicLvl/stakeInfo";
 import type { MagicLvlTranchesInfo } from "@/types/magicLvl/stakeInfo";
 import { getTokensInfo } from "@/helpers/stake/magicLvl/getTokensInfo";
 import { getEmptyState } from "@/helpers/stake/magicLvl/getEmptyState";
 import { getAdditionalInfo } from "@/helpers/stake/magicLvl/getAdditionalInfo";
-import { chainsList } from "@/helpers/chains";
-import { createPublicClient, http } from "viem";
 
 // : Promise<MagicLvlStakeInfo>
 export const getStakeInfo = async () => {
-  const account = getAccount().address;
+  const { address } = await getAccountHelper();
 
-  if (!account) {
+  if (!address) {
     return await Promise.all(
       Object.keys(magicLvlConfig).map(async (chainId: string) => {
         const config: any =
@@ -25,19 +24,11 @@ export const getStakeInfo = async () => {
   }
 
   return await Promise.all(
-    Object.keys(magicLvlConfig).map(async (chainId: any) => {
+    Object.keys(magicLvlConfig).map(async (chainId: string) => {
       const config: any =
-        magicLvlConfig[chainId as keyof typeof magicLvlConfig];
+        magicLvlConfig[+chainId as keyof typeof magicLvlConfig];
 
-      const chain: any = chainsList[chainId as keyof typeof chainsList];
-
-      const publicClient = createPublicClient({
-        batch: {
-          multicall: true,
-        },
-        chain: chain,
-        transport: http(),
-      });
+      const publicClient = getPublicClient(+chainId);
 
       const { master, harvestor, tokensConfig } = config;
 
@@ -47,7 +38,7 @@ export const getStakeInfo = async () => {
             master,
             harvestor,
             config,
-            account,
+            address,
             publicClient
           );
         })

@@ -1,18 +1,3 @@
-import { mainnetConfig } from "@/helpers/chains/configs/mainnet";
-import { optimismConfig } from "@/helpers/chains/configs/optimism";
-import { binanceConfig } from "@/helpers/chains/configs/binance";
-import { polygonConfig } from "@/helpers/chains/configs/polygon";
-import { fantomConfig } from "@/helpers/chains/configs/fantom";
-import { moonriverConfig } from "@/helpers/chains/configs/moonriver";
-import { kavaConfig } from "@/helpers/chains/configs/kava";
-import { baseConfig } from "@/helpers/chains/configs/base";
-import { arbitrumConfig } from "@/helpers/chains/configs/arbitrum";
-import { avalancheConfig } from "@/helpers/chains/configs/avalanche";
-import { lineaConfig } from "@/helpers/chains/configs/linea";
-import { berachainConfig } from "@/helpers/chains/configs/bera";
-import { blastSepoliaConfig } from "@/helpers/chains/configs/blastSepolia";
-import { blastConfig } from "@/helpers/chains/configs/blast";
-
 import {
   RPC_ETH,
   RPC_OPTIMISM,
@@ -30,40 +15,6 @@ import {
   RPC_BLAST,
 } from "@/constants/rpc";
 
-export const chains = [
-  mainnetConfig,
-  arbitrumConfig,
-  blastConfig,
-  kavaConfig,
-  avalancheConfig,
-  optimismConfig,
-  fantomConfig,
-  binanceConfig,
-  polygonConfig,
-  moonriverConfig,
-  baseConfig,
-  lineaConfig,
-  berachainConfig,
-  blastSepoliaConfig,
-];
-
-export const chainsList = {
-  1: mainnetConfig,
-  10: optimismConfig,
-  56: binanceConfig,
-  137: polygonConfig,
-  250: fantomConfig,
-  1285: moonriverConfig,
-  2222: kavaConfig,
-  8453: baseConfig,
-  42161: arbitrumConfig,
-  43114: avalancheConfig,
-  59144: lineaConfig,
-  80085: berachainConfig,
-  81457: blastConfig,
-  168587773: blastSepoliaConfig,
-};
-
 export const defaultRpc = {
   1: RPC_ETH,
   10: RPC_OPTIMISM,
@@ -80,9 +31,6 @@ export const defaultRpc = {
   81457: RPC_BLAST,
   168587773: RPC_BLAST_SEPOLIA,
 };
-
-export const getChainById = (chainId: number): any =>
-  chainsList[chainId as keyof typeof chainsList];
 
 export const getRpcByChainId = (chainId: number): string =>
   defaultRpc[chainId as keyof typeof defaultRpc];

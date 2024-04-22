@@ -47,6 +47,7 @@ export const formatToFixed = (value: string | number, fixed: number) => {
   const maxFixedValue = itsNumber
     ? parseFloat(String(value)).toFixed(20)
     : value;
+
   // eslint-disable-next-line no-useless-escape
   const re = new RegExp(`^-?\\d+(?:\.\\d{0,` + (fixed || -1) + `})?`);
 
@@ -55,12 +56,13 @@ export const formatToFixed = (value: string | number, fixed: number) => {
 
   if (+parsedValue === 0) return "0";
 
-  if (Number.isInteger(+parsedValue)) return parseFloat(parsedValue).toFixed(1);
+  if (checkIfInteger(parsedValue)) return parseFloat(parsedValue).toFixed(1);
 
   const removedZero = parsedValue.replace(/0*$/, "");
   const removedDot = removedZero.endsWith(".")
     ? removedZero.slice(0, -1)
     : removedZero;
+
   return removedDot;
 };
 
@@ -79,20 +81,7 @@ export const formatTokenBalance = (value: string | number) => {
 
   if (+value > 0.000001) return +formatToFixed(value, 6);
 
-  const stringValue = formatToFixed(value, 18);
-
-  const start = stringValue.slice(0, 1);
-  const endToParse = `${stringValue.slice(1)}`;
-
-  const persedEnd = endToParse.replace(
-    new RegExp(
-      // eslint-disable-next-line no-useless-escape
-      `(?<=\.)[0]*`
-    ),
-    ""
-  );
-
-  return `${start}..${persedEnd.slice(0, 5)}`;
+  return `<0.01`;
 };
 
 export const formatExactPrice = (value: string | number) => {
@@ -105,4 +94,14 @@ export const formatAddress = (address: string) => {
     "..." +
     address.substring(address.length - 5, address.length)
   );
+};
+
+const checkIfInteger = (value: string) => {
+  const splitedByDot = value.split(".");
+
+  if (splitedByDot.length < 2) return true;
+
+  const numberAfterDot = Number(splitedByDot[1]);
+
+  return numberAfterDot > 0 ? false : true;
 };

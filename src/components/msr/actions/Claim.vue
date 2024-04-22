@@ -38,10 +38,6 @@ export default {
     mimSavingRateInfo: { type: Object },
   },
 
-  data() {
-    return {};
-  },
-
   computed: {
     userLockedAmount(): string | number {
       return formatTokenBalance(

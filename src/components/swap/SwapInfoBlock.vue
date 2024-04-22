@@ -5,6 +5,7 @@
       <CurrentPrice
         :fromToken="actionConfig?.fromToken"
         :toToken="actionConfig?.toToken"
+        :currentPriceInfo="currentPriceInfo"
       />
     </div>
     <div class="swap-info-item" v-if="showPriceImpact">
@@ -43,6 +44,9 @@ export default {
     actionConfig: Object as Prop<ActionConfig>,
     priceImpact: { type: [String, Number], default: 0 },
     showPriceImpact: { type: Boolean, default: true },
+    currentPriceInfo: {
+      default: () => ({ midPrice: 0n, amounts: { from: 0n, to: 0n }, fromBase: false }),
+    },
   },
 
   computed: {

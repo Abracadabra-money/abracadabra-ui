@@ -5,56 +5,12 @@
         :name="pool.name"
         :icon="pool.icon"
         :decimals="pool.decimals"
-        :max="pool.lockInfo.balances.unlocked"
+        :max="pool.lockInfo?.balances?.unlocked"
         :value="inputValue"
         :tokenPrice="pool.price"
         @updateInputValue="updateValue($event)"
       />
     </div>
-
-    <!-- <div class="info-blocks">
-      <div class="info-block base">
-        <div class="tag">
-          <span class="title">
-            <BaseTokenIcon
-              :name="this.pool.tokens.baseToken.config.name"
-              :icon="this.pool.tokens.baseToken.config.icon"
-              size="24px"
-            />
-            {{ this.pool.tokens.baseToken.config.name }}
-          </span>
-
-          <div class="token-amount">
-            <span class="value">
-              {{ formattedTokenExpecteds.base.value }}
-            </span>
-            <span class="usd">
-              {{ formattedTokenExpecteds.base.usd }}
-            </span>
-          </div>
-        </div>
-
-        <div class="tag">
-          <span class="title">
-            <BaseTokenIcon
-              :name="this.pool.tokens.quoteToken.config.name"
-              :icon="this.pool.tokens.quoteToken.config.icon"
-              size="24px"
-            />
-            {{ this.pool.tokens.quoteToken.config.name }}
-          </span>
-
-          <div class="token-amount">
-            <span class="value">
-              {{ formattedTokenExpecteds.quote.value }}
-            </span>
-            <span class="usd">
-              {{ formattedTokenExpecteds.quote.usd }}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div> -->
 
     <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
       {{ buttonText }}
@@ -63,19 +19,19 @@
 </template>
 
 <script>
-import { defineAsyncComponent } from "vue";
-import { mapActions, mapGetters, mapMutations } from "vuex";
 import {
-  prepareWriteContract,
-  waitForTransaction,
-  writeContract,
-} from "@wagmi/core";
+  writeContractHelper,
+  simulateContractHelper,
+  waitForTransactionReceiptHelper,
+} from "@/helpers/walletClienHelper";
 import { formatUnits } from "viem";
-import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import notification from "@/helpers/notification/notification";
+import { defineAsyncComponent } from "vue";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import { formatTokenBalance } from "@/helpers/filters";
+import { mapActions, mapGetters, mapMutations } from "vuex";
+import notification from "@/helpers/notification/notification";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 
 export default {
   props: {
@@ -105,7 +61,7 @@ export default {
     },
 
     error() {
-      if (this.inputAmount > this.pool.lockInfo.balances.unlocked)
+      if (this.inputAmount > this.pool.lockInfo?.balances?.unlocked)
         return "Insufficient balance";
 
       return null;
@@ -166,16 +122,18 @@ export default {
       );
 
       try {
-        const config = await prepareWriteContract({
+        const { request } = await simulateContractHelper({
           address: this.pool.lockContract.address,
           abi: this.pool.lockContract.abi,
           functionName: "withdraw",
           args: [this.inputAmount],
         });
 
-        const { hash } = await writeContract(config);
+        const hash = await writeContractHelper(request);
 
-        const { result, error } = await waitForTransaction({ hash });
+        const { result, error } = await waitForTransactionReceiptHelper({
+          hash,
+        });
 
         await this.$emit("updatePoolInfo");
 

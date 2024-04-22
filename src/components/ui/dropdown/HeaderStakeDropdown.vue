@@ -1,6 +1,6 @@
 <template>
   <div
-    class="dropdown-tools header-link"
+    class="dropdown-tools"
     :class="{ active: showDropdownList }"
     @click="toggleDropdown()"
     v-click-outside="closeDropdown"
@@ -88,12 +88,12 @@
             <img class="link-icon" src="@/assets/images/stake/tokens/KLP.png" />
             KLP
           </span>
-          <span class="apr" v-if="klpApr"
+          <!-- <span class="apr" v-if="klpApr"
             >APR: {{ formatPercent(klpApr) }}</span
-          >
-          <div class="loader-wrap" v-else>
+          >  -->
+          <!-- <div class="loader-wrap" v-else>
             <BaseLoader type="loader" />
-          </div>
+          </div> -->
         </div>
         <p class="link-description">Stake KLP</p>
       </router-link>
@@ -173,7 +173,7 @@ export default {
     await this.getGlpApr();
     await this.getApeApr();
     await this.getLvlApr();
-    await this.getKlpApr();
+    // await this.getKlpApr();
   },
 
   components: {
@@ -185,6 +185,12 @@ export default {
 <style lang="scss" scoped>
 .dropdown-tools {
   position: relative;
+  padding: 12px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 150%;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
 
   .dropdown-title {
     display: flex;

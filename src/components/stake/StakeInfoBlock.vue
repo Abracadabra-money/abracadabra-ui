@@ -8,7 +8,7 @@
       </span>
     </div>
 
-    <div class="row">
+    <div class="row" v-if="type !== 'klp'">
       <span class="title">APR</span>
       <span class="value" v-if="apr">{{ apr }}%</span>
       <div class="loader-wrap" v-else>
@@ -50,12 +50,13 @@ import {
   formatTokenBalance,
   formatToFixed,
 } from "@/helpers/filters";
-import axios from "axios";
+// import axios from "axios";
 import { formatUnits } from "viem";
 import { defineAsyncComponent } from "vue";
+// import { ANALYTICS_URK } from "@/constants/global";
 import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
 import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
-import { ANALYTICS_URK, MIM_PRICE, ONE_ETHER_VIEM } from "@/constants/global";
+import { MIM_PRICE, ONE_ETHER_VIEM } from "@/constants/global";
 
 export default {
   props: {
@@ -121,8 +122,9 @@ export default {
     },
 
     async fetchKlpApy() {
-      const { data } = await axios.get(`${ANALYTICS_URK}/kinetix/info`);
-      this.apr = +formatToFixed(data.apr, 2);
+      return 0;
+      // const { data } = await axios.get(`${ANALYTICS_URK}/kinetix/info`);
+      // this.apr = +formatToFixed(data.apr, 2);
     },
 
     async fetchApr() {
