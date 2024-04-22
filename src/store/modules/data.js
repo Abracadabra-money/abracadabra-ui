@@ -5,6 +5,8 @@ import {
   LS_USER_POSITION_KEY,
   getAndParseFarmsList,
   LS_FARMS_LIST_KEY,
+  getAndParseBentoBoxData,
+  LS_BENTOBOX_DATA_KEY,
 } from "@/helpers/dataStore";
 
 export default {
@@ -12,6 +14,7 @@ export default {
     cauldronsList: getAndParseCaldronsList(),
     userPositions: getAndParseUserPositions(),
     farmList: getAndParseFarmsList(),
+    bentoBoxData: getAndParseBentoBoxData(),
   },
 
   mutations: {
@@ -35,11 +38,24 @@ export default {
         )
       );
     },
+    setBentoBoxData(state, payload) {
+      state.bentoBoxData.isCreated = true;
+      state.bentoBoxData.data = payload;
+      localStorage.setItem(
+        LS_BENTOBOX_DATA_KEY,
+        JSON.stringify(payload, (key, value) =>
+          typeof value === "bigint"
+            ? { type: "bigint", value: value.toString() }
+            : value
+        )
+      );
+    },
   },
 
   getters: {
     getCauldronsList: (state) => state.cauldronsList,
     getUserPositions: (state) => state.userPositions,
     getFarmList: (state) => state.farmList,
+    getBentoBoxData: (state) => state.bentoBoxData,
   },
 };
