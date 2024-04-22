@@ -1,4 +1,5 @@
 import { getAccount } from "@wagmi/core";
+import { getAccountHelper } from "@/helpers/walletClienHelper";
 
 const ACTION_UNKNOWN = "unknown";
 const ACTION_STAKE = "stake";
@@ -74,7 +75,7 @@ export const validateAction = (
 ) => {
   if (contractInfo.chainId !== chainId) return CHAIN_WARNING;
 
-  if (!getAccount().isConnected) return CONNECTION_WARNING;
+  if (!getAccountHelper().isConnected) return CONNECTION_WARNING;
 
   if (actionType === ACTION_LOCK)
     return validateLock(contractInfo, actionConfig.lockAmount);
