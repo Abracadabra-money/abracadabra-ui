@@ -102,6 +102,7 @@ export const getAdditionalInfo = async (
 
   const hasActiveGmOrder = activeOrder !== ZERO_ADDRESS;
 
+  // todo move to viem
   const gmInfo = config.cauldronSettings.isGMXMarket
     ? await getGmInfo(config.collateralInfo.address, chainId)
     : null;
