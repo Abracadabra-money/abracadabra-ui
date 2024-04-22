@@ -33,6 +33,6 @@ export const getChainIcon = (chainId: number): string => {
       return useImage("assets/images/networks/blast.png");
 
     default:
-      return useImage("assets/images/chains/ethereum.svg");
+      return useImage("assets/images/networks/unsupportedChain.svg");
   }
 };

@@ -8,10 +8,6 @@
             Track your Blast, Potion and Gold points earned by taking part in
             the Abracadabra Ecosystem.
           </h4>
-          <div class="links-wrap">
-            <BaseButton class="btn" @click="goToPool">MIM/USDB Pool</BaseButton>
-            <BaseButton class="btn" @click="goToSwap">Swap</BaseButton>
-          </div>
         </div>
 
         <CardPointsPending
@@ -62,24 +58,28 @@
       </div>
 
       <div class="row card-info-row">
-        <CardPointsInfo :pointsInfo="cauldronPointsInfo" />
-        <CardPointsInfo
-          :pointsInfo="llePointsInfo"
-          :withdrawLogic="true"
-          isTabs
-          @showWithdrawPopup="showWithdrawPopup = true"
+        <CauldronPointsInfoCard
+          :cauldronInfo="cauldronInfo"
+          :pointsStatistics="pointsStatistics"
+          :userPointsStatistics="userPointsStatistics"
         />
-        <CardGoldPointsInfo :pointsInfo="goldPointsInfo" />
+
+        <StakePointsInfoCard
+          :poolInfo="poolInfo"
+          :stakeLpBalances="stakeLpBalances"
+          :pointsStatistics="pointsStatistics"
+          :userPointsStatistics="userPointsStatistics"
+        />
+
+        <LockPointsInfoCard
+          :poolInfo="poolInfo"
+          :stakeLpBalances="stakeLpBalances"
+          :pointsStatistics="pointsStatistics"
+          :userLocks="stakeLpBalances.userLocks"
+          :userPointsStatistics="userPointsStatistics"
+        />
       </div>
     </div>
-
-    <WlpWithdrawPopup
-      :balances="stakeLpBalances"
-      :poolInfo="poolInfo"
-      @close="showWithdrawPopup = false"
-      @updateInfo="updateBalances"
-      v-if="showWithdrawPopup"
-    />
   </div>
 </template>
 
@@ -90,7 +90,6 @@ import {
 } from "@/helpers/blast/stake/points";
 import { formatUnits } from "viem";
 import { defineAsyncComponent } from "vue";
-import { useImage } from "@/helpers/useImage";
 import { formatTokenBalance } from "@/helpers/filters";
 import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
 import { mapActions, mapGetters, mapMutations } from "vuex";
@@ -117,7 +116,6 @@ export default {
       } as any,
       updateInterval: null as any,
       updateIntervalStatistics: null as any,
-      showWithdrawPopup: false as any,
     };
   },
 
@@ -127,106 +125,12 @@ export default {
       account: "getAccount",
       signer: "getSigner",
     }),
-
-    cauldronPointsInfo() {
-      return {
-        chainId: BLAST_CHAIN_ID,
-        label: "Cauldron User",
-        title: "WETH cauldron",
-        subtitle: "Deposited WETH into Cauldron",
-        rateText: "Cauldron Rate",
-        rateTooltip: "Hourly distribution towards the Cauldron Users",
-        icon: useImage("assets/images/tokens/WETH.png"),
-        deposited: this.cauldronInfo?.userPosition?.collateralDeposited || 0,
-        depositedUsd:
-          this.cauldronInfo?.userPosition?.collateralDepositedUsd || 0,
-        distributionAmount:
-          this.userPointsStatistics?.liquidityPoints?.cauldron?.finalized ?? 0,
-        pendingDistributionAmount:
-          this.userPointsStatistics?.liquidityPoints?.cauldron?.pending ?? 0,
-        totalPending:
-          this.pointsStatistics?.liquidityPoints?.cauldron?.total?.pending ?? 0,
-      };
-    },
-
-    llePointsInfo() {
-      const deposited = Number(
-        formatUnits(
-          this.stakeLpBalances.unlocked + this.stakeLpBalances.locked || 0n,
-          this.poolInfo?.decimals || 18
-        )
-      );
-
-      const depositedUsd = deposited * this.poolInfo?.price || 0;
-
-      return {
-        chainId: BLAST_CHAIN_ID,
-        label: "Liquidity Provider",
-        title: "MIM / USDB Pool",
-        subtitle: "Staking Liquidity in Pool",
-        rateText: "Pool Rate",
-        rateTooltip: "Hourly distribution towards the entire liquidity pool",
-        icon: useImage("assets/images/tokens/MIM-USDB.png"),
-        unlockedAmount: this.stakeLpBalances.unlocked,
-        deposited,
-        depositedUsd,
-        distributionAmount:
-          this.userPointsStatistics?.liquidityPoints?.lp?.finalized ?? 0,
-        pendingDistributionAmount:
-          this.userPointsStatistics?.liquidityPoints?.lp?.pending ?? 0,
-        goldDistributionAmount:
-          this.userPointsStatistics?.developerPoints?.lp?.finalized ?? 0,
-        goldPendingDistributionAmount:
-          this.userPointsStatistics?.developerPoints?.lp?.pending ?? 0,
-        totalPendingDistributionAmount:
-          this.pointsStatistics?.liquidityPoints?.lp?.pending ?? 0,
-        totalGoldPendingDistributionAmount:
-          this.pointsStatistics?.developerPoints?.lp?.pending ?? 0,
-      };
-    },
-
-    goldPointsInfo() {
-      const deposited = +formatUnits(
-        this.stakeLpBalances.locked || 0n,
-        this.poolInfo?.decimals || 18
-      );
-
-      const depositedUsd = deposited * this.poolInfo?.price || 0;
-
-      return {
-        chainId: BLAST_CHAIN_ID,
-        isGold: true,
-        label: "Founder Boost",
-        title: "MIM / USDB Pool",
-        subtitle: "Receive 20% of total ecosystem points",
-        rateText: "Pending Founder Rewards",
-        rateTooltip: "Pending rewards for the Founders",
-        icon: useImage("assets/images/tokens/MIM-USDB.png"),
-        deposited,
-        depositedUsd,
-        distributionAmount:
-          this.userPointsStatistics?.liquidityPoints?.founder?.finalized ?? 0,
-        pendingDistributionAmount:
-          this.userPointsStatistics?.liquidityPoints?.founder?.pending ?? 0,
-        goldDistributionAmount:
-          this.userPointsStatistics?.developerPoints?.founder?.finalized ?? 0,
-        goldPendingDistributionAmount:
-          this.userPointsStatistics?.developerPoints?.founder?.pending ?? 0,
-        totalPendingDistributionAmount:
-          this.pointsStatistics?.liquidityPoints?.founder?.pending ?? 0,
-        totalGoldPendingDistributionAmount:
-          this.pointsStatistics?.developerPoints?.founder?.pending ?? 0,
-      };
-    },
   },
 
   watch: {
     async account() {
       await this.createActivityInfo();
-    },
-
-    async chainId() {
-      await this.createActivityInfo();
+      await this.fetchStatistics();
     },
   },
 
@@ -235,50 +139,67 @@ export default {
     ...mapMutations({ deleteNotification: "notifications/delete" }),
     formatTokenBalance,
 
-    goToPool() {
-      this.$router.push({
-        name: "Pool",
-        params: { id: MIM_USDB_POOL_ID, poolChainId: BLAST_CHAIN_ID },
-      });
-    },
-
-    goToSwap() {
-      this.$router.push({ name: "MimSwap" });
-    },
-
     async getStakeLpBalance() {
       const publicClient = getPublicClient(BLAST_CHAIN_ID);
 
-      const [balance, locked, unlocked] = await publicClient.multicall({
-        contracts: [
-          {
-            address: BlastLockingMultiRewards,
-            // @ts-ignore
-            abi: BlastLockingMultiRewardsAbi,
-            functionName: "balanceOf",
-            args: [this.account],
-          },
-          {
-            address: BlastLockingMultiRewards,
-            // @ts-ignore
-            abi: BlastLockingMultiRewardsAbi,
-            functionName: "locked",
-            args: [this.account],
-          },
-          {
-            address: BlastLockingMultiRewards,
-            // @ts-ignore
-            abi: BlastLockingMultiRewardsAbi,
-            functionName: "unlocked",
-            args: [this.account],
-          },
-        ],
-      });
+      if (!this.account)
+        return {
+          balance: 0n,
+          locked: 0n,
+          unlocked: 0n,
+          userLocks: [],
+        };
+
+      const [balance, locked, unlocked, userLocksArr] =
+        await publicClient.multicall({
+          contracts: [
+            {
+              address: BlastLockingMultiRewards,
+              abi: BlastLockingMultiRewardsAbi,
+              functionName: "balanceOf",
+              args: [this.account],
+            },
+            {
+              address: BlastLockingMultiRewards,
+              abi: BlastLockingMultiRewardsAbi,
+              functionName: "locked",
+              args: [this.account],
+            },
+            {
+              address: BlastLockingMultiRewards,
+              abi: BlastLockingMultiRewardsAbi,
+              functionName: "unlocked",
+              args: [this.account],
+            },
+            {
+              address: BlastLockingMultiRewards,
+              abi: BlastLockingMultiRewardsAbi,
+              functionName: "userLocks",
+              args: [this.account],
+            },
+          ],
+        });
+
+      const userLocks = userLocksArr.result.map(
+        ({ amount, unlockTime }: { amount: bigint; unlockTime: bigint }) => {
+          const formatAmount = +formatUnits(
+            amount,
+            this.poolInfo?.decimals || 18
+          );
+
+          return {
+            amount: formatAmount,
+            amountUsd: formatAmount * this.poolInfo?.price || 0,
+            unlockTime,
+          };
+        }
+      );
 
       return {
         balance: balance.result,
         locked: locked.result,
         unlocked: unlocked.result,
+        userLocks,
       };
     },
 
@@ -288,13 +209,13 @@ export default {
 
     // TODO: refactor
     async createActivityInfo() {
-      this.stakeLpBalances = await this.getStakeLpBalance();
-
       this.poolInfo = await getPoolInfo(
         BLAST_CHAIN_ID,
         MIM_USDB_POOL_ID,
         this.account
       );
+
+      this.stakeLpBalances = await this.getStakeLpBalance();
 
       const chainProvider = getEthersProvider(BLAST_CHAIN_ID);
 
@@ -339,21 +260,17 @@ export default {
   },
 
   components: {
-    BaseButton: defineAsyncComponent(
-      () => import("@/components/base/BaseButton.vue")
-    ),
     CardPointsPending: defineAsyncComponent(
       () => import("@/components/ui/card/CardPointsPending.vue")
     ),
-    CardPointsInfo: defineAsyncComponent(
-      () => import("@/components/ui/card/CardPointsInfo.vue")
+    CauldronPointsInfoCard: defineAsyncComponent(
+      () => import("@/components/ui/card/CauldronPointsInfoCard.vue")
     ),
-    CardGoldPointsInfo: defineAsyncComponent(
-      () => import("@/components/ui/card/CardGoldPointsInfo.vue")
+    StakePointsInfoCard: defineAsyncComponent(
+      () => import("@/components/ui/card/StakePointsInfoCard.vue")
     ),
-    WlpWithdrawPopup: defineAsyncComponent(
-      // @ts-ignore
-      () => import("@/components/blastOnboarding/WlpWithdrawPopup.vue")
+    LockPointsInfoCard: defineAsyncComponent(
+      () => import("@/components/ui/card/LockPointsInfoCard.vue")
     ),
   },
 };
@@ -381,16 +298,11 @@ export default {
   gap: 24px;
 }
 
-.row,
-.links-wrap {
+.row {
   gap: 12px;
   width: 100%;
   display: flex;
   justify-content: space-between;
-}
-
-.links-wrap {
-  max-width: 426px;
 }
 
 .btns-wrap {
@@ -548,7 +460,7 @@ export default {
   }
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 768px) {
   .my-points-wrapper {
     gap: 16px;
   }
@@ -579,7 +491,7 @@ export default {
 
   .description {
     padding: 13px;
-    justify-content: center;
+    justify-content: flex-start;
   }
 
   .description-title {

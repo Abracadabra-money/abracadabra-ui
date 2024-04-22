@@ -1,6 +1,6 @@
 <template>
   <div
-    class="dropdown-tools header-link"
+    class="dropdown-tools"
     :class="{ active: showDropdownList }"
     @click="toggleDropdown()"
     v-click-outside="closeDropdown"
@@ -185,6 +185,12 @@ export default {
 <style lang="scss" scoped>
 .dropdown-tools {
   position: relative;
+  padding: 12px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 150%;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
 
   .dropdown-title {
     display: flex;

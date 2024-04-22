@@ -12,49 +12,11 @@
       />
     </div>
 
-    <!-- <div class="info-blocks">
-      <div class="info-block base">
-        <div class="tag">
-          <span class="title">
-            <BaseTokenIcon
-              :name="this.pool.tokens.baseToken.config.name"
-              :icon="this.pool.tokens.baseToken.config.icon"
-              size="24px"
-            />
-            {{ this.pool.tokens.baseToken.config.name }}
-          </span>
-
-          <div class="token-amount">
-            <span class="value">
-              {{ formattedTokenExpecteds.base.value }}
-            </span>
-            <span class="usd">
-              {{ formattedTokenExpecteds.base.usd }}
-            </span>
-          </div>
-        </div>
-
-        <div class="tag">
-          <span class="title">
-            <BaseTokenIcon
-              :name="this.pool.tokens.quoteToken.config.name"
-              :icon="this.pool.tokens.quoteToken.config.icon"
-              size="24px"
-            />
-            {{ this.pool.tokens.quoteToken.config.name }}
-          </span>
-
-          <div class="token-amount">
-            <span class="value">
-              {{ formattedTokenExpecteds.quote.value }}
-            </span>
-            <span class="usd">
-              {{ formattedTokenExpecteds.quote.usd }}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div> -->
+    <RewardsList
+      :rewards="rewardsPerHour"
+      :inputAmount="inputAmount"
+      :isRewardsCalculating="isRewardsCalculating"
+    />
 
     <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
       {{ buttonText }}
@@ -68,6 +30,8 @@ import {
   simulateContractHelper,
   waitForTransactionReceiptHelper,
 } from "@/helpers/walletClienHelper";
+import debounce from "lodash.debounce";
+import { getRewardsPerHour } from "@/helpers/pools/getRewardsPerHour";
 import moment from "moment";
 import { formatUnits } from "viem";
 import { defineAsyncComponent } from "vue";
@@ -82,6 +46,7 @@ import { notificationErrorMsg } from "@/helpers/notification/notificationError.j
 export default {
   props: {
     pool: { type: Object },
+    pointsStatistics: { type: Object },
     slippage: { type: BigInt, default: 100n },
     deadline: { type: BigInt, default: 100n },
     isLock: { type: Boolean },
@@ -94,6 +59,11 @@ export default {
       inputAmount: 0n,
       inputValue: "",
       isActionProcessing: false,
+      isRewardsCalculating: false,
+      rewardsPerHour: {
+        pointsReward: 0,
+        goldReward: 0,
+      },
     };
   },
 
@@ -144,7 +114,10 @@ export default {
   },
 
   watch: {
-    inputAmount(value) {
+    async inputAmount(value) {
+      this.isRewardsCalculating = true;
+      await this.getRewardsPerHour();
+
       if (value == 0) {
         this.inputValue = "";
         return false;
@@ -167,6 +140,19 @@ export default {
       this.inputValue = "";
       this.inputAmount = 0n;
     },
+
+    getRewardsPerHour: debounce(async function getRewards() {
+      const deposit =
+        Number(formatUnits(this.inputAmount, this.pool.decimals)) *
+          this.pool.price || 1000;
+
+      this.rewardsPerHour = await getRewardsPerHour(
+        this.pool,
+        this.pointsStatistics.global,
+        deposit
+      );
+      this.isRewardsCalculating = false;
+    }, 500),
 
     async approveHandler() {
       this.isActionProcessing = true;
@@ -302,15 +288,20 @@ export default {
     },
   },
 
+  async created() {
+    this.isRewardsCalculating = true;
+    await this.getRewardsPerHour();
+  },
+
   components: {
     BaseTokenInput: defineAsyncComponent(() =>
       import("@/components/base/BaseTokenInput.vue")
     ),
-    // BaseTokenIcon: defineAsyncComponent(() =>
-    //   import("@/components/base/BaseTokenIcon.vue")
-    // ),
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")
+    ),
+    RewardsList: defineAsyncComponent(() =>
+      import("@/components/pools/pool/RewardsList.vue")
     ),
   },
 };
