@@ -116,6 +116,7 @@ export default {
     ...mapGetters({
       account: "getAccount",
       chainId: "getChainId",
+      localStakeData: "getMagicGlpStakeData",
     }),
 
     isChartView() {
@@ -249,7 +250,10 @@ export default {
 
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
-    ...mapMutations({ deleteNotification: "notifications/delete" }),
+    ...mapMutations({
+      deleteNotification: "notifications/delete",
+      setMagicGlpStakeData: "setMagicGlpStakeData",
+    }),
 
     formatUnits,
     getChartOptions,
@@ -334,6 +338,12 @@ export default {
       }
     },
 
+    checkLocalData() {
+      if (this.localStakeData.isCreated && this.account) {
+        this.stakeInfoArr = this.localStakeData.data;
+      }
+    },
+
     async createStakeInfo() {
       this.stakeInfoArr = await getStakeInfo();
     },
@@ -351,7 +361,10 @@ export default {
 
     if (window.innerWidth <= 600) this.isMobile = true;
     window.addEventListener("resize", this.getWindowSize, false);
+
+    this.checkLocalData();
     await this.createStakeInfo();
+    this.setMagicGlpStakeData(this.stakeInfoArr);
 
     this.updateInterval = setInterval(async () => {
       await this.createStakeInfo();

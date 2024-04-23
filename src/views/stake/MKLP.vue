@@ -117,6 +117,7 @@ export default {
     ...mapGetters({
       account: "getAccount",
       chainId: "getChainId",
+      localStakeData: "getMagicKlpStakeData",
     }),
 
     isChartView() {
@@ -261,7 +262,10 @@ export default {
 
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
-    ...mapMutations({ deleteNotification: "notifications/delete" }),
+    ...mapMutations({
+      deleteNotification: "notifications/delete",
+      setMagicKlpStakeData: "setMagicKlpStakeData",
+    }),
 
     formatUnits,
     getChartOptions,
@@ -352,6 +356,12 @@ export default {
       else this.isMobile = false;
     },
 
+    checkLocalData() {
+      if (this.localStakeData.isCreated && this.account) {
+        this.stakeInfoArr = this.localStakeData.data;
+      }
+    },
+
     async createStakeInfo() {
       this.stakeInfoArr = await getStakeInfo();
     },
@@ -384,7 +394,9 @@ export default {
     if (window.innerWidth <= 600) this.isMobile = true;
     window.addEventListener("resize", this.getWindowSize, false);
 
+    this.checkLocalData();
     await this.createStakeInfo();
+    this.setMagicKlpStakeData(this.stakeInfoArr);
 
     if (this.isLocked) this.checkDuration();
 
