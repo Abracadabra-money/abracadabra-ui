@@ -7,6 +7,7 @@ export const LS_BENTOBOX_DATA_KEY = "abracadabraBentoBoxData";
 export const LS_SPELL_STAKE_KEY = "abracadabraSpellStakeData";
 export const LS_MAGIC_LVL_STAKE_KEY = "abracadabraMagicLvlStakeData";
 export const LS_MAGIC_LVL_STAKE_CHART_KEY = "abracadabraMagicLvlChartData";
+export const LS_MAGIC_KLP_STAKE_CHART_KEY = "abracadabraMagicKlpChartData";
 
 export const bigintStringify = (payload: any) =>
   JSON.stringify(payload, (key, value) =>
@@ -129,6 +130,28 @@ export const getAndParseMagicLvlStakeData = () => {
   return {
     data,
     chartData,
+    isCreated: true,
+  };
+};
+
+export const getAndParseMagicKlpStakeData = () => {
+  const lsMagicKlpStakeData = localStorage.getItem(
+    LS_MAGIC_KLP_STAKE_CHART_KEY
+  );
+
+  if (!lsMagicKlpStakeData) {
+    return {
+      data: [],
+      isCreated: false,
+      chartData: null,
+    };
+  }
+
+  const magicKlpStakeData = JSON.parse(lsMagicKlpStakeData);
+  const data = magicKlpStakeData.map((item: any) => jsonBigIntTransform(item));
+
+  return {
+    data,
     isCreated: true,
   };
 };

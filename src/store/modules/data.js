@@ -13,6 +13,8 @@ import {
   getAndParseMagicLvlStakeData,
   LS_MAGIC_LVL_STAKE_KEY,
   LS_MAGIC_LVL_STAKE_CHART_KEY,
+  getAndParseMagicKlpStakeData,
+  LS_MAGIC_KLP_STAKE_CHART_KEY,
 } from "@/helpers/dataStore";
 
 export default {
@@ -22,11 +24,12 @@ export default {
     farmList: getAndParseFarmsList(),
     bentoBoxData: getAndParseBentoBoxData(),
     userTotalAssets: {
-      isCreated: false,
       data: {},
+      isCreated: false,
     },
     spellStakeData: getAndParseSpellStakeData(),
     magicLvlStakeData: getAndParseMagicLvlStakeData(),
+    magicKlpStakeData: getAndParseMagicKlpStakeData(),
   },
 
   mutations: {
@@ -71,6 +74,14 @@ export default {
         bigintStringify(payload)
       );
     },
+    setMagicKlpStakeData(state, payload) {
+      state.magicKlpStakeData.isCreated = true;
+      state.magicKlpStakeData.data = payload;
+      localStorage.setItem(
+        LS_MAGIC_KLP_STAKE_CHART_KEY,
+        bigintStringify(payload)
+      );
+    },
   },
 
   getters: {
@@ -81,5 +92,6 @@ export default {
     getUserTotalAssets: (state) => state.userTotalAssets,
     getSpellStakeData: (state) => state.spellStakeData,
     getMagicLvlStakeData: (state) => state.magicLvlStakeData,
+    getMagicKlpStakeData: (state) => state.magicKlpStakeData,
   },
 };
