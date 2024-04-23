@@ -15,6 +15,10 @@ export default {
     userPositions: getAndParseUserPositions(),
     farmList: getAndParseFarmsList(),
     bentoBoxData: getAndParseBentoBoxData(),
+    userTotalAssets: {
+      isCreated: false,
+      data: {},
+    },
   },
 
   mutations: {
@@ -50,6 +54,10 @@ export default {
         )
       );
     },
+    setUserTotalAssets(state, payload) {
+      state.userTotalAssets.isCreated = true;
+      state.userTotalAssets.data = payload;
+    },
   },
 
   getters: {
@@ -57,5 +65,6 @@ export default {
     getUserPositions: (state) => state.userPositions,
     getFarmList: (state) => state.farmList,
     getBentoBoxData: (state) => state.bentoBoxData,
+    getUserTotalAssets: (state) => state.userTotalAssets,
   },
 };

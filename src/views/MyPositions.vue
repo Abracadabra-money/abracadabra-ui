@@ -100,6 +100,7 @@ export default {
       provider: "getProvider",
       signer: "getSigner",
       localUserPositions: "getUserPositions",
+      userTotalAssets: "getUserTotalAssets",
     }),
 
     isSelectAllChains() {
@@ -156,7 +157,13 @@ export default {
 
   watch: {
     async account() {
-      await this.createOpenPositions();
+      if (!this.account) {
+        this.cauldrons = [];
+        this.totalAssets = null;
+      } else {
+        this.checkLocalData();
+        await this.createOpenPositions();
+      }
     },
 
     cauldrons() {
@@ -167,6 +174,7 @@ export default {
   methods: {
     ...mapMutations({
       setUserPositions: "setUserPositions",
+      setUserTotalAssets: "setUserTotalAssets",
     }),
 
     sortByKey(cauldrons = [], key) {
@@ -221,16 +229,10 @@ export default {
     },
 
     async createOpenPositions() {
-      this.positionsIsLoading = true;
-      if (!this.account) {
-        this.positionsIsLoading = false;
-        return false;
-      }
-
+      if (!this.account) return false;
       this.cauldrons = await getUserOpenPositions(this.account);
       await this.getCollateralsApr();
       this.totalAssets = getUsersTotalAssets(this.cauldrons);
-      this.positionsIsLoading = false;
     },
 
     async fetchCollateralApy(cauldron, chainId, address) {
@@ -290,21 +292,31 @@ export default {
     },
 
     checkLocalData() {
-      if (this.localUserPositions.isCreated) {
+      if (this.localUserPositions.isCreated && this.account) {
         this.cauldrons = this.localUserPositions.data;
         this.positionsIsLoading = false;
+      }
+
+      if (this.userTotalAssets.isCreated && this.account) {
+        this.totalAssets = this.userTotalAssets.data;
       }
     },
   },
 
   async created() {
+    this.positionsIsLoading = true;
     this.checkLocalData();
     await this.createOpenPositions();
-    this.setUserPositions(this.cauldrons);
+
+    this.positionsIsLoading = false;
+
+    if (this.account) {
+      this.setUserPositions(this.cauldrons);
+      this.setUserTotalAssets(this.totalAssets);
+    }
+
     this.updateInterval = setInterval(async () => {
-      this.cauldrons = await getUserOpenPositions(this.account);
-      await this.getCollateralsApr();
-      this.totalAssets = getUsersTotalAssets(this.cauldrons);
+      await this.createOpenPositions();
     }, 60000);
 
     this.selectedChains = this.getActiveChain();
