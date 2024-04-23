@@ -1,5 +1,4 @@
 import type { Address } from "viem";
-import type { providers } from "ethers";
 import bentoBoxAbi from "@/abis/bentoBox";
 import cauldronsConfig from "@/configs/cauldrons";
 import type { CauldronInfo } from "@/helpers/cauldron/types";
@@ -51,12 +50,8 @@ const getContractsInfo = async (
 export const getCauldronInfo = async (
   cauldronId: number,
   chainId: number,
-  provider: providers.BaseProvider,
-  signer: providers.JsonRpcSigner,
   address: Address
 ): Promise<CauldronInfo | null> => {
-  const userSigner = address ? signer : provider;
-
   const config = cauldronsConfig.find(
     (config) => +config.id === +cauldronId && +config.chainId === +chainId
   );
@@ -85,11 +80,10 @@ export const getCauldronInfo = async (
     config,
     address,
     masterContract,
-    bentoBoxContract,
-    userSigner
+    bentoBoxContract
   );
 
-  const contracts = await getContracts(config, userSigner);
+  const contracts = await getContracts(config, bentoBoxContract);
 
   return {
     config,

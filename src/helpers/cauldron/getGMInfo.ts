@@ -1,19 +1,18 @@
-import { fetchTokenPrices } from "../gm/fetchTokenPrices";
-import { getMarketInfo, getMarketFullInfo } from "../gm/getMarketInfo";
-import { getDataStoreInfo } from "../gm/getDataStoreInfo";
-
 import type {
   TokenPriceResponse,
   MarketInfo,
   DataStoreInfo,
-} from "../gm/types";
+} from "@/helpers/gm/types";
 import type { Address } from "viem";
-import type { providers } from "ethers";
+import { fetchTokenPrices } from "@/helpers/gm/fetchTokenPrices";
+import { getDataStoreInfo } from "@/helpers/gm/getDataStoreInfo";
+import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
+import { getMarketInfo, getMarketFullInfo } from "@/helpers/gm/getMarketInfo";
 
-export const getGmInfo = async (
-  market: Address,
-  provider: providers.BaseProvider
-) => {
+// todo move to viem
+export const getGmInfo = async (market: Address, chainId: number) => {
+  const provider = getEthersProvider(chainId);
+
   const tokenPricesResponse: Array<TokenPriceResponse> =
     await fetchTokenPrices();
   const marketInfo: MarketInfo = await getMarketInfo(provider, market);

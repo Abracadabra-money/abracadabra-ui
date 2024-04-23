@@ -1,9 +1,19 @@
 import { markRaw } from "vue";
 import { Contract } from "ethers";
-import bentoBoxAbi from "@/abis/bentoBox";
+import store from "@/store";
+import type { ContractInfo } from "@/types/global";
+import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
 
-export const getContracts = async (config: any, contractProvider: any) => {
+export const getContracts = async (
+  config: any,
+  bentoBoxContract: ContractInfo
+) => {
   try {
+    const address = store.getters.getAccount;
+    const signer = store.getters.getSigner;
+    const provider = getEthersProvider(config.chainId);
+    const contractProvider = address ? signer : provider;
+
     if (!contractProvider) return null;
 
     const cauldron = new Contract(
@@ -12,11 +22,9 @@ export const getContracts = async (config: any, contractProvider: any) => {
       contractProvider
     );
 
-    const bentoBoxAddress = await cauldron.bentoBox();
-
     const bentoBox = new Contract(
-      bentoBoxAddress,
-      bentoBoxAbi,
+      bentoBoxContract.address,
+      bentoBoxContract.abi,
       contractProvider
     );
 
