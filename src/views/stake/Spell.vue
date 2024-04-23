@@ -215,7 +215,7 @@ export default {
     ...mapGetters({
       chainId: "getChainId",
       account: "getAccount",
-      localStakeData: "getLocalSpellStakeData",
+      localStakeData: "getSpellStakeData",
     }),
 
     isStakeAction() {

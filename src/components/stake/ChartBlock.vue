@@ -32,6 +32,7 @@
 
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
+import { mapGetters, mapMutations } from "vuex";
 import { getChartData } from "@/helpers/stake/getChartData";
 
 export default {
@@ -51,7 +52,15 @@ export default {
     };
   },
 
+  computed: {
+    ...mapGetters({
+      magicLvlStakeData: "getMagicLvlStakeData",
+    }),
+  },
+
   methods: {
+    ...mapMutations(["setMagicLvlChartData"]),
+
     async onUpdateTimeFrame(period: number) {
       await this.updateChart(this.chartActive, period);
     },
@@ -95,9 +104,27 @@ export default {
       };
     },
 
+    checkLocalData(type: string) {
+      switch (type) {
+        case "magicLvlApy":
+          this.chartData = this.magicLvlStakeData.chartData;
+          break;
+      }
+    },
+
+    saveChartDataToStote(type: string, data: any) {
+      switch (type) {
+        case "magicLvlApy":
+          this.setMagicLvlChartData(data);
+          break;
+      }
+    },
+
     async updateChartData(type: any, period: number) {
       this.chartActive = type;
       this.chatrPeriod = period;
+
+      this.checkLocalData(type);
 
       this.chartData = await getChartData(
         type,
@@ -105,6 +132,8 @@ export default {
         this.chainId,
         this.chartConfig.feePercent
       );
+
+      this.saveChartDataToStote(type, this.chartData);
     },
   },
 

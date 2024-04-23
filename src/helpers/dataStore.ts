@@ -5,6 +5,8 @@ export const LS_USER_POSITION_KEY = "abracadabraUserPositions";
 export const LS_CAULDRONS_LIST_KEY = "abracadabraCauldronsList";
 export const LS_BENTOBOX_DATA_KEY = "abracadabraBentoBoxData";
 export const LS_SPELL_STAKE_KEY = "abracadabraSpellStakeData";
+export const LS_MAGIC_LVL_STAKE_KEY = "abracadabraMagicLvlStakeData";
+export const LS_MAGIC_LVL_STAKE_CHART_KEY = "abracadabraMagicLvlChartData";
 
 export const bigintStringify = (payload: any) =>
   JSON.stringify(payload, (key, value) =>
@@ -45,95 +47,88 @@ export const getAndParseCaldronsList = () => {
   const lsCauldronsList = localStorage.getItem(LS_CAULDRONS_LIST_KEY);
 
   if (!lsCauldronsList) {
-    return {
-      isCreated: false,
-      data: [],
-    };
+    return { data: [], isCreated: false };
   }
 
   const cauldronsList = JSON.parse(lsCauldronsList);
   const data = cauldronsList.map((item: any) => jsonBigNumberTransform(item));
 
-  return {
-    isCreated: true,
-    data: data,
-  };
+  return { data, isCreated: true };
 };
 
 export const getAndParseUserPositions = () => {
   const lsUserPositions = localStorage.getItem(LS_USER_POSITION_KEY);
 
   if (!lsUserPositions) {
-    return {
-      isCreated: false,
-      data: [],
-    };
+    return { data: [], isCreated: false };
   }
 
   const userPositions = JSON.parse(lsUserPositions);
   const data = userPositions.map((item: any) => jsonBigNumberTransform(item));
 
-  return {
-    isCreated: true,
-    data: data,
-  };
+  return { data, isCreated: true };
 };
 
 export const getAndParseFarmsList = () => {
   const lsFarmList = localStorage.getItem(LS_FARMS_LIST_KEY);
 
   if (!lsFarmList) {
-    return {
-      isCreated: false,
-      data: [],
-    };
+    return { data: [], isCreated: false };
   }
 
   const farmList = JSON.parse(lsFarmList);
   const data = farmList.map((item: any) => jsonBigNumberTransform(item));
 
-  return {
-    isCreated: true,
-    data: data,
-  };
+  return { data, isCreated: true };
 };
 
 export const getAndParseBentoBoxData = () => {
-  const bentoBoxData = localStorage.getItem(LS_BENTOBOX_DATA_KEY);
+  const lsBentoBoxData = localStorage.getItem(LS_BENTOBOX_DATA_KEY);
 
-  if (!bentoBoxData) {
-    return {
-      isCreated: false,
-      data: [],
-    };
+  if (!lsBentoBoxData) {
+    return { data: [], isCreated: false };
   }
 
-  const farmList = JSON.parse(bentoBoxData);
-  const data = farmList
-    .map((item: any) => jsonBigNumberTransform(item))
-    .map((item: any) => jsonBigIntTransform(item));
+  const bentoBoxData = JSON.parse(lsBentoBoxData);
+  const data = bentoBoxData.map((item: any) => jsonBigIntTransform(item));
 
-  return {
-    isCreated: true,
-    data: data,
-  };
+  return { data, isCreated: true };
 };
 
 export const getAndParseSpellStakeData = () => {
-  const spellStakeData = localStorage.getItem(LS_SPELL_STAKE_KEY);
+  const lsSpellStakeData = localStorage.getItem(LS_SPELL_STAKE_KEY);
 
-  if (!spellStakeData) {
+  if (!lsSpellStakeData) {
+    return { data: [], isCreated: false };
+  }
+
+  const spellStakeData = JSON.parse(lsSpellStakeData);
+  const data = spellStakeData.map((item: any) => jsonBigIntTransform(item));
+
+  return { data, isCreated: true };
+};
+
+export const getAndParseMagicLvlStakeData = () => {
+  const lsMagicLvlStakeData = localStorage.getItem(LS_MAGIC_LVL_STAKE_KEY);
+  const lsMagicLvlChartData = localStorage.getItem(
+    LS_MAGIC_LVL_STAKE_CHART_KEY
+  );
+
+  if (!lsMagicLvlStakeData) {
     return {
-      isCreated: false,
       data: [],
+      isCreated: false,
+      chartData: null,
     };
   }
 
-  const farmList = JSON.parse(spellStakeData);
-  const data = farmList.map((item: any) => jsonBigIntTransform(item));
+  const magicLvlStakeData = JSON.parse(lsMagicLvlStakeData);
+  const chartData = JSON.parse(lsMagicLvlChartData || "null");
+  const data = magicLvlStakeData.map((item: any) => jsonBigIntTransform(item));
 
   return {
+    data,
+    chartData,
     isCreated: true,
-    data: data,
   };
 };

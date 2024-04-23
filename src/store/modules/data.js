@@ -10,6 +10,9 @@ import {
   LS_BENTOBOX_DATA_KEY,
   getAndParseSpellStakeData,
   LS_SPELL_STAKE_KEY,
+  getAndParseMagicLvlStakeData,
+  LS_MAGIC_LVL_STAKE_KEY,
+  LS_MAGIC_LVL_STAKE_CHART_KEY,
 } from "@/helpers/dataStore";
 
 export default {
@@ -23,6 +26,7 @@ export default {
       data: {},
     },
     spellStakeData: getAndParseSpellStakeData(),
+    magicLvlStakeData: getAndParseMagicLvlStakeData(),
   },
 
   mutations: {
@@ -55,6 +59,18 @@ export default {
       state.spellStakeData.data = payload;
       localStorage.setItem(LS_SPELL_STAKE_KEY, bigintStringify(payload));
     },
+    setMagicLvlStakeData(state, payload) {
+      state.magicLvlStakeData.isCreated = true;
+      state.magicLvlStakeData.data = payload;
+      localStorage.setItem(LS_MAGIC_LVL_STAKE_KEY, bigintStringify(payload));
+    },
+    setMagicLvlChartData(state, payload) {
+      state.magicLvlStakeData.chartData = payload;
+      localStorage.setItem(
+        LS_MAGIC_LVL_STAKE_CHART_KEY,
+        bigintStringify(payload)
+      );
+    },
   },
 
   getters: {
@@ -63,6 +79,7 @@ export default {
     getFarmList: (state) => state.farmList,
     getBentoBoxData: (state) => state.bentoBoxData,
     getUserTotalAssets: (state) => state.userTotalAssets,
-    getLocalSpellStakeData: (state) => state.spellStakeData,
+    getSpellStakeData: (state) => state.spellStakeData,
+    getMagicLvlStakeData: (state) => state.magicLvlStakeData,
   },
 };

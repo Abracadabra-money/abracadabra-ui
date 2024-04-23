@@ -140,6 +140,7 @@ export default {
     ...mapGetters({
       account: "getAccount",
       chainId: "getChainId",
+      localStakeData: "getMagicLvlStakeData",
     }),
 
     isChartView() {
@@ -263,6 +264,7 @@ export default {
     ...mapMutations({
       deleteNotification: "notifications/delete",
       updateNotification: "notifications/updateTitle",
+      setMagicLvlStakeData: "setMagicLvlStakeData",
     }),
 
     formatUnits,
@@ -396,6 +398,12 @@ export default {
       else this.isMobile = false;
     },
 
+    checkLocalData() {
+      if (this.localStakeData.isCreated && this.account) {
+        this.stakeInfoArr = this.localStakeData.data;
+      }
+    },
+
     async createStakeInfo() {
       this.stakeInfoArr = await getStakeInfo();
     },
@@ -409,7 +417,9 @@ export default {
     if (window.innerWidth <= 600) this.isMobile = true;
     window.addEventListener("resize", this.getWindowSize, false);
 
+    this.checkLocalData();
     await this.createStakeInfo();
+    this.setMagicLvlStakeData(this.stakeInfoArr);
 
     this.updateInterval = setInterval(async () => {
       await this.createStakeInfo();
