@@ -4,6 +4,14 @@ export const LS_FARMS_LIST_KEY = "abracadabraFarmList";
 export const LS_USER_POSITION_KEY = "abracadabraUserPositions";
 export const LS_CAULDRONS_LIST_KEY = "abracadabraCauldronsList";
 export const LS_BENTOBOX_DATA_KEY = "abracadabraBentoBoxData";
+export const LS_SPELL_STAKE_KEY = "abracadabraSpellStakeData";
+
+export const bigintStringify = (payload: any) =>
+  JSON.stringify(payload, (key, value) =>
+    typeof value === "bigint"
+      ? { type: "bigint", value: value.toString() }
+      : value
+  );
 
 export const jsonBigNumberTransform = (item: any) => {
   Object.keys(item).forEach((key) => {
@@ -104,6 +112,25 @@ export const getAndParseBentoBoxData = () => {
   const data = farmList
     .map((item: any) => jsonBigNumberTransform(item))
     .map((item: any) => jsonBigIntTransform(item));
+
+  return {
+    isCreated: true,
+    data: data,
+  };
+};
+
+export const getAndParseSpellStakeData = () => {
+  const spellStakeData = localStorage.getItem(LS_SPELL_STAKE_KEY);
+
+  if (!spellStakeData) {
+    return {
+      isCreated: false,
+      data: [],
+    };
+  }
+
+  const farmList = JSON.parse(spellStakeData);
+  const data = farmList.map((item: any) => jsonBigIntTransform(item));
 
   return {
     isCreated: true,

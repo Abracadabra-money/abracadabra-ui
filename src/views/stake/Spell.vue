@@ -215,6 +215,7 @@ export default {
     ...mapGetters({
       chainId: "getChainId",
       account: "getAccount",
+      localStakeData: "getLocalSpellStakeData",
     }),
 
     isStakeAction() {
@@ -410,7 +411,10 @@ export default {
 
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
-    ...mapMutations({ deleteNotification: "notifications/delete" }),
+    ...mapMutations({
+      deleteNotification: "notifications/delete",
+      setSpellStakeData: "setSpellStakeData",
+    }),
 
     formatUSD,
     formatUnits,
@@ -537,6 +541,12 @@ export default {
       }
     },
 
+    checkLocalData() {
+      if (this.localStakeData.isCreated && this.account) {
+        this.stakeInfoArr = this.localStakeData.data;
+      }
+    },
+
     async createStakeInfo() {
       this.stakeInfoArr = await getStakeInfo();
     },
@@ -559,7 +569,9 @@ export default {
     this.getActiveToken();
     this.updateActiveNetwork();
 
+    this.checkLocalData();
     await this.createStakeInfo();
+    this.setSpellStakeData(this.stakeInfoArr);
 
     this.updateInterval = setInterval(async () => {
       await this.createStakeInfo();

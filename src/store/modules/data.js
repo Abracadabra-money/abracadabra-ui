@@ -1,4 +1,5 @@
 import {
+  bigintStringify,
   getAndParseCaldronsList,
   LS_CAULDRONS_LIST_KEY,
   getAndParseUserPositions,
@@ -7,6 +8,8 @@ import {
   LS_FARMS_LIST_KEY,
   getAndParseBentoBoxData,
   LS_BENTOBOX_DATA_KEY,
+  getAndParseSpellStakeData,
+  LS_SPELL_STAKE_KEY,
 } from "@/helpers/dataStore";
 
 export default {
@@ -19,6 +22,7 @@ export default {
       isCreated: false,
       data: {},
     },
+    spellStakeData: getAndParseSpellStakeData(),
   },
 
   mutations: {
@@ -35,28 +39,21 @@ export default {
     setFarmList(state, payload) {
       state.farmList.isCreated = true;
       state.farmList.data = payload;
-      localStorage.setItem(
-        LS_FARMS_LIST_KEY,
-        JSON.stringify(payload, (key, value) =>
-          typeof value === "bigint" ? value.toString() : value
-        )
-      );
+      localStorage.setItem(LS_FARMS_LIST_KEY, bigintStringify(payload));
     },
     setBentoBoxData(state, payload) {
       state.bentoBoxData.isCreated = true;
       state.bentoBoxData.data = payload;
-      localStorage.setItem(
-        LS_BENTOBOX_DATA_KEY,
-        JSON.stringify(payload, (key, value) =>
-          typeof value === "bigint"
-            ? { type: "bigint", value: value.toString() }
-            : value
-        )
-      );
+      localStorage.setItem(LS_BENTOBOX_DATA_KEY, bigintStringify(payload));
     },
     setUserTotalAssets(state, payload) {
       state.userTotalAssets.isCreated = true;
       state.userTotalAssets.data = payload;
+    },
+    setSpellStakeData(state, payload) {
+      state.spellStakeData.isCreated = true;
+      state.spellStakeData.data = payload;
+      localStorage.setItem(LS_SPELL_STAKE_KEY, bigintStringify(payload));
     },
   },
 
@@ -66,5 +63,6 @@ export default {
     getFarmList: (state) => state.farmList,
     getBentoBoxData: (state) => state.bentoBoxData,
     getUserTotalAssets: (state) => state.userTotalAssets,
+    getLocalSpellStakeData: (state) => state.spellStakeData,
   },
 };
