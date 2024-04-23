@@ -7,7 +7,9 @@ export const LS_BENTOBOX_DATA_KEY = "abracadabraBentoBoxData";
 export const LS_SPELL_STAKE_KEY = "abracadabraSpellStakeData";
 export const LS_MAGIC_LVL_STAKE_KEY = "abracadabraMagicLvlStakeData";
 export const LS_MAGIC_LVL_STAKE_CHART_KEY = "abracadabraMagicLvlChartData";
-export const LS_MAGIC_KLP_STAKE_CHART_KEY = "abracadabraMagicKlpChartData";
+export const LS_MAGIC_KLP_STAKE_KEY = "abracadabraMagicKlpStakeData";
+export const LS_MAGIC_GLP_STAKE_KEY = "abracadabraMagicGlpStakeData";
+export const LS_MAGIC_GLP_STAKE_CHART_KEY = "abracadabraMagicGlpChartData";
 
 export const bigintStringify = (payload: any) =>
   JSON.stringify(payload, (key, value) =>
@@ -135,9 +137,7 @@ export const getAndParseMagicLvlStakeData = () => {
 };
 
 export const getAndParseMagicKlpStakeData = () => {
-  const lsMagicKlpStakeData = localStorage.getItem(
-    LS_MAGIC_KLP_STAKE_CHART_KEY
-  );
+  const lsMagicKlpStakeData = localStorage.getItem(LS_MAGIC_KLP_STAKE_KEY);
 
   if (!lsMagicKlpStakeData) {
     return {
@@ -152,6 +152,31 @@ export const getAndParseMagicKlpStakeData = () => {
 
   return {
     data,
+    isCreated: true,
+  };
+};
+
+export const getAndParseMagicGlpStakeData = () => {
+  const lsMagicGlpStakeData = localStorage.getItem(LS_MAGIC_GLP_STAKE_KEY);
+  const lsMagicGlpChartData = localStorage.getItem(
+    LS_MAGIC_GLP_STAKE_CHART_KEY
+  );
+
+  if (!lsMagicGlpStakeData) {
+    return {
+      data: [],
+      isCreated: false,
+      chartData: null,
+    };
+  }
+
+  const magicGlpStakeData = JSON.parse(lsMagicGlpStakeData);
+  const chartData = JSON.parse(lsMagicGlpChartData || "null");
+  const data = magicGlpStakeData.map((item: any) => jsonBigIntTransform(item));
+
+  return {
+    data,
+    chartData,
     isCreated: true,
   };
 };

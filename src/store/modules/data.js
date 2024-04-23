@@ -14,7 +14,10 @@ import {
   LS_MAGIC_LVL_STAKE_KEY,
   LS_MAGIC_LVL_STAKE_CHART_KEY,
   getAndParseMagicKlpStakeData,
-  LS_MAGIC_KLP_STAKE_CHART_KEY,
+  LS_MAGIC_KLP_STAKE_KEY,
+  getAndParseMagicGlpStakeData,
+  LS_MAGIC_GLP_STAKE_KEY,
+  LS_MAGIC_GLP_STAKE_CHART_KEY,
 } from "@/helpers/dataStore";
 
 export default {
@@ -30,6 +33,7 @@ export default {
     spellStakeData: getAndParseSpellStakeData(),
     magicLvlStakeData: getAndParseMagicLvlStakeData(),
     magicKlpStakeData: getAndParseMagicKlpStakeData(),
+    magicGlpStakeData: getAndParseMagicGlpStakeData(),
   },
 
   mutations: {
@@ -77,8 +81,17 @@ export default {
     setMagicKlpStakeData(state, payload) {
       state.magicKlpStakeData.isCreated = true;
       state.magicKlpStakeData.data = payload;
+      localStorage.setItem(LS_MAGIC_KLP_STAKE_KEY, bigintStringify(payload));
+    },
+    setMagicGlpStakeData(state, payload) {
+      state.magicGlpStakeData.isCreated = true;
+      state.magicGlpStakeData.data = payload;
+      localStorage.setItem(LS_MAGIC_GLP_STAKE_KEY, bigintStringify(payload));
+    },
+    setMagicGlpChartData(state, payload) {
+      state.magicGlpStakeData.chartData = payload;
       localStorage.setItem(
-        LS_MAGIC_KLP_STAKE_CHART_KEY,
+        LS_MAGIC_GLP_STAKE_CHART_KEY,
         bigintStringify(payload)
       );
     },
@@ -93,5 +106,6 @@ export default {
     getSpellStakeData: (state) => state.spellStakeData,
     getMagicLvlStakeData: (state) => state.magicLvlStakeData,
     getMagicKlpStakeData: (state) => state.magicKlpStakeData,
+    getMagicGlpStakeData: (state) => state.magicGlpStakeData,
   },
 };

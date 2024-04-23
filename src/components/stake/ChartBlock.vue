@@ -55,11 +55,12 @@ export default {
   computed: {
     ...mapGetters({
       magicLvlStakeData: "getMagicLvlStakeData",
+      magicGlpStakeData: "getMagicGlpStakeData",
     }),
   },
 
   methods: {
-    ...mapMutations(["setMagicLvlChartData"]),
+    ...mapMutations(["setMagicLvlChartData", "setMagicGlpChartData"]),
 
     async onUpdateTimeFrame(period: number) {
       await this.updateChart(this.chartActive, period);
@@ -74,6 +75,10 @@ export default {
     async updateMagicGlpData(type: string, period: number) {
       this.chartActive = type;
       this.chatrPeriod = period;
+
+      if (this.magicGlpStakeData.chartData) {
+        this.chartData = this.magicGlpStakeData.chartData;
+      }
 
       if (!this.chartDataPerYear) {
         this.chartDataPerYear = await getChartData(
@@ -102,6 +107,8 @@ export default {
           },
         ],
       };
+
+      this.setMagicGlpChartData(this.chartData);
     },
 
     checkLocalData(type: string) {
