@@ -6,6 +6,7 @@ import { ZERO_ADDRESS } from "@/constants/gm";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 import degenBoxInfo from "@/configs/contracts/degenBox";
 import type { UserPositions } from "@/helpers/cauldron/types";
+import { getLiquidationPrice } from "@/helpers/cauldron/utils";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { getLensAddress } from "@/helpers/cauldron/getLensAddress";
 import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
@@ -88,13 +89,17 @@ export const getUserPositions = async (
     const collateralPrice =
       1 / Number(formatUnits(oracleExchangeRate, decimals));
 
-    const liquidationPrice = getLiquidationPrice(
-      BigNumber.from(userPosition.borrowValue),
-      BigNumber.from(userPosition.collateral.amount).add(
-        BigNumber.from(collaterallInOrders[index].amount)
-      ),
-      mcr,
-      decimals
+    const liquidationPrice = Number(
+      utils.formatUnits(
+        getLiquidationPrice(
+          BigNumber.from(userPosition.borrowValue),
+          BigNumber.from(userPosition.collateral.amount).add(
+            BigNumber.from(collaterallInOrders[index].amount)
+          ),
+          mcr,
+          decimals
+        )
+      )
     );
 
     const leftToDrop = collateralPrice - liquidationPrice;
@@ -141,22 +146,6 @@ export const getUserPositions = async (
       hasActiveGmOrder: collaterallInOrder.activeOrder,
     };
   });
-};
-
-const getLiquidationPrice = (
-  borrowPart: BigNumber,
-  collateralAmount: BigNumber,
-  mcr: number,
-  collateralDecimals: number
-): number => {
-  const borrowPartParsed = utils.formatUnits(borrowPart);
-  const collateralAmountParsed = utils.formatUnits(
-    collateralAmount,
-    collateralDecimals
-  );
-  return (
-    Number(borrowPartParsed) / Number(collateralAmountParsed) / (mcr / 100)
-  );
 };
 
 const getOrdersCollateralBalance = async (
