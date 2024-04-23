@@ -13,19 +13,19 @@ export const getUserOpenPositions = async (
   const positions: any = [];
 
   await Promise.all(
-    currentChains.map(async (chainId: any) => {
+    currentChains.map(async (chainId: string) => {
       const configs: any[] = cauldronsConfig.filter(
-        (config) => config.chainId == chainId
+        (config) => config.chainId === Number(chainId)
       );
       if (!configs) return [];
 
       const userPositions: any = await getUserPositions(
         configs,
         account,
-        chainId
+        Number(chainId)
       );
 
-      const mainParams = await getMainParams(configs, chainId);
+      const mainParams = await getMainParams(configs, Number(chainId));
 
       positions.push(
         ...userPositions.map((position: any, idx: any) => {

@@ -95,7 +95,6 @@ import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { BlastLockingMultiRewards } from "@/constants/blast";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
-import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 import BlastLockingMultiRewardsAbi from "@/abis/BlastLockingMultiRewards";
 
@@ -215,20 +214,9 @@ export default {
         this.account
       );
 
-      this.stakeLpBalances = await this.getStakeLpBalance();
-
-      const chainProvider = getEthersProvider(BLAST_CHAIN_ID);
-
-      const userSigner =
-        this.account && this.chainId === BLAST_CHAIN_ID
-          ? this.signer
-          : chainProvider;
-
       this.cauldronInfo = await getCauldronInfo(
         MIM_USDB_POOL_ID,
         BLAST_CHAIN_ID,
-        chainProvider,
-        userSigner,
         this.account
       );
     },

@@ -1,13 +1,15 @@
 import type { Address } from "viem";
-import type { providers } from "ethers";
+import bentoBoxAbi from "@/abis/bentoBox";
+import cauldronAbi from "@/abis/cauldronAbi";
 import { parseUnits, hexToBigInt } from "viem";
 import { formatAddress } from "@/helpers/filters";
+import { Contract, type providers } from "ethers";
 import type { TopUpCauldron } from "@/types/tenderly";
 import { MAX_ALLOWANCE_VALUE } from "@/constants/global";
 import { getAccountHelper } from "@/helpers/walletClienHelper";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { getMimContract } from "@/helpers/tenderly/getMimContract";
 import { sendTransaction } from "@/helpers/tenderly/sendTransaction";
-import { getBentoBoxContract } from "@/helpers/cauldron/getBentoBoxContract";
 
 export const topUpCauldron = async (
   amount: string,
@@ -17,12 +19,21 @@ export const topUpCauldron = async (
   tokenDecimals = 18
 ): Promise<TopUpCauldron> => {
   try {
+    const publicClient = getPublicClient(chainId);
     const formattedAmount = parseUnits(amount, tokenDecimals);
-    const bentoBoxContract: any = await getBentoBoxContract(
-      cauldronAddress,
-      provider,
-      chainId
+
+    const bentoBoxAddress: any = await publicClient.readContract({
+      address: cauldronAddress,
+      abi: cauldronAbi,
+      functionName: "bentoBox",
+    });
+
+    const bentoBoxContract = new Contract(
+      bentoBoxAddress,
+      bentoBoxAbi,
+      provider
     );
+
     const { address } = await getAccountHelper();
 
     const fromAddress: any = address;
