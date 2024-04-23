@@ -10,6 +10,8 @@ export const LS_MAGIC_LVL_STAKE_CHART_KEY = "abracadabraMagicLvlChartData";
 export const LS_MAGIC_KLP_STAKE_KEY = "abracadabraMagicKlpStakeData";
 export const LS_MAGIC_GLP_STAKE_KEY = "abracadabraMagicGlpStakeData";
 export const LS_MAGIC_GLP_STAKE_CHART_KEY = "abracadabraMagicGlpChartData";
+export const LS_MAGIC_APE_STAKE_KEY = "abracadabraMagicApeStakeData";
+export const LS_MAGIC_APE_STAKE_CHART_KEY = "abracadabraMagicApeChartData";
 
 export const bigintStringify = (payload: any) =>
   JSON.stringify(payload, (key, value) =>
@@ -172,6 +174,31 @@ export const getAndParseMagicGlpStakeData = () => {
 
   const magicGlpStakeData = JSON.parse(lsMagicGlpStakeData);
   const chartData = JSON.parse(lsMagicGlpChartData || "null");
+  const data = magicGlpStakeData.map((item: any) => jsonBigIntTransform(item));
+
+  return {
+    data,
+    chartData,
+    isCreated: true,
+  };
+};
+
+export const getAndParseMagicApeStakeData = () => {
+  const lsMagicApeStakeData = localStorage.getItem(LS_MAGIC_APE_STAKE_KEY);
+  const lsMagicApeChartData = localStorage.getItem(
+    LS_MAGIC_APE_STAKE_CHART_KEY
+  );
+
+  if (!lsMagicApeStakeData) {
+    return {
+      data: [],
+      isCreated: false,
+      chartData: null,
+    };
+  }
+
+  const magicGlpStakeData = JSON.parse(lsMagicApeStakeData);
+  const chartData = JSON.parse(lsMagicApeChartData || "null");
   const data = magicGlpStakeData.map((item: any) => jsonBigIntTransform(item));
 
   return {

@@ -18,6 +18,9 @@ import {
   getAndParseMagicGlpStakeData,
   LS_MAGIC_GLP_STAKE_KEY,
   LS_MAGIC_GLP_STAKE_CHART_KEY,
+  getAndParseMagicApeStakeData,
+  LS_MAGIC_APE_STAKE_KEY,
+  LS_MAGIC_APE_STAKE_CHART_KEY,
 } from "@/helpers/dataStore";
 
 export default {
@@ -34,6 +37,7 @@ export default {
     magicLvlStakeData: getAndParseMagicLvlStakeData(),
     magicKlpStakeData: getAndParseMagicKlpStakeData(),
     magicGlpStakeData: getAndParseMagicGlpStakeData(),
+    magicApeStakeData: getAndParseMagicApeStakeData(),
   },
 
   mutations: {
@@ -95,6 +99,18 @@ export default {
         bigintStringify(payload)
       );
     },
+    setMagicApeStakeData(state, payload) {
+      state.magicApeStakeData.isCreated = true;
+      state.magicApeStakeData.data = payload;
+      localStorage.setItem(LS_MAGIC_APE_STAKE_KEY, bigintStringify(payload));
+    },
+    setMagicApeChartData(state, payload) {
+      state.magicApeStakeData.chartData = payload;
+      localStorage.setItem(
+        LS_MAGIC_APE_STAKE_CHART_KEY,
+        bigintStringify(payload)
+      );
+    },
   },
 
   getters: {
@@ -107,5 +123,6 @@ export default {
     getMagicLvlStakeData: (state) => state.magicLvlStakeData,
     getMagicKlpStakeData: (state) => state.magicKlpStakeData,
     getMagicGlpStakeData: (state) => state.magicGlpStakeData,
+    getMagicApeStakeData: (state) => state.magicApeStakeData,
   },
 };

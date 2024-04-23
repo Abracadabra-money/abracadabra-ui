@@ -56,11 +56,16 @@ export default {
     ...mapGetters({
       magicLvlStakeData: "getMagicLvlStakeData",
       magicGlpStakeData: "getMagicGlpStakeData",
+      magicApeStakeData: "getMagicApeStakeData",
     }),
   },
 
   methods: {
-    ...mapMutations(["setMagicLvlChartData", "setMagicGlpChartData"]),
+    ...mapMutations([
+      "setMagicLvlChartData",
+      "setMagicGlpChartData",
+      "setMagicApeChartData",
+    ]),
 
     async onUpdateTimeFrame(period: number) {
       await this.updateChart(this.chartActive, period);
@@ -116,6 +121,9 @@ export default {
         case "magicLvlApy":
           this.chartData = this.magicLvlStakeData.chartData;
           break;
+        case "Yield" || "TVL" || "Price":
+          this.chartData = this.magicApeStakeData.chartData;
+          break;
       }
     },
 
@@ -123,6 +131,9 @@ export default {
       switch (type) {
         case "magicLvlApy":
           this.setMagicLvlChartData(data);
+          break;
+        case "Yield" || "TVL" || "Price":
+          this.setMagicApeChartData(data);
           break;
       }
     },
