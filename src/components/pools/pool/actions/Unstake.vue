@@ -5,56 +5,12 @@
         :name="pool.name"
         :icon="pool.icon"
         :decimals="pool.decimals"
-        :max="pool.lockInfo.balances.unlocked"
+        :max="pool.lockInfo?.balances?.unlocked"
         :value="inputValue"
         :tokenPrice="pool.price"
         @updateInputValue="updateValue($event)"
       />
     </div>
-
-    <!-- <div class="info-blocks">
-      <div class="info-block base">
-        <div class="tag">
-          <span class="title">
-            <BaseTokenIcon
-              :name="this.pool.tokens.baseToken.config.name"
-              :icon="this.pool.tokens.baseToken.config.icon"
-              size="24px"
-            />
-            {{ this.pool.tokens.baseToken.config.name }}
-          </span>
-
-          <div class="token-amount">
-            <span class="value">
-              {{ formattedTokenExpecteds.base.value }}
-            </span>
-            <span class="usd">
-              {{ formattedTokenExpecteds.base.usd }}
-            </span>
-          </div>
-        </div>
-
-        <div class="tag">
-          <span class="title">
-            <BaseTokenIcon
-              :name="this.pool.tokens.quoteToken.config.name"
-              :icon="this.pool.tokens.quoteToken.config.icon"
-              size="24px"
-            />
-            {{ this.pool.tokens.quoteToken.config.name }}
-          </span>
-
-          <div class="token-amount">
-            <span class="value">
-              {{ formattedTokenExpecteds.quote.value }}
-            </span>
-            <span class="usd">
-              {{ formattedTokenExpecteds.quote.usd }}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div> -->
 
     <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
       {{ buttonText }}
@@ -105,7 +61,7 @@ export default {
     },
 
     error() {
-      if (this.inputAmount > this.pool.lockInfo.balances.unlocked)
+      if (this.inputAmount > this.pool.lockInfo?.balances?.unlocked)
         return "Insufficient balance";
 
       return null;

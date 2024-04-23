@@ -33,11 +33,11 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { formatUnits } from "viem";
+import { mapGetters, mapMutations } from "vuex";
 import bentoBoxMixin from "@/mixins/mimBentoDeposit";
 import BentoBoxItem from "@/components/myPositions/BentoBoxItem.vue";
 import DegenBentoPopup from "@/components/popups/DegenBentoPopup.vue";
-import { formatUnits } from "viem";
 
 import { createBentoBoxConfig } from "@/helpers/bentoBox/createBentoBoxConfig.ts";
 
@@ -68,6 +68,7 @@ export default {
     ...mapGetters({
       chainId: "getChainId",
       account: "getAccount",
+      bentoBoxData: "getBentoBoxData",
     }),
 
     activeChains() {
@@ -136,6 +137,10 @@ export default {
   },
 
   methods: {
+    ...mapMutations({
+      setBentoBoxData: "setBentoBoxData",
+    }),
+
     chooseActiveBentoChain(e) {
       this.activeBentoChain = e;
     },
@@ -150,6 +155,13 @@ export default {
 
     closePopup() {
       this.popupData = { ...initialPopupData };
+    },
+
+    checkLocalData() {
+      console.log("this.bentoBoxData.isCreated", this.bentoBoxData.data);
+      if (this.bentoBoxData.isCreated) {
+        this.bentoBoxConfigs = this.bentoBoxData.data;
+      }
     },
 
     async createMimBentoData() {
@@ -173,7 +185,9 @@ export default {
   },
 
   async created() {
+    this.checkLocalData();
     await this.createMimBentoData();
+    this.setBentoBoxData(this.bentoBoxConfigs);
   },
 
   beforeUnmount() {
