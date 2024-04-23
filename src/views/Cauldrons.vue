@@ -160,9 +160,10 @@ export default {
 
     this.cauldrons = await getMarketList(this.account);
     this.cauldronsLoading = false;
-    this.setCauldronsList(this.cauldrons);
 
     await this.getCollateralsApr();
+
+    this.setCauldronsList(this.cauldrons);
 
     const farmConfig = this.getFarmConfig(4, ARBITRUM_CHAIN_ID);
 

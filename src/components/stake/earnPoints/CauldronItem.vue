@@ -62,7 +62,6 @@ import { mapGetters } from "vuex";
 import { formatLargeSum } from "@/helpers/filters";
 import ethIcon from "@/assets/images/tokens/ETH.png";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
-import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
 
 export default {
@@ -109,13 +108,9 @@ export default {
     },
 
     async createCauldronInfo() {
-      const chainProvider = getEthersProvider(this.cauldronChainId);
-
       this.cauldronInfo = await getCauldronInfo(
         this.cauldronId,
         this.cauldronChainId,
-        chainProvider,
-        chainProvider,
         this.account
       );
     },
