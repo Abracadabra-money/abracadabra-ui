@@ -47,8 +47,6 @@ const fetchOutputAmount = async (
     args: [account, amount],
   });
 
-  console.log("queryResult", result);
-
   return {
     receiveAmount: result[0] ? result[0] : 0n,
     mtFee: result[1] ? result[1] : 0n,
@@ -168,7 +166,9 @@ export const findBestRoutes = async (
     await Promise.all(
       tokenToPools[token].map(async (pool: any) => {
         const nextToken =
-          pool.baseToken === token ? pool.quoteToken : pool.baseToken;
+          pool.baseTokenAddress === token
+            ? pool.quoteTokenAddress
+            : pool.baseTokenAddress;
         if (visited.has(nextToken)) {
           return;
         }
@@ -178,7 +178,7 @@ export const findBestRoutes = async (
           : await fetchOutputAmount(
               pool,
               account,
-              pool.baseToken === token,
+              pool.baseTokenAddress === token,
               amount
             );
 
