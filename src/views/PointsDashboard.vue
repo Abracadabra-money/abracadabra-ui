@@ -202,10 +202,6 @@ export default {
       };
     },
 
-    async updateBalances() {
-      this.stakeLpBalances = await this.getStakeLpBalance();
-    },
-
     // TODO: refactor
     async createActivityInfo() {
       this.poolInfo = await getPoolInfo(
@@ -219,6 +215,8 @@ export default {
         BLAST_CHAIN_ID,
         this.account
       );
+
+      this.stakeLpBalances = await this.getStakeLpBalance();
     },
 
     async fetchStatistics() {
