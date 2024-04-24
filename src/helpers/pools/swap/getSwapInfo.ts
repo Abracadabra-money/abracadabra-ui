@@ -123,10 +123,12 @@ export const findBestRoutes = async (
   // Create a map of token to pool for quick lookup
   const tokenToPools: Record<string, MagicLPInfo[]> = {};
   pools.forEach((pool) => {
-    tokenToPools[pool.baseToken] = tokenToPools[pool.baseToken] || [];
-    tokenToPools[pool.quoteToken] = tokenToPools[pool.quoteToken] || [];
-    tokenToPools[pool.baseToken].push(pool);
-    tokenToPools[pool.quoteToken].push(pool);
+    tokenToPools[pool.baseTokenAddress] =
+      tokenToPools[pool.baseTokenAddress] || [];
+    tokenToPools[pool.quoteTokenAddress] =
+      tokenToPools[pool.quoteTokenAddress] || [];
+    tokenToPools[pool.baseTokenAddress].push(pool);
+    tokenToPools[pool.quoteTokenAddress].push(pool);
   });
 
   // Stack for DFS
@@ -237,12 +239,12 @@ const getMethodName = (routes: RouteInfo[], actionConfig: ActionConfig) => {
   if (routes.length === 1) {
     const { address: fromTokenAddress } =
       actionConfig.fromToken.config.contract;
-    const { baseToken, quoteToken } = routes[0].lpInfo;
+    const { baseTokenAddress, quoteTokenAddress } = routes[0].lpInfo;
 
     switch (fromTokenAddress) {
-      case baseToken:
+      case baseTokenAddress:
         return "sellBaseTokensForTokens";
-      case quoteToken:
+      case quoteTokenAddress:
         return "sellQuoteTokensForTokens";
     }
   }

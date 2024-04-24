@@ -145,8 +145,8 @@ export const getLpInfo = async (
     MAX_I: MAX_I.result,
     MAX_K: MAX_K.result,
     PMMState: PMMState.result,
-    baseToken: baseToken.result,
-    quoteToken: quoteToken.result,
+    baseTokenAddress: baseToken.result,
+    quoteTokenAddress: quoteToken.result,
     lpFeeRate: lpFeeRate.result,
     balances: {
       baseBalance: baseBalance.result,

@@ -53,9 +53,10 @@ const computeSwapResult = async (
   );
 
   const isSellBase =
-    lpInfo.baseToken.toLowerCase() === swapActionConfig.fromToken.toLowerCase();
+    lpInfo.baseTokenAddress.toLowerCase() ===
+    swapActionConfig.fromToken.toLowerCase();
   const isSellQuote =
-    lpInfo.quoteToken.toLowerCase() ===
+    lpInfo.quoteTokenAddress.toLowerCase() ===
     swapActionConfig.fromToken.toLowerCase();
 
   if (isSellBase) {
@@ -85,10 +86,10 @@ const isPairsExist = async (
 
   const matches = pairs.filter((pair: MagicLPInfo) => {
     return (
-      (pair.baseToken.toLowerCase() === token0.toLowerCase() &&
-        pair.quoteToken.toLowerCase() === token1.toLowerCase()) ||
-      (pair.quoteToken.toLowerCase() === token0.toLowerCase() &&
-        pair.baseToken.toLowerCase() === token1.toLowerCase())
+      (pair.baseTokenAddress.toLowerCase() === token0.toLowerCase() &&
+        pair.quoteTokenAddress.toLowerCase() === token1.toLowerCase()) ||
+      (pair.quoteTokenAddress.toLowerCase() === token0.toLowerCase() &&
+        pair.baseTokenAddress.toLowerCase() === token1.toLowerCase())
     );
   });
 

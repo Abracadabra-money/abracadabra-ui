@@ -92,6 +92,13 @@ export const getPoolTvlPieChartOption = async (pool: any) => {
 };
 
 const getTvlByCategory = async (pool: PoolInfo) => {
+  if (!pool.lockContract)
+    return {
+      staked: 0,
+      locked: 0,
+      total: 0,
+    };
+
   const publicClient = store.getters.getChainById(pool.chainId).publicClient;
 
   const total =

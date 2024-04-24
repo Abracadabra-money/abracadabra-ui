@@ -29,6 +29,8 @@ export type MagicLPInfo = PoolConfig & {
   MAX_I: bigint;
   MAX_K: bigint;
   PMMState: PMMState;
+  baseTokenAddress: Address;
+  quoteTokenAddress: Address;
   icon: string;
   balances: {
     baseBalance: bigint;
