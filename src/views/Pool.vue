@@ -13,7 +13,7 @@
         @openPositionPopup="isMyPositionPopupOpened = true"
       />
 
-      <PoolComposition :pool="this.pool" />
+      <PoolComposition :pool="pool" />
     </div>
 
     <div class="pool-position-wrap">
@@ -29,7 +29,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
 import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
@@ -38,6 +38,7 @@ import {
   fetchUserPointsStatistics,
   fetchPointsStatistics,
 } from "@/helpers/blast/stake/points";
+import type { PoolInfo } from "@/configs/pools/types";
 
 export default {
   props: {
@@ -47,15 +48,14 @@ export default {
 
   data() {
     return {
-      pool: null,
+      pool: null as unknown as PoolInfo | null,
       pointsStatistics: {
-        user: null,
-        global: null,
+        user: null as any,
+        global: null as any,
       },
-      userPointsStatistics: null,
       isMyPositionPopupOpened: false,
-      poolsTimer: null,
-      chartOption: null,
+      poolsTimer: null as unknown as NodeJS.Timeout,
+      chartOption: null as any,
     };
   },
 
@@ -66,13 +66,20 @@ export default {
       signer: "getSigner",
     }),
 
-    isUserPositionOpen() {
-      return (
-        this.account &&
-        (this.pool?.userInfo?.balance > 0n ||
-          this.pool.lockInfo?.balances.locked > 0n ||
-          this.pool.lockInfo?.balances.unlocked > 0n)
-      );
+    isUserPositionOpen(): boolean {
+      if (!this.account || !this.pool) return false;
+
+      const isLpBalance = this.pool.userInfo.balance > 0n;
+
+      let isLocked: boolean = false;
+      let isUnlocked: boolean = false;
+
+      if (this.pool.lockInfo) {
+        isLocked = this.pool.lockInfo.balances.locked > 0n;
+        isUnlocked = this.pool.lockInfo.balances.unlocked > 0n;
+      }
+
+      return isLpBalance || isLocked || isUnlocked;
     },
   },
 
@@ -127,17 +134,17 @@ export default {
   },
 
   components: {
-    PoolActionBlock: defineAsyncComponent(() =>
-      import("@/components/pools/pool/PoolActionBlock.vue")
+    PoolActionBlock: defineAsyncComponent(
+      () => import("@/components/pools/pool/PoolActionBlock.vue")
     ),
-    PoolComposition: defineAsyncComponent(() =>
-      import("@/components/pools/pool/PoolComposition.vue")
+    PoolComposition: defineAsyncComponent(
+      () => import("@/components/pools/pool/PoolComposition.vue")
     ),
-    PoolPosition: defineAsyncComponent(() =>
-      import("@/components/pools/pool/position/PoolPosition.vue")
+    PoolPosition: defineAsyncComponent(
+      () => import("@/components/pools/pool/position/PoolPosition.vue")
     ),
-    PieChart: defineAsyncComponent(() =>
-      import("@/components/pools/pool/charts/PieChart.vue")
+    PieChart: defineAsyncComponent(
+      () => import("@/components/pools/pool/charts/PieChart.vue")
     ),
   },
 };

@@ -133,9 +133,6 @@ export const getLpInfo = async (
     chainId
   );
 
-  // NOTICE: will be updated when we have graph
-  const statisticsData = fetchStatisticsData();
-
   return {
     ...lp,
     contract: {
@@ -156,20 +153,6 @@ export const getLpInfo = async (
       quoteBalance: quoteBalance.result,
     },
     userInfo,
-    statisticsData,
-  };
-};
-
-// TODO: will be updated when we have graph
-export const fetchStatisticsData = () => {
-  return {
-    tvl: 1000000000000n,
-    apr: 10n,
-    liquidityValue: 200n,
-    dayFees: 470n,
-    dayVolume: 10n,
-    weekFees: 70n,
-    weekVolume: 70n,
   };
 };
 

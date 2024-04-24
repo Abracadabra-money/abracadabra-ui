@@ -1,6 +1,7 @@
 import { formatUnits } from "viem";
 import { formatLargeSum } from "@/helpers/filters";
 import store from "@/store";
+import type { PoolInfo } from "@/configs/pools/types";
 
 export const getPoolTvlPieChartOption = async (pool: any) => {
   const tvlByCategory: TvlByCategory = await getTvlByCategory(pool);
@@ -90,7 +91,7 @@ export const getPoolTvlPieChartOption = async (pool: any) => {
   };
 };
 
-const getTvlByCategory = async (pool: any) => {
+const getTvlByCategory = async (pool: PoolInfo) => {
   const publicClient = store.getters.getChainById(pool.chainId).publicClient;
 
   const total =
