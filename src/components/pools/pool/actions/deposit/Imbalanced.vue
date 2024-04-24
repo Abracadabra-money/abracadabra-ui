@@ -301,7 +301,7 @@ export default {
       };
     },
 
-    async approveHandler(token) {
+    async approveHandler(token, valueToApprove) {
       this.isActionProcessing = true;
       const notificationId = await this.createNotification(
         notification.approvePending
@@ -311,7 +311,7 @@ export default {
         await approveTokenViem(
           token.config.contract,
           this.pool.swapRouter,
-          token.approveAmount
+          valueToApprove
         );
         await this.$emit("updatePoolInfo");
 
@@ -382,9 +382,12 @@ export default {
       }
 
       if (!this.isBaseTokenApproved)
-        return await this.approveHandler(this.baseToken);
+        return await this.approveHandler(this.baseToken, this.baseInputAmount);
       if (!this.isQuoteTokenApproved)
-        return await this.approveHandler(this.quoteToken);
+        return await this.approveHandler(
+          this.quoteToken,
+          this.quoteInputAmount
+        );
 
       this.imbalanceHandler();
     },

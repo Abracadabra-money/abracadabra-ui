@@ -272,7 +272,7 @@ export default {
       };
     },
 
-    async approveHandler(token) {
+    async approveHandler(token, valueToApprove) {
       this.isActionProcessing = true;
       const notificationId = await this.createNotification(
         notification.approvePending
@@ -282,7 +282,7 @@ export default {
         await approveTokenViem(
           token.config.contract,
           this.pool.swapRouter,
-          token.approveAmount
+          valueToApprove
         );
         await this.$emit("updatePoolInfo");
 
