@@ -84,15 +84,15 @@ export default {
     baseToken(): CompositionTokenInfo {
       const baseTokenReserve = Number(
         formatUnits(
-          this.pool.vaultReserve[0],
-          this.pool.tokens.baseToken.config.decimals
+          this.pool!.vaultReserve[0],
+          this.pool!.tokens.baseToken.config.decimals
         )
       );
-      const baseTokenPrice = this.pool.tokens.baseToken.price;
+      const baseTokenPrice = this.pool!.tokens.baseToken.price;
       const baseTokenValue = baseTokenReserve * baseTokenPrice;
 
       return {
-        config: this.pool.tokens.baseToken.config,
+        config: this.pool!.tokens.baseToken.config,
         reserve: baseTokenReserve,
         price: baseTokenPrice,
         value: baseTokenValue,
@@ -102,15 +102,15 @@ export default {
     quoteToken(): CompositionTokenInfo {
       const quoteTokenReserve = Number(
         formatUnits(
-          this.pool.vaultReserve[1],
-          this.pool.tokens.quoteToken.config.decimals
+          this.pool!.vaultReserve[1],
+          this.pool!.tokens.quoteToken.config.decimals
         )
       );
-      const quoteTokenPrice = this.pool.tokens.quoteToken.price;
+      const quoteTokenPrice = this.pool!.tokens.quoteToken.price;
       const quoteTokenValue = quoteTokenReserve * quoteTokenPrice;
 
       return {
-        config: this.pool.tokens.quoteToken.config,
+        config: this.pool!.tokens.quoteToken.config,
         reserve: quoteTokenReserve,
         price: quoteTokenPrice,
         value: quoteTokenValue,

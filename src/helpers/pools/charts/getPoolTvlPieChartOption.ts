@@ -3,7 +3,9 @@ import { formatLargeSum } from "@/helpers/filters";
 import store from "@/store";
 import type { PoolInfo } from "@/configs/pools/types";
 
-export const getPoolTvlPieChartOption = async (pool: PoolInfo) => {
+export const getPoolTvlPieChartOption = async (pool: PoolInfo | null) => {
+  if (!pool) return null;
+
   const tvlByCategory: TvlByCategory = await getTvlByCategory(pool);
 
   return {
