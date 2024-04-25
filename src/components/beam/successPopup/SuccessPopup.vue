@@ -90,7 +90,9 @@ export default {
       const sourceChain = this.successData.originChain.settings.lzChainId;
       const hash = this.successData.txHash;
 
-      this.lzTxInfo = await waitForMessageReceived(sourceChain, hash);
+      const messageResult = await waitForMessageReceived(sourceChain, hash);
+
+      this.lzTxInfo = messageResult;
     },
   },
   created() {

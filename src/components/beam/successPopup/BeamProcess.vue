@@ -48,7 +48,10 @@ export default {
 
   computed: {
     parsedMimAmount() {
-      return formatToFixed(formatUnits(this.successData.txPayload.amount, 18), 2);
+      return formatToFixed(
+        formatUnits(this.successData.txPayload.amount, 18),
+        2
+      );
     },
 
     fromScanUrl() {
@@ -58,7 +61,13 @@ export default {
         (chain) => chain.chainId === this.successData.originChain.chainId
       );
 
-      return `${chainInfo.viemConfig.blockExplorers.etherscan.url}/tx/${this.successData.txHash}`;
+      const url = chainInfo.viemConfig.blockExplorers.etherscan?.url
+        ? chainInfo.viemConfig.blockExplorers.etherscan?.url
+        : chainInfo.viemConfig.blockExplorers.default?.url;
+
+      if (!url) return "";
+
+      return `${url}/tx/${this.successData.txHash}`;
     },
 
     dstScanUrl() {
@@ -68,7 +77,13 @@ export default {
         (chain) => chain.chainId === this.successData.dstChain.chainId
       );
 
-      return `${chainInfo.viemConfig.blockExplorers.etherscan.url}/tx/${this.lzTxInfo.dstTxHash}`;
+      const url = chainInfo.viemConfig.blockExplorers.etherscan?.url
+        ? chainInfo.viemConfig.blockExplorers.etherscan?.url
+        : chainInfo.viemConfig.blockExplorers.default?.url;
+
+      if (!url) return "";
+
+      return `${url}/tx/${this.lzTxInfo.dstTxHash}`;
     },
 
     sendFromCheck() {

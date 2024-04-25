@@ -111,10 +111,6 @@
 </template>
 
 <script lang="ts">
-import {
-  waitForMessageReceived,
-  createClient,
-} from "@layerzerolabs/scan-client";
 import { utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { trimZeroDecimals } from "@/helpers/numbers";
@@ -271,6 +267,11 @@ export default {
       ) {
         this.clearData();
         this.initBeamInfo(value.chainId);
+      }
+    },
+    async toChain() {
+      if (this.beamInfoObject && this.fromChain) {
+        this.estimateSendFee = await this.getEstimatedFees();
       }
     },
     account() {
