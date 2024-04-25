@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent, PropType } from "vue";
+import { defineAsyncComponent, type PropType } from "vue";
 import { mapGetters } from "vuex";
 import { formatUnits } from "viem";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
@@ -53,13 +53,13 @@ export default {
         name: this.pool.name,
         icon: this.pool.icon,
         amount: this.formatTokenBalance(
-          this.pool.lockInfo.balances.locked || 0n,
+          this.pool.lockInfo?.balances.locked || 0n,
           this.pool.decimals
         ),
         amountUsd: this.formatUSD(
           Number(
             formatUnits(
-              this.pool.lockInfo.balances.locked || 0n,
+              this.pool.lockInfo?.balances.locked || 0n,
               this.pool.decimals
             )
           ) * this.pool.price
@@ -73,14 +73,14 @@ export default {
           title: "Points",
           icon: useImage("assets/images/points-dashboard/blast.png"),
           value: formatTokenBalance(
-            this.userPointsStatistics?.liquidityPoints?.founder?.finalized || 0
+            this.userPointsStatistics.liquidityPoints.founder.finalized || 0
           ),
         },
         {
           title: "Gold",
           icon: useImage("assets/images/points-dashboard/gold-points.svg"),
           value: formatTokenBalance(
-            this.userPointsStatistics?.developerPoints?.founder?.finalized || 0
+            this.userPointsStatistics.developerPoints.founder.finalized || 0
           ),
         },
         {
@@ -95,7 +95,7 @@ export default {
   methods: {
     formatUSD,
 
-    formatTokenBalance(value, decimals) {
+    formatTokenBalance(value: bigint, decimals: number) {
       return formatTokenBalance(formatUnits(value, decimals));
     },
 

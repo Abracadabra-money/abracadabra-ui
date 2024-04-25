@@ -29,7 +29,7 @@
 
       <Locked
         :pool="pool"
-        :userPointsStatistics="pointsStatistic.user"
+        :userPointsStatistics="pointsStatistics.user"
         v-show="activeTab === 'locked'"
       />
     </div>
@@ -37,7 +37,7 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent, PropType } from "vue";
+import { defineAsyncComponent, type PropType } from "vue";
 import type { PoolInfo } from "@/configs/pools/types";
 import type { PointsStatistics } from "@/helpers/blast/stake/points";
 

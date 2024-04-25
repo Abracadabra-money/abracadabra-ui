@@ -37,7 +37,7 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent, PropType } from "vue";
+import { defineAsyncComponent, type PropType } from "vue";
 import type {
   PoolPositionTokenInfo,
   RewardItemInfo,
@@ -45,7 +45,10 @@ import type {
 
 export default {
   props: {
-    lpToken: { type: Object as PropType<PoolPositionTokenInfo> },
+    lpToken: {
+      type: Object as PropType<PoolPositionTokenInfo>,
+      required: true,
+    },
     rewardsList: { type: Array as PropType<RewardItemInfo[]> },
   },
 

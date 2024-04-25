@@ -33,7 +33,7 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent, PropType } from "vue";
+import { defineAsyncComponent, type PropType } from "vue";
 import { formatUnits } from "viem";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";

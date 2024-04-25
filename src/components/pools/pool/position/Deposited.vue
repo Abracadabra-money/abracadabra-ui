@@ -36,7 +36,7 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent, PropType } from "vue";
+import { defineAsyncComponent, type PropType } from "vue";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { formatUnits } from "viem";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
@@ -89,6 +89,7 @@ export default {
     }),
 
     isAllowed(): boolean {
+      if (!this.pool.lockInfo) return false;
       return this.pool.lockInfo.allowance >= this.pool.userInfo.balance;
     },
 
@@ -272,7 +273,7 @@ export default {
         if (!this.pool || !this.pool.lockContract)
           throw new Error("Current pool doesnt have lock contract");
 
-        const { request } = await simulateContractHelper({
+        const { request }: any = await simulateContractHelper({
           address: this.pool.lockContract.address,
           abi: this.pool.lockContract.abi,
           functionName: "stake",
@@ -281,7 +282,7 @@ export default {
 
         const hash = await writeContractHelper(request);
 
-        const { result, error } = await waitForTransactionReceiptHelper({
+        const { result, error }: any = await waitForTransactionReceiptHelper({
           hash,
         });
 

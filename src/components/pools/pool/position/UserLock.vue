@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent, PropType } from "vue";
+import { defineAsyncComponent, type PropType } from "vue";
 import { formatUnits } from "viem";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 import type { PoolInfo } from "@/configs/pools/types";
@@ -29,7 +29,7 @@ type LockAmount = {
 export default {
   props: {
     pool: { type: Object as PropType<PoolInfo>, required: true },
-    lock: { type: Object },
+    lock: { type: Object, required: true },
   },
 
   computed: {
