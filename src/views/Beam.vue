@@ -261,6 +261,20 @@ export default {
       this.inputValue = trimZeroDecimals(formatUnits(value, 18));
     },
     fromChain(value) {
+      if (this.toChain && this.toChain.chainId === value.chainId)
+        this.toChain = undefined;
+
+      if (this.toChain) {
+        const isDisabled = this.checkChainsCompability(
+          value.chainId,
+          this.toChain.chainId
+        );
+
+        if (isDisabled) {
+          this.toChain = undefined;
+        }
+      }
+
       if (
         this.beamInfoObject &&
         this.beamInfoObject.fromChainConfig.chainId !== value.chainId
@@ -298,6 +312,21 @@ export default {
       deleteNotification: "notifications/delete",
       updateNotification: "notifications/updateTitle",
     }),
+
+    checkChainsCompability(fromChain: number, toChain: number) {
+      if (!this.fromChain || !this.toChain) return false;
+
+      const { beamConfigs } = this.beamInfoObject!;
+
+      const fromChainConfig = beamConfigs.find(
+        (chain) => chain.chainId === fromChain
+      );
+
+      const isDisabled =
+        fromChainConfig!.settings.disabledDestinationChains.includes(toChain);
+
+      return isDisabled;
+    },
 
     toggleDstAddress() {
       this.isShowDstAddress = !this.isShowDstAddress;
