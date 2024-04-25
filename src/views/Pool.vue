@@ -37,6 +37,7 @@ import { getPoolTvlPieChartOption } from "@/helpers/pools/charts/getPoolTvlPieCh
 import {
   fetchUserPointsStatistics,
   fetchPointsStatistics,
+  type PointsStatistics,
 } from "@/helpers/blast/stake/points";
 import type { PoolInfo } from "@/configs/pools/types";
 
@@ -50,8 +51,8 @@ export default {
     return {
       pool: null as unknown as PoolInfo | null,
       pointsStatistics: {
-        user: null as any,
-        global: null as any,
+        user: null as PointsStatistics | null,
+        global: null as PointsStatistics | null,
       },
       isMyPositionPopupOpened: false,
       poolsTimer: null as unknown as NodeJS.Timeout,
