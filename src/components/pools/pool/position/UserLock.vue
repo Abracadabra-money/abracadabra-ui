@@ -15,20 +15,26 @@
   </li>
 </template>
 
-<script>
-import { defineAsyncComponent } from "vue";
+<script lang="ts">
+import { defineAsyncComponent, PropType } from "vue";
 import { formatUnits } from "viem";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
+import type { PoolInfo } from "@/configs/pools/types";
+
+type LockAmount = {
+  value: string | number;
+  usd: string;
+};
 
 export default {
   props: {
-    pool: { type: Object },
+    pool: { type: Object as PropType<PoolInfo>, required: true },
     lock: { type: Object },
   },
 
   computed: {
-    lockAmount() {
-      const value = formatUnits(this.lock.amount, this.pool.decimals);
+    lockAmount(): LockAmount {
+      const value = Number(formatUnits(this.lock.amount, this.pool.decimals));
       const usd = value * this.pool.price;
 
       return {
@@ -39,11 +45,11 @@ export default {
   },
 
   components: {
-    BaseTokenIcon: defineAsyncComponent(() =>
-      import("@/components/base/BaseTokenIcon.vue")
+    BaseTokenIcon: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenIcon.vue")
     ),
-    Timer: defineAsyncComponent(() =>
-      import("@/components/stake/earnPoints/Timer.vue")
+    Timer: defineAsyncComponent(
+      () => import("@/components/stake/earnPoints/Timer.vue")
     ),
   },
 };

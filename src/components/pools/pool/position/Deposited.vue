@@ -35,8 +35,8 @@
   </div>
 </template>
 
-<script>
-import { defineAsyncComponent } from "vue";
+<script lang="ts">
+import { defineAsyncComponent, PropType } from "vue";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { formatUnits } from "viem";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
@@ -52,11 +52,23 @@ import notification from "@/helpers/notification/notification";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { useImage } from "@/helpers/useImage";
+import type { PoolInfo } from "@/configs/pools/types";
+import type { PointsStatistics } from "@/helpers/blast/stake/points";
+import type {
+  PoolPositionTokenInfo,
+  RewardItemInfo,
+} from "@/components/pools/pool/position/PoolPosition.vue";
 
 export default {
   props: {
-    pool: { type: Object },
-    pointsStatistics: { type: Object },
+    pool: { type: Object as PropType<PoolInfo>, required: true },
+    pointsStatistics: {
+      type: Object as PropType<{
+        user: PointsStatistics;
+        global: PointsStatistics;
+      }>,
+      required: true,
+    },
   },
 
   data() {
@@ -76,15 +88,15 @@ export default {
       chainId: "getChainId",
     }),
 
-    isAllowed() {
+    isAllowed(): boolean {
       return this.pool.lockInfo.allowance >= this.pool.userInfo.balance;
     },
 
-    isValid() {
+    isValid(): boolean {
       return !!this.pool.userInfo.balance;
     },
 
-    buttonText() {
+    buttonText(): string {
       if (!this.isProperNetwork) return "Switch network";
       if (!this.account) return "Connect wallet";
 
@@ -94,11 +106,11 @@ export default {
       return "Stake now";
     },
 
-    isProperNetwork() {
+    isProperNetwork(): boolean {
       return this.chainId == this.pool.chainId;
     },
 
-    isButtonDisabled() {
+    isButtonDisabled(): boolean {
       return (
         (!this.isValid || this.isActionProcessing) &&
         this.isProperNetwork &&
@@ -106,7 +118,7 @@ export default {
       );
     },
 
-    lpToken() {
+    lpToken(): PoolPositionTokenInfo {
       return {
         name: this.pool.name,
         icon: this.pool.icon,
@@ -115,13 +127,13 @@ export default {
           this.pool.decimals
         ),
         amountUsd: this.formatUSD(
-          formatUnits(this.pool.userInfo.balance, this.pool.decimals) *
+          Number(formatUnits(this.pool.userInfo.balance, this.pool.decimals)) *
             this.pool.price
         ),
       };
     },
 
-    tokensList() {
+    tokensList(): PoolPositionTokenInfo[] {
       const previewRemoveLiquidityResult = previewRemoveLiquidity(
         this.pool.userInfo.balance,
         this.pool
@@ -136,9 +148,11 @@ export default {
             this.pool.tokens.baseToken.config.decimals
           ),
           amountUsd: this.formatUSD(
-            formatUnits(
-              previewRemoveLiquidityResult.baseAmountOut,
-              this.pool.tokens.baseToken.config.decimals
+            Number(
+              formatUnits(
+                previewRemoveLiquidityResult.baseAmountOut,
+                this.pool.tokens.baseToken.config.decimals
+              )
             ) * this.pool.tokens.baseToken.price
           ),
         },
@@ -150,18 +164,20 @@ export default {
             this.pool.tokens.quoteToken.config.decimals
           ),
           amountUsd: this.formatUSD(
-            formatUnits(
-              previewRemoveLiquidityResult.quoteAmountOut,
-              this.pool.tokens.quoteToken.config.decimals
+            Number(
+              formatUnits(
+                previewRemoveLiquidityResult.quoteAmountOut,
+                this.pool.tokens.quoteToken.config.decimals
+              )
             ) * this.pool.tokens.quoteToken.price
           ),
         },
       ].filter((e) => e.name && e.amount);
 
-      return tokensList.length ? tokensList : false;
+      return tokensList.length ? tokensList : [];
     },
 
-    rewardsList() {
+    rewardsList(): RewardItemInfo[] {
       return [
         {
           title: "Points",
@@ -220,6 +236,9 @@ export default {
       );
 
       try {
+        if (!this.pool || !this.pool.lockContract)
+          throw new Error("Current pool doesnt have lock contract");
+
         await approveTokenViem(
           this.pool.contract,
           this.pool.lockContract.address,
@@ -250,6 +269,9 @@ export default {
       );
 
       try {
+        if (!this.pool || !this.pool.lockContract)
+          throw new Error("Current pool doesnt have lock contract");
+
         const { request } = await simulateContractHelper({
           address: this.pool.lockContract.address,
           abi: this.pool.lockContract.abi,
@@ -267,7 +289,6 @@ export default {
 
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.success);
-        this.resetInput();
       } catch (error) {
         console.log("stake lp err:", error);
 
@@ -284,7 +305,7 @@ export default {
 
     async actionHandler() {
       if (this.isButtonDisabled) return false;
-      if (!this.isProperNetwork) return switchNetwork(this.pool.chainId);
+      if (!this.isProperNetwork) return switchNetwork(this.pool!.chainId);
       if (!this.account) {
         // @ts-ignore
         return this.$openWeb3modal();
@@ -297,7 +318,7 @@ export default {
       await this.$emit("updatePoolInfo");
     },
 
-    formatTokenBalance(value, decimals) {
+    formatTokenBalance(value: bigint, decimals: number): string | number {
       return formatTokenBalance(formatUnits(value, decimals));
     },
   },
@@ -308,17 +329,18 @@ export default {
   },
 
   components: {
-    BaseButton: defineAsyncComponent(() =>
-      import("@/components/base/BaseButton.vue")
+    BaseButton: defineAsyncComponent(
+      () => import("@/components/base/BaseButton.vue")
     ),
-    Tooltip: defineAsyncComponent(() =>
-      import("@/components/ui/icons/Tooltip.vue")
+    Tooltip: defineAsyncComponent(
+      () => import("@/components/ui/icons/Tooltip.vue")
     ),
-    PoolCompoundCard: defineAsyncComponent(() =>
-      import("@/components/pools/pool/position/cards/PoolCompoundCard.vue")
+    PoolCompoundCard: defineAsyncComponent(
+      () =>
+        import("@/components/pools/pool/position/cards/PoolCompoundCard.vue")
     ),
-    RowSkeleton: defineAsyncComponent(() =>
-      import("@/components/ui/skeletons/RowSkeleton.vue")
+    RowSkeleton: defineAsyncComponent(
+      () => import("@/components/ui/skeletons/RowSkeleton.vue")
     ),
   },
 };

@@ -15,18 +15,27 @@
   </div>
 </template>
 
-<script>
-import { defineAsyncComponent } from "vue";
+<script lang="ts">
+import { defineAsyncComponent, PropType } from "vue";
 import { mapGetters } from "vuex";
 import { formatUnits } from "viem";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 import { getUserLocks } from "@/helpers/pools/getPoolInfo";
 import { useImage } from "@/helpers/useImage";
+import type {
+  PoolPositionTokenInfo,
+  RewardItemInfo,
+} from "@/components/pools/pool/position/PoolPosition.vue";
+import type { PoolInfo } from "@/configs/pools/types";
+import type { PointsStatistics } from "@/helpers/blast/stake/points";
 
 export default {
   props: {
-    pool: { type: Object },
-    userPointsStatistics: { type: Object },
+    pool: { type: Object as PropType<PoolInfo>, required: true },
+    userPointsStatistics: {
+      type: Object as PropType<PointsStatistics>,
+      required: true,
+    },
   },
 
   data() {
@@ -39,7 +48,7 @@ export default {
       account: "getAccount",
     }),
 
-    lpToken() {
+    lpToken(): PoolPositionTokenInfo {
       return {
         name: this.pool.name,
         icon: this.pool.icon,
@@ -48,15 +57,17 @@ export default {
           this.pool.decimals
         ),
         amountUsd: this.formatUSD(
-          formatUnits(
-            this.pool.lockInfo.balances.locked || 0n,
-            this.pool.decimals
+          Number(
+            formatUnits(
+              this.pool.lockInfo.balances.locked || 0n,
+              this.pool.decimals
+            )
           ) * this.pool.price
         ),
       };
     },
 
-    rewardsList() {
+    rewardsList(): RewardItemInfo[] {
       return [
         {
           title: "Points",
@@ -104,14 +115,15 @@ export default {
   },
 
   components: {
-    BaseButton: defineAsyncComponent(() =>
-      import("@/components/base/BaseButton.vue")
+    BaseButton: defineAsyncComponent(
+      () => import("@/components/base/BaseButton.vue")
     ),
-    FounderBoostCard: defineAsyncComponent(() =>
-      import("@/components/pools/pool/position/cards/FounderBoostCard.vue")
+    FounderBoostCard: defineAsyncComponent(
+      () =>
+        import("@/components/pools/pool/position/cards/FounderBoostCard.vue")
     ),
-    UserLock: defineAsyncComponent(() =>
-      import("@/components/pools/pool/position/UserLock.vue")
+    UserLock: defineAsyncComponent(
+      () => import("@/components/pools/pool/position/UserLock.vue")
     ),
   },
 };

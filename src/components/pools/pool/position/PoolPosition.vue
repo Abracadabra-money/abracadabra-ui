@@ -29,20 +29,43 @@
 
       <Locked
         :pool="pool"
-        :userPointsStatistics="pointsStatistics.user"
+        :userPointsStatistics="pointsStatistic.user"
         v-show="activeTab === 'locked'"
       />
     </div>
   </div>
 </template>
 
-<script>
-import { defineAsyncComponent } from "vue";
+<script lang="ts">
+import { defineAsyncComponent, PropType } from "vue";
+import type { PoolInfo } from "@/configs/pools/types";
+import type { PointsStatistics } from "@/helpers/blast/stake/points";
+
+export type PoolPositionTokenInfo = {
+  name: string;
+  icon: string;
+  amount: string | number;
+  amountUsd: string;
+};
+
+export type RewardItemInfo = {
+  title: string;
+  icon: string;
+  value: string | number;
+};
+
+type PositionActionType = "deposited" | "staked" | "locked";
 
 export default {
   props: {
-    pool: { type: Object },
-    pointsStatistics: { type: Object },
+    pool: { type: Object as PropType<PoolInfo>, required: true },
+    pointsStatistics: {
+      type: Object as PropType<{
+        user: PointsStatistics;
+        global: PointsStatistics;
+      }>,
+      required: true,
+    },
     isMyPositionPopupOpened: { type: Boolean, default: false },
   },
 
@@ -50,13 +73,13 @@ export default {
 
   data() {
     return {
-      activeTab: "deposited",
-      tabItems: ["deposited", "staked", "locked"],
+      activeTab: "deposited" as PositionActionType,
+      tabItems: ["deposited", "staked", "locked"] as PositionActionType[],
     };
   },
 
   methods: {
-    selectTab(action) {
+    selectTab(action: PositionActionType) {
       this.activeTab = action;
     },
 
@@ -66,17 +89,17 @@ export default {
   },
 
   components: {
-    Tabs: defineAsyncComponent(() =>
-      import("@/components/pools/pool/position/Tabs.vue")
+    Tabs: defineAsyncComponent(
+      () => import("@/components/pools/pool/position/Tabs.vue")
     ),
-    Deposited: defineAsyncComponent(() =>
-      import("@/components/pools/pool/position/Deposited.vue")
+    Deposited: defineAsyncComponent(
+      () => import("@/components/pools/pool/position/Deposited.vue")
     ),
-    Staked: defineAsyncComponent(() =>
-      import("@/components/pools/pool/position/Staked.vue")
+    Staked: defineAsyncComponent(
+      () => import("@/components/pools/pool/position/Staked.vue")
     ),
-    Locked: defineAsyncComponent(() =>
-      import("@/components/pools/pool/position/Locked.vue")
+    Locked: defineAsyncComponent(
+      () => import("@/components/pools/pool/position/Locked.vue")
     ),
   },
 };

@@ -49,7 +49,7 @@ export default {
 
   data() {
     return {
-      pool: null as unknown as PoolInfo | null,
+      pool: null as PoolInfo | null,
       pointsStatistics: {
         user: null as PointsStatistics | null,
         global: null as PointsStatistics | null,
