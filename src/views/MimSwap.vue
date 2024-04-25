@@ -406,7 +406,7 @@ export default {
       return await getCoinsPrices(this.chainId, coins);
     },
 
-    async approveTokenHandler(contract: ContractInfo) {
+    async approveTokenHandler(contract: ContractInfo, valueToApprove: bigint) {
       const notificationId = await this.createNotification(
         notification.approvePending
       );
@@ -414,7 +414,8 @@ export default {
       const approve = await approveTokenViem(
         contract,
         // @ts-ignore
-        this.swapInfo.transactionInfo.swapRouterAddress
+        this.swapInfo.transactionInfo.swapRouterAddress,
+        valueToApprove
       );
 
       await this.deleteNotification(notificationId);
@@ -436,12 +437,14 @@ export default {
           break;
         case "approvefromToken":
           await this.approveTokenHandler(
-            this.actionConfig.fromToken.config.contract
+            this.actionConfig.fromToken.config.contract,
+            this.actionConfig.fromInputValue
           );
           break;
         case "approveToToken":
           await this.approveTokenHandler(
-            this.actionConfig.toToken.config.contract
+            this.actionConfig.toToken.config.contract,
+            this.actionConfig.toInputValue
           );
           break;
         default:

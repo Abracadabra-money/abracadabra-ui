@@ -199,7 +199,11 @@ export default {
       );
 
       try {
-        await approveTokenViem(this.pool.contract, this.pool.swapRouter);
+        await approveTokenViem(
+          this.pool.contract,
+          this.pool.swapRouter,
+          this.inputAmount
+        );
         await this.$emit("updatePoolInfo");
 
         await this.deleteNotification(notificationId);
