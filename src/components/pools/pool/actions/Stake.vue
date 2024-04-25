@@ -164,7 +164,8 @@ export default {
       try {
         await approveTokenViem(
           this.pool.contract,
-          this.pool.lockContract.address
+          this.pool.lockContract.address,
+          this.inputAmount
         );
         await this.$emit("updatePoolInfo");
 

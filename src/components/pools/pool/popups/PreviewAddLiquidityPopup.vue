@@ -219,11 +219,19 @@ export default {
 
       if (!this.isBaseTokenApproved) {
         this.currentlyApprovingToken = this.pool.tokens.baseToken.config.name;
-        return this.$emit("approve", this.pool.tokens.baseToken);
+        return this.$emit(
+          "approve",
+          this.pool.tokens.baseToken,
+          this.previewInfo.baseTokenAmount
+        );
       }
       if (!this.isQuoteTokenApproved) {
         this.currentlyApprovingToken = this.pool.tokens.quoteToken.config.name;
-        return this.$emit("approve", this.pool.tokens.quoteToken);
+        return this.$emit(
+          "approve",
+          this.pool.tokens.quoteToken,
+          this.previewInfo.quoteTokenAmount
+        );
       }
 
       this.currentlyApprovingToken = "";

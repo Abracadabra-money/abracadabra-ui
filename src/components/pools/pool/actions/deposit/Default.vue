@@ -272,14 +272,18 @@ export default {
       };
     },
 
-    async approveHandler(token) {
+    async approveHandler(token, valueToApprove) {
       this.isActionProcessing = true;
       const notificationId = await this.createNotification(
         notification.approvePending
       );
 
       try {
-        await approveTokenViem(token.config.contract, this.pool.swapRouter);
+        await approveTokenViem(
+          token.config.contract,
+          this.pool.swapRouter,
+          valueToApprove
+        );
         await this.$emit("updatePoolInfo");
 
         await this.deleteNotification(notificationId);
