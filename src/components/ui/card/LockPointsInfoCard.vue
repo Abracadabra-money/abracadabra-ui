@@ -31,7 +31,10 @@
     <div class="deposited">
       <div class="deposited-text">
         Deposited
-        <span class="lock-icon-wrap" v-tooltip="'Locked for 3 months'">
+        <span
+          class="lock-icon-wrap"
+          v-tooltip="'Locked funds, earning extra rewards'"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="14"
@@ -135,7 +138,9 @@
               >Your Next Distribution
               <span class="boost">
                 <img
-                  v-tooltip="'Boosted Airdrop for Founders'"
+                  v-tooltip="
+                    'Locked LPs benefit from both rewards distributions: Staked and Locked. Upon unlocking, locked LPs transition to Staked LPs'
+                  "
                   src="@/assets/images/points-dashboard/rocket.svg"
                   alt=""
                 />
