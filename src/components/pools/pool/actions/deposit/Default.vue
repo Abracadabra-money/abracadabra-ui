@@ -99,7 +99,12 @@ import type { PreviewPopupInfo } from "@/components/pools/pool/actions/deposit/D
 export default {
   props: {
     pool: { type: Object as PropType<PoolInfo>, required: true },
-    slippage: BigInt as Prop<bigint>,
+    slippage: {
+      type: [String, Number, BigInt] as PropType<string | number | bigint>,
+      required: true,
+      validator: (value: unknown) =>
+        typeof value === "bigint" || typeof value === "number",
+    },
     deadline: BigInt as Prop<bigint>,
   },
 
