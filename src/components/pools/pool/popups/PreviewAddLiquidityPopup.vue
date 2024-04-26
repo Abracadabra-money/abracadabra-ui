@@ -99,7 +99,7 @@
           Allowance
         </FlowBlock>
 
-        <FlowBlock :stepNumber="3" :status="transactionStatus" final>
+        <FlowBlock :stepNumber="3" :status="transActionStatus" final>
           Deposit
         </FlowBlock>
       </div>
@@ -120,7 +120,7 @@
 import { defineAsyncComponent } from "vue";
 import { formatUnits } from "viem";
 import { formatTokenBalance } from "@/helpers/filters";
-import { actionStatus } from "@/components/pools/pool/PoolActionBlock.vue";
+import { ActionStatus } from "@/components/pools/pool/PoolActionBlock.vue";
 
 export default {
   props: {
@@ -137,9 +137,9 @@ export default {
       default: false,
     },
 
-    transactionStatus: {
+    transActionStatus: {
       type: String,
-      default: actionStatus.WAITING,
+      default: ActionStatus.WAITING,
     },
   },
 
@@ -180,7 +180,7 @@ export default {
     },
 
     buttonText() {
-      if (this.transactionStatus == actionStatus.SUCCESS) return "Close popup";
+      if (this.transActionStatus == ActionStatus.SUCCESS) return "Close popup";
       if (this.isActionProcessing) return "Processing...";
       if (!this.isBaseTokenApproved)
         return `Approve ${this.pool.tokens.baseToken.config.name}`;
@@ -196,11 +196,11 @@ export default {
         token.config.name == this.currentlyApprovingToken &&
         this.isActionProcessing
       )
-        return actionStatus.PENDING;
+        return ActionStatus.PENDING;
 
-      if (token.isApproved) return actionStatus.SUCCESS;
+      if (token.isApproved) return ActionStatus.SUCCESS;
 
-      return actionStatus.WAITING;
+      return ActionStatus.WAITING;
     },
 
     formatTokenBalance(value) {
@@ -214,7 +214,7 @@ export default {
     actionHandler() {
       if (this.isActionProcessing) return false;
 
-      if (this.transactionStatus == actionStatus.SUCCESS)
+      if (this.transActionStatus == ActionStatus.SUCCESS)
         return this.closePopup();
 
       if (!this.isBaseTokenApproved) {

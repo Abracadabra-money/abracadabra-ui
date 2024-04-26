@@ -11,7 +11,7 @@
       />
     </ul>
 
-    <BaseButton primary @click="goToDashboard()">See dashbord</BaseButton>
+    <BaseButton primary @click="goToDashboard()">See dashboard</BaseButton>
   </div>
 </template>
 
@@ -34,7 +34,6 @@ export default {
     pool: { type: Object as PropType<PoolInfo>, required: true },
     userPointsStatistics: {
       type: Object as PropType<PointsStatistics>,
-      required: true,
     },
   },
 
@@ -73,14 +72,14 @@ export default {
           title: "Points",
           icon: useImage("assets/images/points-dashboard/blast.png"),
           value: formatTokenBalance(
-            this.userPointsStatistics.liquidityPoints.founder.finalized || 0
+            this.userPointsStatistics?.liquidityPoints.founder.finalized || 0
           ),
         },
         {
           title: "Gold",
           icon: useImage("assets/images/points-dashboard/gold-points.svg"),
           value: formatTokenBalance(
-            this.userPointsStatistics.developerPoints.founder.finalized || 0
+            this.userPointsStatistics?.developerPoints.founder.finalized || 0
           ),
         },
         {

@@ -28,7 +28,7 @@
       </ul>
     </div>
 
-    <BaseButton primary @click="goToDashboard()">See dashborad</BaseButton>
+    <BaseButton primary @click="goToDashboard()">See dashboard</BaseButton>
   </div>
 </template>
 
@@ -50,7 +50,6 @@ export default {
     pool: { type: Object as PropType<PoolInfo>, required: true },
     userPointsStatistics: {
       type: Object as PropType<PointsStatistics>,
-      required: true,
     },
   },
 

@@ -66,7 +66,7 @@
       :pool="pool"
       :previewInfo="previewPopupInfo"
       :isActionProcessing="isActionProcessing"
-      :transactionStatus="transactionStatus"
+      :transActionStatus="transActionStatus"
       @approve="approveHandler"
       @deposit="imbalanceHandler"
       @close="closePreviewPopup"
@@ -87,7 +87,7 @@ import { trimZeroDecimals } from "@/helpers/numbers";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
-import { actionStatus } from "@/components/pools/pool/PoolActionBlock.vue";
+import { ActionStatus } from "@/components/pools/pool/PoolActionBlock.vue";
 
 import { addLiquidityImbalancedOptimal } from "@/helpers/pools/swap/addLiquidityImbalancedOptimal";
 import { addLiquidityImbalanced } from "@/helpers/pools/swap/actions/addLiquidityImbalanced";
@@ -110,7 +110,7 @@ export default {
       expectedOptimal: { remainingAmountToSwap: 0n, shares: 0n },
       isExpectedOptimalCalculating: false,
       isActionProcessing: false,
-      transactionStatus: actionStatus.WAITING,
+      transActionStatus: ActionStatus.WAITING,
       isPreviewPopupOpened: false,
     };
   },
@@ -233,7 +233,7 @@ export default {
     closePreviewPopup() {
       this.isPreviewPopupOpened = false;
       this.isActionProcessing = false;
-      this.transactionStatus = actionStatus.WAITING;
+      this.transActionStatus = ActionStatus.WAITING;
     },
 
     updateValue(value, fromBase = false) {
@@ -332,7 +332,7 @@ export default {
 
     async imbalanceHandler() {
       this.isActionProcessing = true;
-      this.transactionStatus = "pending";
+      this.transActionStatus = "pending";
 
       const notificationId = await this.createNotification(
         notification.pending
@@ -346,7 +346,7 @@ export default {
           payload
         );
 
-        this.transactionStatus = "success";
+        this.transActionStatus = "success";
         await this.$emit("updatePoolInfo");
         await this.deleteNotification(notificationId);
 
@@ -354,7 +354,7 @@ export default {
 
         this.clearData();
       } catch (error) {
-        this.transactionStatus = "error";
+        this.transActionStatus = "error";
         console.log("add liquidity err:", error);
 
         const errorNotification = {

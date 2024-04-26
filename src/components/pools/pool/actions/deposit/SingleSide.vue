@@ -64,7 +64,7 @@ import { trimZeroDecimals } from "@/helpers/numbers";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
-import { actionStatus } from "@/components/pools/pool/PoolActionBlock.vue";
+import { ActionStatus } from "@/components/pools/pool/PoolActionBlock.vue";
 
 import { addLiquidityOneSideOptimal } from "@/helpers/pools/swap/addLiquidityOneSideOptimal";
 import { addLiquidityOneSide } from "@/helpers/pools/swap/actions/addLiquidityOneSide";
@@ -86,7 +86,7 @@ export default {
       isExpectedOptimalCalculating: false,
       isBase: true,
       isActionProcessing: false,
-      transactionStatus: actionStatus.WAITING,
+      transActionStatus: ActionStatus.WAITING,
       isPreviewPopupOpened: false,
       isDropdownOpened: false,
     };
@@ -258,7 +258,7 @@ export default {
 
     async depositOneSideHandler() {
       this.isActionProcessing = true;
-      this.transactionStatus = "pending";
+      this.transActionStatus = "pending";
       const notificationId = await this.createNotification(
         notification.pending
       );
@@ -269,14 +269,14 @@ export default {
           this.pool?.swapRouter,
           payload
         );
-        this.transactionStatus = "success";
+        this.transActionStatus = "success";
         await this.$emit("updatePoolInfo");
         await this.deleteNotification(notificationId);
 
         await this.createNotification(notification.success);
         this.clearData();
       } catch (error) {
-        this.transactionStatus = "error";
+        this.transActionStatus = "error";
         console.log("add liquidity err:", error);
 
         const errorNotification = {

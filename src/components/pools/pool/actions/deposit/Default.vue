@@ -66,7 +66,7 @@
       :pool="pool"
       :previewInfo="previewPopupInfo"
       :isActionProcessing="isActionProcessing"
-      :transactionStatus="transactionStatus"
+      :transActionStatus="transActionStatus"
       @approve="approveHandler"
       @deposit="depositHandler"
       @close="closePreviewPopup"
@@ -88,7 +88,7 @@ import { addLiquidity } from "@/helpers/pools/swap/actions/addLiquidity";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
-import { actionStatus } from "@/components/pools/pool/PoolActionBlock.vue";
+import { ActionStatus } from "@/components/pools/pool/PoolActionBlock.vue";
 
 export default {
   props: {
@@ -106,7 +106,7 @@ export default {
       quoteInputAmount: 0n,
       quoteInputValue: "",
       isActionProcessing: false,
-      transactionStatus: actionStatus.WAITING,
+      transActionStatus: ActionStatus.WAITING,
       isPreviewPopupOpened: false,
     };
   },
@@ -218,7 +218,7 @@ export default {
     closePreviewPopup() {
       this.isPreviewPopupOpened = false;
       this.isActionProcessing = false;
-      this.transactionStatus = actionStatus.WAITING;
+      this.transActionStatus = ActionStatus.WAITING;
     },
 
     updateTokenInputs(adjustmendResults) {
@@ -303,7 +303,7 @@ export default {
 
     async depositHandler() {
       this.isActionProcessing = true;
-      this.transactionStatus = "pending";
+      this.transActionStatus = "pending";
       const notificationId = await this.createNotification(
         notification.pending
       );
@@ -314,14 +314,14 @@ export default {
           this.pool?.swapRouter,
           payload
         );
-        this.transactionStatus = "success";
+        this.transActionStatus = "success";
         await this.$emit("updatePoolInfo");
         await this.deleteNotification(notificationId);
 
         await this.createNotification(notification.success);
         this.clearData();
       } catch (error) {
-        this.transactionStatus = "error";
+        this.transActionStatus = "error";
         console.log("add liquidity err:", error);
 
         const errorNotification = {

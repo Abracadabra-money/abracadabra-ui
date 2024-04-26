@@ -23,27 +23,30 @@
   </div>
 </template>
 
-<script>
-import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
+<script lang="ts">
+import { defineAsyncComponent, type PropType } from "vue";
+import { PoolInfo, TokenConfig } from "@/configs/pools/types";
 
 export default {
   props: {
-    pool: { type: Object },
+    pool: { type: Object as PropType<PoolInfo>, required: true },
   },
 
   computed: {
-    baseTokenConfig() {
+    baseTokenConfig(): TokenConfig {
       return this.pool.tokens.baseToken.config;
     },
 
-    quoteTokenConfig() {
+    quoteTokenConfig(): TokenConfig {
       return this.pool.tokens.quoteToken.config;
     },
   },
 
-  methods: {},
-
-  components: { BaseTokenIcon },
+  components: {
+    BaseTokenIcon: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenIcon.vue")
+    ),
+  },
 };
 </script>
 
