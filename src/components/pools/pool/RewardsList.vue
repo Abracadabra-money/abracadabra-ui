@@ -45,7 +45,7 @@ type StakeRewardItemInfo = RewardItemInfo & { tooltip: string };
 
 export default {
   props: {
-    rewards: { type: Object as PropType<RewardsPerHour> },
+    rewards: { type: Object as PropType<RewardsPerHour>, required: true },
     inputAmount: { default: 0n },
     isRewardsCalculating: { type: Boolean },
   },
