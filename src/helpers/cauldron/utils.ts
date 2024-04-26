@@ -273,6 +273,19 @@ export const applyBorrowFee = (
   return borrowAmount.add(fee);
 };
 
+export const alternativeApplyBorrowFee = (
+  borrowAmount: bigint,
+  borrowOpeningFee: number // 1% === 1000
+): bigint => {
+  if (!borrowAmount) return 0n;
+
+  const fee =
+    (borrowAmount * parseUnits(borrowOpeningFee.toString(), 0)) /
+    parseUnits("1", BORROW_OPENING_FEE_PRECISION);
+
+  return borrowAmount + fee;
+};
+
 // NOTICE: we expect unwrapped token decimals = wrapped decimals
 export const applyTokenWrapperRate = (
   unwrappedTokenAmount: BigNumber,
