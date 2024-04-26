@@ -25,7 +25,7 @@
 
 <script lang="ts">
 import { defineAsyncComponent, type PropType } from "vue";
-import { PoolInfo, TokenConfig } from "@/configs/pools/types";
+import type { PoolInfo, TokenConfig } from "@/configs/pools/types";
 
 export default {
   props: {
