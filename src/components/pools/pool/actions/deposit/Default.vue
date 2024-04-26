@@ -38,12 +38,8 @@
       <div class="info-block lp">
         <div class="tag">
           <span class="title">
-            <BaseTokenIcon
-              :name="this.pool.name"
-              :icon="this.pool.icon"
-              size="24px"
-            />
-            {{ this.pool.name }}
+            <BaseTokenIcon :name="pool.name" :icon="pool.icon" size="24px" />
+            {{ pool.name }}
           </span>
           <div class="token-amount">
             <span class="value">
@@ -85,7 +81,10 @@ import notification from "@/helpers/notification/notification";
 import { approveTokenViem } from "@/helpers/approval";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import { previewAddLiquidity } from "@/helpers/pools/swap/liquidity";
-import { addLiquidity } from "@/helpers/pools/swap/actions/addLiquidity";
+import {
+  addLiquidity,
+  type AddLiquidityPayload,
+} from "@/helpers/pools/swap/actions/addLiquidity";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
@@ -113,7 +112,11 @@ export default {
       quoteInputAmount: 0n,
       quoteInputValue: "",
       isActionProcessing: false,
-      transActionStatus: ActionStatus.WAITING,
+      transActionStatus: ActionStatus.WAITING as
+        | "success"
+        | "pending"
+        | "waiting"
+        | "error",
       isPreviewPopupOpened: false,
     };
   },
@@ -268,7 +271,7 @@ export default {
       this.updateTokenInputs(adjustmendResults);
     },
 
-    createDepositPayload() {
+    createDepositPayload(): AddLiquidityPayload {
       const { baseAdjustedInAmount, quoteAdjustedInAmount, shares } =
         this.previewAddLiquidityResult;
       const deadline = moment().unix() + Number(this.deadline);

@@ -64,6 +64,7 @@ export enum ActionStatus {
   SUCCESS = "success",
   PENDING = "pending",
   WAITING = "waiting",
+  ERROR = "error",
 }
 
 export default {
