@@ -100,10 +100,8 @@ export default {
   props: {
     pool: { type: Object as PropType<PoolInfo>, required: true },
     slippage: {
-      type: [String, Number, BigInt] as PropType<string | number | bigint>,
+      type: BigInt as unknown as PropType<bigint>,
       required: true,
-      validator: (value: unknown) =>
-        typeof value === "bigint" || typeof value === "number",
     },
     deadline: BigInt as Prop<bigint>,
   },
