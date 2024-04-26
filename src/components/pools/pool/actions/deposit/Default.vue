@@ -73,7 +73,7 @@
 <script lang="ts">
 import moment from "moment";
 import { defineAsyncComponent } from "vue";
-import type { PropType, Prop } from "vue";
+import type { PropType } from "vue";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { formatUnits, parseUnits } from "viem";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
@@ -103,7 +103,10 @@ export default {
       type: BigInt as unknown as PropType<bigint>,
       required: true,
     },
-    deadline: BigInt as Prop<bigint>,
+    deadline: {
+      type: BigInt as unknown as PropType<bigint>,
+      required: true,
+    },
   },
 
   emits: ["updatePoolInfo"],
