@@ -69,7 +69,7 @@ export const getExpectedPostition = (
 export const getAlternativeExpectedPostition = (
   cauldron: CauldronInfo,
   actionConfig: ActionConfig,
-  action: "borrow" | "repay"
+  action: string
 ) => {
   const { userPosition, mainParams, config } = cauldron;
   const { borrowFee } = mainParams;

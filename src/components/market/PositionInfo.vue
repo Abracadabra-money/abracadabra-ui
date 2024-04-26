@@ -141,7 +141,7 @@ export default {
       type: Object as any,
     },
     actionType: {
-      type: String as PropType<"borrow" | "repay">,
+      type: String,
       default: "borrow",
     },
   },

@@ -13,10 +13,11 @@
 </template>
 
 <script lang="ts">
-import { utils } from "ethers";
+import type { PropType } from "vue";
 import LottiePlayer from "lottie-web";
+import { formatUnits, parseUnits } from "viem";
 import { formatLargeSum } from "@/helpers/filters";
-import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 
 const TOTAL_FRAMES = 150;
 const MIM_DECIMALS = 18;
@@ -24,35 +25,42 @@ const MIM_DECIMALS = 18;
 export default {
   props: {
     cauldron: {
-      type: Object as any,
+      type: Object as PropType<CauldronInfo>,
     },
   },
 
   computed: {
-    mimLeftToBorrow() {
+    mimLeftToBorrow(): string {
       return formatLargeSum(
-        utils.formatUnits(this.cauldron.mainParams.mimLeftToBorrow)
+        formatUnits(
+          this.cauldron!.mainParams.alternativeData.mimLeftToBorrow,
+          MIM_DECIMALS
+        )
       );
     },
 
-    totalMimToBorrow() {
-      const { mimLeftToBorrow, totalBorrowed } = this.cauldron.mainParams;
+    totalMimToBorrow(): string {
+      const { mimLeftToBorrow, totalBorrowed } =
+        this.cauldron!.mainParams.alternativeData;
 
       return formatLargeSum(
-        utils.formatUnits(mimLeftToBorrow.add(totalBorrowed))
+        formatUnits(mimLeftToBorrow + totalBorrowed, MIM_DECIMALS)
       );
     },
 
-    currentFrame() {
-      const { mimLeftToBorrow, totalBorrowed } = this.cauldron.mainParams;
-      const totalMimToBorrow = mimLeftToBorrow.add(totalBorrowed);
-      const borrowedPercent = totalBorrowed
-        .mul(expandDecimals(1, MIM_DECIMALS))
-        .div(totalMimToBorrow)
-        .mul(100);
+    currentFrame(): number {
+      const { mimLeftToBorrow, totalBorrowed } =
+        this.cauldron!.mainParams.alternativeData;
 
-      const leftToBorrowPercent = utils.formatUnits(
-        expandDecimals(100, MIM_DECIMALS).sub(borrowedPercent)
+      const expandDecimals = parseUnits("1", MIM_DECIMALS);
+      const totalMimToBorrow = mimLeftToBorrow + totalBorrowed;
+
+      const borrowedPercent =
+        ((totalBorrowed * expandDecimals) / totalMimToBorrow) * 100n;
+
+      const leftToBorrowPercent = formatUnits(
+        parseUnits("100", MIM_DECIMALS) - borrowedPercent,
+        MIM_DECIMALS
       );
 
       return (TOTAL_FRAMES / 100) * Number(leftToBorrowPercent);
@@ -60,7 +68,7 @@ export default {
   },
 
   methods: {
-    initAnimation() {
+    initAnimation(): void {
       const { anim }: any = this.$refs;
 
       const player = LottiePlayer.loadAnimation({
