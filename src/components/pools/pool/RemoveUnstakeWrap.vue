@@ -35,14 +35,16 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { defineAsyncComponent } from "vue";
+import type { PropType, Prop } from "vue";
+import type { PoolInfo } from "@/configs/pools/types";
 
 export default {
   props: {
-    pool: { type: Object },
-    slippage: { type: BigInt },
-    deadline: { type: BigInt },
+    pool: { type: Object as PropType<PoolInfo>, required: true },
+    slippage: BigInt as Prop<bigint>,
+    deadline: BigInt as Prop<bigint>,
   },
 
   emits: ["updatePoolInfo"],
@@ -56,17 +58,17 @@ export default {
   },
 
   computed: {
-    isLockContract() {
-      return this.pool.lockContract;
+    isLockContract(): boolean {
+      return !!this.pool.lockContract;
     },
 
-    isUnstake() {
+    isUnstake(): boolean {
       return this.activeTab == "unstake";
     },
   },
 
   methods: {
-    selectTab(action) {
+    selectTab(action: "remove" | "unstake") {
       this.activeTab = action;
     },
 
@@ -80,12 +82,12 @@ export default {
 
     Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
 
-    Remove: defineAsyncComponent(() =>
-      import("@/components/pools/pool/actions/Remove.vue")
+    Remove: defineAsyncComponent(
+      () => import("@/components/pools/pool/actions/Remove.vue")
     ),
 
-    Unstake: defineAsyncComponent(() =>
-      import("@/components/pools/pool/actions/Unstake.vue")
+    Unstake: defineAsyncComponent(
+      () => import("@/components/pools/pool/actions/Unstake.vue")
     ),
   },
 };
