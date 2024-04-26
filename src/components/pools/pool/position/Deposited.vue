@@ -282,7 +282,7 @@ export default {
 
         const hash = await writeContractHelper(request);
 
-        const { result, error }: any = await waitForTransactionReceiptHelper({
+        await waitForTransactionReceiptHelper({
           hash,
         });
 

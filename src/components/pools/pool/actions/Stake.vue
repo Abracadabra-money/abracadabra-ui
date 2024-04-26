@@ -83,6 +83,7 @@ export default {
     }),
 
     isAllowed(): boolean {
+      if (!this.pool.lockInfo) return false;
       return this.pool.lockInfo.allowance >= this.inputAmount;
     },
 
@@ -150,7 +151,7 @@ export default {
       this.inputAmount = 0n;
     },
 
-    getRewardsPerHour: debounce(async function getRewards() {
+    getRewardsPerHour: debounce(async function getRewards(this: any) {
       const deposit =
         Number(formatUnits(this.inputAmount, this.pool.decimals)) *
           this.pool.price || 1000;
@@ -173,7 +174,7 @@ export default {
       try {
         await approveTokenViem(
           this.pool.contract,
-          this.pool.lockContract?.address,
+          this.pool.lockContract.address,
           this.inputAmount
         );
         await this.$emit("updatePoolInfo");
@@ -202,8 +203,8 @@ export default {
 
       try {
         const { request } = await simulateContractHelper({
-          address: this.pool.lockContract?.address,
-          abi: this.pool.lockContract?.abi,
+          address: this.pool.lockContract.address,
+          abi: this.pool.lockContract.abi,
           functionName: "stake",
           args: [this.inputAmount],
         });
@@ -243,8 +244,8 @@ export default {
 
       try {
         const { request } = await simulateContractHelper({
-          address: this.pool.lockContract?.address,
-          abi: this.pool.lockContract?.abi,
+          address: this.pool.lockContract.address,
+          abi: this.pool.lockContract.abi,
           functionName: "stakeLocked",
           args: [this.inputAmount, now + 100],
         });
@@ -293,7 +294,7 @@ export default {
       await this.$emit("updatePoolInfo");
     },
 
-    formatTokenBalance(value, decimals) {
+    formatTokenBalance(value: bigint, decimals: number) {
       return formatTokenBalance(formatUnits(value, decimals));
     },
   },
