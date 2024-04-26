@@ -116,7 +116,11 @@ export default {
       baseInputValue: "",
       quoteInputAmount: 0n,
       quoteInputValue: "",
-      expectedOptimal: { remainingAmountToSwap: 0n, shares: 0n },
+      expectedOptimal: {
+        remainingAmountToSwap: 0n,
+        shares: 0n,
+        remainingAmountToSwapIsBase: true,
+      },
       isExpectedOptimalCalculating: false,
       isActionProcessing: false,
       transActionStatus: ActionStatus.WAITING as
@@ -356,7 +360,8 @@ export default {
 
         await addLiquidityImbalanced(this.pool.swapRouter, payload);
 
-        this.transActionStatus = "success";
+        this.transActionStatus = this.isOneSide ? "waiting" : "success";
+
         await this.$emit("updatePoolInfo");
         await this.deleteNotification(notificationId);
 

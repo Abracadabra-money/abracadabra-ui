@@ -18,26 +18,33 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import {
   writeContractHelper,
   simulateContractHelper,
   waitForTransactionReceiptHelper,
 } from "@/helpers/walletClienHelper";
 import { formatUnits } from "viem";
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, type PropType } from "vue";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import { formatTokenBalance } from "@/helpers/filters";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
+import type { PoolInfo } from "@/configs/pools/types";
 
 export default {
   props: {
-    pool: { type: Object },
-    slippage: { type: BigInt, default: 100n },
-    deadline: { type: BigInt, default: 100n },
+    pool: { type: Object as PropType<PoolInfo>, required: true },
+    slippage: {
+      type: BigInt as unknown as PropType<bigint>,
+      required: true,
+    },
+    deadline: {
+      type: BigInt as unknown as PropType<bigint>,
+      required: true,
+    },
   },
 
   emits: ["updatePoolInfo"],
@@ -56,18 +63,18 @@ export default {
       account: "getAccount",
     }),
 
-    isValid() {
+    isValid(): boolean {
       return !!this.inputAmount;
     },
 
-    error() {
+    error(): string {
       if (this.inputAmount > this.pool.lockInfo?.balances?.unlocked)
         return "Insufficient balance";
 
-      return null;
+      return "";
     },
 
-    buttonText() {
+    buttonText(): string {
       if (!this.isProperNetwork) return "Switch network";
       if (!this.account) return "Connect wallet";
       if (this.error) return this.error;
@@ -78,7 +85,7 @@ export default {
       return "Unstake";
     },
 
-    isButtonDisabled() {
+    isButtonDisabled(): boolean {
       return (
         (!this.isValid || !!this.error || this.isActionProcessing) &&
         this.isProperNetwork &&
@@ -86,14 +93,14 @@ export default {
       );
     },
 
-    isProperNetwork() {
+    isProperNetwork(): boolean {
       return this.chainId == this.pool.chainId;
     },
   },
 
   watch: {
-    inputAmount(value) {
-      if (value == 0) {
+    inputAmount(value: bigint) {
+      if (value == 0n) {
         this.inputValue = "";
         return false;
       }
@@ -106,7 +113,7 @@ export default {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
-    updateValue(value) {
+    updateValue(value: bigint) {
       if (value === null) return (this.inputAmount = 0n);
       this.inputAmount = value;
     },
@@ -131,7 +138,7 @@ export default {
 
         const hash = await writeContractHelper(request);
 
-        const { result, error } = await waitForTransactionReceiptHelper({
+        await waitForTransactionReceiptHelper({
           hash,
         });
 
@@ -170,20 +177,17 @@ export default {
       this.isActionProcessing = false;
     },
 
-    formatTokenBalance(value, decimals) {
+    formatTokenBalance(value: bigint, decimals: number) {
       return formatTokenBalance(formatUnits(value, decimals));
     },
   },
 
   components: {
-    BaseTokenInput: defineAsyncComponent(() =>
-      import("@/components/base/BaseTokenInput.vue")
+    BaseTokenInput: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenInput.vue")
     ),
-    // BaseTokenIcon: defineAsyncComponent(() =>
-    //   import("@/components/base/BaseTokenIcon.vue")
-    // ),
-    BaseButton: defineAsyncComponent(() =>
-      import("@/components/base/BaseButton.vue")
+    BaseButton: defineAsyncComponent(
+      () => import("@/components/base/BaseButton.vue")
     ),
   },
 };
