@@ -18,25 +18,27 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { defineAsyncComponent } from "vue";
+import type { PropType, Prop } from "vue";
+import type { PoolInfo } from "@/configs/pools/types";
 
 export default {
   props: {
-    pool: { type: Object },
-    slippage: { type: BigInt, default: 100n },
-    deadline: { type: BigInt, default: 100n },
+    pool: { type: Object as PropType<PoolInfo>, required: true },
+    slippage: BigInt as Prop<bigint>,
+    deadline: BigInt as Prop<bigint>,
     isBalanced: { type: Boolean },
   },
 
   emits: ["updatePoolInfo"],
 
   components: {
-    Default: defineAsyncComponent(() =>
-      import("@/components/pools/pool/actions/deposit/Default.vue")
+    Default: defineAsyncComponent(
+      () => import("@/components/pools/pool/actions/deposit/Default.vue")
     ),
-    Imbalanced: defineAsyncComponent(() =>
-      import("@/components/pools/pool/actions/deposit/Imbalanced.vue")
+    Imbalanced: defineAsyncComponent(
+      () => import("@/components/pools/pool/actions/deposit/Imbalanced.vue")
     ),
   },
 };
