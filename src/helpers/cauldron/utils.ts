@@ -1,4 +1,5 @@
 import { BigNumber, utils } from "ethers";
+import { formatUnits, parseUnits } from "viem";
 import { expandDecimals } from "../gm/fee/expandDecials";
 import { applySlippageToMinOut } from "../gm/applySlippageToMinOut";
 
@@ -32,6 +33,20 @@ export const getLiquidationPrice = (
     .div(colaterizationRate);
 
   return liquidationPrice;
+};
+
+export const getAlternativeLiquidationPrice = (
+  borrowAmount: bigint,
+  collateralAmount: bigint,
+  mcr: number,
+  collateralDecimals: number
+): bigint => {
+  if (!borrowAmount || !collateralAmount) return 0n;
+
+  const expandDecimals = parseUnits("1", collateralDecimals);
+  return (
+    (borrowAmount * expandDecimals * 100n) / collateralAmount / BigInt(mcr)
+  );
 };
 
 // TODO: add userMaxBorrow check
@@ -159,8 +174,34 @@ export const getPositionHealth = (
   return { percent, status };
 };
 
+export const getAlternativePositionHealth = (
+  liquidationPrice: bigint,
+  oracleExchangeRate: bigint,
+  collateralDecimals: number
+) => {
+  if (!oracleExchangeRate) return { percent: 0n, status: "safe" };
+
+  const expandDecimals = parseUnits("1", 18 + collateralDecimals);
+
+  const collateralPrice = expandDecimals / oracleExchangeRate;
+
+  const percent = (liquidationPrice * 10000n) / collateralPrice;
+
+  const status = getAlternativeHealthStatus(percent);
+
+  return { percent, status };
+};
+
 const getHealthStatus = (riskPercent: BigNumber) => {
   const percent = Number(utils.formatUnits(riskPercent, PERCENT_PRESITION));
+
+  if (percent >= 0 && percent <= 70) return "safe";
+  if (percent > 70 && percent <= 90) return "medium";
+  return "high";
+};
+
+const getAlternativeHealthStatus = (riskPercent: bigint) => {
+  const percent = Number(formatUnits(riskPercent, PERCENT_PRESITION));
 
   if (percent >= 0 && percent <= 70) return "safe";
   if (percent > 70 && percent <= 90) return "medium";

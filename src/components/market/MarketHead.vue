@@ -52,10 +52,11 @@
 </template>
 
 <script lang="ts">
-import { utils } from "ethers";
 import { mapGetters } from "vuex";
+import { formatUnits } from "viem";
 import { defineAsyncComponent } from "vue";
 import { formatLargeSum } from "@/helpers/filters";
+import { BERA_CHAIN_ID } from "@/constants/global";
 import { getTokenLinkData } from "@/helpers/getTokenLinkData";
 import { getChainConfig } from "@/helpers/chains/getChainsInfo";
 
@@ -72,7 +73,7 @@ export default {
     }),
 
     showTestnetChip() {
-      return this.cauldron.config.chainId === 80085;
+      return this.cauldron.config.chainId === BERA_CHAIN_ID;
     },
 
     strategyLink() {
@@ -88,12 +89,14 @@ export default {
 
     totalMimBorrowed() {
       return formatLargeSum(
-        utils.formatUnits(this.cauldron.mainParams.totalBorrowed)
+        formatUnits(this.cauldron.mainParams.alternativeData.totalBorrowed, 18)
       );
     },
 
     totalValueLocked() {
-      return formatLargeSum(utils.formatUnits(this.cauldron.mainParams.tvl));
+      return formatLargeSum(
+        formatUnits(this.cauldron.mainParams.alternativeData.tvl, 18)
+      );
     },
 
     cauldronScanUrl() {
