@@ -68,6 +68,8 @@ export default {
     },
 
     error(): string {
+      if (!this.pool.lockInfo) return "Can not unstake";
+
       if (this.inputAmount > this.pool.lockInfo?.balances?.unlocked)
         return "Insufficient balance";
 
@@ -129,6 +131,9 @@ export default {
       );
 
       try {
+        if (!this.pool || !this.pool.lockContract)
+          throw new Error("Current pool doesnt have lock contract");
+
         const { request } = await simulateContractHelper({
           address: this.pool.lockContract.address,
           abi: this.pool.lockContract.abi,

@@ -244,7 +244,11 @@ export default {
       this.quoteInputAmount = 0n;
       this.baseInputValue = "";
       this.quoteInputValue = "";
-      this.expectedOptimal = { remainingAmountToSwap: 0n, shares: 0n };
+      this.expectedOptimal = {
+        remainingAmountToSwap: 0n,
+        shares: 0n,
+        remainingAmountToSwapIsBase: true,
+      };
     },
 
     closePreviewPopup() {
