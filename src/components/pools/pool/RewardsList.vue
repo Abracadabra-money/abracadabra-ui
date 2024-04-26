@@ -32,21 +32,26 @@
   </ul>
 </template>
 
-<script>
+<script lang="ts">
 import { defineAsyncComponent } from "vue";
+import type { PropType } from "vue";
 import { formatUnits } from "viem";
 import { formatTokenBalance } from "@/helpers/filters";
 import { useImage } from "@/helpers/useImage";
+import type { RewardsPerHour } from "@/helpers/pools/getRewardsPerHour";
+import type { RewardItemInfo } from "@/components/pools/pool/position/PoolPosition.vue";
+
+type StakeRewardItemInfo = RewardItemInfo & { tooltip: string };
 
 export default {
   props: {
-    rewards: { type: Object },
+    rewards: { type: Object as PropType<RewardsPerHour> },
     inputAmount: { default: 0n },
     isRewardsCalculating: { type: Boolean },
   },
 
   computed: {
-    rewardsList() {
+    rewardsList(): StakeRewardItemInfo[] {
       return [
         {
           title: "Points",
@@ -74,17 +79,17 @@ export default {
   },
 
   methods: {
-    formatTokenBalance(value, decimals) {
+    formatTokenBalance(value: bigint, decimals: number) {
       return formatTokenBalance(formatUnits(value, decimals));
     },
   },
 
   components: {
-    Tooltip: defineAsyncComponent(() =>
-      import("@/components/ui/icons/Tooltip.vue")
+    Tooltip: defineAsyncComponent(
+      () => import("@/components/ui/icons/Tooltip.vue")
     ),
-    RowSkeleton: defineAsyncComponent(() =>
-      import("@/components/ui/skeletons/RowSkeleton.vue")
+    RowSkeleton: defineAsyncComponent(
+      () => import("@/components/ui/skeletons/RowSkeleton.vue")
     ),
   },
 };
