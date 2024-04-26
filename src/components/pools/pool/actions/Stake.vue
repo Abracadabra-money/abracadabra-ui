@@ -172,6 +172,9 @@ export default {
       );
 
       try {
+        if (!this.pool || !this.pool.lockContract)
+          throw new Error("Current pool doesnt have lock contract");
+
         await approveTokenViem(
           this.pool.contract,
           this.pool.lockContract.address,
@@ -202,6 +205,9 @@ export default {
       );
 
       try {
+        if (!this.pool || !this.pool.lockContract)
+          throw new Error("Current pool doesnt have lock contract");
+
         const { request } = await simulateContractHelper({
           address: this.pool.lockContract.address,
           abi: this.pool.lockContract.abi,
@@ -243,6 +249,9 @@ export default {
       );
 
       try {
+        if (!this.pool || !this.pool.lockContract)
+          throw new Error("Current pool doesnt have lock contract");
+
         const { request } = await simulateContractHelper({
           address: this.pool.lockContract.address,
           abi: this.pool.lockContract.abi,
