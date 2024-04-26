@@ -74,9 +74,10 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import moment from "moment";
 import { defineAsyncComponent } from "vue";
+import type { PropType, Prop } from "vue";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { formatUnits, parseUnits } from "viem";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
@@ -88,13 +89,19 @@ import { addLiquidity } from "@/helpers/pools/swap/actions/addLiquidity";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
-import { ActionStatus } from "@/components/pools/pool/PoolActionBlock.vue";
+import {
+  ActionStatus,
+  type FormattedLpTokenExpected,
+} from "@/components/pools/pool/PoolActionBlock.vue";
+import type { PoolInfo } from "@/configs/pools/types";
+import type { TokenInfo } from "@/helpers/pools/swap/tokens";
+import type { PreviewPopupInfo } from "@/components/pools/pool/actions/deposit/Deposit.vue";
 
 export default {
   props: {
-    pool: { type: Object },
-    slippage: { type: BigInt, default: 100n },
-    deadline: { type: BigInt, default: 100n },
+    pool: { type: Object as PropType<PoolInfo>, required: true },
+    slippage: BigInt as Prop<bigint>,
+    deadline: BigInt as Prop<bigint>,
   },
 
   emits: ["updatePoolInfo"],
@@ -117,10 +124,10 @@ export default {
       account: "getAccount",
     }),
 
-    baseToken() {
+    baseToken(): TokenInfo {
       return this.pool.tokens.baseToken;
     },
-    quoteToken() {
+    quoteToken(): TokenInfo {
       return this.pool.tokens.quoteToken;
     },
 
@@ -139,7 +146,7 @@ export default {
       return previewAddLiquidityResult;
     },
 
-    previewPopupInfo() {
+    previewPopupInfo(): PreviewPopupInfo {
       return {
         lpAmount: this.previewAddLiquidityResult.shares,
         baseTokenAmount: this.previewAddLiquidityResult.baseAdjustedInAmount,
@@ -147,7 +154,7 @@ export default {
       };
     },
 
-    formattedLpTokenExpected() {
+    formattedLpTokenExpected(): FormattedLpTokenExpected {
       if (!this.previewAddLiquidityResult)
         return { value: "0.0", usd: "$ 0.0" };
 
@@ -163,21 +170,21 @@ export default {
       };
     },
 
-    isValid() {
+    isValid(): boolean {
       return !!this.baseInputAmount && !!this.quoteInputAmount;
     },
 
-    error() {
+    error(): string {
       if (this.baseInputAmount > this.baseToken.userInfo?.balance)
         return `Insufficient ${this.baseToken.config.name} balance`;
 
       if (this.quoteInputAmount > this.quoteToken.userInfo?.balance)
         return `Insufficient ${this.quoteToken.config.name} balance`;
 
-      return null;
+      return "";
     },
 
-    buttonText() {
+    buttonText(): string {
       if (!this.isProperNetwork) return "Switch network";
       if (!this.account) return "Connect wallet";
       if (this.error) return this.error;
@@ -189,7 +196,7 @@ export default {
       return "Deposit";
     },
 
-    isButtonDisabled() {
+    isButtonDisabled(): boolean {
       return (
         (!this.isValid || !!this.error || this.isActionProcessing) &&
         this.isProperNetwork &&
@@ -197,7 +204,7 @@ export default {
       );
     },
 
-    isProperNetwork() {
+    isProperNetwork(): boolean {
       return this.chainId == this.pool.chainId;
     },
   },
@@ -221,7 +228,11 @@ export default {
       this.transActionStatus = ActionStatus.WAITING;
     },
 
-    updateTokenInputs(adjustmendResults) {
+    updateTokenInputs(adjustmendResults: {
+      baseAdjustedInAmount: bigint;
+      quoteAdjustedInAmount: bigint;
+      shares: bigint;
+    }) {
       this.baseInputAmount = adjustmendResults.baseAdjustedInAmount;
       this.quoteInputAmount = adjustmendResults.quoteAdjustedInAmount;
       this.quoteInputValue = trimZeroDecimals(
@@ -238,7 +249,7 @@ export default {
       );
     },
 
-    updateValue(value, fromBase = false) {
+    updateValue(value: bigint, fromBase = false) {
       if (value === null) {
         this.clearData();
         return false;
@@ -272,7 +283,7 @@ export default {
       };
     },
 
-    async approveHandler(token, valueToApprove) {
+    async approveHandler(token: TokenInfo, valueToApprove: bigint) {
       this.isActionProcessing = true;
       const notificationId = await this.createNotification(
         notification.approvePending
@@ -310,10 +321,9 @@ export default {
 
       try {
         const payload = this.createDepositPayload();
-        const { error, result } = await addLiquidity(
-          this.pool?.swapRouter,
-          payload
-        );
+
+        await addLiquidity(this.pool?.swapRouter, payload);
+
         this.transActionStatus = "success";
         await this.$emit("updatePoolInfo");
         await this.deleteNotification(notificationId);
@@ -346,12 +356,12 @@ export default {
       this.isPreviewPopupOpened = true;
     },
 
-    formatTokenBalance(value, decimals) {
+    formatTokenBalance(value: bigint, decimals: number) {
       return formatTokenBalance(formatUnits(value, decimals));
     },
 
     calculateAdjustmentAmounts(
-      fromTokenAmount,
+      fromTokenAmount: bigint,
       currentToTokenAmount = 0n,
       fromBase = false
     ) {
@@ -423,20 +433,21 @@ export default {
   },
 
   components: {
-    BaseTokenInput: defineAsyncComponent(() =>
-      import("@/components/base/BaseTokenInput.vue")
+    BaseTokenInput: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenInput.vue")
     ),
-    BaseTokenIcon: defineAsyncComponent(() =>
-      import("@/components/base/BaseTokenIcon.vue")
+    BaseTokenIcon: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenIcon.vue")
     ),
-    BaseButton: defineAsyncComponent(() =>
-      import("@/components/base/BaseButton.vue")
+    BaseButton: defineAsyncComponent(
+      () => import("@/components/base/BaseButton.vue")
     ),
-    IconButton: defineAsyncComponent(() =>
-      import("@/components/ui/buttons/IconButton.vue")
+    IconButton: defineAsyncComponent(
+      () => import("@/components/ui/buttons/IconButton.vue")
     ),
-    PreviewAddLiquidityPopup: defineAsyncComponent(() =>
-      import("@/components/pools/pool/popups/PreviewAddLiquidityPopup.vue")
+    PreviewAddLiquidityPopup: defineAsyncComponent(
+      () =>
+        import("@/components/pools/pool/popups/PreviewAddLiquidityPopup.vue")
     ),
     // CurrentPrice: defineAsyncComponent(() =>
     //   import("@/components/pools/CurrentPrice.vue")

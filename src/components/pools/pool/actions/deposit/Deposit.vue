@@ -23,6 +23,12 @@ import { defineAsyncComponent } from "vue";
 import type { PropType, Prop } from "vue";
 import type { PoolInfo } from "@/configs/pools/types";
 
+export type PreviewPopupInfo = {
+  lpAmount: bigint;
+  baseTokenAmount: bigint;
+  quoteTokenAmount: bigint;
+};
+
 export default {
   props: {
     pool: { type: Object as PropType<PoolInfo>, required: true },

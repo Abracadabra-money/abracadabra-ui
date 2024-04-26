@@ -58,6 +58,8 @@ import { defineAsyncComponent, type PropType } from "vue";
 import type { PoolInfo } from "@/configs/pools/types";
 import type { PointsStatistics } from "@/helpers/blast/stake/points";
 
+export type FormattedLpTokenExpected = { value: string | number; usd: string };
+
 export enum ActionStatus {
   SUCCESS = "success",
   PENDING = "pending",
