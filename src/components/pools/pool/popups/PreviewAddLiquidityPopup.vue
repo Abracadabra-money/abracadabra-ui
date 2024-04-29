@@ -123,7 +123,7 @@ import { formatTokenBalance } from "@/helpers/filters";
 import { ActionStatus } from "@/components/pools/pool/PoolActionBlock.vue";
 import type { PreviewPopupInfo } from "@/components/pools/pool/actions/deposit/Deposit.vue";
 import type { PoolInfo } from "@/configs/pools/types";
-import { TokenInfo } from "@/helpers/pools/swap/tokens";
+import type { TokenInfo } from "@/helpers/pools/swap/tokens";
 
 type PreviewTokenInfo = TokenInfo & {
   isApproved: boolean;
