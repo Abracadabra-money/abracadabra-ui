@@ -116,21 +116,20 @@
   </div>
 </template>
 
-<script>
-import { defineAsyncComponent } from "vue";
+<script lang="ts">
+import { defineAsyncComponent, type PropType } from "vue";
 import { formatUnits } from "viem";
 import { formatTokenBalance } from "@/helpers/filters";
 import { ActionStatus } from "@/components/pools/pool/PoolActionBlock.vue";
+import type { PreviewPopupInfo } from "@/components/pools/pool/actions/deposit/Deposit.vue";
+import type { PoolInfo } from "@/configs/pools/types";
+import { TokenInfo } from "@/helpers/pools/swap/tokens";
 
 export default {
   props: {
-    pool: {
-      type: Object,
-    },
+    pool: { type: Object as PropType<PoolInfo>, required: true },
 
-    previewInfo: {
-      type: Object,
-    },
+    previewInfo: { type: Object as PropType<PreviewPopupInfo>, required: true },
 
     isActionProcessing: {
       type: Boolean,
@@ -150,21 +149,23 @@ export default {
   },
 
   computed: {
-    isBaseTokenApproved() {
+    isBaseTokenApproved(): boolean {
+      if (!this.pool.tokens.baseToken.userInfo) return false;
       return (
         this.pool.tokens.baseToken.userInfo.allowance >=
         this.previewInfo.baseTokenAmount
       );
     },
 
-    isQuoteTokenApproved() {
+    isQuoteTokenApproved(): boolean {
+      if (!this.pool.tokens.quoteToken.userInfo) return false;
       return (
         this.pool.tokens.quoteToken.userInfo.allowance >=
         this.previewInfo.quoteTokenAmount
       );
     },
 
-    tokensSortedByApprove() {
+    tokensSortedByApprove(): TokenInfo[] {
       const baseToken = this.pool.tokens.baseToken;
       const quoteToken = this.pool.tokens.quoteToken;
 
@@ -179,7 +180,7 @@ export default {
       );
     },
 
-    buttonText() {
+    buttonText(): string {
       if (this.transActionStatus == ActionStatus.SUCCESS) return "Close popup";
       if (this.isActionProcessing) return "Processing...";
       if (!this.isBaseTokenApproved)
@@ -191,7 +192,7 @@ export default {
   },
 
   methods: {
-    getApprovingStatus(token) {
+    getApprovingStatus(token: TokenInfo & { isApproved: boolean }): string {
       if (
         token.config.name == this.currentlyApprovingToken &&
         this.isActionProcessing
@@ -203,12 +204,8 @@ export default {
       return ActionStatus.WAITING;
     },
 
-    formatTokenBalance(value) {
+    formatTokenBalance(value: bigint) {
       return formatTokenBalance(formatUnits(value, 18));
-    },
-
-    formatAmount(value) {
-      return formatTokenBalance(value);
     },
 
     actionHandler() {
@@ -245,17 +242,17 @@ export default {
   },
 
   components: {
-    BaseButton: defineAsyncComponent(() =>
-      import("@/components/base/BaseButton.vue")
+    BaseButton: defineAsyncComponent(
+      () => import("@/components/base/BaseButton.vue")
     ),
-    BaseTokenIcon: defineAsyncComponent(() =>
-      import("@/components/base/BaseTokenIcon.vue")
+    BaseTokenIcon: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenIcon.vue")
     ),
-    IconButton: defineAsyncComponent(() =>
-      import("@/components/ui/buttons/IconButton.vue")
+    IconButton: defineAsyncComponent(
+      () => import("@/components/ui/buttons/IconButton.vue")
     ),
-    FlowBlock: defineAsyncComponent(() =>
-      import("@/components/pools/pool/FlowBlock.vue")
+    FlowBlock: defineAsyncComponent(
+      () => import("@/components/pools/pool/FlowBlock.vue")
     ),
   },
 };
