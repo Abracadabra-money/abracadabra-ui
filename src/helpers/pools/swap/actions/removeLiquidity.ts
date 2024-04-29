@@ -12,7 +12,7 @@ export type RemoveLiquidityPayload = {
   sharesIn: bigint;
   minimumBaseAmount: bigint;
   minimumQuoteAmount: bigint;
-  deadline: bigint;
+  deadline: bigint | number;
 };
 
 export const removeLiquidity = async (

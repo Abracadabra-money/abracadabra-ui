@@ -52,15 +52,30 @@
   </div>
 </template>
 
-<script>
-import { defineAsyncComponent } from "vue";
+<script lang="ts">
+import { defineAsyncComponent, type PropType } from "vue";
 import { formatUnits } from "viem";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
+import { type PoolInfo } from "@/configs/pools/types";
+import { type PreviewRemoveLiquidityResult } from "@/components/pools/pool/actions/Remove.vue";
+
+type FormattedTokenExpected = {
+  value: string | number;
+  usd: string;
+};
+
+type FormattedTokenExpecteds = {
+  base: FormattedTokenExpected;
+  quote: FormattedTokenExpected;
+};
 
 export default {
   props: {
-    pool: { type: Object },
-    previewRemoveLiquidityResult: { type: Object },
+    pool: { type: Object as PropType<PoolInfo>, required: true },
+    previewRemoveLiquidityResult: {
+      type: Object as PropType<PreviewRemoveLiquidityResult>,
+      required: true,
+    },
     isBase: { type: Boolean },
     isSingleSide: { type: Boolean },
   },
@@ -76,7 +91,7 @@ export default {
   },
 
   computed: {
-    formattedTokenExpecteds() {
+    formattedTokenExpecteds(): FormattedTokenExpecteds {
       if (!this.previewRemoveLiquidityResult)
         return {
           base: { value: "0.0", usd: "$ 0.0" },
@@ -115,17 +130,17 @@ export default {
   },
 
   methods: {
-    formatTokenBalance(value, decimals) {
+    formatTokenBalance(value: bigint, decimals: number) {
       return formatTokenBalance(formatUnits(value, decimals));
     },
   },
 
   components: {
-    BaseTokenIcon: defineAsyncComponent(() =>
-      import("@/components/base/BaseTokenIcon.vue")
+    BaseTokenIcon: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenIcon.vue")
     ),
-    RadioButton: defineAsyncComponent(() =>
-      import("@/components/ui/buttons/RadioButton.vue")
+    RadioButton: defineAsyncComponent(
+      () => import("@/components/ui/buttons/RadioButton.vue")
     ),
   },
 };

@@ -12,7 +12,7 @@ export type RemoveLiquidityOneSidePayload = {
   withdrawBase: boolean;
   sharesIn: bigint;
   minAmountOut: bigint;
-  deadline: bigint;
+  deadline: bigint | number;
 };
 
 export const removeLiquidityOneSide = async (

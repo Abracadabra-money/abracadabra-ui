@@ -26,11 +26,11 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import moment from "moment";
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, type PropType } from "vue";
 import { mapActions, mapGetters, mapMutations } from "vuex";
-import { formatUnits } from "viem";
+import { formatUnits, type Address } from "viem";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification";
 import { approveTokenViem } from "@/helpers/approval";
@@ -40,16 +40,34 @@ import {
   previewRemoveLiquidityOneSide,
 } from "@/helpers/pools/swap/liquidity";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
-import { removeLiquidity } from "@/helpers/pools/swap/actions/removeLiquidity";
-import { removeLiquidityOneSide } from "@/helpers/pools/swap/actions/removeLiquidityOneSide";
+import {
+  removeLiquidity,
+  type RemoveLiquidityPayload,
+} from "@/helpers/pools/swap/actions/removeLiquidity";
+import {
+  removeLiquidityOneSide,
+  type RemoveLiquidityOneSidePayload,
+} from "@/helpers/pools/swap/actions/removeLiquidityOneSide";
 import { formatTokenBalance } from "@/helpers/filters";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import type { PoolInfo } from "@/configs/pools/types";
+
+export type PreviewRemoveLiquidityResult = {
+  baseAmountOut: bigint;
+  quoteAmountOut: bigint;
+};
 
 export default {
   props: {
-    pool: { type: Object },
-    slippage: { type: BigInt, default: 100n },
-    deadline: { type: BigInt, default: 100n },
+    pool: { type: Object as PropType<PoolInfo>, required: true },
+    slippage: {
+      type: BigInt as unknown as PropType<bigint>,
+      required: true,
+    },
+    deadline: {
+      type: BigInt as unknown as PropType<bigint>,
+      required: true,
+    },
     isSingleSide: { type: Boolean },
   },
 
@@ -71,10 +89,11 @@ export default {
     }),
 
     isAllowed() {
+      if (!this.pool || !this.pool.userInfo) return false;
       return this.pool.userInfo.allowance >= this.inputAmount;
     },
 
-    previewRemoveLiquidityResult() {
+    previewRemoveLiquidityResult(): PreviewRemoveLiquidityResult {
       const previewRemoveLiquidityResult = this.isSingleSide
         ? previewRemoveLiquidityOneSide(this.inputAmount, this.pool)
         : previewRemoveLiquidity(this.inputAmount, this.pool);
@@ -92,18 +111,18 @@ export default {
       return previewRemoveLiquidityResult;
     },
 
-    isValid() {
+    isValid(): boolean {
       return !!this.inputAmount;
     },
 
-    error() {
-      if (this.inputAmount > this.pool.userInfo.balance)
+    error(): string {
+      if (this.inputAmount > this.pool.userInfo?.balance)
         return "Insufficient balance";
 
-      return null;
+      return "";
     },
 
-    buttonText() {
+    buttonText(): string {
       if (!this.isProperNetwork) return "Switch network";
       if (!this.account) return "Connect wallet";
       if (this.error) return this.error;
@@ -115,7 +134,7 @@ export default {
       return "Remove";
     },
 
-    isButtonDisabled() {
+    isButtonDisabled(): boolean {
       return (
         (!this.isValid || !!this.error || this.isActionProcessing) &&
         this.isProperNetwork &&
@@ -123,14 +142,14 @@ export default {
       );
     },
 
-    isProperNetwork() {
+    isProperNetwork(): boolean {
       return this.chainId == this.pool.chainId;
     },
   },
 
   watch: {
-    inputAmount(value) {
-      if (value == 0) {
+    inputAmount(value: bigint) {
+      if (value == 0n) {
         this.inputValue = "";
         return false;
       }
@@ -143,7 +162,7 @@ export default {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
-    updateValue(value) {
+    updateValue(value: bigint | null) {
       if (value === null) return (this.inputAmount = 0n);
       this.inputAmount = value;
     },
@@ -153,11 +172,11 @@ export default {
       this.inputAmount = 0n;
     },
 
-    chooseToken(isBase) {
+    chooseToken(isBase: boolean) {
       this.isBase = isBase;
     },
 
-    createRemovePayload() {
+    createRemovePayload(): RemoveLiquidityPayload {
       const { baseAmountOut, quoteAmountOut } =
         this.previewRemoveLiquidityResult;
 
@@ -173,7 +192,7 @@ export default {
       };
     },
 
-    createRemoveOneSidePayload() {
+    createRemoveOneSidePayload(): RemoveLiquidityOneSidePayload {
       const { baseAmountOut, quoteAmountOut } =
         this.previewRemoveLiquidityResult;
 
@@ -231,10 +250,7 @@ export default {
       try {
         const payload = this.createRemovePayload();
 
-        const { error, result } = await removeLiquidity(
-          this.pool.swapRouter,
-          payload
-        );
+        await removeLiquidity(this.pool.swapRouter, payload);
 
         await this.$emit("updatePoolInfo");
 
@@ -265,10 +281,7 @@ export default {
       try {
         const payload = this.createRemoveOneSidePayload();
 
-        const { error, result } = await removeLiquidityOneSide(
-          this.pool.swapRouter,
-          payload
-        );
+        await removeLiquidityOneSide(this.pool.swapRouter, payload);
 
         await this.$emit("updatePoolInfo");
 
@@ -308,23 +321,20 @@ export default {
       await this.$emit("updatePoolInfo");
     },
 
-    formatTokenBalance(value, decimals) {
+    formatTokenBalance(value: bigint, decimals: number) {
       return formatTokenBalance(formatUnits(value, decimals));
     },
   },
 
   components: {
-    BaseTokenInput: defineAsyncComponent(() =>
-      import("@/components/base/BaseTokenInput.vue")
+    BaseTokenInput: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenInput.vue")
     ),
-    BaseTokenIcon: defineAsyncComponent(() =>
-      import("@/components/base/BaseTokenIcon.vue")
+    BaseButton: defineAsyncComponent(
+      () => import("@/components/base/BaseButton.vue")
     ),
-    BaseButton: defineAsyncComponent(() =>
-      import("@/components/base/BaseButton.vue")
-    ),
-    PreviewRemove: defineAsyncComponent(() =>
-      import("@/components/pools/pool/PreviewRemove.vue")
+    PreviewRemove: defineAsyncComponent(
+      () => import("@/components/pools/pool/PreviewRemove.vue")
     ),
   },
 };
