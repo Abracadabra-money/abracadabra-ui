@@ -23,7 +23,7 @@
           <div class="token-value">
             {{
               formatTokenBalance(
-                tokensSortedByApprove[0].transactionAmount,
+                tokensSortedByApprove[0].transactionAmount || 0n,
                 tokensSortedByApprove[0].config.decimals
               )
             }}
@@ -53,7 +53,7 @@
           <div class="token-value">
             {{
               formatTokenBalance(
-                tokensSortedByApprove[1].transactionAmount,
+                tokensSortedByApprove[1].transactionAmount || 0n,
                 tokensSortedByApprove[1].config.decimals
               )
             }}
