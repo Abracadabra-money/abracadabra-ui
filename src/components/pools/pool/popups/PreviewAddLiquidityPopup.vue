@@ -86,7 +86,7 @@
         <FlowBlock
           :stepNumber="1"
           isApprove
-          :status="getApprovingStatus(this.tokensSortedByApprove[0])"
+          :status="getApprovingStatus(tokensSortedByApprove[0])"
         >
           Allowance
         </FlowBlock>
@@ -94,7 +94,7 @@
         <FlowBlock
           :stepNumber="2"
           isApprove
-          :status="getApprovingStatus(this.tokensSortedByApprove[1])"
+          :status="getApprovingStatus(tokensSortedByApprove[1])"
         >
           Allowance
         </FlowBlock>
@@ -124,6 +124,11 @@ import { ActionStatus } from "@/components/pools/pool/PoolActionBlock.vue";
 import type { PreviewPopupInfo } from "@/components/pools/pool/actions/deposit/Deposit.vue";
 import type { PoolInfo } from "@/configs/pools/types";
 import { TokenInfo } from "@/helpers/pools/swap/tokens";
+
+type PreviewTokenInfo = TokenInfo & {
+  isApproved: boolean;
+  transactionAmount: bigint;
+};
 
 export default {
   props: {
@@ -165,7 +170,7 @@ export default {
       );
     },
 
-    tokensSortedByApprove(): TokenInfo[] {
+    tokensSortedByApprove(): PreviewTokenInfo[] {
       const baseToken = this.pool.tokens.baseToken;
       const quoteToken = this.pool.tokens.quoteToken;
 
@@ -192,7 +197,7 @@ export default {
   },
 
   methods: {
-    getApprovingStatus(token: TokenInfo & { isApproved: boolean }): string {
+    getApprovingStatus(token: PreviewTokenInfo): string {
       if (
         token.config.name == this.currentlyApprovingToken &&
         this.isActionProcessing
