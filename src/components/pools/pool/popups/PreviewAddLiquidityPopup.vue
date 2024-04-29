@@ -126,8 +126,8 @@ import type { PoolInfo } from "@/configs/pools/types";
 import type { TokenInfo } from "@/helpers/pools/swap/tokens";
 
 type PreviewTokenInfo = TokenInfo & {
-  isApproved: boolean;
-  transactionAmount: bigint;
+  isApproved?: boolean;
+  transactionAmount?: bigint;
 };
 
 export default {
@@ -171,8 +171,8 @@ export default {
     },
 
     tokensSortedByApprove(): PreviewTokenInfo[] {
-      const baseToken = this.pool.tokens.baseToken;
-      const quoteToken = this.pool.tokens.quoteToken;
+      const baseToken: PreviewTokenInfo = this.pool.tokens.baseToken;
+      const quoteToken: PreviewTokenInfo = this.pool.tokens.quoteToken;
 
       baseToken.transactionAmount = this.previewInfo.baseTokenAmount;
       baseToken.isApproved = this.isBaseTokenApproved;
@@ -181,7 +181,7 @@ export default {
       quoteToken.isApproved = this.isQuoteTokenApproved;
 
       return [baseToken, quoteToken].sort(
-        (a, b) => b.isApproved - a.isApproved
+        (a, b) => Number(b.isApproved) - Number(a.isApproved)
       );
     },
 
@@ -209,8 +209,8 @@ export default {
       return ActionStatus.WAITING;
     },
 
-    formatTokenBalance(value: bigint) {
-      return formatTokenBalance(formatUnits(value, 18));
+    formatTokenBalance(value: bigint, decimals: number) {
+      return formatTokenBalance(formatUnits(value, decimals));
     },
 
     actionHandler() {
