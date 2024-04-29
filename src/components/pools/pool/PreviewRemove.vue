@@ -8,11 +8,11 @@
           v-if="isSingleSide"
         />
         <BaseTokenIcon
-          :name="this.pool.tokens.baseToken.config.name"
-          :icon="this.pool.tokens.baseToken.config.icon"
+          :name="pool.tokens.baseToken.config.name"
+          :icon="pool.tokens.baseToken.config.icon"
           size="32px"
         />
-        {{ this.pool.tokens.baseToken.config.name }}
+        {{ pool.tokens.baseToken.config.name }}
       </span>
 
       <div class="token-amount">
@@ -33,11 +33,11 @@
           v-if="isSingleSide"
         />
         <BaseTokenIcon
-          :name="this.pool.tokens.quoteToken.config.name"
-          :icon="this.pool.tokens.quoteToken.config.icon"
+          :name="pool.tokens.quoteToken.config.name"
+          :icon="pool.tokens.quoteToken.config.icon"
           size="32px"
         />
-        {{ this.pool.tokens.quoteToken.config.name }}
+        {{ pool.tokens.quoteToken.config.name }}
       </span>
 
       <div class="token-amount">
@@ -56,8 +56,8 @@
 import { defineAsyncComponent, type PropType } from "vue";
 import { formatUnits } from "viem";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
-import { type PoolInfo } from "@/configs/pools/types";
-import { type PreviewRemoveLiquidityResult } from "@/components/pools/pool/actions/Remove.vue";
+import type { PoolInfo } from "@/configs/pools/types";
+import type { PreviewRemoveLiquidityResult } from "@/components/pools/pool/actions/Remove.vue";
 
 type FormattedTokenExpected = {
   value: string | number;
