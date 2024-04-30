@@ -15,6 +15,17 @@ export type UserPositions = {
   borrowInfo: UserBorrowInfo;
   oracleRate: BigNumber;
   liquidationPrice: String | number;
+  alternativeData: {
+    collateralInfo: {
+      userCollateralShare: bigint;
+      userCollateralAmount: bigint;
+    };
+    borrowInfo: {
+      userBorrowPart: bigint;
+      userBorrowAmount: bigint;
+    };
+    oracleRate: bigint;
+  };
 };
 
 export type MainParams = {
@@ -28,6 +39,15 @@ export type MainParams = {
   totalBorrowed: BigNumber;
   tvl: BigNumber;
   userMaxBorrow: BigNumber;
+  alternativeData: {
+    collateralPrice: bigint;
+    mimLeftToBorrow: bigint;
+    maximumCollateralRatio: bigint;
+    oracleExchangeRate: bigint;
+    totalBorrowed: bigint;
+    tvl: bigint;
+    userMaxBorrow: bigint;
+  };
 };
 
 export type UserTokensInfo = {
