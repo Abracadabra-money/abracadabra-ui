@@ -11,6 +11,7 @@
         :isUserPositionOpen="isUserPositionOpen"
         @getPoolInfo="getPoolInfo"
         @openPositionPopup="isMyPositionPopupOpened = true"
+        v-if="pointsStatistics"
       />
 
       <PoolComposition :pool="pool" />
@@ -23,7 +24,7 @@
         :isMyPositionPopupOpened="isMyPositionPopupOpened"
         @closePopup="isMyPositionPopupOpened = false"
         @updateInfo="getPoolInfo"
-        v-if="isUserPositionOpen"
+        v-if="isUserPositionOpen && pointsStatistics"
       />
     </div>
   </div>
@@ -50,10 +51,10 @@ export default {
   data() {
     return {
       pool: null as PoolInfo | null,
-      pointsStatistics: {
-        user: null as PointsStatistics | null,
-        global: null as PointsStatistics | null,
-      },
+      pointsStatistics: null as {
+        user: PointsStatistics;
+        global: PointsStatistics;
+      } | null,
       isMyPositionPopupOpened: false,
       poolsTimer: null as unknown as NodeJS.Timeout,
       chartOption: null as any,

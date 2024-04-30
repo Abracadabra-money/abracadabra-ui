@@ -20,7 +20,7 @@
 
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
-import type { PropType, Prop } from "vue";
+import type { PropType } from "vue";
 import type { PoolInfo } from "@/configs/pools/types";
 
 export type PreviewPopupInfo = {
@@ -32,8 +32,14 @@ export type PreviewPopupInfo = {
 export default {
   props: {
     pool: { type: Object as PropType<PoolInfo>, required: true },
-    slippage: BigInt as Prop<bigint>,
-    deadline: BigInt as Prop<bigint>,
+    slippage: {
+      type: BigInt as unknown as PropType<bigint>,
+      required: true,
+    },
+    deadline: {
+      type: BigInt as unknown as PropType<bigint>,
+      required: true,
+    },
     isBalanced: { type: Boolean },
   },
 
