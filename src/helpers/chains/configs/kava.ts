@@ -5,6 +5,7 @@ import { initPublicClient } from "@/helpers/chains/initPublicClient";
 import { initStaticJsonRpcProvider } from "@/helpers/chains/initStaticJsonRpcProvider";
 
 const rpcList = filterRpcUrls(kava, [
+  "https://evm.kava-rpc.com",
   "https://kava-evm.publicnode.com",
   "https://evm.kava.io",
   "https://rpc.ankr.com/kava_evm",

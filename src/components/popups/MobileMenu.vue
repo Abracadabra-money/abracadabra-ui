@@ -160,6 +160,7 @@ export default {
 .chain-icon {
   height: 32px;
   width: 32px;
+  border-radius: 50px;
   cursor: pointer;
 }
 
