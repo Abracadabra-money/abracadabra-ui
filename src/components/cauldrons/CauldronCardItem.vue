@@ -1,7 +1,7 @@
 <template>
   <router-link
     :class="['cauldron-table-link', cauldronLabel, { open: isOpenPosition }]"
-    :to="goToPage(cauldron)"
+    :to="goToMarket(cauldron)"
   >
     <div class="label">{{ cauldronLabel }}</div>
 
@@ -26,20 +26,26 @@
     <div class="row">
       <div>
         <h3 class="title">TVL</h3>
-        <div class="value">${{ formatLargeSum(cauldron.mainParams.tvl) }}</div>
+        <div class="value">
+          ${{ formatLargeSum(cauldron.mainParams.alternativeData.tvl) }}
+        </div>
       </div>
 
       <div>
         <h3 class="title">TMB</h3>
         <div class="value">
-          {{ formatLargeSum(cauldron.mainParams.totalBorrowed) }}
+          {{
+            formatLargeSum(cauldron.mainParams.alternativeData.totalBorrowed)
+          }}
         </div>
       </div>
 
       <div>
         <h3 class="title">MIMS LB</h3>
         <div class="value">
-          {{ formatLargeSum(cauldron.mainParams.mimLeftToBorrow) }}
+          {{
+            formatLargeSum(cauldron.mainParams.alternativeData.mimLeftToBorrow)
+          }}
         </div>
       </div>
 
@@ -52,67 +58,61 @@
 </template>
 
 <script lang="ts">
-import { utils } from "ethers";
+import { formatUnits } from "viem";
+import { BERA_CHAIN_ID } from "@/constants/global";
+import type { RouterLinkParams } from "@/types/global";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 import { formatToFixed, formatLargeSum } from "@/helpers/filters";
+import type { CauldronListItem } from "@/helpers/cauldron/lists/getMarketList";
+
+enum CauldronLabel {
+  empty = "",
+  new = "new",
+  testnet = "testnet",
+  deprecated = "deprecated",
+}
 
 export default {
   props: {
     cauldron: {
-      type: Object,
+      type: Object as () => CauldronListItem,
       required: true,
     },
   },
 
-  data() {
-    return {
-      collateralApy: "-",
-    };
-  },
-
   computed: {
-    isOpenPosition() {
-      return (
-        this.cauldron.userPosition.collateralInfo.userCollateralShare.gt(0) ||
-        this.cauldron.userPosition.borrowInfo.userBorrowPart.gt(0)
-      );
+    isOpenPosition(): boolean {
+      const { collateralInfo, borrowInfo } =
+        this.cauldron.userPosition.alternativeData;
+      return !!(collateralInfo.userCollateralShare + borrowInfo.userBorrowPart);
     },
 
-    cauldronLabel() {
-      if (this.cauldron.config.chainId === 80085) return "testnet";
-      if (this.cauldron.config.cauldronSettings?.isNew) return "new";
-      if (this.cauldron.config.cauldronSettings?.isDepreciated)
-        return "deprecated";
-      return "";
+    cauldronLabel(): CauldronLabel {
+      const { chainId, cauldronSettings } = this.cauldron.config;
+      if (chainId === BERA_CHAIN_ID) return CauldronLabel.testnet;
+      if (cauldronSettings?.isNew) return CauldronLabel.new;
+      if (cauldronSettings?.isDepreciated) return CauldronLabel.deprecated;
+      return CauldronLabel.empty;
     },
 
-    loopApr() {
-      if (this.cauldron.apr.value) {
-        return `${this.cauldron.apr.value}% - ${formatToFixed(
-          this.cauldron.apr.value * this.cauldron.apr.multiplier,
-          2
-        )}%`;
-      }
-      return "-";
+    loopApr(): string {
+      if (!this.cauldron.apr.value) return "-";
+
+      const { value, multiplier } = this.cauldron.apr;
+      return `${value}% - ${formatToFixed(value * multiplier, 2)}%`;
     },
   },
 
   methods: {
-    goToPage(cauldron: any) {
-      const { chainId, id } = cauldron.config;
-      return {
-        name: "Market",
-        params: { chainId, cauldronId: id },
-      };
-    },
-
     getChainIcon,
-    formatUnits(value: string) {
-      return utils.formatUnits(value);
+
+    goToMarket(cauldron: CauldronListItem): RouterLinkParams {
+      const { chainId, id } = cauldron.config;
+      return { name: "Market", params: { chainId, cauldronId: id } };
     },
 
-    formatLargeSum(value: string) {
-      return formatLargeSum(utils.formatUnits(value));
+    formatLargeSum(value: bigint, decimals = 18): string {
+      return formatLargeSum(formatUnits(value, decimals));
     },
   },
 };
@@ -172,7 +172,7 @@ export default {
 
   .label {
     display: block;
-    background: linear-gradient(0deg, #AF6900 100%, #e9984d 100%);
+    background: linear-gradient(0deg, #af6900 100%, #e9984d 100%);
   }
 }
 

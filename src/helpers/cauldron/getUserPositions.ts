@@ -23,6 +23,17 @@ const emptyPosition = {
     userBorrowPart: BigNumber.from("0"),
   },
   liquidationPrice: "0",
+  alternativeData: {
+    collateralInfo: {
+      userCollateralShare: 0n,
+      userCollateralAmount: 0n,
+    },
+    borrowInfo: {
+      userBorrowPart: 0n,
+      userBorrowAmount: 0n,
+    },
+    oracleRate: 0n,
+  },
 };
 
 export const getUserPositions = async (
@@ -144,6 +155,20 @@ export const getUserPositions = async (
       collateralDepositedUsd,
       mimBorrowed,
       hasActiveGmOrder: collaterallInOrder.activeOrder,
+      alternativeData: {
+        collateralInfo: {
+          userCollateralShare:
+            userCollateralShare + collaterallInOrder.alternativeData.share,
+          userCollateralAmount:
+            userPosition.collateral.amount +
+            collaterallInOrders[index].alternativeData.amount,
+        },
+        borrowInfo: {
+          userBorrowPart,
+          userBorrowAmount: userPosition.borrowValue,
+        },
+        oracleRate: oracleExchangeRate,
+      },
     };
   });
 };
@@ -159,6 +184,10 @@ const getOrdersCollateralBalance = async (
       return {
         share: BigNumber.from(0),
         amount: BigNumber.from(0),
+        alternativeData: {
+          amount: 0n,
+          share: 0n,
+        },
       };
     });
   }
@@ -217,6 +246,10 @@ const getOrdersCollateralBalance = async (
         : BigNumber.from(response?.result),
       share: BigNumber.from(collaterallInShare[index].result),
       activeOrder,
+      alternativeData: {
+        amount: response?.error ? 0n : response?.result,
+        share: collaterallInShare[index]?.result || 0n,
+      },
     };
   });
 };

@@ -257,16 +257,16 @@ export default {
         const b = this.getSortKey(cauldronB, key);
 
         const factor = sortOrder === "down" ? -1 : 1;
-        if (key === "Interest" || key === "APR")
-          return a < b ? factor : -factor;
-        return a.lt(b) ? factor : -factor;
+        return a < b ? factor : -factor;
       });
     },
 
     getSortKey(cauldron, key) {
-      if (key === "TVL") return cauldron.mainParams.tvl;
-      if (key === "TMB") return cauldron.mainParams.totalBorrowed;
-      if (key === "MIMS LB") return cauldron.mainParams.mimLeftToBorrow;
+      if (key === "TVL") return cauldron.mainParams.alternativeData.tvl;
+      if (key === "TMB")
+        return cauldron.mainParams.alternativeData.totalBorrowed;
+      if (key === "MIMS LB")
+        return cauldron.mainParams.alternativeData.mimLeftToBorrow;
       if (key === "Interest") return cauldron.mainParams.interest;
       if (key === "APR") return +cauldron.apr.value;
     },
