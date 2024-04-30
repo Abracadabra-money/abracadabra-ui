@@ -4,12 +4,13 @@ import cauldronsConfig from "@/configs/cauldrons";
 import { getMainParams } from "@/helpers/cauldron/getMainParams";
 import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
 import { getUserPositions } from "@/helpers/cauldron/getUserPositions";
+import type { MainParams, UserPositions } from "@/helpers/cauldron/types";
 
-type CauldronListItem = {
-  apr: object;
-  config: object;
-  mainParams: object;
-  userPosition: object;
+export type CauldronListItem = {
+  apr: { value: number; multiplier: number };
+  config: CauldronConfig;
+  mainParams: MainParams;
+  userPosition: UserPositions;
   additionalInfo: object;
 };
 
