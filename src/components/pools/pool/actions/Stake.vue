@@ -26,7 +26,7 @@
 
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
-import type { PropType, Prop } from "vue";
+import type { PropType } from "vue";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { formatUnits } from "viem";
 import moment from "moment";
@@ -57,8 +57,14 @@ export default {
       }>,
       required: true,
     },
-    slippage: BigInt as Prop<bigint>,
-    deadline: BigInt as Prop<bigint>,
+    slippage: {
+      type: BigInt as unknown as PropType<bigint>,
+      required: true,
+    },
+    deadline: {
+      type: BigInt as unknown as PropType<bigint>,
+      required: true,
+    },
     isLock: { type: Boolean },
   },
 

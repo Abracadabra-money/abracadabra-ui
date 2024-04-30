@@ -46,7 +46,7 @@
 
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
-import type { PropType, Prop } from "vue";
+import type { PropType} from "vue";
 import moment from "moment";
 import type { PoolInfo } from "@/configs/pools/types";
 import type { PointsStatistics } from "@/helpers/blast/stake/points";
@@ -61,8 +61,14 @@ export default {
       }>,
       required: true,
     },
-    slippage: BigInt as Prop<bigint>,
-    deadline: BigInt as Prop<bigint>,
+    slippage: {
+      type: BigInt as unknown as PropType<bigint>,
+      required: true,
+    },
+    deadline: {
+      type: BigInt as unknown as PropType<bigint>,
+      required: true,
+    },
   },
 
   emits: ["updatePoolInfo"],
