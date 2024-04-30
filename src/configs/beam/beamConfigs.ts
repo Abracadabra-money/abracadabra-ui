@@ -1,22 +1,23 @@
 import abi from "@/abis/beam/";
-
-export type BeamConfig = {
-  chainId: number;
-  chainName: string;
-  contract: {
-    address: string;
-    abi: any;
-  };
-  defaultValue: any;
-};
+import type { Address } from "viem";
+import type { BeamConfig } from "@/helpers/beam/types";
+import { getChainIcon } from "@/helpers/chains/getChainIcon";
 
 const config: Array<BeamConfig> = [
   {
     chainId: 1,
+    icon: getChainIcon(1),
     chainName: "Ethereum",
     contract: {
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
       abi: abi.OFTWrapper,
+    },
+    outboundProofType: 2,
+    relayer: "0x902F09715B6303d4173037652FA7377e5b98089E",
+    settings: {
+      contractVersion: 2,
+      disabledDestinationChains: [],
+      lzChainId: 101,
     },
     defaultValue: {
       10: "0.000000587209028",
@@ -33,10 +34,18 @@ const config: Array<BeamConfig> = [
   },
   {
     chainId: 42161,
+    icon: getChainIcon(42161),
     chainName: "Arbitrum",
     contract: {
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
       abi: abi.OFTWrapper,
+    },
+    outboundProofType: 2,
+    relayer: "0x177d36dBE2271A4DdB2Ad8304d82628eb921d790",
+    settings: {
+      contractVersion: 2,
+      disabledDestinationChains: [],
+      lzChainId: 110,
     },
     defaultValue: {
       1: "0.008858578698816767",
@@ -54,10 +63,18 @@ const config: Array<BeamConfig> = [
   },
   {
     chainId: 2222,
+    icon: getChainIcon(2222),
     chainName: "KAVA",
     contract: {
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
       abi: abi.OFTWrapper,
+    },
+    outboundProofType: 2,
+    relayer: "0xcb566e3B6934Fa77258d68ea18E931fa75e1aaAa",
+    settings: {
+      contractVersion: 2,
+      disabledDestinationChains: [81457],
+      lzChainId: 177,
     },
     defaultValue: {
       1: "0.009609676187498731",
@@ -75,10 +92,18 @@ const config: Array<BeamConfig> = [
   },
   {
     chainId: 43114,
+    icon: getChainIcon(43114),
     chainName: "Avalanche",
     contract: {
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
       abi: abi.OFTWrapper,
+    },
+    outboundProofType: 2,
+    relayer: "0xCD2E3622d483C7Dc855F72e5eafAdCD577ac78B4",
+    settings: {
+      contractVersion: 2,
+      disabledDestinationChains: [],
+      lzChainId: 106,
     },
     defaultValue: {
       1: "0.006523560791554295",
@@ -96,10 +121,18 @@ const config: Array<BeamConfig> = [
   },
   {
     chainId: 10,
+    icon: getChainIcon(10),
     chainName: "Optimism",
     contract: {
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
       abi: abi.OFTWrapper,
+    },
+    outboundProofType: 2,
+    relayer: "0x81E792e5a9003CC1C8BF5569A00f34b65d75b017",
+    settings: {
+      contractVersion: 2,
+      disabledDestinationChains: [],
+      lzChainId: 111,
     },
     defaultValue: {
       1: "0.119489304809683491",
@@ -117,10 +150,18 @@ const config: Array<BeamConfig> = [
   },
   {
     chainId: 250,
+    icon: getChainIcon(250),
     chainName: "Fantom",
     contract: {
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
       abi: abi.OFTWrapper,
+    },
+    outboundProofType: 2,
+    relayer: "0x52EEA5c490fB89c7A0084B32FEAB854eefF07c82",
+    settings: {
+      contractVersion: 2,
+      disabledDestinationChains: [],
+      lzChainId: 112,
     },
     defaultValue: {
       1: "0.009609676187498731",
@@ -138,10 +179,18 @@ const config: Array<BeamConfig> = [
   },
   {
     chainId: 56,
+    icon: getChainIcon(56),
     chainName: "BNB Chain",
     contract: {
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
       abi: abi.OFTWrapper,
+    },
+    outboundProofType: 2,
+    relayer: "0xA27A2cA24DD28Ce14Fb5f5844b59851F03DCf182",
+    settings: {
+      contractVersion: 2,
+      disabledDestinationChains: [],
+      lzChainId: 102,
     },
     defaultValue: {
       1: "0.105235446281148448",
@@ -157,13 +206,20 @@ const config: Array<BeamConfig> = [
       81457: "0.000918881105354775",
     },
   },
-
   {
     chainId: 137,
+    icon: getChainIcon(137),
     chainName: "Polygon",
     contract: {
       address: "0xE1261E47b08a22Df93af46889EE504C2Aa6DfD4c",
       abi: abi.OFTWrapper,
+    },
+    outboundProofType: 2,
+    relayer: "0x75dC8e5F50C8221a82CA6aF64aF811caA983B65f",
+    settings: {
+      contractVersion: 2,
+      disabledDestinationChains: [],
+      lzChainId: 109,
     },
     defaultValue: {
       1: "0.009214665824547975",
@@ -179,13 +235,20 @@ const config: Array<BeamConfig> = [
       81457: "0.000514784975414775",
     },
   },
-
   {
     chainId: 1285,
+    icon: getChainIcon(1285),
     chainName: "Moonriver",
     contract: {
       address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
       abi: abi.OFTWrapper,
+    },
+    outboundProofType: 2,
+    relayer: "0xe9AE261D3aFf7d3fCCF38Fa2d612DD3897e07B2d",
+    settings: {
+      contractVersion: 2,
+      disabledDestinationChains: [],
+      lzChainId: 167,
     },
     defaultValue: {
       1: "0.009609676187498731",
@@ -201,13 +264,20 @@ const config: Array<BeamConfig> = [
       81457: "0.000278362471171267",
     },
   },
-
   {
     chainId: 8453,
+    icon: getChainIcon(8453),
     chainName: "BASE",
     contract: {
       address: "0x4035957323FC05AD9704230E3dc1E7663091d262",
       abi: abi.LzIndirectOFTV2,
+    },
+    outboundProofType: 2,
+    relayer: "0xcb566e3B6934Fa77258d68ea18E931fa75e1aaAa",
+    settings: {
+      contractVersion: 1,
+      disabledDestinationChains: [],
+      lzChainId: 184,
     },
     defaultValue: {
       1: "0.008858578698816767",
@@ -225,10 +295,18 @@ const config: Array<BeamConfig> = [
   },
   {
     chainId: 59144,
+    icon: getChainIcon(59144),
     chainName: "Linea",
     contract: {
       address: "0x60bbeFE16DC584f9AF10138Da1dfbB4CDf25A097",
       abi: abi.LzIndirectOFTV2,
+    },
+    outboundProofType: 2,
+    relayer: "0xA658742d33ebd2ce2F0bdFf73515Aa797Fd161D9",
+    settings: {
+      contractVersion: 1,
+      disabledDestinationChains: [],
+      lzChainId: 183,
     },
     defaultValue: {
       1: "0.008858578698816767",
@@ -246,10 +324,18 @@ const config: Array<BeamConfig> = [
   },
   {
     chainId: 81457,
+    icon: getChainIcon(81457),
     chainName: "Blast",
     contract: {
       address: "0xcA8A205a579e06Cb1bE137EA3A5E5698C091f018",
       abi: abi.LzIndirectOFTV2,
+    },
+    outboundProofType: 2,
+    relayer: "0xA658742d33ebd2ce2F0bdFf73515Aa797Fd161D9",
+    settings: {
+      contractVersion: 1,
+      disabledDestinationChains: [2222],
+      lzChainId: 243,
     },
     defaultValue: {
       1: "0.008858578698816767",
