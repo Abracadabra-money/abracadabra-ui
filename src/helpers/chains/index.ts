@@ -11,7 +11,6 @@ import {
   RPC_KAVA,
   PRC_LINEA,
   RPC_BERRA_ARTIO,
-  RPC_BLAST_SEPOLIA,
   RPC_BLAST,
 } from "@/constants/rpc";
 
@@ -29,7 +28,6 @@ export const defaultRpc = {
   59144: PRC_LINEA,
   80085: RPC_BERRA_ARTIO,
   81457: RPC_BLAST,
-  168587773: RPC_BLAST_SEPOLIA,
 };
 
 export const getRpcByChainId = (chainId: number): string =>

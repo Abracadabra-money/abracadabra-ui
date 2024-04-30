@@ -66,22 +66,6 @@
         <p class="link-description">Stake APE</p>
       </router-link>
 
-      <router-link class="list-link" :to="{ name: 'magicLVL' }">
-        <div class="link-title">
-          <span class="stake-token">
-            <img class="link-icon" src="@/assets/images/stake/tokens/LVL.png" />
-            LVL
-          </span>
-          <span class="apr" v-if="lvlApr"
-            >APR: {{ formatPercent(lvlApr) }}</span
-          >
-          <div class="loader-wrap" v-else>
-            <BaseLoader type="loader" />
-          </div>
-        </div>
-        <p class="link-description">Stake LVL</p>
-      </router-link>
-
       <router-link class="list-link" :to="{ name: 'magicKLP' }">
         <div class="link-title">
           <span class="stake-token">
@@ -114,7 +98,6 @@ import BaseLoader from "@/components/base/BaseLoader.vue";
 import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
 import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
 import { getSpellStakingApr } from "@/helpers/stake/spell/getSpellStakingApr";
-import { getMagicLvlStatistics } from "@/helpers/stake/magicLvl/subgraph/getMagicLvlStatistics";
 
 export default {
   data() {
@@ -122,7 +105,6 @@ export default {
       spellApr: null,
       glpApr: null,
       apeApr: null,
-      lvlApr: null,
       klpApr: null,
       showDropdownList: false,
     };
@@ -149,11 +131,6 @@ export default {
       this.apeApr = await getMagicApeApy(MAINNET_CHAIN_ID);
     },
 
-    async getLvlApr() {
-      const lvlAprs = await getMagicLvlStatistics();
-      this.lvlApr = lvlAprs.seniorApy;
-    },
-
     async getKlpApr() {
       const { data } = await axios.get(`${ANALYTICS_URK}/kinetix/info`);
       this.klpApr = data.apr;
@@ -169,10 +146,9 @@ export default {
   },
 
   async created() {
-    await this.getSpellApr();
-    await this.getGlpApr();
-    await this.getApeApr();
-    await this.getLvlApr();
+    this.getSpellApr();
+    this.getGlpApr();
+    this.getApeApr();
     // await this.getKlpApr();
   },
 

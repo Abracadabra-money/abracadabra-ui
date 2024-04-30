@@ -18,15 +18,18 @@
 import ExplorerLink from "@/components/beam/successPopup/ExplorerLink.vue";
 export default {
   props: {
-    config: {
+    successData: {
       type: Object,
       required: true,
+    },
+    lzTxInfo: {
+      type: Object,
     },
   },
 
   computed: {
     isTxComplete() {
-      return !this.config?.txInfo || this.config?.txInfo?.status === "INFLIGHT"
+      return !this.lzTxInfo || this.lzTxInfo?.status === "INFLIGHT"
         ? false
         : true;
     },
@@ -36,8 +39,8 @@ export default {
     },
 
     layerZeroLink() {
-      if (!this.config.tx) return false;
-      return `https://layerzeroscan.com/tx/${this.config.tx.hash}`;
+      if (!this.successData.txHash) return false;
+      return `https://layerzeroscan.com/tx/${this.successData.txHash}`;
     },
   },
 

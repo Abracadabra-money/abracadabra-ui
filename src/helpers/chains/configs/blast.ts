@@ -14,11 +14,11 @@ const rpcList = [
 const viemConfig = {
   blockExplorers: {
     etherscan: {
-      name: "Blast Sepolia Explorer",
+      name: "Blast Explorer",
       url: "https://81457.routescan.io/",
     },
     default: {
-      name: "Blast Sepolia Explorer",
+      name: "Blast Explorer",
       url: "https://81457.routescan.io/",
     },
   },

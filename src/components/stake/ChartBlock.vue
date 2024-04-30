@@ -54,18 +54,13 @@ export default {
 
   computed: {
     ...mapGetters({
-      magicLvlStakeData: "getMagicLvlStakeData",
       magicGlpStakeData: "getMagicGlpStakeData",
       magicApeStakeData: "getMagicApeStakeData",
     }),
   },
 
   methods: {
-    ...mapMutations([
-      "setMagicLvlChartData",
-      "setMagicGlpChartData",
-      "setMagicApeChartData",
-    ]),
+    ...mapMutations(["setMagicGlpChartData", "setMagicApeChartData"]),
 
     async onUpdateTimeFrame(period: number) {
       await this.updateChart(this.chartActive, period);
@@ -118,9 +113,6 @@ export default {
 
     checkLocalData(type: string) {
       switch (type) {
-        case "magicLvlApy":
-          this.chartData = this.magicLvlStakeData.chartData;
-          break;
         case "Yield" || "TVL" || "Price":
           this.chartData = this.magicApeStakeData.chartData;
           break;
@@ -129,9 +121,6 @@ export default {
 
     saveChartDataToStote(type: string, data: any) {
       switch (type) {
-        case "magicLvlApy":
-          this.setMagicLvlChartData(data);
-          break;
         case "Yield" || "TVL" || "Price":
           this.setMagicApeChartData(data);
           break;
