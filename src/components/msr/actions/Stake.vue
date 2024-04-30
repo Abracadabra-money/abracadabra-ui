@@ -27,33 +27,37 @@
       >{{ actionValidationData.btnText }}
     </BaseButton>
 
-    <div class="decorative-layer back">
-      <div class="decorative-layer middle">
-        <div class="lock-promo">
-          <div class="staking-info">
-            <div class="currently-staked">
-              <div class="title">You Currently Staking</div>
-              <div class="token-amount">
-                <BaseTokenIcon
-                  :icon="mimSavingRateInfo.stakingToken.icon"
-                  name="MIM"
-                  size="32px"
-                />
-                {{ formatAmount(mimSavingRateInfo.userInfo.balances.unlocked) }}
-              </div>
-            </div>
+    <div class="lock-promo">
+      <div class="promo-title">
+        <h4 class="promo-message">Lock your MIM</h4>
 
-            <p class="promo-text">Lock your MIM and Boost your APR to 150%</p>
-          </div>
-
-          <BaseButton
-            primary
-            :disabled="lockValidationData.isDisabled"
-            @click="lockActionHandler"
-          >
-            {{ lockValidationData.btnText }}
-          </BaseButton>
+        <div class="apr-wrap">
+          <span class="apr-message">Boost your APR</span>
+          <span class="apr-value">150%</span>
         </div>
+      </div>
+
+      <div class="staking-wrap">
+        <div class="currently-staked">
+          <div class="title">You Currently Staking</div>
+          <div class="token-amount">
+            <BaseTokenIcon
+              :icon="mimSavingRateInfo.stakingToken.icon"
+              name="MIM"
+              size="32px"
+            />
+            {{ formatAmount(mimSavingRateInfo.userInfo.balances.unlocked) }}
+          </div>
+        </div>
+
+        <BaseButton
+          class="lock-action-button"
+          primary
+          :disabled="lockValidationData.isDisabled"
+          @click="lockActionHandler"
+        >
+          {{ lockValidationData.btnText }}
+        </BaseButton>
       </div>
     </div>
   </div>
@@ -302,30 +306,20 @@ export default {
 }
 
 .lock-promo {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 32px;
-  padding: 24px;
-  border-radius: 0px 0px 20px 20px;
+  gap: 20px;
+  margin-top: auto;
+  padding: 20px 20px 48px 20px;
+  border-radius: 16px;
   border: 1px solid rgba(180, 180, 180, 0.08);
   background: linear-gradient(
     90deg,
-    rgba(45, 74, 150, 0.22) 0%,
-    rgba(116, 92, 210, 0.22) 100%
+    rgba(45, 74, 150, 0.34) 0%,
+    rgba(116, 92, 210, 0.34) 100%
   );
-  box-shadow: 0px 4px 33px 0px rgba(0, 0, 0, 0.06);
-  font-weight: 500;
-}
-
-.staking-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  box-shadow: 0px 4px 29.8px 0px rgba(0, 0, 0, 0.42) inset;
+  backdrop-filter: blur(50px);
 }
 
 .currently-staked,
@@ -333,15 +327,59 @@ export default {
   width: 50%;
 }
 
+.promo-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.promo-message {
+  color: #fff;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.apr-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.apr-message {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.apr-value {
+  color: #fff;
+  text-shadow: 0px 0px 16px #ab5de8;
+  font-size: 29px;
+  font-weight: 600;
+}
+
+.staking-wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .currently-staked {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
   font-size: 18px;
+  width: 175px;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .token-amount {
   display: flex;
+  justify-content: center;
   align-items: center;
   font-size: 28px;
 }
@@ -352,24 +390,8 @@ export default {
   font-size: 16px;
 }
 
-.decorative-layer {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: 0px 0px 20px 20px;
-  background: linear-gradient(
-    90deg,
-    rgba(45, 74, 150, 0.22) 0%,
-    rgba(116, 92, 210, 0.22) 100%
-  );
-}
-
-.middle {
-  height: 236px;
-}
-
-.back {
-  height: 264px;
+.lock-action-button {
+  margin-top: auto;
+  width: auto !important;
 }
 </style>

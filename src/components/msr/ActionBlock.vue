@@ -5,7 +5,9 @@
         :selectedNetwork="42161"
         :availableNetworks="[42161]"
       />
-      <span class="apr">APR: 101.82%</span>
+      <span class="apr"
+        ><Tooltip tooltip="APR" :width="20" :height="20" /> APR: 101.82%</span
+      >
     </div>
 
     <div class="actions-wrapper">
@@ -53,6 +55,9 @@ export default {
     AvailableNetworksBlock: defineAsyncComponent(() =>
       import("@/components/stake/AvailableNetworksBlock.vue")
     ),
+    Tooltip: defineAsyncComponent(() =>
+      import("@/components/ui/icons/Tooltip.vue")
+    ),
   },
 };
 </script>
@@ -65,7 +70,7 @@ export default {
   display: flex;
   flex-direction: column;
   height: 762px;
-  max-width: 533px;
+  max-width: 557px;
   width: 100%;
   padding: 24px;
 
@@ -85,6 +90,16 @@ export default {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 40px;
+}
+
+.apr {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #fff;
+  text-shadow: 0px 0px 16px #ab5de8;
+  font-size: 16px;
+  font-weight: 600;
 }
 
 .actions-wrapper {

@@ -23,12 +23,22 @@
         </div>
       </div>
 
-      <CarouselNavigation
-        :mimSavingRateInfo="mimSavingRateInfo"
-        @next="next"
-        @prev="prev"
-        v-if="isCarouselMode"
-      />
+      <template v-if="isCarouselMode">
+        <TotalInfo :mimSavingRateInfo="mimSavingRateInfo" />
+
+        <div class="arrows">
+          <img
+            class="arrow left"
+            src="@/assets/images/arrow.svg"
+            @click="prev"
+          />
+          <img
+            class="arrow right"
+            src="@/assets/images/arrow.svg"
+            @click="next"
+          />
+        </div>
+      </template>
     </div>
 
     <ActionBlock
@@ -142,8 +152,8 @@ export default {
     ActionBlock: defineAsyncComponent(() =>
       import("@/components/msr/ActionBlock.vue")
     ),
-    CarouselNavigation: defineAsyncComponent(() =>
-      import("@/components/msr/CarouselNavigation.vue")
+    TotalInfo: defineAsyncComponent(() =>
+      import("@/components/msr/TotalInfo.vue")
     ),
   },
 };
@@ -215,6 +225,30 @@ export default {
 }
 
 .carousel-item.inactive {
+  opacity: 0;
+}
+
+.arrows {
+  position: absolute;
+  display: flex;
+  gap: 580px;
+}
+
+.arrow {
+  cursor: pointer;
+  width: 52px;
+  transition: opacity 0.3s ease-in;
+}
+
+.arrow:hover {
   opacity: 0.5;
+}
+
+.arrow.left {
+  transform: rotate(90deg);
+}
+
+.arrow.right {
+  transform: rotate(270deg);
 }
 </style>

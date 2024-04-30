@@ -1,5 +1,5 @@
 <template>
-  <div class="arrows-total-info">
+  <div class="total-info-wrap">
     <div class="total-info">
       <div class="tag" v-if="account">
         <span class="title">Total deposited:</span>
@@ -10,11 +10,6 @@
         <span class="title">APR:</span>
         <span class="value">60%</span>
       </div>
-    </div>
-
-    <div class="arrows">
-      <button @click="$emit('prev')" class="arrow left">&lt;</button>
-      <button @click="$emit('next')" class="arrow right">&gt;</button>
     </div>
   </div>
 </template>
@@ -48,7 +43,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.arrows-total-info {
+.total-info-wrap {
   position: absolute;
   bottom: 98.67px;
   display: flex;
