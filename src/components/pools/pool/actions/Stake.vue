@@ -30,6 +30,7 @@ import type { PropType, Prop } from "vue";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { formatUnits } from "viem";
 import moment from "moment";
+// @ts-ignore
 import debounce from "lodash.debounce";
 import {
   writeContractHelper,

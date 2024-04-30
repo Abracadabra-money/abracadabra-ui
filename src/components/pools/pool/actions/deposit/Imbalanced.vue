@@ -72,7 +72,9 @@
 
 <script lang="ts">
 import moment from "moment";
+// @ts-ignore
 import debounce from "lodash.debounce";
+
 import { defineAsyncComponent } from "vue";
 import type { PropType } from "vue";
 import { mapActions, mapGetters, mapMutations } from "vuex";
