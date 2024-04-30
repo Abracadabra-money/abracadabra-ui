@@ -51,10 +51,8 @@ export default {
   data() {
     return {
       pool: null as PoolInfo | null,
-      pointsStatistics: null as {
-        user: PointsStatistics;
-        global: PointsStatistics;
-      } | null,
+      globalPointsStatistics: null as PointsStatistics | null,
+      userPointsStatistics: null as PointsStatistics | null,
       isMyPositionPopupOpened: false,
       poolsTimer: null as unknown as NodeJS.Timeout,
       chartOption: null as any,
@@ -82,6 +80,18 @@ export default {
       }
 
       return isLpBalance || isLocked || isUnlocked;
+    },
+
+    pointsStatistics(): {
+      user: PointsStatistics;
+      global: PointsStatistics;
+    } | null {
+      if (this.userPointsStatistics && this.globalPointsStatistics)
+        return {
+          user: this.userPointsStatistics,
+          global: this.globalPointsStatistics,
+        };
+      return null;
     },
   },
 
@@ -112,7 +122,7 @@ export default {
     },
 
     async getPointsStatistics() {
-      [this.pointsStatistics.global, this.pointsStatistics.user] =
+      [this.globalPointsStatistics, this.userPointsStatistics] =
         await Promise.all([
           fetchPointsStatistics(),
           fetchUserPointsStatistics(this.account),
