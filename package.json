@@ -22,6 +22,7 @@
     "@notifi-network/notifi-react-card": "0.89.1-alpha.1",
     "@rollup/plugin-alias": "^4.0.3",
     "@toruslabs/torus-embed": "^1.41.1",
+    "@types/lodash.debounce": "^4.0.9",
     "@uniswap/sdk": "^3.0.3",
     "@uniswap/sdk-core": "^3.2.2",
     "@uniswap/v3-sdk": "^3.9.0",
