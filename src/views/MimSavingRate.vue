@@ -24,7 +24,7 @@
 import { defineAsyncComponent } from "vue";
 import { mapGetters } from "vuex";
 import { getMimSavingRateInfo } from "@/helpers/mimSavingRate/getMimSavingRateInfo";
-import { ARBITRUM_CHAIN_ID } from "@/constants/global.ts";
+import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 import { useImage } from "@/helpers/useImage";
 
 export type MSRAction = {
