@@ -1,19 +1,19 @@
 <template>
   <li class="user-lock">
-    <span class="locked-token">
-      Locked
-      <div class="token-amount">
-        <BaseTokenIcon :icon="mimIcon" name="MIM" size="24px" />
-        {{ locked }}
-      </div>
-    </span>
+    <div class="token-amount">
+      <BaseTokenIcon :icon="mimIcon" name="MIM" size="24px" />
+      {{ locked }}
+    </div>
 
-    <span class="locked-time">{{ unlockTime }}</span>
+    <div class="timer-wrap">
+      <Timer class="timer" :endDateTimestamp="1714660482" small medium />
+      <p class="timer-description">Unlocks in</p>
+    </div>
   </li>
 </template>
 
 <script>
-import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
+import { defineAsyncComponent } from "vue";
 import mimIcon from "@/assets/images/tokens/MIM.png";
 import { formatTokenBalance } from "@/helpers/filters";
 import { formatTimestampToUnix } from "@/helpers/time/index";
@@ -43,7 +43,14 @@ export default {
     },
   },
 
-  components: { BaseTokenIcon },
+  components: {
+    BaseTokenIcon: defineAsyncComponent(() =>
+      import("@/components/base/BaseTokenIcon.vue")
+    ),
+    Timer: defineAsyncComponent(() =>
+      import("@/components/stake/earnPoints/Timer.vue")
+    ),
+  },
 };
 </script>
 
@@ -75,5 +82,27 @@ export default {
 
 .locked-token {
   gap: 12px;
+}
+
+.timer-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-left: auto;
+}
+
+.timer-description {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.timer {
+  gap: 4px !important;
+}
+
+.timer::v-deep(.time-block) {
+  background: rgba(0, 10, 35, 0.3) !important;
+  height: 26px !important;
 }
 </style>

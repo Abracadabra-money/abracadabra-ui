@@ -1,28 +1,30 @@
 <template>
   <div class="lock-info">
     <p class="total-locked">
-      Total Locked:
-      <span class="token-amount">{{ totalLocked }}</span>
+      Locked Balance
+      <span class="token-amount">
+        <BaseTokenIcon :icon="mimIcon" name="MIM" size="24px" />
+        {{ totalLocked }}</span
+      >
+    </p>
+
+    <p class="description">
+      Locked funds will be automatically converted to Staking status upon timer
+      completion
     </p>
 
     <div class="empty-wrap" v-if="account">
-      <div class="user-lock-wrap" v-if="userLocks.length > 0">
-        <p class="description">
-          Your MIM will bla bla bla and when lock time is ended > your MIM will
-          migrate to Staked MIM where you can Unstake it
-        </p>
-
-        <ul class="user-locks">
-          <UserLock
-            v-for="(userLock, index) in userLocks"
-            :userLock="{
-              ...userLock,
-              decimals: mimSavingRateInfo.stakingToken.decimals,
-            }"
-            :key="index"
-          />
-        </ul>
-      </div>
+      <ul class="user-locks" v-if="true">
+        <UserLock
+          v-for="(userLock, index) in 10"
+          :userLock="{
+            amount: 100n,
+            unlockTime: 1714660482,
+            decimals: mimSavingRateInfo.stakingToken.decimals,
+          }"
+          :key="index"
+        />
+      </ul>
 
       <BaseSearchEmpty class="search-empty" v-else />
     </div>
@@ -32,16 +34,21 @@
 </template>
 
 <script>
+import { defineAsyncComponent } from "vue";
 import { mapGetters } from "vuex";
-import UserLock from "@/components/msr/UserLock.vue";
-import BaseSearchEmpty from "@/components/base/BaseSearchEmpty.vue";
-import ConnectWalletBlock from "@/components/myPositions/ConnectWalletBlock.vue";
 import { formatTokenBalance } from "@/helpers/filters";
 import { formatUnits } from "viem";
+import mimIcon from "@/assets/images/tokens/MIM.png";
 
 export default {
   props: {
     mimSavingRateInfo: { type: Object },
+  },
+
+  data() {
+    return {
+      mimIcon,
+    };
   },
 
   computed: {
@@ -49,12 +56,12 @@ export default {
 
     totalLocked() {
       return this.account
-        ? `${this.formatTokenBalance(
+        ? this.formatTokenBalance(
             formatUnits(
               this.mimSavingRateInfo.userInfo.balances.locked,
               this.mimSavingRateInfo.stakingToken.decimals
             )
-          )} MIM`
+          )
         : "-";
     },
 
@@ -67,7 +74,20 @@ export default {
     formatTokenBalance,
   },
 
-  components: { UserLock, BaseSearchEmpty, ConnectWalletBlock },
+  components: {
+    UserLock: defineAsyncComponent(() =>
+      import("@/components/msr/UserLock.vue")
+    ),
+    BaseTokenIcon: defineAsyncComponent(() =>
+      import("@/components/base/BaseTokenIcon.vue")
+    ),
+    BaseSearchEmpty: defineAsyncComponent(() =>
+      import("@/components/base/BaseSearchEmpty.vue")
+    ),
+    ConnectWalletBlock: defineAsyncComponent(() =>
+      import("@/components/myPositions/ConnectWalletBlock.vue")
+    ),
+  },
 };
 </script>
 
@@ -77,9 +97,34 @@ export default {
 .lock-info {
   display: flex;
   flex-direction: column;
+  gap: 8px;
   margin-top: auto;
-  gap: 16px;
+}
+
+.total-locked {
+  display: flex;
+  justify-content: space-between;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.token-amount {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.token-icon {
+  margin-right: 0 !important;
+}
+
+.empty-wrap {
+  display: flex;
   padding: 12px 16px 12px 12px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  align-self: stretch;
   border-radius: 10px;
   border: 1px solid rgba(180, 180, 180, 0.08);
   background: linear-gradient(
@@ -93,13 +138,6 @@ export default {
 .description {
   font-size: 14px;
   font-weight: 400;
-}
-
-.total-locked {
-  display: flex;
-  justify-content: space-between;
-  font-size: 16px;
-  font-weight: 500;
 }
 
 .user-lock-wrap {
@@ -122,7 +160,7 @@ export default {
 .search-empty,
 .connect-wallet {
   margin: auto;
-  max-height: 188px;
-  max-width: 231px;
+  max-height: 131px;
+  max-width: 163px;
 }
 </style>

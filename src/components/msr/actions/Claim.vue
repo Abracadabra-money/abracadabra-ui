@@ -106,7 +106,7 @@ export default {
 }
 
 .efficiency-indicator {
-  width: 418px;
+  width: 100%;
   height: 12px;
   border-radius: 12px;
   background: rgba(109, 248, 114, 0.2);

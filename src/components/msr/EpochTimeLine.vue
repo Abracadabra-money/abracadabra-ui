@@ -85,6 +85,7 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 4px;
   list-style: none;
 }
 
@@ -92,6 +93,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
+  flex-grow: 1;
   gap: 7px;
 }
 
@@ -108,7 +110,8 @@ export default {
 }
 
 .indicator {
-  width: 66px;
+  min-width: 36px;
+  width: 100%;
   height: 12px;
   border-radius: 12px;
 }

@@ -64,16 +64,14 @@ export default {
 
 <style lang="scss" scoped>
 .action-block {
-  position: relative;
-  top: 110px;
-  right: 80px;
   display: flex;
   flex-direction: column;
-  height: 762px;
+  flex-grow: 1;
+  min-height: 787px;
   max-width: 557px;
   width: 100%;
   padding: 24px;
-
+  margin: 0 auto;
   border-radius: 20px;
   border: 1px solid #00296b;
   background: linear-gradient(
@@ -89,6 +87,8 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 24px;
   margin-bottom: 40px;
 }
 
@@ -116,11 +116,37 @@ export default {
 }
 
 .actions-wrapper::v-deep(.action-title) {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   font-size: 24px;
   font-weight: 500;
 }
 
 .actions-wrapper::v-deep(.action-button) {
   margin-top: 24px;
+}
+
+@media (max-width: 760px) {
+  .networks-wrap {
+    justify-content: space-between !important;
+    width: 100%;
+  }
+}
+
+@media (max-width: 500px) {
+  .action-block {
+    min-height: auto;
+    padding: 0;
+    border: none;
+    background: none;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+
+  .actions-wrapper::v-deep(.action-title) {
+    flex-wrap: wrap;
+    font-size: 18px;
+  }
 }
 </style>

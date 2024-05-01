@@ -1,13 +1,14 @@
 <template>
   <div class="action">
-    <Tabs
-      class="tabs"
-      :name="activeTab"
-      :items="tabItems"
-      @select="changeTab"
-    />
-
-    <h2 class="action-title">Stake MIM</h2>
+    <h2 class="action-title">
+      {{ titleText }} MIM
+      <Tabs
+        class="tabs"
+        :name="activeTab"
+        :items="tabItems"
+        @select="changeTab"
+      />
+    </h2>
 
     <BaseTokenInput
       :value="inputValue"
@@ -15,6 +16,7 @@
       :decimals="mimSavingRateInfo.stakingToken.decimals"
       :icon="mimSavingRateInfo.stakingToken.icon"
       :max="maxInputValue"
+      :primaryMax="!isStakeAction"
       :tokenPrice="1"
       @updateInputValue="onUpdateStakeValue"
     />
@@ -29,10 +31,10 @@
 
     <div class="lock-promo">
       <div class="promo-title">
-        <h4 class="promo-message">Lock your MIM</h4>
+        <h4 class="promo-message">Lock your Staked MIM for Boosted APR</h4>
 
         <div class="apr-wrap">
-          <span class="apr-message">Boost your APR</span>
+          <span class="apr-message">Boosted APR</span>
           <span class="apr-value">150%</span>
         </div>
       </div>
@@ -50,6 +52,7 @@
           </div>
         </div>
 
+        <!-- 
         <BaseButton
           class="lock-action-button"
           primary
@@ -57,7 +60,7 @@
           @click="lockActionHandler"
         >
           {{ lockValidationData.btnText }}
-        </BaseButton>
+        </BaseButton> -->
       </div>
     </div>
   </div>
@@ -114,6 +117,10 @@ export default {
 
     isStakeAction() {
       return this.activeTab === "stake";
+    },
+
+    titleText() {
+      return this.isStakeAction ? "Stake" : "Unstake";
     },
 
     isTokenApproved() {
@@ -308,16 +315,19 @@ export default {
 .lock-promo {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 21px;
   margin-top: auto;
-  padding: 20px 20px 48px 20px;
+  padding: 16px;
   border-radius: 16px;
   border: 1px solid rgba(180, 180, 180, 0.08);
-  background: linear-gradient(
-    90deg,
-    rgba(45, 74, 150, 0.34) 0%,
-    rgba(116, 92, 210, 0.34) 100%
-  );
+  background: url("../../../assets/images/msr/mim-bg-image.png"),
+    linear-gradient(
+      90deg,
+      rgba(45, 74, 150, 0.34) 0%,
+      rgba(116, 92, 210, 0.34) 100%
+    );
+  background-repeat: no-repeat;
+  background-position: right 0 bottom 0;
   box-shadow: 0px 4px 29.8px 0px rgba(0, 0, 0, 0.42) inset;
   backdrop-filter: blur(50px);
 }
@@ -330,23 +340,27 @@ export default {
 .promo-title {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  gap: 42px;
 }
 
 .promo-message {
+  max-width: 241px;
   color: #fff;
   font-size: 20px;
   font-weight: 500;
+  line-height: 30px;
 }
 
 .apr-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 6px;
+  min-width: 90px;
 }
 
 .apr-message {
-  color: #fff;
   font-size: 14px;
   font-weight: 500;
 }
@@ -354,8 +368,8 @@ export default {
 .apr-value {
   color: #fff;
   text-shadow: 0px 0px 16px #ab5de8;
-  font-size: 29px;
-  font-weight: 600;
+  font-size: 32px;
+  font-weight: 500;
 }
 
 .staking-wrap {
@@ -367,13 +381,14 @@ export default {
 .currently-staked {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  align-items: flex-start;
+  gap: 8px;
   font-size: 18px;
   width: 175px;
 }
 
 .title {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
 }
 
@@ -381,7 +396,11 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 28px;
+  font-size: 38px;
+}
+
+.default-button {
+  margin-top: 0 !important;
 }
 
 .promo-text {
@@ -393,5 +412,23 @@ export default {
 .lock-action-button {
   margin-top: auto;
   width: auto !important;
+}
+
+@media (max-width: 500px) {
+  .lock-promo {
+    margin-top: 0;
+  }
+
+  .apr-value {
+    font-size: 28px;
+  }
+
+  .promo-message {
+    font-size: 18px;
+  }
+
+  .token-amount {
+    font-size: 32px;
+  }
 }
 </style>

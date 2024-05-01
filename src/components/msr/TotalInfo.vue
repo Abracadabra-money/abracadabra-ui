@@ -69,4 +69,12 @@ export default {
   cursor: pointer;
   z-index: 2;
 }
+
+@media (max-width: 760px) {
+  .total-info-wrap {
+    bottom: 20px;
+    font-size: 14px;
+    font-weight: 400;
+  }
+}
 </style>

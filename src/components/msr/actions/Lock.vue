@@ -2,11 +2,9 @@
   <div class="action">
     <div class="action-header">
       <h2 class="action-title">Lock MIM</h2>
-      <Toggle
-        :selected="isStakeAndLock"
-        :text="'Lock from wallet '"
-        @updateToggle="toggleAction"
-      />
+      <CheckBox :value="isStakeAndLock" @update="toggleAction">
+        Include Staked amount
+      </CheckBox>
     </div>
 
     <BaseTokenInput
@@ -23,8 +21,10 @@
     <EpochTimeLine :mimSavingRateInfo="mimSavingRateInfo" />
 
     <p class="description">
-      Your MIM will bla bla bla and when lock time is ended > your MIM will
-      migrate to Staked MIM where you can Unstake it
+      The locked amount will be assigned to the current epoch, with each epoch
+      starting every Thursday at 00:00 UTC. At that point, the lock time
+      countdown begins and lasts for 3 months. The next epoch will commence in
+      <Timer :endDateTimestamp="1714660482" small />
     </p>
 
     <BaseButton
@@ -225,12 +225,17 @@ export default {
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")
     ),
-    Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
+    CheckBox: defineAsyncComponent(() =>
+      import("@/components/msr/CheckBox.vue")
+    ),
     EpochTimeLine: defineAsyncComponent(() =>
       import("@/components/msr/EpochTimeLine.vue")
     ),
     LockInfo: defineAsyncComponent(() =>
       import("@/components/msr/LockInfo.vue")
+    ),
+    Timer: defineAsyncComponent(() =>
+      import("@/components/stake/earnPoints/Timer.vue")
     ),
   },
 };
@@ -240,11 +245,22 @@ export default {
 .action-header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 
 .description {
   font-size: 14px;
   font-weight: 400;
   line-height: 26px;
+}
+
+.timer {
+  display: inline-flex !important;
+  gap: 2px !important;
+  width: auto !important;
+}
+
+.timer::v-deep(.time-block) {
+  height: 30px !important;
 }
 </style>

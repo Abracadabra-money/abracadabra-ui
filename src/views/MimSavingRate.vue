@@ -1,45 +1,14 @@
 <template>
   <div class="msr-view">
-    <div :class="['carousel-container', { active: isCarouselMode }]">
-      <div class="carousel">
-        <div
-          class="carousel-track"
-          :style="{ transform: `translateX(${translateOffset}px)` }"
-        >
-          <div
-            class="carousel-item"
-            v-for="(item, index) in actions"
-            :key="index"
-            :class="{ active: index === activeIndex, inactive: isCarouselMode }"
-          >
-            <div
-              class="item-content"
-              @click="selectAction(index)"
-              :style="{ backgroundColor: item.color }"
-            >
-              <span class="item-name">{{ item.name }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <template v-if="isCarouselMode">
-        <TotalInfo :mimSavingRateInfo="mimSavingRateInfo" />
-
-        <div class="arrows">
-          <img
-            class="arrow left"
-            src="@/assets/images/arrow.svg"
-            @click="prev"
-          />
-          <img
-            class="arrow right"
-            src="@/assets/images/arrow.svg"
-            @click="next"
-          />
-        </div>
-      </template>
-    </div>
+    <MSRCarousel
+      :mimSavingRateInfo="mimSavingRateInfo"
+      :actions="actions"
+      :activeIndex="activeIndex"
+      :isCarouselMode="isCarouselMode"
+      @selectAction="selectAction"
+      @next="next"
+      @prev="prev"
+    />
 
     <ActionBlock
       :activeAction="activeAction"
@@ -51,23 +20,43 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { defineAsyncComponent } from "vue";
 import { mapGetters } from "vuex";
 import { getMimSavingRateInfo } from "@/helpers/mimSavingRate/getMimSavingRateInfo";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global.ts";
+import { useImage } from "@/helpers/useImage";
+
+export type MSRAction = {
+  id: number;
+  image: string;
+  name: MSRActionName;
+};
+export type MSRActionName = "Stake" | "Lock" | "Claim";
 
 export default {
   data() {
     return {
       actions: [
-        { id: 0, color: "blue", name: "Stake" },
-        { id: 1, color: "blueviolet", name: "Lock" },
-        { id: 2, color: "gold", name: "Claim" },
-      ],
-      activeIndex: null,
+        {
+          id: 0,
+          image: useImage("assets/images/msr/stake-tab-image.png"),
+          name: "Stake",
+        },
+        {
+          id: 1,
+          image: useImage("assets/images/msr/lock-tab-image.png"),
+          name: "Lock",
+        },
+        {
+          id: 2,
+          image: useImage("assets/images/msr/claim-tab-image.png"),
+          name: "Claim",
+        },
+      ] as MSRAction[],
+      activeIndex: null as number | null,
       itemWidth: 200,
-      mimSavingRateInfo: null,
+      mimSavingRateInfo: null as any,
     };
   },
 
@@ -77,7 +66,7 @@ export default {
       getChainById: "getChainById",
     }),
 
-    translateOffset() {
+    translateOffset(): number {
       if (this.activeIndex === null) return 0;
       const middleIndex = Math.floor(this.actions.length / 2);
       let marginalElementsOffset = 0;
@@ -100,11 +89,12 @@ export default {
       );
     },
 
-    activeAction() {
+    activeAction(): MSRActionName | null {
+      if (this.activeIndex === null) return null;
       return this.actions[this.activeIndex].name;
     },
 
-    isCarouselMode() {
+    isCarouselMode(): boolean {
       return this.activeIndex !== null;
     },
   },
@@ -116,20 +106,34 @@ export default {
   },
 
   methods: {
-    selectAction(index) {
+    selectAction(index: number) {
       this.activeIndex = this.activeIndex === index ? null : index;
     },
 
     prev() {
-      if (this.activeIndex === 0)
-        return (this.activeIndex = this.actions.length - 1);
-      this.activeIndex = this.activeIndex - 1;
+      switch (this.activeIndex) {
+        case null:
+          break;
+        case 0:
+          this.activeIndex = this.actions.length - 1;
+          break;
+        default:
+          this.activeIndex = this.activeIndex - 1;
+          break;
+      }
     },
 
     next() {
-      if (this.activeIndex === this.actions.length - 1)
-        return (this.activeIndex = 0);
-      this.activeIndex = this.activeIndex + 1;
+      switch (this.activeIndex) {
+        case null:
+          break;
+        case this.actions.length - 1:
+          this.activeIndex = 0;
+          break;
+        default:
+          this.activeIndex = this.activeIndex + 1;
+          break;
+      }
     },
 
     async createMimSavingRateInfo() {
@@ -149,11 +153,11 @@ export default {
   },
 
   components: {
-    ActionBlock: defineAsyncComponent(() =>
-      import("@/components/msr/ActionBlock.vue")
+    MSRCarousel: defineAsyncComponent(
+      () => import("@/components/msr/MSRCarousel.vue")
     ),
-    TotalInfo: defineAsyncComponent(() =>
-      import("@/components/msr/TotalInfo.vue")
+    ActionBlock: defineAsyncComponent(
+      () => import("@/components/msr/ActionBlock.vue")
     ),
   },
 };
@@ -165,90 +169,16 @@ export default {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  min-height: 931px;
+  flex-wrap: wrap;
+  min-height: 100vh;
+  max-width: 1280px;
+  margin: auto;
+  padding: 106px 0 50px 0;
 }
 
-.carousel-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  margin-top: 127px;
-  overflow: hidden;
-}
-
-.carousel-track {
-  display: flex;
-  align-items: center;
-  transition: transform 0.5s;
-}
-
-.carousel-item {
-  min-width: 200px;
-  height: 200px;
-  transition: all 0.5s ease-in-out;
-  margin: 20px;
-  cursor: pointer;
-}
-
-.carousel-item:hover {
-  transform: scale(110%);
-}
-
-.item-content {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-.item-name {
-  display: none;
-  position: absolute;
-  left: calc(50% - 65px);
-  width: 130px;
-  font-size: 24px;
-  font-weight: 500;
-  text-align: center;
-}
-
-.carousel-item:hover .item-content .item-name,
-.carousel-item.active .item-content .item-name {
-  transform: translateY(-50px);
-  display: block;
-}
-
-.carousel-item.active {
-  transform: scale(250%);
-  margin: 0 400px;
-  opacity: 1 !important;
-}
-
-.carousel-item.inactive {
-  opacity: 0;
-}
-
-.arrows {
-  position: absolute;
-  display: flex;
-  gap: 580px;
-}
-
-.arrow {
-  cursor: pointer;
-  width: 52px;
-  transition: opacity 0.3s ease-in;
-}
-
-.arrow:hover {
-  opacity: 0.5;
-}
-
-.arrow.left {
-  transform: rotate(90deg);
-}
-
-.arrow.right {
-  transform: rotate(270deg);
+@media (max-width: 760px) {
+  .msr-view {
+    padding: 106px 15px 50px 15px;
+  }
 }
 </style>
