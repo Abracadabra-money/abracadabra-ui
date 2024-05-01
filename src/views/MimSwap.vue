@@ -433,13 +433,11 @@ export default {
       if (!this.actionValidationData.isAllowed || this.isFetchSwapInfo)
         return false;
 
-      switch (this.actionValidationData?.method) {
+      // @ts-ignore
+      switch (this.actionValidationData && this.actionValidationData.method) {
         case "connectWallet":
           // @ts-ignore
           await this.$openWeb3modal();
-          break;
-        case "switchNetwork":
-          await switchNetwork(81457); //todo
           break;
         case "approvefromToken":
           await this.approveTokenHandler(
