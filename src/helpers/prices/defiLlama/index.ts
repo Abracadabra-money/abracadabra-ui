@@ -42,6 +42,21 @@ const defiLlamaChainsKeys = {
   168587773: "blast",
 };
 
+const coingeckoNativeTokensIds = {
+  1: "ethereum",
+  42161: "ethereum",
+  2222: "kava",
+  43114: "avalanche-2",
+  10: "optimism",
+  250: "fantom",
+  56: "binancecoin",
+  137: "matic-network",
+  1285: "moonriver",
+  8453: "ethereum",
+  59144: "ethereum",
+  81457: "ethereum",
+};
+
 // this config is used to get coin prices if there no results by chainId
 const coingeckoCoinsIds = [
   {
@@ -49,6 +64,31 @@ const coingeckoCoinsIds = [
     addresses: ["0x76DA31D7C9CbEAE102aff34D3398bC450c8374c1"],
   },
 ];
+
+export const getNativeTokensPrice = async (chainIds: number[]) => {
+  const ids = chainIds.map(
+    (chainId) =>
+      `coingecko:${
+        coingeckoNativeTokensIds[
+          chainId as keyof typeof coingeckoNativeTokensIds
+        ]
+      }`
+  );
+
+  const idsString = ids.join(",");
+
+  const finalUrl = `${domain}/prices/current/${idsString}`;
+
+  try {
+    const response = await axios.get(finalUrl);
+    const data: DefiLlamaPricesResponse | DefiLlamaPricesEmptyResponse =
+      response.data;
+    return parseNativeTokensResult(chainIds, data);
+  } catch (error) {
+    console.log("getNativePrices error", error);
+    return [];
+  }
+};
 
 export const getCoinsPrices = async (
   chainId: number,
@@ -68,6 +108,24 @@ export const getCoinsPrices = async (
     console.log("getCoinsPrices error", error);
     return [];
   }
+};
+
+const parseNativeTokensResult = (
+  chainIds: number[],
+  results: DefiLlamaPricesResponse
+) => {
+  const prices = chainIds.map((chainId) => {
+    const id = `coingecko:${
+      coingeckoNativeTokensIds[chainId as keyof typeof coingeckoNativeTokensIds]
+    }`;
+
+    return {
+      chainId,
+      price: results.coins[id]?.price || 0,
+    };
+  });
+
+  return prices;
 };
 
 const getParsedRequestString = (chainId: number, coins: Address[]) => {

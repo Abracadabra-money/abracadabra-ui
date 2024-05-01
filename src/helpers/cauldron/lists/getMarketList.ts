@@ -4,17 +4,18 @@ import cauldronsConfig from "@/configs/cauldrons";
 import { getMainParams } from "@/helpers/cauldron/getMainParams";
 import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
 import { getUserPositions } from "@/helpers/cauldron/getUserPositions";
+import type { MainParams, UserPositions } from "@/helpers/cauldron/types";
 
-type CauldronListItem = {
-  apr: object;
-  config: object;
-  mainParams: object;
-  userPosition: object;
+export type CauldronListItem = {
+  apr: { value: number; multiplier: number };
+  config: CauldronConfig;
+  mainParams: MainParams;
+  userPosition: UserPositions;
   additionalInfo: object;
 };
 
 const filteredByChainId = (chainId: number) => {
-  return cauldronsConfig.filter((config) => config.chainId === +chainId);
+  return cauldronsConfig.filter((config) => config.chainId === chainId);
 };
 
 const filteredByPrivate = (configs: any, account: string) => {
@@ -37,8 +38,8 @@ export const getMarketList = async (
   const cauldronsInfo: CauldronListItem[] = [];
 
   await Promise.all(
-    curentChains.map(async (chainId: any) => {
-      const configsByChain = filteredByChainId(chainId);
+    curentChains.map(async (chainId: string) => {
+      const configsByChain = filteredByChainId(Number(chainId));
 
       const filteredConfigs: CauldronConfig[] = filteredByPrivate(
         configsByChain,
@@ -47,12 +48,12 @@ export const getMarketList = async (
 
       if (filteredConfigs.length === 0) return [];
 
-      const mainParams = await getMainParams(filteredConfigs, chainId);
+      const mainParams = await getMainParams(filteredConfigs, Number(chainId));
 
       const userPositions = await getUserPositions(
         filteredConfigs,
         account,
-        chainId
+        Number(chainId)
       );
 
       filteredConfigs.forEach((config, idx) => {

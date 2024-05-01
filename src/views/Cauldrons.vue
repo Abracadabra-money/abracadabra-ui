@@ -17,22 +17,7 @@
           </h4>
         </div>
 
-        <div class="banner-wrap" v-if="isArbitrumChain">
-          <img class="banner-coins" src="@/assets/gifs/coins.gif" alt="" />
-          <img
-            class="banner-book"
-            src="@/assets/images/arbitrum/book-background.png"
-            alt=""
-          />
-        </div>
-
-        <div class="farm-cards-wrap" v-if="isArbitrumChain">
-          <h4 class="farm-title">
-            Explore the Abracadabra ecosystem on Arbitrum!
-          </h4>
-
-          <FarmItem v-if="farmCardInfo" :farm="farmCardInfo" :top="true" />
-        </div>
+        <ArbitrumBlock />
 
         <CauldronsCarousel />
 
@@ -49,28 +34,34 @@
     <FiltersPopup
       v-if="isFiltersPopupOpened"
       :sortersData="tableKeys.slice(1)"
-      @updateSortKey="$refs.cauldronsTable.updateSortKeys"
+      @updateSortKey="($refs.cauldronsTable as any).updateSortKeys"
       @close="isFiltersPopupOpened = false"
     />
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { defineAsyncComponent } from "vue";
 import { mapGetters, mapMutations } from "vuex";
-import farmsConfig from "@/configs/farms/farms";
-import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 import { getCollateralApr } from "@/helpers/collateralsApy";
 import { getMarketList } from "@/helpers/cauldron/lists/getMarketList";
-import { createFarmItemConfig } from "@/helpers/farm/createFarmItemConfig";
+
+type Data = {
+  cauldrons: any;
+  cauldronsLoading: boolean;
+  updateInterval: null | NodeJS.Timeout;
+  timerInterval: number;
+  isFiltersPopupOpened: boolean;
+  tableKeys: any;
+};
 
 export default {
-  data() {
+  data(): Data {
     return {
       cauldrons: [],
       cauldronsLoading: true,
-      farmCardInfo: null,
       updateInterval: null,
+      timerInterval: 60000,
       isFiltersPopupOpened: false,
       tableKeys: [
         {
@@ -103,13 +94,8 @@ export default {
   computed: {
     ...mapGetters({
       account: "getAccount",
-      chainId: "getChainId",
       localCauldronsList: "getCauldronsList",
     }),
-
-    isArbitrumChain() {
-      return this.chainId === ARBITRUM_CHAIN_ID;
-    },
   },
 
   watch: {
@@ -123,9 +109,9 @@ export default {
       setCauldronsList: "setCauldronsList",
     }),
 
-    async getCollateralsApr() {
+    async getCollateralsApr(): Promise<void> {
       this.cauldrons = await Promise.all(
-        this.cauldrons.map(async (cauldron) => {
+        this.cauldrons.map(async (cauldron: any) => {
           const apr = await getCollateralApr(cauldron, true);
           cauldron.apr = apr;
           return cauldron;
@@ -133,67 +119,56 @@ export default {
       );
     },
 
-    getFarmConfig(farmId, chainId) {
-      return farmsConfig.find(
-        (farm) => farm.id === farmId && farm.contractChain === chainId
-      );
-    },
-
-    openMobileFiltersPopup() {
+    openMobileFiltersPopup(): void {
       this.isFiltersPopupOpened = true;
     },
 
-    updateSortKeys(key, order) {
-      this.$refs.cauldronsTable.updateSortKeys(key, order);
+    updateSortKeys(key: any, order: any): void {
+      (this.$refs.cauldronsTable as any).updateSortKeys(key, order);
     },
 
-    checkLocalData() {
+    checkLocalData(): void {
       if (this.localCauldronsList.isCreated) {
         this.cauldrons = this.localCauldronsList.data;
         this.cauldronsLoading = false;
       }
     },
+
+    async createCaulldronsInfo(): Promise<void> {
+      this.cauldrons = await getMarketList(this.account);
+      this.cauldronsLoading = false;
+
+      await this.getCollateralsApr();
+
+      this.setCauldronsList(this.cauldrons);
+    },
   },
 
   async created() {
     this.checkLocalData();
-
-    this.cauldrons = await getMarketList(this.account);
-    this.cauldronsLoading = false;
-    this.setCauldronsList(this.cauldrons);
-
-    await this.getCollateralsApr();
-
-    const farmConfig = this.getFarmConfig(4, ARBITRUM_CHAIN_ID);
-
-    this.farmCardInfo = await createFarmItemConfig(
-      farmConfig.id,
-      farmConfig.contractChain,
-      this.account,
-      true
-    );
+    await this.createCaulldronsInfo();
 
     this.updateInterval = setInterval(async () => {
       this.cauldrons = await getMarketList(this.account);
-    }, 60000);
+    }, this.timerInterval);
   },
 
   beforeUnmount() {
-    clearInterval(this.updateInterval);
+    clearInterval(this.updateInterval as any);
   },
 
   components: {
-    CauldronsTable: defineAsyncComponent(() =>
-      import("@/components/cauldrons/CauldronsTable.vue")
+    ArbitrumBlock: defineAsyncComponent(
+      () => import("@/components/cauldrons/ArbitrumBlock.vue")
     ),
-    FarmItem: defineAsyncComponent(() =>
-      import("@/components/farm/FarmItem.vue")
+    CauldronsCarousel: defineAsyncComponent(
+      () => import("@/components/ui/carousel/CauldronsCarousel.vue")
     ),
-    CauldronsCarousel: defineAsyncComponent(() =>
-      import("@/components/ui/carousel/CauldronsCarousel.vue")
+    CauldronsTable: defineAsyncComponent(
+      () => import("@/components/cauldrons/CauldronsTable.vue")
     ),
-    FiltersPopup: defineAsyncComponent(() =>
-      import("@/components/myPositions/FiltersPopup.vue")
+    FiltersPopup: defineAsyncComponent(
+      () => import("@/components/myPositions/FiltersPopup.vue")
     ),
   },
 };
@@ -242,56 +217,10 @@ export default {
   height: 24px;
 }
 
-.banner-wrap {
-  position: absolute;
-  top: 44px;
-  right: 0;
-  max-width: 871px;
-  width: 100%;
-  z-index: 0;
-}
-
-.banner-coins {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  z-index: 0;
-}
-
-.banner-book {
-  width: 100%;
-}
-
-.farm-cards-wrap {
-  z-index: 1;
-}
-
-.farm-title {
-  font-size: 24px;
-  font-weight: 600;
-  letter-spacing: 0.6px;
-  margin-bottom: 12px;
-  z-index: 10;
-}
-
-@media screen and (max-width: 1024px) {
-  .banner-wrap {
-    max-width: 600px;
-    top: 200px;
-    z-index: 0;
-  }
-}
-
 @media screen and (max-width: 768px) {
   .cauldrons-container {
     padding: 100px 12px 60px;
     gap: 16px;
-  }
-
-  .banner-wrap {
-    position: inherit;
-    max-width: 100%;
   }
 }
 
@@ -308,10 +237,6 @@ export default {
   .mim-icon {
     width: 16px;
     height: 16px;
-  }
-
-  .farm-title {
-    font-size: 20px;
   }
 }
 </style>

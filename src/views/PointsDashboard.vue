@@ -41,7 +41,7 @@
           <div class="total-item">
             <span class="total-title">Total Points Distributed</span>
             <span class="total-value">{{
-              formatTokenBalance(
+              formatLargeSum(
                 pointsStatistics?.liquidityPoints?.total?.finalized ?? 0
               )
             }}</span>
@@ -90,13 +90,12 @@ import {
 } from "@/helpers/blast/stake/points";
 import { formatUnits } from "viem";
 import { defineAsyncComponent } from "vue";
-import { formatTokenBalance } from "@/helpers/filters";
 import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { BlastLockingMultiRewards } from "@/constants/blast";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
-import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
+import { formatTokenBalance, formatLargeSum } from "@/helpers/filters";
 import BlastLockingMultiRewardsAbi from "@/abis/BlastLockingMultiRewards";
 
 const BLAST_CHAIN_ID = 81457;
@@ -137,6 +136,7 @@ export default {
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
+    formatLargeSum,
     formatTokenBalance,
 
     async getStakeLpBalance() {
@@ -203,10 +203,6 @@ export default {
       };
     },
 
-    async updateBalances() {
-      this.stakeLpBalances = await this.getStakeLpBalance();
-    },
-
     // TODO: refactor
     async createActivityInfo() {
       this.poolInfo = await getPoolInfo(
@@ -215,22 +211,13 @@ export default {
         this.account
       );
 
-      this.stakeLpBalances = await this.getStakeLpBalance();
-
-      const chainProvider = getEthersProvider(BLAST_CHAIN_ID);
-
-      const userSigner =
-        this.account && this.chainId === BLAST_CHAIN_ID
-          ? this.signer
-          : chainProvider;
-
       this.cauldronInfo = await getCauldronInfo(
         MIM_USDB_POOL_ID,
         BLAST_CHAIN_ID,
-        chainProvider,
-        userSigner,
         this.account
       );
+
+      this.stakeLpBalances = await this.getStakeLpBalance();
     },
 
     async fetchStatistics() {

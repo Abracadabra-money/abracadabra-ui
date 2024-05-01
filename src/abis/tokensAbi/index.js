@@ -40,12 +40,6 @@ import CurveDAOToken from "@/abis/tokensAbi/CurveDAOToken";
 import magicGLP from "@/abis/tokensAbi/magicGLP";
 import APE from "@/abis/tokensAbi/ape";
 import magicApe from "@/abis/tokensAbi/magicApe";
-import lvlJunior from "@/abis/tokensAbi/lvlJunior";
-import mLvlJunior from "@/abis/tokensAbi/mLvlJunior";
-import lvlMezzanine from "@/abis/tokensAbi/lvlMezzanine";
-import mLvlMezzanine from "@/abis/tokensAbi/mLvlMezzanine";
-import lvlSenior from "@/abis/tokensAbi/lvlSenior";
-import mLvlSenior from "@/abis/tokensAbi/mLvlSenior";
 import yvCurveMIMf from "@/abis/tokensAbi/yvCurveMIMf";
 import StargateUSDT from "@/abis/tokensAbi/StargateUSDT";
 import crv3crypto from "@/abis/tokensAbi/crv3crypto";
@@ -101,12 +95,6 @@ export default {
   magicGLP,
   APE,
   magicApe,
-  lvlJunior,
-  mLvlJunior,
-  lvlMezzanine,
-  mLvlMezzanine,
-  lvlSenior,
-  mLvlSenior,
   yvCurveMIMf,
   StargateUSDT,
   crv3crypto,

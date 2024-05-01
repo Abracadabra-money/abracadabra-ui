@@ -40,11 +40,9 @@ export default {
   cursor: pointer;
   transition: all 0.5s;
 
-  &::v-deep {
-    img {
-      width: 24px !important;
-      height: 24px;
-    }
+  &::v-deep(img) {
+    width: 24px !important;
+    height: 24px;
   }
 
   &:hover {

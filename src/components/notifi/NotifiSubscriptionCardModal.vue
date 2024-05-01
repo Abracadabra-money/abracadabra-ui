@@ -85,7 +85,11 @@ export default {
   margin-left: -4px;
 }
 .notifi-card {
-  transform: translateX(-55%) translateY(9%);
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateX(-63%) translateY(18%);
   position: absolute;
   z-index: 1;
 }

@@ -32,6 +32,7 @@
 
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
+import { mapGetters, mapMutations } from "vuex";
 import { getChartData } from "@/helpers/stake/getChartData";
 
 export default {
@@ -51,7 +52,16 @@ export default {
     };
   },
 
+  computed: {
+    ...mapGetters({
+      magicGlpStakeData: "getMagicGlpStakeData",
+      magicApeStakeData: "getMagicApeStakeData",
+    }),
+  },
+
   methods: {
+    ...mapMutations(["setMagicGlpChartData", "setMagicApeChartData"]),
+
     async onUpdateTimeFrame(period: number) {
       await this.updateChart(this.chartActive, period);
     },
@@ -65,6 +75,10 @@ export default {
     async updateMagicGlpData(type: string, period: number) {
       this.chartActive = type;
       this.chatrPeriod = period;
+
+      if (this.magicGlpStakeData.chartData) {
+        this.chartData = this.magicGlpStakeData.chartData;
+      }
 
       if (!this.chartDataPerYear) {
         this.chartDataPerYear = await getChartData(
@@ -93,11 +107,31 @@ export default {
           },
         ],
       };
+
+      this.setMagicGlpChartData(this.chartData);
+    },
+
+    checkLocalData(type: string) {
+      switch (type) {
+        case "Yield" || "TVL" || "Price":
+          this.chartData = this.magicApeStakeData.chartData;
+          break;
+      }
+    },
+
+    saveChartDataToStote(type: string, data: any) {
+      switch (type) {
+        case "Yield" || "TVL" || "Price":
+          this.setMagicApeChartData(data);
+          break;
+      }
     },
 
     async updateChartData(type: any, period: number) {
       this.chartActive = type;
       this.chatrPeriod = period;
+
+      this.checkLocalData(type);
 
       this.chartData = await getChartData(
         type,
@@ -105,6 +139,8 @@ export default {
         this.chainId,
         this.chartConfig.feePercent
       );
+
+      this.saveChartDataToStote(type, this.chartData);
     },
   },
 

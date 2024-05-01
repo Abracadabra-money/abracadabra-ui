@@ -231,10 +231,8 @@ export default {
   .user-actions {
     margin-left: auto;
 
-    &::v-deep {
-      .chain-button {
-        display: none;
-      }
+    &::v-deep(.chain-button) {
+      display: none;
     }
   }
 

@@ -2,10 +2,10 @@
   <div class="beam-process">
     <div :class="['beam-chain', sendFromCheck]">
       <div class="indicator-icon-wrap">
-        <img class="indicator-icon" :src="config.originChain.icon" />
+        <img class="indicator-icon" :src="successData.originChain.icon" />
       </div>
       <p :class="['address', sendFromCheck]">
-        {{ formatAddress(config.sendFrom) }}
+        {{ formatAddress(successData.txPayload.account) }}
       </p>
     </div>
 
@@ -14,16 +14,16 @@
       <div class="process-title">Beaming</div>
       <div class="beam-amount">
         <img class="mim-icon" src="@/assets/images/tokens/MIM.png" />
-        {{ formatToFixed(config.mimAmount, 2) }}
+        {{ parsedMimAmount }}
       </div>
     </div>
 
     <div :class="['beam-chain', sendToCheck]">
       <div class="indicator-icon-wrap">
-        <img class="indicator-icon" :src="config.dstChain.icon" />
+        <img class="indicator-icon" :src="successData.dstChain.icon" />
       </div>
       <p :class="['address', sendToCheck]">
-        {{ formatAddress(config.sendTo) }}
+        {{ formatAddress(successData.txPayload.to) }}
       </p>
     </div>
   </div>
@@ -31,25 +31,59 @@
 
 <script>
 import { mapGetters } from "vuex";
+import { formatUnits } from "viem";
 import { formatToFixed } from "@/helpers/filters";
+import { chainsConfigs } from "@/helpers/chains/configs";
 
 export default {
   props: {
-    config: {
+    successData: {
       type: Object,
       required: true,
+    },
+    lzTxInfo: {
+      type: Object,
     },
   },
 
   computed: {
-    ...mapGetters({ getChainById: "getChainById" }),
+    parsedMimAmount() {
+      return formatToFixed(
+        formatUnits(this.successData.txPayload.amount, 18),
+        2
+      );
+    },
 
     fromScanUrl() {
-      if (!this.config.tx?.hash) return "";
-      return `${
-        this.getChainById(this.config.originChain.chainId).blockExplorers
-          .etherscan.url
-      }/tx/${this.config.tx.hash}`;
+      if (!this.successData.txHash) return "";
+
+      const chainInfo = chainsConfigs.find(
+        (chain) => chain.chainId === this.successData.originChain.chainId
+      );
+
+      const url = chainInfo.viemConfig.blockExplorers.etherscan?.url
+        ? chainInfo.viemConfig.blockExplorers.etherscan?.url
+        : chainInfo.viemConfig.blockExplorers.default?.url;
+
+      if (!url) return "";
+
+      return `${url}/tx/${this.successData.txHash}`;
+    },
+
+    dstScanUrl() {
+      if (!this.lzTxInfo || this.lzTxInfo?.status === "INFLIGHT") return "";
+
+      const chainInfo = chainsConfigs.find(
+        (chain) => chain.chainId === this.successData.dstChain.chainId
+      );
+
+      const url = chainInfo.viemConfig.blockExplorers.etherscan?.url
+        ? chainInfo.viemConfig.blockExplorers.etherscan?.url
+        : chainInfo.viemConfig.blockExplorers.default?.url;
+
+      if (!url) return "";
+
+      return `${url}/tx/${this.lzTxInfo.dstTxHash}`;
     },
 
     sendFromCheck() {
@@ -58,33 +92,6 @@ export default {
 
     sendToCheck() {
       return this.dstScanUrl ? "completed" : "";
-    },
-
-    dstScanUrl() {
-      const { txInfo, dstChain } = this.config;
-      if (!txInfo || txInfo?.status === "INFLIGHT") return "";
-      return `${
-        this.getChainById(dstChain.chainId).blockExplorers.etherscan.url
-      }/tx/${txInfo.dstTxHash}`;
-    },
-
-    isNone() {
-      return !+this.config.gasOnDst && !+this.config.dstTokenAmount;
-    },
-
-    originalTokenAmount() {
-      if (!+this.config.gasOnDst) return `<0.001 ${this.config.nativeSymbol}`;
-      return `${this.config.gasOnDst} ${this.config.nativeSymbol}`;
-    },
-
-    destinationTokenAmount() {
-      return formatToFixed(this.config.dstTokenAmount || "0.0", 3);
-    },
-
-    convertTokenAmount() {
-      if (!+this.destinationTokenAmount)
-        return `<0.001 ${this.config.dstTokenSymbol}`;
-      return `${this.destinationTokenAmount} ${this.config.dstTokenSymbol}`;
     },
   },
 
