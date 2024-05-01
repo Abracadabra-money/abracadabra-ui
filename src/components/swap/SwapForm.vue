@@ -75,7 +75,8 @@ export default {
     updateFromInputValue(value: bigint) {
       if (!value) this.fromInputValue = "";
       else {
-        this.fromInputValue = trimZeroDecimals(formatUnits(value, 18));
+        const { decimals } = this.fromToken!.config;
+        this.fromInputValue = trimZeroDecimals(formatUnits(value, decimals));
       }
 
       this.$emit("updateFromInputValue", value);

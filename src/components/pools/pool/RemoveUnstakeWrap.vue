@@ -16,6 +16,15 @@
       />
     </div>
 
+    <div class="condition-management-wrap flex-end" v-else>
+      <Toggle
+        v-if="!isUnstake"
+        text="Single Side"
+        :selected="isSingleSide"
+        @updateToggle="changeSingleSideToggle"
+      />
+    </div>
+
     <Remove
       :pool="pool"
       :slippage="slippage"
@@ -116,6 +125,10 @@ export default {
   flex-wrap: wrap;
   gap: 20px;
   width: 100%;
+}
+
+.flex-end {
+  justify-content: flex-end
 }
 
 .tabs {

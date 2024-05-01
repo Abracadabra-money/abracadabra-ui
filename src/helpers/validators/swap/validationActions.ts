@@ -1,6 +1,6 @@
 import { validateConnection } from "@/helpers/validators/validateConnection";
 
-const SUPPORTED_CHAINS = [168587773, 81457];
+const SUPPORTED_CHAINS = [42161, 81457];
 
 export const validationActions = (actionConfig: any, chainId: number) => {
   const { fromToken, toToken, fromInputValue, toInputValue } = actionConfig;
@@ -8,7 +8,7 @@ export const validationActions = (actionConfig: any, chainId: number) => {
   const connectedError = validateConnection();
   if (connectedError.btnText) return connectedError;
 
-  const chainError = validateChain(chainId, "Switch to Blast");
+  const chainError = validateChain(chainId);
   if (chainError.btnText) return chainError;
 
   if (fromToken.config.name === "Select Token")
@@ -36,12 +36,11 @@ export const validationActions = (actionConfig: any, chainId: number) => {
   return { btnText: "Preview", isAllowed: true, method: "swap" };
 };
 
-const validateChain = (connectedChainId: number, btnText = "Switch Chain") => {
+const validateChain = (connectedChainId: number, btnText = "Wrong Chain") => {
   if (!SUPPORTED_CHAINS.includes(connectedChainId))
     return {
       btnText,
-      isAllowed: true,
-      method: "switchNetwork",
+      isAllowed: false,
     };
 
   return { btnText: "", isAllowed: true };

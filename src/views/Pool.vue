@@ -1,8 +1,8 @@
 <template>
   <div class="pool-view" v-if="pool">
-    <div class="chart-wrap">
+    <!-- <div class="chart-wrap">
       <PieChart :option="chartOption" v-if="chartOption" />
-    </div>
+    </div> -->
 
     <div class="pool">
       <PoolActionBlock
@@ -16,7 +16,7 @@
       <PoolComposition :pool="this.pool" />
     </div>
 
-    <div class="pool-position-wrap">
+    <!-- <div class="pool-position-wrap">
       <PoolPosition
         :pool="pool"
         :pointsStatistics="pointsStatistics"
@@ -25,7 +25,7 @@
         @updateInfo="getPoolInfo"
         v-if="isUserPositionOpen"
       />
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -81,7 +81,7 @@ export default {
       immediate: true,
       async handler() {
         await this.getPoolInfo();
-        await this.getPointsStatistics();
+        // await this.getPointsStatistics();
       },
     },
 
@@ -103,11 +103,11 @@ export default {
     },
 
     async getPointsStatistics() {
-      [this.pointsStatistics.global, this.pointsStatistics.user] =
-        await Promise.all([
-          fetchPointsStatistics(),
-          fetchUserPointsStatistics(this.account),
-        ]);
+      // [this.pointsStatistics.global, this.pointsStatistics.user] =
+      //   await Promise.all([
+      //     fetchPointsStatistics(),
+      //     fetchUserPointsStatistics(this.account),
+      //   ]);
     },
   },
 
@@ -115,7 +115,7 @@ export default {
     await this.getPoolInfo();
     await this.getPointsStatistics();
 
-    this.chartOption = await getPoolTvlPieChartOption(this.pool);
+    // this.chartOption = await getPoolTvlPieChartOption(this.pool);
 
     this.poolsTimer = setInterval(async () => {
       await this.getPoolInfo();

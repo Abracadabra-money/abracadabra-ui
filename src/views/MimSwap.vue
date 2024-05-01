@@ -209,7 +209,7 @@ export default {
 
       if (!routeInfo) {
         return {
-          midPrice: 0n,
+          midPrice: 0,
           amounts: amounts,
           fromBase: false,
         };
@@ -242,15 +242,21 @@ export default {
       const tokenAmountOut = routeInfo.outputAmountWithoutFee;
       if (!tokenAmountIn || !tokenAmountOut) return 0;
 
-      const parsedMidPrice = formatUnits(midPrice, 18);
+      const parsedAmountIn = formatUnits(
+        tokenAmountIn,
+        this.actionConfig.fromToken.config.decimals
+      );
+      const parsedAmountOut = formatUnits(
+        tokenAmountOut,
+        this.actionConfig.toToken.config.decimals
+      );
 
       const executionPrice = isBase
-        ? Number(tokenAmountOut) / Number(tokenAmountIn)
-        : Number(tokenAmountIn) / Number(tokenAmountOut);
+        ? Number(parsedAmountOut) / Number(parsedAmountIn)
+        : Number(parsedAmountIn) / Number(parsedAmountOut);
 
       const priceImpact =
-        Math.abs(Number(parsedMidPrice) - executionPrice) /
-        Number(parsedMidPrice);
+        Math.abs(midPrice - executionPrice) / Number(midPrice);
 
       return Number(priceImpact * 100).toFixed(2);
     },
@@ -486,14 +492,16 @@ export default {
   async created() {
     await this.createSwapInfo();
 
-    if (this.tokensList.length) {
-      this.actionConfig.fromToken = this.tokensList.find(
-        (token: TokenInfo) => token.config.name === "MIM"
-      );
-      this.actionConfig.toToken = this.tokensList.find(
-        (token: TokenInfo) => token.config.name === "USDB"
-      );
-    }
+    // NOTICE
+    // TODO: make it dynamic
+    // if (this.tokensList.length) {
+    //   this.actionConfig.fromToken = this.tokensList.find(
+    //     (token: TokenInfo) => token.config.name === "MIM"
+    //   );
+    //   this.actionConfig.toToken = this.tokensList.find(
+    //     (token: TokenInfo) => token.config.name === "USDB"
+    //   );
+    // }
 
     this.updateInterval = setInterval(async () => {
       await this.createSwapInfo();

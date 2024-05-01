@@ -23,6 +23,15 @@
       />
     </div>
 
+    <div class="condition-management-wrap flex-end" v-else>
+      <Toggle
+        v-if="!isStake"
+        text="Balanced"
+        :selected="isBalanced"
+        @updateToggle="changeBalancedToggle"
+      />
+    </div>
+
     <Deposit
       :pool="pool"
       :slippage="slippage"
@@ -139,6 +148,10 @@ export default {
   justify-content: space-between;
   align-items: center;
   width: 100%;
+}
+
+.flex-end {
+  justify-content: flex-end
 }
 
 .tabs {

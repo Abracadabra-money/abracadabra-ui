@@ -9,7 +9,7 @@
       </li>
 
       <li @click="$emit('close-popup')">
-        <MobileHeaderLink to="Pool" :params="blastMimUsdbPool">
+        <MobileHeaderLink to="Pools">
           <img src="@/assets/images/header/dropdown/more/pool-icon.png" />
           Pools
         </MobileHeaderLink>

@@ -1,6 +1,6 @@
 <template>
   <HeaderLink to="MimSwap">Swap</HeaderLink>
-  <HeaderLink to="Pool" :params="blastMimUsdbPool">Pools</HeaderLink>
+  <HeaderLink to="Pools">Pools</HeaderLink>
 </template>
 
 <script>

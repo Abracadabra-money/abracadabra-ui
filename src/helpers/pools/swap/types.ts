@@ -24,7 +24,7 @@ export type MagicLPInfo = {
   decimals: number;
   vaultReserve: any;
   totalSupply: bigint;
-  midPrice: bigint;
+  midPrice: number;
   MAX_I: bigint;
   MAX_K: bigint;
   PMMState: PMMState;
