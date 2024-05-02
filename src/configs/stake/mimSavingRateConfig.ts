@@ -33,7 +33,7 @@ export const mimSavingRateConfig: MimSavingRateConfig[] = [
   {
     chainId: 42161,
     lockingMultiRewardsContract: {
-      address: "0x99bE6bAEbeF8006967267A68FBA4bf3a1A669b5D",
+      address: "0x852563e148D431178e5831647fEB8Eda3F4371Ca",
       abi: lockingMultiRewardsAbi,
     },
     stakingToken: {
