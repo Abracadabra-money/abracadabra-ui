@@ -245,7 +245,6 @@ export default {
       const { error }: any = await actions[this.actionMethodName](
         this.mimSavingRateInfo.lockingMultiRewardsContract,
         this.actionConfig,
-        false
       );
 
       await this.deleteNotification(notificationId);
