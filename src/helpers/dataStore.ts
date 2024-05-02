@@ -5,8 +5,6 @@ export const LS_USER_POSITION_KEY = "abracadabraUserPositions";
 export const LS_CAULDRONS_LIST_KEY = "abracadabraCauldronsList";
 export const LS_BENTOBOX_DATA_KEY = "abracadabraBentoBoxData";
 export const LS_SPELL_STAKE_KEY = "abracadabraSpellStakeData";
-export const LS_MAGIC_LVL_STAKE_KEY = "abracadabraMagicLvlStakeData";
-export const LS_MAGIC_LVL_STAKE_CHART_KEY = "abracadabraMagicLvlChartData";
 export const LS_MAGIC_KLP_STAKE_KEY = "abracadabraMagicKlpStakeData";
 export const LS_MAGIC_GLP_STAKE_KEY = "abracadabraMagicGlpStakeData";
 export const LS_MAGIC_GLP_STAKE_CHART_KEY = "abracadabraMagicGlpChartData";
@@ -111,31 +109,6 @@ export const getAndParseSpellStakeData = () => {
   const data = spellStakeData.map((item: any) => jsonBigIntTransform(item));
 
   return { data, isCreated: true };
-};
-
-export const getAndParseMagicLvlStakeData = () => {
-  const lsMagicLvlStakeData = localStorage.getItem(LS_MAGIC_LVL_STAKE_KEY);
-  const lsMagicLvlChartData = localStorage.getItem(
-    LS_MAGIC_LVL_STAKE_CHART_KEY
-  );
-
-  if (!lsMagicLvlStakeData) {
-    return {
-      data: [],
-      isCreated: false,
-      chartData: null,
-    };
-  }
-
-  const magicLvlStakeData = JSON.parse(lsMagicLvlStakeData);
-  const chartData = JSON.parse(lsMagicLvlChartData || "null");
-  const data = magicLvlStakeData.map((item: any) => jsonBigIntTransform(item));
-
-  return {
-    data,
-    chartData,
-    isCreated: true,
-  };
 };
 
 export const getAndParseMagicKlpStakeData = () => {

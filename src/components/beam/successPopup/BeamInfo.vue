@@ -3,7 +3,7 @@
     <div class="info-tag">
       <span class="tag-title">Beaming Fee</span>
       <div class="tag-values">
-        <span class="usd">{{ config.mimToUsd }}</span>
+        <span class="usd">$ 1</span>
       </div>
     </div>
 
@@ -11,13 +11,25 @@
       <span class="tag-title">Total gas cost</span>
       <div class="tag-values">
         <span class="token"
-          >{{ config.totalGas }} {{ config.nativeSymbol }}</span
+          >{{ parseFloat(parsedFeeAmount).toFixed(4) }}
+          {{ originChainNativeToken.symbol }}</span
         >
         <span class="usd">{{ totalGasUsd }}</span>
       </div>
     </div>
 
-    <div class="info-tag" v-if="!isNone">
+    <div class="info-tag" v-if="Number(parsedDstNativeAmount) > 0">
+      <span class="tag-title">Gas on Destination</span>
+      <div class="tag-values">
+        <span class="token"
+          >{{ parseFloat(parsedDstNativeAmount).toFixed(4) }}
+          {{ dstChainNativeToken.symbol }}</span
+        >
+        <span class="usd">{{ dstNativeTokenUsd }}</span>
+      </div>
+    </div>
+
+    <!-- <div class="info-tag" v-if="!isNone">
       <span class="tag-title"
         >Convert to gas token
         <div class="convert-to-gas">
@@ -40,44 +52,53 @@
           </span>
         </div>
       </span>
-    </div>
+    </div> -->
   </div>
 </template>
 
 <script>
 import { formatUSD, formatToFixed } from "@/helpers/filters";
 
+import { formatUnits } from "viem";
 export default {
   props: {
-    config: {
+    successData: {
+      type: Object,
+      required: true,
+    },
+    originChainNativeToken: {
+      type: Object,
+      required: true,
+    },
+    dstChainNativeToken: {
       type: Object,
       required: true,
     },
   },
 
   computed: {
+    parsedFeeAmount() {
+      return formatUnits(this.successData.txPayload.fees, 18);
+    },
+
+    parsedMIMAmount() {
+      return formatUnits(this.successData.txPayload.amount, 18);
+    },
+
+    parsedDstNativeAmount() {
+      return formatUnits(this.successData.dstNativeTokenAmount, 18);
+    },
+
     totalGasUsd() {
-      const totalGasUsd = this.config.totalGas * this.config.srcTokenPrice;
+      const tokenPrice = this.successData.originChain.nativePrice;
+      const totalGasUsd = Number(this.parsedFeeAmount) * tokenPrice;
       return formatUSD(totalGasUsd);
     },
 
-    isNone() {
-      return !+this.config.gasOnDst && !+this.config.dstTokenAmount;
-    },
-
-    originalTokenAmount() {
-      if (!+this.config.gasOnDst) return `<0.001 ${this.config.nativeSymbol}`;
-      return `${this.config.gasOnDst} ${this.config.nativeSymbol}`;
-    },
-
-    destinationTokenAmount() {
-      return formatToFixed(this.config.dstTokenAmount || "0.0", 3);
-    },
-
-    convertTokenAmount() {
-      if (!+this.destinationTokenAmount)
-        return `<0.001 ${this.config.dstTokenSymbol}`;
-      return `${this.destinationTokenAmount} ${this.config.dstTokenSymbol}`;
+    dstNativeTokenUsd() {
+      const tokenPrice = this.successData.dstChain.nativePrice;
+      const dstNetiveTokenUsd = Number(this.parsedDstNativeAmount) * tokenPrice;
+      return formatUSD(dstNetiveTokenUsd);
     },
   },
 };

@@ -5,10 +5,11 @@ import { initPublicClient } from "@/helpers/chains/initPublicClient";
 import { initStaticJsonRpcProvider } from "@/helpers/chains/initStaticJsonRpcProvider";
 
 const rpcList = filterRpcUrls(moonriver, [
-  "https://moonriver-rpc.publicnode.com	",
+  "https://moonriver-rpc.dwellir.com",
+  "https://moonriver.drpc.org",
+  "https://moonriver-rpc.publicnode.com",
   "https://rpc.api.moonriver.moonbeam.network",
   "https://moonriver.public.blastapi.io",
-  "https://moonriver-rpc.dwellir.com",
 ]);
 
 const viemConfig = {
