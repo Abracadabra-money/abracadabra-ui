@@ -9,13 +9,12 @@ import { notificationErrorMsg } from "@/helpers/notification/notificationError.j
 export const stake = async (
   contract: ContractInfo,
   { stakeAmount }: any,
-  isLock = false
 ) => {
   try {
     const { request } = await simulateContractHelper({
       ...contract,
       functionName: "stake",
-      args: [stakeAmount, isLock],
+      args: [stakeAmount],
     });
 
     const hash = await writeContractHelper(request);
