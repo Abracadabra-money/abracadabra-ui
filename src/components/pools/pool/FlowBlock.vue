@@ -41,7 +41,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { defineAsyncComponent } from "vue";
 
 export default {
@@ -53,15 +53,15 @@ export default {
   },
 
   computed: {
-    renderStatus() {
+    renderStatus(): string {
       if (this.isApprove && this.status == "success") return "approved";
       return this.status;
     },
   },
 
   components: {
-    CheckMarkIcon: defineAsyncComponent(() =>
-      import("@/components/ui/icons/CheckMarkIcon.vue")
+    CheckMarkIcon: defineAsyncComponent(
+      () => import("@/components/ui/icons/CheckMarkIcon.vue")
     ),
   },
 };

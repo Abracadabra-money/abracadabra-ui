@@ -50,63 +50,75 @@
   </div>
 </template>
 
-<script>
-import { defineAsyncComponent } from "vue";
+<script lang="ts">
+import { defineAsyncComponent, type Prop } from "vue";
 import { formatUnits } from "viem";
-import {
-  formatTokenBalance,
-  formatPercent,
-  formatUSD,
-} from "@/helpers/filters";
+import { formatTokenBalance, formatPercent } from "@/helpers/filters";
+import type { PoolInfo, TokenConfig } from "@/configs/pools/types";
+
+type CompositionTokenInfo = {
+  config: TokenConfig;
+  reserve: number;
+  price: number;
+  value: number;
+};
+
+type PartToken = {
+  name: string;
+  icon: string;
+  type: string;
+  amount: string | number;
+  percent: string;
+};
 
 export default {
   props: {
-    pool: { type: Object },
+    pool: Object as Prop<PoolInfo>,
   },
 
   computed: {
-    tvl() {
+    tvl(): number {
       return this.baseToken.value + this.quoteToken.value;
     },
 
-    baseToken() {
+    baseToken(): CompositionTokenInfo {
       const baseTokenReserve = Number(
         formatUnits(
-          this.pool.vaultReserve[0],
-          this.pool.tokens.baseToken.config.decimals
+          this.pool!.vaultReserve[0],
+          this.pool!.tokens.baseToken.config.decimals
         )
       );
-      const baseTokenPrice = this.pool.tokens.baseToken.price;
+      const baseTokenPrice = this.pool!.tokens.baseToken.price;
       const baseTokenValue = baseTokenReserve * baseTokenPrice;
 
       return {
-        config: this.pool.tokens.baseToken.config,
+        config: this.pool!.tokens.baseToken.config,
         reserve: baseTokenReserve,
         price: baseTokenPrice,
         value: baseTokenValue,
       };
     },
 
-    quoteToken() {
+    quoteToken(): CompositionTokenInfo {
       const quoteTokenReserve = Number(
         formatUnits(
-          this.pool.vaultReserve[1],
-          this.pool.tokens.quoteToken.config.decimals
+          this.pool!.vaultReserve[1],
+          this.pool!.tokens.quoteToken.config.decimals
         )
       );
-      const quoteTokenPrice = this.pool.tokens.quoteToken.price;
+      const quoteTokenPrice = this.pool!.tokens.quoteToken.price;
       const quoteTokenValue = quoteTokenReserve * quoteTokenPrice;
 
       return {
-        config: this.pool.tokens.quoteToken.config,
+        config: this.pool!.tokens.quoteToken.config,
         reserve: quoteTokenReserve,
         price: quoteTokenPrice,
         value: quoteTokenValue,
       };
     },
 
-    tokenParts() {
-      const tokenParts = [
+    tokenParts(): PartToken[] {
+      const tokenParts: PartToken[] = [
         {
           name: this.baseToken.config.name,
           icon: this.baseToken.config.icon,
@@ -127,31 +139,27 @@ export default {
         },
       ].filter((e) => e.name && e.amount);
 
-      return tokenParts.length ? tokenParts : false;
+      return tokenParts.length ? tokenParts : [];
     },
   },
 
   methods: {
-    formatScaleWidth(percentWidth) {
+    formatScaleWidth(percentWidth: string): string {
       return `width: calc( ${percentWidth} - 2px );`;
     },
 
-    formatTokenBalance(value, decimals) {
+    formatTokenBalance(value: bigint, decimals: number): string | number {
       return formatTokenBalance(formatUnits(value, decimals));
     },
 
-    formatUSD(value) {
-      return formatUSD(value);
-    },
-
-    calculatePercentage(part, total) {
+    calculatePercentage(part: number, total: number): number {
       return (part * 100) / total;
     },
   },
 
   components: {
-    BaseTokenIcon: defineAsyncComponent(() =>
-      import("@/components/base/BaseTokenIcon.vue")
+    BaseTokenIcon: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenIcon.vue")
     ),
   },
 };

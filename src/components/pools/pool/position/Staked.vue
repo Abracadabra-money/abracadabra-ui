@@ -28,44 +28,54 @@
       </ul>
     </div>
 
-    <BaseButton primary @click="goToDashboard()">See dashborad</BaseButton>
+    <BaseButton primary @click="goToDashboard()">See dashboard</BaseButton>
   </div>
 </template>
 
-<script>
-import { defineAsyncComponent } from "vue";
+<script lang="ts">
+import { defineAsyncComponent, type PropType } from "vue";
 import { formatUnits } from "viem";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
 import { useImage } from "@/helpers/useImage";
+import type {
+  PoolPositionTokenInfo,
+  RewardItemInfo,
+} from "@/components/pools/pool/position/PoolPosition.vue";
+import type { PoolInfo } from "@/configs/pools/types";
+import type { PointsStatistics } from "@/helpers/blast/stake/points";
 
 export default {
   props: {
-    pool: { type: Object },
-    userPointsStatistics: { type: Object },
+    pool: { type: Object as PropType<PoolInfo>, required: true },
+    userPointsStatistics: {
+      type: Object as PropType<PointsStatistics>,
+    },
   },
 
   computed: {
-    lpToken() {
+    lpToken(): PoolPositionTokenInfo {
       return {
         name: this.pool.name,
         icon: this.pool.icon,
         amount: this.formatTokenBalance(
-          this.pool.lockInfo.balances.unlocked || 0n,
+          this.pool.lockInfo?.balances.unlocked || 0n,
           this.pool.decimals
         ),
         amountUsd: this.formatUSD(
-          formatUnits(
-            this.pool.lockInfo.balances.unlocked || 0n,
-            this.pool.decimals
+          Number(
+            formatUnits(
+              this.pool.lockInfo?.balances.unlocked || 0n,
+              this.pool.decimals
+            )
           ) * this.pool.price
         ),
       };
     },
 
-    tokensList() {
+    tokensList(): PoolPositionTokenInfo[] {
       const previewRemoveLiquidityResult = previewRemoveLiquidity(
-        this.pool.lockInfo.balances.unlocked || 0n,
+        this.pool.lockInfo?.balances.unlocked || 0n,
         this.pool
       );
 
@@ -78,9 +88,11 @@ export default {
             this.pool.tokens.baseToken.config.decimals
           ),
           amountUsd: this.formatUSD(
-            formatUnits(
-              previewRemoveLiquidityResult.baseAmountOut,
-              this.pool.tokens.baseToken.config.decimals
+            Number(
+              formatUnits(
+                previewRemoveLiquidityResult.baseAmountOut,
+                this.pool.tokens.baseToken.config.decimals
+              )
             ) * this.pool.tokens.baseToken.price
           ),
         },
@@ -92,18 +104,20 @@ export default {
             this.pool.tokens.quoteToken.config.decimals
           ),
           amountUsd: this.formatUSD(
-            formatUnits(
-              previewRemoveLiquidityResult.quoteAmountOut,
-              this.pool.tokens.quoteToken.config.decimals
+            Number(
+              formatUnits(
+                previewRemoveLiquidityResult.quoteAmountOut,
+                this.pool.tokens.quoteToken.config.decimals
+              )
             ) * this.pool.tokens.quoteToken.price
           ),
         },
       ].filter((e) => e.name && e.amount);
 
-      return tokensList.length ? tokensList : false;
+      return tokensList.length ? tokensList : [];
     },
 
-    rewardsList() {
+    rewardsList(): RewardItemInfo[] {
       return [
         {
           title: "Points",
@@ -131,7 +145,7 @@ export default {
   methods: {
     formatUSD,
 
-    formatTokenBalance(value, decimals) {
+    formatTokenBalance(value: bigint, decimals: number): string | number {
       return formatTokenBalance(formatUnits(value, decimals));
     },
 
@@ -143,14 +157,15 @@ export default {
   },
 
   components: {
-    BaseButton: defineAsyncComponent(() =>
-      import("@/components/base/BaseButton.vue")
+    BaseButton: defineAsyncComponent(
+      () => import("@/components/base/BaseButton.vue")
     ),
-    PoolCompoundCard: defineAsyncComponent(() =>
-      import("@/components/pools/pool/position/cards/PoolCompoundCard.vue")
+    PoolCompoundCard: defineAsyncComponent(
+      () =>
+        import("@/components/pools/pool/position/cards/PoolCompoundCard.vue")
     ),
-    Tooltip: defineAsyncComponent(() =>
-      import("@/components/ui/icons/Tooltip.vue")
+    Tooltip: defineAsyncComponent(
+      () => import("@/components/ui/icons/Tooltip.vue")
     ),
   },
 };

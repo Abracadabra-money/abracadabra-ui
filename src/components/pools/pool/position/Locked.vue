@@ -11,22 +11,30 @@
       />
     </ul>
 
-    <BaseButton primary @click="goToDashboard()">See dashbord</BaseButton>
+    <BaseButton primary @click="goToDashboard()">See dashboard</BaseButton>
   </div>
 </template>
 
-<script>
-import { defineAsyncComponent } from "vue";
+<script lang="ts">
+import { defineAsyncComponent, type PropType } from "vue";
 import { mapGetters } from "vuex";
 import { formatUnits } from "viem";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 import { getUserLocks } from "@/helpers/pools/getPoolInfo";
 import { useImage } from "@/helpers/useImage";
+import type {
+  PoolPositionTokenInfo,
+  RewardItemInfo,
+} from "@/components/pools/pool/position/PoolPosition.vue";
+import type { PoolInfo } from "@/configs/pools/types";
+import type { PointsStatistics } from "@/helpers/blast/stake/points";
 
 export default {
   props: {
-    pool: { type: Object },
-    userPointsStatistics: { type: Object },
+    pool: { type: Object as PropType<PoolInfo>, required: true },
+    userPointsStatistics: {
+      type: Object as PropType<PointsStatistics>,
+    },
   },
 
   data() {
@@ -39,37 +47,39 @@ export default {
       account: "getAccount",
     }),
 
-    lpToken() {
+    lpToken(): PoolPositionTokenInfo {
       return {
         name: this.pool.name,
         icon: this.pool.icon,
         amount: this.formatTokenBalance(
-          this.pool.lockInfo.balances.locked || 0n,
+          this.pool.lockInfo?.balances.locked || 0n,
           this.pool.decimals
         ),
         amountUsd: this.formatUSD(
-          formatUnits(
-            this.pool.lockInfo.balances.locked || 0n,
-            this.pool.decimals
+          Number(
+            formatUnits(
+              this.pool.lockInfo?.balances.locked || 0n,
+              this.pool.decimals
+            )
           ) * this.pool.price
         ),
       };
     },
 
-    rewardsList() {
+    rewardsList(): RewardItemInfo[] {
       return [
         {
           title: "Points",
           icon: useImage("assets/images/points-dashboard/blast.png"),
           value: formatTokenBalance(
-            this.userPointsStatistics?.liquidityPoints?.founder?.finalized || 0
+            this.userPointsStatistics?.liquidityPoints.founder.finalized || 0
           ),
         },
         {
           title: "Gold",
           icon: useImage("assets/images/points-dashboard/gold-points.svg"),
           value: formatTokenBalance(
-            this.userPointsStatistics?.developerPoints?.founder?.finalized || 0
+            this.userPointsStatistics?.developerPoints.founder.finalized || 0
           ),
         },
         {
@@ -84,7 +94,7 @@ export default {
   methods: {
     formatUSD,
 
-    formatTokenBalance(value, decimals) {
+    formatTokenBalance(value: bigint, decimals: number) {
       return formatTokenBalance(formatUnits(value, decimals));
     },
 
@@ -104,14 +114,15 @@ export default {
   },
 
   components: {
-    BaseButton: defineAsyncComponent(() =>
-      import("@/components/base/BaseButton.vue")
+    BaseButton: defineAsyncComponent(
+      () => import("@/components/base/BaseButton.vue")
     ),
-    FounderBoostCard: defineAsyncComponent(() =>
-      import("@/components/pools/pool/position/cards/FounderBoostCard.vue")
+    FounderBoostCard: defineAsyncComponent(
+      () =>
+        import("@/components/pools/pool/position/cards/FounderBoostCard.vue")
     ),
-    UserLock: defineAsyncComponent(() =>
-      import("@/components/pools/pool/position/UserLock.vue")
+    UserLock: defineAsyncComponent(
+      () => import("@/components/pools/pool/position/UserLock.vue")
     ),
   },
 };

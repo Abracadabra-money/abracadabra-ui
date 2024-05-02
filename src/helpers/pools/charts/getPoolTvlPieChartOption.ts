@@ -1,8 +1,11 @@
 import { formatUnits } from "viem";
 import { formatLargeSum } from "@/helpers/filters";
 import store from "@/store";
+import type { PoolInfo } from "@/configs/pools/types";
 
-export const getPoolTvlPieChartOption = async (pool: any) => {
+export const getPoolTvlPieChartOption = async (pool: PoolInfo | null) => {
+  if (!pool) return null;
+
   const tvlByCategory: TvlByCategory = await getTvlByCategory(pool);
 
   return {
@@ -90,7 +93,14 @@ export const getPoolTvlPieChartOption = async (pool: any) => {
   };
 };
 
-const getTvlByCategory = async (pool: any) => {
+const getTvlByCategory = async (pool: PoolInfo): Promise<TvlByCategory> => {
+  if (!pool.lockContract)
+    return {
+      staked: 0,
+      locked: 0,
+      total: 0,
+    };
+
   const publicClient = store.getters.getChainById(pool.chainId).publicClient;
 
   const total =

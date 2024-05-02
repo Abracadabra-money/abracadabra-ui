@@ -11,9 +11,10 @@
         :isUserPositionOpen="isUserPositionOpen"
         @getPoolInfo="getPoolInfo"
         @openPositionPopup="isMyPositionPopupOpened = true"
+        v-if="pointsStatistics"
       />
 
-      <PoolComposition :pool="this.pool" />
+      <PoolComposition :pool="pool" />
     </div>
 
     <div class="pool-position-wrap">
@@ -23,13 +24,13 @@
         :isMyPositionPopupOpened="isMyPositionPopupOpened"
         @closePopup="isMyPositionPopupOpened = false"
         @updateInfo="getPoolInfo"
-        v-if="isUserPositionOpen"
+        v-if="isUserPositionOpen && pointsStatistics"
       />
     </div>
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
 import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
@@ -37,7 +38,9 @@ import { getPoolTvlPieChartOption } from "@/helpers/pools/charts/getPoolTvlPieCh
 import {
   fetchUserPointsStatistics,
   fetchPointsStatistics,
+  type PointsStatistics,
 } from "@/helpers/blast/stake/points";
+import type { PoolInfo } from "@/configs/pools/types";
 
 export default {
   props: {
@@ -47,15 +50,12 @@ export default {
 
   data() {
     return {
-      pool: null,
-      pointsStatistics: {
-        user: null,
-        global: null,
-      },
-      userPointsStatistics: null,
+      pool: null as PoolInfo | null,
+      globalPointsStatistics: null as PointsStatistics | null,
+      userPointsStatistics: null as PointsStatistics | null,
       isMyPositionPopupOpened: false,
-      poolsTimer: null,
-      chartOption: null,
+      poolsTimer: null as unknown as NodeJS.Timeout,
+      chartOption: null as any,
     };
   },
 
@@ -66,13 +66,32 @@ export default {
       signer: "getSigner",
     }),
 
-    isUserPositionOpen() {
-      return (
-        this.account &&
-        (this.pool?.userInfo?.balance > 0n ||
-          this.pool.lockInfo?.balances.locked > 0n ||
-          this.pool.lockInfo?.balances.unlocked > 0n)
-      );
+    isUserPositionOpen(): boolean {
+      if (!this.account || !this.pool) return false;
+
+      const isLpBalance = this.pool.userInfo.balance > 0n;
+
+      let isLocked: boolean = false;
+      let isUnlocked: boolean = false;
+
+      if (this.pool.lockInfo) {
+        isLocked = this.pool.lockInfo.balances.locked > 0n;
+        isUnlocked = this.pool.lockInfo.balances.unlocked > 0n;
+      }
+
+      return isLpBalance || isLocked || isUnlocked;
+    },
+
+    pointsStatistics(): {
+      user: PointsStatistics;
+      global: PointsStatistics;
+    } | null {
+      if (this.userPointsStatistics && this.globalPointsStatistics)
+        return {
+          user: this.userPointsStatistics,
+          global: this.globalPointsStatistics,
+        };
+      return null;
     },
   },
 
@@ -103,7 +122,7 @@ export default {
     },
 
     async getPointsStatistics() {
-      [this.pointsStatistics.global, this.pointsStatistics.user] =
+      [this.globalPointsStatistics, this.userPointsStatistics] =
         await Promise.all([
           fetchPointsStatistics(),
           fetchUserPointsStatistics(this.account),
@@ -127,17 +146,17 @@ export default {
   },
 
   components: {
-    PoolActionBlock: defineAsyncComponent(() =>
-      import("@/components/pools/pool/PoolActionBlock.vue")
+    PoolActionBlock: defineAsyncComponent(
+      () => import("@/components/pools/pool/PoolActionBlock.vue")
     ),
-    PoolComposition: defineAsyncComponent(() =>
-      import("@/components/pools/pool/PoolComposition.vue")
+    PoolComposition: defineAsyncComponent(
+      () => import("@/components/pools/pool/PoolComposition.vue")
     ),
-    PoolPosition: defineAsyncComponent(() =>
-      import("@/components/pools/pool/position/PoolPosition.vue")
+    PoolPosition: defineAsyncComponent(
+      () => import("@/components/pools/pool/position/PoolPosition.vue")
     ),
-    PieChart: defineAsyncComponent(() =>
-      import("@/components/pools/pool/charts/PieChart.vue")
+    PieChart: defineAsyncComponent(
+      () => import("@/components/pools/pool/charts/PieChart.vue")
     ),
   },
 };

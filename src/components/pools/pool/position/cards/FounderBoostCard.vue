@@ -36,21 +36,28 @@
   </div>
 </template>
 
-<script>
-import { defineAsyncComponent } from "vue";
+<script lang="ts">
+import { defineAsyncComponent, type PropType } from "vue";
+import type {
+  PoolPositionTokenInfo,
+  RewardItemInfo,
+} from "@/components/pools/pool/position/PoolPosition.vue";
 
 export default {
   props: {
-    lpToken: { type: Object },
-    rewardsList: { type: Array },
+    lpToken: {
+      type: Object as PropType<PoolPositionTokenInfo>,
+      required: true,
+    },
+    rewardsList: { type: Array as PropType<RewardItemInfo[]> },
   },
 
   components: {
-    BaseTokenIcon: defineAsyncComponent(() =>
-      import("@/components/base/BaseTokenIcon.vue")
+    BaseTokenIcon: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenIcon.vue")
     ),
-    RocketIcon: defineAsyncComponent(() =>
-      import("@/components/ui/icons/RocketIcon.vue")
+    RocketIcon: defineAsyncComponent(
+      () => import("@/components/ui/icons/RocketIcon.vue")
     ),
   },
 };

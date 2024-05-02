@@ -1,34 +1,40 @@
 import { getLpInfo } from "@/helpers/pools/swap/magicLp";
 import poolsConfig from "@/configs/pools/pools";
 import { formatUnits, type Address } from "viem";
-import type { PoolConfig } from "@/configs/pools/types";
-import type { PairTokensInfo } from "@/helpers/pools/swap/tokens";
-
-import type { MagicLPInfo } from "@/helpers/pools/swap/types";
-import { getPoolTokenInfo } from "@/helpers/pools/swap/tokens";
 import { getCoinsPrices } from "@/helpers/prices/defiLlama/index";
 import { getSwapRouterByChain } from "@/configs/pools/routers";
-
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
+import { getPoolTokenInfo } from "@/helpers/pools/swap/tokens";
+import type { PoolConfig, PoolInfo, LockInfo } from "@/configs/pools/types";
+import type { PairTokensInfo } from "@/helpers/pools/swap/tokens";
+import type { MagicLPInfo } from "@/helpers/pools/swap/types";
 
 export const getPoolInfo = async (
   poolChainId: number,
   poolId: number,
   account: Address
-) => {
-  const poolConfig = poolsConfig.find(
+): Promise<PoolInfo | null> => {
+  const poolConfig: PoolConfig | undefined = poolsConfig.find(
     ({ id, chainId }: PoolConfig) => id == poolId && chainId == poolChainId
   );
 
-  if (!poolConfig) return false;
+  if (!poolConfig) return null;
 
-  const getLpInfoResult = await getLpInfo(poolConfig, poolChainId, account);
+  const getLpInfoResult: MagicLPInfo = await getLpInfo(
+    poolConfig,
+    poolChainId,
+    account
+  );
 
-  const tokens = await getTokensInfo(poolChainId, poolConfig, account);
+  const tokens: PairTokensInfo = await getTokensInfo(
+    poolChainId,
+    poolConfig,
+    account
+  );
 
-  const lpTokenPrice = getLpTokenPrice(getLpInfoResult, tokens);
+  const lpTokenPrice: number = getLpTokenPrice(getLpInfoResult, tokens);
 
-  const poolInfo: any = {
+  const poolInfo: PoolInfo = {
     ...getLpInfoResult,
     price: lpTokenPrice,
     tokens,
@@ -45,13 +51,13 @@ const getTokensInfo = async (
   chainId: number,
   poolConfig: PoolConfig,
   account: Address
-) => {
+): Promise<PairTokensInfo> => {
   const tokensPrices = await getCoinsPrices(chainId, [
     poolConfig.baseToken.contract.address,
     poolConfig.quoteToken.contract.address,
   ]);
 
-  const tokens = await getPoolTokenInfo(
+  const tokens: PairTokensInfo = await getPoolTokenInfo(
     chainId,
     poolConfig,
     tokensPrices,
@@ -64,7 +70,7 @@ const getTokensInfo = async (
 export const getLpTokenPrice = (
   lpInfo: MagicLPInfo,
   tokens: PairTokensInfo
-) => {
+): number => {
   const formattedTotalSupply = Number(
     formatUnits(lpInfo.totalSupply, lpInfo.decimals)
   );
@@ -91,15 +97,15 @@ export const getLpTokenPrice = (
 export const getLockInfo = async (
   account: Address,
   chainId: number,
-  config: any
-) => {
+  config: PoolConfig
+): Promise<LockInfo> => {
   const publicClient = getPublicClient(chainId);
 
   const [balances, allowance]: any = await publicClient.multicall({
     contracts: [
       {
-        address: config.lockContract.address,
-        abi: config.lockContract.abi,
+        address: config.lockContract!.address,
+        abi: config.lockContract!.abi,
         functionName: "balances",
         args: [account],
       },
@@ -107,12 +113,12 @@ export const getLockInfo = async (
         address: config.contract.address,
         abi: config.contract.abi,
         functionName: "allowance",
-        args: [account, config.lockContract.address],
+        args: [account, config.lockContract!.address],
       },
     ],
   });
 
-  const { locked, unlocked }: any = balances.result;
+  const { locked, unlocked } = balances.result;
 
   return {
     balances: {
@@ -127,8 +133,10 @@ export const getLockInfo = async (
 export const getUserLocks = async (
   account: Address,
   chainId: number,
-  config: any
+  config: PoolInfo
 ) => {
+  if (!config.lockContract) return [];
+
   const publicClient = getPublicClient(chainId);
 
   const userLocks: any = await publicClient.readContract({

@@ -53,19 +53,30 @@
   </div>
 </template>
 
-<script>
-import { defineAsyncComponent } from "vue";
+<script lang="ts">
+import { defineAsyncComponent, type PropType } from "vue";
+import type { PoolInfo } from "@/configs/pools/types";
+import type { PointsStatistics } from "@/helpers/blast/stake/points";
 
-export const actionStatus = {
-  SUCCESS: "success",
-  PENDING: "pending",
-  WAITING: "waiting",
-};
+export type FormattedLpTokenExpected = { value: string | number; usd: string };
+
+export enum ActionStatus {
+  SUCCESS = "success",
+  PENDING = "pending",
+  WAITING = "waiting",
+  ERROR = "error",
+}
 
 export default {
   props: {
-    pool: { type: Object },
-    pointsStatistics: { type: Object },
+    pool: { type: Object as PropType<PoolInfo>, required: true },
+    pointsStatistics: {
+      type: Object as PropType<{
+        user: PointsStatistics;
+        global: PointsStatistics;
+      }>,
+      required: true,
+    },
     isUserPositionOpen: { type: Boolean, default: false },
   },
 
@@ -88,32 +99,32 @@ export default {
   },
 
   methods: {
-    selectTab(action) {
+    selectTab(action: "deposit" | "remove") {
       this.activeTab = action;
     },
 
-    updateSlippageValue(value) {
+    updateSlippageValue(value: bigint) {
       this.slippage = value;
     },
 
-    updateDeadlineValue(value) {
+    updateDeadlineValue(value: bigint) {
       this.deadline = value;
     },
   },
 
   components: {
     Tabs: defineAsyncComponent(() => import("@/components/ui/Tabs.vue")),
-    TokenPair: defineAsyncComponent(() =>
-      import("@/components/pools/pool/TokenPair.vue")
+    TokenPair: defineAsyncComponent(
+      () => import("@/components/pools/pool/TokenPair.vue")
     ),
-    SwapSettingsPopup: defineAsyncComponent(() =>
-      import("@/components/popups/swap/SwapSettingsPopup.vue")
+    SwapSettingsPopup: defineAsyncComponent(
+      () => import("@/components/popups/swap/SwapSettingsPopup.vue")
     ),
-    DepositStakeWrap: defineAsyncComponent(() =>
-      import("@/components/pools/pool/DepositStakeWrap.vue")
+    DepositStakeWrap: defineAsyncComponent(
+      () => import("@/components/pools/pool/DepositStakeWrap.vue")
     ),
-    RemoveUnstakeWrap: defineAsyncComponent(() =>
-      import("@/components/pools/pool/RemoveUnstakeWrap.vue")
+    RemoveUnstakeWrap: defineAsyncComponent(
+      () => import("@/components/pools/pool/RemoveUnstakeWrap.vue")
     ),
   },
 };

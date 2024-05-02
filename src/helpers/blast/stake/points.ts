@@ -54,11 +54,13 @@ const reasonMap = {
 const USER_POINTS_LOCAL_STORAGE_KEY = "USER_POINTS_STATISTICS";
 const GLOBAL_POINTS_LOCAL_STORAGE_KEY = "GLOBAL_POINTS_STATISTICS";
 
+export type PointsStatistics = Record<
+  (typeof kindMap)[Kind],
+  Record<"total" | (typeof reasonMap)[Reason], Record<State, number>>
+>;
+
 type DataToCache = {
-  pointsStatistics: Record<
-    (typeof kindMap)[Kind],
-    Record<"total" | (typeof reasonMap)[Reason], Record<State, number>>
-  >;
+  pointsStatistics: PointsStatistics;
   time: number;
   account?: Address | null;
 };
@@ -70,10 +72,7 @@ const buildStatistics = (
     reason: Reason;
     amount: number;
   }>
-): Record<
-  (typeof kindMap)[Kind],
-  Record<"total" | (typeof reasonMap)[Reason], Record<State, number>>
-> => {
+): PointsStatistics => {
   const statistics = {
     liquidityPoints: {
       total: {
@@ -148,11 +147,11 @@ const buildStatistics = (
   return statistics;
 };
 
-export const fetchPointsStatistics = async () => {
+export const fetchPointsStatistics = async (): Promise<PointsStatistics> => {
   const cachedData = checkAndGetCachedData(GLOBAL_POINTS_LOCAL_STORAGE_KEY);
   if (cachedData) return cachedData;
 
-  let globalPointsStatistics = buildStatistics([]);
+  let globalPointsStatistics: PointsStatistics = buildStatistics([]);
 
   try {
     const { data } = await pointsApiClient.get<
@@ -176,7 +175,9 @@ export const fetchPointsStatistics = async () => {
   return globalPointsStatistics;
 };
 
-export const fetchUserPointsStatistics = async (address: Address) => {
+export const fetchUserPointsStatistics = async (
+  address: Address
+): Promise<PointsStatistics> => {
   let userPointsStatistics = buildStatistics([]);
   if (!address) {
     return userPointsStatistics;
@@ -215,10 +216,7 @@ export const fetchUserPointsStatistics = async (address: Address) => {
 };
 
 const setCachedData = (
-  pointsStatistics: Record<
-    (typeof kindMap)[Kind],
-    Record<"total" | (typeof reasonMap)[Reason], Record<State, number>>
-  >,
+  pointsStatistics: PointsStatistics,
   localStorageKey: string,
   account: Address | null = null
 ) => {
@@ -237,25 +235,25 @@ const setCachedData = (
 const checkAndGetCachedData = (
   localStorageKey: string,
   account: Address | null = null
-) => {
+): PointsStatistics | null => {
   const cachedData = localStorage.getItem(localStorageKey);
   const allowedTime = 5; // 5 min
 
-  if (!cachedData) return false;
+  if (!cachedData) return null;
 
   try {
     const parsedCacheData = JSON.parse(cachedData);
 
-    if (parsedCacheData.account != account) return false;
+    if (parsedCacheData.account != account) return null;
 
     const currentTime = new Date().getTime();
     const timeDiff = currentTime - parsedCacheData.time;
     const minutes = Math.floor(timeDiff / 1000 / 60);
-    if (minutes > allowedTime) return false;
+    if (minutes > allowedTime) return null;
 
     return parsedCacheData.pointsStatistics;
   } catch (error) {
     console.log("checkAndGetCachedData err:", error);
-    return false;
+    return null;
   }
 };

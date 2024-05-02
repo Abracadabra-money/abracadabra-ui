@@ -44,16 +44,31 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { defineAsyncComponent } from "vue";
+import type { PropType} from "vue";
 import moment from "moment";
+import type { PoolInfo } from "@/configs/pools/types";
+import type { PointsStatistics } from "@/helpers/blast/stake/points";
 
 export default {
   props: {
-    pool: { type: Object },
-    pointsStatistics: { type: Object },
-    slippage: { type: BigInt },
-    deadline: { type: BigInt },
+    pool: { type: Object as PropType<PoolInfo>, required: true },
+    pointsStatistics: {
+      type: Object as PropType<{
+        user: PointsStatistics;
+        global: PointsStatistics;
+      }>,
+      required: true,
+    },
+    slippage: {
+      type: BigInt as unknown as PropType<bigint>,
+      required: true,
+    },
+    deadline: {
+      type: BigInt as unknown as PropType<bigint>,
+      required: true,
+    },
   },
 
   emits: ["updatePoolInfo"],
@@ -70,17 +85,17 @@ export default {
   },
 
   computed: {
-    isLockContract() {
-      return this.pool.lockContract;
+    isLockContract(): boolean {
+      return !!this.pool.lockContract;
     },
 
-    isStake() {
+    isStake(): boolean {
       return this.activeTab == "stake";
     },
   },
 
   methods: {
-    selectTab(action) {
+    selectTab(action: "deposit" | "stake") {
       this.activeTab = action;
     },
 
@@ -105,12 +120,12 @@ export default {
 
     Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
 
-    Deposit: defineAsyncComponent(() =>
-      import("@/components/pools/pool/actions/deposit/Deposit.vue")
+    Deposit: defineAsyncComponent(
+      () => import("@/components/pools/pool/actions/deposit/Deposit.vue")
     ),
 
-    Stake: defineAsyncComponent(() =>
-      import("@/components/pools/pool/actions/Stake.vue")
+    Stake: defineAsyncComponent(
+      () => import("@/components/pools/pool/actions/Stake.vue")
     ),
   },
 };

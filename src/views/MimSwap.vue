@@ -216,7 +216,8 @@ export default {
       }
 
       const midPrice = routeInfo.lpInfo.midPrice;
-      const fromBase = routeInfo.lpInfo.baseToken === routeInfo.inputToken;
+      const fromBase =
+        routeInfo.lpInfo.baseTokenAddress === routeInfo.inputToken;
 
       return {
         midPrice,
@@ -232,7 +233,7 @@ export default {
 
       if (!routeInfo) return 0;
 
-      const isBase = routeInfo.lpInfo.baseToken === routeInfo.inputToken;
+      const isBase = routeInfo.lpInfo.baseTokenAddress === routeInfo.inputToken;
 
       //@ts-ignore
       const { midPrice } = routeInfo.lpInfo;

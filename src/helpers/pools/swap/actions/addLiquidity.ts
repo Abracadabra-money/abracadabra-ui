@@ -12,7 +12,7 @@ export type AddLiquidityPayload = {
   baseInAmount: bigint;
   quoteInAmount: bigint;
   minimumShares: bigint;
-  deadline: bigint;
+  deadline: bigint | number;
 };
 
 export const addLiquidity = async (

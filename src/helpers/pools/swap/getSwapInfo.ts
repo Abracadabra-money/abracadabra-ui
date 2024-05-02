@@ -47,8 +47,6 @@ const fetchOutputAmount = async (
     args: [account, amount],
   });
 
-  console.log("queryResult", result);
-
   return {
     receiveAmount: result[0] ? result[0] : 0n,
     mtFee: result[1] ? result[1] : 0n,
@@ -123,10 +121,12 @@ export const findBestRoutes = async (
   // Create a map of token to pool for quick lookup
   const tokenToPools: Record<string, MagicLPInfo[]> = {};
   pools.forEach((pool) => {
-    tokenToPools[pool.baseToken] = tokenToPools[pool.baseToken] || [];
-    tokenToPools[pool.quoteToken] = tokenToPools[pool.quoteToken] || [];
-    tokenToPools[pool.baseToken].push(pool);
-    tokenToPools[pool.quoteToken].push(pool);
+    tokenToPools[pool.baseTokenAddress] =
+      tokenToPools[pool.baseTokenAddress] || [];
+    tokenToPools[pool.quoteTokenAddress] =
+      tokenToPools[pool.quoteTokenAddress] || [];
+    tokenToPools[pool.baseTokenAddress].push(pool);
+    tokenToPools[pool.quoteTokenAddress].push(pool);
   });
 
   // Stack for DFS
@@ -166,7 +166,9 @@ export const findBestRoutes = async (
     await Promise.all(
       tokenToPools[token].map(async (pool: any) => {
         const nextToken =
-          pool.baseToken === token ? pool.quoteToken : pool.baseToken;
+          pool.baseTokenAddress === token
+            ? pool.quoteTokenAddress
+            : pool.baseTokenAddress;
         if (visited.has(nextToken)) {
           return;
         }
@@ -176,7 +178,7 @@ export const findBestRoutes = async (
           : await fetchOutputAmount(
               pool,
               account,
-              pool.baseToken === token,
+              pool.baseTokenAddress === token,
               amount
             );
 
@@ -237,12 +239,12 @@ const getMethodName = (routes: RouteInfo[], actionConfig: ActionConfig) => {
   if (routes.length === 1) {
     const { address: fromTokenAddress } =
       actionConfig.fromToken.config.contract;
-    const { baseToken, quoteToken } = routes[0].lpInfo;
+    const { baseTokenAddress, quoteTokenAddress } = routes[0].lpInfo;
 
     switch (fromTokenAddress) {
-      case baseToken:
+      case baseTokenAddress:
         return "sellBaseTokensForTokens";
-      case quoteToken:
+      case quoteTokenAddress:
         return "sellQuoteTokensForTokens";
     }
   }
