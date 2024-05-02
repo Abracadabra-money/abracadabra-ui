@@ -2,8 +2,12 @@
   <div class="action">
     <div class="action-header">
       <h2 class="action-title">Lock MIM</h2>
-      <CheckBox :value="isStakeAndLock" @update="toggleAction">
-        Include Staked amount
+      <CheckBox
+        :value="isStakeAndLock"
+        @update="toggleAction"
+        v-if="mimSavingRateInfo.userInfo.balances.unlocked"
+      >
+        Lock staked amount
       </CheckBox>
     </div>
 
@@ -14,7 +18,7 @@
       :icon="mimSavingRateInfo.stakingToken.icon"
       :max="maxInputValue"
       :tokenPrice="1"
-      :primaryMax="!isStakeAndLock"
+      :primaryMax="isStakeAndLock"
       @updateInputValue="onUpdateLockValue"
     />
 
@@ -79,8 +83,8 @@ export default {
 
     maxInputValue() {
       return this.isStakeAndLock
-        ? this.mimSavingRateInfo.userInfo.stakeToken.balance
-        : this.mimSavingRateInfo.userInfo.balances.unlocked;
+        ? this.mimSavingRateInfo.userInfo.balances.unlocked
+        : this.mimSavingRateInfo.userInfo.stakeToken.balance;
     },
 
     isStakeAndLock() {

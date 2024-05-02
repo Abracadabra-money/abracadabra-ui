@@ -29,7 +29,11 @@
       >{{ actionValidationData.btnText }}
     </BaseButton>
 
-    <div class="lock-promo">
+    <div
+      class="lock-promo"
+      @click="$emit('chooseLockAction')"
+      v-if="mimSavingRateInfo.userInfo.balances.unlocked"
+    >
       <div class="promo-title">
         <h4 class="promo-message">Lock your Staked MIM for Boosted APR</h4>
 
@@ -51,16 +55,6 @@
             {{ formatAmount(mimSavingRateInfo.userInfo.balances.unlocked) }}
           </div>
         </div>
-
-        <!-- 
-        <BaseButton
-          class="lock-action-button"
-          primary
-          :disabled="lockValidationData.isDisabled"
-          @click="lockActionHandler"
-        >
-          {{ lockValidationData.btnText }}
-        </BaseButton> -->
       </div>
     </div>
   </div>
@@ -89,7 +83,7 @@ type ActionConfig = {
 const ACTION_LOCK = "lock";
 
 export default {
-  emits: ["updateMimSavingRateInfo"],
+  emits: ["chooseLockAction", "updateMimSavingRateInfo"],
 
   props: {
     mimSavingRateInfo: { type: Object, required: true },
@@ -244,7 +238,7 @@ export default {
 
       const { error }: any = await actions[this.actionMethodName](
         this.mimSavingRateInfo.lockingMultiRewardsContract,
-        this.actionConfig,
+        this.actionConfig
       );
 
       await this.deleteNotification(notificationId);
@@ -318,7 +312,6 @@ export default {
   margin-top: auto;
   padding: 16px;
   border-radius: 16px;
-  border: 1px solid rgba(180, 180, 180, 0.08);
   background: url("../../../assets/images/msr/mim-bg-image.png"),
     linear-gradient(
       90deg,
@@ -329,6 +322,7 @@ export default {
   background-position: right 0 bottom 0;
   box-shadow: 0px 4px 29.8px 0px rgba(0, 0, 0, 0.42) inset;
   backdrop-filter: blur(50px);
+  cursor: pointer;
 }
 
 .currently-staked,
