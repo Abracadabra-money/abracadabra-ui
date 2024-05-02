@@ -5,19 +5,30 @@
       {{ locked }}
     </div>
 
-    <div class="timer-wrap">
-      <Timer class="timer" :endDateTimestamp="1714660482" small medium />
+    <div class="timer-wrap" v-if="lockStatus.title == 'active'">
+      <Timer
+        class="timer"
+        :endDateTimestamp="userLock.unlockTime"
+        small
+        medium
+      />
       <p class="timer-description">Unlocks in</p>
+    </div>
+
+    <div class="lock-status-wrap" v-else>
+      <img class="status-image" :src="lockStatus.image" />
+      <span class="status-title">{{ lockStatus.title }}</span>
     </div>
   </li>
 </template>
 
 <script>
 import { defineAsyncComponent } from "vue";
+import moment from "moment";
 import mimIcon from "@/assets/images/tokens/MIM.png";
 import { formatTokenBalance } from "@/helpers/filters";
-import { formatTimestampToUnix } from "@/helpers/time/index";
 import { formatUnits } from "viem";
+import { useImage } from "@/helpers/useImage";
 
 export default {
   props: {
@@ -25,7 +36,7 @@ export default {
   },
 
   data() {
-    return { mimIcon };
+    return { mimIcon, now: null, intervalId: null };
   },
 
   computed: {
@@ -35,12 +46,39 @@ export default {
       );
     },
 
-    unlockTime() {
-      return formatTimestampToUnix(
-        formatUnits(this.userLock.unlockTime, 0),
-        "DD MMM YYYY"
-      );
+    lockStatus() {
+      const duration = moment.duration(this.unlockDate.diff(this.now));
+
+      if (duration.asSeconds() <= 0)
+        return {
+          title: "unlocking",
+          image: useImage("assets/images/msr/lock-status/unlocking.png"),
+        };
+
+      return {
+        title: "active",
+        image: "",
+      };
     },
+
+    unlockDate() {
+      return moment.utc(this.userLock.unlockTime * 1000);
+    },
+  },
+
+  methods: {
+    updateNow() {
+      this.now = moment().utc();
+    },
+  },
+
+  mounted() {
+    this.updateNow();
+    this.intervalId = setInterval(this.updateNow, 1000);
+  },
+
+  beforeUnmount() {
+    clearInterval(this.intervalId);
   },
 
   components: {
@@ -104,5 +142,15 @@ export default {
 .timer::v-deep(.time-block) {
   background: rgba(0, 10, 35, 0.3) !important;
   height: 26px !important;
+}
+
+.lock-status-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-title {
+  text-transform: capitalize;
 }
 </style>

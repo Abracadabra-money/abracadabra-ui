@@ -1,6 +1,19 @@
 import type { Address } from "viem";
 import type { ContractInfo, PublicClient } from "@/types/global";
 
+//remove: simulation to prepare UI
+const userLocksTest = [{
+  amount: 111111111111111111n,
+  unlockTime: 1722586411,
+}, {
+  amount: 222222222222222222n,
+  unlockTime: 1714637611,
+},
+{
+  amount: 3333333333333333333n,
+  unlockTime: 1714637611,
+}]
+
 export type UserInfo = {
   stakeToken: {
     balance: bigint;

@@ -14,12 +14,11 @@
     </p>
 
     <div class="empty-wrap" v-if="account">
-      <ul class="user-locks" v-if="true">
+      <ul class="user-locks" v-if="userLocks.length > 0">
         <UserLock
-          v-for="(userLock, index) in 10"
+          v-for="(userLock, index) in userLocks"
           :userLock="{
-            amount: 100n,
-            unlockTime: 1714660482,
+            ...userLock,
             decimals: mimSavingRateInfo.stakingToken.decimals,
           }"
           :key="index"

@@ -1,4 +1,5 @@
 import type { Address } from "viem";
+import type { PublicClient } from "@/types/global";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 import { getUserInfo } from "@/helpers/mimSavingRate/getUserInfo";
 import {
@@ -9,7 +10,7 @@ import { getLockingMultiRewardsInfo } from "@/helpers/mimSavingRate/getLockingMu
 
 export const getMimSavingRateInfo = async (
   account: Address,
-  publicClient: any,
+  publicClient: PublicClient,
   chainId = ARBITRUM_CHAIN_ID
 ) => {
   const config: MimSavingRateConfig | undefined = mimSavingRateConfig.find(

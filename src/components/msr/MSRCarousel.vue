@@ -20,6 +20,8 @@
           :class="{
             active: index === activeIndex,
             inactive: isCarouselMode && index !== activeIndex,
+            odd: index % 2 != 0,
+            even: index % 2 == 0,
           }"
         >
           <div class="item-content" @click="$emit('selectAction', index)">
@@ -116,25 +118,37 @@ export default {
   display: flex;
   align-items: center;
   height: 100%;
+  width: 100%;
   overflow: hidden;
+}
+
+.carousel-container.active .carousel,
+.carousel-container.active .carousel .carousel-track {
+  width: auto;
 }
 
 .carousel-track {
   display: flex;
   align-items: center;
+  justify-content: space-evenly;
   height: 100%;
+  width: 100%;
   transition: transform 0.5s;
 }
 
 .carousel-item {
   min-width: 200px;
-  transition: all 0.5s ease-in-out;
+  transition: transform 0.5s ease-in;
   margin: 20px;
   cursor: pointer;
 }
 
-.carousel-item:hover {
-  transform: scale(110%);
+.carousel-item.odd:not(.active) {
+  animation: MoveUpDown 5s linear infinite;
+}
+
+.carousel-item.even:not(.active) {
+  animation: MoveDownUp 5s linear infinite;
 }
 
 .item-content {
@@ -148,7 +162,6 @@ export default {
   font-size: 32px;
   font-weight: 600;
   text-align: center;
-  opacity: 0;
 }
 
 .item-image {
@@ -163,6 +176,7 @@ export default {
 .carousel-item.active {
   transform: scale(275%);
   opacity: 1 !important;
+  z-index: 2;
 }
 
 .carousel-item.inactive {
@@ -202,17 +216,27 @@ export default {
   }
 
   .carousel {
+    width: auto;
     overflow: visible;
   }
 
   .carousel-container.inactive .carousel .carousel-track {
     flex-direction: column;
+    width: auto;
     height: 100%;
     overflow: visible;
   }
 
   .carousel-item.active {
     transform: scale(1);
+  }
+
+  .carousel-item.odd:not(.active) {
+    animation: none;
+  }
+
+  .carousel-item.even:not(.active) {
+    animation: none;
   }
 
   .item-name {
@@ -222,6 +246,26 @@ export default {
 
   .arrow {
     width: 40px;
+  }
+}
+
+@keyframes MoveUpDown {
+  0%,
+  100% {
+    transform: translateY(0) scale(180%);
+  }
+  50% {
+    transform: translateY(-50px) scale(180%);
+  }
+}
+
+@keyframes MoveDownUp {
+  0%,
+  100% {
+    transform: translateY(-50px) scale(180%);
+  }
+  50% {
+    transform: translateY(0) scale(180%);
   }
 }
 </style>
