@@ -138,7 +138,7 @@ const validateLock = (contractInfo: any, lockAmount: bigint) => {
 
   return {
     isAllowed,
-    isDisabled: lockAmount < minLockAmount,
+    isDisabled: lockAmount < minLockAmount || lockAmount <= 0n,
     btnText,
   };
 };

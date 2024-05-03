@@ -3,7 +3,7 @@
     <div class="action-header">
       <h2 class="action-title">Lock MIM</h2>
       <CheckBox
-        :value="isStakeAndLock"
+        :value="!isStakeAndLock"
         @update="toggleAction"
         v-if="mimSavingRateInfo.userInfo.balances.unlocked"
       >
@@ -18,7 +18,7 @@
       :icon="mimSavingRateInfo.stakingToken.icon"
       :max="maxInputValue"
       :tokenPrice="1"
-      :primaryMax="isStakeAndLock"
+      :primaryMax="!isStakeAndLock"
       @updateInputValue="onUpdateLockValue"
     />
 
@@ -28,7 +28,7 @@
       The locked amount will be assigned to the current epoch, with each epoch
       starting every Thursday at 00:00 UTC. At that point, the lock time
       countdown begins and lasts for 3 months. The next epoch will commence in
-      <Timer :endDateTimestamp="1714660482" small />
+      <Timer :endDateTimestamp="mimSavingRateInfo.nextEpoch" small />
     </p>
 
     <BaseButton
@@ -45,6 +45,7 @@
 
 <script>
 import { defineAsyncComponent } from "vue";
+import moment from "moment";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { formatUnits } from "viem";
 import notification from "@/helpers/notification/notification";
@@ -61,11 +62,13 @@ export default {
   data() {
     return {
       inputValue: "",
-      actionType: "lock",
+      actionType: "stakeAndLock",
       actionConfig: {
         stakeAmount: 0n,
         lockAmount: 0n,
       },
+      //todo: temporary untill understand how it should work properly
+      lockingDeadline: moment().unix() + Number(300n),
     };
   },
 
@@ -78,13 +81,13 @@ export default {
 
     isTokenApproved() {
       const { approvedAmount } = this.mimSavingRateInfo.userInfo.stakeToken;
-      return approvedAmount >= this.actionConfig.lockAmount;
+      return approvedAmount >= this.actionConfig.stakeAmount;
     },
 
     maxInputValue() {
       return this.isStakeAndLock
-        ? this.mimSavingRateInfo.userInfo.balances.unlocked
-        : this.mimSavingRateInfo.userInfo.stakeToken.balance;
+        ? this.mimSavingRateInfo.userInfo.stakeToken.balance
+        : this.mimSavingRateInfo.userInfo.balances.unlocked;
     },
 
     isStakeAndLock() {
@@ -151,7 +154,8 @@ export default {
       );
       const { error } = await actions.lock(
         this.mimSavingRateInfo.lockingMultiRewardsContract,
-        this.actionConfig.lockAmount
+        this.actionConfig.lockAmount,
+        this.lockingDeadline
       );
 
       await this.deleteNotification(notificationId);
@@ -174,10 +178,10 @@ export default {
         notification.pending
       );
 
-      const { error } = await actions.stake(
+      const { error } = await actions.stakeLocked(
         this.mimSavingRateInfo.lockingMultiRewardsContract,
-        this.actionConfig,
-        true
+        this.actionConfig.stakeAmount,
+        this.lockingDeadline
       );
 
       await this.deleteNotification(notificationId);

@@ -6,12 +6,12 @@ import {
 import type { ContractInfo } from "@/types/global";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 
-export const lock = async (contract: ContractInfo, amount: BigInt) => {
+export const lock = async (contract: ContractInfo, amount: bigint, lockingDeadline: bigint | number) => {
   try {
     const { request } = await simulateContractHelper({
       ...contract,
       functionName: "lock",
-      args: [amount],
+      args: [amount, lockingDeadline],
     });
 
     const hash = await writeContractHelper(request);
