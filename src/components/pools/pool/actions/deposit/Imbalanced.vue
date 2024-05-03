@@ -237,32 +237,19 @@ export default {
     },
 
     updateValue(value, fromBase = false) {
-      if (fromBase) {
-        if (value === null) {
-          this.baseInputAmount = 0n;
-          this.baseInputValue = "";
-          return false;
-        }
+      const tokenLabel = fromBase ? "base" : "quote";
 
-        this.baseInputAmount = value;
-        this.baseInputValue = trimZeroDecimals(
-          formatUnits(value, this.baseToken.config.decimals)
-        );
+      if (value === null) {
+        this[`${tokenLabel}InputAmount`] = 0n;
+        this[`${tokenLabel}InputValue`] = "";
       } else {
-        if (value === null) {
-          this.quoteInputAmount = 0n;
-          this.quoteInputValue = "";
-          return false;
-        }
-
-        this.quoteInputAmount = value;
-        this.quoteInputValue = trimZeroDecimals(
-          formatUnits(value, this.quoteToken.config.decimals)
+        this[`${tokenLabel}InputAmount`] = value;
+        this[`${tokenLabel}InputValue`] = trimZeroDecimals(
+          formatUnits(value, this.baseToken.config.decimals)
         );
       }
 
       this.isExpectedOptimalCalculating = true;
-
       this.calculateExpectedOptimal();
     },
 
@@ -274,7 +261,6 @@ export default {
           this.quoteInputAmount,
           100n
         );
-
         this.isExpectedOptimalCalculating = false;
       },
       500
