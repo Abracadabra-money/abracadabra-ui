@@ -70,6 +70,7 @@ import { mapActions, mapGetters, mapMutations } from "vuex";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
 import { validateAction } from "@/helpers/mimSavingRate/validators";
+import moment from "moment";
 
 type ActiveTab = "stake" | "unstake";
 type TabItems = string[];
@@ -99,6 +100,8 @@ export default {
         withdrawAmount: 0n,
         lockAmount: this.mimSavingRateInfo.userInfo.unlocked,
       } as ActionConfig,
+      //todo: temporary untill understand how it should work properly
+      lockingDeadline: moment().unix() + Number(300n),
     };
   },
 
@@ -270,7 +273,8 @@ export default {
 
       const { error }: any = await actions.lock(
         this.mimSavingRateInfo.lockingMultiRewardsContract,
-        this.actionConfig.lockAmount
+        this.actionConfig.lockAmount,
+        this.lockingDeadline
       );
 
       await this.deleteNotification(notificationId);

@@ -1,4 +1,3 @@
-import { getAccount } from "@wagmi/core";
 import { getAccountHelper } from "@/helpers/walletClienHelper";
 
 const ACTION_UNKNOWN = "unknown";
