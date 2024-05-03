@@ -8,7 +8,7 @@
     <div class="timer-wrap" v-if="lockStatus.title == 'active'">
       <Timer
         class="timer"
-        :endDateTimestamp="userLock.unlockTime"
+        :endDateTimestamp="Number(userLock.unlockTime)"
         small
         medium
       />
@@ -62,7 +62,7 @@ export default {
     },
 
     unlockDate() {
-      return moment.utc(this.userLock.unlockTime * 1000);
+      return moment.utc(this.userLock.unlockTime);
     },
   },
 

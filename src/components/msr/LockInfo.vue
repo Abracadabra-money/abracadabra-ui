@@ -119,11 +119,12 @@ export default {
 
 .empty-wrap {
   display: flex;
-  padding: 12px 16px 12px 12px;
   flex-direction: column;
   align-items: flex-start;
-  gap: 16px;
   align-self: stretch;
+  gap: 16px;
+  min-height: 138px;
+  padding: 12px 16px 12px 12px;
   border-radius: 10px;
   border: 1px solid rgba(180, 180, 180, 0.08);
   background: linear-gradient(

@@ -138,17 +138,10 @@ export default {
 
 .carousel-item {
   min-width: 200px;
+  transform: scale(180%);
   transition: transform 0.5s ease-in;
   margin: 20px;
   cursor: pointer;
-}
-
-.carousel-item.odd:not(.active) {
-  animation: MoveUpDown 5s linear infinite;
-}
-
-.carousel-item.even:not(.active) {
-  animation: MoveDownUp 5s linear infinite;
 }
 
 .item-content {
@@ -231,14 +224,6 @@ export default {
     transform: scale(1);
   }
 
-  .carousel-item.odd:not(.active) {
-    animation: none;
-  }
-
-  .carousel-item.even:not(.active) {
-    animation: none;
-  }
-
   .item-name {
     font-size: 24px;
     opacity: 1;
@@ -249,23 +234,4 @@ export default {
   }
 }
 
-@keyframes MoveUpDown {
-  0%,
-  100% {
-    transform: translateY(0) scale(180%);
-  }
-  50% {
-    transform: translateY(-50px) scale(180%);
-  }
-}
-
-@keyframes MoveDownUp {
-  0%,
-  100% {
-    transform: translateY(-50px) scale(180%);
-  }
-  50% {
-    transform: translateY(0) scale(180%);
-  }
-}
 </style>

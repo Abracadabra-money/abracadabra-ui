@@ -41,7 +41,7 @@ const WARNINGS_BTN_TEXT = {
   [WARNING_TYPES.REWARDS_AMOUNT]: "Reward amount exceed",
   [WARNING_TYPES.SWITCH_CHAIN]: "Switch Chain",
   [WARNING_TYPES.CONNECTION]: "Connect wallet",
-  [WARNING_TYPES.AMOUNT]: "Nothing to do",
+  [WARNING_TYPES.AMOUNT]: "Enter amount",
 };
 
 const ACTIONS_BTN_TEXT = {
