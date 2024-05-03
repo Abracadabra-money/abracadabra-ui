@@ -36,11 +36,12 @@ export const validationActions = (actionConfig: any, chainId: number) => {
   return { btnText: "Preview", isAllowed: true, method: "swap" };
 };
 
-const validateChain = (connectedChainId: number, btnText = "Wrong Chain") => {
+const validateChain = (connectedChainId: number, btnText = "Switch to Arbitrum") => {
   if (!SUPPORTED_CHAINS.includes(connectedChainId))
     return {
       btnText,
-      isAllowed: false,
+      isAllowed: true,
+      method: "switchNetwork",
     };
 
   return { btnText: "", isAllowed: true };

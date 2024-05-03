@@ -439,6 +439,9 @@ export default {
           // @ts-ignore
           await this.$openWeb3modal();
           break;
+        case "switchNetwork":
+          await switchNetwork(42161); //todo
+          break;
         case "approvefromToken":
           await this.approveTokenHandler(
             this.actionConfig.fromToken.config.contract,
