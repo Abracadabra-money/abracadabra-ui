@@ -18,9 +18,17 @@
       }}</span>
     </div>
   </div>
+
+  <p class="description">
+    The locked amount will be assigned to the current epoch, with each epoch
+    starting every Thursday at 00:00 UTC. At that point, the lock time countdown
+    begins and lasts for 3 months. The next epoch will commence in
+    <Timer :endDateTimestamp="mimSavingRateInfo.nextEpoch" small />
+  </p>
 </template>
 
 <script>
+import { defineAsyncComponent } from "vue";
 import { createEpochTimeline, formatTimestampToUnix } from "@/helpers/time";
 
 export default {
@@ -67,9 +75,11 @@ export default {
     },
   },
 
-  created() {},
-
-  components: {},
+  components: {
+    Timer: defineAsyncComponent(() =>
+      import("@/components/stake/earnPoints/Timer.vue")
+    ),
+  },
 };
 </script>
 
@@ -133,5 +143,21 @@ export default {
   justify-content: space-between;
   align-items: center;
   width: 100%;
+}
+
+.description {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 26px;
+}
+
+.timer {
+  display: inline-flex !important;
+  gap: 2px !important;
+  width: auto !important;
+}
+
+.timer::v-deep(.time-block) {
+  height: 30px !important;
 }
 </style>

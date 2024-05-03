@@ -1,5 +1,6 @@
 import type { Address } from "viem";
 import type { ContractInfo, PublicClient } from "@/types/global";
+import type { RewardTokenConfig } from "@/configs/stake/mimSavingRateConfig";
 
 export type LockingMultiRewardsInfo = {
   paused: boolean;
@@ -15,16 +16,23 @@ export type LockingMultiRewardsInfo = {
   lockDuration: number;
   nextUnlockTime: number;
   multiplerBoost: bigint;
+  rewardsPerToken: RewardPerToken[];
+  rewardsDuration: number;
+};
+
+export type RewardPerToken = {
   totalReward: bigint;
   rewardsForDuration: bigint;
-  rewardsDuration: number;
 };
 
 export const getLockingMultiRewardsInfo = async (
   publicClient: PublicClient,
   contract: ContractInfo,
-  rewardTokenAddress: Address
+  rewardTokens: RewardTokenConfig[]
 ): Promise<LockingMultiRewardsInfo> => {
+  const rewardToken0Address = rewardTokens[0].contract.address;
+  const rewardToken1Address = rewardTokens[1].contract.address;
+
   const [
     epoch,
     lockDuration,
@@ -40,8 +48,10 @@ export const getLockingMultiRewardsInfo = async (
     stakingTokenBalance,
     totalSupply,
     unlockedSupply,
-    totalReward,
-    rewardsForDuration,
+    rewardPerToken0,
+    rewardsForDurationToken0,
+    rewardPerToken1,
+    rewardsForDurationToken1,
   ]: any = await publicClient.multicall({
     contracts: [
       {
@@ -117,12 +127,22 @@ export const getLockingMultiRewardsInfo = async (
       {
         ...contract,
         functionName: "rewardPerToken",
-        args: [rewardTokenAddress],
+        args: [rewardToken0Address],
       },
       {
         ...contract,
         functionName: "rewardsForDuration",
-        args: [rewardTokenAddress],
+        args: [rewardToken0Address],
+      },
+      {
+        ...contract,
+        functionName: "rewardPerToken",
+        args: [rewardToken1Address],
+      },
+      {
+        ...contract,
+        functionName: "rewardsForDuration",
+        args: [rewardToken1Address],
       },
     ],
   });
@@ -141,8 +161,16 @@ export const getLockingMultiRewardsInfo = async (
     lockDuration: Number(lockDuration.result),
     nextUnlockTime: Number(nextUnlockTime.result),
     multiplerBoost: lockingBoostMultiplerInBips.result,
-    totalReward: totalReward.result,
-    rewardsForDuration: rewardsForDuration.result,
+    rewardsPerToken: [
+      {
+        totalReward: rewardPerToken0.result,
+        rewardsForDuration: rewardsForDurationToken0.result,
+      },
+      {
+        totalReward: rewardPerToken1.result,
+        rewardsForDuration: rewardsForDurationToken1.result,
+      }
+    ],
     rewardsDuration: Number(rewardsDuration.result),
   };
 };

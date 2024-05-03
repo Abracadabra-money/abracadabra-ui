@@ -18,14 +18,16 @@ export type MimSavingRateConfig = {
       abi: any;
     };
   };
-  rewardToken: {
-    name: string;
-    icon: string;
-    decimals: number;
-    contract: {
-      address: Address;
-      abi: any;
-    };
+  rewardTokens: RewardTokenConfig[]
+};
+
+export type RewardTokenConfig = {
+  name: string;
+  icon: string;
+  decimals: number;
+  contract: {
+    address: Address;
+    abi: any;
   };
 };
 
@@ -45,7 +47,8 @@ export const mimSavingRateConfig: MimSavingRateConfig[] = [
         abi: tokensAbi.MIM,
       },
     },
-    rewardToken: {
+    rewardTokens: [
+      {
       name: "ARB",
       icon: useImage(`assets/images/tokens/AETH.png`),
       decimals: 18,
@@ -54,5 +57,15 @@ export const mimSavingRateConfig: MimSavingRateConfig[] = [
         abi: tokensAbi.ARB,
       },
     },
+    {
+      name: "Spell",
+      icon: useImage(`assets/images/tokens/SPELL.png`),
+      decimals: 18,
+      contract: {
+        address: "0x3E6648C5a70A150A88bCE65F4aD4d506Fe15d2AF",
+        abi: tokensAbi.SPELL,
+      },
+    },
+  ]
   },
 ];

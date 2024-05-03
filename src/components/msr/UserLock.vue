@@ -62,7 +62,7 @@ export default {
     },
 
     unlockDate() {
-      return moment.utc(this.userLock.unlockTime);
+      return moment.utc(Number(this.userLock.unlockTime) * 1000);
     },
   },
 

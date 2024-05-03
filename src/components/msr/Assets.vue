@@ -1,6 +1,6 @@
 <template>
   <div class="user-assets-wrap">
-    <div class="asset staked">
+    <div class="asset deposited">
       <img
         class="icon-left-top"
         src="@/assets/images/market/m-icon.svg"
@@ -8,31 +8,33 @@
       />
 
       <h4 class="item-title">
-        Not-locked
-        <Tooltip fill="#99A0B2" tooltip="Not-locked" :width="20" :height="20" />
+        Rewards
+        <Tooltip fill="#99A0B2" tooltip="Deposited" :width="20" :height="20" />
       </h4>
 
       <div class="token-amount">
         <BaseTokenIcon :icon="mimIcon" name="MIM" size="32px" />
-        {{ unlockedAmount }}
+        {{ formatTokenBalance(deposited) }}
       </div>
     </div>
 
-    <div class="asset locked">
-      <img
-        class="icon-right-center"
-        src="@/assets/images/market/m-icon.svg"
-        alt=""
-      />
+    <div class="asset reward">
+      <img class="icon-right-center" src="@/assets/images/market/m-icon.svg" />
 
       <h4 class="item-title">
-        Locked
-        <Tooltip fill="#99A0B2" tooltip="Not-locked" :width="20" :height="20" />
+        Rewards
+        <Tooltip fill="#99A0B2" tooltip="Rewards" :width="20" :height="20" />
       </h4>
 
-      <div class="token-amount">
-        <BaseTokenIcon :icon="mimIcon" name="MIM" size="32px" />
-        {{ lockedAmount }}
+      <div class="reward-tokens">
+        <div
+          class="reward-token"
+          v-for="(token, index) in rewardTokens"
+          :key="index"
+        >
+          <BaseTokenIcon :icon="token.icon" :name="token.name" size="24px" />
+          {{ token.name }}
+        </div>
       </div>
     </div>
   </div>
@@ -41,15 +43,27 @@
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
 import mimIcon from "@/assets/images/tokens/MIM.png";
+import { formatTokenBalance } from "@/helpers/filters";
 
 export default {
   props: {
     lockedAmount: { type: [String, Number], default: 0 },
     unlockedAmount: { type: [String, Number], default: 0 },
+    rewardTokens: { type: Object },
   },
 
   data() {
     return { mimIcon };
+  },
+
+  computed: {
+    deposited() {
+      return Number(this.lockedAmount) + Number(this.unlockedAmount);
+    },
+  },
+
+  methods: {
+    formatTokenBalance,
   },
 
   components: {
@@ -76,9 +90,8 @@ export default {
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  height: 109.5px;
   width: 50%;
-  padding: 20px 24px;
+  padding: 12px 24px;
   border-radius: 16px;
   border: 1px solid #00296b;
   background: linear-gradient(
@@ -90,6 +103,21 @@ export default {
   backdrop-filter: blur(12.5px);
 }
 
+.reward {
+  border: 1px solid #2d4a96;
+  background: linear-gradient(
+      90deg,
+      rgba(45, 74, 150, 0.32) 0%,
+      rgba(116, 92, 210, 0.32) 100%
+    ),
+    linear-gradient(
+      146deg,
+      rgba(0, 10, 35, 0.07) 0%,
+      rgba(0, 80, 156, 0.07) 101.49%
+    );
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+}
+
 .icon-left-top {
   position: absolute;
   top: 17px;
@@ -98,8 +126,8 @@ export default {
 
 .icon-right-center {
   position: absolute;
-  top: 65px;
-  right: 0;
+  top: 0;
+  left: 0;
 }
 
 .item-title {
@@ -111,10 +139,38 @@ export default {
   color: #99a0b2;
 }
 
+.token-icon {
+  margin-right: 0 !important;
+}
+
 .token-amount {
   display: flex;
   align-items: center;
-  font-size: 32px;
+  gap: 4px;
+  font-size: 24px;
   font-weight: 500;
+}
+
+.reward-tokens {
+  display: flex;
+  align-items: center;
+  gap: 21px;
+}
+
+.reward-token {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+}
+
+@media (max-width: 500px) {
+  .user-assets-wrap {
+    flex-direction: column;
+  }
+
+  .asset {
+    width: 100%;
+  }
 }
 </style>

@@ -5,7 +5,7 @@
       <CheckBox
         :value="!isStakeAndLock"
         @update="toggleAction"
-        v-if="mimSavingRateInfo.userInfo.balances.unlocked"
+        v-if="mimSavingRateInfo?.userInfo?.balances.unlocked"
       >
         Lock staked amount
       </CheckBox>
@@ -23,13 +23,6 @@
     />
 
     <EpochTimeLine :mimSavingRateInfo="mimSavingRateInfo" />
-
-    <p class="description">
-      The locked amount will be assigned to the current epoch, with each epoch
-      starting every Thursday at 00:00 UTC. At that point, the lock time
-      countdown begins and lasts for 3 months. The next epoch will commence in
-      <Timer :endDateTimestamp="mimSavingRateInfo.nextEpoch" small />
-    </p>
 
     <BaseButton
       primary
@@ -80,14 +73,15 @@ export default {
     },
 
     isTokenApproved() {
+      if (!this.mimSavingRateInfo.userInfo) return false;
       const { approvedAmount } = this.mimSavingRateInfo.userInfo.stakeToken;
       return approvedAmount >= this.actionConfig.stakeAmount;
     },
 
     maxInputValue() {
       return this.isStakeAndLock
-        ? this.mimSavingRateInfo.userInfo.stakeToken.balance
-        : this.mimSavingRateInfo.userInfo.balances.unlocked;
+        ? this.mimSavingRateInfo.userInfo?.stakeToken.balance || 0n
+        : this.mimSavingRateInfo.userInfo?.balances.unlocked || 0n;
     },
 
     isStakeAndLock() {
@@ -242,9 +236,6 @@ export default {
     LockInfo: defineAsyncComponent(() =>
       import("@/components/msr/LockInfo.vue")
     ),
-    Timer: defineAsyncComponent(() =>
-      import("@/components/stake/earnPoints/Timer.vue")
-    ),
   },
 };
 </script>
@@ -254,21 +245,5 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.description {
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 26px;
-}
-
-.timer {
-  display: inline-flex !important;
-  gap: 2px !important;
-  width: auto !important;
-}
-
-.timer::v-deep(.time-block) {
-  height: 30px !important;
 }
 </style>

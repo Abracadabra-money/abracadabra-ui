@@ -1,0 +1,82 @@
+<template>
+  <div class="apr-efficiency">
+    <EfficiencyIndicator :APREfficiency="'50%'" />
+
+    <div class="efficiency-info">
+      <div class="efficiency-title">
+        APR Efficiency
+        <Tooltip :width="20" :height="20" />
+      </div>
+
+      <p class="efficiency-description">{{ efficiencyDescription }}</p>
+
+      <BaseButton @click="$emit('chooseLockAction')">Go to Lock</BaseButton>
+    </div>
+  </div>
+</template>
+
+<script lang="ts">
+import { defineAsyncComponent } from "vue";
+
+export default {
+  emits: ["chooseLockAction"],
+
+  props: {
+    mimSavingRateInfo: { type: Object },
+  },
+
+  computed: {
+    efficiencyDescription() {
+      return "Lock your Staked MIM for 3 months to get maximum APR Efficiency ";
+    },
+  },
+
+  components: {
+    BaseButton: defineAsyncComponent(
+      () => import("@/components/base/BaseButton.vue")
+    ),
+    Tooltip: defineAsyncComponent(
+      () => import("@/components/ui/icons/Tooltip.vue")
+    ),
+    EfficiencyIndicator: defineAsyncComponent(
+      () => import("@/components/msr/apr-efficiency/EfficiencyIndicator.vue")
+    ),
+  },
+};
+</script>
+
+<style lang="scss" scoped>
+.title-tooltip {
+  display: flex;
+  align-items: center;
+}
+
+.apr-efficiency {
+  display: flex;
+  justify-content: space-between;
+  gap: 21px;
+}
+
+.efficiency-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.efficiency-title {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.efficiency-description {
+  font-size: 12px;
+  font-weight: 400;
+}
+
+@media (max-width: 500px) {
+  .apr-efficiency {
+    flex-direction: column;
+  }
+}
+</style>

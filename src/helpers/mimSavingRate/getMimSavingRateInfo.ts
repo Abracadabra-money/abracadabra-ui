@@ -22,14 +22,14 @@ export const getMimSavingRateInfo = async (
   const lockingMultiRewardsInfo = await getLockingMultiRewardsInfo(
     publicClient,
     config.lockingMultiRewardsContract,
-    config.rewardToken.contract.address
+    config.rewardTokens
   );
 
   const userInfo = await getUserInfo(
     publicClient,
     account,
     config.lockingMultiRewardsContract,
-    config.rewardToken.contract.address,
+    config.rewardTokens[0].contract.address,
     config.stakingToken.contract
   );
 

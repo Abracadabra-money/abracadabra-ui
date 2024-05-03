@@ -1,25 +1,21 @@
 <template>
   <div class="action">
-    <div class="apr-efficiency">
-      <div class="title-tooltip">
-        Your APR Efficiency
-        <QuestionMarkIcon v-tooltip="'Your APR Efficiency'" />
-      </div>
-
-      <div class="efficiency-indicator"></div>
-    </div>
-
     <Assets
       :locked-amount="userLockedAmount"
       :unlocked-amount="userUnlockedAmount"
+      :rewardTokens="rewardTokens"
     />
 
-    <Rewards />
+    <div class="apr-rewards">
+      <APREfficiency @chooseLockAction="$emit('chooseLockAction')" />
+      <Rewards :mim-saving-rate-info="mimSavingRateInfo" />
+    </div>
 
     <EpochTimeLine :mimSavingRateInfo="mimSavingRateInfo" />
-    <BaseButton class="action-button" primary @click="actionHandler"
-      >Claim</BaseButton
-    >
+
+    <BaseButton class="action-button" primary @click="actionHandler">
+      Claim
+    </BaseButton>
   </div>
 </template>
 
@@ -30,9 +26,10 @@ import { mapActions, mapMutations } from "vuex";
 import { formatTokenBalance } from "@/helpers/filters";
 import notification from "@/helpers/notification/notification";
 import { getRewards } from "@/helpers/mimSavingRate/actions/getRewards";
+import type { RewardTokenConfig } from "@/configs/stake/mimSavingRateConfig";
 
 export default {
-  emits: ["updateMimSavingRateInfo"],
+  emits: ["updateMimSavingRateInfo", "chooseLockAction"],
 
   props: {
     mimSavingRateInfo: { type: Object },
@@ -41,14 +38,21 @@ export default {
   computed: {
     userLockedAmount(): string | number {
       return formatTokenBalance(
-        formatUnits(this.mimSavingRateInfo!.userInfo.balances.locked, 18)
+        formatUnits(this.mimSavingRateInfo!.userInfo?.balances.locked || 0n, 18)
       );
     },
 
     userUnlockedAmount(): string | number {
       return formatTokenBalance(
-        formatUnits(this.mimSavingRateInfo!.userInfo.balances.unlocked, 18)
+        formatUnits(
+          this.mimSavingRateInfo!.userInfo?.balances.unlocked || 0n,
+          18
+        )
       );
+    },
+
+    rewardTokens(): RewardTokenConfig[] {
+      return this.mimSavingRateInfo!.rewardTokens;
     },
   },
 
@@ -84,32 +88,28 @@ export default {
       // @ts-ignore
       () => import("@/components/msr/EpochTimeLine.vue")
     ),
-    QuestionMarkIcon: defineAsyncComponent(
-      () => import("@/components/ui/icons/Tooltip.vue")
-    ),
     Assets: defineAsyncComponent(() => import("@/components/msr/Assets.vue")),
+    APREfficiency: defineAsyncComponent(
+      () => import("@/components/msr/apr-efficiency/APREfficiency.vue")
+    ),
     Rewards: defineAsyncComponent(() => import("@/components/msr/Rewards.vue")),
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.apr-rewards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .title-tooltip {
   display: flex;
   align-items: center;
 }
 
-.apr-efficiency {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.efficiency-indicator {
-  width: 100%;
-  height: 12px;
-  border-radius: 12px;
-  background: rgba(109, 248, 114, 0.2);
-  margin: auto;
+.action-button {
+  margin-top: 0 !important;
 }
 </style>
