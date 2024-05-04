@@ -133,7 +133,8 @@ export default {
 
       const approve = await approveTokenViem(
         this.mimSavingRateInfo.stakingToken.contract,
-        this.mimSavingRateInfo.lockingMultiRewardsContract.address
+        this.mimSavingRateInfo.lockingMultiRewardsContract.address,
+        this.actionConfig.stakeAmount
       );
 
       if (approve) await this.$emit("updateMimSavingRateInfo");

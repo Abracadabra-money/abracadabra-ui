@@ -45,7 +45,7 @@ type RewardData = {
   periodFinish: bigint;
   rewardPerTokenStored: bigint;
   rewardRate: bigint;
-}
+};
 
 const emptyState = {
   stakeToken: {
@@ -71,13 +71,14 @@ const emptyState = {
       periodFinish: 0n,
       rewardPerTokenStored: 0n,
       rewardRate: 0n,
-    }, token1: {
+    },
+    token1: {
       exists: true,
       lastUpdateTime: 0n,
       periodFinish: 0n,
       rewardPerTokenStored: 0n,
       rewardRate: 0n,
-    }
+    },
   },
   userRewardLock: {
     items: [],
@@ -226,8 +227,14 @@ export const getUserInfo = async (
     lastLockIndex: lastLockIndex.result,
     userLocksLength: userLocksLength.result,
     rewards: { token0: rewardsToken0.result, token1: rewardsToken1.result },
-    rewardData: { token0: rewardDataToken0.result, token1: rewardDataToken1.result },
+    rewardData: {
+      token0: rewardDataToken0.result,
+      token1: rewardDataToken1.result,
+    },
     userRewardLock: userRewardLock.result, //todo type
-    userRewardPerTokenPaid: { token0: userRewardPerToken0Paid.result, token1: userRewardPerToken1Paid.result },
+    userRewardPerTokenPaid: {
+      token0: userRewardPerToken0Paid.result,
+      token1: userRewardPerToken1Paid.result,
+    },
   };
 };

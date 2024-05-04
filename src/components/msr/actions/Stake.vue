@@ -98,7 +98,7 @@ export default {
       actionConfig: {
         stakeAmount: 0n,
         withdrawAmount: 0n,
-        lockAmount: this.mimSavingRateInfo.userInfo.unlocked,
+        lockAmount: this.mimSavingRateInfo?.userInfo?.unlocked || 0n,
       } as ActionConfig,
       //todo: temporary untill understand how it should work properly
       lockingDeadline: moment().unix() + Number(300n),

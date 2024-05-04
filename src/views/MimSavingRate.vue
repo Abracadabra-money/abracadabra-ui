@@ -1,5 +1,5 @@
 <template>
-  <div class="msr-view">
+  <div class="msr-view" v-if="mimSavingRateInfo">
     <MSRCarousel
       :mimSavingRateInfo="mimSavingRateInfo"
       :actions="actions"

@@ -28,6 +28,7 @@ export default {
     }),
 
     totalDeposited() {
+      if (!this.mimSavingRateInfo?.userInfo) return "";
       return formatUnits(
         this.mimSavingRateInfo.userInfo.locked +
           this.mimSavingRateInfo.userInfo.unlocked,
