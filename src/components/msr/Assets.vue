@@ -8,7 +8,7 @@
       />
 
       <h4 class="item-title">
-        Rewards
+        Deposited
         <Tooltip fill="#99A0B2" tooltip="Deposited" :width="20" :height="20" />
       </h4>
 

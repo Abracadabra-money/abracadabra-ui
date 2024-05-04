@@ -42,7 +42,7 @@
             :name="token0Rewards.name"
             size="20px"
           />
-          1000
+          {{ token0Rewards.vesting }}
         </div>
         \
         <div class="token-value-wrap">
@@ -51,7 +51,7 @@
             :name="token1Rewards.name"
             size="20px"
           />
-          1000
+          {{ token1Rewards.vesting }}
         </div>
       </div>
     </div>
@@ -68,7 +68,7 @@
             :name="token0Rewards.name"
             size="20px"
           />
-          1000
+          {{ token0Rewards.claimable }}
         </div>
         \
         <div class="token-value-wrap">
@@ -77,7 +77,7 @@
             :name="token1Rewards.name"
             size="20px"
           />
-          1000
+          {{ token1Rewards.claimable }}
         </div>
       </div>
     </div>
@@ -89,40 +89,58 @@ import { defineAsyncComponent } from "vue";
 import moment from "moment";
 import { formatUnits } from "viem";
 
+type TokenRewards = {
+  name: string;
+  icon: string;
+  total: string;
+  claimable: string;
+  vesting: string;
+};
+
 export default {
   props: {
     mimSavingRateInfo: { type: Object },
   },
 
   computed: {
-    token0Rewards() {
+    token0Rewards(): TokenRewards {
       const tokenInfo = this.mimSavingRateInfo!.rewardTokens[0];
-      const tokenRewards = this.mimSavingRateInfo!.rewardsPerToken[0];
+      const userinfo = this.mimSavingRateInfo!.userinfo;
+      const total: bigint = userinfo?.earned.token0 || 0n;
+      const claimable: bigint = userinfo?.userRewardPerTokenPaid.token0 || 0n;
+      const vesting: bigint = total - claimable;
+
       return {
         name: tokenInfo.name,
         icon: tokenInfo.icon,
-        total: formatUnits(tokenRewards.totalReward, tokenInfo.decimals),
+        total: formatUnits(total, tokenInfo.decimals),
+        claimable: formatUnits(claimable, tokenInfo.decimals),
+        vesting: formatUnits(vesting, tokenInfo.decimals),
       };
     },
 
-    token1Rewards() {
+    token1Rewards(): TokenRewards {
       const tokenInfo = this.mimSavingRateInfo!.rewardTokens[1];
-      const tokenRewards = this.mimSavingRateInfo!.rewardsPerToken[1];
+      const userinfo = this.mimSavingRateInfo!.userinfo;
+      const total: bigint = userinfo?.earned.token1 || 0n;
+      const claimable: bigint = userinfo?.userRewardPerTokenPaid.token1 || 0n;
+      const vesting: bigint = total - claimable;
+
       return {
         name: tokenInfo.name,
         icon: tokenInfo.icon,
-        total: formatUnits(tokenRewards.totalReward, tokenInfo.decimals),
+        total: formatUnits(total, tokenInfo.decimals),
+        claimable: formatUnits(claimable, tokenInfo.decimals),
+        vesting: formatUnits(vesting, tokenInfo.decimals),
       };
     },
 
-    nextUnlockTime() {
+    nextUnlockTime(): string {
       return moment
         .utc(Number(this.mimSavingRateInfo!.nextUnlockTime) * 1000)
         .format("D MMM H:mm");
     },
   },
-
-  methods: {},
 
   components: {
     BaseTokenIcon: defineAsyncComponent(

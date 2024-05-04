@@ -1,18 +1,6 @@
 import type { Address } from "viem";
 import type { ContractInfo, PublicClient } from "@/types/global";
-
-//remove: simulation to prepare UI
-const userLocksTest = [{
-  amount: 111111111111111111n,
-  unlockTime: 1722586411,
-}, {
-  amount: 222222222222222222n,
-  unlockTime: 1714637611,
-},
-{
-  amount: 3333333333333333333n,
-  unlockTime: 1714637611,
-}]
+import type { RewardTokenConfig } from "@/configs/stake/mimSavingRateConfig";
 
 export type UserInfo = {
   stakeToken: {
@@ -24,26 +12,40 @@ export type UserInfo = {
     locked: bigint;
     unlocked: bigint;
   };
-  earned: bigint;
+  earned: {
+    token0: bigint;
+    token1: bigint;
+  };
   locked: bigint;
   unlocked: bigint;
   userLocks: bigint[];
   lastLockIndex: bigint;
   userLocksLength: bigint;
-  rewards: bigint;
+  rewards: {
+    token0: bigint;
+    token1: bigint;
+  };
   rewardData: {
-    exists: boolean;
-    lastUpdateTime: bigint;
-    periodFinish: bigint;
-    rewardPerTokenStored: bigint;
-    rewardRate: bigint;
+    token0: RewardData;
+    token1: RewardData;
   };
   userRewardLock: {
     items: bigint[];
     unlockTime: bigint;
   };
-  userRewardPerTokenPaid: bigint;
+  userRewardPerTokenPaid: {
+    token0: bigint;
+    token1: bigint;
+  };
 };
+
+type RewardData = {
+  exists: boolean;
+  lastUpdateTime: bigint;
+  periodFinish: bigint;
+  rewardPerTokenStored: bigint;
+  rewardRate: bigint;
+}
 
 const emptyState = {
   stakeToken: {
@@ -55,49 +57,64 @@ const emptyState = {
     locked: 0n,
     unlocked: 0n,
   },
-  earned: 0n,
+  earned: { token0: 0n, token1: 0n },
   locked: 0n,
   unlocked: 0n,
   userLocks: [],
   lastLockIndex: 0n,
   userLocksLength: 0n,
-  rewards: 0n,
+  rewards: { token0: 0n, token1: 0n },
   rewardData: {
-    exists: true,
-    lastUpdateTime: 0n,
-    periodFinish: 0n,
-    rewardPerTokenStored: 0n,
-    rewardRate: 0n,
+    token0: {
+      exists: true,
+      lastUpdateTime: 0n,
+      periodFinish: 0n,
+      rewardPerTokenStored: 0n,
+      rewardRate: 0n,
+    }, token1: {
+      exists: true,
+      lastUpdateTime: 0n,
+      periodFinish: 0n,
+      rewardPerTokenStored: 0n,
+      rewardRate: 0n,
+    }
   },
   userRewardLock: {
     items: [],
     unlockTime: 0n,
   },
-  userRewardPerTokenPaid: 0n,
+  userRewardPerTokenPaid: { token0: 0n, token1: 0n },
 };
 
 export const getUserInfo = async (
   publicClient: PublicClient,
   account: Address,
   contract: ContractInfo,
-  rewardTokenAddress: Address,
+  rewardTokens: RewardTokenConfig[],
   stakingTokenContract: ContractInfo
 ): Promise<UserInfo> => {
   if (!account) return emptyState;
 
+  const rewardToken0Address = rewardTokens[0].contract.address;
+  const rewardToken1Address = rewardTokens[1].contract.address;
+
   const [
     totalBalance,
     balances,
-    earned,
+    earnedToken0,
+    earnedToken1,
     lastLockIndex,
     locked,
-    rewardData,
-    rewards,
+    rewardDataToken0,
+    rewardDataToken1,
+    rewardsToken0,
+    rewardsToken1,
     unlocked,
     userLocks,
     userLocksLength,
     userRewardLock,
-    userRewardPerTokenPaid,
+    userRewardPerToken0Paid,
+    userRewardPerToken1Paid,
     stakeTokenBalance,
     stakeTokenApprovedAmount,
   ]: any = await publicClient.multicall({
@@ -115,7 +132,12 @@ export const getUserInfo = async (
       {
         ...contract,
         functionName: "earned",
-        args: [account, rewardTokenAddress],
+        args: [account, rewardToken0Address],
+      },
+      {
+        ...contract,
+        functionName: "earned",
+        args: [account, rewardToken1Address],
       },
       {
         ...contract,
@@ -130,12 +152,22 @@ export const getUserInfo = async (
       {
         ...contract,
         functionName: "rewardData",
-        args: [rewardTokenAddress],
+        args: [rewardToken0Address],
+      },
+      {
+        ...contract,
+        functionName: "rewardData",
+        args: [rewardToken1Address],
       },
       {
         ...contract,
         functionName: "rewards",
-        args: [account, rewardTokenAddress],
+        args: [account, rewardToken0Address],
+      },
+      {
+        ...contract,
+        functionName: "rewards",
+        args: [account, rewardToken1Address],
       },
       {
         ...contract,
@@ -160,7 +192,12 @@ export const getUserInfo = async (
       {
         ...contract,
         functionName: "userRewardPerTokenPaid",
-        args: [account, rewardTokenAddress],
+        args: [account, rewardToken0Address],
+      },
+      {
+        ...contract,
+        functionName: "userRewardPerTokenPaid",
+        args: [account, rewardToken1Address],
       },
       {
         ...stakingTokenContract,
@@ -182,15 +219,15 @@ export const getUserInfo = async (
     },
     totalBalance: totalBalance.result,
     balances: balances.result,
-    earned: earned.result,
+    earned: { token0: earnedToken0.result, token1: earnedToken1.result },
     locked: locked.result,
     unlocked: unlocked.result,
     userLocks: userLocks.result, //todo type
     lastLockIndex: lastLockIndex.result,
     userLocksLength: userLocksLength.result,
-    rewards: rewards.result,
-    rewardData: rewardData.result,
+    rewards: { token0: rewardsToken0.result, token1: rewardsToken1.result },
+    rewardData: { token0: rewardDataToken0.result, token1: rewardDataToken1.result },
     userRewardLock: userRewardLock.result, //todo type
-    userRewardPerTokenPaid: userRewardPerTokenPaid.result,
+    userRewardPerTokenPaid: { token0: userRewardPerToken0Paid.result, token1: userRewardPerToken1Paid.result },
   };
 };
