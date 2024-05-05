@@ -9,7 +9,19 @@
 
       <h4 class="item-title">
         Deposited
-        <Tooltip fill="#99A0B2" tooltip="Deposited" :width="20" :height="20" />
+        <Tooltip
+          fill="#99A0B2"
+          :width="20"
+          :height="20"
+          @mousemove="showDepositedTooltip = true"
+          @mouseleave="showDepositedTooltip = false"
+        />
+        <DepositedTooltip
+          :staked="unlockedAmount"
+          :locked="lockedAmount"
+          :depositedToken="depositedToken"
+          v-if="showDepositedTooltip"
+        />
       </h4>
 
       <div class="token-amount">
@@ -50,10 +62,11 @@ export default {
     lockedAmount: { type: [String, Number], default: 0 },
     unlockedAmount: { type: [String, Number], default: 0 },
     rewardTokens: { type: Object },
+    depositedToken: { type: Object },
   },
 
   data() {
-    return { mimIcon };
+    return { mimIcon, showDepositedTooltip: false };
   },
 
   computed: {
@@ -72,6 +85,9 @@ export default {
     ),
     Tooltip: defineAsyncComponent(
       () => import("@/components/ui/icons/Tooltip.vue")
+    ),
+    DepositedTooltip: defineAsyncComponent(
+      () => import("@/components/msr/DepositedTooltip.vue")
     ),
   },
 };
@@ -131,6 +147,7 @@ export default {
 }
 
 .item-title {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 4px;

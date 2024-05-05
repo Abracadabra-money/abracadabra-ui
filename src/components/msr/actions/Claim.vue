@@ -4,6 +4,7 @@
       :locked-amount="userLockedAmount"
       :unlocked-amount="userUnlockedAmount"
       :rewardTokens="rewardTokens"
+      :depositedToken="mimSavingRateInfo!.stakingToken"
     />
 
     <div class="apr-rewards">
