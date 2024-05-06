@@ -26,6 +26,7 @@ import { mapGetters } from "vuex";
 import { getMimSavingRateInfo } from "@/helpers/mimSavingRate/getMimSavingRateInfo";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 import { useImage } from "@/helpers/useImage";
+import { ethers } from "ethers";
 
 export type MSRAction = {
   id: number;
@@ -137,13 +138,33 @@ export default {
     },
 
     async createMimSavingRateInfo() {
+      // const network = {
+      //   name: "Ethereum Mainnet",
+      //   shortName: "ethereum",
+      //   chainId: 1,
+      //   network: "ethereum",
+      //   rpc: "https://rpc.tenderly.co/fork/927ca5dc-324c-4302-b580-451f68bf18f7",
+      //   explorer: "https://etherscan.io",
+      // };
+      // const provider = new ethers.providers.StaticJsonRpcProvider(
+      //   "https://rpc.tenderly.co/fork/927ca5dc-324c-4302-b580-451f68bf18f7",
+      //   network
+      // );
+      // const latestTimestamp = (await provider.getBlock("latest")).timestamp;
+      // console.log("before", { latestTimestamp });
+      // const params = [
+      //   ethers.utils.hexValue(24 * 60 * 60 * 1000), // hex encoded number of seconds
+      // ];
+      // await provider.send("evm_increaseTime", params);
+      // const latestTimestampTest = (await provider.getBlock("latest")).timestamp;
+      // console.log("after", { latestTimestampTest });
+
       const publicClient = this.getChainById(ARBITRUM_CHAIN_ID).publicClient;
 
       this.mimSavingRateInfo = await getMimSavingRateInfo(
         this.account,
         publicClient
       );
-
       console.log(this.mimSavingRateInfo);
     },
   },

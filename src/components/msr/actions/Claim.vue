@@ -4,7 +4,7 @@
       :locked-amount="userLockedAmount"
       :unlocked-amount="userUnlockedAmount"
       :rewardTokens="rewardTokens"
-      :depositedToken="mimSavingRateInfo!.stakingToken"
+      :depositedToken="mimSavingRateInfo.stakingToken"
     />
 
     <div class="apr-rewards">
@@ -12,7 +12,7 @@
       <Rewards :mim-saving-rate-info="mimSavingRateInfo" />
     </div>
 
-    <EpochTimeLine :mimSavingRateInfo="mimSavingRateInfo" />
+    <EpochTimeLine :mimSavingRateInfo="mimSavingRateInfo" claim />
 
     <BaseButton class="action-button" primary @click="actionHandler">
       Claim

@@ -72,6 +72,13 @@ export default {
 .efficiency-description {
   font-size: 12px;
   font-weight: 400;
+  line-height: normal;
+}
+
+.default-button {
+  padding: 9px 24px !important;
+  height: 39px !important;
+  border-radius: 10px !important;
 }
 
 @media (max-width: 500px) {

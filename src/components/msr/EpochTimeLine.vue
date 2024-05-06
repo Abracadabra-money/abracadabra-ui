@@ -19,7 +19,13 @@
     </div>
   </div>
 
-  <p class="description">
+  <p class="description" v-if="claim">
+    Rewards are distributed with every epoch, followed by a one-week vesting
+    period before they can be claimed. The next epoch will commence in
+    <Timer :endDateTimestamp="mimSavingRateInfo.nextEpoch" small />
+  </p>
+
+  <p class="description" v-else>
     The locked amount will be assigned to the current epoch, with each epoch
     starting every Thursday at 00:00 UTC. At that point, the lock time countdown
     begins and lasts for 3 months. The next epoch will commence in
@@ -34,6 +40,7 @@ import { createEpochTimeline, formatTimestampToUnix } from "@/helpers/time";
 export default {
   props: {
     mimSavingRateInfo: { type: Object },
+    claim: { type: Boolean },
   },
 
   data() {

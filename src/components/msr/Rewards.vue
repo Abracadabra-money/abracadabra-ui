@@ -88,13 +88,14 @@
 import { defineAsyncComponent } from "vue";
 import moment from "moment";
 import { formatUnits } from "viem";
+import { formatTokenBalance } from "@/helpers/filters";
 
 type TokenRewards = {
   name: string;
   icon: string;
-  total: string;
-  claimable: string;
-  vesting: string;
+  total: string | number;
+  claimable: string | number;
+  vesting: string | number;
 };
 
 export default {
@@ -105,33 +106,33 @@ export default {
   computed: {
     token0Rewards(): TokenRewards {
       const tokenInfo = this.mimSavingRateInfo!.rewardTokens[0];
-      const userinfo = this.mimSavingRateInfo!.userinfo;
-      const total: bigint = userinfo?.earned.token0 || 0n;
-      const claimable: bigint = userinfo?.userRewardPerTokenPaid.token0 || 0n;
+      const userInfo = this.mimSavingRateInfo!.userInfo;
+      const total: bigint = userInfo?.earned.token0 || 0n;
+      const claimable: bigint = userInfo?.userRewardPerTokenPaid.token0 || 0n;
       const vesting: bigint = total - claimable;
 
       return {
         name: tokenInfo.name,
         icon: tokenInfo.icon,
-        total: formatUnits(total, tokenInfo.decimals),
-        claimable: formatUnits(claimable, tokenInfo.decimals),
-        vesting: formatUnits(vesting, tokenInfo.decimals),
+        total: this.formatTokenBalance(total, tokenInfo.decimals),
+        claimable: this.formatTokenBalance(claimable, tokenInfo.decimals),
+        vesting: this.formatTokenBalance(vesting, tokenInfo.decimals),
       };
     },
 
     token1Rewards(): TokenRewards {
       const tokenInfo = this.mimSavingRateInfo!.rewardTokens[1];
-      const userinfo = this.mimSavingRateInfo!.userinfo;
-      const total: bigint = userinfo?.earned.token1 || 0n;
-      const claimable: bigint = userinfo?.userRewardPerTokenPaid.token1 || 0n;
+      const userInfo = this.mimSavingRateInfo!.userInfo;
+      const total: bigint = userInfo?.earned.token1 || 0n;
+      const claimable: bigint = userInfo?.userRewardPerTokenPaid.token1 || 0n;
       const vesting: bigint = total - claimable;
 
       return {
         name: tokenInfo.name,
         icon: tokenInfo.icon,
-        total: formatUnits(total, tokenInfo.decimals),
-        claimable: formatUnits(claimable, tokenInfo.decimals),
-        vesting: formatUnits(vesting, tokenInfo.decimals),
+        total: this.formatTokenBalance(total, tokenInfo.decimals),
+        claimable: this.formatTokenBalance(claimable, tokenInfo.decimals),
+        vesting: this.formatTokenBalance(vesting, tokenInfo.decimals),
       };
     },
 
@@ -139,6 +140,12 @@ export default {
       return moment
         .utc(Number(this.mimSavingRateInfo!.nextUnlockTime) * 1000)
         .format("D MMM H:mm");
+    },
+  },
+
+  methods: {
+    formatTokenBalance(value: bigint, decimals: number) {
+      return formatTokenBalance(formatUnits(value, decimals));
     },
   },
 
@@ -178,6 +185,7 @@ export default {
   width: 100%;
   font-size: 14px;
   font-weight: 400;
+  font-style: normal;
 }
 
 .title {

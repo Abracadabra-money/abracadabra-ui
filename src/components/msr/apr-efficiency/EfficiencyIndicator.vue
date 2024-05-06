@@ -10,7 +10,7 @@
 
 <script>
 import LottiePlayer from "lottie-web";
-const TOTAL_FRAMES = 150;
+const TOTAL_FRAMES = 90;
 export default {
   props: {
     APREfficiency: { type: [Number, String], default: 0 },
@@ -30,7 +30,7 @@ export default {
         renderer: "svg",
         loop: false,
         autoplay: false,
-        path: `/safe.json`,
+        path: `/apr-efficiency.json`,
         container: anim,
       });
 

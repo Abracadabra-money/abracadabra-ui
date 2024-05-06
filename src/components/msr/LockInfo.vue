@@ -13,22 +13,20 @@
       completion
     </p>
 
-    <div class="empty-wrap" v-if="account">
-      <ul class="user-locks" v-if="userLocks.length > 0">
-        <UserLock
-          v-for="(userLock, index) in userLocks"
-          :userLock="{
-            ...userLock,
-            decimals: mimSavingRateInfo.stakingToken.decimals,
-          }"
-          :key="index"
-        />
-      </ul>
-
+    <ul class="user-locks" v-if="userLocks.length > 0">
+      <UserLock
+        v-for="(userLock, index) in userLocks"
+        :userLock="{
+          ...userLock,
+          decimals: mimSavingRateInfo.stakingToken.decimals,
+        }"
+        :key="index"
+      />
+    </ul>
+    <div class="empty-wrap" v-else>
+      <ConnectWalletBlock class="connect-wallet" v-if="!account" />
       <BaseSearchEmpty class="search-empty" v-else />
     </div>
-
-    <ConnectWalletBlock class="connect-wallet" v-if="!account" />
   </div>
 </template>
 
@@ -61,11 +59,13 @@ export default {
               this.mimSavingRateInfo.stakingToken.decimals
             )
           )
-        : "-";
+        : "0";
     },
 
     userLocks() {
-      return this.mimSavingRateInfo.userInfo.userLocks;
+      return this.mimSavingRateInfo.userInfo.userLocks.length > 0
+        ? this.mimSavingRateInfo.userInfo.userLocks
+        : [];
     },
   },
 
@@ -91,13 +91,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@include scrollbar;
-
 .lock-info {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-top: auto;
+  margin-top: 16px;
 }
 
 .total-locked {
@@ -125,7 +123,7 @@ export default {
   gap: 16px;
   min-height: 138px;
   padding: 12px 16px 12px 12px;
-  border-radius: 10px;
+  border-radius: var(--Radius-Tiny, 10px);
   border: 1px solid rgba(180, 180, 180, 0.08);
   background: linear-gradient(
     146deg,
@@ -152,15 +150,13 @@ export default {
   gap: 16px;
   list-style: none;
   width: calc(100% + 16px);
-  max-height: 146px;
   padding: 0 16px 0 0;
-  overflow-y: auto;
 }
 
 .search-empty,
 .connect-wallet {
   margin: auto;
-  max-height: 131px;
+  max-height: 132px;
   max-width: 163px;
 }
 </style>

@@ -64,13 +64,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@include scrollbar;
+
 .action-block {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  min-height: 787px;
-  max-width: 557px;
-  width: 100%;
+  height: 770px;
+  width: 550px;
   padding: 24px;
   margin: 0 auto;
   border-radius: 20px;
@@ -82,6 +83,7 @@ export default {
   );
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
   backdrop-filter: blur(50px);
+  overflow: auto;
 }
 
 .common-info {
@@ -90,7 +92,7 @@ export default {
   align-items: center;
   flex-wrap: wrap;
   gap: 24px;
-  margin-bottom: 40px;
+  margin-bottom: 32px;
 }
 
 .apr {
