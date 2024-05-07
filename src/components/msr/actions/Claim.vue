@@ -9,20 +9,29 @@
 
     <div class="apr-rewards">
       <APREfficiency @chooseLockAction="$emit('chooseLockAction')" />
-      <Rewards :mim-saving-rate-info="mimSavingRateInfo" />
+      <Rewards
+        :mim-saving-rate-info="mimSavingRateInfo"
+        :isUserRewardLockExpired="isUserRewardLockExpired"
+      />
     </div>
 
     <EpochTimeLine :mimSavingRateInfo="mimSavingRateInfo" claim />
 
-    <BaseButton class="action-button" primary @click="actionHandler">
-      Claim
+    <BaseButton
+      class="action-button"
+      primary
+      @click="actionHandler"
+      :disabled="isButtonDisabled"
+    >
+      {{ buttonText }}
     </BaseButton>
   </div>
 </template>
 
 <script lang="ts">
-import { formatUnits } from "viem";
+import moment from "moment";
 import { defineAsyncComponent } from "vue";
+import { formatUnits } from "viem";
 import { mapActions, mapMutations } from "vuex";
 import { formatTokenBalance } from "@/helpers/filters";
 import notification from "@/helpers/notification/notification";
@@ -37,6 +46,59 @@ export default {
   },
 
   computed: {
+    buttonText() {
+      if (this.isEarned && !this.isUserRewardLockAmount)
+        return "Earned to vesting";
+
+      if (
+        this.isEarned &&
+        this.isUserRewardLockAmount &&
+        this.isUserRewardLockExpired
+      )
+        return "Earned to vesting and claim";
+
+      if (
+        !this.isEarned &&
+        this.isUserRewardLockAmount &&
+        !this.isUserRewardLockExpired
+      )
+        return "Wait until unlocks";
+
+      if (this.isButtonDisabled) return "Unavailable";
+
+      return "Claim";
+    },
+
+    isButtonDisabled() {
+      return (
+        (!this.isEarned && !this.isUserRewardLockAmount) ||
+        (!this.isEarned &&
+          this.isUserRewardLockAmount &&
+          !this.isUserRewardLockExpired)
+      );
+    },
+
+    isEarned() {
+      return this.mimSavingRateInfo!.userInfo.earned.token0 > 0n;
+    },
+
+    isUserRewardLockAmount() {
+      return (
+        this.mimSavingRateInfo!.userInfo.userRewardLock.items[0].amount > 0n
+      );
+    },
+
+    isUserRewardLockExpired() {
+      const now = moment().utc();
+
+      const unlockTime = moment.utc(
+        Number(this.mimSavingRateInfo!.userInfo.userRewardLock.unlockTime) *
+          1000
+      );
+
+      return now.isAfter(unlockTime);
+    },
+
     userLockedAmount(): string | number {
       return formatTokenBalance(
         formatUnits(this.mimSavingRateInfo!.userInfo?.balances.locked || 0n, 18)
@@ -62,6 +124,8 @@ export default {
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
     async actionHandler() {
+      if (this.isButtonDisabled) return;
+
       const notificationId = await this.createNotification(
         notification.pending
       );

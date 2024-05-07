@@ -29,10 +29,7 @@ export type UserInfo = {
     token0: RewardData;
     token1: RewardData;
   };
-  userRewardLock: {
-    items: bigint[];
-    unlockTime: bigint;
-  };
+  userRewardLock: UserRewardLock;
   userRewardPerTokenPaid: {
     token0: bigint;
     token1: bigint;
@@ -45,6 +42,16 @@ type RewardData = {
   periodFinish: bigint;
   rewardPerTokenStored: bigint;
   rewardRate: bigint;
+};
+
+export type UserRewardLock = {
+  items: UserRewardLockToken[];
+  unlockTime: bigint;
+};
+
+type UserRewardLockToken = {
+  amount: bigint;
+  token: Address;
 };
 
 const emptyState = {

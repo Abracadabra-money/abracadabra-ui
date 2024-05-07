@@ -6,22 +6,15 @@
       </div>
 
       <div class="token-values">
-        <div class="token-value-wrap">
-          <BaseTokenIcon
-            :icon="token0Rewards.icon"
-            :name="token0Rewards.name"
-            size="20px"
-          />
-          {{ token0Rewards.total }}
-        </div>
-        \
-        <div class="token-value-wrap">
-          <BaseTokenIcon
-            :icon="token1Rewards.icon"
-            :name="token1Rewards.name"
-            size="20px"
-          />
-          {{ token1Rewards.total }}
+        <div
+          class="token-value-wrap"
+          v-for="(reward, index) in rewards"
+          :key="index"
+        >
+          <span class="divide-slash" v-if="index > 0">\ </span>
+
+          <BaseTokenIcon :icon="reward.icon" :name="reward.name" size="20px" />
+          {{ reward.total }}
         </div>
       </div>
     </div>
@@ -31,27 +24,20 @@
         Vesting <Tooltip :width="20" :height="20" />
         <span class="claim-timing">
           Will become claimable on
-          <span class="time"> {{ nextUnlockTime }} UTC</span>
+          <span class="time"> {{ unlockTime.formatted }} UTC</span>
         </span>
       </div>
 
       <div class="token-values">
-        <div class="token-value-wrap">
-          <BaseTokenIcon
-            :icon="token0Rewards.icon"
-            :name="token0Rewards.name"
-            size="20px"
-          />
-          {{ token0Rewards.vesting }}
-        </div>
-        \
-        <div class="token-value-wrap">
-          <BaseTokenIcon
-            :icon="token1Rewards.icon"
-            :name="token1Rewards.name"
-            size="20px"
-          />
-          {{ token1Rewards.vesting }}
+        <div
+          class="token-value-wrap"
+          v-for="(reward, index) in rewards"
+          :key="index"
+        >
+          <span class="divide-slash" v-if="index > 0">\ </span>
+
+          <BaseTokenIcon :icon="reward.icon" :name="reward.name" size="20px" />
+          {{ reward.vesting }}
         </div>
       </div>
     </div>
@@ -62,22 +48,15 @@
       </div>
 
       <div class="token-values">
-        <div class="token-value-wrap">
-          <BaseTokenIcon
-            :icon="token0Rewards.icon"
-            :name="token0Rewards.name"
-            size="20px"
-          />
-          {{ token0Rewards.claimable }}
-        </div>
-        \
-        <div class="token-value-wrap">
-          <BaseTokenIcon
-            :icon="token1Rewards.icon"
-            :name="token1Rewards.name"
-            size="20px"
-          />
-          {{ token1Rewards.claimable }}
+        <div
+          class="token-value-wrap"
+          v-for="(reward, index) in rewards"
+          :key="index"
+        >
+          <span class="divide-slash" v-if="index > 0">\ </span>
+
+          <BaseTokenIcon :icon="reward.icon" :name="reward.name" size="20px" />
+          {{ reward.claimable }}
         </div>
       </div>
     </div>
@@ -101,49 +80,54 @@ type TokenRewards = {
 export default {
   props: {
     mimSavingRateInfo: { type: Object },
+    isUserRewardLockExpired: { type: Boolean },
   },
 
   computed: {
-    token0Rewards(): TokenRewards {
-      const tokenInfo = this.mimSavingRateInfo!.rewardTokens[0];
-      const userInfo = this.mimSavingRateInfo!.userInfo;
-      const total: bigint = userInfo?.earned.token0 || 0n;
-      const claimable: bigint = userInfo?.userRewardPerTokenPaid.token0 || 0n;
-      const vesting: bigint = total - claimable;
-
-      return {
-        name: tokenInfo.name,
-        icon: tokenInfo.icon,
-        total: this.formatTokenBalance(total, tokenInfo.decimals),
-        claimable: this.formatTokenBalance(claimable, tokenInfo.decimals),
-        vesting: this.formatTokenBalance(vesting, tokenInfo.decimals),
-      };
+    rewards() {
+      return this.mimSavingRateInfo!.userInfo.userRewardLock.items.map(
+        (_: any, index: number) => {
+          return this.createRewardToken(index);
+        }
+      );
     },
 
-    token1Rewards(): TokenRewards {
-      const tokenInfo = this.mimSavingRateInfo!.rewardTokens[1];
-      const userInfo = this.mimSavingRateInfo!.userInfo;
-      const total: bigint = userInfo?.earned.token1 || 0n;
-      const claimable: bigint = userInfo?.userRewardPerTokenPaid.token1 || 0n;
-      const vesting: bigint = total - claimable;
+    unlockTime() {
+      const unlockTimeTimestamp =
+        Number(this.mimSavingRateInfo!.userInfo.userRewardLock.unlockTime) *
+        1000;
 
       return {
-        name: tokenInfo.name,
-        icon: tokenInfo.icon,
-        total: this.formatTokenBalance(total, tokenInfo.decimals),
-        claimable: this.formatTokenBalance(claimable, tokenInfo.decimals),
-        vesting: this.formatTokenBalance(vesting, tokenInfo.decimals),
+        time: moment.utc(unlockTimeTimestamp),
+        formatted: moment.utc(unlockTimeTimestamp).format("D MMM H:mm"),
       };
-    },
-
-    nextUnlockTime(): string {
-      return moment
-        .utc(Number(this.mimSavingRateInfo!.nextUnlockTime) * 1000)
-        .format("D MMM H:mm");
     },
   },
 
   methods: {
+    createRewardToken(arrayIndex: number) {
+      const tokenInfo = this.mimSavingRateInfo!.rewardTokens[arrayIndex];
+      const userInfo = this.mimSavingRateInfo!.userInfo;
+      const total: bigint = userInfo?.earned[`token${arrayIndex}`] || 0n;
+
+      const rewardLockAmount = userInfo.userRewardLock.items[arrayIndex].amount;
+
+      let claimable: bigint = this.isUserRewardLockExpired
+        ? rewardLockAmount
+        : 0n;
+      let vesting: bigint = this.isUserRewardLockExpired
+        ? 0n
+        : rewardLockAmount;
+
+      return {
+        name: tokenInfo.name,
+        icon: tokenInfo.icon,
+        total: this.formatTokenBalance(total, tokenInfo.decimals),
+        claimable: this.formatTokenBalance(claimable, tokenInfo.decimals),
+        vesting: this.formatTokenBalance(vesting, tokenInfo.decimals),
+      };
+    },
+
     formatTokenBalance(value: bigint, decimals: number) {
       return formatTokenBalance(formatUnits(value, decimals));
     },
