@@ -1,33 +1,45 @@
 <template>
   <div class="user-assets-wrap">
-    <div class="asset deposited">
+    <div
+      class="asset deposited"
+      @mousemove="showDepositedTooltip = true"
+      @mouseleave="showDepositedTooltip = false"
+    >
       <img
         class="icon-left-top"
         src="@/assets/images/market/m-icon.svg"
         alt=""
       />
 
-      <h4 class="item-title">
-        Deposited
-        <Tooltip
-          fill="#99A0B2"
-          :width="20"
-          :height="20"
-          @mousemove="showDepositedTooltip = true"
-          @mouseleave="showDepositedTooltip = false"
-        />
-        <DepositedTooltip
-          :staked="unlockedAmount"
-          :locked="lockedAmount"
-          :depositedToken="depositedToken"
-          v-if="showDepositedTooltip"
-        />
-      </h4>
+      <template v-if="!showDepositedTooltip">
+        <h4 class="item-title">Deposited</h4>
 
-      <div class="token-amount">
-        <BaseTokenIcon :icon="mimIcon" name="MIM" size="32px" />
-        {{ formatTokenBalance(deposited) }}
-      </div>
+        <div class="token-amount">
+          <BaseTokenIcon :icon="mimIcon" name="MIM" size="32px" />
+          {{ formatTokenBalance(deposited) }}
+        </div>
+      </template>
+      <template v-else>
+        <div class="deposit-compound">
+          <div class="compound-part">
+            <h4 class="item-title">Staked</h4>
+
+            <div class="token-amount">
+              <BaseTokenIcon :icon="mimIcon" name="MIM" size="13.75px" />
+              {{ formatTokenBalance(unlockedAmount) }}
+            </div>
+          </div>
+
+          <div class="compound-part">
+            <h4 class="item-title">Locked</h4>
+
+            <div class="token-amount">
+              <BaseTokenIcon :icon="mimIcon" name="MIM" size="13.75px" />
+              {{ formatTokenBalance(lockedAmount) }}
+            </div>
+          </div>
+        </div>
+      </template>
     </div>
 
     <div class="asset reward">
@@ -86,9 +98,6 @@ export default {
     Tooltip: defineAsyncComponent(
       () => import("@/components/ui/icons/Tooltip.vue")
     ),
-    DepositedTooltip: defineAsyncComponent(
-      () => import("@/components/msr/DepositedTooltip.vue")
-    ),
   },
 };
 </script>
@@ -104,9 +113,10 @@ export default {
   position: relative;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  gap: 8px;
   width: 50%;
+  height: 84px;
   padding: 12px 24px;
   border-radius: 16px;
   border: 1px solid #00296b;
@@ -179,6 +189,30 @@ export default {
   align-items: center;
   gap: 4px;
   font-weight: 500;
+}
+
+.deposit-compound {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  height: 54px;
+}
+
+.compound-part {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.compound-part .item-title,
+.compound-part .token-amount {
+  color: #fff;
+  font-family: Montserrat;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
 }
 
 @media (max-width: 500px) {

@@ -22,7 +22,22 @@
       @updateInputValue="onUpdateLockValue"
     />
 
-    <EpochTimeLine :mimSavingRateInfo="mimSavingRateInfo" />
+    <div class="description-wrap">
+      <p class="description">
+        The locked amount will be assigned to the current epoch, with each epoch
+        starting every Thursday at 00:00 UTC.
+      </p>
+
+      <p class="lock-time-notification">
+        <span class="notification-message"> Lock untill: </span>
+        <span class="time">{{
+          formatTimestampToUnix(
+            mimSavingRateInfo.nextEpoch,
+            "DD MMM YYYY HH:mm:ss"
+          )
+        }}</span>
+      </p>
+    </div>
 
     <BaseButton
       primary
@@ -46,6 +61,7 @@ import { approveTokenViem } from "@/helpers/approval";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import actions from "@/helpers/mimSavingRate/actions";
 import { validateAction } from "@/helpers/mimSavingRate/validators";
+import { formatTimestampToUnix } from "@/helpers/time/index";
 
 export default {
   props: {
@@ -105,6 +121,8 @@ export default {
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
+
+    formatTimestampToUnix,
 
     toggleAction() {
       this.resetAmounts();
@@ -231,9 +249,6 @@ export default {
     CheckBox: defineAsyncComponent(() =>
       import("@/components/msr/CheckBox.vue")
     ),
-    EpochTimeLine: defineAsyncComponent(() =>
-      import("@/components/msr/EpochTimeLine.vue")
-    ),
     LockInfo: defineAsyncComponent(() =>
       import("@/components/msr/LockInfo.vue")
     ),
@@ -243,6 +258,26 @@ export default {
 
 <style lang="scss" scoped>
 .action-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.description-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.description,
+.lock-time-notification {
+  font-size: 14px;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 26px;
+}
+
+.lock-time-notification {
   display: flex;
   justify-content: space-between;
   align-items: center;

@@ -36,6 +36,7 @@ export const getMimSavingRateInfo = async (
   return {
     ...config,
     ...lockingMultiRewardsInfo,
+    baseApr: 50,
     userInfo,
   };
 };

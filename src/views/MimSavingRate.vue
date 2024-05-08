@@ -40,21 +40,21 @@ export default {
       actions: [
         {
           id: 0,
-          image: useImage("assets/images/msr/stake-tab-image.png"),
+          image: useImage("assets/gifs/msr/stake.gif"),
           name: "Stake",
         },
         {
           id: 1,
-          image: useImage("assets/images/msr/lock-tab-image.png"),
+          image: useImage("assets/gifs/msr/lock.gif"),
           name: "Lock",
         },
         {
           id: 2,
-          image: useImage("assets/images/msr/claim-tab-image.png"),
+          image: useImage("assets/gifs/msr/claim.gif"),
           name: "Claim",
         },
       ] as MSRAction[],
-      activeIndex: null as number | null,
+      activeIndex: 1 as number | null,
       itemWidth: 200,
       mimSavingRateInfo: null as any,
     };
@@ -107,7 +107,7 @@ export default {
 
   methods: {
     selectAction(index: number) {
-      this.activeIndex = this.activeIndex === index ? null : index;
+      this.activeIndex = index;
     },
 
     prev() {

@@ -8,14 +8,17 @@
     />
 
     <div class="apr-rewards">
-      <APREfficiency @chooseLockAction="$emit('chooseLockAction')" />
+      <APREfficiency
+        :mimSavingRateInfo="mimSavingRateInfo"
+        @chooseLockAction="$emit('chooseLockAction')"
+      />
       <Rewards
-        :mim-saving-rate-info="mimSavingRateInfo"
+        :mimSavingRateInfo="mimSavingRateInfo"
         :isUserRewardLockExpired="isUserRewardLockExpired"
       />
     </div>
 
-    <EpochTimeLine :mimSavingRateInfo="mimSavingRateInfo" claim />
+    <EpochTimeLine :mimSavingRateInfo="mimSavingRateInfo" />
 
     <BaseButton
       class="action-button"

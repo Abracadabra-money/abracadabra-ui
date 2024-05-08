@@ -3,17 +3,19 @@
     <div ref="anim"></div>
     <div class="efficiency-info">
       <p class="title">Your APR</p>
-      <p class="percent">{{ APREfficiency }}</p>
+      <p class="percent">{{ formatPercent(this.aprEfficiency) }}</p>
     </div>
   </div>
 </template>
 
 <script>
 import LottiePlayer from "lottie-web";
-const TOTAL_FRAMES = 90;
+import { formatPercent } from "@/helpers/filters";
+
+const TOTAL_FRAMES = 60;
 export default {
   props: {
-    APREfficiency: { type: [Number, String], default: 0 },
+    aprEfficiency: { type: [Number, String], default: 0 },
   },
 
   data() {
@@ -23,6 +25,8 @@ export default {
   },
 
   methods: {
+    formatPercent,
+
     initAnimation() {
       const { anim } = this.$refs;
 
@@ -35,8 +39,7 @@ export default {
       });
 
       this.animation.goToAndStop(
-        (TOTAL_FRAMES / 100) *
-          Number(this.APREfficiency.toString().slice(0, -1)),
+        (TOTAL_FRAMES / 100) * this.aprEfficiency,
         true
       );
     },
@@ -65,7 +68,7 @@ export default {
 
 .efficiency-info {
   position: absolute;
-  bottom: 10px;
+  bottom: 20px;
   display: flex;
   flex-direction: column;
   text-align: center;

@@ -1,6 +1,6 @@
 <template>
   <div class="apr-efficiency">
-    <EfficiencyIndicator :APREfficiency="'50%'" />
+    <EfficiencyIndicator :aprEfficiency="aprEfficiency" />
 
     <div class="efficiency-info">
       <div class="efficiency-title">
@@ -17,6 +17,7 @@
 
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
+import { formatUnits } from "viem";
 
 export default {
   emits: ["chooseLockAction"],
@@ -28,6 +29,22 @@ export default {
   computed: {
     efficiencyDescription() {
       return "Lock your Staked MIM for 3 months to get maximum APR Efficiency ";
+    },
+
+    aprEfficiency() {
+      const baseApr = this.mimSavingRateInfo!.baseApr;
+      const boostedApr = baseApr * 3;
+
+      const { unlocked, locked } = this.mimSavingRateInfo!.userInfo.balances;
+      const decimals = this.mimSavingRateInfo!.stakingToken.decimals;
+
+      const formattedStaked = Number(formatUnits(unlocked, decimals));
+      const formattedLocked = Number(formatUnits(locked, decimals));
+
+      return (
+        (formattedStaked * baseApr + formattedLocked * boostedApr) /
+        (formattedStaked + formattedLocked)
+      );
     },
   },
 

@@ -5,9 +5,10 @@
         :selectedNetwork="42161"
         :availableNetworks="[42161]"
       />
-      <span class="apr"
-        ><Tooltip tooltip="APR" :width="20" :height="20" /> APR: 101.82%</span
-      >
+      <span class="apr" v-if="activeAction != 'Claim'">
+        <Tooltip tooltip="APR" :width="20" :height="20" /> APR:
+        {{ formatPercent(apr) }}
+      </span>
     </div>
 
     <div class="actions-wrapper">
@@ -34,6 +35,7 @@
 
 <script>
 import { defineAsyncComponent } from "vue";
+import { formatPercent } from "@/helpers/filters";
 
 export default {
   emits: ["chooseLockAction", "updateMimSavingRateInfo"],
@@ -41,6 +43,25 @@ export default {
   props: {
     activeAction: { type: String },
     mimSavingRateInfo: { type: Object, required: true },
+  },
+
+  computed: {
+    apr() {
+      const baseApr = this.mimSavingRateInfo.baseApr;
+
+      switch (this.activeAction) {
+        case "Stake":
+          return baseApr;
+        case "Lock":
+          return baseApr * 3;
+        default:
+          return "";
+      }
+    },
+  },
+
+  methods: {
+    formatPercent,
   },
 
   components: {

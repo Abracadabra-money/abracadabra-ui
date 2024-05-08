@@ -94,7 +94,7 @@ export default {
 .lock-info {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   margin-top: 16px;
 }
 
