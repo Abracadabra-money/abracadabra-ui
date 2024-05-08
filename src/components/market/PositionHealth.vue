@@ -31,13 +31,12 @@
 <script lang="ts">
 import {
   PERCENT_PRESITION,
-  getLiquidationPrice,
-  getPositionHealth,
+  getAlternativeLiquidationPrice,
+  getAlternativePositionHealth,
 } from "@/helpers/cauldron/utils";
-import { utils } from "ethers";
+import { formatUnits } from "viem";
 import { defineAsyncComponent } from "vue";
 import { formatToFixed } from "@/helpers/filters";
-import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
 
 export default {
   props: {
@@ -46,28 +45,28 @@ export default {
 
   computed: {
     positionHealth() {
-      const { oracleExchangeRate } = this.cauldron.mainParams;
+      const { mcr } = this.cauldron.config;
       const { decimals } = this.cauldron.config.collateralInfo;
+      const { oracleExchangeRate } = this.cauldron.mainParams.alternativeData;
+      const { borrowInfo, collateralInfo } =
+        this.cauldron.userPosition.alternativeData;
 
-      const { borrowInfo, collateralInfo } = this.cauldron.userPosition;
-
-      const expectedLiquidationPrice = getLiquidationPrice(
+      const expectedLiquidationPrice = getAlternativeLiquidationPrice(
         borrowInfo.userBorrowAmount,
         collateralInfo.userCollateralAmount,
-        this.cauldron.config.mcr,
-        this.cauldron.config.collateralInfo.decimals
+        mcr,
+        decimals
       );
 
-      const { percent, status } = getPositionHealth(
+      const { percent, status } = getAlternativePositionHealth(
         expectedLiquidationPrice,
         oracleExchangeRate,
         decimals
       );
 
-      if (percent.gt(expandDecimals(100, PERCENT_PRESITION)))
-        return { percent: 100, status };
+      if (percent > 10000n) return { percent: 100, status };
 
-      return { percent: utils.formatUnits(percent, PERCENT_PRESITION), status };
+      return { percent: formatUnits(percent, PERCENT_PRESITION), status };
     },
   },
 
