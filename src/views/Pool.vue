@@ -1,8 +1,8 @@
 <template>
   <div class="pool-view" v-if="pool">
-    <!-- <div class="chart-wrap">
+    <div class="chart-wrap" v-if="showTvlChart">
       <PieChart :option="chartOption" v-if="chartOption" />
-    </div> -->
+    </div>
 
     <div class="pool">
       <PoolActionBlock
@@ -66,6 +66,10 @@ export default {
       signer: "getSigner",
     }),
 
+    showTvlChart() {
+      return !!this.pool.lockInfo;
+    },
+
     isUserPositionOpen() {
       return (
         this.account &&
@@ -115,7 +119,9 @@ export default {
     await this.getPoolInfo();
     await this.getPointsStatistics();
 
-    // this.chartOption = await getPoolTvlPieChartOption(this.pool);
+    this.chartOption = this.showTvlChart
+      ? await getPoolTvlPieChartOption(this.pool)
+      : null;
 
     this.poolsTimer = setInterval(async () => {
       await this.getPoolInfo();
