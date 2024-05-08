@@ -12,7 +12,7 @@
     />
 
     <div class="pool-position">
-      <Tabs :name="activeTab" :items="tabItems" @select="selectTab" />
+      <Tabs :name="activeTab" :items="tabItems" @select="selectTab" v-if="pointsStatistics.user"/>
 
       <Deposited
         :pool="pool"
@@ -21,17 +21,21 @@
         v-show="activeTab === 'deposited'"
       />
 
-      <Staked
+      <template v-if="pointsStatistics.user">
+        <Staked
         :pool="pool"
         :userPointsStatistics="pointsStatistics.user"
         v-show="activeTab === 'staked'"
       />
 
       <Locked
+        v-if="pointsStatistics.user"
         :pool="pool"
         :userPointsStatistics="pointsStatistics.user"
         v-show="activeTab === 'locked'"
       />
+      </template>
+
     </div>
   </div>
 </template>

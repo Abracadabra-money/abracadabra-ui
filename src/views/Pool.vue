@@ -1,7 +1,7 @@
 <template>
   <div class="pool-view" v-if="pool">
-    <div class="chart-wrap" v-if="showTvlChart">
-      <PieChart :option="chartOption" v-if="chartOption" />
+    <div class="chart-wrap">
+      <PieChart :option="chartOption" v-if="chartOption && showTvlChart" />
     </div>
 
     <div class="pool">
@@ -16,16 +16,16 @@
       <PoolComposition :pool="this.pool" />
     </div>
 
-    <!-- <div class="pool-position-wrap">
+    <div class="pool-position-wrap">
       <PoolPosition
         :pool="pool"
         :pointsStatistics="pointsStatistics"
         :isMyPositionPopupOpened="isMyPositionPopupOpened"
         @closePopup="isMyPositionPopupOpened = false"
         @updateInfo="getPoolInfo"
-        v-if="isUserPositionOpen"
+        v-if="isUserPositionOpen && pool"
       />
-    </div> -->
+    </div>
   </div>
 </template>
 
@@ -85,7 +85,7 @@ export default {
       immediate: true,
       async handler() {
         await this.getPoolInfo();
-        // await this.getPointsStatistics();
+        await this.getPointsStatistics();
       },
     },
 
@@ -107,11 +107,15 @@ export default {
     },
 
     async getPointsStatistics() {
-      // [this.pointsStatistics.global, this.pointsStatistics.user] =
-      //   await Promise.all([
-      //     fetchPointsStatistics(),
-      //     fetchUserPointsStatistics(this.account),
-      //   ]);
+      const { isPointsLogic } = this.pool?.settings || {};
+
+      if (!isPointsLogic) return;
+
+      [this.pointsStatistics.global, this.pointsStatistics.user] =
+        await Promise.all([
+          fetchPointsStatistics(),
+          fetchUserPointsStatistics(this.account),
+        ]);
     },
   },
 

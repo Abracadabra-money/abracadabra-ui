@@ -2,36 +2,38 @@
   <div class="deposited">
     <PoolCompoundCard :lpToken="lpToken" :tokensList="tokensList" />
 
-    <div class="rewards-wrap">
-      <h4 class="title">
-        Stake your LP tokens
-        <Tooltip
-          tooltip="Your potential hourly rewards are displayed based on staking all of your LP tokens"
-          :width="20"
-          :height="20"
-        />
-      </h4>
+    <template v-if="pointsStatistics.global">
+      <div class="rewards-wrap">
+        <h4 class="title">
+          Stake your LP tokens
+          <Tooltip
+            tooltip="Your potential hourly rewards are displayed based on staking all of your LP tokens"
+            :width="20"
+            :height="20"
+          />
+        </h4>
 
-      <ul class="rewards-list">
-        <li
-          class="list-item"
-          v-for="(reward, index) in rewardsList"
-          :key="index"
-        >
-          <span class="item-title">
-            <img :src="reward.icon" class="reward-icon" />
-            {{ reward.title }}
-          </span>
+        <ul class="rewards-list">
+          <li
+            class="list-item"
+            v-for="(reward, index) in rewardsList"
+            :key="index"
+          >
+            <span class="item-title">
+              <img :src="reward.icon" class="reward-icon" />
+              {{ reward.title }}
+            </span>
 
-          <RowSkeleton v-if="isRewardsCalculating" />
-          <span class="item-value" v-else>{{ reward.value }} per hour</span>
-        </li>
-      </ul>
-    </div>
+            <RowSkeleton v-if="isRewardsCalculating" />
+            <span class="item-value" v-else>{{ reward.value }} per hour</span>
+          </li>
+        </ul>
+      </div>
 
-    <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
-      {{ buttonText }}
-    </BaseButton>
+      <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
+        {{ buttonText }}
+      </BaseButton></template
+    >
   </div>
 </template>
 
@@ -199,6 +201,8 @@ export default {
     formatUSD,
 
     async getRewardsPerHour() {
+      if (!this.pointsStatistics.global) return;
+
       const deposit =
         Number(formatUnits(this.pool.userInfo.balance, this.pool.decimals)) *
         this.pool.price;
@@ -303,6 +307,8 @@ export default {
   },
 
   async created() {
+    if (!this.pointsStatistics.global) return;
+
     this.isRewardsCalculating = true;
     await this.getRewardsPerHour();
   },

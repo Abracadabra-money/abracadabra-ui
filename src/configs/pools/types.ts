@@ -18,6 +18,7 @@ type PoolSettings = {
   isNew: boolean;
   isDeprecated: boolean;
   isMim: boolean;
+  isPointsLogic?: boolean;
 };
 
 export type TokenConfig = {
