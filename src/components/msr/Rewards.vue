@@ -14,8 +14,12 @@
         >
           <span class="divide-slash" v-if="index > 0">\ </span>
 
-          <BaseTokenIcon :icon="reward.icon" :name="reward.name" size="20px" />
-          {{ reward.total }}
+          <BaseTokenIcon
+            :icon="reward?.icon || ''"
+            :name="reward?.name || ''"
+            size="20px"
+          />
+          {{ reward?.total || 0 }}
         </div>
       </div>
     </div>
@@ -38,8 +42,12 @@
         >
           <span class="divide-slash" v-if="index > 0">\ </span>
 
-          <BaseTokenIcon :icon="reward.icon" :name="reward.name" size="20px" />
-          {{ reward.vesting }}
+          <BaseTokenIcon
+            :icon="reward?.icon || ''"
+            :name="reward?.name || ''"
+            size="20px"
+          />
+          {{ reward?.vesting || 0 }}
         </div>
       </div>
     </div>
@@ -58,8 +66,12 @@
         >
           <span class="divide-slash" v-if="index > 0">\ </span>
 
-          <BaseTokenIcon :icon="reward.icon" :name="reward.name" size="20px" />
-          {{ reward.claimable }}
+          <BaseTokenIcon
+            :icon="reward?.icon || ''"
+            :name="reward?.name || ''"
+            size="20px"
+          />
+          {{ reward.claimable || 0 }}
         </div>
       </div>
     </div>

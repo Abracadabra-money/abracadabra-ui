@@ -55,7 +55,7 @@ export default {
           name: "Claim",
         },
       ] as MSRAction[],
-      activeIndex: 1 as number | null,
+      activeIndex: 1 as number,
       itemWidth: 200,
       mimSavingRateInfo: null as any,
       isMimSavingRateInfoLoading: true,
