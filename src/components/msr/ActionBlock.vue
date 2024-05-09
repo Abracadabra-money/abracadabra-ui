@@ -39,14 +39,14 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, type PropType } from "vue";
 import { formatPercent } from "@/helpers/filters";
-
+import type { MSRActionName } from "@/components/views/MimSavingRate.vue";
 export default {
   emits: ["chooseLockAction", "updateMimSavingRateInfo"],
 
   props: {
-    activeAction: { type: String },
+    activeAction: { type: String as PropType<MSRActionName> },
     mimSavingRateInfo: {
       type: null as any,
       default: null,

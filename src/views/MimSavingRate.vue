@@ -91,8 +91,7 @@ export default {
       );
     },
 
-    activeAction(): MSRActionName | null {
-      if (this.activeIndex === null) return null;
+    activeAction(): MSRActionName {
       return this.actions[this.activeIndex].name;
     },
 

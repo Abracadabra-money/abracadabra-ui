@@ -14,12 +14,8 @@
         >
           <span class="divide-slash" v-if="index > 0">\ </span>
 
-          <BaseTokenIcon
-            :icon="reward?.icon || ''"
-            :name="reward?.name || ''"
-            size="20px"
-          />
-          {{ reward?.total || 0 }}
+          <BaseTokenIcon :icon="C.icon" :name="reward.name" size="20px" />
+          {{ reward.total }}
         </div>
       </div>
     </div>
@@ -42,12 +38,8 @@
         >
           <span class="divide-slash" v-if="index > 0">\ </span>
 
-          <BaseTokenIcon
-            :icon="reward?.icon || ''"
-            :name="reward?.name || ''"
-            size="20px"
-          />
-          {{ reward?.vesting || 0 }}
+          <BaseTokenIcon :icon="reward.icon" :name="reward.name" size="20px" />
+          {{ reward.vesting }}
         </div>
       </div>
     </div>
@@ -66,12 +58,8 @@
         >
           <span class="divide-slash" v-if="index > 0">\ </span>
 
-          <BaseTokenIcon
-            :icon="reward?.icon || ''"
-            :name="reward?.name || ''"
-            size="20px"
-          />
-          {{ reward.claimable || 0 }}
+          <BaseTokenIcon :icon="reward.icon" :name="reward.name" size="20px" />
+          {{ reward.claimable }}
         </div>
       </div>
     </div>
@@ -100,8 +88,24 @@ export default {
   },
 
   computed: {
-    rewards(): [] {
-      if (!this.mimSavingRateInfo) return [];
+    rewards(): TokenRewards[] {
+      if (!this.mimSavingRateInfo)
+        return [
+          {
+            name: "",
+            icon: "",
+            total: "",
+            claimable: "",
+            vesting: "",
+          },
+          {
+            name: "",
+            icon: "",
+            total: "",
+            claimable: "",
+            vesting: "",
+          },
+        ];
 
       return this.mimSavingRateInfo.userInfo.userRewardLock.items.map(
         (_: any, index: number) => {
