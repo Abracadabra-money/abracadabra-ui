@@ -41,7 +41,7 @@
 <script lang="ts">
 import { defineAsyncComponent, type PropType } from "vue";
 import { formatPercent } from "@/helpers/filters";
-import type { MSRActionName } from "@/components/views/MimSavingRate.vue";
+import type { MSRActionName } from "@/views/MimSavingRate.vue";
 export default {
   emits: ["chooseLockAction", "updateMimSavingRateInfo"],
 

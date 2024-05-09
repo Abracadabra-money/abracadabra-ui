@@ -14,7 +14,7 @@
         >
           <span class="divide-slash" v-if="index > 0">\ </span>
 
-          <BaseTokenIcon :icon="C.icon" :name="reward.name" size="20px" />
+          <BaseTokenIcon :icon="reward.icon" :name="reward.name" size="20px" />
           {{ reward.total }}
         </div>
       </div>
