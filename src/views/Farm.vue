@@ -138,7 +138,7 @@ export default {
     isAllowed() {
       if (!this.account || !this.selectedFarm) return false;
       return (
-        parseUnits(this.selectedFarm?.accountInfo?.allowance) >=
+        parseUnits(this.selectedFarm?.accountInfo?.allowance, 18) >=
         this.inputAmount
       );
     },
@@ -155,8 +155,8 @@ export default {
       if (!this.selectedFarm?.accountInfo) return 0n;
       if (this.selectedFarm?.isMultiReward) {
         return !this.isUnstake
-          ? parseUnits(this.selectedFarm?.accountInfo?.balance)
-          : parseUnits(this.selectedFarm?.accountInfo?.depositedBalance);
+          ? parseUnits(this.selectedFarm?.accountInfo?.balance, 18)
+          : parseUnits(this.selectedFarm?.accountInfo?.depositedBalance, 18);
       }
       return !this.isUnstake
         ? this.selectedFarm?.accountInfo?.balance
@@ -169,7 +169,7 @@ export default {
 
     error() {
       return this.inputAmount > this.max
-        ? `The value cannot be greater than ${formatUnits(this.max)}`
+        ? `The value cannot be greater than ${formatUnits(this.max, 18)}`
         : null;
     },
 
