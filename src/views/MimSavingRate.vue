@@ -1,5 +1,5 @@
 <template>
-  <div class="msr-view" v-if="mimSavingRateInfo">
+  <div class="msr-view">
     <MSRCarousel
       :mimSavingRateInfo="mimSavingRateInfo"
       :actions="actions"
@@ -13,6 +13,7 @@
     <ActionBlock
       :activeAction="activeAction"
       :mimSavingRateInfo="mimSavingRateInfo"
+      :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
       @chooseLockAction="selectAction(1)"
       @updateMimSavingRateInfo="createMimSavingRateInfo"
       v-if="isCarouselMode"
@@ -57,6 +58,7 @@ export default {
       activeIndex: 1 as number | null,
       itemWidth: 200,
       mimSavingRateInfo: null as any,
+      isMimSavingRateInfoLoading: true,
     };
   },
 
@@ -139,10 +141,15 @@ export default {
     async createMimSavingRateInfo() {
       const publicClient = this.getChainById(ARBITRUM_CHAIN_ID).publicClient;
 
+      this.isMimSavingRateInfoLoading = true;
+
       this.mimSavingRateInfo = await getMimSavingRateInfo(
         this.account,
         publicClient
       );
+
+      this.isMimSavingRateInfoLoading = false;
+
       console.log(this.mimSavingRateInfo);
     },
   },

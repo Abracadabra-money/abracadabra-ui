@@ -4,21 +4,27 @@
       :locked-amount="userLockedAmount"
       :unlocked-amount="userUnlockedAmount"
       :rewardTokens="rewardTokens"
-      :depositedToken="mimSavingRateInfo!.stakingToken"
+      :depositedToken="mimSavingRateInfo?.stakingToken"
+      :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
     />
 
     <div class="apr-rewards">
       <APREfficiency
         :mimSavingRateInfo="mimSavingRateInfo"
+        :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
         @chooseLockAction="$emit('chooseLockAction')"
       />
       <Rewards
         :mimSavingRateInfo="mimSavingRateInfo"
         :isUserRewardLockExpired="isUserRewardLockExpired"
+        :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
       />
     </div>
 
-    <EpochTimeLine :mimSavingRateInfo="mimSavingRateInfo" />
+    <EpochTimeLine
+      :mimSavingRateInfo="mimSavingRateInfo"
+      :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
+    />
 
     <BaseButton
       class="action-button"
@@ -46,6 +52,7 @@ export default {
 
   props: {
     mimSavingRateInfo: { type: Object },
+    isMimSavingRateInfoLoading: { type: Boolean },
   },
 
   computed: {
@@ -82,16 +89,20 @@ export default {
     },
 
     isEarned() {
-      return this.mimSavingRateInfo!.userInfo.earned.token0 > 0n;
+      if (!this.mimSavingRateInfo) return false;
+      return this.mimSavingRateInfo.userInfo.earned.token0 > 0n;
     },
 
     isUserRewardLockAmount() {
+      if (!this.mimSavingRateInfo) return false;
       return (
-        this.mimSavingRateInfo!.userInfo.userRewardLock.items[0].amount > 0n
+        this.mimSavingRateInfo.userInfo.userRewardLock.items[0].amount > 0n
       );
     },
 
     isUserRewardLockExpired() {
+      if (!this.mimSavingRateInfo) return true;
+
       const now = moment().utc();
 
       const unlockTime = moment.utc(
@@ -104,21 +115,21 @@ export default {
 
     userLockedAmount(): string | number {
       return formatTokenBalance(
-        formatUnits(this.mimSavingRateInfo!.userInfo?.balances.locked || 0n, 18)
+        formatUnits(this.mimSavingRateInfo?.userInfo.balances.locked || 0n, 18)
       );
     },
 
     userUnlockedAmount(): string | number {
       return formatTokenBalance(
         formatUnits(
-          this.mimSavingRateInfo!.userInfo?.balances.unlocked || 0n,
+          this.mimSavingRateInfo?.userInfo.balances.unlocked || 0n,
           18
         )
       );
     },
 
     rewardTokens(): RewardTokenConfig[] {
-      return this.mimSavingRateInfo!.rewardTokens;
+      return this.mimSavingRateInfo?.rewardTokens || [];
     },
   },
 
@@ -134,7 +145,7 @@ export default {
       );
 
       const { error }: any = await getRewards(
-        this.mimSavingRateInfo!.lockingMultiRewardsContract
+        this.mimSavingRateInfo?.lockingMultiRewardsContract
       );
 
       await this.deleteNotification(notificationId);

@@ -1,6 +1,9 @@
 <template>
   <div class="apr-efficiency">
-    <EfficiencyIndicator :aprEfficiency="aprEfficiency" />
+    <EfficiencyIndicator
+      :aprEfficiency="aprEfficiency"
+      :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
+    />
 
     <div class="efficiency-info">
       <div class="efficiency-title">
@@ -24,6 +27,7 @@ export default {
 
   props: {
     mimSavingRateInfo: { type: Object },
+    isMimSavingRateInfoLoading: { type: Boolean },
   },
 
   computed: {
@@ -32,6 +36,8 @@ export default {
     },
 
     aprEfficiency() {
+      if (this.isMimSavingRateInfoLoading) return 0;
+
       const baseApr = this.mimSavingRateInfo!.baseApr;
       const boostedApr = baseApr * 3;
 

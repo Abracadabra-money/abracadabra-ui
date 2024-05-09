@@ -13,10 +13,11 @@
 
     <BaseTokenInput
       :value="inputValue"
-      :name="mimSavingRateInfo.stakingToken.name"
-      :decimals="mimSavingRateInfo.stakingToken.decimals"
-      :icon="mimSavingRateInfo.stakingToken.icon"
+      :name="mimSavingRateInfo?.stakingToken.name || 'MIM'"
+      :decimals="mimSavingRateInfo?.stakingToken.decimals"
+      :icon="mimSavingRateInfo?.stakingToken.icon || mimIcon"
       :max="maxInputValue"
+      :disabled="isMimSavingRateInfoLoading"
       :tokenPrice="1"
       :primaryMax="!isStakeAndLock"
       @updateInputValue="onUpdateLockValue"
@@ -30,9 +31,10 @@
 
       <p class="lock-time-notification">
         <span class="notification-message"> Lock untill: </span>
-        <span class="time">{{
+        <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+        <span class="time" v-else>{{
           formatTimestampToUnix(
-            mimSavingRateInfo.nextEpoch,
+            mimSavingRateInfo?.nextEpoch,
             "DD MMM YYYY HH:mm:ss"
           )
         }}</span>
@@ -47,7 +49,10 @@
       {{ actionValidationData.btnText }}
     </BaseButton>
 
-    <LockInfo :mimSavingRateInfo="mimSavingRateInfo" />
+    <LockInfo
+      :mimSavingRateInfo="mimSavingRateInfo"
+      :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
+    />
   </div>
 </template>
 
@@ -62,10 +67,12 @@ import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import actions from "@/helpers/mimSavingRate/actions";
 import { validateAction } from "@/helpers/mimSavingRate/validators";
 import { formatTimestampToUnix } from "@/helpers/time/index";
+import mimIcon from "@/assets/images/tokens/MIM.png";
 
 export default {
   props: {
     mimSavingRateInfo: { type: Object },
+    isMimSavingRateInfoLoading: { type: Boolean },
   },
 
   data() {
@@ -78,6 +85,7 @@ export default {
       },
       //todo: temporary untill understand how it should work properly
       lockingDeadline: moment().unix() + Number(300n),
+      mimIcon,
     };
   },
 
@@ -85,19 +93,19 @@ export default {
     ...mapGetters({ account: "getAccount", chainId: "getChainId" }),
 
     isUnsupportedChain() {
-      return this.chainId === this.mimSavingRateInfo.chainId;
+      return this.chainId === this.mimSavingRateInfo?.chainId || 1;
     },
 
     isTokenApproved() {
-      if (!this.mimSavingRateInfo.userInfo) return false;
+      if (!this.mimSavingRateInfo) return false;
       const { approvedAmount } = this.mimSavingRateInfo.userInfo.stakeToken;
       return approvedAmount >= this.actionConfig.stakeAmount;
     },
 
     maxInputValue() {
       return this.isStakeAndLock
-        ? this.mimSavingRateInfo.userInfo?.stakeToken.balance || 0n
-        : this.mimSavingRateInfo.userInfo?.balances.unlocked || 0n;
+        ? this.mimSavingRateInfo?.userInfo.stakeToken.balance || 0n
+        : this.mimSavingRateInfo?.userInfo.balances.unlocked || 0n;
     },
 
     isStakeAndLock() {
@@ -137,7 +145,7 @@ export default {
         this.actionConfig[this.amountToUse] = value;
         this.inputValue = formatUnits(
           value,
-          this.mimSavingRateInfo.stakingToken.decimals
+          this.mimSavingRateInfo?.stakingToken.decimals || 18
         );
       }
     },
@@ -150,8 +158,8 @@ export default {
       );
 
       const approve = await approveTokenViem(
-        this.mimSavingRateInfo.stakingToken.contract,
-        this.mimSavingRateInfo.lockingMultiRewardsContract.address,
+        this.mimSavingRateInfo?.stakingToken.contract,
+        this.mimSavingRateInfo?.lockingMultiRewardsContract.address,
         this.actionConfig.stakeAmount
       );
 
@@ -166,7 +174,7 @@ export default {
         notification.pending
       );
       const { error } = await actions.lock(
-        this.mimSavingRateInfo.lockingMultiRewardsContract,
+        this.mimSavingRateInfo?.lockingMultiRewardsContract,
         this.actionConfig.lockAmount,
         this.lockingDeadline
       );
@@ -192,7 +200,7 @@ export default {
       );
 
       const { error } = await actions.stakeLocked(
-        this.mimSavingRateInfo.lockingMultiRewardsContract,
+        this.mimSavingRateInfo?.lockingMultiRewardsContract,
         this.actionConfig.stakeAmount,
         this.lockingDeadline
       );
@@ -216,7 +224,7 @@ export default {
       }
 
       if (!this.isUnsupportedChain) {
-        switchNetwork(this.mimSavingRateInfo.chainId);
+        switchNetwork(this.mimSavingRateInfo?.chainId);
         return false;
       }
 
@@ -252,6 +260,9 @@ export default {
     LockInfo: defineAsyncComponent(() =>
       import("@/components/msr/LockInfo.vue")
     ),
+    RowSkeleton: defineAsyncComponent(() =>
+      import("@/components/ui/skeletons/RowSkeleton.vue")
+    ),
   },
 };
 </script>
@@ -281,5 +292,9 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.row-skeleton {
+  height: 26px !important;
 }
 </style>

@@ -12,10 +12,11 @@
 
     <BaseTokenInput
       :value="inputValue"
-      :name="mimSavingRateInfo.stakingToken.name"
-      :decimals="mimSavingRateInfo.stakingToken.decimals"
-      :icon="mimSavingRateInfo.stakingToken.icon"
+      :name="mimSavingRateInfo?.stakingToken?.name || 'MIM'"
+      :decimals="mimSavingRateInfo?.stakingToken.decimals"
+      :icon="mimSavingRateInfo?.stakingToken.icon || mimIcon"
       :max="maxInputValue"
+      :disabled="isMimSavingRateInfoLoading"
       :primaryMax="!isStakeAction"
       :tokenPrice="1"
       @updateInputValue="onUpdateStakeValue"
@@ -32,27 +33,30 @@
     <div
       class="lock-promo"
       @click="$emit('chooseLockAction')"
-      v-if="mimSavingRateInfo.userInfo.balances.unlocked"
+      v-if="mimSavingRateInfo?.userInfo.balances.unlocked"
     >
       <div class="promo-title">
         <h4 class="promo-message">Lock your Staked MIM for Boosted APR</h4>
 
         <div class="apr-wrap">
           <span class="apr-message">Boosted APR</span>
-          <span class="apr-value">150%</span>
+          <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+          <span class="apr-value" v-else>{{ formatPercent(boostedApr) }}</span>
         </div>
       </div>
 
       <div class="staking-wrap">
         <div class="currently-staked">
           <div class="title">You Currently Staking</div>
-          <div class="token-amount">
+
+          <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+          <div class="token-amount" v-else>
             <BaseTokenIcon
-              :icon="mimSavingRateInfo.stakingToken.icon"
-              name="MIM"
+              :icon="mimSavingRateInfo?.stakingToken.icon || mimIcon"
+              :name="mimSavingRateInfo?.stakingToken.name || 'MIM'"
               size="32px"
             />
-            {{ formatAmount(mimSavingRateInfo.userInfo.balances.unlocked) }}
+            {{ formatAmount(mimSavingRateInfo?.userInfo.balances.unlocked) }}
           </div>
         </div>
       </div>
@@ -61,16 +65,17 @@
 </template>
 
 <script lang="ts">
-import { formatUnits } from "viem";
 import { defineAsyncComponent } from "vue";
+import moment from "moment";
+import { formatUnits } from "viem";
 import { approveTokenViem } from "@/helpers/approval";
 import actions from "@/helpers/mimSavingRate/actions";
-import { formatTokenBalance } from "@/helpers/filters";
+import { formatTokenBalance, formatPercent } from "@/helpers/filters";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
 import { validateAction } from "@/helpers/mimSavingRate/validators";
-import moment from "moment";
+import mimIcon from "@/assets/images/tokens/MIM.png";
 
 type ActiveTab = "stake" | "unstake";
 type TabItems = string[];
@@ -81,13 +86,16 @@ type ActionConfig = {
   lockAmount: bigint;
 };
 
-const ACTION_LOCK = "lock";
-
 export default {
   emits: ["chooseLockAction", "updateMimSavingRateInfo"],
 
   props: {
-    mimSavingRateInfo: { type: Object, required: true },
+    mimSavingRateInfo: {
+      type: null as any,
+      default: null,
+      required: false,
+    },
+    isMimSavingRateInfoLoading: { type: Boolean },
   },
 
   data() {
@@ -102,6 +110,7 @@ export default {
       } as ActionConfig,
       //todo: temporary untill understand how it should work properly
       lockingDeadline: moment().unix() + Number(300n),
+      mimIcon,
     };
   },
 
@@ -109,7 +118,7 @@ export default {
     ...mapGetters({ account: "getAccount", chainId: "getChainId" }),
 
     isUnsupportedChain() {
-      return this.chainId === this.mimSavingRateInfo.chainId;
+      return this.chainId === this.mimSavingRateInfo?.chainId;
     },
 
     isStakeAction() {
@@ -121,7 +130,8 @@ export default {
     },
 
     isTokenApproved() {
-      const { approvedAmount } = this.mimSavingRateInfo.userInfo.stakeToken;
+      const { approvedAmount } =
+        this.mimSavingRateInfo?.userInfo.stakeToken || 0n;
       return approvedAmount >= this.actionConfig.stakeAmount;
     },
 
@@ -130,8 +140,8 @@ export default {
     },
 
     maxInputValue() {
-      const { balance } = this.mimSavingRateInfo.userInfo.stakeToken;
-      const { unlocked } = this.mimSavingRateInfo.userInfo;
+      const { balance } = this.mimSavingRateInfo?.userInfo.stakeToken || 0n;
+      const { unlocked } = this.mimSavingRateInfo?.userInfo || 0n;
 
       return this.isStakeAction ? balance : unlocked;
     },
@@ -145,19 +155,15 @@ export default {
       );
     },
 
-    lockValidationData() {
-      return validateAction(
-        this.mimSavingRateInfo,
-        ACTION_LOCK,
-        this.chainId,
-        this.actionConfig
-      );
+    boostedApr() {
+      return (this.mimSavingRateInfo?.baseApr || 0n) * 3;
     },
   },
 
   watch: {
     mimSavingRateInfo() {
-      this.actionConfig.lockAmount = this.mimSavingRateInfo.userInfo.unlocked;
+      this.actionConfig.lockAmount =
+        this.mimSavingRateInfo?.userInfo.unlocked || 0n;
     },
   },
 
@@ -165,13 +171,15 @@ export default {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
+    formatPercent,
+
     resetAmounts() {
       this.inputValue = "";
 
       this.actionConfig = {
         stakeAmount: 0n,
         withdrawAmount: 0n,
-        lockAmount: this.mimSavingRateInfo.userInfo.unlocked,
+        lockAmount: this.mimSavingRateInfo.userInfo.unlocked || 0n,
       };
     },
 
@@ -182,14 +190,17 @@ export default {
 
     formatAmount(amount: bigint) {
       return formatTokenBalance(
-        formatUnits(amount, this.mimSavingRateInfo.stakingToken.decimals)
+        formatUnits(amount, this.mimSavingRateInfo?.stakingToken.decimals || 18)
       );
     },
 
     onUpdateStakeValue(value: bigint) {
       this.inputValue = !value
         ? ""
-        : formatUnits(value, this.mimSavingRateInfo.stakingToken.decimals);
+        : formatUnits(
+            value,
+            this.mimSavingRateInfo?.stakingToken.decimals || 18
+          );
 
       if (this.isStakeAction) {
         this.actionConfig.stakeAmount = value;
@@ -206,8 +217,8 @@ export default {
       );
 
       const approve = await approveTokenViem(
-        this.mimSavingRateInfo.stakingToken.contract,
-        this.mimSavingRateInfo.lockingMultiRewardsContract.address
+        this.mimSavingRateInfo?.stakingToken.contract,
+        this.mimSavingRateInfo?.lockingMultiRewardsContract.address
       );
 
       if (approve) this.$emit("updateMimSavingRateInfo");
@@ -226,7 +237,7 @@ export default {
       }
 
       if (!this.isUnsupportedChain) {
-        switchNetwork(this.mimSavingRateInfo.chainId);
+        switchNetwork(this.mimSavingRateInfo?.chainId || 1);
         return false;
       }
 
@@ -240,41 +251,8 @@ export default {
       );
 
       const { error }: any = await actions[this.actionMethodName](
-        this.mimSavingRateInfo.lockingMultiRewardsContract,
+        this.mimSavingRateInfo?.lockingMultiRewardsContract,
         this.actionConfig
-      );
-
-      await this.deleteNotification(notificationId);
-
-      if (error) {
-        await this.createNotification(error);
-      } else {
-        this.$emit("updateMimSavingRateInfo");
-        this.resetAmounts();
-        await this.createNotification(notification.success);
-      }
-    },
-
-    async lockActionHandler() {
-      if (this.lockValidationData.isDisabled) return false;
-
-      if (!this.account && this.isUnsupportedChain) {
-        // @ts-ignore
-        return this.$openWeb3modal();
-      }
-
-      if (!this.isUnsupportedChain) {
-        return switchNetwork(this.mimSavingRateInfo.chainId);
-      }
-
-      const notificationId = await this.createNotification(
-        notification.pending
-      );
-
-      const { error }: any = await actions.lock(
-        this.mimSavingRateInfo.lockingMultiRewardsContract,
-        this.actionConfig.lockAmount,
-        this.lockingDeadline
       );
 
       await this.deleteNotification(notificationId);
@@ -299,6 +277,9 @@ export default {
     ),
     BaseTokenIcon: defineAsyncComponent(
       () => import("@/components/base/BaseTokenIcon.vue")
+    ),
+    RowSkeleton: defineAsyncComponent(
+      () => import("@/components/ui/skeletons/RowSkeleton.vue")
     ),
   },
 };
@@ -409,6 +390,23 @@ export default {
 .lock-action-button {
   margin-top: auto;
   width: auto !important;
+}
+
+.row-skeleton {
+  background-image: linear-gradient(
+    90deg,
+    #2d4b966d 0px,
+    #745cd27a 60px,
+    #2d4b966d 120px
+  ) !important;
+}
+
+.apr-wrap .row-skeleton {
+  height: 24px !important ;
+}
+
+.currently-staked .row-skeleton {
+  height: 32px !important ;
 }
 
 @media (max-width: 500px) {

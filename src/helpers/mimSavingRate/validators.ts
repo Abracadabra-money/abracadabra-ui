@@ -66,12 +66,20 @@ const CHAIN_WARNING = {
   btnText: WARNINGS_BTN_TEXT[WARNING_TYPES.SWITCH_CHAIN],
 };
 
+const NO_CONTRACT_WARNING = {
+  isAllowed: false,
+  isDisabled: true,
+  btnText: WARNINGS_BTN_TEXT[WARNING_TYPES.AMOUNT],
+};
+
 export const validateAction = (
   contractInfo: any,
   actionType: "stake" | "unstake" | "stakeAndLock" | "lock",
   chainId: number,
   actionConfig: any
 ) => {
+  if (!contractInfo) return NO_CONTRACT_WARNING;
+
   if (contractInfo.chainId !== chainId) return CHAIN_WARNING;
 
   if (!getAccountHelper().isConnected) return CONNECTION_WARNING;

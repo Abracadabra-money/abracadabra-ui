@@ -3,12 +3,14 @@
     <div ref="anim"></div>
     <div class="efficiency-info">
       <p class="title">Your APR</p>
-      <p class="percent">{{ formatPercent(this.aprEfficiency) }}</p>
+      <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+      <p class="percent" v-else>{{ formatPercent(this.aprEfficiency) }}</p>
     </div>
   </div>
 </template>
 
 <script>
+import { defineAsyncComponent } from "vue";
 import LottiePlayer from "lottie-web";
 import { formatPercent } from "@/helpers/filters";
 
@@ -16,6 +18,7 @@ const TOTAL_FRAMES = 60;
 export default {
   props: {
     aprEfficiency: { type: [Number, String], default: 0 },
+    isMimSavingRateInfoLoading: { type: Boolean },
   },
 
   data() {
@@ -52,6 +55,12 @@ export default {
   beforeUpdate() {
     this.animation.destroy();
     this.initAnimation();
+  },
+
+  components: {
+    RowSkeleton: defineAsyncComponent(() =>
+      import("@/components/ui/skeletons/RowSkeleton.vue")
+    ),
   },
 };
 </script>
@@ -110,5 +119,10 @@ export default {
 
 .high {
   background-color: #8c4040;
+}
+
+.row-skeleton {
+  height: 28px !important;
+  padding: 15px 0 !important;
 }
 </style>

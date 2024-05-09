@@ -5,7 +5,9 @@
         :selectedNetwork="42161"
         :availableNetworks="[42161]"
       />
-      <span class="apr" v-if="activeAction != 'Claim'">
+
+      <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+      <span class="apr" v-else-if="activeAction != 'Claim'">
         <Tooltip tooltip="APR" :width="20" :height="20" /> APR:
         {{ formatPercent(apr) }}
       </span>
@@ -15,17 +17,20 @@
       <Stake
         v-if="activeAction == 'Stake'"
         :mimSavingRateInfo="mimSavingRateInfo"
+        :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
         @chooseLockAction="$emit('chooseLockAction')"
         @updateMimSavingRateInfo="$emit('updateMimSavingRateInfo')"
       />
       <Lock
         v-if="activeAction == 'Lock'"
         :mimSavingRateInfo="mimSavingRateInfo"
+        :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
         @updateMimSavingRateInfo="$emit('updateMimSavingRateInfo')"
       />
       <Claim
         v-if="activeAction == 'Claim'"
         :mimSavingRateInfo="mimSavingRateInfo"
+        :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
         @chooseLockAction="$emit('chooseLockAction')"
         @updateMimSavingRateInfo="$emit('updateMimSavingRateInfo')"
       />
@@ -33,7 +38,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { defineAsyncComponent } from "vue";
 import { formatPercent } from "@/helpers/filters";
 
@@ -42,12 +47,17 @@ export default {
 
   props: {
     activeAction: { type: String },
-    mimSavingRateInfo: { type: Object, required: true },
+    mimSavingRateInfo: {
+      type: null as any,
+      default: null,
+      required: false,
+    },
+    isMimSavingRateInfoLoading: { type: Boolean },
   },
 
   computed: {
-    apr() {
-      const baseApr = this.mimSavingRateInfo.baseApr;
+    apr(): string | number {
+      const baseApr = this.mimSavingRateInfo?.baseApr || 0;
 
       switch (this.activeAction) {
         case "Stake":
@@ -65,20 +75,23 @@ export default {
   },
 
   components: {
-    Stake: defineAsyncComponent(() =>
-      import("@/components/msr/actions/Stake.vue")
+    Stake: defineAsyncComponent(
+      () => import("@/components/msr/actions/Stake.vue")
     ),
-    Lock: defineAsyncComponent(() =>
-      import("@/components/msr/actions/Lock.vue")
+    Lock: defineAsyncComponent(
+      () => import("@/components/msr/actions/Lock.vue")
     ),
-    Claim: defineAsyncComponent(() =>
-      import("@/components/msr/actions/Claim.vue")
+    Claim: defineAsyncComponent(
+      () => import("@/components/msr/actions/Claim.vue")
     ),
-    AvailableNetworksBlock: defineAsyncComponent(() =>
-      import("@/components/stake/AvailableNetworksBlock.vue")
+    AvailableNetworksBlock: defineAsyncComponent(
+      () => import("@/components/stake/AvailableNetworksBlock.vue")
     ),
-    Tooltip: defineAsyncComponent(() =>
-      import("@/components/ui/icons/Tooltip.vue")
+    Tooltip: defineAsyncComponent(
+      () => import("@/components/ui/icons/Tooltip.vue")
+    ),
+    RowSkeleton: defineAsyncComponent(
+      () => import("@/components/ui/skeletons/RowSkeleton.vue")
     ),
   },
 };
@@ -149,6 +162,10 @@ export default {
 
 .actions-wrapper::v-deep(.action-button) {
   margin-top: 24px;
+}
+
+.row-skeleton {
+  height: 24px !important;
 }
 
 @media (max-width: 760px) {

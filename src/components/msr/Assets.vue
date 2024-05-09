@@ -14,7 +14,8 @@
       <template v-if="!showDepositedTooltip">
         <h4 class="item-title">Deposited</h4>
 
-        <div class="token-amount">
+        <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+        <div class="token-amount" v-else>
           <BaseTokenIcon :icon="mimIcon" name="MIM" size="32px" />
           {{ formatTokenBalance(deposited) }}
         </div>
@@ -24,7 +25,8 @@
           <div class="compound-part">
             <h4 class="item-title">Staked</h4>
 
-            <div class="token-amount">
+            <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+            <div class="token-amount" v-else>
               <BaseTokenIcon :icon="mimIcon" name="MIM" size="13.75px" />
               {{ formatTokenBalance(unlockedAmount) }}
             </div>
@@ -33,7 +35,8 @@
           <div class="compound-part">
             <h4 class="item-title">Locked</h4>
 
-            <div class="token-amount">
+            <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+            <div class="token-amount" v-else>
               <BaseTokenIcon :icon="mimIcon" name="MIM" size="13.75px" />
               {{ formatTokenBalance(lockedAmount) }}
             </div>
@@ -50,7 +53,8 @@
         <Tooltip fill="#99A0B2" tooltip="Rewards" :width="20" :height="20" />
       </h4>
 
-      <div class="reward-tokens">
+      <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+      <div class="reward-tokens" v-else>
         <div
           class="reward-token"
           v-for="(token, index) in rewardTokens"
@@ -75,6 +79,7 @@ export default {
     unlockedAmount: { type: [String, Number], default: 0 },
     rewardTokens: { type: Object },
     depositedToken: { type: Object },
+    isMimSavingRateInfoLoading: { type: Boolean },
   },
 
   data() {
@@ -97,6 +102,9 @@ export default {
     ),
     Tooltip: defineAsyncComponent(
       () => import("@/components/ui/icons/Tooltip.vue")
+    ),
+    RowSkeleton: defineAsyncComponent(
+      () => import("@/components/ui/skeletons/RowSkeleton.vue")
     ),
   },
 };
@@ -213,6 +221,10 @@ export default {
   font-size: 14px;
   font-weight: 500;
   line-height: 20px;
+}
+
+.row-skeleton {
+  height: 20px !important;
 }
 
 @media (max-width: 500px) {

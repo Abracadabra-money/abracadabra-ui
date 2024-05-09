@@ -22,7 +22,7 @@
   <p class="description">
     Rewards are distributed with every epoch, followed by a one-week vesting
     period before they can be claimed. The next epoch will commence in
-    <Timer :endDateTimestamp="mimSavingRateInfo.nextEpoch" small />
+    <Timer :endDateTimestamp="mimSavingRateInfo?.nextEpoch || 0" small />
   </p>
 </template>
 
@@ -33,6 +33,7 @@ import { createEpochTimeline, formatTimestampToUnix } from "@/helpers/time";
 export default {
   props: {
     mimSavingRateInfo: { type: Object },
+    isMimSavingRateInfoLoading: { type: Boolean },
   },
 
   data() {
@@ -52,8 +53,8 @@ export default {
   computed: {
     epoch() {
       return {
-        start: this.mimSavingRateInfo.startOfEpoch,
-        end: this.mimSavingRateInfo.nextEpoch - 1,
+        start: this.mimSavingRateInfo?.startOfEpoch || 0,
+        end: this.mimSavingRateInfo?.nextEpoch - 1 || 0,
       };
     },
 

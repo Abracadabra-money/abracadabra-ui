@@ -2,10 +2,12 @@
   <div class="lock-info">
     <p class="total-locked">
       Locked Balance
-      <span class="token-amount">
+
+      <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+      <span class="token-amount" v-else>
         <BaseTokenIcon :icon="mimIcon" name="MIM" size="24px" />
-        {{ totalLocked }}</span
-      >
+        {{ totalLocked }}
+      </span>
     </p>
 
     <p class="description">
@@ -25,6 +27,7 @@
     </ul>
     <div class="empty-wrap" v-else>
       <ConnectWalletBlock class="connect-wallet" v-if="!account" />
+      <BaseLoader v-else-if="isMimSavingRateInfoLoading" medium />
       <BaseSearchEmpty class="search-empty" v-else />
     </div>
   </div>
@@ -40,6 +43,7 @@ import mimIcon from "@/assets/images/tokens/MIM.png";
 export default {
   props: {
     mimSavingRateInfo: { type: Object },
+    isMimSavingRateInfoLoading: { type: Boolean },
   },
 
   data() {
@@ -55,16 +59,16 @@ export default {
       return this.account
         ? this.formatTokenBalance(
             formatUnits(
-              this.mimSavingRateInfo.userInfo.balances.locked,
-              this.mimSavingRateInfo.stakingToken.decimals
+              this.mimSavingRateInfo?.userInfo.balances.locked || 0n,
+              this.mimSavingRateInfo?.stakingToken.decimals || 18
             )
           )
         : "0";
     },
 
     userLocks() {
-      return this.mimSavingRateInfo.userInfo.userLocks.length > 0
-        ? this.mimSavingRateInfo.userInfo.userLocks
+      return this.mimSavingRateInfo?.userInfo.userLocks.length > 0
+        ? this.mimSavingRateInfo?.userInfo.userLocks
         : [];
     },
   },
@@ -85,6 +89,12 @@ export default {
     ),
     ConnectWalletBlock: defineAsyncComponent(() =>
       import("@/components/myPositions/ConnectWalletBlock.vue")
+    ),
+    RowSkeleton: defineAsyncComponent(() =>
+      import("@/components/ui/skeletons/RowSkeleton.vue")
+    ),
+    BaseLoader: defineAsyncComponent(() =>
+      import("@/components/base/BaseLoader.vue")
     ),
   },
 };
@@ -118,12 +128,12 @@ export default {
 .empty-wrap {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   align-self: stretch;
   gap: 16px;
   min-height: 138px;
   padding: 12px 16px 12px 12px;
-  border-radius: var(--Radius-Tiny, 10px);
+  border-radius: 10px;
   border: 1px solid rgba(180, 180, 180, 0.08);
   background: linear-gradient(
     146deg,
@@ -158,5 +168,15 @@ export default {
   margin: auto;
   max-height: 132px;
   max-width: 163px;
+}
+
+.row-skeleton {
+  height: 27px !important ;
+}
+
+.spinner {
+  max-height: 132px !important;
+  max-width: 163px !important;
+  padding: 0 !important;
 }
 </style>

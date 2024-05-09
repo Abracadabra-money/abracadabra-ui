@@ -5,7 +5,8 @@
         Reward earned <Tooltip :width="20" :height="20" />
       </div>
 
-      <div class="token-values">
+      <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+      <div class="token-values" v-else>
         <div
           class="token-value-wrap"
           v-for="(reward, index) in rewards"
@@ -28,7 +29,8 @@
         </span>
       </div>
 
-      <div class="token-values">
+      <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+      <div class="token-values" v-else>
         <div
           class="token-value-wrap"
           v-for="(reward, index) in rewards"
@@ -47,7 +49,8 @@
         Ready to claim <Tooltip :width="20" :height="20" />
       </div>
 
-      <div class="token-values">
+      <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+      <div class="token-values" v-else>
         <div
           class="token-value-wrap"
           v-for="(reward, index) in rewards"
@@ -81,11 +84,14 @@ export default {
   props: {
     mimSavingRateInfo: { type: Object },
     isUserRewardLockExpired: { type: Boolean },
+    isMimSavingRateInfoLoading: { type: Boolean },
   },
 
   computed: {
-    rewards() {
-      return this.mimSavingRateInfo!.userInfo.userRewardLock.items.map(
+    rewards(): [] {
+      if (!this.mimSavingRateInfo) return [];
+
+      return this.mimSavingRateInfo.userInfo.userRewardLock.items.map(
         (_: any, index: number) => {
           return this.createRewardToken(index);
         }
@@ -93,8 +99,14 @@ export default {
     },
 
     unlockTime() {
+      if (!this.mimSavingRateInfo)
+        return {
+          time: "",
+          formatted: "",
+        };
+
       const unlockTimeTimestamp =
-        Number(this.mimSavingRateInfo!.userInfo.userRewardLock.unlockTime) *
+        Number(this.mimSavingRateInfo.userInfo.userRewardLock.unlockTime) *
         1000;
 
       return {
@@ -105,9 +117,18 @@ export default {
   },
 
   methods: {
-    createRewardToken(arrayIndex: number) {
-      const tokenInfo = this.mimSavingRateInfo!.rewardTokens[arrayIndex];
-      const userInfo = this.mimSavingRateInfo!.userInfo;
+    createRewardToken(arrayIndex: number): TokenRewards {
+      if (!this.mimSavingRateInfo)
+        return {
+          name: "",
+          icon: "",
+          total: "",
+          claimable: "",
+          vesting: "",
+        };
+
+      const tokenInfo = this.mimSavingRateInfo.rewardTokens[arrayIndex];
+      const userInfo = this.mimSavingRateInfo.userInfo;
       const total: bigint = userInfo?.earned[`token${arrayIndex}`] || 0n;
 
       const rewardLockAmount = userInfo.userRewardLock.items[arrayIndex].amount;
@@ -139,6 +160,9 @@ export default {
     ),
     Tooltip: defineAsyncComponent(
       () => import("@/components/ui/icons/Tooltip.vue")
+    ),
+    RowSkeleton: defineAsyncComponent(
+      () => import("@/components/ui/skeletons/RowSkeleton.vue")
     ),
   },
 };
@@ -204,6 +228,10 @@ export default {
 
 .token-icon {
   margin-right: 0 !important;
+}
+
+.row-skeleton {
+  height: 21px !important;
 }
 
 @media (max-width: 500px) {
