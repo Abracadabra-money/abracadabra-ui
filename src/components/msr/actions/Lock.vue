@@ -56,7 +56,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { defineAsyncComponent } from "vue";
 import moment from "moment";
 import { mapActions, mapGetters, mapMutations } from "vuex";
@@ -68,11 +68,10 @@ import actions from "@/helpers/mimSavingRate/actions";
 import { validateAction } from "@/helpers/mimSavingRate/validators";
 import { formatTimestampToUnix } from "@/helpers/time/index";
 import mimIcon from "@/assets/images/tokens/MIM.png";
-import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 
 export default {
   props: {
-    mimSavingRateInfo: { type: Object },
+    mimSavingRateInfo: { type: Object as PropType<MimSavingRateInfo | null> },
     isMimSavingRateInfoLoading: { type: Boolean },
   },
 
@@ -94,9 +93,7 @@ export default {
     ...mapGetters({ account: "getAccount", chainId: "getChainId" }),
 
     isUnsupportedChain() {
-      return (
-        this.chainId != (this.mimSavingRateInfo?.chainId || ARBITRUM_CHAIN_ID)
-      );
+      return this.chainId != this.mimSavingRateInfo?.chainId;
     },
 
     isTokenApproved() {
@@ -251,20 +248,20 @@ export default {
   },
 
   components: {
-    BaseTokenInput: defineAsyncComponent(() =>
-      import("@/components/base/BaseTokenInput.vue")
+    BaseTokenInput: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenInput.vue")
     ),
-    BaseButton: defineAsyncComponent(() =>
-      import("@/components/base/BaseButton.vue")
+    BaseButton: defineAsyncComponent(
+      () => import("@/components/base/BaseButton.vue")
     ),
-    CheckBox: defineAsyncComponent(() =>
-      import("@/components/msr/CheckBox.vue")
+    CheckBox: defineAsyncComponent(
+      () => import("@/components/msr/CheckBox.vue")
     ),
-    LockInfo: defineAsyncComponent(() =>
-      import("@/components/msr/LockInfo.vue")
+    LockInfo: defineAsyncComponent(
+      () => import("@/components/msr/LockInfo.vue")
     ),
-    RowSkeleton: defineAsyncComponent(() =>
-      import("@/components/ui/skeletons/RowSkeleton.vue")
+    RowSkeleton: defineAsyncComponent(
+      () => import("@/components/ui/skeletons/RowSkeleton.vue")
     ),
   },
 };

@@ -65,7 +65,7 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, type PropType } from "vue";
 import moment from "moment";
 import { formatUnits } from "viem";
 import { approveTokenViem } from "@/helpers/approval";
@@ -76,6 +76,7 @@ import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
 import { validateAction } from "@/helpers/mimSavingRate/validators";
 import mimIcon from "@/assets/images/tokens/MIM.png";
+import type { MimSavingRateInfo } from "@/helpers/mimSavingRate/getMimSavingRateInfo";
 
 type ActiveTab = "stake" | "unstake";
 type TabItems = string[];
@@ -91,7 +92,7 @@ export default {
 
   props: {
     mimSavingRateInfo: {
-      type: null as any,
+      type: Object as PropType<MimSavingRateInfo | null>,
       default: null,
       required: false,
     },
@@ -117,29 +118,29 @@ export default {
   computed: {
     ...mapGetters({ account: "getAccount", chainId: "getChainId" }),
 
-    isUnsupportedChain() {
+    isUnsupportedChain(): boolean {
       return this.chainId != this.mimSavingRateInfo?.chainId;
     },
 
-    isStakeAction() {
+    isStakeAction(): boolean {
       return this.activeTab === "stake";
     },
 
-    titleText() {
+    titleText(): string {
       return this.isStakeAction ? "Stake" : "Unstake";
     },
 
-    isTokenApproved() {
+    isTokenApproved(): boolean {
       const { approvedAmount } =
         this.mimSavingRateInfo?.userInfo.stakeToken || 0n;
       return approvedAmount >= this.actionConfig.stakeAmount;
     },
 
-    actionMethodName() {
+    actionMethodName(): string {
       return this.isStakeAction ? "stake" : "withdraw";
     },
 
-    maxInputValue() {
+    maxInputValue(): bigint {
       const { balance } = this.mimSavingRateInfo?.userInfo.stakeToken || 0n;
       const { unlocked } = this.mimSavingRateInfo?.userInfo || 0n;
 

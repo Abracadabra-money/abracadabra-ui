@@ -42,13 +42,14 @@
 import { defineAsyncComponent, type PropType } from "vue";
 import { formatPercent } from "@/helpers/filters";
 import type { MSRActionName } from "@/views/MimSavingRate.vue";
+import type { MimSavingRateInfo } from "@/helpers/mimSavingRate/getMimSavingRateInfo";
 export default {
   emits: ["chooseLockAction", "updateMimSavingRateInfo"],
 
   props: {
     activeAction: { type: String as PropType<MSRActionName> },
     mimSavingRateInfo: {
-      type: null as any,
+      type: Object as PropType<MimSavingRateInfo | null>,
       default: null,
       required: false,
     },

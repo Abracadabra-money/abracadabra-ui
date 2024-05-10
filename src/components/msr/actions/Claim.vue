@@ -47,7 +47,6 @@ import notification from "@/helpers/notification/notification";
 import { getRewards } from "@/helpers/mimSavingRate/actions/getRewards";
 import type { RewardTokenConfig } from "@/configs/stake/mimSavingRateConfig";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
-import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 
 export default {
   emits: ["updateMimSavingRateInfo", "chooseLockAction"],
@@ -147,9 +146,7 @@ export default {
     },
 
     isUnsupportedChain() {
-      return (
-        this.chainId != (this.mimSavingRateInfo?.chainId || ARBITRUM_CHAIN_ID)
-      );
+      return this.chainId != this.mimSavingRateInfo?.chainId;
     },
   },
 
@@ -165,7 +162,7 @@ export default {
         return this.$openWeb3modal();
       }
 
-      if (!this.isUnsupportedChain) {
+      if (this.isUnsupportedChain) {
         switchNetwork(this.mimSavingRateInfo?.chainId);
         return false;
       }
