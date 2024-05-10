@@ -56,7 +56,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script>
 import { defineAsyncComponent } from "vue";
 import moment from "moment";
 import { mapActions, mapGetters, mapMutations } from "vuex";
@@ -71,7 +71,7 @@ import mimIcon from "@/assets/images/tokens/MIM.png";
 
 export default {
   props: {
-    mimSavingRateInfo: { type: Object as PropType<MimSavingRateInfo | null> },
+    mimSavingRateInfo: { type: Object },
     isMimSavingRateInfoLoading: { type: Boolean },
   },
 
@@ -248,20 +248,20 @@ export default {
   },
 
   components: {
-    BaseTokenInput: defineAsyncComponent(
-      () => import("@/components/base/BaseTokenInput.vue")
+    BaseTokenInput: defineAsyncComponent(() =>
+      import("@/components/base/BaseTokenInput.vue")
     ),
-    BaseButton: defineAsyncComponent(
-      () => import("@/components/base/BaseButton.vue")
+    BaseButton: defineAsyncComponent(() =>
+      import("@/components/base/BaseButton.vue")
     ),
-    CheckBox: defineAsyncComponent(
-      () => import("@/components/msr/CheckBox.vue")
+    CheckBox: defineAsyncComponent(() =>
+      import("@/components/msr/CheckBox.vue")
     ),
-    LockInfo: defineAsyncComponent(
-      () => import("@/components/msr/LockInfo.vue")
+    LockInfo: defineAsyncComponent(() =>
+      import("@/components/msr/LockInfo.vue")
     ),
-    RowSkeleton: defineAsyncComponent(
-      () => import("@/components/ui/skeletons/RowSkeleton.vue")
+    RowSkeleton: defineAsyncComponent(() =>
+      import("@/components/ui/skeletons/RowSkeleton.vue")
     ),
   },
 };

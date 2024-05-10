@@ -65,7 +65,7 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent, type PropType } from "vue";
+import { defineAsyncComponent } from "vue";
 import moment from "moment";
 import { formatUnits } from "viem";
 import { approveTokenViem } from "@/helpers/approval";
@@ -76,7 +76,6 @@ import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
 import { validateAction } from "@/helpers/mimSavingRate/validators";
 import mimIcon from "@/assets/images/tokens/MIM.png";
-import type { MimSavingRateInfo } from "@/helpers/mimSavingRate/getMimSavingRateInfo";
 
 type ActiveTab = "stake" | "unstake";
 type TabItems = string[];
@@ -92,7 +91,7 @@ export default {
 
   props: {
     mimSavingRateInfo: {
-      type: Object as PropType<MimSavingRateInfo | null>,
+      type: null as any,
       default: null,
       required: false,
     },
