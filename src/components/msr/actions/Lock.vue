@@ -68,7 +68,7 @@ import actions from "@/helpers/mimSavingRate/actions";
 import { validateAction } from "@/helpers/mimSavingRate/validators";
 import { formatTimestampToUnix } from "@/helpers/time/index";
 import mimIcon from "@/assets/images/tokens/MIM.png";
-import { ARBITRUM_CHAIN_ID } from "@/constants/global.ts";
+import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 
 export default {
   props: {

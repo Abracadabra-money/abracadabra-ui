@@ -47,7 +47,7 @@ import notification from "@/helpers/notification/notification";
 import { getRewards } from "@/helpers/mimSavingRate/actions/getRewards";
 import type { RewardTokenConfig } from "@/configs/stake/mimSavingRateConfig";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
-import { ARBITRUM_CHAIN_ID } from "@/constants/global.ts";
+import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 
 export default {
   emits: ["updateMimSavingRateInfo", "chooseLockAction"],
