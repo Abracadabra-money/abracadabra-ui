@@ -135,7 +135,7 @@ export default {
       return approvedAmount >= this.actionConfig.stakeAmount;
     },
 
-    actionMethodName(): string {
+    actionMethodName() {
       return this.isStakeAction ? "stake" : "withdraw";
     },
 
