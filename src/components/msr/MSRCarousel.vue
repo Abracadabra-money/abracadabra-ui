@@ -37,7 +37,10 @@
     </div>
 
     <template v-if="isCarouselMode">
-      <TotalInfo :mimSavingRateInfo="mimSavingRateInfo" />
+      <TotalInfo
+        :mimSavingRateInfo="mimSavingRateInfo"
+        :activeTabItem="activeTabItem"
+      />
     </template>
   </div>
 </template>
@@ -106,7 +109,7 @@ export default {
   justify-content: center;
   align-items: center;
   flex-grow: 1;
-  height: calc(100vh - 156px);
+  height: calc(100vh - 186px);
   overflow: hidden;
 }
 
@@ -175,13 +178,13 @@ export default {
 .switch {
   position: absolute;
   top: 0;
-  z-index: 1 ;
+  z-index: 1;
 }
 
 @media (max-width: 760px) {
   .carousel-container {
     width: 191px;
-    height: 263px;
+    height: 100%;
   }
 
   .carousel-container.inactive {
@@ -203,6 +206,7 @@ export default {
 
   .carousel-item.active {
     transform: scale(1);
+    margin: 50px 20px 20px 20px;
   }
 
   .item-name {
