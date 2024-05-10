@@ -8,6 +8,13 @@
       },
     ]"
   >
+    <CarouselTabs
+      :items="tabItems"
+      :name="activeTabItem"
+      activeColor="white"
+      @select="$emit('selectAction', $event)"
+    />
+
     <div class="carousel">
       <div
         class="carousel-track"
@@ -24,27 +31,13 @@
             even: index % 2 == 0,
           }"
         >
-          <div class="item-content" @click="$emit('selectAction', index)">
-            <span class="item-name">{{ item.name }}</span>
-            <img class="item-image" :src="item.image" />
-          </div>
+          <img class="item-image" :src="item.image" />
         </div>
       </div>
     </div>
 
     <template v-if="isCarouselMode">
       <TotalInfo :mimSavingRateInfo="mimSavingRateInfo" />
-
-      <img
-        class="arrow left"
-        src="@/assets/images/arrow.svg"
-        @click="$emit('prev')"
-      />
-      <img
-        class="arrow right"
-        src="@/assets/images/arrow.svg"
-        @click="$emit('next')"
-      />
     </template>
   </div>
 </template>
@@ -52,7 +45,7 @@
 <script lang="ts">
 import { defineAsyncComponent, type PropType } from "vue";
 import type { MimSavingRateInfo } from "@/helpers/mimSavingRate/getMimSavingRateInfo";
-import type { MSRAction } from "@/views/MimSavingRate.vue";
+import type { MSRAction, MSRActionName } from "@/views/MimSavingRate.vue";
 
 export default {
   props: {
@@ -71,6 +64,17 @@ export default {
   },
 
   computed: {
+    tabItems(): MSRActionName[] {
+      return this.actions.map((action: MSRAction) => action.name);
+    },
+
+    activeTabItem(): MSRActionName {
+      return (
+        this.actions.find((action: MSRAction) => action.id == this.activeIndex)
+          ?.name || "Lock"
+      );
+    },
+
     translateOffset(): number {
       if (this.activeIndex === null || this.activeIndex === undefined) return 0;
       const middleIndex = Math.floor(this.actions.length / 2);
@@ -86,6 +90,9 @@ export default {
   components: {
     TotalInfo: defineAsyncComponent(
       () => import("@/components/msr/TotalInfo.vue")
+    ),
+    CarouselTabs: defineAsyncComponent(
+      () => import("@/components/msr/CarouselTabs.vue")
     ),
   },
 };
@@ -165,25 +172,10 @@ export default {
   opacity: 0;
 }
 
-.arrow {
+.switch {
   position: absolute;
-  cursor: pointer;
-  width: 52px;
-  transition: opacity 0.3s ease-in;
-}
-
-.arrow:hover {
-  opacity: 0.5;
-}
-
-.arrow.left {
-  transform: rotate(90deg);
-  left: 20px;
-}
-
-.arrow.right {
-  transform: rotate(270deg);
-  right: 20px;
+  top: 0;
+  z-index: 1 ;
 }
 
 @media (max-width: 760px) {
