@@ -10,6 +10,13 @@
         src="@/assets/images/header/account-image.png"
       />
     </div>
+
+    <div class="account-image-wrap wallet-icon" v-else>
+      <img
+        class="account-image"
+        src="@/assets/images/header/connect-wallet-icon.png"
+      />
+    </div>
     <span class="btn-text">
       {{ walletBtnText }}
     </span>
@@ -131,6 +138,16 @@ export default {
   width: 24px;
   height: 24px;
   border-radius: 32px;
+}
+
+.wallet-icon {
+  display: none;
+}
+
+@media (max-width: 1200px) {
+  .wallet-icon {
+    display: flex;
+  }
 }
 
 @media (max-width: 1100px) {
