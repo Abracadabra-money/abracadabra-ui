@@ -41,17 +41,17 @@ export default {
       actions: [
         {
           id: 0,
-          image: useImage("assets/gifs/msr/stake.gif"),
+          image: useImage("assets/gifs/msr/stake.webp"),
           name: "Stake",
         },
         {
           id: 1,
-          image: useImage("assets/gifs/msr/lock.gif"),
+          image: useImage("assets/gifs/msr/lock.webp"),
           name: "Lock",
         },
         {
           id: 2,
-          image: useImage("assets/gifs/msr/claim.gif"),
+          image: useImage("assets/gifs/msr/claim.webp"),
           name: "Claim",
         },
       ] as MSRAction[],

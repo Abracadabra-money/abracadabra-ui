@@ -41,11 +41,13 @@
 import moment from "moment";
 import { defineAsyncComponent } from "vue";
 import { formatUnits } from "viem";
-import { mapActions, mapMutations } from "vuex";
+import { mapActions, mapGetters, mapMutations } from "vuex";
 import { formatTokenBalance } from "@/helpers/filters";
 import notification from "@/helpers/notification/notification";
 import { getRewards } from "@/helpers/mimSavingRate/actions/getRewards";
 import type { RewardTokenConfig } from "@/configs/stake/mimSavingRateConfig";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import { ARBITRUM_CHAIN_ID } from "@/constants/global.ts";
 
 export default {
   emits: ["updateMimSavingRateInfo", "chooseLockAction"],
@@ -56,7 +58,13 @@ export default {
   },
 
   computed: {
+    ...mapGetters({ account: "getAccount", chainId: "getChainId" }),
+
     buttonText() {
+      if (this.isUnsupportedChain) return "Switch chain";
+
+      if (!this.account) return "Connect wallet";
+
       if (this.isEarned && !this.isUserRewardLockAmount)
         return "Earned to vesting";
 
@@ -80,6 +88,8 @@ export default {
     },
 
     isButtonDisabled() {
+      if (!this.account || this.isUnsupportedChain) return false;
+
       return (
         (!this.isEarned && !this.isUserRewardLockAmount) ||
         (!this.isEarned &&
@@ -94,7 +104,11 @@ export default {
     },
 
     isUserRewardLockAmount() {
-      if (!this.mimSavingRateInfo) return false;
+      if (
+        !this.mimSavingRateInfo ||
+        this.mimSavingRateInfo.userInfo.userRewardLock.items.length == 0
+      )
+        return false;
       return (
         this.mimSavingRateInfo.userInfo.userRewardLock.items[0].amount > 0n
       );
@@ -131,6 +145,12 @@ export default {
     rewardTokens(): RewardTokenConfig[] {
       return this.mimSavingRateInfo?.rewardTokens || [];
     },
+
+    isUnsupportedChain() {
+      return (
+        this.chainId != (this.mimSavingRateInfo?.chainId || ARBITRUM_CHAIN_ID)
+      );
+    },
   },
 
   methods: {
@@ -139,6 +159,16 @@ export default {
 
     async actionHandler() {
       if (this.isButtonDisabled) return;
+
+      if (!this.account && !this.isUnsupportedChain) {
+        // @ts-ignore
+        return this.$openWeb3modal();
+      }
+
+      if (!this.isUnsupportedChain) {
+        switchNetwork(this.mimSavingRateInfo?.chainId);
+        return false;
+      }
 
       const notificationId = await this.createNotification(
         notification.pending

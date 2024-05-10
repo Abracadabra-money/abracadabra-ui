@@ -68,6 +68,7 @@ import actions from "@/helpers/mimSavingRate/actions";
 import { validateAction } from "@/helpers/mimSavingRate/validators";
 import { formatTimestampToUnix } from "@/helpers/time/index";
 import mimIcon from "@/assets/images/tokens/MIM.png";
+import { ARBITRUM_CHAIN_ID } from "@/constants/global.ts";
 
 export default {
   props: {
@@ -93,7 +94,9 @@ export default {
     ...mapGetters({ account: "getAccount", chainId: "getChainId" }),
 
     isUnsupportedChain() {
-      return this.chainId === this.mimSavingRateInfo?.chainId || 1;
+      return (
+        this.chainId != (this.mimSavingRateInfo?.chainId || ARBITRUM_CHAIN_ID)
+      );
     },
 
     isTokenApproved() {
@@ -151,7 +154,7 @@ export default {
     },
 
     async approveTokenHandler() {
-      if (!this.isUnsupportedChain) return false;
+      if (this.isUnsupportedChain) return false;
 
       const notificationId = await this.createNotification(
         notification.approvePending
@@ -218,12 +221,12 @@ export default {
     async actionHandler() {
       if (this.actionValidationData.isDisabled) return false;
 
-      if (!this.account && this.isUnsupportedChain) {
+      if (!this.account && !this.isUnsupportedChain) {
         // @ts-ignore
         return this.$openWeb3modal();
       }
 
-      if (!this.isUnsupportedChain) {
+      if (this.isUnsupportedChain) {
         switchNetwork(this.mimSavingRateInfo?.chainId);
         return false;
       }
