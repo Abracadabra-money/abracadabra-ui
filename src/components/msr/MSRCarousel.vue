@@ -50,12 +50,13 @@
 </template>
 
 <script lang="ts">
-import type { MSRAction } from "@/views/MimSavingRate.vue";
 import { defineAsyncComponent, type PropType } from "vue";
+import type { MimSavingRateInfo } from "@/helpers/mimSavingRate/getMimSavingRateInfo";
+import type { MSRAction } from "@/views/MimSavingRate.vue";
 
 export default {
   props: {
-    mimSavingRateInfo: { type: Object },
+    mimSavingRateInfo: { type: Object as PropType<MimSavingRateInfo | null> },
     actions: { type: Array as PropType<MSRAction[]>, required: true },
     activeIndex: {
       type: Number as unknown as PropType<number | null>,
@@ -74,18 +75,6 @@ export default {
       if (this.activeIndex === null || this.activeIndex === undefined) return 0;
       const middleIndex = Math.floor(this.actions.length / 2);
       let marginalElementsOffset = 0;
-      // switch (this.activeIndex) {
-      //   case 0:
-      //     marginalElementsOffset = -10;
-      //     break;
-
-      //   case 2:
-      //     marginalElementsOffset = 10;
-      //     break;
-
-      //   default:
-      //     break;
-      // }
 
       return (
         (middleIndex - this.activeIndex) * this.itemWidth -
@@ -233,5 +222,4 @@ export default {
     width: 40px;
   }
 }
-
 </style>

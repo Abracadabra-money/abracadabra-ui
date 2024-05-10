@@ -1,4 +1,3 @@
-import type { Address } from "viem";
 import type { ContractInfo, PublicClient } from "@/types/global";
 import type { RewardTokenConfig } from "@/configs/stake/mimSavingRateConfig";
 

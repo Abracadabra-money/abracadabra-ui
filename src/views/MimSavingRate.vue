@@ -24,7 +24,10 @@
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
 import { mapGetters } from "vuex";
-import { getMimSavingRateInfo } from "@/helpers/mimSavingRate/getMimSavingRateInfo";
+import {
+  getMimSavingRateInfo,
+  type MimSavingRateInfo,
+} from "@/helpers/mimSavingRate/getMimSavingRateInfo";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 import { useImage } from "@/helpers/useImage";
 
@@ -57,7 +60,7 @@ export default {
       ] as MSRAction[],
       activeIndex: 1 as number,
       itemWidth: 200,
-      mimSavingRateInfo: null as any,
+      mimSavingRateInfo: null as MimSavingRateInfo | null,
       isMimSavingRateInfoLoading: true,
     };
   },

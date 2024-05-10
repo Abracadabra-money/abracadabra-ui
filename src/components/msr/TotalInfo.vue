@@ -14,20 +14,24 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import type { PropType } from "vue";
 import { mapGetters } from "vuex";
 import { formatUnits } from "viem";
 import { formatTokenBalance } from "@/helpers/filters";
+import type { MimSavingRateInfo } from "@/helpers/mimSavingRate/getMimSavingRateInfo";
 
 export default {
-  props: { mimSavingRateInfo: { type: Object } },
+  props: {
+    mimSavingRateInfo: { type: Object as PropType<MimSavingRateInfo | null> },
+  },
 
   computed: {
     ...mapGetters({
       account: "getAccount",
     }),
 
-    totalDeposited() {
+    totalDeposited(): string {
       if (!this.mimSavingRateInfo?.userInfo) return "";
       return formatUnits(
         this.mimSavingRateInfo.userInfo.locked +
