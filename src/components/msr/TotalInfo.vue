@@ -55,19 +55,13 @@ export default {
       switch (this.activeTabItem) {
         case "Stake":
           return {
-            value: formatUnits(
-              this.mimSavingRateInfo.userInfo.unlocked,
-              decimals
-            ),
+            value: formatUnits(this.mimSavingRateInfo.unlockedSupply, decimals),
             apr: baseApr,
             title: "Staked",
           };
         case "Lock":
           return {
-            value: formatUnits(
-              this.mimSavingRateInfo.userInfo.locked,
-              decimals
-            ),
+            value: formatUnits(this.mimSavingRateInfo.lockedSupply, decimals),
             apr: baseApr * 3,
             title: "Locked",
           };
