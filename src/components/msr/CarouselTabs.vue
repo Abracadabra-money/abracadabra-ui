@@ -62,11 +62,13 @@ export default {
   align-items: center;
   gap: 10px;
   padding: 10px 37px;
-  background: none;
+
+  border-radius: 37px;
   border: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  background: transparent;
+
   color: rgba(255, 255, 255, 0.6);
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 500;
 
   transition: all 0.3s ease;
@@ -74,22 +76,26 @@ export default {
 }
 
 .switch-btn:hover {
-  color: #ffffffa2;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.646);
+  color: #ffffff6c;
 }
 
 .switch-btn-active {
   color: #fff;
-  border-bottom: 1px solid rgb(255, 255, 255);
+  background: linear-gradient(
+    90deg,
+    rgba(45, 74, 150, 0.24) 0%,
+    rgba(116, 92, 210, 0.24) 100%
+  );
+  font-weight: 600;
 }
 
-@media (max-width:760px) {
-    .switch-btn {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 4px 16px;
-        font-size: 20px;
-      }
+@media (max-width: 760px) {
+  .switch-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 16px;
+    font-size: 20px;
+  }
 }
 </style>

@@ -2,20 +2,20 @@
   <div class="total-info-wrap">
     <div class="tag total">
       <img class="mim-icon" src="@/assets/images/market/m-icon.svg" />
-      <span class="title">Total {{ totalDepositedInfo.title }}:</span>
+      <span class="title">Total {{ totalDepositedInfo.title }}</span>
       <span class="value">
         <BaseTokenIcon
           :icon="mimSavingRateInfo?.stakingToken.icon"
           :name="mimSavingRateInfo?.stakingToken.name"
           size="24px"
         />
-        {{ formatTokenBalance(totalDepositedInfo.value) }}</span
+        {{ formatLargeSum(totalDepositedInfo.value) }}</span
       >
     </div>
 
     <div class="tag apr">
       <img class="mim-icon" src="@/assets/images/market/m-icon.svg" />
-      <span class="title">APR:</span>
+      <span class="title">APR</span>
       <span class="value">{{ formatPercent(totalDepositedInfo.apr) }}</span>
     </div>
   </div>
@@ -26,7 +26,7 @@ import { defineAsyncComponent } from "vue";
 import type { PropType } from "vue";
 import { mapGetters } from "vuex";
 import { formatUnits } from "viem";
-import { formatTokenBalance, formatPercent } from "@/helpers/filters";
+import { formatLargeSum, formatPercent } from "@/helpers/filters";
 import type { MimSavingRateInfo } from "@/helpers/mimSavingRate/getMimSavingRateInfo";
 import type { MSRActionName } from "@/views/MimSavingRate.vue";
 
@@ -76,7 +76,7 @@ export default {
   },
 
   methods: {
-    formatTokenBalance,
+    formatLargeSum,
     formatPercent,
   },
 

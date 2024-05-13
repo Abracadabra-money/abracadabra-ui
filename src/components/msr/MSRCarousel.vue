@@ -185,23 +185,21 @@ export default {
     width: 191px;
     height: 100%;
     padding: 16px;
+    overflow: hidden;
   }
 
   .carousel-container.inactive {
-    overflow: visible;
     height: 100%;
   }
 
   .carousel {
     width: auto;
-    overflow: visible;
   }
 
   .carousel-container.inactive .carousel .carousel-track {
     flex-direction: column;
     width: auto;
     height: 100%;
-    overflow: visible;
   }
 
   .carousel-item.active {

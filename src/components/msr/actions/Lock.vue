@@ -29,16 +29,17 @@
         starting every Thursday at 00:00 UTC.
       </p>
 
-      <p class="lock-time-notification">
+      <div class="lock-time-notification">
         <span class="notification-message"> Lock untill: </span>
-        <RowSkeleton v-if="isMimSavingRateInfoLoading" />
-        <span class="time" v-else>{{
-          formatTimestampToUnix(
-            mimSavingRateInfo?.nextEpoch,
-            "DD MMM YYYY HH:mm:ss"
-          )
-        }}</span>
-      </p>
+
+        <div class="date-time">
+          <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+          <span class="date" v-else>{{
+            formatTimestampToUnix(mimSavingRateInfo?.nextEpoch, "DD MMM. YYYY")
+          }}</span>
+          <span class="time"> (00:01 UTC)</span>
+        </div>
+      </div>
     </div>
 
     <BaseButton
@@ -276,12 +277,11 @@ export default {
 
 .description-wrap {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  justify-content: space-between;
+  gap: 16px;
 }
 
-.description,
-.lock-time-notification {
+.description {
   font-size: 14px;
   font-weight: 400;
   font-style: normal;
@@ -290,11 +290,71 @@ export default {
 
 .lock-time-notification {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
+  text-align: center;
+  min-width: 206px;
+  padding: 8px 16px 8px 12px;
+  border-radius: 10px;
+  border: 1px solid #2d4a96;
+  background: linear-gradient(
+      90deg,
+      rgba(45, 74, 150, 0.32) 0%,
+      rgba(116, 92, 210, 0.32) 100%
+    ),
+    url("@/assets/images/msr/lock-until-background-timer.svg");
+  background-repeat: no-repeat;
+  background-position: right 0 bottom 0;
+  box-shadow: 0px 4px 33px 0px rgba(0, 0, 0, 0.06);
+}
+
+.notification-message {
+  color: #878b93;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 26px;
+}
+
+.date-time {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.date {
+  color: #fff;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 26px;
+}
+
+.time {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 26px;
 }
 
 .row-skeleton {
   height: 26px !important;
+}
+
+@media (max-width: 600px) {
+  .description-wrap {
+    flex-direction: column;
+  }
+
+  .lock-time-notification {
+    width: 100%;
+  }
+
+  .date-time {
+    flex-direction: row;
+    gap: 4px;
+  }
+
+  .date {
+    font-weight: 18px;
+  }
 }
 </style>
