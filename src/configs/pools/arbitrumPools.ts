@@ -8,7 +8,7 @@ const arbitrumPools: Array<PoolConfig> = [
     id: 1,
     chainId: 42161,
     name: "WETH / WBTC",
-    icon: useImage(`assets/images/tokens/WETH.png`),
+    icon: useImage(`assets/images/tokens/BTC-WETH.png`),
     decimals: 18,
     contract: {
       address: "0x5895bff185127a01a333cbea8e53dcf172c13f35",
@@ -22,7 +22,7 @@ const arbitrumPools: Array<PoolConfig> = [
         address: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
         abi: erc20Abi,
       },
-      mainColor: "#C9E5FF",
+      mainColor: "#FE95C0",
       isPopular: true,
     },
     quoteToken: {
@@ -33,7 +33,7 @@ const arbitrumPools: Array<PoolConfig> = [
         abi: erc20Abi,
       },
       decimals: 8,
-      mainColor: "#FCFC03",
+      mainColor: "#F9AA4B",
       isPopular: true,
     },
     settings: {
