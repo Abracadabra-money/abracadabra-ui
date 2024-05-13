@@ -14,7 +14,7 @@
     <div class="account-image-wrap wallet-icon" v-else>
       <img
         class="account-image"
-        src="@/assets/images/header/connect-wallet-icon.png"
+        src="@/assets/images/header/connect-wallet-icon.svg"
       />
     </div>
     <span class="btn-text">
