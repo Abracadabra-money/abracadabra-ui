@@ -178,8 +178,9 @@ export default {
 @media (max-width: 500px) {
   .action-block {
     min-height: auto;
-    padding: 0;
+    padding: 16px;
     border: none;
+    border-radius: 0;
     background: none;
     box-shadow: none;
     backdrop-filter: none;

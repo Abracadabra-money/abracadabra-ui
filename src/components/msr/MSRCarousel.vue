@@ -110,7 +110,6 @@ export default {
   align-items: center;
   flex-grow: 1;
   height: calc(100vh - 186px);
-  overflow: hidden;
 }
 
 .carousel {
@@ -185,6 +184,7 @@ export default {
   .carousel-container {
     width: 191px;
     height: 100%;
+    padding: 16px;
   }
 
   .carousel-container.inactive {

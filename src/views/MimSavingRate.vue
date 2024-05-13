@@ -184,9 +184,9 @@ export default {
   padding: 106px 0 50px 0;
 }
 
-@media (max-width: 760px) {
+@media (max-width: 1300px) {
   .msr-view {
-    padding: 106px 15px 50px 15px;
+    padding: 106px 0 50px 0;
     gap: 32px;
   }
 }

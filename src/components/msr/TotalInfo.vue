@@ -1,6 +1,6 @@
 <template>
   <div class="total-info-wrap">
-    <div class="tag">
+    <div class="tag total">
       <img class="mim-icon" src="@/assets/images/market/m-icon.svg" />
       <span class="title">Total {{ totalDepositedInfo.title }}:</span>
       <span class="value">
@@ -13,7 +13,7 @@
       >
     </div>
 
-    <div class="tag">
+    <div class="tag apr">
       <img class="mim-icon" src="@/assets/images/market/m-icon.svg" />
       <span class="title">APR:</span>
       <span class="value">{{ formatPercent(totalDepositedInfo.apr) }}</span>
@@ -92,8 +92,7 @@ export default {
 .total-info-wrap {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 24px;
+  gap: 20px;
 }
 
 .tag {
@@ -105,7 +104,6 @@ export default {
   gap: 4px;
   text-align: center;
   padding: 12px 24px;
-  min-width: 174px;
   border-radius: 16px;
   border: 1px solid #00296b;
   background: linear-gradient(
@@ -117,6 +115,14 @@ export default {
   backdrop-filter: blur(12.5px);
 }
 
+.total {
+  width: 243px;
+}
+
+.apr {
+  width: 174px;
+}
+
 .title {
   color: #99a0b2;
   font-size: 16px;
@@ -124,7 +130,7 @@ export default {
 }
 
 .value {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   font-size: 20px;
   font-weight: 500;
@@ -138,13 +144,19 @@ export default {
 
 @media (max-width: 760px) {
   .total-info-wrap {
+    justify-content: center;
     bottom: 20px;
+    width: 100%;
     font-size: 14px;
     font-weight: 400;
   }
 
-  .tag {
-    width: 100%;
+  .total {
+    max-width: 224px;
+  }
+
+  .apr {
+    max-width: 103px;
   }
 }
 </style>
