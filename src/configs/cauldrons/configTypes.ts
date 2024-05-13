@@ -22,7 +22,11 @@ type CauldronSettings = {
   isSSpell?: boolean;
   isGMXMarket?: boolean;
   isMimUsdtCurveLp?: boolean;
+  isStargateUSDT?: boolean;
+  isVelodrome?: boolean;
   isTesting?: boolean;
+  hasWhitelistLogic?: boolean;
+  useDegenBoxHelper?: boolean;
 };
 
 type MimInfo = {

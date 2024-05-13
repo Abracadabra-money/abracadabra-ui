@@ -9,10 +9,9 @@ const signMasterContract = async (
   approved,
   nonce
 ) => {
-  try {
-    const signer = store.getters.getSigner;
+  const signer = store.getters.getSigner;
 
-    const chainHex = ethers.utils.hexlify(chainId);
+  const chainHex = ethers.utils.hexlify(chainId);
 
   const domain = {
     name: "BentoBox V1",
