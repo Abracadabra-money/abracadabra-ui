@@ -150,14 +150,15 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+import degenBoxAbi from "@/abis/degenBox.js";
+import BaseButton from "@/components/base/BaseButton.vue";
+import { tokensChainLink } from "@/configs/chainLink/config";
 import NetworksList from "@/components/ui/NetworksList.vue";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
-import BaseButton from "@/components/base/BaseButton.vue";
-import { getTokenPriceByAddress } from "@/helpers/priceHelper";
-import degenBoxAbi from "@/utils/abi/degenBox.js";
-import { mapGetters } from "vuex";
+import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 import { getApprovalEncode } from "@/helpers/getRevokeApprovalSignature";
-import filters from "@/filters/index.js";
+import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 
 const ethPrivilegedMasterContract =
   "0xb2EBF227188E44ac268565C73e0fCd82D4Bfb1E3";
@@ -172,7 +173,7 @@ const sGlpAddress = "0x5402B5F40310bDED796c7D0F3FF6683f5C0cFfdf";
 const aethMimAddress = "0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A";
 const ethMimAddress = "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3";
 
-import claimAbi from "@/utils/abi/tokensClaim";
+import claimAbi from "@/abis/tokensClaim";
 
 export default {
   data() {
@@ -323,12 +324,9 @@ export default {
   },
 
   methods: {
-    formatUSD(value) {
-      return filters.formatUSD(value);
-    },
-    formatTokenBalance(value) {
-      return filters.formatTokenBalance(value);
-    },
+    formatUSD,
+    formatTokenBalance,
+
     async actionHandler() {
       if (!this.account) await this.$openWeb3modal();
       else {
@@ -447,9 +445,9 @@ export default {
 
       this.crvBalance = this.$ethers.utils.formatUnits(crvBalance, 18);
 
-      this.crvBalanceUsd = await getTokenPriceByAddress(
-        this.chainId,
-        crvAddress
+      this.crvBalanceUsd = await getTokenPriceByChain(
+        tokensChainLink.crv.chainId,
+        tokensChainLink.crv.address
       );
 
       const mimBalance = await this.claimContract.amounts(
@@ -459,9 +457,9 @@ export default {
 
       this.mimBalance = this.$ethers.utils.formatUnits(mimBalance, 18);
 
-      this.mimBalanceUsd = await getTokenPriceByAddress(
-        this.chainId,
-        ethMimAddress
+      this.mimBalanceUsd = await getTokenPriceByChain(
+        tokensChainLink.mim.chainId,
+        tokensChainLink.mim.address
       );
     },
 
@@ -490,9 +488,9 @@ export default {
 
       this.mimBalance = this.$ethers.utils.formatUnits(mimBalance, 18);
 
-      this.mimBalanceUsd = await getTokenPriceByAddress(
-        this.chainId,
-        aethMimAddress
+      this.mimBalanceUsd = await getTokenPriceByChain(
+        tokensChainLink.mim.chainId,
+        tokensChainLink.mim.address
       );
     },
   },

@@ -1,23 +1,23 @@
-import { getAccount, multicall, readContract } from "@wagmi/core";
-import { getTokenPriceByAddress } from "@/helpers/priceHelper.js";
-import { tokenAddresses } from "@/helpers/farm/createFarmItemConfig";
-import type { FarmAccountInfo, FarmItem } from "@/utils/farmsConfig/types";
-
-import { formatUnits } from "viem";
+import { tokensChainLink } from "@/configs/chainLink/config";
+import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
+import type { FarmAccountInfo, FarmItem } from "@/configs/farms/types";
+import { formatUnits, type Address } from "viem";
 
 type UserInfo = {
   amount: string;
+  amountBigInt: BigInt;
   rewardDebt: string;
   remainingIceTokenReward: string;
 };
 
 export const getFarmUserInfo = async (
-  farmItemConfig: FarmItem
+  farmItemConfig: FarmItem,
+  publicClient: any,
+  account: Address
 ): Promise<FarmAccountInfo> => {
-  const account = await getAccount().address;
 
   const [accountBalance, allowance, userInfo, userReward]: any =
-    await multicall({
+    await publicClient.multicall({
       contracts: [
         {
           ...farmItemConfig.stakingToken.contractInfo,
@@ -32,12 +32,12 @@ export const getFarmUserInfo = async (
         {
           ...farmItemConfig.contractInfo,
           functionName: "userInfo",
-          args: [farmItemConfig.poolId, account!],
+          args: [farmItemConfig.poolId!, account!],
         },
         {
           ...farmItemConfig.contractInfo,
           functionName: "pendingIce",
-          args: [farmItemConfig.poolId, account!],
+          args: [farmItemConfig.poolId!, account!],
         },
       ],
     });
@@ -45,7 +45,7 @@ export const getFarmUserInfo = async (
   const userInfoParsed = await getUserInfo(userInfo.result);
 
   const tokensBalanceInfo = farmItemConfig.depositedBalance
-    ? await getSLPBalances(farmItemConfig, userInfoParsed)
+    ? await getSLPBalances(farmItemConfig, userInfoParsed, publicClient)
     : null;
 
   return {
@@ -53,31 +53,39 @@ export const getFarmUserInfo = async (
     userInfo: userInfoParsed,
     userReward: formatUnits(userReward.result, 18),
     tokensBalanceInfo,
-    balance: formatUnits(accountBalance.result, 18),
+    balance: accountBalance.result,
     depositedBalance: userInfoParsed.amount,
+    depositedBalanceBigInt: userInfoParsed.amountBigInt,
   };
 };
 
-const getSLPBalances = async (farmItemConfig: FarmItem, userInfo: UserInfo) => {
-  const reserves: any = await readContract({
+const getSLPBalances = async (
+  farmItemConfig: FarmItem,
+  userInfo: UserInfo,
+  publicClient: any
+) => {
+  const reserves: any = await publicClient.readContract({
     ...farmItemConfig.stakingToken.contractInfo,
     functionName: "getReserves",
     args: [],
   });
 
   //MIM or SPELL
-  const token0Price = await getTokenPriceByAddress(
-    1,
-    tokenAddresses[
-      farmItemConfig.depositedBalance?.token0
-        .name as keyof typeof tokenAddresses
-    ]
+  const token0Name =
+    farmItemConfig.depositedBalance?.token0.name.toLocaleLowerCase();
+
+  const token0Price = await getTokenPriceByChain(
+    tokensChainLink[token0Name as keyof typeof tokensChainLink].chainId,
+    tokensChainLink[token0Name as keyof typeof tokensChainLink].address
   );
 
   // ETH always
-  const token1Price = await getTokenPriceByAddress(
-    1,
-    tokenAddresses["WETH" as keyof typeof tokenAddresses]
+  const token1Name =
+    farmItemConfig.depositedBalance?.token1.name.toLocaleLowerCase();
+
+  const token1Price = await getTokenPriceByChain(
+    tokensChainLink[token1Name as keyof typeof tokensChainLink].chainId,
+    tokensChainLink[token1Name as keyof typeof tokensChainLink].address
   );
 
   const token0Amount: number = Number(formatUnits(reserves[0], 18));
@@ -97,9 +105,9 @@ const getSLPBalances = async (farmItemConfig: FarmItem, userInfo: UserInfo) => {
   const userRewardInUsd = userRewardParsed * farmItemConfig.lpPrice;
 
   const token0UserAmount =
-    ((userRewardInUsd / 100) * token0Percent) / token0Price / 1e18;
+    ((userRewardInUsd / 100) * token0Percent) / token0Price;
   const token1UserAmount =
-    ((userRewardInUsd / 100) * token1Percent) / token1Price / 1e18;
+    ((userRewardInUsd / 100) * token1Percent) / token1Price;
 
   return {
     token0: {
@@ -121,6 +129,7 @@ const getUserInfo = async (userInfo: any): Promise<UserInfo> => {
 
   return {
     amount: formatUnits(amountBigInt, 18),
+    amountBigInt,
     remainingIceTokenReward: formatUnits(remainingIceTokenRewardBigInt, 18),
     rewardDebt: formatUnits(rewardDebtBigInt, 18),
   };

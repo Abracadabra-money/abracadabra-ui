@@ -1,12 +1,12 @@
-import { ethers, providers } from "ethers";
-import { MulticallWrapper } from "ethers-multicall-provider";
-import { swap0xRequest } from "@/helpers/0x";
-import { actions } from "@/helpers/cauldron/cook/actions";
 import store from "@/store";
+import { ethers } from "ethers";
+import { swap0xRequest } from "@/helpers/0x";
+import { ARBITRUM_CHAIN_ID } from "@/constants/global";
+import { actions } from "@/helpers/cauldron/cook/actions";
+import { MulticallWrapper } from "ethers-multicall-provider";
+import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
 
-const staticProvider = new providers.StaticJsonRpcProvider(
-  "https://arb1.arbitrum.io/rpc"
-);
+const staticProvider = getEthersProvider(ARBITRUM_CHAIN_ID);
 
 const multicalProvider = MulticallWrapper.wrap(staticProvider);
 

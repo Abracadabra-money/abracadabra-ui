@@ -1,19 +1,27 @@
 <template>
   <a
     class="default-button"
-    :style="{ width: setWidth() }"
-    :class="{ primary: primary, disabled: disabled || loading, borderless }"
+    :style="{ 'max-width': setWidth() }"
+    :class="{
+      warning: warning,
+      primary: primary,
+      disabled: disabled || loading,
+      borderless,
+    }"
   >
     <div><slot></slot></div>
     <span v-if="loading" class="loader"></span>
   </a>
 </template>
 
-<script>
+<script lang="ts">
 export default {
-  name: "Button",
+  name: "BaseButton",
   props: {
     primary: {
+      type: Boolean,
+    },
+    error: {
       type: Boolean,
     },
     borderless: {
@@ -26,6 +34,9 @@ export default {
       type: String,
     },
     disabled: {
+      type: Boolean,
+    },
+    warning: {
       type: Boolean,
     },
   },
@@ -41,9 +52,8 @@ export default {
 .default-button {
   cursor: pointer;
   position: relative;
-  border-radius: 20px;
-  background: #403e4a;
-  height: 50px;
+  border-radius: 16px;
+  // background: #403e4a;
   padding: 0 20px;
   display: flex;
   align-items: center;
@@ -55,8 +65,23 @@ export default {
   font-size: 16px;
   line-height: 24px;
   overflow: hidden;
-  border: 2px solid #648fcc;
+  border: 2px solid #7088cc;
+  width: 100%;
+  height: 48px;
+  color: #7088cc;
+  transition: all 0.3s ease;
+
+  &.warning {
+    color: #fff;
+    background: #8c4040;
+    border: none;
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
   &.disabled {
+    pointer-events: none;
     cursor: not-allowed;
   }
 
@@ -68,26 +93,61 @@ export default {
     }
   }
 
+  &.error {
+    color: white;
+    background: #8c4040;
+    border: none;
+    transition: none;
+    &:hover {
+      background: #ab4a4a;
+    }
+    &.disabled {
+      background: #642e2e;
+    }
+  }
+
   &.primary {
+    color: #fff;
     line-height: 50px;
-    background: linear-gradient(107.5deg, #5552fd -3.19%, #76c3f5 101.2%);
+    background: linear-gradient(90deg, #2d4a96 0%, #745cd2 100%);
     border: none;
     &:hover {
-      background: linear-gradient(90deg, #7c82fd 0%, #8ec2f9 100%);
+      background: linear-gradient(90deg, #4566bb 0%, #806ec6 100%);
     }
     &.disabled {
       background: #40557e;
-      background: linear-gradient(107.5deg, #393b80 -3.19%, #435e7e 101.2%);
+      background: linear-gradient(
+        90deg,
+        rgba(35, 65, 151, 0.4) 0.01%,
+        rgba(87, 68, 143, 0.4) 100%
+      );
     }
   }
-  &:not(.primary, .borderless) {
+
+  &.warning {
+    border: none;
+    color: #fff;
+    background: rgba(140, 64, 64, 1);
+
+    &.disabled {
+      background: #40557e;
+      background: linear-gradient(
+        90deg,
+        rgba(35, 65, 151, 0.4) 0.01%,
+        rgba(87, 68, 143, 0.4) 100%
+      );
+    }
+  }
+
+  &:not(.primary, .borderless, .warning) {
     &:hover:not(.disabled) {
-      border: 2px solid #62a5d3;
-      background: #616068;
+      border: 2px solid #86a2f1;
+      color: #86a2f1;
+      background: rgba(255, 255, 255, 0.05);
     }
     &.disabled {
-      background: #403e4a;
-      color: rgba(255, 255, 255, 0.6);
+      border: 2px solid #575c62;
+      color: #575c62;
     }
   }
 }
@@ -130,6 +190,12 @@ export default {
   }
   40% {
     height: 8px;
+  }
+}
+
+@media (max-width: 600px) {
+  .default-button {
+    height: 39px;
   }
 }
 </style>

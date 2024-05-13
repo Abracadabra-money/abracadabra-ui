@@ -14,11 +14,11 @@
 </template>
 
 <script>
-import tokensInfo from "@/utils/tokens/addedTokens.js";
 import { mapGetters } from "vuex";
-import { ethers, providers } from "ethers";
-import { priceAbi } from "@/utils/farmPools/abi/priceAbi";
-import filters from "@/filters/index.js";
+import { formatToFixed } from "@/helpers/filters";
+import tokensInfo from "@/configs/tokens/mim";
+import { tokensChainLink } from "@/configs/chainLink/config";
+import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 
 export default {
   data() {
@@ -40,16 +40,13 @@ export default {
 
       if (this.chainId) id = this.chainId;
 
-      return tokensInfo.find(
-        (token) => token.name === "MIM" && token.chain === id
-      );
+      return tokensInfo.find((token) => token.chainId === id);
     },
   },
 
   methods: {
-    formatToFixed(value, fixed) {
-      return filters.formatToFixed(value, fixed);
-    },
+    formatToFixed,
+
     async addToken() {
       if (!this.account) {
         return false;
@@ -81,34 +78,19 @@ export default {
         console.log(error);
       }
     },
-
-    async getMimPrice() {
-      if (this.contract) {
-        const price = await this.contract.latestAnswer();
-
-        this.mimPrice = this.$ethers.utils.formatUnits(price.toString(), 8);
-      }
-    },
-
-    async initContract() {
-      const defaultProvider = new providers.StaticJsonRpcProvider(
-        "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
-      );
-
-      this.contract = new ethers.Contract(
-        "0x7A364e8770418566e3eb2001A96116E6138Eb32F",
-        JSON.stringify(priceAbi),
-        defaultProvider
-      );
-    },
   },
 
   async created() {
-    await this.initContract();
-    await this.getMimPrice();
+    this.mimPrice = await getTokenPriceByChain(
+      tokensChainLink.mim.chainId,
+      tokensChainLink.mim.address
+    );
 
     this.updateMimPrice = setInterval(async () => {
-      await this.getMimPrice();
+      this.mimPrice = await getTokenPriceByChain(
+        tokensChainLink.mim.chainId,
+        tokensChainLink.mim.address
+      );
     }, 15000);
   },
 
@@ -126,6 +108,8 @@ export default {
 
 .mim-price {
   margin-left: 10px;
+  font-size: 14px;
+  font-weight: 400;
 }
 
 .token-btn {
@@ -143,11 +127,5 @@ export default {
 
 .disabled {
   cursor: initial;
-}
-
-@media (max-width: 980px) {
-  .mim-wrap {
-    z-index: 11;
-  }
 }
 </style>

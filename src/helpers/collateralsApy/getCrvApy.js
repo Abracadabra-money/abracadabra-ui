@@ -1,7 +1,8 @@
 import { ethers } from "ethers";
-import { getTokenPriceByAddress } from "../priceHelper";
-import crvRewardPoolAbi from "@/utils/abi/crvRewardPoolAbi";
-import tokenCVXAbi from "@/utils/abi/tokensAbi/CVX";
+import crvRewardPoolAbi from "@/abis/crvRewardPoolAbi";
+import tokenCVXAbi from "@/abis/tokensAbi/CVX";
+import { tokensChainLink } from "@/configs/chainLink/config";
+import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 
 let crvTokenPrice = null;
 let cvxTokenPrice = null;
@@ -38,11 +39,17 @@ const getCrvApy = async (pool, baseRewardPool, provider) => {
     let cvxPrice = cvxTokenPrice;
 
     if (!crvTokenPrice) {
-      crvTokenPrice = await getCurveDaoTokenPrice();
+      crvTokenPrice = await getTokenPriceByChain(
+        tokensChainLink.crv.chainId,
+        tokensChainLink.crv.address
+      );
     }
 
     if (!cvxTokenPrice) {
-      cvxTokenPrice = await convexFinanceTokenPrice();
+      cvxTokenPrice = await getTokenPriceByChain(
+        tokensChainLink.cvx.chainId,
+        tokensChainLink.cvx.address
+      );
     }
 
     crvPrice = crvTokenPrice;
@@ -53,18 +60,6 @@ const getCrvApy = async (pool, baseRewardPool, provider) => {
   } catch (e) {
     console.log("getCrvToCvx err", e);
   }
-};
-
-const getCurveDaoTokenPrice = async (
-  address = "0xD533a949740bb3306d119CC777fa900bA034cd52"
-) => {
-  return await getTokenPriceByAddress(1, address);
-};
-
-const convexFinanceTokenPrice = async (
-  address = "0x4e3FBD56CD56c3e72c1403e103b45Db9da5B9D2B"
-) => {
-  return await getTokenPriceByAddress(1, address);
 };
 
 const convertCrvToCvx = async (amount, provider) => {

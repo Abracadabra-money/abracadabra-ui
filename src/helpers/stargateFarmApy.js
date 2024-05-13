@@ -1,12 +1,12 @@
-import { BigNumber, providers, Contract } from "ethers";
-const url = "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161";
+import poolAbi from "@/abis/StargatePool";
+import { BigNumber, Contract } from "ethers";
+import lpStakingAbi from "@/abis/StargateLPStaking";
+import { MAINNET_CHAIN_ID } from "@/constants/global";
 import { Percent, CurrencyAmount, Token } from "@uniswap/sdk";
+import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
 
-import lpStakingAbi from "@/utils/abi/StargateLPStaking";
-import poolAbi from "@/utils/abi/StargatePool";
-
-const provider = new providers.StaticJsonRpcProvider(url);
 const YEAR = 31536000;
+const provider = getEthersProvider(MAINNET_CHAIN_ID);
 
 const stgToken = new Token(1, "0xAf5191B0De278C7286d6C7CC6ab6BB8A73bA2Cd6", 18);
 const susdc = new Token(1, "0xdf0770dF86a8034b3EFEf0A1Bb3c889B8332FF56", 6);

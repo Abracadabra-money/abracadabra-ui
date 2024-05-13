@@ -1,9 +1,9 @@
 import {
-  prepareWriteContract,
-  waitForTransaction,
-  writeContract,
-} from "@wagmi/core";
-import type { ContractInfo } from "@/utils/farmsConfig/types";
+  writeContractHelper,
+  simulateContractHelper,
+  waitForTransactionReceiptHelper,
+} from "@/helpers/walletClienHelper";
+import type { ContractInfo } from "@/configs/farms/types";
 
 export const deposit = async (
   contractInfo: ContractInfo,
@@ -11,15 +11,15 @@ export const deposit = async (
   amount: bigint
 ) => {
   try {
-    const config = await prepareWriteContract({
+    const { request } = await simulateContractHelper({
       ...contractInfo,
       functionName: "deposit",
       args: [poolId, amount],
     });
 
-    const { hash } = await writeContract(config);
+    const hash = await writeContractHelper(request);
 
-    return await waitForTransaction({ hash });
+    return await waitForTransactionReceiptHelper({ hash });
   } catch (error) {
     console.log("Stake Redeem Handler Error:", error);
   }

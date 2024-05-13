@@ -1,11 +1,11 @@
+import { formatUnits } from "viem";
 import { BIPS } from "@/constants/global";
 import { useImage } from "@/helpers/useImage";
-import { arbitrum, avalanche } from "viem/chains";
-import { ARBITRUM_CHAIN_ID } from "@/constants/global";
-import { createPublicClient, formatUnits, http } from "viem";
-import { magicGlpConfig } from "@/utils/stake/magicGlpConfig";
 import { MIM_PRICE, ONE_ETHER_VIEM } from "@/constants/global";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import type { EmptyState } from "@/types/magicGlp/additionalInfo";
+import { magicGlpConfig } from "@/configs/stake/magicGlp/magicGlpConfig";
+import { ARBITRUM_CHAIN_ID, AVALANCHE_CHAIN_ID } from "@/constants/global";
 import { getTotalRewards } from "@/helpers/stake/magicGlp/subgraph/getTotalRewards";
 
 const { mainToken, stakeToken } =
@@ -19,6 +19,7 @@ const emptyState: EmptyState = {
     balance: 0n,
     balanceUsd: 0n,
     rate: ONE_ETHER_VIEM,
+    price: 0n,
     decimals: 18,
     totalSupply: 0n,
     totalSupplyUsd: 0n,
@@ -28,6 +29,7 @@ const emptyState: EmptyState = {
     icon: stakeToken.icon,
     balance: 0n,
     balanceUsd: 0n,
+    price: 0n,
     rateIcon: useImage("assets/images/glp/mGlpNew.png"),
   },
 };
@@ -37,11 +39,10 @@ export const getEmptyState = async (config: any, chainId: number) => {
   const { rewardToken, leverageInfo } = config.additionalInfo;
   const { harvestor, chainLink, stakeToken, mainToken, oracle } = config;
 
-  // todo new chain config
-  const publicClient = createPublicClient({
-    chain: chainId === arbitrum.id ? arbitrum : avalanche,
-    transport: http(),
-  });
+  const currentChain =
+    chainId === ARBITRUM_CHAIN_ID ? ARBITRUM_CHAIN_ID : AVALANCHE_CHAIN_ID;
+
+  const publicClient = getPublicClient(currentChain);
 
   const [
     totalSupply,
@@ -90,11 +91,16 @@ export const getEmptyState = async (config: any, chainId: number) => {
   const tokenRate =
     (magicGlpAmount.result * ONE_ETHER_VIEM) / totalSupply.result;
 
+  const stakeTokenPrice = (mainTokenPrice * ONE_ETHER_VIEM) / tokenRate;
+
   emptyState.mainToken.totalSupply = totalSupply.result;
   emptyState.mainToken.totalSupplyUsd = totalSupplyUsd;
   emptyState.mainToken.rate = tokenRate;
+  emptyState.mainToken.price = mainTokenPrice;
+  emptyState.stakeToken.price = stakeTokenPrice;
 
   return {
+    chainId,
     ...emptyState,
     feePercent: feePercentBips.result / BIPS,
     rewardToken: {

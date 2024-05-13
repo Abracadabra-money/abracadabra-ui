@@ -1,21 +1,33 @@
 <template>
   <div class="settings-popup">
     <div>
-      <p class="title">Advanced settings</p>
-      <div class="subtitle-wrap">
-        <p class="subtitle">Gas on destination chain</p>
+      <div class="title-wrap">
+        <p class="title">Gas on Destination Chain</p>
         <Tooltip :tooltip="tooltip" />
+        <img
+          class="popup-close"
+          @click="$emit('closeSettings')"
+          src="@/assets/images/cross.svg"
+          alt="Close popup"
+        />
       </div>
 
       <div class="btns-wrap">
-        <button class="setting-btn" @click="updateInputValue(0)">None</button>
-        <button class="setting-btn" @click="updateInputValue(defaultValue)">
+        <button
+          :class="['setting-btn', { active: isNone }]"
+          @click="updateInputValue('0')"
+        >
+          None
+        </button>
+        <button
+          :class="['setting-btn', { active: isDefaultValue }]"
+          @click="updateInputValue(defaultValue)"
+        >
           Default
         </button>
       </div>
 
       <div class="input-wrap">
-        <img class="input-icon" :src="config.icon" alt="Icon" />
         <input
           class="input"
           v-model="inputValue"
@@ -23,7 +35,15 @@
           placeholder="0.0"
         />
 
-        <button class="input-btn" @click="updateInputValue(max)">max</button>
+        <div class="input-token-info">
+          <img
+            class="input-icon"
+            :src="dstNativeTokenInfo.icon"
+            alt="Icon"
+            @click="updateInputValue(maxAmount)"
+          />
+          {{ dstNativeTokenInfo.symbol }}
+        </div>
       </div>
       <p class="value-error">
         <span v-if="error">{{ error }}</span>
@@ -32,7 +52,7 @@
     </div>
 
     <div class="popup-footer">
-      <BaseButton primary @click="actionHandler" :disabled="isDisabledBtn"
+      <BaseButton primary @click="actionHandler" :disabled="isDisableBtn"
         >Save</BaseButton
       >
       <p class="footer-text">
@@ -49,65 +69,151 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import Tooltip from "@/components/ui/icons/Tooltip.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
-import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFee.ts";
+import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFeeNew";
+import { trimZeroDecimals } from "@/helpers/numbers";
+import { formatUnits, parseUnits } from "viem";
+import type { BeamInfo, BeamConfig } from "@/helpers/beam/types";
+import type { PropType } from "vue";
+import { chainsConfigs } from "@/helpers/chains/configs";
+import { mapGetters } from "vuex";
 
 export default {
+  emits: ["onUpdateAmount", "closeSettings"],
   props: {
-    value: {
-      type: [Number, String],
-      default: "",
-    },
-    mimAmount: {
-      type: [Number, String],
-      default: "",
-    },
-    config: {
-      type: Object,
+    beamInfoObject: {
+      type: Object as PropType<BeamInfo>,
       required: true,
     },
-    max: {
-      type: [Number, String],
-      default: 0,
+
+    dstChainInfo: {
+      type: Object as PropType<BeamConfig>,
+      required: true,
     },
-    defaultValue: {
-      type: String,
-      default: "0",
+
+    dstNativeTokenAmount: {
+      type: BigInt as any as PropType<bigint>,
+      default: 0n,
+    },
+
+    mimAmount: {
+      type: BigInt as any as PropType<bigint>,
+      default: 0n,
     },
   },
 
   data() {
     return {
-      fee: 0,
-      inputValue: this.value,
+      fee: 0n,
+      inputValue: trimZeroDecimals(
+        formatUnits(
+          this.dstNativeTokenAmount,
+          this.beamInfoObject.tokenConfig.decimals
+        )
+      ),
       tooltip:
         "The default amount allows you to perform a couple of transactions (e.g. Approve + Swap). Once you approve the transfer in your wallet, the transaction gas amount will be higher than a regular transaction as this includes the selected amount of destination gas to be sent.",
     };
   },
 
   computed: {
-    isDisabledBtn() {
-      if (!this.inputValue.toString().length) return true;
-      return !!this.error;
+    ...mapGetters({
+      account: "getAccount",
+    }),
+    
+    dstUpdatedInfo() {
+      return this.beamInfoObject.destinationChainsInfo.find(
+        (chain) => chain.chainConfig.chainId === this.dstChainInfo.chainId
+      );
+    },
+
+    dstNativeTokenInfo() {
+      const chainInfo = chainsConfigs.find(
+        (chain) => chain.chainId === this.dstChainInfo.chainId
+      );
+
+      console.log("chainInfo", chainInfo);
+
+      return {
+        icon: chainInfo!.baseTokenIcon,
+        symbol: chainInfo!.baseTokenSymbol,
+        decimals: 18,
+      };
+    },
+
+    fromNativeTokenInfo() {
+      const chainInfo = chainsConfigs.find(
+        (chain) => chain.chainId === this.beamInfoObject.fromChainConfig.chainId
+      );
+
+      console.log("chainInfo", chainInfo);
+
+      return {
+        icon: chainInfo!.baseTokenIcon,
+        symbol: chainInfo!.baseTokenSymbol,
+        balance: this.beamInfoObject.userInfo.nativeBalance,
+        decimals: 18,
+      };
+    },
+
+    isDefaultValue() {
+      return this.inputValue == this.defaultValue;
+    },
+
+    defaultValue() {
+      return this.beamInfoObject.fromChainConfig.defaultValue[
+        this.dstChainInfo.chainId
+      ];
+    },
+
+    maxAmount() {
+      return formatUnits(this.dstUpdatedInfo!.dstConfigLookupResult, 18);
+    },
+
+    isNone() {
+      return +this.inputValue === 0;
+    },
+
+    isValueChanged() {
+      return this.parsedValue !== this.dstNativeTokenAmount;
+    },
+
+    tokenDecimal() {
+      return this.beamInfoObject.tokenConfig.decimals;
+    },
+
+    parsedValue() {
+      return parseUnits(this.inputValue, this.tokenDecimal);
+    },
+
+    isExceedMax() {
+      return this.parsedValue > this.dstUpdatedInfo!.dstConfigLookupResult;
     },
 
     error() {
-      if (+this.inputValue > +this.max) {
-        this.$emit("errorSettings", true);
-        return `Error max value ${this.max}`;
+      if (isNaN(+this.inputValue)) return "Invalid value";
+
+      if (this.isExceedMax)
+        return `Error max value ${formatUnits(
+          this.dstUpdatedInfo!.dstConfigLookupResult,
+          18
+        )}`;
+
+      if (this.fee > this.fromNativeTokenInfo.balance && this.inputValue) {
+        const gasAmount = parseFloat(
+          formatUnits(this.fee - this.fromNativeTokenInfo.balance, 18)
+        ).toFixed(4);
+
+        return `Not enough gas ${gasAmount} ${this.fromNativeTokenInfo.symbol} needed`;
       }
 
-      if (+this.fee > +this.config.nativeTokenBalance && this.inputValue) {
-        this.$emit("errorSettings", true);
-        return `Not enough gas ${+this.fee - +this.config.nativeTokenBalance} ${
-          this.config.nativeSymbol
-        } needed`;
-      }
-
-      this.$emit("errorSettings", false);
       return false;
+    },
+
+    isDisableBtn() {
+      return !!this.error || !this.isValueChanged;
     },
   },
 
@@ -118,38 +224,40 @@ export default {
         return false;
       }
 
-      this.fee = await this.updateFee(value);
+      console.log("inputValue", value);
+
+      this.updateFee();
     },
   },
 
   methods: {
-    isDisableBtn() {
-      return !!this.error;
-    },
-
     actionHandler() {
-      if (this.error || !this.inputValue.toString().length) return false;
-      this.$emit("changeSettings", this.inputValue);
+      this.$emit("onUpdateAmount", this.parsedValue);
       this.$emit("closeSettings");
     },
 
-    updateInputValue(value) {
+    updateInputValue(value: any) {
       this.inputValue = value;
     },
 
-    async updateFee(value) {
+    async updateFee() {
+      if (this.isExceedMax) return 0;
+      // @ts-ignore
       const { fees } = await getEstimateSendFee(
-        this.config.contract,
-        this.config.address,
-        this.config.dstChainId,
-        value,
+        this.beamInfoObject,
+        this.dstChainInfo,
+        this.account,
+        this.parsedValue,
         this.mimAmount
       );
 
-      const additionalFee = fees[0].div(100);
-      const updatedFee = fees[0].add(additionalFee); // add 1% from base fee to be sure tx success
-      if (!updatedFee) return 0;
-      return this.$ethers.utils.formatEther(updatedFee);
+      const additionalFee = fees[0] / 100n;
+      const updatedFee = fees[0] + additionalFee; // add 1% from base fee to be sure tx success
+      if (!updatedFee) {
+        this.fee = 0n;
+        return;
+      }
+      this.fee = updatedFee;
     },
   },
 
@@ -164,30 +272,38 @@ export default {
 .settings-popup {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  height: 480px;
-  max-width: 400px;
+  gap: 40px;
+  height: 100%;
   width: 100%;
-  padding: 10px 10px 14px;
+  padding: 28px 28px 38px 28px;
+  border-radius: 20px;
+  border: 1px solid #00296b;
+  background: linear-gradient(
+    146deg,
+    rgba(0, 10, 35, 0.07) 0%,
+    rgba(0, 80, 156, 0.07) 101.49%
+  );
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
 }
 
-.title {
-  font-weight: 600;
-  font-size: 18px;
-  line-height: 150%;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding-bottom: 20px;
-  margin-bottom: 20px;
-}
-
-.subtitle-wrap {
+.title-wrap {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
-  font-weight: 600;
-  font-size: 18px;
-  line-height: 27px;
+  gap: 8px;
+  font-size: 24px;
+  font-weight: 500;
+  margin-bottom: 40px;
+}
+
+.popup-close {
+  margin-left: auto;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.popup-close:hover {
+  opacity: 0.7;
 }
 
 .btns-wrap {
@@ -199,41 +315,39 @@ export default {
 }
 
 .setting-btn {
-  text-decoration: none;
-  width: 84px;
-  height: 32px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  align-items: center;
-  padding: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  border: transparent;
-  width: 50%;
-  height: 50px;
+  width: 100%;
+  padding: 12px 40px;
+  border-radius: 16px;
+  border: 2px solid #7088cc;
+  background: rgba(255, 255, 255, 0.01);
+  color: #7088cc;
+  font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease-in;
-  &:hover {
-    background: rgba(255, 255, 255, 0.2);
-  }
+  transition: all 0.3s ease;
+}
+
+.setting-btn:hover,
+.setting-btn.active {
+  color: #7088cc;
+  border: 2px solid #86a2f1;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .input-wrap {
   display: flex;
   align-items: center;
-  background: rgba(129, 126, 166, 0.2);
   height: 70px;
-  width: 100%;
-  font-size: 20px;
-  border-radius: 20px;
+  align-self: stretch;
+  padding: 0px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(73, 70, 97, 0.4);
+  background: rgba(8, 14, 31, 0.6);
 }
 
 .input-icon {
   max-width: 30px;
   margin-left: 15px;
-  border-radius: 100%;
 }
 
 .input {
@@ -249,41 +363,31 @@ export default {
   color: rgba(255, 255, 255, 0.6);
 }
 
-.input-btn {
-  height: 60px;
-  max-width: 80px;
-  width: 100%;
-  text-align: center;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.02);
-  border: none;
-  color: #fff;
+.input-token-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   cursor: pointer;
-}
-
-.input-btn:disabled {
-  cursor: default;
 }
 
 .popup-footer {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  align-items: center;
+  gap: 12px;
 }
 
 .footer-text {
-  font-size: 18px;
-  line-height: 150%;
   text-align: center;
-  letter-spacing: 0.025em;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 400;
+  max-width: 45%;
 }
 
 .bottom-link {
-  background: linear-gradient(90deg, #9df4ff 0%, #7981ff 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-fill-color: transparent;
+  text-decoration: underline;
+  color: white;
   margin-right: 5px;
 }
 

@@ -1,5 +1,5 @@
 import moment from "moment";
-import { multicall } from "@wagmi/core";
+import { useImage } from "@/helpers/useImage";
 import { formatUnits, type Address } from "viem";
 import { ONE_ETHER_VIEM } from "@/constants/global";
 import type { ChainSpellConfig } from "@/types/spell/configsInfo";
@@ -9,27 +9,34 @@ export const getMSpellInfo = async (
   { mSpell }: ChainSpellConfig,
   spell: SpellInfo,
   price: bigint,
-  account: Address
+  account: Address,
+  publicClient: any
 ): Promise<MSpellInfo> => {
-  const [allowanceAmount, mSpellUserInfo, rewardAmount]: any = await multicall({
-    contracts: [
-      {
-        ...spell.contract,
-        functionName: "allowance",
-        args: [account, mSpell.contract.address],
-      },
-      {
-        ...mSpell.contract,
-        functionName: "userInfo",
-        args: [account],
-      },
-      {
-        ...mSpell.contract,
-        functionName: "pendingReward",
-        args: [account],
-      },
-    ],
-  });
+  const [approvedAmount, totalSupply, mSpellUserInfo, rewardAmount]: any =
+    await publicClient.multicall({
+      contracts: [
+        {
+          ...spell.contract,
+          functionName: "allowance",
+          args: [account, mSpell.contract.address],
+        },
+        {
+          ...spell.contract,
+          functionName: "balanceOf",
+          args: [mSpell.contract.address]
+        },
+        {
+          ...mSpell.contract,
+          functionName: "userInfo",
+          args: [account],
+        },
+        {
+          ...mSpell.contract,
+          functionName: "pendingReward",
+          args: [account],
+        },
+      ],
+    });
 
   const [userMSpellBalance, _, lastAdded]: any = mSpellUserInfo.result;
   const formatLastAdded = +formatUnits(lastAdded, 0);
@@ -43,13 +50,15 @@ export const getMSpellInfo = async (
   return {
     name: mSpell.name,
     icon: mSpell.icon,
+    rateIcon: useImage("assets/images/mspell-icon.svg"),
     decimals: mSpell.decimals,
     contract: mSpell.contract,
     price: price,
     rate: ONE_ETHER_VIEM,
     lockTimestamp,
     balance: userMSpellBalance,
-    allowanceAmount: allowanceAmount.result,
+    approvedAmount: approvedAmount.result,
     claimableAmount: rewardAmount.result,
+    totalSupply: totalSupply.result,
   };
 };

@@ -1,16 +1,23 @@
 import { describe, it, expect } from "vitest";
-import { mount } from "@vue/test-utils";
+import { shallowMount } from "@vue/test-utils";
 import GetTokenLink from "@/components/ui/links/GetTokenLink.vue";
 
-const testData = { href: "//test_link", label: "test_link" };
+describe("GetTokenLink", () => {
+  it("renders the link with the correct props", () => {
+    const href = "https://example.com";
+    const text = "Get Token";
+    const icon = "https://example.com/icon.png";
 
-describe("GetTokenLink.vue", () => {
-  it("Should render correct", () => {
-    const wrapper = mount(GetTokenLink, { props: { data: testData } });
+    const wrapper = shallowMount(GetTokenLink, {
+      props: { href, text, icon },
+    });
 
-    const getTokenLink = wrapper.find(".get-token-link");
-    expect(getTokenLink.exists()).toBe(true);
-    expect(getTokenLink.attributes().href).toBe("//test_link");
-    expect(getTokenLink.text()).toBe("test_link");
+    expect(wrapper.find("a").attributes("href")).toBe(href);
+    expect(wrapper.find("a").attributes("target")).toBe("_blank");
+    expect(wrapper.find("a").attributes("rel")).toBe("noreferrer noopener");
+    expect(wrapper.find(".icon").exists()).toBe(true);
+    expect(wrapper.find(".icon").attributes("src")).toBe(icon);
+    expect(wrapper.find(".icon").attributes("alt")).toBe("Degenbox icon");
+    expect(wrapper.text()).toContain(text);
   });
 });

@@ -1,105 +1,105 @@
 <template>
   <div class="farm-view">
-    <div class="farm-wrap">
-      <div class="farm">
-        <h3 class="title">Farm</h3>
-
-        <h4 class="sub-title">Choose Chain</h4>
-
-        <div class="networks-list-wrap underline">
-          <NetworksList :activeList="activeNetworks" />
+    <div class="farm">
+      <div class="farm-header">
+        <div class="title-desc">
+          <h3 class="title">Farm</h3>
+          <p class="description">Stake LP Tokens and Earn Rewards</p>
         </div>
 
-        <div class="stake-unstake-switch" v-if="!isDepreciated">
+        <div class="farm-management">
           <MarketsSwitch
             :name="selectedTab"
             :items="items"
-            @select="selectTab($event.name)"
+            @select="selectTab($event)"
+            :isDeprecated="isDeprecated"
           />
+
+          <button
+            class="my-position-button"
+            @click="openMyPositionPopup"
+            v-if="isUserPositionOpen"
+          >
+            My position
+          </button>
         </div>
-
-        <h4 class="sub-title">Farming Opportunities</h4>
-
-        <SelectFarm
-          class="underline"
-          :selectedFarm="selectedFarm"
-          @openFarmsPopup="openFarmsPopup"
-        />
-
-        <h4 class="sub-title">
-          {{ inputTitleText }}
-          <span class="deposit-balance" v-if="max">Balance: {{ max }}</span>
-        </h4>
-
-        <div class="input-wrap underline">
-          <BaseTokenInput
-            :value="inputAmount"
-            @updateValue="inputAmount = $event"
-            :name="selectedFarm?.stakingToken?.name"
-            :icon="selectedFarm?.icon"
-            :max="max"
-            :error="error"
-            :disabled="!selectedFarm"
-          />
-        </div>
-
-        <div class="btn-wrap">
-          <BaseButton
-            @click="actionHandler"
-            :disabled="isButtonDisabled"
-            primary
-            >{{ buttonText }}
-          </BaseButton>
-        </div>
-
-        <FarmInfoBlock :selectedFarm="selectedFarm" v-if="selectedFarm" />
       </div>
+
+      <FarmingOpportunities
+        :selectedFarm="selectedFarm"
+        @openFarmsPopup="openFarmsPopup"
+      />
+
+      <FarmActionBlock
+        :selectedFarm="selectedFarm"
+        :inputTitleText="inputTitleText"
+        :max="max"
+        :value="inputValue"
+        :error="error"
+        :buttonText="buttonText"
+        :isButtonDisabled="isButtonDisabled"
+        @updateValue="updateValue"
+        @actionHandler="actionHandler"
+      />
+
+      <FarmPosition
+        class="farm-position"
+        :selectedFarm="selectedFarm"
+        :isProperNetwork="isProperNetwork"
+        v-if="isUserPositionOpen"
+      />
     </div>
+
+    <FarmPositionMobilePopup
+      :selectedFarm="selectedFarm"
+      :isProperNetwork="isProperNetwork"
+      v-if="isUserPositionOpen && isMyPositionPopupOpened"
+      @closePopup="isMyPositionPopupOpened = false"
+    />
+
     <LocalPopupWrap
       :isOpened="isFarmsPopupOpened"
+      :isFarm="true"
       @closePopup="isFarmsPopupOpened = false"
     >
-      <MarketsListPopup
-        popupType="farms"
-        @changeActiveMarket="changeActiveMarket"
-      />
+      <FarmListPopup @changeActiveMarket="changeActiveMarket" />
     </LocalPopupWrap>
   </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
-import NetworksList from "@/components/ui/NetworksList.vue";
-import MarketsSwitch from "@/components/markets/MarketsSwitch.vue";
-import SelectFarm from "@/components/farm/SelectFarm.vue";
-import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
-import BaseButton from "@/components/base/BaseButton.vue";
+import MarketsSwitch from "@/components/farm/MarketsSwitch.vue";
+import FarmingOpportunities from "@/components/farm/FarmingOpportunities.vue";
+import FarmActionBlock from "@/components/farm/FarmActionBlock.vue";
+import FarmPosition from "@/components/farm/FarmPosition.vue";
 import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
-import MarketsListPopup from "@/components/popups/MarketsListPopup.vue";
-import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
-import FarmInfoBlock from "@/components/farm/FarmInfoBlock.vue";
+import FarmListPopup from "@/components/farm/FarmListPopup.vue";
+import FarmPositionMobilePopup from "@/components/farm/FarmPositionMobilePopup.vue";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import notification from "@/helpers/notification/notification.js";
+import notification from "@/helpers/notification/notification";
 import { createFarmItemConfig } from "@/helpers/farm/createFarmItemConfig";
-import { parseUnits } from "viem";
+import { parseUnits, formatUnits } from "viem";
 import { approveTokenViem } from "@/helpers/approval";
 import actions from "@/helpers/farm/actions";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import { trimZeroDecimals } from "@/helpers/numbers";
 
 export default {
   props: {
     id: { type: String },
+    farmChainId: { type: String },
   },
 
   data() {
     return {
       activeNetworks: [1, 250, 43114, 42161],
       isFarmsPopupOpened: false,
-      inputAmount: "",
+      isMyPositionPopupOpened: false,
+      inputAmount: null,
+      inputValue: "",
       selectedTab: "stake",
-      items: [
-        { title: "Stake", name: "stake" },
-        { title: "Unstake", name: "unstake" },
-      ],
+      items: ["stake", "unstake"],
       farmsTimer: null,
       selectedFarm: null,
       isActionProcessing: false,
@@ -113,27 +113,54 @@ export default {
       signer: "getSigner",
     }),
 
+    isUserPositionOpen() {
+      if (!this.selectedFarm?.accountInfo || !this.account) return false;
+      const isOpenMultiReward = this.selectedFarm.isMultiReward
+        ? +this.selectedFarm.accountInfo.depositedBalance > 0 ||
+          this.selectedFarm.accountInfo.rewardTokensInfo.filter(
+            (item) => +item.earned > 0
+          ).length > 0
+        : false;
+
+      const isOpenLegacyFarm =
+        this.selectedFarm.accountInfo?.userReward != 0 ||
+        this.selectedFarm.accountInfo?.userInfo.amount != 0;
+
+      return this.selectedFarm.isMultiReward
+        ? isOpenMultiReward
+        : isOpenLegacyFarm;
+    },
+
     isUnstake() {
       return this.selectedTab === "unstake";
     },
 
     isAllowed() {
       if (!this.account || !this.selectedFarm) return false;
-      return this.selectedFarm?.accountInfo?.allowance >= this.inputAmount;
+      return (
+        parseUnits(this.selectedFarm?.accountInfo?.allowance, 18) >=
+        this.inputAmount
+      );
     },
 
     isValid() {
-      return !!+this.inputAmount;
+      return !!this.inputAmount;
     },
 
-    isDepreciated() {
-      return this.selectedFarm?.isDepreciated;
+    isDeprecated() {
+      return this.selectedFarm?.isDeprecated;
     },
 
     max() {
+      if (!this.selectedFarm?.accountInfo) return 0n;
+      if (this.selectedFarm?.isMultiReward) {
+        return !this.isUnstake
+          ? parseUnits(this.selectedFarm?.accountInfo?.balance, 18)
+          : parseUnits(this.selectedFarm?.accountInfo?.depositedBalance, 18);
+      }
       return !this.isUnstake
         ? this.selectedFarm?.accountInfo?.balance
-        : this.selectedFarm?.accountInfo?.depositedBalance;
+        : this.selectedFarm?.accountInfo?.depositedBalanceBigInt;
     },
 
     parsedInputAmount() {
@@ -141,12 +168,16 @@ export default {
     },
 
     error() {
-      return Number(this.inputAmount) > Number(this.max)
-        ? `The value cannot be greater than ${this.max}`
+      return this.inputAmount > this.max
+        ? `The value cannot be greater than ${formatUnits(this.max, 18)}`
         : null;
     },
 
     buttonText() {
+      if (!this.isProperNetwork) return "Switch network";
+      if (!this.account) return "Connect wallet";
+      if (this.error) return "Insufficient balance";
+      if (this.inputValue == "") return "Enter amount";
       if (this.isActionProcessing) return "Processing...";
       const text = this.isUnstake ? "Unstake" : "Stake";
       return !this.isAllowed && !this.isUnstake ? "Approve" : text;
@@ -159,7 +190,15 @@ export default {
     },
 
     isButtonDisabled() {
-      return !this.isValid || !!this.error || this.isActionProcessing;
+      return (
+        (!this.isValid || !!this.error || this.isActionProcessing) &&
+        this.isProperNetwork &&
+        !!this.account
+      );
+    },
+
+    isProperNetwork() {
+      return this.chainId == this.farmChainId;
     },
   },
 
@@ -167,32 +206,59 @@ export default {
     account: {
       immediate: true,
       async handler() {
-        if (this.account) await this.getSelectedFarm();
+        await this.getSelectedFarm();
       },
     },
 
     id: {
       immediate: true,
-      async handler(value) {
+      async handler() {
         await this.getSelectedFarm();
         const action = this.$route.redirectedFrom?.query.action;
         if (action) this.selectTab(action);
       },
     },
 
-    max() {
-      this.inputAmount = "";
+    farmChainId: {
+      immediate: true,
+      async handler() {
+        await this.getSelectedFarm();
+        const action = this.$route.redirectedFrom?.query.action;
+        if (action) this.selectTab(action);
+      },
     },
 
-    isDepreciated(status) {
+    async chainId() {
+      await this.getSelectedFarm();
+    },
+
+    max() {
+      this.inputAmount = BigInt(0);
+    },
+
+    isDeprecated(status) {
       this.selectedTab = status ? "unstake" : "stake";
+    },
+
+    inputAmount(value) {
+      if (value == 0) {
+        this.inputValue = "";
+        return false;
+      }
+
+      this.inputValue = trimZeroDecimals(formatUnits(value, 18));
     },
   },
 
   methods: {
-    changeActiveMarket(marketId) {
-      if (+marketId !== +this.id)
-        this.$router.push({ name: "Farm", params: { id: marketId } });
+    updateValue(value) {
+      if (value === null) return (this.inputAmount = BigInt(0));
+      this.inputAmount = value;
+    },
+
+    changeActiveMarket({ id, chainId }) {
+      if (+id != +this.id || +chainId != +this.farmChainId)
+        this.$router.push({ path: `/farm/${id}/${chainId}` });
 
       this.isFarmsPopupOpened = false;
     },
@@ -203,13 +269,17 @@ export default {
 
     async actionHandler() {
       if (this.isButtonDisabled) return false;
+      if (!this.isProperNetwork) return switchNetwork(this.farmChainId);
+      if (!this.account) {
+        // @ts-ignore
+        return this.$openWeb3modal();
+      }
 
       this.isActionProcessing = true;
 
       if (!this.isAllowed & !this.isUnstake) await this.approveHandler();
       else if (this.isUnstake) await this.unstakeHandler();
       else await this.stakeHandler();
-
       this.isActionProcessing = false;
     },
 
@@ -219,11 +289,16 @@ export default {
         notification.pending
       );
       try {
-        const { error, result } = await actions.deposit(
-          this.selectedFarm.contractInfo,
-          this.selectedFarm.poolId,
-          this.parsedInputAmount
-        );
+        const { error, result } = this.selectedFarm.isMultiReward
+          ? await actions.stake(
+              this.selectedFarm.contractInfo,
+              this.inputAmount
+            )
+          : await actions.deposit(
+              this.selectedFarm.contractInfo,
+              this.selectedFarm.poolId,
+              this.inputAmount
+            );
 
         await this.getSelectedFarm();
 
@@ -248,11 +323,16 @@ export default {
         notification.pending
       );
       try {
-        const { error, result } = await actions.withdraw(
-          this.selectedFarm.contractInfo,
-          this.selectedFarm.poolId,
-          this.parsedInputAmount
-        );
+        const args = this.selectedFarm.isMultiReward
+          ? [this.inputAmount]
+          : [this.selectedFarm.poolId, this.inputAmount];
+
+        const isExit =
+          this.inputAmount === this.max && this.selectedFarm.isMultiReward;
+
+        const { error, result } = isExit
+          ? await actions.exit(this.selectedFarm.contractInfo)
+          : await actions.withdraw(this.selectedFarm.contractInfo, args);
 
         await this.getSelectedFarm();
 
@@ -301,13 +381,17 @@ export default {
     async getSelectedFarm() {
       this.selectedFarm = await createFarmItemConfig(
         this.id,
-        this.chainId,
+        this.farmChainId,
         this.account
       );
     },
 
     openFarmsPopup() {
       this.isFarmsPopupOpened = true;
+    },
+
+    openMyPositionPopup() {
+      this.isMyPositionPopupOpened = true;
     },
   },
 
@@ -324,108 +408,134 @@ export default {
   },
 
   components: {
-    BaseTokenIcon,
-    NetworksList,
-    BaseTokenInput,
-    BaseButton,
     LocalPopupWrap,
-    MarketsListPopup,
+    FarmListPopup,
+    FarmPositionMobilePopup,
     MarketsSwitch,
-    SelectFarm,
-    FarmInfoBlock,
+    FarmingOpportunities,
+    FarmActionBlock,
+    FarmPosition,
   },
 };
 </script>
 
 <style lang="scss" scoped>
 .farm-view {
-  max-width: calc(100% - 20px);
-  width: 740px;
-  padding: 100px 0;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  min-height: 100vh;
+  padding: 120px 0 50px 0;
   margin: 0 auto;
-}
-
-.farm-wrap {
-  margin: 0 auto;
-  padding: 30px 95px;
-  background: #2a2835;
-  backdrop-filter: blur(100px);
-  border-radius: 30px;
 }
 
 .farm {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   padding: 0 30px;
+  width: 593px;
 }
 
-.title {
-  font-weight: 600;
-  font-size: 24px;
-  line-height: 36px;
-  text-transform: uppercase;
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-.sub-title {
+.farm-header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  min-height: 66px;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.farm-position {
+  position: absolute;
+  top: 92px;
+  right: -300px;
+}
+
+.title-desc {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex-grow: 1;
+}
+
+.title-desc .title {
+  color: #fff;
+  font-size: 32px;
   font-weight: 600;
-  font-size: 18px;
-  line-height: 27px;
   margin-bottom: 10px;
 }
 
-.deposit-balance {
-  font-size: 14px;
+.title-desc .description {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 16px;
   font-weight: 400;
 }
 
-.networks-list-wrap {
-  margin-bottom: 17px;
-}
-
-.underline {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.input-wrap {
-  padding-bottom: 20px;
-  margin-bottom: 40px;
-}
-
-.btn-wrap {
-  display: grid;
-  grid-template-rows: repeat(auto-fill, 1fr);
-  row-gap: 1rem;
-  margin-bottom: 119px;
-}
-
-.stake-unstake-switch {
-  margin-bottom: 27px;
-}
-
-.loader-wrap {
+.farm-management {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
 }
 
-@media (max-width: 768px) {
+.my-position-button {
+  display: none;
+  color: inherit;
+  padding: 8px 24px;
+  gap: 10px;
+  border-radius: 12px;
+  border: 2px solid #7088cc;
+  background: rgba(255, 255, 255, 0.01);
+  color: #7088cc;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.my-position-button:hover {
+  opacity: 0.7;
+}
+
+@media (max-width: 1300px) {
+  .farm-header {
+    flex-direction: column;
+    align-items: start;
+    gap: 16px;
+  }
+
+  .farm-management {
+    width: 100%;
+  }
+
+  .my-position-button {
+    display: block;
+  }
+
+  .farm-position {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
   .farm-wrap {
     padding: 30px;
   }
 
   .farm {
     padding: 0 15px;
+    width: 100% !important;
+  }
+
+  .my-position-button {
+    height: 39px;
+    font-size: 14px;
   }
 }
 
-@media (max-width: 600px) {
-  .farm-wrap {
-    padding: 30px 15px;
-  }
-
-  .farm {
-    padding: 0;
+@media (max-width: 374px) {
+  .my-position-button {
+    font-size: 12px;
   }
 }
 </style>

@@ -1,6 +1,7 @@
 import { BigNumber } from "ethers";
-import type { providers } from "ethers";
+import type { ContractInfo } from "@/types/global";
 import type { UserTokensInfo } from "@/helpers/cauldron/types";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 
 const zeroValue = BigNumber.from("0");
 
@@ -15,36 +16,85 @@ const emptyTokensInfo = {
 };
 
 export const getUserTokensInfo = async (
-  contracts: any,
+  chainId: number,
   account: string | undefined,
-  signer: providers.JsonRpcSigner
+  config: any,
+  bentoBoxContract: ContractInfo
 ): Promise<UserTokensInfo> => {
   if (!account) return emptyTokensInfo;
 
-  const multicallArr = [
-    contracts.collateral.balanceOf(account),
-    contracts.mim.balanceOf(account),
-    signer.getBalance(),
-    contracts.collateral.allowance(account, contracts.bentoBox.address),
-    contracts.mim.allowance(account, contracts.bentoBox.address),
+  const publicClient = getPublicClient(chainId);
+
+  const nativeTokenBalance = await publicClient.getBalance({
+    address: account,
+  });
+
+  const { collateralInfo, mimInfo, wrapInfo } = config;
+
+  const contracts = [
+    {
+      address: collateralInfo.address,
+      abi: collateralInfo.abi,
+      functionName: "balanceOf",
+      args: [account],
+    },
+    {
+      address: mimInfo.address,
+      abi: mimInfo.abi,
+      functionName: "balanceOf",
+      args: [account],
+    },
+    {
+      address: collateralInfo.address,
+      abi: collateralInfo.abi,
+      functionName: "allowance",
+      args: [account, bentoBoxContract.address],
+    },
+    {
+      address: mimInfo.address,
+      abi: mimInfo.abi,
+      functionName: "allowance",
+      args: [account, bentoBoxContract.address],
+    },
   ];
 
-  if (contracts.unwrappedToken) {
-    multicallArr.push(contracts.unwrappedToken.balanceOf(account));
-    multicallArr.push(
-      contracts.unwrappedToken.allowance(account, contracts.bentoBox.address)
-    );
+  if (wrapInfo?.unwrappedToken) {
+    const { address, abi } = wrapInfo.unwrappedToken;
+    contracts.push({
+      address,
+      abi,
+      functionName: "balanceOf",
+      args: [account],
+    });
+
+    contracts.push({
+      address,
+      abi,
+      functionName: "allowance",
+      args: [account, bentoBoxContract.address],
+    });
   }
 
-  const tokensInfo = await Promise.all(multicallArr);
+  const [
+    collateralBalance,
+    mimBalance,
+    collateralAllowance,
+    mimAllowance,
+    unwrappedTokenBalance,
+    unwrappedTokenAllowance,
+  ] = await publicClient.multicall({
+    contracts: contracts,
+  });
 
   return {
-    collateralBalance: tokensInfo[0],
-    mimBalance: tokensInfo[1],
-    nativeTokenBalance: tokensInfo[2],
-    collateralAllowance: tokensInfo[3],
-    mimAllowance: tokensInfo[4],
-    unwrappedTokenBalance: tokensInfo[5] || zeroValue,
-    unwrappedTokenAllowance: tokensInfo[6] || zeroValue,
+    collateralBalance: BigNumber.from(collateralBalance.result),
+    mimBalance: BigNumber.from(mimBalance.result),
+    nativeTokenBalance: BigNumber.from(nativeTokenBalance),
+    collateralAllowance: BigNumber.from(collateralAllowance.result),
+    mimAllowance: BigNumber.from(mimAllowance.result),
+    unwrappedTokenBalance: BigNumber.from(unwrappedTokenBalance?.result ?? 0),
+    unwrappedTokenAllowance: BigNumber.from(
+      unwrappedTokenAllowance?.result ?? 0
+    ),
   };
 };

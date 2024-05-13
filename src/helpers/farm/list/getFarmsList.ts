@@ -1,21 +1,13 @@
+import farmsConfig from "@/configs/farms/farms";
+import { getAccountHelper } from "@/helpers/walletClienHelper";
 import { createFarmItemConfig } from "@/helpers/farm/createFarmItemConfig";
-import { getAccount } from "@wagmi/core";
-
-import farmsConfig from "@/utils/farmsConfig/farms";
-import type { Address } from "viem";
 
 export const getFarmsList = async (chainId: number, isExtended = true) => {
-  const account: Address | undefined = await getAccount().address;
+  const { address } = await getAccountHelper();
 
-  const farmsOnChain = farmsConfig.filter(
-    (farm) => farm.contractChain === chainId
-  );
-
-  const farmsList = await Promise.all(
-    farmsOnChain.map(async (farm) =>
-      createFarmItemConfig(farm.id, chainId!, account, isExtended)
+  return await Promise.all(
+    farmsConfig.map(async (farm) =>
+      createFarmItemConfig(farm.id, farm.contractChain, address, isExtended)
     )
   );
-
-  return farmsList;
 };

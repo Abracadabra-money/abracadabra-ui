@@ -1,9 +1,9 @@
 import { markRaw } from "vue";
-import mimTokenInfo from "@/utils/contracts/mimToken";
-import bentoContractsInfo from "@/utils/contracts/master";
-import degenBoxInfo from "@/utils/contracts/degenBox";
-import { getTokenPriceByAddress } from "../helpers/priceHelper";
-import tokensInfo from "@/utils/tokens/addedTokens.js";
+import mimTokenInfo from "@/configs/tokens/mim";
+import bentoContractsInfo from "@/configs/contracts/master";
+import degenBoxInfo from "@/configs/contracts/degenBox";
+import { tokensChainLink } from "@/configs/chainLink/config";
+import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 
 export default {
   computed: {
@@ -19,9 +19,7 @@ export default {
     mimInfo() {
       let id = this.chainId || 1;
 
-      return tokensInfo.find(
-        (token) => token.name === "MIM" && token.chain === id
-      );
+      return mimTokenInfo.find((token) => token.chainId === id);
     },
   },
   methods: {
@@ -94,9 +92,9 @@ export default {
 
       const mimBalance = await mimContract.balanceOf(this.account);
 
-      const mimPrice = await getTokenPriceByAddress(
-        1,
-        "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3"
+      const mimPrice = await getTokenPriceByChain(
+        tokensChainLink.mim.chainId,
+        tokensChainLink.mim.address
       );
 
       const bentoBalance = await bentoBoxContract?.balanceOf(
@@ -140,7 +138,10 @@ export default {
         degenAllowance,
       };
 
-      this.$store.commit("setMimInBentoDepositObject", markRaw(mimOnBentoDeposit));
+      this.$store.commit(
+        "setMimInBentoDepositObject",
+        markRaw(mimOnBentoDeposit)
+      );
     },
   },
 };

@@ -1,75 +1,137 @@
 <template>
-  <div class="chart-block" :class="[chartActive]" v-if="!!chartData">
-    <div class="chart-header">
-      <h3 class="chart-title">{{ chartConfig.title }}</h3>
-      <EstApy :apy="chartConfig.apy" :config="apyConfig" />
-    </div>
+  <div class="chart-block">
+    <template v-if="!!chartData">
+      <div class="row">
+        <h3 class="title">
+          <img class="token-icon" :src="chartConfig.icon" alt="Token icon" />
+          {{ chartConfig.title }}
+        </h3>
 
-    <div class="actions-btns">
-      <div>
-        <template v-if="chartConfig.typeButtons">
-          <button
-            class="action-btn"
-            v-for="typeBtn in chartConfig.typeButtons"
-            :class="{ 'active-btn': chartActive === typeBtn }"
-            @click="updateChartData(typeBtn, 1)"
-            :key="typeBtn"
-          >
-            {{ typeBtn }}
-          </button>
-        </template>
+        <Tabs
+          v-if="chartConfig.typeButtons"
+          :name="chartActive"
+          :items="chartConfig.typeButtons"
+          width="262px"
+          @select="updateChart"
+        />
       </div>
 
-      <div>
-        <button
-          class="action-btn"
-          v-for="{ time, label } in chartConfig.intervalButtons"
-          :class="{ 'active-btn': chatrPeriod === time }"
-          @click="updateChartData(chartActive, time)"
-          :key="label"
-        >
-          {{ label }}
-        </button>
+      <div class="btns-wrap">
+        <TimeFrame
+          :timesFrame="chartConfig.intervalButtons"
+          @updateTimeFrame="onUpdateTimeFrame"
+        />
       </div>
-    </div>
 
-    <TickChart :chartData="chartData" :createChartOptions="getChartOptions" />
-  </div>
+      <TickChart :chartData="chartData" :createChartOptions="getChartOptions" />
+    </template>
 
-  <div class="loader-wrap" v-else>
-    <BaseLoader />
+    <BaseLoader v-else medium text="Loading chart" />
   </div>
 </template>
 
-<script>
-import { mapGetters } from "vuex";
+<script lang="ts">
 import { defineAsyncComponent } from "vue";
+import { mapGetters, mapMutations } from "vuex";
 import { getChartData } from "@/helpers/stake/getChartData";
 
 export default {
   props: {
+    chainId: { type: Number, required: true },
     chartConfig: { type: Object, required: true },
-    apyConfig: { type: Object },
     getChartOptions: { type: Function, required: true },
   },
 
   data() {
     return {
-      chartActive: null,
+      chartActive: null as any,
       chatrPeriod: 1,
-      chartData: null,
-      updateInterval: null,
+      chartData: null as any,
+      updateInterval: null as any,
+      chartDataPerYear: null as any,
     };
   },
 
   computed: {
-    ...mapGetters({ chainId: "getChainId" }),
+    ...mapGetters({
+      magicGlpStakeData: "getMagicGlpStakeData",
+      magicApeStakeData: "getMagicApeStakeData",
+    }),
   },
 
   methods: {
-    async updateChartData(type, period) {
+    ...mapMutations(["setMagicGlpChartData", "setMagicApeChartData"]),
+
+    async onUpdateTimeFrame(period: number) {
+      await this.updateChart(this.chartActive, period);
+    },
+
+    async updateChart(chartType: any, period = 1) {
+      if (chartType === "magicGlpTvl") {
+        this.updateMagicGlpData(chartType, period);
+      } else this.updateChartData(chartType, period);
+    },
+
+    async updateMagicGlpData(type: string, period: number) {
       this.chartActive = type;
       this.chatrPeriod = period;
+
+      if (this.magicGlpStakeData.chartData) {
+        this.chartData = this.magicGlpStakeData.chartData;
+      }
+
+      if (!this.chartDataPerYear) {
+        this.chartDataPerYear = await getChartData(
+          type,
+          12,
+          this.chainId,
+          this.chartConfig.feePercent
+        );
+      }
+
+      const { datasets, labels }: any = this.chartDataPerYear;
+
+      this.chartData = {
+        labels: [...labels].splice(labels?.length - period * 30),
+        datasets: [
+          {
+            borderColor: "#73b6f6 ",
+            borderWidth: 2,
+            data: [...datasets[0].data].splice(
+              datasets[0].data?.length - period * 30
+            ),
+            label: "APY",
+            pointBackgroundColor: "#73b6f6",
+            pointBorderColor: "#73b6f6",
+            pointRadius: 0,
+          },
+        ],
+      };
+
+      this.setMagicGlpChartData(this.chartData);
+    },
+
+    checkLocalData(type: string) {
+      switch (type) {
+        case "Yield" || "TVL" || "Price":
+          this.chartData = this.magicApeStakeData.chartData;
+          break;
+      }
+    },
+
+    saveChartDataToStote(type: string, data: any) {
+      switch (type) {
+        case "Yield" || "TVL" || "Price":
+          this.setMagicApeChartData(data);
+          break;
+      }
+    },
+
+    async updateChartData(type: any, period: number) {
+      this.chartActive = type;
+      this.chatrPeriod = period;
+
+      this.checkLocalData(type);
 
       this.chartData = await getChartData(
         type,
@@ -77,14 +139,16 @@ export default {
         this.chainId,
         this.chartConfig.feePercent
       );
+
+      this.saveChartDataToStote(type, this.chartData);
     },
   },
 
   async created() {
-    await this.updateChartData(this.chartConfig.type, 1);
+    await this.updateChart(this.chartConfig.type, 1);
 
     this.updateInterval = setInterval(async () => {
-      await this.updateChartData(this.chartActive, this.chatrPeriod);
+      await this.updateChart(this.chartActive, this.chatrPeriod);
     }, 60000);
   },
 
@@ -93,12 +157,15 @@ export default {
   },
 
   components: {
-    EstApy: defineAsyncComponent(() => import("@/components/stake/EstApy.vue")),
-    TickChart: defineAsyncComponent(() =>
-      import("@/components/ui/charts/TickChart.vue")
+    Tabs: defineAsyncComponent(() => import("@/components/ui/Tabs.vue")),
+    TimeFrame: defineAsyncComponent(
+      () => import("@/components/ui/buttons/TimeFrame.vue")
     ),
-    BaseLoader: defineAsyncComponent(() =>
-      import("@/components/base/BaseLoader.vue")
+    TickChart: defineAsyncComponent(
+      () => import("@/components/ui/charts/TickChart.vue")
+    ),
+    BaseLoader: defineAsyncComponent(
+      () => import("@/components/base/BaseLoader.vue")
     ),
   },
 };
@@ -108,64 +175,59 @@ export default {
 .chart-block {
   width: 100%;
   padding: 16px;
-  background: #2b2b3c;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0px 1px 10px rgba(1, 1, 1, 0.05);
-  backdrop-filter: blur(50px);
-  border-radius: 30px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  justify-content: center;
+  gap: 12px;
+  border-radius: 20px;
+  border: 1px solid #00296b;
+  background: linear-gradient(
+    146deg,
+    rgba(0, 10, 35, 0.07) 0%,
+    rgba(0, 80, 156, 0.07) 101.49%
+  );
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
+  min-height: 480px;
 }
 
-.chart-header {
+.row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-}
-
-.chart-title {
-  font-weight: 600;
-  font-size: 18px;
-}
-
-.actions-btns {
-  display: flex;
   justify-content: space-between;
 }
 
-.action-btn {
-  max-width: 60px;
-  min-width: 32px;
-  background: #2a2835;
-  padding: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  font-size: 12px;
+.title {
+  gap: 4px;
+  display: flex;
+  align-items: center;
+  font-size: 20px;
+  font-weight: 500;
   line-height: 150%;
-  color: #fff;
-  cursor: pointer;
-
-  &:first-child {
-    border-radius: 4px 0 0 4px;
-  }
-
-  &:last-child {
-    border-radius: 0 4px 4px 0;
-  }
+  letter-spacing: 0.5px;
 }
 
-.active-btn {
-  background: #343141;
+.token-icon {
+  width: 28px;
+  height: 28px;
+}
+
+.btns-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
 }
 
 @media (max-width: 600px) {
   .chart-block {
-    padding: 10px 5px;
+    padding: 20px 10px;
+    min-height: 290px;
   }
 
-  .chart-header {
+  .row {
+    gap: 16px;
     flex-direction: column;
-    gap: 10px;
+    align-items: flex-start;
   }
 }
 </style>

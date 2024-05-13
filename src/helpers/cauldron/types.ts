@@ -1,4 +1,5 @@
 import type { BigNumber } from "ethers";
+import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
 
 export type UserBorrowInfo = {
   userBorrowPart: BigNumber;
@@ -14,7 +15,18 @@ export type UserPositions = {
   collateralInfo: UserCollateralInfo;
   borrowInfo: UserBorrowInfo;
   oracleRate: BigNumber;
-  liquidationPrice: String;
+  liquidationPrice: String | number;
+  alternativeData: {
+    collateralInfo: {
+      userCollateralShare: bigint;
+      userCollateralAmount: bigint;
+    };
+    borrowInfo: {
+      userBorrowPart: bigint;
+      userBorrowAmount: bigint;
+    };
+    oracleRate: bigint;
+  };
 };
 
 export type MainParams = {
@@ -28,6 +40,15 @@ export type MainParams = {
   totalBorrowed: BigNumber;
   tvl: BigNumber;
   userMaxBorrow: BigNumber;
+  alternativeData: {
+    collateralPrice: bigint;
+    mimLeftToBorrow: bigint;
+    maximumCollateralRatio: bigint;
+    oracleExchangeRate: bigint;
+    totalBorrowed: bigint;
+    tvl: bigint;
+    userMaxBorrow: bigint;
+  };
 };
 
 export type UserTokensInfo = {
@@ -41,7 +62,7 @@ export type UserTokensInfo = {
 };
 
 export type CauldronInfo = {
-  config: Object | undefined;
+  config: CauldronConfig;
   contracts: Object | null;
   mainParams: MainParams;
   userPosition: UserPositions;
@@ -64,4 +85,36 @@ export type AdditionalInfo = {
   whitelistedInfo: Object | null;
   isCollateralLocked: any;
   feePercent: number | null;
+  gmInfo: any;
+  hasActiveGmOrder: boolean;
+};
+
+export type SwapAmounts = {
+  amountFrom: BigNumber;
+  amountToMin: BigNumber;
+};
+
+export type DepositAmounts = {
+  inputAmount: BigNumber;
+  collateralTokenAmount: BigNumber;
+  unwrapTokenAmount: BigNumber;
+};
+
+export type ActionAmounts = {
+  depositAmounts: DepositAmounts;
+  borrowAmount: BigNumber;
+  repayAmount: BigNumber;
+  withdrawAmount: BigNumber;
+  leverageAmounts: SwapAmounts;
+  deleverageAmounts: SwapAmounts;
+  slippage: BigNumber;
+};
+
+export type ActionConfig = {
+  useLeverage: boolean;
+  useDeleverage: boolean;
+  useNativeToken: boolean;
+  useUnwrapToken: boolean;
+  withdrawUnwrapToken: boolean;
+  amounts: ActionAmounts;
 };

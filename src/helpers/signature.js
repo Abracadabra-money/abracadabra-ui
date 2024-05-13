@@ -14,53 +14,49 @@ const signMasterContract = async (
 
     const chainHex = ethers.utils.hexlify(chainId);
 
-    const domain = {
-      name: "BentoBox V1",
-      chainId: chainHex,
-      verifyingContract,
-    };
+  const domain = {
+    name: "BentoBox V1",
+    chainId: chainHex,
+    verifyingContract,
+  };
 
-    // The named list of all type definitions
-    const types = {
-      SetMasterContractApproval: [
-        { name: "warning", type: "string" },
-        { name: "user", type: "address" },
-        { name: "masterContract", type: "address" },
-        { name: "approved", type: "bool" },
-        { name: "nonce", type: "uint256" },
-      ],
-    };
+  // The named list of all type definitions
+  const types = {
+    SetMasterContractApproval: [
+      { name: "warning", type: "string" },
+      { name: "user", type: "address" },
+      { name: "masterContract", type: "address" },
+      { name: "approved", type: "bool" },
+      { name: "nonce", type: "uint256" },
+    ],
+  };
 
-    const warning = approved
-      ? "Give FULL access to funds in (and approved to) BentoBox?"
-      : "Revoke access to BentoBox?";
+  const warning = approved
+    ? "Give FULL access to funds in (and approved to) BentoBox?"
+    : "Revoke access to BentoBox?";
 
-    // The data to sign
-    const value = {
-      warning,
-      user,
-      masterContract,
-      approved,
-      nonce,
-    };
+  // The data to sign
+  const value = {
+    warning,
+    user,
+    masterContract,
+    approved,
+    nonce,
+  };
 
-    const signature = await signer._signTypedData(domain, types, value);
+  const signature = await signer._signTypedData(domain, types, value);
 
-    const parsedSignature = parseSignature(signature);
+  const parsedSignature = parseSignature(signature);
 
-    if (parsedSignature.v === 0) {
-      parsedSignature.v = 27;
-    }
-
-    if (parsedSignature.v === 1) {
-      parsedSignature.v = 28;
-    }
-
-    return parsedSignature;
-  } catch (error) {
-    console.log("signMasterContract error:", error);
-    return false;
+  if (parsedSignature.v === 0) {
+    parsedSignature.v = 27;
   }
+
+  if (parsedSignature.v === 1) {
+    parsedSignature.v = 28;
+  }
+
+  return parsedSignature;
 };
 
 const parseSignature = (signature) => {

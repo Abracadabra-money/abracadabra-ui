@@ -19,6 +19,7 @@ export default defineConfig({
     drop: ["console", "debugger"], // warn: to comment in dev mode to show logs in .ts files
   },
   build: {
+    target: "esnext",
     rollupOptions: {
       plugins: [
         // ↓ Needed for build
@@ -41,6 +42,7 @@ export default defineConfig({
         additionalData: `
           @use "sass:math";
           @import "./src/assets/styles/_variables.scss";
+          @import "./src/assets/styles/_mixins.scss";
         `,
       },
     },

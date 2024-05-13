@@ -1,235 +1,298 @@
 <template>
-  <div>
-    <div class="val-input" :class="{ 'val-input-error': error }">
-      <button
-        @click="$emit('openTokensList')"
-        :disabled="!isChooseToken"
-        class="value-type value-btn"
-      >
-        <BaseTokenIcon
-          :icon="icon"
-          :type="isChooseToken ? 'select' : 'token'"
-          :name="name"
+  <div class="wrap">
+    <div class="val-input">
+      <div class="token-input-wrap">
+        <input
+          name="tokenInput"
+          class="text-field"
+          v-model="inputValue"
+          type="text"
+          placeholder="0.0"
+          :disabled="disabled"
         />
-        <span class="token-name">
-          {{ poolName }}
-        </span>
-        <img
-          v-if="isChooseToken"
-          class="token-arrow"
-          src="@/assets/images/arrow.svg"
-          alt="arrow"
-        />
-      </button>
+        <div class="usd-wrap">
+          <p class="usd-equivalent" v-if="tokenPrice">{{ usdEquivalent }}</p>
+          <p
+            :class="['difference-price', { warning: differencePrice < 0 }]"
+            v-if="differencePrice"
+          >
+            ( {{ formatToFixed(differencePrice, 2) }}%)
+          </p>
+        </div>
+      </div>
 
-      <input
-        v-model="currentValue"
-        :disabled="disabled"
-        class="text-field"
-        :class="{ 'no-max-show': !(max && showMax) }"
-        type="text"
-        placeholder="0.0"
-      />
-      <button
-        v-if="+max > 0 && showMax"
-        @click="currentValue = max"
-        :disabled="disabled"
-        class="value-btn max-btn"
-      >
-        max
-      </button>
+      <div class="token-input-info">
+        <div
+          :class="['token-info', { 'select-token': allowSelectToken }]"
+          v-tooltip="tooltip"
+          @click="onSelectClick"
+        >
+          <BaseTokenIcon :icon="icon" :name="name" size="28px" />
+          <span class="token-name" ref="tokenName">
+            {{ tokenName }}
+          </span>
+
+          <img
+            class="arrow-icon"
+            v-if="allowSelectToken"
+            src="@/assets/images/arrow-down.svg"
+            alt=""
+          />
+        </div>
+
+        <p
+          :class="['wallet-balance', { 'primary-max': primaryMax }]"
+          v-if="!disabled"
+          @click="inputValue = formattedMax"
+        >
+          <span v-if="primaryMax">MAX:</span>
+          <WalletIcon v-else :width="13" :height="13" fill="#575C62" />
+          {{ formatTokenBalance(formattedMax) }}
+        </p>
+      </div>
     </div>
-    <p class="value-error">
-      <span v-if="error">{{ error }}</span>
-      <span v-else>&nbsp;</span>
-    </p>
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import {
+  formatUSD,
+  formatTokenBalance,
+  formatToFixed,
+} from "@/helpers/filters";
+import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
+import { formatUnits, parseUnits } from "viem";
 
 export default {
   props: {
-    showMax: {
-      type: Boolean,
-      default: true,
-    },
-    max: {
-      type: [Number, String],
-      default: 0,
-    },
-    value: {
-      type: [Number, String],
-      default: null,
-    },
-    disabled: {
-      type: Boolean,
-      default: false,
-    },
-    isChooseToken: {
-      type: Boolean,
-      default: false,
-    },
-    error: {
-      type: String,
-      default: "",
-    },
+    decimals: { type: Number, default: 18 },
+    isBigNumber: { type: Boolean, default: false },
+    max: {},
+    value: {}, // TODO: use bignumber (bigint) & parse in data.inputValue
     icon: {
       type: String,
     },
     name: {
       type: String,
+      default: "Select Token",
+    },
+    tokenPrice: {},
+    disabled: { type: Boolean, default: false },
+    primaryMax: {
+      type: Boolean,
+      default: false,
+    },
+    allowSelectToken: {
+      type: Boolean,
+      default: false,
+    },
+    differencePrice: {
+      type: Number,
+      default: 0,
     },
   },
-  data() {
+
+  data(): any {
     return {
-      currentValue: this.value,
+      inputValue: this.value,
+      tooltip: "",
     };
   },
+
   computed: {
-    poolName() {
-      if (this.name) return this.name;
-      if (this.isChooseToken) return "Select to";
-      return "Symbol";
+    tokenName() {
+      return this.name.length > 12 ? this.name.slice(0, 11) + "..." : this.name;
+    },
+
+    formattedMax() {
+      if (this.isBigNumber)
+        return utils.formatUnits(this.max || 0, this.decimals);
+      return formatUnits(this.max || 0, this.decimals);
+    },
+
+    usdEquivalent(): any {
+      return formatUSD(this.inputValue * this.tokenPrice);
     },
   },
+
   watch: {
-    currentValue(value, oldValue) {
+    inputValue(value, oldValue) {
+      if (!value) {
+        this.$emit("updateInputValue", null);
+        return;
+      }
+
       if (isNaN(value)) {
-        this.currentValue = oldValue;
+        this.inputValue = oldValue;
         return false;
       }
-      this.$emit("updateValue", value);
+
+      if (this.isBigNumber) {
+        const emitValue = !value
+          ? BigNumber.from(0)
+          : utils.parseUnits(
+              formatToFixed(value, this.decimals),
+              this.decimals
+            );
+
+        this.$emit("updateInputValue", emitValue);
+      } else {
+        const emitValue = !value
+          ? BigInt(0)
+          : parseUnits(formatToFixed(value, this.decimals), this.decimals);
+
+        this.$emit("updateInputValue", emitValue);
+      }
     },
-    value(val) {
-      this.currentValue = val;
+
+    value(value) {
+      this.inputValue = value;
     },
   },
-  components: { BaseTokenIcon: defineAsyncComponent(() => import("@/components/base/BaseTokenIcon.vue"))  },
+
+  methods: {
+    formatTokenBalance,
+    formatToFixed,
+
+    onSelectClick() {
+      if (this.allowSelectToken) this.$emit("onSelectClick");
+      return;
+    },
+  },
+
+  mounted() {
+    if (this.name.length > 12) {
+      this.tooltip = this.name;
+    }
+  },
+
+  components: {
+    BaseTokenIcon: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenIcon.vue")
+    ),
+    WalletIcon: defineAsyncComponent(
+      () => import("@/components/ui/icons/WalletIcon.vue")
+    ),
+  },
 };
 </script>
 
 <style lang="scss" scoped>
+.wrap {
+  width: 100%;
+}
+
 .val-input {
   display: flex;
-  align-items: center;
-  background: #3c394b;
-  border: 1px solid #494661;
-  border-radius: 20px;
-  flex-wrap: wrap;
-  padding: 8px 10px 0 10px;
-  transition: border-color 0.1s, box-shadow 0.1s;
-
-  &:focus-within {
-    border-color: rgba(255, 255, 255, 0.05);
-    box-shadow: 0 0 10px 0 rgba(255, 255, 255, 0.1);
-  }
-}
-
-.val-input-error,
-.val-input-error:focus-within {
-  border-color: $clrErrorBorder;
-}
-
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-input[type="number"] {
-  -moz-appearance: textfield;
-}
-
-.value-type {
+  flex-direction: row;
   justify-content: space-between;
-  flex: 1 1 100%;
-  padding-left: 5px;
+  align-items: center;
+  padding: 8px 22px;
+  border-radius: 16px;
+  border: 1px solid rgba(73, 70, 97, 0.4);
+  background: rgba(8, 14, 31, 0.6);
+  width: 100%;
+  min-height: 82px;
 }
-.value-btn {
+
+.token-input-wrap,
+.token-input-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 4px;
+  height: 100%;
+  max-width: 50%;
+}
+
+.text-field {
+  height: 32px;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 500;
+  background-color: transparent;
+  border: none;
+  max-width: 95%;
+  width: 100%;
+}
+
+.text-field:focus {
+  outline: none;
+  border: none;
+}
+
+.usd-wrap {
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.02);
-  border: none;
-  color: white;
-  cursor: pointer;
-  height: 32px;
-  border-radius: 10px;
-
-  &:disabled {
-    cursor: default;
-  }
+  gap: 8px;
 }
-.text-field {
-  background: transparent;
-  border: none;
+
+.usd-equivalent {
+  color: #575c62;
+  font-size: 14px;
   font-weight: 400;
-  font-size: 18px;
-  color: white;
-  box-sizing: content-box;
-  height: 48px;
-  width: calc(100% - 50px);
-  text-align: left;
-
-  &:focus {
-    outline: none;
-  }
-  &::placeholder {
-    color: rgba(255, 255, 255, 0.6);
-  }
 }
 
-.no-max-show {
-  padding-right: 80px;
+.difference-price {
+  font-size: 14px;
+  font-weight: 400;
+  color: #67a069;
 }
 
-.max-btn {
-  justify-content: center;
-  flex: 0 0 50px;
-  border-radius: 20px;
+.warning {
+  color: #8c4040;
+}
+
+.token-input-info {
+  align-items: end;
+}
+
+.token-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: rgba(111, 111, 111, 0.06);
+  padding: 4px;
+  height: 36px;
+}
+
+.select-token {
+  cursor: pointer;
 }
 
 .token-name {
-  flex: 1 1 auto;
-  text-align: left;
-}
-.token-arrow {
-  margin-right: 12px;
-  width: 11px;
+  text-wrap: nowrap;
 }
 
-.value-error {
-  color: $clrError;
-  font-size: 10px;
-  margin-top: 5px;
-  margin-left: 10px;
+.wallet-balance {
+  cursor: pointer;
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  gap: 4px;
+  color: #575c62;
+  font-size: 14px;
+  font-weight: 400;
 }
 
-@media (min-width: 1024px) {
-  .val-input {
-    flex-wrap: nowrap;
-    padding: 0 10px;
-  }
+.primary-max {
+  background: var(
+    --Primary-Gradient,
+    linear-gradient(90deg, #2d4a96 0%, #745cd2 100%)
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
 
-  .value-type {
-    flex: 1 1 180px;
-    padding-left: 10px;
-    max-width: 180px;
-  }
+.wallet-icon {
+  cursor: pointer;
+}
 
-  .value-btn {
-    border-radius: 20px;
-    height: 60px;
-  }
-  .max-btn {
-    flex: 0 0 80px;
-  }
-  .text-field {
-    height: 70px;
-    text-align: center;
-    width: calc(100% - (148px + 80px));
-    font-size: 20px;
-  }
+.arrow-icon {
+  margin-left: 8px;
 }
 </style>

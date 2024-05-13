@@ -1,42 +1,29 @@
 import { markRaw } from "vue";
-import { getTokensArrayPrices } from "@/helpers/priceHelper.js";
 import { getFarmYieldAndLpPrice } from "@/helpers/farm/getFarmYieldAndLpPrice";
 import { getRoi } from "@/helpers/farm/getRoi";
 import { getTVL } from "@/helpers/farm/getTVL";
 import { getFarmUserInfo } from "@/helpers/farm/getFarmUserInfo";
-import farmsConfig from "@/utils/farmsConfig/farms";
+import farmsConfig from "@/configs/farms/farms";
 import type {
   FarmConfig,
   FarmItem,
   PoolInfo,
   ContractInfo,
-} from "@/utils/farmsConfig/types";
-import { readContract } from "@wagmi/core";
+} from "@/configs/farms/types";
 import type { Address } from "viem";
-
-type TokenPrices = {
-  SPELLPrice: number;
-  MIMPrice: number;
-};
-
-type TokenPricesResponse = {
-  address: string;
-  price: number;
-};
-
-export const tokenAddresses = {
-  SPELL: "0x090185f2135308bad17527004364ebcc2d37e5f6",
-  MIM: "0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3",
-};
+import { tokensChainLink } from "@/configs/chainLink/config";
+import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
+import { createMultiRewardFarm } from "./createMultiRewardFarm";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 
 export const createFarmItemConfig = async (
   farmId: number | string,
-  chainId: number,
+  chainId: number | string,
   account: Address | undefined,
   isExtended = true
-): Promise<FarmItem | null> => {
+): Promise<any> => {
   const farmsOnChain = farmsConfig.filter(
-    (farm) => farm.contractChain === chainId
+    (farm) => farm.contractChain == chainId
   );
 
   const farmInfo: FarmConfig | undefined = farmsOnChain.find(
@@ -45,12 +32,27 @@ export const createFarmItemConfig = async (
 
   if (!farmInfo) return null;
 
-  const { SPELLPrice, MIMPrice } = await getTokensPrices();
+  const publicClient = getPublicClient(Number(chainId));
+
+  if (farmInfo.isMultiReward)
+    return await createMultiRewardFarm(farmInfo, account);
+
+  const MIMPrice = await getTokenPriceByChain(
+    tokensChainLink.mim.chainId,
+    tokensChainLink.mim.address
+  );
+
+  const SPELLPrice = await getTokenPriceByChain(
+    tokensChainLink.spell.chainId,
+    tokensChainLink.spell.address
+  );
 
   const poolInfo: PoolInfo = await getPoolInfo(
     farmInfo.contract,
+    // @ts-ignore
     farmInfo.poolId,
-    chainId
+    chainId,
+    publicClient
   );
 
   const contractInfo = {
@@ -62,24 +64,26 @@ export const createFarmItemConfig = async (
     abi: farmInfo.stakingToken.abi,
   };
 
-  const { farmYield, lpPrice } = await getFarmYieldAndLpPrice(
+  const { farmYield, lpPrice }: any = await getFarmYieldAndLpPrice(
     stakingTokenContractInfo,
     contractInfo,
     poolInfo,
     farmInfo,
     MIMPrice,
     SPELLPrice,
-    chainId
+    chainId,
+    publicClient
   );
 
   const farmRoi = farmYield ? await getRoi(farmYield, SPELLPrice) : farmYield;
 
-  const isDepreciated = farmRoi === 0;
+  const isDeprecated = farmRoi === 0;
 
   const farmItemConfig: FarmItem = {
     name: farmInfo.name,
     icon: farmInfo.icon,
     id: farmInfo.id,
+    chainId: farmInfo.contractChain,
     poolId: farmInfo.poolId,
     earnedTokenPrice: SPELLPrice,
     stakingToken: {
@@ -96,7 +100,7 @@ export const createFarmItemConfig = async (
     farmRoi,
     farmYield,
     lpPrice,
-    isDepreciated,
+    isDeprecated,
   };
 
   if (isExtended)
@@ -106,7 +110,11 @@ export const createFarmItemConfig = async (
     );
 
   if (account) {
-    farmItemConfig.accountInfo = await getFarmUserInfo(farmItemConfig);
+    farmItemConfig.accountInfo = await getFarmUserInfo(
+      farmItemConfig,
+      publicClient,
+      account
+    );
     return markRaw(farmItemConfig);
   }
   return markRaw(farmItemConfig);
@@ -115,7 +123,8 @@ export const createFarmItemConfig = async (
 const getPoolInfo = async (
   contract: ContractInfo,
   poolId: number,
-  chainId: number
+  chainId: number | string,
+  publicClient: any
 ): Promise<PoolInfo> => {
   const [
     stakingToken,
@@ -123,7 +132,7 @@ const getPoolInfo = async (
     accIcePerShare,
     lastRewardTime,
     allocPoint,
-  ]: any = await readContract({
+  ]: any = await publicClient.readContract({
     address: contract.address,
     abi: contract.abi,
     functionName: "poolInfo",
@@ -136,31 +145,5 @@ const getPoolInfo = async (
     accIcePerShare,
     lastRewardTime,
     allocPoint,
-  };
-};
-
-const getTokensPrices = async (): Promise<TokenPrices> => {
-  const tokenAddressesArray = [tokenAddresses.SPELL, tokenAddresses.MIM];
-
-  const tokensPrices = await getTokensArrayPrices(1, tokenAddressesArray);
-
-  let SPELLPrice = 0,
-    MIMPrice = 0;
-
-  if (tokensPrices)
-    tokensPrices.map((token: TokenPricesResponse) => {
-      switch (token.address) {
-        case tokenAddresses.SPELL:
-          SPELLPrice = token.price;
-          break;
-        case tokenAddresses.MIM:
-          MIMPrice = token.price;
-          break;
-      }
-    });
-
-  return {
-    SPELLPrice,
-    MIMPrice,
   };
 };

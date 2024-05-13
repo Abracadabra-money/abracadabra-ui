@@ -1,6 +1,6 @@
 <template>
   <div class="popup-wrap" v-if="isOpened" @click="closePopup">
-    <div class="popup" @click.stop>
+    <div :class="['popup', { farmPopup: isFarm }]" @click.stop>
       <div class="popup-content">
         <button class="close-btn" @click="closePopup">
           <img
@@ -20,6 +20,10 @@ export default {
   name: "LocalPopupWrap",
   props: {
     isOpened: {
+      type: Boolean,
+      default: false,
+    },
+    isFarm: {
       type: Boolean,
       default: false,
     },
@@ -80,5 +84,22 @@ export default {
 .close-img {
   width: 14px;
   height: 14px;
+}
+
+.farmPopup {
+  width: 533px;
+  padding: 32px;
+  gap: 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #101622;
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
+}
+
+@media screen and (max-width: 600px) {
+  .farmPopup {
+    padding: 24px 16px;
+  }
 }
 </style>

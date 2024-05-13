@@ -1,46 +1,77 @@
-import type { providers, BigNumber } from "ethers";
-import { MulticallWrapper } from "ethers-multicall-provider";
+import { utils } from "ethers";
+import { defaultRpc } from "@/helpers/chains";
+import cauldronsConfig from "@/configs/cauldrons";
 import { getMainParams } from "@/helpers/cauldron/getMainParams";
-import cauldronsConfig from "@/utils/cauldronsConfig";
+import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
+import { getUserPositions } from "@/helpers/cauldron/getUserPositions";
+import type { MainParams, UserPositions } from "@/helpers/cauldron/types";
 
-type CauldronListItem = {
-  config: object;
-  borrowFee: number;
-  interest: number;
-  liquidationFee: number;
-  collateralPrice: BigNumber;
-  mimLeftToBorrow: BigNumber;
-  maximumCollateralRatio: BigNumber;
-  oracleExchangeRate: BigNumber;
-  totalBorrowed: BigNumber;
-  tvl: BigNumber;
-  userMaxBorrow: BigNumber;
+export type CauldronListItem = {
+  apr: { value: number; multiplier: number };
+  config: CauldronConfig;
+  mainParams: MainParams;
+  userPosition: UserPositions;
+  additionalInfo: object;
+};
+
+const filteredByChainId = (chainId: number) => {
+  return cauldronsConfig.filter((config) => config.chainId === chainId);
+};
+
+const filteredByPrivate = (configs: any, account: string) => {
+  return configs.filter((config: any) => {
+    if (config.cauldronSettings.isPrivate)
+      return config.cauldronSettings.privatelyFor!.some(
+        (walletAddress: string) => walletAddress === account
+      );
+
+    return config;
+  });
 };
 
 export const getMarketList = async (
   account: string,
-  chainId: number,
-  provider: providers.BaseProvider
+  chains = null
 ): Promise<CauldronListItem[]> => {
-  const multicallProvider = MulticallWrapper.wrap(provider);
+  const curentChains = chains ? chains : Object.keys(defaultRpc);
 
-  const configs: any[] = cauldronsConfig.filter((config) => {
-    let result = config.chainId === +chainId;
+  const cauldronsInfo: CauldronListItem[] = [];
 
-    if (config.cauldronSettings.isPrivate)
-      result = config.cauldronSettings.privatelyFor!.some(
-        (walletAddress) => walletAddress === account
+  await Promise.all(
+    curentChains.map(async (chainId: string) => {
+      const configsByChain = filteredByChainId(Number(chainId));
+
+      const filteredConfigs: CauldronConfig[] = filteredByPrivate(
+        configsByChain,
+        account
       );
 
-    return result;
-  });
+      if (filteredConfigs.length === 0) return [];
 
-  const mainParams = await getMainParams(configs, multicallProvider, chainId);
+      const mainParams = await getMainParams(filteredConfigs, Number(chainId));
 
-  return configs.map((config, idx) => {
-    return {
-      config,
-      ...mainParams[idx],
-    };
-  });
+      const userPositions = await getUserPositions(
+        filteredConfigs,
+        account,
+        Number(chainId)
+      );
+
+      filteredConfigs.forEach((config, idx) => {
+        cauldronsInfo.push({
+          apr: {
+            value: 0,
+            multiplier: 0,
+          },
+          config,
+          mainParams: mainParams[idx],
+          userPosition: userPositions[idx],
+          additionalInfo: {
+            tokensRate: utils.parseUnits("1", config.collateralInfo.decimals),
+          },
+        });
+      });
+    })
+  );
+
+  return cauldronsInfo;
 };

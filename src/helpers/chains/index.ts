@@ -1,53 +1,34 @@
-import { mainnetConfig } from "@/helpers/chains/configs/mainnet";
-import { optimismConfig } from "@/helpers/chains/configs/optimism";
-import { binanceConfig } from "@/helpers/chains/configs/binance";
-import { polygonConfig } from "@/helpers/chains/configs/polygon";
-import { fantomConfig } from "@/helpers/chains/configs/fantom";
-import { moonriverConfig } from "@/helpers/chains/configs/moonriver";
-import { kavaConfig } from "@/helpers/chains/configs/kava";
-import { baseConfig } from "@/helpers/chains/configs/base";
-import { arbitrumConfig } from "@/helpers/chains/configs/arbitrum";
-import { avalancheConfig } from "@/helpers/chains/configs/avalanche";
-import { lineaConfig } from "@/helpers/chains/configs/linea";
-
-export const chains = [
-  mainnetConfig,
-  optimismConfig,
-  binanceConfig,
-  polygonConfig,
-  fantomConfig,
-  moonriverConfig,
-  kavaConfig,
-  baseConfig,
-  arbitrumConfig,
-  avalancheConfig,
-  lineaConfig,
-];
-
-export const chainsList = {
-  1: mainnetConfig,
-  10: optimismConfig,
-  56: binanceConfig,
-  137: polygonConfig,
-  250: fantomConfig,
-  1285: moonriverConfig,
-  2222: kavaConfig,
-  8453: baseConfig,
-  42161: arbitrumConfig,
-  43114: avalancheConfig,
-  59144: lineaConfig,
-};
+import {
+  RPC_ETH,
+  RPC_OPTIMISM,
+  RPC_BSC,
+  RPC_POLYGON,
+  RPC_FTM,
+  RPC_MOONRIVER,
+  RPC_BASE,
+  RPC_ARB,
+  RPC_AVAX,
+  RPC_KAVA,
+  PRC_LINEA,
+  RPC_BERRA_ARTIO,
+  RPC_BLAST,
+} from "@/constants/rpc";
 
 export const defaultRpc = {
-  1: "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
-  10: "https://mainnet.optimism.io",
-  56: "https://bsc-dataseed.binance.org/",
-  137: "https://polygon-rpc.com",
-  250: "https://rpc.ftm.tools/",
-  1285: "https://rpc.api.moonriver.moonbeam.network",
-  8453: "https://mainnet.base.org",
-  42161: "https://arb1.arbitrum.io/rpc",
-  43114: "https://api.avax.network/ext/bc/C/rpc",
-  2222: "https://evm.kava.io ",
-  59144: "https://rpc.linea.build",
+  1: RPC_ETH,
+  10: RPC_OPTIMISM,
+  56: RPC_BSC,
+  137: RPC_POLYGON,
+  250: RPC_FTM,
+  1285: RPC_MOONRIVER,
+  8453: RPC_BASE,
+  42161: RPC_ARB,
+  43114: RPC_AVAX,
+  2222: RPC_KAVA,
+  59144: PRC_LINEA,
+  80085: RPC_BERRA_ARTIO,
+  81457: RPC_BLAST,
 };
+
+export const getRpcByChainId = (chainId: number): string =>
+  defaultRpc[chainId as keyof typeof defaultRpc];

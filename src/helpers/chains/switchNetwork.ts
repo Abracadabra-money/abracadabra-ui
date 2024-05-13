@@ -1,21 +1,30 @@
-import { getWalletClient } from "@wagmi/core";
-import { chainsList } from "@/helpers/chains/index";
+import {
+  getWalletClientHelper,
+  switchChainHelper,
+} from "@/helpers/walletClienHelper";
+import { getChainConfig } from "@/helpers/chains/getChainsInfo";
+import { createWagmiConfig } from "@/plugins/walletConnect/utils";
+import { initWithoutConnect } from "@/plugins/walletConnect/initConnect";
 
 export const switchNetwork = async (chainId: number) => {
-  const walletClient = await getWalletClient();
+  const walletClient = await getWalletClientHelper();
+
   if (walletClient) {
     try {
-      await walletClient.switchChain({ id: chainId });
+      localStorage.setItem("MAGIC_MONEY_CHAIN_ID", chainId.toString());
+      await switchChainHelper(+chainId);
     } catch (error) {
-      if (String(error).indexOf("Unrecognized chain ID") !== -1) {
+      if (String(error).indexOf("Chain not configured") !== -1) {
+        const chainConfig: any = getChainConfig(chainId);
         await walletClient.addChain({
-          chain: chainsList[chainId as keyof typeof chainsList],
+          chain: chainConfig?.viemConfig,
         });
         await walletClient.switchChain({ id: chainId });
       }
     }
   } else {
     localStorage.setItem("MAGIC_MONEY_CHAIN_ID", chainId.toString());
-    window.location.reload();
+    const wagmiConfig = createWagmiConfig(import.meta.env.VITE_APP_CONNECT_KEY);
+    initWithoutConnect(wagmiConfig);
   }
 };

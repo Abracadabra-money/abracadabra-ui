@@ -1,6 +1,17 @@
 <template>
   <AppHeader />
-  <div class="router-wrap" v-if="checkInProcess">
+  <div class="router-wrap" :style="pageBackground" v-if="checkInProcess">
+    <img
+      class="mim-top-bg"
+      src="@/assets/images/main-mim-top-bg.png"
+      alt="Mim"
+    />
+    <img
+      class="mim-bottom-bg"
+      src="@/assets/images/main-mim-bottom-bg.png"
+      alt="Mim"
+    />
+    <LiquidityLaunchEventBanner />
     <router-view />
   </div>
   <NotificationContainer />
@@ -8,12 +19,12 @@
   <Banner />
   <SkullBanner />
   <OldAllowanceBanner />
+  <TenderlyMod />
 </template>
 <script>
 import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
 import axios from "axios";
-
 export default {
   data() {
     return {
@@ -43,32 +54,69 @@ export default {
       ],
     };
   },
+
   computed: {
     ...mapGetters({
       checkInProcess: "getWalletIsConnected",
       signer: "getSigner",
     }),
+
+    pageBackground() {
+      if (this.$route.name === "BlastOnboarding") {
+        return "background:#14182C";
+      }
+      return "";
+    },
   },
 
   async beforeCreate() {
-    const location = await axios.get(
-      `https://ipwhois.pro/?key=${import.meta.env.VITE_APP_IPWHOIS_API_KEY}`
-    );
+    try {
+      const location = await axios.get(
+        `https://ipwhois.pro/?key=${
+          import.meta.env.VITE_APP_IPWHOIS_API_KEY
+        }&security=1`
+      );
 
-    if (
-      this.country.includes(location.data.country) ||
-      this.region.includes(location.data.region)
-    )
-      document.location.href = "https://abracadabra.money/location";
+      if (!location.data.success)
+        throw new Error(
+          `Location fetching unsuccessful: ${location.data.message}`
+        );
+
+      const isVPN = location.data.security?.vpn;
+
+      if (
+        this.country.includes(location.data.country) ||
+        this.region.includes(location.data.region) ||
+        isVPN
+      )
+        document.location.href = "https://abracadabra.money/location";
+    } catch (error) {
+      console.log("VPN", error);
+    }
   },
 
   components: {
-    AppHeader: defineAsyncComponent(() => import("@/components/app/AppHeader.vue")),
-    NotificationContainer: defineAsyncComponent(() => import("@/components/notifications/NotificationContainer.vue")),
-    PopupsWrapper: defineAsyncComponent(() => import("@/components/popups/PopupsWrapper.vue")),
+    AppHeader: defineAsyncComponent(() =>
+      import("@/components/app/AppHeader.vue")
+    ),
+    NotificationContainer: defineAsyncComponent(() =>
+      import("@/components/notifications/NotificationContainer.vue")
+    ),
+    PopupsWrapper: defineAsyncComponent(() =>
+      import("@/components/popups/PopupsWrapper.vue")
+    ),
     Banner: defineAsyncComponent(() => import("@/components/ui/Banner.vue")),
-    SkullBanner: defineAsyncComponent(() => import("@/components/ui/SkullBanner.vue")),
-    OldAllowanceBanner: defineAsyncComponent(() => import("@/components/ui/OldAllowanceBanner.vue")),
+    SkullBanner: defineAsyncComponent(() =>
+      import("@/components/ui/SkullBanner.vue")
+    ),
+    OldAllowanceBanner: defineAsyncComponent(() =>
+      import("@/components/ui/OldAllowanceBanner.vue")
+    ),
+    TenderlyMod: defineAsyncComponent(() =>
+      import("@/components/tenderly/TenderlyMod.vue")
+    ),
+    LiquidityLaunchEventBanner:defineAsyncComponent(()=>import("@/components/blastOnboarding/LiquidityLaunchEventBanner.vue"))
+    
   },
 };
 </script>

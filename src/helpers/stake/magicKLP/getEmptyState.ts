@@ -1,9 +1,8 @@
 import { useImage } from "@/helpers/useImage";
-import { createPublicClient, http } from "viem";
 import { KAVA_CHAIN_ID } from "@/constants/global";
-import { kava } from "@/plugins/connectWallet/chains/kava";
 import type { EmptyState } from "@/types/magicKlp/stakeInfo";
-import { magicKlpConfig } from "@/utils/stake/magicKlpConfig";
+import { magicKlpConfig } from "@/configs/stake/magicKlpConfig";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { ONE_ETHER_VIEM, RANDOM_ACCOUNT } from "@/constants/global";
 
 const { mainToken, stakeToken } =
@@ -14,6 +13,7 @@ export const emptyState: EmptyState = {
     name: mainToken.name,
     icon: mainToken.icon,
     balance: 0n,
+    price: 0n,
     balanceUsd: 0n,
     rate: ONE_ETHER_VIEM,
     decimals: 18,
@@ -24,21 +24,17 @@ export const emptyState: EmptyState = {
   stakeToken: {
     name: stakeToken.name,
     icon: stakeToken.icon,
+    price: 0n,
     balance: 0n,
     balanceUsd: 0n,
   },
 };
 
-export const getEmptyState = async (config: any) => {
+export const getEmptyState = async (config: any, chainId: number) => {
   if (!config) return emptyState;
   const { mainToken, manager, reader } = config;
 
-  // todo new chain config
-  const publicClient = createPublicClient({
-    // @ts-ignore
-    chain: kava,
-    transport: http(),
-  });
+  const publicClient = getPublicClient(KAVA_CHAIN_ID);
 
   const [totalSupply, aums, tokenBalancesWithSupplies, tokensRate]: any =
     await publicClient.multicall({
@@ -73,5 +69,10 @@ export const getEmptyState = async (config: any) => {
   const totalSupplyUsd = (totalSupply.result * mainTokenPrice) / ONE_ETHER_VIEM;
   emptyState.mainToken.totalSupply = totalSupply.result;
   emptyState.mainToken.totalSupplyUsd = totalSupplyUsd;
-  return emptyState;
+  emptyState.mainToken.price = mainTokenPrice;
+  emptyState.stakeToken.price = stakeTokenPrice;
+  return {
+    chainId,
+    ...emptyState,
+  };
 };

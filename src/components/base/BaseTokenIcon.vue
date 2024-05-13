@@ -7,7 +7,7 @@
   />
 </template>
 
-<script>
+<script lang="ts">
 import { useImage } from "@/helpers/useImage";
 
 export default {

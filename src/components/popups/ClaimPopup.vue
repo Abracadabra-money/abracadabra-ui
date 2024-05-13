@@ -1,5 +1,9 @@
 <template>
-  <div class="popup" :style="`background-image: url(${bg})`">
+  <div
+    class="popup"
+    :style="`background-image: url(${bg})`"
+    v-click-outside="closePopup"
+  >
     <div class="popup-header">
       <p class="title">Important Notice</p>
       <img

@@ -1,12 +1,12 @@
 import {
-  prepareWriteContract,
-  waitForTransaction,
-  writeContract,
-} from "@wagmi/core";
+  writeContractHelper,
+  simulateContractHelper,
+  waitForTransactionReceiptHelper,
+} from "@/helpers/walletClienHelper";
+import type { Address } from "viem";
 import type { Contract } from "ethers";
-import type { Address } from "@wagmi/core";
 import type { ContractInfo } from "@/types/global";
-import { MAX_APPROVAL_AMOUNT } from "@/constants/global";
+import { MAX_ALLOWANCE_VALUE } from "@/constants/global";
 
 const APPROVE_GAS_LIMIT: number = 1000;
 
@@ -17,12 +17,12 @@ export const approveToken = async (
   try {
     const estimateGas = await contract.estimateGas.approve(
       spender,
-      MAX_APPROVAL_AMOUNT
+      MAX_ALLOWANCE_VALUE
     );
 
     const gasLimit = APPROVE_GAS_LIMIT + +estimateGas.toString();
 
-    const tx = await contract.approve(spender, MAX_APPROVAL_AMOUNT, {
+    const tx = await contract.approve(spender, MAX_ALLOWANCE_VALUE, {
       gasLimit,
     });
 
@@ -36,17 +36,21 @@ export const approveToken = async (
 
 export const approveTokenViem = async (
   contract: ContractInfo,
-  spender: Address
+  spender: Address,
+  allowanceValue: bigint = MAX_ALLOWANCE_VALUE
 ) => {
   try {
-    const config = await prepareWriteContract({
+    const { request } = await simulateContractHelper({
       ...contract,
       functionName: "approve",
-      args: [spender, MAX_APPROVAL_AMOUNT],
+      args: [spender, allowanceValue],
     });
 
-    const { hash } = await writeContract(config);
-    await waitForTransaction({ hash });
+    const hash = await writeContractHelper(request);
+
+    await waitForTransactionReceiptHelper({
+      hash,
+    });
 
     return true;
   } catch (error) {
