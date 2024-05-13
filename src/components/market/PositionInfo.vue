@@ -24,15 +24,12 @@
           alt="Collateral icon"
         />
         {{
-          formatUnits(
-            expectedPositionAmounts.collateralAmount,
-            collateralDecimals
-          )
+          formatAmount(expectedPosition.collateralAmount, collateralDecimals)
         }}
       </p>
       <p class="item-price">
         $
-        {{ formatUnits(expectedCollateralInUsd, collateralDecimals) }}
+        {{ formatAmount(expectedCollateralInUsd, collateralDecimals) }}
       </p>
     </div>
 
@@ -57,7 +54,7 @@
           src="@/assets/images/tokens/MIM.png"
           alt="Mim icon"
         />
-        {{ formatUnits(expectedPositionAmounts.mimAmount) }}
+        {{ formatAmount(expectedPosition.mimAmount) }}
       </p>
     </div>
 
@@ -65,7 +62,7 @@
       :class="[
         'position-info-item',
         'liquidation-price',
-        expectedPositionAmounts.positionHealth.status,
+        expectedPosition.positionHealth.status,
       ]"
     >
       <img
@@ -79,7 +76,7 @@
         alt=""
       />
       <div class="position-health">
-        {{ expectedPositionAmounts.positionHealth.status }}
+        {{ expectedPosition.positionHealth.status }}
       </div>
       <h4 class="item-title">
         Liquidation Price
@@ -91,7 +88,7 @@
         />
       </h4>
       <p class="item-value">
-        $ {{ formatUnits(expectedPositionAmounts.liquidationPrice) }}
+        $ {{ formatAmount(expectedPosition.liquidationPrice) }}
       </p>
     </div>
 
@@ -113,18 +110,27 @@
       <p class="item-value">
         <img class="token-icon" :src="cauldron.config.icon" alt="Mim icon" /> 1
         =
-        {{ formatUnits(collateralPrice, collateralDecimals) }}
+        {{ formatAmount(collateralPrice, collateralDecimals) }}
       </p>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { utils } from "ethers";
-import { defineAsyncComponent } from "vue";
+import { formatUnits, parseUnits } from "viem";
 import { formatTokenBalance } from "@/helpers/filters";
-import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
-import { getExpectedPostition } from "@/helpers/cauldron/getExpectedPosition";
+import { defineAsyncComponent, type PropType } from "vue";
+import { getAlternativeExpectedPostition } from "@/helpers/cauldron/getExpectedPosition";
+
+type ExpectedPosition = {
+  collateralAmount: bigint;
+  mimAmount: bigint;
+  liquidationPrice: bigint;
+  positionHealth: {
+    percent: bigint;
+    status: string;
+  };
+};
 
 export default {
   props: {
@@ -135,37 +141,38 @@ export default {
       type: Object as any,
     },
     actionType: {
-      type: String, // borrow or repay
+      type: String,
+      default: "borrow",
     },
   },
   computed: {
-    collateralDecimals() {
+    collateralDecimals(): number {
       return this.cauldron.config.collateralInfo.decimals;
     },
 
-    expectedPositionAmounts() {
-      return getExpectedPostition(
+    expectedPosition(): ExpectedPosition {
+      return getAlternativeExpectedPostition(
         this.cauldron,
         this.actionConfig,
-        //@ts-ignore
         this.actionType
       );
     },
 
-    collateralPrice() {
-      return this.cauldron.mainParams.collateralPrice;
+    collateralPrice(): bigint {
+      return this.cauldron.mainParams.alternativeData.collateralPrice;
     },
 
-    expectedCollateralInUsd() {
-      return this.expectedPositionAmounts.collateralAmount
-        .mul(this.collateralPrice)
-        .div(expandDecimals(1, this.collateralDecimals));
+    expectedCollateralInUsd(): bigint {
+      return (
+        (this.expectedPosition.collateralAmount * this.collateralPrice) /
+        parseUnits("1", this.collateralDecimals)
+      );
     },
   },
 
   methods: {
-    formatUnits(value: any, decimals = 18) {
-      return formatTokenBalance(utils.formatUnits(value, decimals));
+    formatAmount(value: bigint, decimals = 18): string | number {
+      return formatTokenBalance(formatUnits(value, decimals));
     },
   },
 

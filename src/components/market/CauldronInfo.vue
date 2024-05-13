@@ -76,7 +76,6 @@
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
 import { formatToFixed } from "@/helpers/filters";
-// @ts-ignore
 import { getCollateralApr } from "@/helpers/collateralsApy";
 
 export default {

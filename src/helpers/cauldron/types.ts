@@ -1,4 +1,5 @@
 import type { BigNumber } from "ethers";
+import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
 
 export type UserBorrowInfo = {
   userBorrowPart: BigNumber;
@@ -61,7 +62,7 @@ export type UserTokensInfo = {
 };
 
 export type CauldronInfo = {
-  config: Object | undefined;
+  config: CauldronConfig;
   contracts: Object | null;
   mainParams: MainParams;
   userPosition: UserPositions;
