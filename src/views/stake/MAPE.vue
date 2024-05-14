@@ -85,6 +85,13 @@
 </template>
 
 <script lang="ts">
+import type {
+  ChartConfig,
+  MainTokenInfo,
+  StakeTokenInfo,
+  AdditionalConfig,
+  MagicGlpStakeInfo,
+} from "@/helpers/stake/magicApe/types";
 import { defineAsyncComponent } from "vue";
 import { parseUnits, formatUnits } from "viem";
 import { formatToFixed } from "@/helpers/filters";
@@ -99,16 +106,16 @@ import { getChartOptions } from "@/helpers/stake/magicApe/getChartOptions";
 export default {
   data() {
     return {
-      activeTab: "stake",
-      tabItems: ["stake", "unstake"],
-      selectedNetwork: null as any,
-      availableNetworks: [1],
-      stakeInfoArr: null as any,
+      activeTab: "stake" as string,
+      tabItems: ["stake", "unstake"] as string[],
+      selectedNetwork: 1 as number,
+      availableNetworks: [1] as number[],
+      stakeInfoArr: null as null | MagicGlpStakeInfo[],
       inputAmount: BigInt(0) as bigint,
       inputValue: "" as string | bigint,
-      updateInterval: null as any,
-      isMobile: false,
-      chartToggle: false,
+      updateInterval: null as null | NodeJS.Timeout,
+      isMobile: false as boolean,
+      chartToggle: false as boolean,
     };
   },
 
@@ -119,61 +126,67 @@ export default {
       localStakeData: "getMagicApeStakeData",
     }),
 
-    isChartView() {
+    isChartView(): boolean {
       return this.isMobile ? this.chartToggle : true;
     },
 
-    isAction() {
+    isAction(): boolean {
       return this.isMobile ? !this.chartToggle : true;
     },
 
-    isStakeAction() {
+    isStakeAction(): boolean {
       return this.activeTab === "stake";
     },
 
-    isUnsupportedChain() {
+    isUnsupportedChain(): boolean {
       return this.chainId === this.selectedNetwork;
     },
 
-    isTokenApproved() {
+    isTokenApproved(): boolean {
       if (!this.account) return true;
       if (!this.isStakeAction) return true;
       if (!this.isUnsupportedChain) return true;
-      return this.fromToken.approvedAmount >= this.inputAmount;
+      return (
+        (this.fromToken as StakeTokenInfo).approvedAmount >= this.inputAmount
+      );
     },
 
-    isInsufficientBalance() {
+    isInsufficientBalance(): boolean {
       return this.inputAmount > this.fromToken.balance;
     },
 
-    isActionDisabled() {
+    isActionDisabled(): boolean {
       if (!this.account) return false;
       if (!this.isUnsupportedChain) return false;
       if (!this.inputAmount) return true;
       return this.isInsufficientBalance;
     },
 
-    stakeInfo() {
+    stakeInfo(): MagicGlpStakeInfo | null {
       if (!this.stakeInfoArr) return null;
 
-      return this.stakeInfoArr.find(
-        (info: any) => +info.chainId === +this.selectedNetwork
+      const stakeInfo = this.stakeInfoArr.find(
+        (info: MagicGlpStakeInfo) =>
+          info.chainId === Number(this.selectedNetwork)
       );
+
+      if (!stakeInfo) return null;
+      return stakeInfo;
     },
 
-    stakeToken() {
-      return this.stakeInfo?.stakeToken;
+    stakeToken(): StakeTokenInfo {
+      return this.stakeInfo!.stakeToken;
     },
 
-    mainToken() {
-      return this.stakeInfo?.mainToken;
+    mainToken(): MainTokenInfo {
+      return this.stakeInfo!.mainToken;
     },
 
-    fromToken() {
+    fromToken(): StakeTokenInfo | MainTokenInfo {
       return this.isStakeAction ? this.stakeToken : this.mainToken;
     },
 
-    toToken() {
+    toToken(): StakeTokenInfo | MainTokenInfo {
       return this.isStakeAction ? this.mainToken : this.stakeToken;
     },
 
@@ -181,7 +194,7 @@ export default {
       return parseUnits("1", this.mainToken.decimals);
     },
 
-    expectedAmount() {
+    expectedAmount(): string {
       const amount = this.isStakeAction
         ? (this.inputAmount * this.precision) / this.mainToken.rate
         : (this.inputAmount * this.mainToken.rate) / this.precision;
@@ -189,7 +202,7 @@ export default {
       return formatToFixed(formatUnits(amount, this.mainToken.decimals), 6);
     },
 
-    chartConfig() {
+    chartConfig(): ChartConfig {
       return {
         icon: this.mainToken.icon,
         title: "Statistics",
@@ -204,8 +217,8 @@ export default {
       };
     },
 
-    additionalConfig() {
-      const { icon, amount, amountUsd }: any = this.stakeInfo.rewardToken;
+    additionalConfig(): AdditionalConfig[] {
+      const { icon, amount, amountUsd } = this.stakeInfo!.rewardToken;
 
       return [
         {
@@ -228,7 +241,7 @@ export default {
       ];
     },
 
-    actionButtonText() {
+    actionButtonText(): string {
       if (!this.account && this.isUnsupportedChain) return "Connect wallet";
       if (!this.isUnsupportedChain) return "Switch Network";
       if (this.isInsufficientBalance) return "Insufficient balance";
@@ -239,11 +252,11 @@ export default {
   },
 
   watch: {
-    async account() {
+    async account(): Promise<void> {
       await this.createStakeInfo();
     },
 
-    async chainId() {
+    async chainId(): Promise<void> {
       await this.createStakeInfo();
     },
   },
@@ -258,7 +271,7 @@ export default {
     formatUnits,
     getChartOptions,
 
-    updateMainValue(amount: bigint) {
+    updateMainValue(amount: bigint): void {
       if (!amount) {
         this.inputValue = "";
         this.inputAmount = BigInt(0);
@@ -268,20 +281,20 @@ export default {
       }
     },
 
-    updateChartToggle() {
+    updateChartToggle(): void {
       this.chartToggle = !this.chartToggle;
     },
 
-    changeTab(action: string) {
+    changeTab(action: string): void {
       this.activeTab = action;
       this.inputValue = "";
     },
 
-    changeNetwork(network: number) {
+    changeNetwork(network: number): void {
       this.selectedNetwork = network;
     },
 
-    async approveTokenHandler() {
+    async approveTokenHandler(): Promise<boolean> {
       if (!this.isUnsupportedChain) return false;
 
       const notificationId = await this.createNotification(
@@ -307,7 +320,7 @@ export default {
         return this.$openWeb3modal();
       }
       if (!this.isUnsupportedChain) {
-        switchNetwork(this.selectedNetwork);
+        switchNetwork(Number(this.selectedNetwork));
         return false;
       }
       if (!this.isTokenApproved) {
@@ -321,11 +334,11 @@ export default {
 
       const methodName = this.isStakeAction ? "deposit" : "redeem";
 
-      const { error }: any = await actions[methodName](
+      const { error } = (await actions[methodName](
         this.mainToken.contract,
         this.inputAmount,
         this.account
-      );
+      )) as { error?: string };
 
       if (error) {
         await this.deleteNotification(notificationId);
@@ -338,19 +351,19 @@ export default {
       }
     },
 
-    getWindowSize() {
+    getWindowSize(): void {
       if (window.innerWidth <= 600) this.isMobile = true;
       else this.isMobile = false;
     },
 
-    checkLocalData() {
+    checkLocalData(): void {
       if (this.localStakeData.isCreated && this.account) {
         this.stakeInfoArr = this.localStakeData.data;
       }
     },
 
-    async createStakeInfo() {
-      this.stakeInfoArr = await getStakeInfo();
+    async createStakeInfo(): Promise<void> {
+      this.stakeInfoArr = await getStakeInfo(this.account);
     },
   },
 
@@ -372,7 +385,7 @@ export default {
   },
 
   beforeUnmount() {
-    clearInterval(this.updateInterval);
+    clearInterval(Number(this.updateInterval));
     window.removeEventListener("resize", this.getWindowSize);
   },
 
