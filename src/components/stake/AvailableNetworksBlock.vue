@@ -18,12 +18,13 @@
 </template>
 
 <script lang="ts">
+import type { PropType } from "vue";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 
 export default {
   props: {
     availableNetworks: {
-      type: Array,
+      type: Array as PropType<number[]>,
       default: () => [],
     },
     selectedNetwork: {
@@ -34,7 +35,7 @@ export default {
   methods: {
     getChainIcon,
 
-    changeNetwork(networkId: number) {
+    changeNetwork(networkId: number): void {
       this.$emit("changeNetwork", networkId);
     },
   },

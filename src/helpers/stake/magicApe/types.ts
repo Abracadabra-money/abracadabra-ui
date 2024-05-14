@@ -50,6 +50,7 @@ export type ChartConfig = {
   title: string;
   type: string;
   typeButtons: string[];
+  feePercent?: number;
   intervalButtons: {
     label: string;
     time: number;
@@ -65,15 +66,15 @@ export type AdditionalConfig = {
   amountUsd: bigint;
 };
 
+export type LeverageInfo = {
+  id: number;
+  label: string;
+};
+
 type RewardToken = {
   amount: bigint;
   amountUsd: bigint;
   symbol: string;
   decimals: number;
   icon: string;
-};
-
-type LeverageInfo = {
-  id: number;
-  label: string;
 };

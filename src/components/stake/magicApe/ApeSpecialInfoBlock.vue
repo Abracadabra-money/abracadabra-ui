@@ -31,20 +31,20 @@
 </template>
 
 <script lang="ts">
-import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
 import { defineAsyncComponent } from "vue";
+import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
 
 export default {
   data() {
     return {
-      multiplier: 16,
-      percentMultiplier: 0.7,
-      expectedLeverageApy: 0,
+      multiplier: 16 as number,
+      percentMultiplier: 0.7 as number,
+      expectedLeverageApy: 0 as number,
     };
   },
 
   methods: {
-    routeTo() {
+    routeTo(): void {
       this.$router.push({
         name: "Market",
         params: { chainId: 1, cauldronId: 39 },

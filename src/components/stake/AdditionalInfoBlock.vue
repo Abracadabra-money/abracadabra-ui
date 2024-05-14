@@ -31,22 +31,23 @@
 
 <script lang="ts">
 import { formatUnits } from "viem";
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, type PropType } from "vue";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
+import type { AdditionalConfig } from "@/helpers/stake/magicApe/types";
 
 export default {
   props: {
     configs: {
-      type: Object as any,
+      type: Object as PropType<AdditionalConfig[]>,
     },
   },
 
   methods: {
-    formatTokenBalance(value: bigint, decimals: number) {
+    formatTokenBalance(value: bigint, decimals: number): string | number {
       return formatTokenBalance(formatUnits(value, decimals));
     },
 
-    formatUSD(value: bigint, decimals: number) {
+    formatUSD(value: bigint, decimals: number): string {
       return formatUSD(formatUnits(value, decimals));
     },
   },

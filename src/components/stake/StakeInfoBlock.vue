@@ -47,24 +47,31 @@
 <script lang="ts">
 import {
   formatUSD,
-  formatTokenBalance,
   formatToFixed,
+  formatTokenBalance,
 } from "@/helpers/filters";
+import type {
+  MainTokenInfo,
+  StakeTokenInfo,
+} from "@/helpers/stake/magicApe/types";
 // import axios from "axios";
 import { formatUnits } from "viem";
+import type { PropType } from "vue";
 import { defineAsyncComponent } from "vue";
 // import { ANALYTICS_URK } from "@/constants/global";
+import { MIM_PRICE, ONE_ETHER_VIEM } from "@/constants/global";
 import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
 import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
-import { MIM_PRICE, ONE_ETHER_VIEM } from "@/constants/global";
 
 export default {
   props: {
     mainToken: {
-      type: Object as any,
+      type: Object as PropType<MainTokenInfo>,
+      required: true,
     },
     stakeToken: {
-      type: Object as any,
+      type: Object as PropType<StakeTokenInfo>,
+      required: true,
     },
     selectedNetwork: {
       type: Number,
@@ -77,12 +84,12 @@ export default {
 
   data() {
     return {
-      apr: 0,
+      apr: 0 as number,
     };
   },
 
   computed: {
-    tokensRate() {
+    tokensRate(): string {
       const rate = formatUnits(
         (MIM_PRICE * this.mainToken.rate) / ONE_ETHER_VIEM,
         this.mainToken.decimals
@@ -94,40 +101,40 @@ export default {
   },
 
   watch: {
-    async selectedNetwork() {
+    async selectedNetwork(): Promise<void> {
       await this.fetchApr();
     },
   },
 
   methods: {
-    formatUSD(value: bigint) {
+    formatUSD(value: bigint): string {
       return formatUSD(formatUnits(value, this.mainToken.decimals));
     },
 
-    formatTokenBalance(value: bigint) {
+    formatTokenBalance(value: bigint): string | number {
       return formatTokenBalance(formatUnits(value, this.mainToken.decimals));
     },
 
-    async fetchGlpApy() {
+    async fetchGlpApy(): Promise<false | undefined> {
       if (!this.selectedNetwork) return false;
       this.apr = 0;
       const response = await getMagicGlpApy(this.selectedNetwork);
       this.apr = +formatToFixed(response.magicGlpApy, 2);
     },
 
-    async fetchApeApy() {
+    async fetchApeApy(): Promise<false | undefined> {
       if (!this.selectedNetwork) return false;
       this.apr = 0;
       this.apr = await getMagicApeApy(this.selectedNetwork);
     },
 
-    async fetchKlpApy() {
+    fetchKlpApy(): number {
       return 0;
       // const { data } = await axios.get(`${ANALYTICS_URK}/kinetix/info`);
       // this.apr = +formatToFixed(data.apr, 2);
     },
 
-    async fetchApr() {
+    async fetchApr(): Promise<void> {
       switch (this.type) {
         case "glp":
           await this.fetchGlpApy();

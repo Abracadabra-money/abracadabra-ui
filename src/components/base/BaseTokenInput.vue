@@ -57,8 +57,8 @@
 <script lang="ts">
 import {
   formatUSD,
-  formatTokenBalance,
   formatToFixed,
+  formatTokenBalance,
 } from "@/helpers/filters";
 import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
@@ -70,27 +70,13 @@ export default {
     isBigNumber: { type: Boolean, default: false },
     max: {},
     value: {}, // TODO: use bignumber (bigint) & parse in data.inputValue
-    icon: {
-      type: String,
-    },
-    name: {
-      type: String,
-      default: "Select Token",
-    },
-    tokenPrice: {},
+    icon: { type: String },
+    name: { type: String, default: "Select Token" },
+    tokenPrice: { type: [String, Number] },
     disabled: { type: Boolean, default: false },
-    primaryMax: {
-      type: Boolean,
-      default: false,
-    },
-    allowSelectToken: {
-      type: Boolean,
-      default: false,
-    },
-    differencePrice: {
-      type: Number,
-      default: 0,
-    },
+    primaryMax: { type: Boolean, default: false },
+    allowSelectToken: { type: Boolean, default: false },
+    differencePrice: { type: Number, default: 0 },
   },
 
   data(): any {
@@ -101,23 +87,23 @@ export default {
   },
 
   computed: {
-    tokenName() {
+    tokenName(): string {
       return this.name.length > 12 ? this.name.slice(0, 11) + "..." : this.name;
     },
 
-    formattedMax() {
+    formattedMax(): string {
       if (this.isBigNumber)
         return utils.formatUnits(this.max || 0, this.decimals);
       return formatUnits(this.max || 0, this.decimals);
     },
 
-    usdEquivalent(): any {
+    usdEquivalent(): string {
       return formatUSD(this.inputValue * this.tokenPrice);
     },
   },
 
   watch: {
-    inputValue(value, oldValue) {
+    inputValue(value, oldValue): false | undefined {
       if (!value) {
         this.$emit("updateInputValue", null);
         return;
@@ -146,7 +132,7 @@ export default {
       }
     },
 
-    value(value) {
+    value(value): void {
       this.inputValue = value;
     },
   },
@@ -155,7 +141,7 @@ export default {
     formatTokenBalance,
     formatToFixed,
 
-    onSelectClick() {
+    onSelectClick(): void {
       if (this.allowSelectToken) this.$emit("onSelectClick");
       return;
     },
