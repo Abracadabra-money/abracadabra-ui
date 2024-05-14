@@ -1,7 +1,5 @@
 import type { Address } from "viem";
 
-export type Interval = typeof setInterval;
-
 export type ContractInfo = {
   address: Address;
   abi: any;
