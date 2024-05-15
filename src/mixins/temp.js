@@ -10,6 +10,8 @@ import { getCookPayload } from "@/helpers/cauldron/getCookPayload";
 import { ACTION_TYPES } from "@/helpers/cauldron/getCookActionType";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 
+import cooks from "@/helpers/cauldron/cook/cooks";
+
 const approvalWarnings = [
   WARNING_TYPES.DEPOSIT_ALLOWANCE,
   WARNING_TYPES.REPAY_ALLOWANCE,
@@ -132,16 +134,16 @@ export default {
 
         switch (cookActionType) {
           case ACTION_TYPES.ACTION_DEPOSIT:
-            await this.cookAddCollateral(...cookPayload);
+            await cooks.cookAddCollateral(...cookPayload);
             break;
           case ACTION_TYPES.ACTION_BORROW:
-            await this.cookBorrow(...cookPayload);
+            await cooks.cookBorrow(...cookPayload);
             break;
           case ACTION_TYPES.ACTION_DEPOSIT_AND_BORROW:
-            await this.cookAddCollateralAndBorrow(...cookPayload);
+            await cooks.cookAddCollateralAndBorrow(...cookPayload);
             break;
           case ACTION_TYPES.ACTION_REPAY:
-            await this.cookRepay(...cookPayload);
+            await cooks.cookRepay(...cookPayload);
             break;
           case ACTION_TYPES.ACTION_REMOVE_COLLATERAL:
             await this.cookRemoveCollateral(...cookPayload);

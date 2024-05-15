@@ -1,11 +1,11 @@
 import { getDegenBoxHelperAddress } from "@/helpers/cauldron/cook/degenBoxHelper/getDegenBoxHelperContract.js";
 import recipeApproveMC from "@/helpers/cauldron/cook/recipies/recipeApproveMC";
-import { getAccount } from '@wagmi/core'
+import { getAccountHelper } from "@/helpers/walletClienHelper";
 
 
 const checkAndSetMcApprove = async (cookData, cauldronObject, mcApproved) => {
   const { bentoBox, cauldron } = cauldronObject.contracts;
-  const { address: userAddres } = getAccount()
+  const { address: userAddres } = getAccountHelper()
 
   const useDegenBoxHelper =
     cauldronObject.config.cauldronSettings.useDegenBoxHelper;

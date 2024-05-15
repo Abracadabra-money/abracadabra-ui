@@ -5,6 +5,7 @@ import type { ActionConfig, CauldronInfo } from "@/helpers/cauldron/types";
 import { getCookTypeByAction, ACTION_TYPES } from "./getCookActionType";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
 import { utils } from "ethers";
+import type { Address } from "viem";
 
 export const getCookPayload = async (
   account: any,
@@ -16,13 +17,13 @@ export const getCookPayload = async (
 
   switch (cookType) {
     case ACTION_TYPES.ACTION_DEPOSIT:
-      return getAddCollateralPayload(cauldron, actionConfig);
+      return getAddCollateralPayload(cauldron, actionConfig, account);
     case ACTION_TYPES.ACTION_BORROW:
-      return getBorrowPayload(cauldron, actionConfig);
+      return getBorrowPayload(cauldron, actionConfig, account);
     case ACTION_TYPES.ACTION_DEPOSIT_AND_BORROW:
-      return getAddCollateralAndBorrowPayload(cauldron, actionConfig);
+      return getAddCollateralAndBorrowPayload(cauldron, actionConfig, account);
     case ACTION_TYPES.ACTION_REPAY:
-      return getRepayPayload(cauldron, actionConfig);
+      return getRepayPayload(cauldron, actionConfig, account);
     case ACTION_TYPES.ACTION_REMOVE_COLLATERAL:
       return getRemoveCollateralPayload(cauldron, actionConfig);
     case ACTION_TYPES.ACTION_REPAY_AND_REMOVE_COLLATERAL:
@@ -38,58 +39,45 @@ export const getCookPayload = async (
 
 const getAddCollateralPayload = (
   cauldron: CauldronInfo,
-  actionConfig: ActionConfig
+  actionConfig: ActionConfig,
+  to: Address
 ) => {
   const { amounts, useNativeToken, useUnwrapToken } = actionConfig;
   const { unwrapTokenAmount, collateralTokenAmount } = amounts.depositAmounts;
-  const { isMasterContractApproved } = cauldron.additionalInfo;
-
-  // TODO: update cauldron types
-  //@ts-ignore
-  const { updatePrice } = cauldron.mainParams;
 
   const amount = useUnwrapToken ? unwrapTokenAmount : collateralTokenAmount;
 
   const payload = {
     amount,
-    updatePrice,
-    itsDefaultBalance: useNativeToken,
+    useNativeToken,
+    useWrapper: useUnwrapToken,
+    to,
   };
 
-  return [
-    payload,
-    isMasterContractApproved,
-    cauldron,
-    useUnwrapToken,
-    useUnwrapToken,
-  ];
+  return [payload, cauldron];
 };
 
 const getBorrowPayload = (
   cauldron: CauldronInfo,
-  actionConfig: ActionConfig
+  actionConfig: ActionConfig,
+  to: Address
 ) => {
   const { amounts } = actionConfig;
-
-  const { isMasterContractApproved } = cauldron.additionalInfo;
-
-  // TODO: update cauldron types
-  //@ts-ignore
-  const { updatePrice } = cauldron.mainParams;
 
   const amount = amounts.borrowAmount;
 
   const payload = {
     amount,
-    updatePrice,
+    to,
   };
 
-  return [payload, isMasterContractApproved, cauldron];
+  return [payload, cauldron];
 };
 
 const getAddCollateralAndBorrowPayload = (
   cauldron: CauldronInfo,
-  actionConfig: ActionConfig
+  actionConfig: ActionConfig,
+  to: Address
 ) => {
   const { amounts, useNativeToken, useUnwrapToken } = actionConfig;
   const { unwrapTokenAmount, collateralTokenAmount } = amounts.depositAmounts;
@@ -106,31 +94,21 @@ const getAddCollateralAndBorrowPayload = (
 
   const payload = {
     collateralAmount,
-    amount,
-    updatePrice,
-    itsDefaultBalance: useNativeToken,
+    mimAmount: amount,
+    useNativeToken,
+    useWrapper: useUnwrapToken,
+    to,
   };
 
-  return [
-    payload,
-    isMasterContractApproved,
-    cauldron,
-    useUnwrapToken,
-    useUnwrapToken,
-  ];
+  return [payload, cauldron];
 };
 
 const getRepayPayload = (
   cauldron: CauldronInfo,
-  actionConfig: ActionConfig
+  actionConfig: ActionConfig,
+  to: Address
 ) => {
-  // TODO: update cauldron types
-  //@ts-ignore
-  const { updatePrice } = cauldron.mainParams;
-  const { isMasterContractApproved } = cauldron.additionalInfo;
-
   const { userBorrowAmount } = cauldron.userPosition.borrowInfo;
-
   const { repayAmount } = actionConfig.amounts;
 
   const itsMax = repayAmount.eq(userBorrowAmount);
@@ -138,10 +116,10 @@ const getRepayPayload = (
   const payload = {
     amount: repayAmount,
     itsMax,
-    updatePrice,
+    to,
   };
 
-  return [payload, isMasterContractApproved, cauldron];
+  return [payload, cauldron];
 };
 
 const getRemoveCollateralPayload = async (

@@ -1,5 +1,5 @@
 import { Contract } from "ethers";
-import DegenBoxHelperAbi from "@/utils/abi/DegenBoxHelperAbi";
+import DegenBoxHelperAbi from "@/abis/DegenBoxHelperAbi";
 
 const DegenBoxHelpers = {
   1: "0x3AeCB01be778fAA795f156B9D3627c0E05f700a1",
