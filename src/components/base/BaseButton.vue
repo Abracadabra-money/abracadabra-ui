@@ -41,7 +41,7 @@ export default {
     },
   },
   methods: {
-    setWidth(): string {
+    setWidth() {
       return this.width ? this.width : "100%";
     },
   },

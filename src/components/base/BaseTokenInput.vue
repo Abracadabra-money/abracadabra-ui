@@ -87,23 +87,23 @@ export default {
   },
 
   computed: {
-    tokenName(): string {
+    tokenName() {
       return this.name.length > 12 ? this.name.slice(0, 11) + "..." : this.name;
     },
 
-    formattedMax(): string {
+    formattedMax() {
       if (this.isBigNumber)
         return utils.formatUnits(this.max || 0, this.decimals);
       return formatUnits(this.max || 0, this.decimals);
     },
 
-    usdEquivalent(): string {
+    usdEquivalent() {
       return formatUSD(this.inputValue * this.tokenPrice);
     },
   },
 
   watch: {
-    inputValue(value, oldValue): false | undefined {
+    inputValue(value, oldValue) {
       if (!value) {
         this.$emit("updateInputValue", null);
         return;
@@ -132,7 +132,7 @@ export default {
       }
     },
 
-    value(value): void {
+    value(value) {
       this.inputValue = value;
     },
   },
@@ -141,7 +141,7 @@ export default {
     formatTokenBalance,
     formatToFixed,
 
-    onSelectClick(): void {
+    onSelectClick() {
       if (this.allowSelectToken) this.$emit("onSelectClick");
       return;
     },
