@@ -32,8 +32,8 @@
 <script lang="ts">
 import { formatUnits } from "viem";
 import { defineAsyncComponent, type PropType } from "vue";
+import type { AdditionalConfig } from "@/helpers/stake/types";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
-import type { AdditionalConfig } from "@/helpers/stake/magicApe/types";
 
 export default {
   props: {
@@ -43,11 +43,11 @@ export default {
   },
 
   methods: {
-    formatTokenBalance(value: bigint, decimals: number): string | number {
+    formatTokenBalance(value: bigint, decimals: number) {
       return formatTokenBalance(formatUnits(value, decimals));
     },
 
-    formatUSD(value: bigint, decimals: number): string {
+    formatUSD(value: bigint, decimals: number) {
       return formatUSD(formatUnits(value, decimals));
     },
   },

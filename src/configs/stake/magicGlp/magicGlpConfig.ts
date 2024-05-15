@@ -2,8 +2,45 @@ import oracleAbi from "@/abis/oracle";
 import { useImage } from "@/helpers/useImage";
 import chainLinkAbi from "@/abis/chainLink";
 import tokensAbi from "@/abis/tokensAbi/index";
+import type { ContractInfo } from "@/types/global";
 import magicGlpHarvestorAbi from "@/abis/MagicGlpHarvestor";
-import type { MagicGlpConfigs } from "@/types/magicGlp/configsInfo";
+
+export type MagicGlpConfigs = {
+  42161: ChainConfig;
+  43114: ChainConfig;
+};
+
+export type ChainConfig = {
+  harvestor: ContractInfo;
+  mainToken: {
+    name: string;
+    decimals: number;
+    icon: string;
+    rateIcon: string;
+    contract: ContractInfo;
+  };
+  stakeToken: {
+    name: string;
+    decimals: number;
+    icon: string;
+    contract: ContractInfo;
+  };
+  oracle: ContractInfo;
+  chainLink: ContractInfo;
+  additionalInfo: {
+    isAvaxChain?: boolean;
+    isArbitrumChain?: boolean;
+    leverageInfo: {
+      id?: number;
+      label: string;
+    };
+    rewardToken: {
+      symbol: string;
+      icon: string;
+    };
+    timestampProp?: string;
+  };
+};
 
 export const magicGlpConfig: MagicGlpConfigs = {
   42161: {
