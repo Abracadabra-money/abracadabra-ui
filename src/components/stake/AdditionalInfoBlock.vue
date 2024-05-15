@@ -43,11 +43,11 @@ export default {
   },
 
   methods: {
-    formatTokenBalance(value: bigint, decimals: number): string | number {
+    formatTokenBalance(value: bigint, decimals: number) {
       return formatTokenBalance(formatUnits(value, decimals));
     },
 
-    formatUSD(value: bigint, decimals: number): string {
+    formatUSD(value: bigint, decimals: number) {
       return formatUSD(formatUnits(value, decimals));
     },
   },

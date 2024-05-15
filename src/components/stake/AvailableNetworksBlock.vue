@@ -35,7 +35,7 @@ export default {
   methods: {
     getChainIcon,
 
-    changeNetwork(networkId: number): void {
+    changeNetwork(networkId: number) {
       this.$emit("changeNetwork", networkId);
     },
   },
