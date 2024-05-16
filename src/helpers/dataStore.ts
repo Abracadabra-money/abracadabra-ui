@@ -93,6 +93,7 @@ export const getAndParseBentoBoxData = () => {
   }
 
   const bentoBoxData = JSON.parse(lsBentoBoxData);
+
   const data = bentoBoxData.map((item: any) => jsonBigIntTransform(item));
 
   return { data, isCreated: true };

@@ -6,17 +6,21 @@ import type { ExtendedContractInfo } from "@/configs/contracts/types";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 import { tokensChainLink } from "@/configs/chainLink/config";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
+import type { BentoBoxConfig } from "@/helpers/bentoBox/types";
+import type { MimInfo } from "@/configs/tokens/types";
 
 export const createBentoBoxConfig = async (
   chainId: number,
   account: Address
-) => {
+): Promise<BentoBoxConfig | null> => {
   const publicClient = getPublicClient(chainId);
 
-  const mimInfo = mimTokenInfo.find((token: any) => token.chainId === chainId);
+  const mimInfo = mimTokenInfo.find(
+    (token: MimInfo) => token.chainId === chainId
+  );
 
   if (!mimInfo) {
-    return false;
+    return null;
   }
 
   const bentoContractInfo = bentoContractsInfo.find(
@@ -27,7 +31,7 @@ export const createBentoBoxConfig = async (
     (contractInfo: ExtendedContractInfo) => contractInfo.chainId === chainId
   );
 
-  if (!bentoContractInfo || !degenContractInfo) return false;
+  if (!bentoContractInfo || !degenContractInfo) return null;
 
   const mimPrice = await getTokenPriceByChain(
     tokensChainLink.mim.chainId,
