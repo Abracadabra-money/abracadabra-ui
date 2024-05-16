@@ -1,6 +1,6 @@
 import mimTokenInfo from "@/configs/tokens/mim";
 import bentoContractsInfo from "@/configs/contracts/master";
-import degenBoxInfo from "@/configs/contracts/degenBox";
+import degenContractsInfo from "@/configs/contracts/degenBox";
 import type { Address } from "viem";
 import type { ExtendedContractInfo } from "@/configs/contracts/types";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
@@ -9,29 +9,38 @@ import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import type { BentoBoxConfig } from "@/helpers/bentoBox/types";
 import type { MimInfo } from "@/configs/tokens/types";
 
+export const createBentoBoxConfigs = async (
+  account: Address
+): Promise<BentoBoxConfig[]> => {
+  const availableNetworks = getBentoNetworks();
+
+  const configs = await Promise.all(
+    availableNetworks.map(async (chainId) => {
+      const config = await createBentoBoxConfig(chainId, account);
+      return config;
+    })
+  );
+
+  return configs;
+};
+
 export const createBentoBoxConfig = async (
   chainId: number,
   account: Address
-): Promise<BentoBoxConfig | null> => {
+): Promise<BentoBoxConfig> => {
   const publicClient = getPublicClient(chainId);
 
   const mimInfo = mimTokenInfo.find(
     (token: MimInfo) => token.chainId === chainId
   );
 
-  if (!mimInfo) {
-    return null;
-  }
-
   const bentoContractInfo = bentoContractsInfo.find(
     (contractInfo: ExtendedContractInfo) => contractInfo.chainId === chainId
   );
 
-  const degenContractInfo = degenBoxInfo.find(
+  const degenContractInfo = degenContractsInfo.find(
     (contractInfo: ExtendedContractInfo) => contractInfo.chainId === chainId
   );
-
-  if (!bentoContractInfo || !degenContractInfo) return null;
 
   const mimPrice = await getTokenPriceByChain(
     tokensChainLink.mim.chainId,
@@ -50,29 +59,29 @@ export const createBentoBoxConfig = async (
         address: bentoContractInfo?.address as Address,
         abi: bentoContractInfo?.abi as any,
         functionName: "balanceOf",
-        args: [mimInfo.address, account],
+        args: [mimInfo!.address, account],
       },
       {
         address: degenContractInfo?.address as Address,
         abi: degenContractInfo?.abi as any,
         functionName: "balanceOf",
-        args: [mimInfo.address, account],
+        args: [mimInfo!.address, account],
       },
       {
-        address: mimInfo.address as Address,
-        abi: mimInfo.abi as any,
+        address: mimInfo!.address as Address,
+        abi: mimInfo!.abi as any,
         functionName: "allowance",
         args: [account, bentoContractInfo?.address as Address],
       },
       {
-        address: mimInfo.address as Address,
-        abi: mimInfo.abi as any,
+        address: mimInfo!.address as Address,
+        abi: mimInfo!.abi as any,
         functionName: "allowance",
         args: [account, degenContractInfo?.address as Address],
       },
       {
-        address: mimInfo.address as Address,
-        abi: mimInfo.abi as any,
+        address: mimInfo!.address as Address,
+        abi: mimInfo!.abi as any,
         functionName: "balanceOf",
         args: [account],
       },
@@ -86,7 +95,7 @@ export const createBentoBoxConfig = async (
       address: bentoContractInfo.address as Address,
       abi: bentoContractInfo.abi as any,
       functionName: "toAmount",
-      args: [mimInfo.address, bentoBalance.result || 0n, false],
+      args: [mimInfo!.address, bentoBalance.result || 0n, false],
     });
 
   if (degenContractInfo)
@@ -94,7 +103,7 @@ export const createBentoBoxConfig = async (
       address: degenContractInfo.address as Address,
       abi: degenContractInfo.abi as any,
       functionName: "toAmount",
-      args: [mimInfo.address, degenBalance.result || 0n, false],
+      args: [mimInfo!.address, degenBalance.result || 0n, false],
     });
 
   return {
@@ -105,8 +114,21 @@ export const createBentoBoxConfig = async (
     mimInDegenBalance,
     bentoContractInfo,
     degenContractInfo,
-    tokenInfo: mimInfo,
+    tokenInfo: mimInfo!,
     bentoAllowance: bentoAllowance.result,
     degenAllowance: degenAllowance.result,
   };
+};
+
+const getBentoNetworks = () => {
+  const networks: number[] = bentoContractsInfo.map(
+    (contractInfo: ExtendedContractInfo) => contractInfo.chainId
+  );
+
+  degenContractsInfo.forEach((contractInfo: ExtendedContractInfo) => {
+    if (!networks.includes(contractInfo.chainId))
+      networks.push(contractInfo.chainId);
+  });
+
+  return networks;
 };

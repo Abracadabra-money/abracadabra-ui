@@ -7,8 +7,8 @@ export type BentoBoxConfig = {
   mimPrice: number;
   mimInBentoBalance: bigint;
   mimInDegenBalance: bigint;
-  bentoContractInfo: ExtendedContractInfo;
-  degenContractInfo: ExtendedContractInfo;
+  bentoContractInfo?: ExtendedContractInfo;
+  degenContractInfo?: ExtendedContractInfo;
   tokenInfo: MimInfo;
   bentoAllowance: bigint;
   degenAllowance: bigint;

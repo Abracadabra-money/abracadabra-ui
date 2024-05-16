@@ -38,7 +38,7 @@ import { mapGetters, mapMutations } from "vuex";
 import bentoBoxMixin from "@/mixins/mimBentoDeposit";
 import BentoBoxItem from "@/components/myPositions/BentoBoxItem.vue";
 import DegenBentoPopup from "@/components/popups/DegenBentoPopup.vue";
-import { createBentoBoxConfig } from "@/helpers/bentoBox/createBentoBoxConfig";
+import { createBentoBoxConfigs } from "@/helpers/bentoBox/createBentoBoxData";
 import type { BentoBoxConfig } from "@/helpers/bentoBox/types";
 import type { PropType } from "vue";
 
@@ -175,18 +175,7 @@ export default {
     },
 
     async createMimBentoData() {
-      if (!this.account || !this.activeNetworks) return;
-
-      const configs: (BentoBoxConfig | null)[] = await Promise.all(
-        this.activeNetworks.map(async (chainId) => {
-          const config = await createBentoBoxConfig(chainId, this.account);
-          return config;
-        })
-      );
-
-      this.bentoBoxConfigs =
-        configs.filter((config: BentoBoxConfig | null) => config !== null) ||
-        [];
+      this.bentoBoxConfigs = await createBentoBoxConfigs(this.account);
     },
   },
 
@@ -224,3 +213,4 @@ export default {
   }
 }
 </style>
+@/helpers/bentoBox/createBentoBoxData
