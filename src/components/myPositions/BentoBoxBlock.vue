@@ -184,9 +184,9 @@ export default {
         })
       );
 
-      this.bentoBoxConfigs = configs.filter(
-        (config: BentoBoxConfig | null) => config !== null
-      );
+      this.bentoBoxConfigs =
+        configs.filter((config: BentoBoxConfig | null) => config !== null) ||
+        [];
     },
   },
 
