@@ -25,7 +25,7 @@
       <ChainButton />
 
       <BellButton
-        v-if="notifiCardId && notifiWalletBlockchain"
+        v-if="notifiCardId && notifiWalletBlockchain && account"
         :notifiCardId="notifiCardId"
         :notifiWalletBlockchain="notifiWalletBlockchain"
         :unreadNotificationCount="unreadNotificationCount"
