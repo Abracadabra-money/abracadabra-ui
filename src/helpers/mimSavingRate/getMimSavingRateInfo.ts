@@ -1,17 +1,26 @@
-import type { Address } from "viem";
+import { formatUnits, type Address } from "viem";
 import type { PublicClient } from "@/types/global";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
-import { getUserInfo, type UserInfo } from "@/helpers/mimSavingRate/getUserInfo";
 import {
-  type MimSavingRateConfig,
+  getUserInfo,
+  type UserInfo,
+} from "@/helpers/mimSavingRate/getUserInfo";
+import {
   mimSavingRateConfig,
+  type MimSavingRateConfig,
+  type RewardTokenConfig,
 } from "@/configs/stake/mimSavingRateConfig";
-import { getLockingMultiRewardsInfo, type LockingMultiRewardsInfo } from "@/helpers/mimSavingRate/getLockingMultiRewardsInfo";
+import {
+  getLockingMultiRewardsInfo,
+  type LockingMultiRewardsInfo,
+} from "@/helpers/mimSavingRate/getLockingMultiRewardsInfo";
+import { getCoinsPrices } from "@/helpers/prices/defiLlama/index";
 
 export type MimSavingRateInfo = {
   baseApr: number;
   userInfo: UserInfo;
-} & LockingMultiRewardsInfo & MimSavingRateConfig;
+} & LockingMultiRewardsInfo &
+  MimSavingRateConfig;
 
 export const getMimSavingRateInfo = async (
   account: Address,
@@ -38,10 +47,94 @@ export const getMimSavingRateInfo = async (
     config.stakingToken.contract
   );
 
+  const baseApr = (
+    await getMSRBaseApr(publicClient, lockingMultiRewardsInfo, config)
+  ).totalApr;
+
   return {
     ...config,
     ...lockingMultiRewardsInfo,
-    baseApr: 50,
+    baseApr,
     userInfo,
+  };
+};
+
+const getMSRBaseApr = async (
+  publicClient: PublicClient,
+  lockingMultiRewardsInfo: LockingMultiRewardsInfo,
+  config: MimSavingRateConfig
+) => {
+  try {
+    const totalSupply = lockingMultiRewardsInfo.unlockedSupply;
+
+    const { rewardTokensInfo, stakingTokenPrice }: any = await getTokenPrices(
+      config
+    );
+
+    const totalStakedInUSD =
+      Number(formatUnits(totalSupply, 18)) * stakingTokenPrice;
+
+    let totalAnnualRewardsInUSD = 0;
+    const tokensApr = [];
+
+    const lockingContract = config.lockingMultiRewardsContract;
+
+    for (const tokenInfo of rewardTokensInfo) {
+      const rewardData = await publicClient.readContract({
+        address: lockingContract.address,
+        abi: lockingContract.abi,
+        functionName: "rewardData",
+        args: [tokenInfo.contract.address],
+      });
+
+      const rewardTokenPrice = tokenInfo.price;
+
+      const annualReward =
+        //@ts-ignore
+        Number(rewardData.periodFinish) <= Math.floor(new Date() / 1000)
+          ? 0
+          : //@ts-ignore
+            formatUnits(rewardData.rewardRate, 18) *
+            (365 * 24 * 60 * 60) *
+            // rewardData.rewardsDuration *
+            rewardTokenPrice;
+
+      const tokenApr = (annualReward / totalStakedInUSD) * 100;
+
+      tokensApr.push({
+        address: tokenInfo.contract.address,
+        apr: tokenApr,
+      });
+
+      totalAnnualRewardsInUSD += annualReward;
+    }
+
+    const totalApr = (totalAnnualRewardsInUSD / totalStakedInUSD) * 100;
+
+    return { totalApr, tokensApr };
+  } catch (error) {
+    console.error("Error calculating APR:", error);
+    return { totalApr: 0, tokensApr: 0 };
+  }
+};
+
+const getTokenPrices = async (config: MimSavingRateConfig) => {
+  const tokenAddresses = [config.stakingToken.contract.address];
+
+  config.rewardTokens.forEach((token: RewardTokenConfig) =>
+    tokenAddresses.push(token.contract.address)
+  );
+
+  const prices = await getCoinsPrices(config.chainId, tokenAddresses);
+
+  const stakingTokenPrice = prices.shift()?.price || 1;
+
+  return {
+    stakingTokenPrice,
+    rewardTokensInfo: config.rewardTokens.map(
+      (token: RewardTokenConfig, index: number) => {
+        return { ...token, price: prices[index].price || 0 };
+      }
+    ),
   };
 };

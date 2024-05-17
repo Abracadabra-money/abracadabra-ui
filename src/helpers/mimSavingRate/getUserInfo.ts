@@ -25,10 +25,10 @@ export type UserInfo = {
     token0: bigint;
     token1: bigint;
   };
-  rewardData: {
-    token0: RewardData;
-    token1: RewardData;
-  };
+  // rewardData: {
+  //   token0: RewardData;
+  //   token1: RewardData;
+  // };
   userRewardLock: UserRewardLock;
   userRewardPerTokenPaid: {
     token0: bigint;
@@ -36,7 +36,7 @@ export type UserInfo = {
   };
 };
 
-type RewardData = {
+export type RewardData = {
   exists: boolean;
   lastUpdateTime: bigint;
   periodFinish: bigint;
@@ -71,22 +71,22 @@ const emptyState = {
   lastLockIndex: 0n,
   userLocksLength: 0n,
   rewards: { token0: 0n, token1: 0n },
-  rewardData: {
-    token0: {
-      exists: true,
-      lastUpdateTime: 0n,
-      periodFinish: 0n,
-      rewardPerTokenStored: 0n,
-      rewardRate: 0n,
-    },
-    token1: {
-      exists: true,
-      lastUpdateTime: 0n,
-      periodFinish: 0n,
-      rewardPerTokenStored: 0n,
-      rewardRate: 0n,
-    },
-  },
+  // rewardData: {
+  //   token0: {
+  //     exists: true,
+  //     lastUpdateTime: 0n,
+  //     periodFinish: 0n,
+  //     rewardPerTokenStored: 0n,
+  //     rewardRate: 0n,
+  //   },
+  //   token1: {
+  //     exists: true,
+  //     lastUpdateTime: 0n,
+  //     periodFinish: 0n,
+  //     rewardPerTokenStored: 0n,
+  //     rewardRate: 0n,
+  //   },
+  // },
   userRewardLock: {
     items: [],
     unlockTime: 0n,
@@ -113,8 +113,8 @@ export const getUserInfo = async (
     earnedToken1,
     lastLockIndex,
     locked,
-    rewardDataToken0,
-    rewardDataToken1,
+    // rewardDataToken0,
+    // rewardDataToken1,
     rewardsToken0,
     rewardsToken1,
     unlocked,
@@ -157,16 +157,16 @@ export const getUserInfo = async (
         functionName: "locked",
         args: [account],
       },
-      {
-        ...contract,
-        functionName: "rewardData",
-        args: [rewardToken0Address],
-      },
-      {
-        ...contract,
-        functionName: "rewardData",
-        args: [rewardToken1Address],
-      },
+      // {
+      //   ...contract,
+      //   functionName: "rewardData",
+      //   args: [rewardToken0Address],
+      // },
+      // {
+      //   ...contract,
+      //   functionName: "rewardData",
+      //   args: [rewardToken1Address],
+      // },
       {
         ...contract,
         functionName: "rewards",
@@ -234,10 +234,10 @@ export const getUserInfo = async (
     lastLockIndex: lastLockIndex.result,
     userLocksLength: userLocksLength.result,
     rewards: { token0: rewardsToken0.result, token1: rewardsToken1.result },
-    rewardData: {
-      token0: rewardDataToken0.result,
-      token1: rewardDataToken1.result,
-    },
+    // rewardData: {
+    //   token0: rewardDataToken0.result,
+    //   token1: rewardDataToken1.result,
+    // },
     userRewardLock: userRewardLock.result, //todo type
     userRewardPerTokenPaid: {
       token0: userRewardPerToken0Paid.result,
