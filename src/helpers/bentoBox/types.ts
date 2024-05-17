@@ -1,7 +1,7 @@
 import type { MimInfo } from "@/configs/tokens/types";
 import type { ExtendedContractInfo } from "@/configs/contracts/types";
 
-export type BentoBoxConfig = {
+export type BentoBoxData = {
   chainId: number;
   mimBalance: bigint;
   mimPrice: number;

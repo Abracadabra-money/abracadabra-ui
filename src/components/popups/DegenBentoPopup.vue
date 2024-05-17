@@ -19,7 +19,7 @@
         <span class="desc-line"> Withdraw your MIM from {{ title }} on </span>
         <span class="desc-line">
           <img :src="getChainIcon(infoObject.chainId)" class="mim-symbol" />
-          {{ chainInfo.chainName }} Network
+          {{ chainInfo?.chainName }} Network
         </span>
       </p>
 
@@ -32,7 +32,6 @@
         @updateInputValue="onUpdateValue"
         :max="balance"
         :error="error"
-        isBigNumber
       />
 
       <BaseButton @click="actionHandler" primary :disabled="isDisabled">{{
@@ -42,28 +41,29 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
 import degenIcon from "@/assets/images/degenbox.svg";
 import bentoIcon from "@/assets/images/bento-box.jpeg";
 import mimIcon from "@/assets/images/tokens/MIM.png";
-import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError";
 import notification from "@/helpers/notification/notification";
 import { formatTokenBalance } from "@/helpers/filters";
 import actions from "@/helpers/bentoBox/actions";
-import { approveTokenViem } from "@/helpers/approval";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 import { getChainConfig } from "@/helpers/chains/getChainsInfo";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import { formatUnits, parseUnits } from "viem";
-import { BigNumber, utils } from "ethers";
+import type { BentoBoxData } from "@/helpers/bentoBox/types";
+import type { PropType } from "vue";
+import type { ExtendedContractInfo } from "@/configs/contracts/types";
 
 export default {
   props: {
     infoObject: {
-      type: Object,
+      type: Object as PropType<BentoBoxData>,
       required: true,
     },
     isBento: { type: Boolean, default: false },
@@ -73,9 +73,8 @@ export default {
   data() {
     return {
       inputValue: "",
-      inputAmount: BigNumber.from(0),
+      inputAmount: 0n,
       mimIcon,
-      updateInfoInterval: null,
     };
   },
 
@@ -84,27 +83,21 @@ export default {
       account: "getAccount",
     }),
 
-    parsedAmount() {
+    parsedAmount(): bigint {
       return parseUnits(this.inputValue, 18);
     },
 
-    boxIcon() {
+    boxIcon(): string {
       return this.isBento ? bentoIcon : degenIcon;
     },
 
-    activeContract() {
+    activeContract(): ExtendedContractInfo | undefined {
       return this.isBento
         ? this.infoObject.bentoContractInfo
         : this.infoObject.degenContractInfo;
     },
 
-    isApproved() {
-      return this.isBento
-        ? this.infoObject.bentoAllowance > this.parsedAmount
-        : this.infoObject.degenAllowance > this.parsedAmount;
-    },
-
-    balance() {
+    balance(): bigint {
       const balance = this.isDeposit
         ? this.infoObject.mimBalance
         : this.isBento
@@ -114,28 +107,28 @@ export default {
       return balance;
     },
 
-    isDisabled() {
-      return !this.isValid || !!this.error;
+    isDisabled(): boolean {
+      return !this.isValid || !!this.error || !this.activeContract;
     },
 
-    isValid() {
+    isValid(): boolean {
       return !!this.parsedAmount;
     },
 
-    error() {
-      if (+this.inputValue > formatUnits(this.balance, 18))
+    error(): string {
+      if (Number(this.inputValue) > Number(formatUnits(this.balance, 18)))
         return `The value cannot be greater than ${formatUnits(
           this.balance,
           18
         )}`;
-      return null;
+      return "";
     },
 
-    title() {
+    title(): string {
       return `${this.isBento ? "BentoBox" : "DegenBox"} `;
     },
 
-    buttonText() {
+    buttonText(): string {
       return this.isDeposit ? "Deposit" : "Withdraw";
     },
 
@@ -145,13 +138,13 @@ export default {
   },
 
   watch: {
-    inputAmount(value) {
-      if (value.eq(0)) {
+    inputAmount(value: bigint) {
+      if (value == 0n) {
         this.inputValue = "";
         return false;
       }
 
-      this.inputValue = trimZeroDecimals(utils.formatUnits(value, 18));
+      this.inputValue = trimZeroDecimals(formatUnits(value, 18));
     },
   },
 
@@ -168,66 +161,45 @@ export default {
     },
 
     async withdraw() {
+      if (this.isDisabled) return;
+
       const notificationId = await this.createNotification(
         notification.pending
       );
       const tokenAddress = this.infoObject.tokenInfo.address;
       const contractInfo = {
-        address: this.activeContract.address,
-        abi: this.activeContract.abi,
+        address: this.activeContract!.address,
+        abi: this.activeContract!.abi,
       };
 
-      const { error } = await actions.withdraw(
-        contractInfo,
-        tokenAddress,
-        this.account,
-        this.parsedAmount
-      );
-
-      if (error) {
+      try {
+        await actions.withdraw(
+          contractInfo,
+          tokenAddress,
+          this.account,
+          this.parsedAmount
+        );
+      } catch (error: any) {
         const errorNotification = {
           msg: await notificationErrorMsg({ message: error.msg }),
           type: "error",
         };
         await this.deleteNotification(notificationId);
         await this.createNotification(errorNotification);
-      } else {
-        await this.deleteNotification(notificationId);
-        await this.createNotification(notification.success);
+        return;
       }
 
+      await this.deleteNotification(notificationId);
+      await this.createNotification(notification.success);
       this.closePopup();
     },
 
-    async approveToken() {
-      if (this.isDisabled) return false;
-      const notificationId = await this.createNotification(
-        notification.approvePending
-      );
-
-      const mimContractInfo = {
-        address: this.infoObject.tokenInfo.address,
-        abi: this.infoObject.tokenInfo.abi,
-      };
-
-      const approve = await approveTokenViem(
-        mimContractInfo,
-        this.activeContract.address
-      );
-
-      if (approve) await await this.deleteNotification(notificationId);
-
-      if (!approve) await this.createNotification(notification.approveError);
-
-      return false;
-    },
-
     setEmptyState() {
-      this.inputAmount = BigNumber.from(0);
+      this.inputAmount = 0n;
       this.inputValue = "";
     },
 
-    onUpdateValue(value) {
+    onUpdateValue(value: bigint) {
       if (value === null) return this.setEmptyState();
       this.inputAmount = value;
     },
@@ -235,10 +207,6 @@ export default {
     closePopup() {
       this.$emit("close");
     },
-  },
-
-  beforeUnmount() {
-    clearInterval(this.updateInfoInterval);
   },
 
   components: { BaseTokenInput, BaseButton },
