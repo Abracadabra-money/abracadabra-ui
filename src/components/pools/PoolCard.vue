@@ -60,11 +60,15 @@ export default {
     ...mapGetters({ chainId: "getChainId", getChainById: "getChainById" }),
 
     apr() {
-      return formatPercent(formatUnits(this.pool.statisticsData.apr));
+      return formatPercent(
+        formatUnits(this.pool.statisticsData.apr, this.pool.decimals)
+      );
     },
 
     liquidityValue() {
-      return formatUSD(formatUnits(this.pool.statisticsData.liquidityValue));
+      return formatUSD(
+        formatUnits(this.pool.statisticsData.liquidityValue, this.pool.decimals)
+      );
     },
 
     poolStatusStyles() {

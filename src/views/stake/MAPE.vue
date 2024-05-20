@@ -100,7 +100,6 @@ import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
 import { getStakeInfo } from "@/helpers/stake/magicApe/getStakeInfo";
 import type { MagicApeStakeInfo } from "@/helpers/stake/magicApe/types";
-import type { MagicGlpStakeInfo } from "@/helpers/stake/magicGlp/types";
 import { getChartOptions } from "@/helpers/stake/magicApe/getChartOptions";
 
 export default {
@@ -110,7 +109,7 @@ export default {
       tabItems: ["stake", "unstake"],
       selectedNetwork: 1,
       availableNetworks: [1],
-      stakeInfoArr: null as null | MagicGlpStakeInfo[],
+      stakeInfoArr: null as null | MagicApeStakeInfo[],
       inputAmount: BigInt(0),
       inputValue: "" as string | bigint,
       updateInterval: null as null | NodeJS.Timeout,
