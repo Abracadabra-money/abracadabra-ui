@@ -1,5 +1,4 @@
-import type { ContractInfo } from "@/types/global";
-import type { EmptyTokenState } from "@/types/spell/empyState";
+import type { Address } from "viem";
 
 export type SpellInfo = {
   icon: string;
@@ -7,7 +6,10 @@ export type SpellInfo = {
   decimals: number;
   balance: bigint;
   price: bigint;
-  contract: ContractInfo;
+  contract: {
+    address: Address;
+    abi: any;
+  };
 };
 
 export type MSpellInfo = {
@@ -15,7 +17,10 @@ export type MSpellInfo = {
   icon: string;
   rateIcon: string;
   decimals: number;
-  contract: ContractInfo;
+  contract: {
+    address: Address;
+    abi: any;
+  };
   price: bigint;
   rate: bigint;
   lockTimestamp: string;
@@ -31,19 +36,22 @@ export type SSpellInfo = {
   icon: string;
   rateIcon: string;
   decimals: number;
-  contract: ContractInfo;
+  contract: {
+    address: Address;
+    abi: any;
+  };
   price: bigint;
   rate: bigint;
   lockTimestamp: string;
   balance: bigint;
   approvedAmount: bigint;
   apr?: string;
-  leverageInfo: any;
   totalSupply: bigint;
 };
 
 export type SpellStakeInfo = {
-  spell: SpellInfo | EmptyTokenState;
-  mSpell: MSpellInfo | EmptyTokenState;
-  sSpell: SSpellInfo | EmptyTokenState;
+  chainId: number;
+  spell: SpellInfo;
+  mSpell: MSpellInfo;
+  sSpell: SSpellInfo;
 };

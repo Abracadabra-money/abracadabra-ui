@@ -1,94 +1,159 @@
+import type {
+  MSpellInfo,
+  SSpellInfo,
+  SpellInfo,
+} from "@/helpers/stake/spell/types";
+import type { Address } from "viem";
 import { useImage } from "@/helpers/useImage";
-import { ONE_ETHER_VIEM } from "@/constants/global";
-import { spellConfig } from "@/configs/stake/spellConfig";
+import tokensAbi from "@/abis/tokensAbi/index";
+import { spellStakeConfig } from "@/configs/stake/spellConfig";
+import type { SSpellConfig } from "@/configs/stake/spellConfig";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
+import { MAINNET_CHAIN_ID, ONE_ETHER_VIEM } from "@/constants/global";
 import { getSpellStakingApr } from "@/helpers/stake/spell/getSpellStakingApr";
-import type { EmptySpellState, EmptyTokenState } from "@/types/spell/empyState";
 import { getSpellToSSpellRate } from "@/helpers/stake/spell/getSpellToSSpellRate";
 
-const config = spellConfig[1 as keyof typeof spellConfig];
-const { spell, sSpell, mSpell }: any = config;
+const getSpellEmptyState = async (
+  chainId: number,
+  spellPrice: bigint
+): Promise<SpellInfo> => {
+  const publicClient = getPublicClient(chainId);
 
-const spellEmptyState: EmptyTokenState = {
-  icon: spell.icon,
-  name: spell.name,
-  balance: 0n,
-  price: ONE_ETHER_VIEM,
-  rate: ONE_ETHER_VIEM,
-  decimals: 18,
+  const spellConfig =
+    spellStakeConfig[chainId as keyof typeof spellStakeConfig].spell;
+
+  const mSpellContract =
+    spellStakeConfig[chainId as keyof typeof spellStakeConfig].mSpell.contract;
+
+  const spellAddress = (await publicClient.readContract({
+    ...mSpellContract,
+    functionName: "spell",
+    args: [],
+  })) as Address;
+
+  return {
+    balance: 0n,
+    decimals: 18,
+    icon: spellConfig.icon,
+    name: spellConfig.name,
+    price: spellPrice || ONE_ETHER_VIEM,
+    contract: {
+      address: spellAddress,
+      abi: tokensAbi.SPELL,
+    },
+  };
 };
 
-export const getSSpellEmptyState = async (): Promise<EmptyTokenState> => {
-  const publicClient = getPublicClient(1);
+const getMSpellEmptyState = async (
+  chainId: number,
+  spellPrice: bigint,
+  apr: string
+): Promise<MSpellInfo> => {
+  const publicClient = getPublicClient(chainId);
+
+  const spellConfig =
+    spellStakeConfig[chainId as keyof typeof spellStakeConfig].spell;
+
+  const mSpellConfig =
+    spellStakeConfig[chainId as keyof typeof spellStakeConfig].mSpell;
+
+  const spellAddress = (await publicClient.readContract({
+    address: mSpellConfig.contract.address,
+    abi: mSpellConfig.contract.abi,
+    functionName: "spell",
+    args: [],
+  })) as Address;
+
+  const totalSupply = (await publicClient.readContract({
+    address: spellAddress,
+    abi: spellConfig.abi,
+    functionName: "balanceOf",
+    args: [mSpellConfig.contract.address],
+  })) as bigint;
+
+  return {
+    name: mSpellConfig.name,
+    icon: mSpellConfig.icon,
+    rateIcon: useImage("assets/images/mspell-icon.svg"),
+    decimals: mSpellConfig.decimals,
+    contract: mSpellConfig.contract,
+    price: spellPrice,
+    rate: ONE_ETHER_VIEM,
+    lockTimestamp: "0",
+    balance: 0n,
+    approvedAmount: 0n,
+    claimableAmount: 0n,
+    totalSupply,
+    apr,
+  };
+};
+
+const getSSpellEmptyState = async (
+  chainId: number,
+  spellPrice: bigint,
+  spell: SpellInfo,
+  apr: string
+): Promise<SSpellInfo> => {
+  // if (chainId !== MAINNET_CHAIN_ID) return null;
+
+  const sSpellConfig = spellStakeConfig[
+    MAINNET_CHAIN_ID as keyof typeof spellStakeConfig
+  ].sSpell as SSpellConfig;
+
+  const publicClient = getPublicClient(MAINNET_CHAIN_ID);
+
   const spellToSSpellRate = await getSpellToSSpellRate(
-    spell,
-    sSpell.contract,
+    spell.contract,
+    sSpellConfig.contract,
     publicClient
   );
 
-  const totalSupply: any = await publicClient.readContract({
-    ...sSpell.contract,
+  const sSpellPrice = (spellPrice * spellToSSpellRate) / ONE_ETHER_VIEM;
+
+  const totalSupply = await publicClient.readContract({
+    ...sSpellConfig.contract,
     functionName: "totalSupply",
     args: [],
   });
 
   return {
-    icon: sSpell?.icon || useImage("assets/images/sspell-icon.svg"),
+    name: sSpellConfig?.name || "sSpell",
+    icon: sSpellConfig?.icon || useImage("assets/images/sspell-icon.svg"),
     rateIcon: useImage("assets/images/sspell-icon.svg"),
-    name: sSpell?.name || "sSpell",
-    balance: 0n,
+    decimals: 18,
+    contract: sSpellConfig.contract,
+    price: sSpellPrice,
     rate: spellToSSpellRate,
-    price: ONE_ETHER_VIEM,
-    decimals: 18,
-    totalSupply,
-  };
-};
-
-export const getMSpellEmptyState = async (
-  chainId: number
-): Promise<EmptyTokenState> => {
-  const publicClient = getPublicClient(chainId);
-
-  const mSpellContract =
-    spellConfig[chainId as keyof typeof spellConfig].mSpell.contract;
-
-  const spellAddress: any = await publicClient.readContract({
-    ...mSpellContract,
-    functionName: "spell",
-    args: [],
-  });
-
-  const totalSupply: any = await publicClient.readContract({
-    address: spellAddress,
-    abi: spell.abi,
-    functionName: "balanceOf",
-    args: [mSpellContract.address],
-  });
-
-  return {
-    icon: mSpell.icon,
-    name: mSpell.name,
+    lockTimestamp: "0",
     balance: 0n,
-    claimableAmount: 0n,
-    price: ONE_ETHER_VIEM,
-    rate: ONE_ETHER_VIEM,
-    decimals: 18,
-    totalSupply,
+    approvedAmount: 0n,
+    totalSupply: totalSupply as bigint,
+    apr,
   };
 };
 
-export const getSpellEmptyState = async (
-  chainId: number
-): Promise<EmptySpellState> => {
-  const sSpell = await getSSpellEmptyState();
-  const mSpellEmptyState = await getMSpellEmptyState(chainId);
-
+export const getStakeEmptyState = async (
+  chainId: number,
+  spellPrice: bigint
+) => {
+  const spell = await getSpellEmptyState(chainId, spellPrice);
   const { sSpellApr, mSpellApr } = await getSpellStakingApr();
+  const mSpellEmptyState = await getMSpellEmptyState(
+    chainId,
+    spellPrice,
+    mSpellApr
+  );
+  const sSpell = await getSSpellEmptyState(
+    chainId,
+    spellPrice,
+    spell,
+    sSpellApr
+  );
 
   return {
     chainId,
-    sSpell: { ...sSpell, apr: sSpellApr },
-    spell: spellEmptyState,
-    mSpell: { ...mSpellEmptyState, apr: mSpellApr },
+    spell: spell,
+    sSpell: sSpell,
+    mSpell: mSpellEmptyState,
   };
 };
