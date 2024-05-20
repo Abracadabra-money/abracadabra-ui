@@ -2,6 +2,7 @@ import type { Address } from "viem";
 
 export const DEFAULT_TOKEN_ADDRESS: Address =
   "0x0000000000000000000000000000000000000000";
+
 export const MAINNET_USDT_ADDRESS: Address =
   "0xdAC17F958D2ee523a2206206994597C13D831ec7";
 export const MAINNET_APE_ADDRESS: Address =
@@ -16,6 +17,9 @@ export const MAINNET_WETH_ADDRESS: Address =
   "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
 export const MAINNET_WBTC_ADDRESS: Address =
   "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599";
+export const MAINNET_SPELL_ADDRESS: Address =
+  "0x090185f2135308BaD17527004364eBcC2D37e5F6";
+
 export const AVALANCHE_WAWAX_ADDRESS: Address =
   "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7";
 export const AVALANCHE_MGLP_ADDRESS: Address =
