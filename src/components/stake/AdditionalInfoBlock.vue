@@ -31,13 +31,14 @@
 
 <script lang="ts">
 import { formatUnits } from "viem";
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, type PropType } from "vue";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
+import type { AdditionalConfig } from "@/helpers/stake/magicApe/types";
 
 export default {
   props: {
     configs: {
-      type: Object as any,
+      type: Object as PropType<AdditionalConfig[]>,
     },
   },
 

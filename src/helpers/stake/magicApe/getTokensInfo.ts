@@ -1,11 +1,13 @@
-import type { Address } from "viem";
+import type { Address, PublicClient } from "viem";
 import { ONE_ETHER_VIEM, MIM_PRICE } from "@/constants/global";
+import type { TokensInfo } from "@/helpers/stake/magicApe/types";
+import type { MagicApeConfig } from "@/configs/stake/magicApeConfig";
 
 export const getTokensInfo = async (
   account: Address | undefined,
-  config: any,
-  publicClient: any
-) => {
+  config: MagicApeConfig,
+  publicClient: PublicClient
+): Promise<TokensInfo> => {
   const { mainToken, stakeToken, oracle } = config;
 
   let allowanceAmountResult = 0n;
@@ -14,33 +16,32 @@ export const getTokensInfo = async (
   let userApeBalanceUsd = 0n;
   let userMagicApeBalanceUsd = 0n;
 
-  const [peekSpot, totalSupply, tokensRate]: any = await publicClient.multicall(
-    {
-      contracts: [
-        {
-          ...oracle,
-          functionName: "peekSpot",
-          args: ["0x"],
-        },
-        {
-          ...mainToken.contract,
-          functionName: "totalSupply",
-          args: [],
-        },
-        {
-          ...mainToken.contract,
-          functionName: "convertToAssets",
-          args: [ONE_ETHER_VIEM],
-        },
-      ],
-    }
-  );
+  const [peekSpot, totalSupply, tokensRate] = await publicClient.multicall({
+    contracts: [
+      {
+        ...oracle,
+        functionName: "peekSpot",
+        args: ["0x"],
+      },
+      {
+        ...mainToken.contract,
+        functionName: "totalSupply",
+        args: [],
+      },
+      {
+        ...mainToken.contract,
+        functionName: "convertToAssets",
+        args: [ONE_ETHER_VIEM],
+      },
+    ],
+  });
 
-  const apePrice = (MIM_PRICE * ONE_ETHER_VIEM) / peekSpot.result;
-  const magicApePrice = (apePrice * tokensRate.result) / ONE_ETHER_VIEM;
+  const apePrice = (MIM_PRICE * ONE_ETHER_VIEM) / (peekSpot.result as bigint);
+  const magicApePrice =
+    (apePrice * (tokensRate.result as bigint)) / ONE_ETHER_VIEM;
 
   if (account) {
-    const [userApeBalance, userMagicApeBalance, allowanceAmount]: any =
+    const [userApeBalance, userMagicApeBalance, allowanceAmount] =
       await publicClient.multicall({
         contracts: [
           {
@@ -61,15 +62,17 @@ export const getTokensInfo = async (
         ],
       });
 
-    allowanceAmountResult = allowanceAmount.result;
-    userApeBalanceResult = userApeBalance.result;
-    userMagicApeBalanceResult = userMagicApeBalance.result;
-    userApeBalanceUsd = (userApeBalance.result * apePrice) / ONE_ETHER_VIEM;
+    allowanceAmountResult = allowanceAmount.result as bigint;
+    userApeBalanceResult = userApeBalance.result as bigint;
+    userMagicApeBalanceResult = userMagicApeBalance.result as bigint;
+    userApeBalanceUsd =
+      ((userApeBalance.result as bigint) * apePrice) / ONE_ETHER_VIEM;
     userMagicApeBalanceUsd =
-      (userMagicApeBalance.result * magicApePrice) / ONE_ETHER_VIEM;
+      ((userMagicApeBalance.result as bigint) * magicApePrice) / ONE_ETHER_VIEM;
   }
 
-  const totalSupplyUsd = (totalSupply.result * magicApePrice) / ONE_ETHER_VIEM;
+  const totalSupplyUsd =
+    ((totalSupply.result as bigint) * magicApePrice) / ONE_ETHER_VIEM;
 
   return {
     mainToken: {
@@ -78,9 +81,9 @@ export const getTokensInfo = async (
       contract: mainToken.contract,
       rateIcon: config.mainToken.rateIcon,
       decimals: config.mainToken.decimals,
-      rate: tokensRate.result,
+      rate: tokensRate.result as bigint,
       price: magicApePrice,
-      totalSupply: totalSupply.result,
+      totalSupply: totalSupply.result as bigint,
       totalSupplyUsd,
       balanceUsd: userMagicApeBalanceUsd,
       balance: userMagicApeBalanceResult,

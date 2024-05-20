@@ -17,10 +17,13 @@
 </template>
 
 <script lang="ts">
+import type { PropType } from "vue";
+import type { LeverageInfo } from "@/helpers/stake/magicApe/types";
+
 export default {
   props: {
     selectedNetwork: { type: Number, required: true },
-    leverageInfo: { type: Object as any, required: true },
+    leverageInfo: { type: Object as PropType<LeverageInfo>, required: true },
   },
 };
 </script>

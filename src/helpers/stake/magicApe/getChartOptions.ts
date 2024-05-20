@@ -1,3 +1,23 @@
+type LabelCtx = {
+  dataset: {
+    label: string;
+    data: number[];
+  };
+  dataIndex: number;
+};
+
+type ScalesCallback = {
+  $context: {
+    scale: {
+      ctx: {
+        canvas: {
+          offsetParent: Element;
+        };
+      };
+    };
+  };
+};
+
 export const getChartOptions = () => {
   return {
     responsive: true,
@@ -6,7 +26,7 @@ export const getChartOptions = () => {
         mode: "index",
         intersect: false,
         callbacks: {
-          label: function (context: any) {
+          label: function (context: LabelCtx) {
             const { dataset, dataIndex } = context;
             const { label, data } = dataset;
             const value = +data[dataIndex];
@@ -34,21 +54,14 @@ export const getChartOptions = () => {
             size: 10,
             weight: "light",
           },
-          callback: function (value: any): any {
-            // @ts-ignore
+          callback: function (this: ScalesCallback, value: number) {
             const { classList } = this.$context.scale.ctx.canvas.offsetParent;
-
             const chartValue = value < 1 ? value.toFixed(4) : value;
-
-            if (classList.contains("Yield")) {
-              return `${chartValue}%`;
-            }
-
+            if (classList.contains("Yield")) return `${chartValue}%`;
             return `$ ${Number(chartValue).toFixed(2)}`;
           },
         },
       },
-
       x: {
         ticks: {
           color: "rgba(255, 255, 255, 0.5)",
