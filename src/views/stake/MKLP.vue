@@ -93,20 +93,22 @@ import { mapGetters, mapActions, mapMutations } from "vuex";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
 import { getStakeInfo } from "@/helpers/stake/magicKLP/getStakeInfo";
+import type { MagicKlpStakeInfo } from "@/helpers/stake/magicKLP/types";
 import { getChartOptions } from "@/helpers/stake/magicKLP/getChartOptions";
+import type { AdditionalConfig, StakeTokenInfo } from "@/helpers/stake/types";
 
 export default {
   data() {
     return {
       activeTab: "stake",
       tabItems: ["stake", "unstake"],
-      selectedNetwork: null as any,
+      selectedNetwork: 2222,
       availableNetworks: [2222],
-      stakeInfoArr: null as any,
-      inputAmount: BigInt(0) as bigint,
+      stakeInfoArr: null as null | MagicKlpStakeInfo[],
+      inputAmount: BigInt(0),
       inputValue: "" as string | bigint,
-      updateInterval: null as any,
-      timeInterval: null as any,
+      updateInterval: null as null | NodeJS.Timeout,
+      timeInterval: null as null | NodeJS.Timeout,
       isMobile: false,
       chartToggle: false,
       timerLocked: "00:00:00",
@@ -152,7 +154,9 @@ export default {
       if (!this.account) return true;
       if (!this.isStakeAction) return true;
       if (!this.isUnsupportedChain) return true;
-      return this.fromToken.approvedAmount >= this.inputAmount;
+      return (
+        (this.fromToken as StakeTokenInfo)?.approvedAmount >= this.inputAmount
+      );
     },
 
     expectedAmount() {
@@ -168,11 +172,11 @@ export default {
     },
 
     stakeToken() {
-      return this.stakeInfo?.stakeToken;
+      return this.stakeInfo!.stakeToken;
     },
 
     mainToken() {
-      return this.stakeInfo?.mainToken;
+      return this.stakeInfo!.mainToken;
     },
 
     fromToken() {
@@ -194,22 +198,22 @@ export default {
       return "Stake";
     },
 
-    chartConfig() {
-      return {
-        icon: this.mainToken.icon,
-        title: "APY Chart",
-        type: "magicKlpApy",
-        feePercent: this.stakeInfo.feePercent,
-        intervalButtons: [
-          { label: "1m", time: 1 },
-          { label: "3m", time: 3 },
-          { label: "6m", time: 6 },
-          { label: "1y", time: 12 },
-        ],
-      };
-    },
+    // chartConfig() {
+    //   return {
+    //     icon: this.mainToken.icon,
+    //     title: "APY Chart",
+    //     type: "magicKlpApy",
+    //     feePercent: this.stakeInfo?.feePercent,
+    //     intervalButtons: [
+    //       { label: "1m", time: 1 },
+    //       { label: "3m", time: 3 },
+    //       { label: "6m", time: 6 },
+    //       { label: "1y", time: 12 },
+    //     ],
+    //   };
+    // },
 
-    additionalConfig() {
+    additionalConfig(): AdditionalConfig[] {
       return [
         {
           title: "Total Supply",
@@ -225,14 +229,17 @@ export default {
     stakeInfo() {
       if (!this.stakeInfoArr) return null;
 
-      return this.stakeInfoArr.find(
-        (info: any) => +info.chainId === +this.selectedNetwork
+      const stakeInfo = this.stakeInfoArr.find(
+        (info: MagicKlpStakeInfo) => +info.chainId === +this.selectedNetwork
       );
+
+      if (!stakeInfo) return null;
+      return stakeInfo;
     },
 
     finalTime() {
-      const lockTimestamp = +this.stakeToken?.lastAdded
-        ? moment.unix(this.stakeToken.lastAdded).add(15, "minutes")
+      const lockTimestamp = this.stakeToken?.lastAdded
+        ? moment.unix(Number(this.stakeToken.lastAdded)).add(15, "minutes")
         : moment.unix(0);
       return Number(lockTimestamp.unix().toString()) || 0;
     },
@@ -334,11 +341,11 @@ export default {
 
       const methodName = this.isStakeAction ? "deposit" : "redeem";
 
-      const { error }: any = await actions[methodName](
+      const { error } = (await actions[methodName](
         this.mainToken.contract,
         this.inputAmount,
         this.account
-      );
+      )) as { error?: string };
 
       if (error) {
         await this.deleteNotification(notificationId);
@@ -363,7 +370,7 @@ export default {
     },
 
     async createStakeInfo() {
-      this.stakeInfoArr = await getStakeInfo();
+      this.stakeInfoArr = await getStakeInfo(this.account);
     },
 
     checkDuration() {
@@ -406,8 +413,8 @@ export default {
   },
 
   beforeUnmount() {
-    clearInterval(this.updateInterval);
-    clearInterval(this.timeInterval);
+    clearInterval(Number(this.updateInterval));
+    clearInterval(Number(this.timeInterval));
     window.removeEventListener("resize", this.getWindowSize);
   },
 
