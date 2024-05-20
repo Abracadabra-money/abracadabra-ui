@@ -1,6 +1,6 @@
 import { parseUnits, type PublicClient } from "viem";
+import type { AdditionalInfo } from "@/helpers/stake/types";
 import type { MagicApeConfig } from "@/configs/stake/magicApeConfig";
-import type { AdditionalInfo } from "@/helpers/stake/magicApe/types";
 import { getTotalRewards } from "@/helpers/stake/magicApe/subgraph/getTotalRewards";
 
 export const getAdditionalInfo = async (

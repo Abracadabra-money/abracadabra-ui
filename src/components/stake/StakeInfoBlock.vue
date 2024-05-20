@@ -50,10 +50,7 @@ import {
   formatToFixed,
   formatTokenBalance,
 } from "@/helpers/filters";
-import type {
-  MainTokenInfo,
-  StakeTokenInfo,
-} from "@/helpers/stake/magicApe/types";
+
 // import axios from "axios";
 import { formatUnits } from "viem";
 import type { PropType } from "vue";
@@ -62,6 +59,7 @@ import { defineAsyncComponent } from "vue";
 import { MIM_PRICE, ONE_ETHER_VIEM } from "@/constants/global";
 import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
 import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
+import type { MainTokenInfo, StakeTokenInfo } from "@/helpers/stake/types";
 
 export default {
   props: {

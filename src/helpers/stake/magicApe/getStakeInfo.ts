@@ -3,7 +3,7 @@ import { magicApeConfig } from "@/configs/stake/magicApeConfig";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import type { MagicApeConfig } from "@/configs/stake/magicApeConfig";
 import { getTokensInfo } from "@/helpers/stake/magicApe/getTokensInfo";
-import type { MagicGlpStakeInfo } from "@/helpers/stake/magicApe/types";
+import type { MagicGlpStakeInfo } from "@/helpers/stake/magicGlp/types";
 import { getAdditionalInfo } from "@/helpers/stake/magicApe/getAdditionalInfo";
 
 export const getStakeInfo = async (

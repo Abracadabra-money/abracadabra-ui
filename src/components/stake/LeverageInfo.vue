@@ -18,7 +18,7 @@
 
 <script lang="ts">
 import type { PropType } from "vue";
-import type { LeverageInfo } from "@/helpers/stake/magicApe/types";
+import type { LeverageInfo } from "@/helpers/stake/types";
 
 export default {
   props: {

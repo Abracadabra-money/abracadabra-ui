@@ -2,6 +2,7 @@ import axios from "axios";
 import moment from "moment";
 import { markRaw } from "vue";
 import { SECONDS_PER_DAY } from "@/constants/global";
+import type { ChartData } from "@/helpers/stake/types";
 import { getGraphUrl } from "@/helpers/stake/magicApe/subgraph/getGraphUrl";
 
 interface Snapshot {
@@ -16,23 +17,10 @@ type ResponseData = {
   date: string;
 };
 
-type YieldInfo = {
-  labels: string[];
-  datasets: {
-    label: string;
-    data: string[];
-    borderColor: string;
-    pointBackgroundColor: string;
-    pointBorderColor: string;
-    pointRadius: number;
-    borderWidth: number;
-  }[];
-};
-
 export const getYield = async (
   month = 1,
   chainId = 1
-): Promise<YieldInfo | null> => {
+): Promise<ChartData | null> => {
   const days = 30 * month;
   const to = Math.floor(Date.now() / 1000 / SECONDS_PER_DAY);
   const from = to - days;

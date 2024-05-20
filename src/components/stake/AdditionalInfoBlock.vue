@@ -32,8 +32,8 @@
 <script lang="ts">
 import { formatUnits } from "viem";
 import { defineAsyncComponent, type PropType } from "vue";
+import type { AdditionalConfig } from "@/helpers/stake/types";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
-import type { AdditionalConfig } from "@/helpers/stake/magicApe/types";
 
 export default {
   props: {

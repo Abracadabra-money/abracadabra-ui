@@ -89,8 +89,7 @@ import type {
   ChartConfig,
   StakeTokenInfo,
   AdditionalConfig,
-  MagicGlpStakeInfo,
-} from "@/helpers/stake/magicApe/types";
+} from "@/helpers/stake/types";
 import { defineAsyncComponent } from "vue";
 import { parseUnits, formatUnits } from "viem";
 import { formatToFixed } from "@/helpers/filters";
@@ -100,6 +99,7 @@ import { mapGetters, mapActions, mapMutations } from "vuex";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
 import { getStakeInfo } from "@/helpers/stake/magicApe/getStakeInfo";
+import type { MagicApeStakeInfo } from "@/helpers/stake/magicApe/types";
 import { getChartOptions } from "@/helpers/stake/magicApe/getChartOptions";
 
 export default {
@@ -109,7 +109,7 @@ export default {
       tabItems: ["stake", "unstake"],
       selectedNetwork: 1,
       availableNetworks: [1],
-      stakeInfoArr: null as null | MagicGlpStakeInfo[],
+      stakeInfoArr: null as null | MagicApeStakeInfo[],
       inputAmount: BigInt(0),
       inputValue: "" as string | bigint,
       updateInterval: null as null | NodeJS.Timeout,
@@ -146,7 +146,7 @@ export default {
       if (!this.isStakeAction) return true;
       if (!this.isUnsupportedChain) return true;
       return (
-        (this.fromToken as StakeTokenInfo).approvedAmount >= this.inputAmount
+        (this.fromToken as StakeTokenInfo)?.approvedAmount >= this.inputAmount
       );
     },
 
@@ -165,7 +165,7 @@ export default {
       if (!this.stakeInfoArr) return null;
 
       const stakeInfo = this.stakeInfoArr.find(
-        (info: MagicGlpStakeInfo) =>
+        (info: MagicApeStakeInfo) =>
           info.chainId === Number(this.selectedNetwork)
       );
 
