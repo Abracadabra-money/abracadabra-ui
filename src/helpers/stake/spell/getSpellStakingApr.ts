@@ -1,7 +1,9 @@
 import axios from "axios";
-import type { SpellStakingApr } from "@/types/spell/additionalInfo";
 
-export const getSpellStakingApr = async (): Promise<SpellStakingApr> => {
+export const getSpellStakingApr = async (): Promise<{
+  sSpellApr: string;
+  mSpellApr: string;
+}> => {
   try {
     const response = await axios.get(import.meta.env.VITE_APP_SPELL_APR_URL);
 

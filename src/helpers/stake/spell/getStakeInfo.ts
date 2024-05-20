@@ -1,25 +1,18 @@
 import { parseUnits } from "viem";
 import { getAccountHelper } from "@/helpers/walletClienHelper";
-import { spellConfig } from "@/configs/stake/spellConfig";
+import { spellStakeConfig } from "@/configs/stake/spellConfig";
 import { tokensChainLink } from "@/configs/chainLink/config";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { getSpellInfo } from "@/helpers/stake/spell/getSpellInfo";
+import type { SpellStakeInfo } from "@/helpers/stake/spell/types";
 import { getMSpellInfo } from "@/helpers/stake/spell/getMSpellInfo";
 import { getSSpellInfo } from "@/helpers/stake/spell/getSSpellInfo";
-import { getSpellEmptyState } from "@/helpers/stake/spell/emptyState";
+import { getStakeEmptyState } from "@/helpers/stake/spell/emptyState";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 import { getSpellStakingApr } from "@/helpers/stake/spell/getSpellStakingApr";
 
-export const getStakeInfo = async () => {
+export const getStakeInfo = async (): Promise<SpellStakeInfo[]> => {
   const { address } = await getAccountHelper();
-
-  if (!address) {
-    return await Promise.all(
-      Object.keys(spellConfig).map(async (chainId: any) => {
-        return await getSpellEmptyState(Number(chainId));
-      })
-    );
-  }
 
   const price: number = await getTokenPriceByChain(
     tokensChainLink.spell.chainId,
@@ -28,10 +21,21 @@ export const getStakeInfo = async () => {
 
   const spellPrice = parseUnits(price.toString(), 18);
 
+  if (!address) {
+    return await Promise.all(
+      Object.keys(spellStakeConfig).map(async (chainId: string) => {
+        return await getStakeEmptyState(Number(chainId), spellPrice);
+      })
+    );
+  }
+
+  const { sSpellApr, mSpellApr } = await getSpellStakingApr();
+
   return await Promise.all(
-    Object.keys(spellConfig).map(async (chainId: string) => {
+    Object.keys(spellStakeConfig).map(async (chainId: string) => {
       const currentChainId = Number(chainId);
-      const config = spellConfig[currentChainId as keyof typeof spellConfig];
+      const config =
+        spellStakeConfig[currentChainId as keyof typeof spellStakeConfig];
 
       const publicClient = getPublicClient(currentChainId);
 
@@ -57,8 +61,6 @@ export const getStakeInfo = async () => {
         address,
         publicClient
       );
-
-      const { sSpellApr, mSpellApr } = await getSpellStakingApr();
 
       return {
         chainId: currentChainId,
