@@ -75,7 +75,7 @@ export default {
       bentoBoxData: "getBentoBoxData",
     }),
 
-    activeChains(): { bento: ActiveChains; degen: ActiveChains } {
+    activeChains(){
       let bento: BentoBoxData[] = [];
       let degen: BentoBoxData[] = [];
 
@@ -115,10 +115,10 @@ export default {
     activeChainDegenData(): BentoBoxData | undefined {
       return this.bentoBoxDatas?.find(
         (data: BentoBoxData) => this.activeDegenChain == data.chainId
-      );
+      )!;
     },
 
-    isVisible(): boolean {
+    isVisible() {
       return (
         (this.currentChainBentoData?.mimInBentoBalance ||
           this.currentChainBentoData?.mimInDegenBalance) &&
@@ -143,12 +143,12 @@ export default {
       setBentoBoxData: "setBentoBoxData",
     }),
 
-    chooseActiveBentoChain(e: number) {
-      this.activeBentoChain = e;
+    chooseActiveBentoChain(chainId: number) {
+      this.activeBentoChain = chainId;
     },
 
-    chooseActiveDegenChain(e: number) {
-      this.activeDegenChain = e;
+    chooseActiveDegenChain(chainId: number) {
+      this.activeDegenChain = chainId;
     },
 
     openPopup(isBento: boolean) {
@@ -204,4 +204,3 @@ export default {
   }
 }
 </style>
-@/helpers/bentoBox/createBentoBoxData

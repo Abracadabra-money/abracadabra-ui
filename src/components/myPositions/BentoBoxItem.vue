@@ -71,36 +71,36 @@ export default {
   },
 
   computed: {
-    isDisabled(): boolean {
+    isDisabled() {
       return !this.balance && this.isProperChain;
     },
 
-    boxIcon(): string {
+    boxIcon() {
       return this.isBento ? bentoIcon : degenIcon;
     },
 
-    title(): string {
+    title() {
       return !this.isBento ? "DegenBox" : "BentoBox";
     },
 
-    buttonText(): string {
+    buttonText() {
       return !this.isProperChain ? "Switch Network" : "Withdraw";
     },
 
-    link(): string {
+    link() {
       const params = this.isBento ? this.bentoLink : this.degenLink;
       return `https://abracadabramoney.gitbook.io/${params}`;
     },
 
-    parsedBalance(): number {
+    parsedBalance() {
       return Number(formatUnits(this.balance, 18));
     },
 
-    balanceInUsd(): number {
+    balanceInUsd() {
       return this.parsedBalance * this.mimPrice;
     },
 
-    isProperChain(): boolean {
+    isProperChain() {
       return this.currentChain == this.activeChain;
     },
   },

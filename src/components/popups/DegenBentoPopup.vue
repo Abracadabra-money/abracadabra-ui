@@ -34,9 +34,9 @@
         :error="error"
       />
 
-      <BaseButton @click="actionHandler" primary :disabled="isDisabled">{{
-        buttonText
-      }}</BaseButton>
+      <BaseButton @click="actionHandler" primary :disabled="isDisabled">
+        {{ buttonText }}
+      </BaseButton>
     </div>
   </div>
 </template>
@@ -58,7 +58,6 @@ import { trimZeroDecimals } from "@/helpers/numbers";
 import { formatUnits, parseUnits } from "viem";
 import type { BentoBoxData } from "@/helpers/bentoBox/types";
 import type { PropType } from "vue";
-import type { ExtendedContractInfo } from "@/configs/contracts/types";
 
 export default {
   props: {
@@ -83,21 +82,21 @@ export default {
       account: "getAccount",
     }),
 
-    parsedAmount(): bigint {
+    parsedAmount() {
       return parseUnits(this.inputValue, 18);
     },
 
-    boxIcon(): string {
+    boxIcon() {
       return this.isBento ? bentoIcon : degenIcon;
     },
 
-    activeContract(): ExtendedContractInfo | undefined {
+    activeContract() {
       return this.isBento
         ? this.infoObject.bentoContractInfo
         : this.infoObject.degenContractInfo;
     },
 
-    balance(): bigint {
+    balance() {
       const balance = this.isDeposit
         ? this.infoObject.mimBalance
         : this.isBento
@@ -107,15 +106,15 @@ export default {
       return balance;
     },
 
-    isDisabled(): boolean {
+    isDisabled() {
       return !this.isValid || !!this.error || !this.activeContract;
     },
 
-    isValid(): boolean {
+    isValid() {
       return !!this.parsedAmount;
     },
 
-    error(): string {
+    error() {
       if (Number(this.inputValue) > Number(formatUnits(this.balance, 18)))
         return `The value cannot be greater than ${formatUnits(
           this.balance,
@@ -124,11 +123,11 @@ export default {
       return "";
     },
 
-    title(): string {
+    title() {
       return `${this.isBento ? "BentoBox" : "DegenBox"} `;
     },
 
-    buttonText(): string {
+    buttonText() {
       return this.isDeposit ? "Deposit" : "Withdraw";
     },
 
@@ -161,8 +160,6 @@ export default {
     },
 
     async withdraw() {
-      if (this.isDisabled) return;
-
       const notificationId = await this.createNotification(
         notification.pending
       );
@@ -181,7 +178,7 @@ export default {
         );
       } catch (error: any) {
         const errorNotification = {
-          msg: await notificationErrorMsg({ message: error.msg }),
+          msg: await notificationErrorMsg(),
           type: "error",
         };
         await this.deleteNotification(notificationId);
