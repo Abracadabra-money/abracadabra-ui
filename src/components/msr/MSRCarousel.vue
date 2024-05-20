@@ -55,7 +55,7 @@ export default {
     mimSavingRateInfo: { type: Object as PropType<MimSavingRateInfo | null> },
     actions: { type: Array as PropType<MSRAction[]>, required: true },
     activeAction: {
-      type: String as unknown as PropType<MSRAction | null>,
+      type: String as unknown as PropType<MSRActionName | null>,
     },
     isCarouselMode: { type: Boolean, required: true },
   },
@@ -79,10 +79,10 @@ export default {
       );
     },
 
-    translateOffset(): number {
+    translateOffset() {
       const activeIndex = this.actions.find(
         (action) => action.name == this.activeAction
-      ).id;
+      )!.id;
       if (activeIndex === null || activeIndex === undefined) return 0;
       const middleIndex = Math.floor(this.actions.length / 2);
       let marginalElementsOffset = 0;
