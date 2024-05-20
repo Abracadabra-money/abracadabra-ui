@@ -1,8 +1,34 @@
+import readerAbi from "@/abis/klp/reader";
+import managerAbi from "@/abis/klp/manager";
 import { useImage } from "@/helpers/useImage";
 import tokensAbi from "@/abis/tokensAbi/index";
-import managerAbi from "@/abis/klp/manager";
-import readerAbi from "@/abis/klp/reader";
-import type { MagicKlpConfigs } from "@/types/magicKlp/configsInfo";
+import type { ContractInfo } from "@/types/global";
+
+export type MagicKlpConfigs = {
+  2222: ChainConfig;
+};
+
+export type ChainConfig = {
+  mainToken: {
+    name: string;
+    decimals: number;
+    icon: string;
+    rateIcon: string;
+    contract: ContractInfo;
+  };
+  stakeToken: {
+    name: string;
+    decimals: number;
+    icon: string;
+    contract: ContractInfo;
+  };
+  manager: {
+    contract: ContractInfo;
+  };
+  reader: {
+    contract: ContractInfo;
+  };
+};
 
 export const magicKlpConfig: MagicKlpConfigs = {
   2222: {

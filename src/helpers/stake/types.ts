@@ -14,7 +14,7 @@ export type StakeTokenInfo = {
   price: bigint;
   balance: bigint;
   balanceUsd: bigint;
-
+  lastAdded?: string;
   rateIcon?: string;
 };
 

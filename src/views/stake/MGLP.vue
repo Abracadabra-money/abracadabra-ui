@@ -87,7 +87,6 @@
 <script lang="ts">
 import type {
   ChartConfig,
-  MainTokenInfo,
   StakeTokenInfo,
   AdditionalConfig,
 } from "@/helpers/stake/types";
