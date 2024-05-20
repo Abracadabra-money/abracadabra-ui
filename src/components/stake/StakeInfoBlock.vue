@@ -47,24 +47,31 @@
 <script lang="ts">
 import {
   formatUSD,
-  formatTokenBalance,
   formatToFixed,
+  formatTokenBalance,
 } from "@/helpers/filters";
+import type {
+  MainTokenInfo,
+  StakeTokenInfo,
+} from "@/helpers/stake/magicApe/types";
 // import axios from "axios";
 import { formatUnits } from "viem";
+import type { PropType } from "vue";
 import { defineAsyncComponent } from "vue";
 // import { ANALYTICS_URK } from "@/constants/global";
+import { MIM_PRICE, ONE_ETHER_VIEM } from "@/constants/global";
 import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
 import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
-import { MIM_PRICE, ONE_ETHER_VIEM } from "@/constants/global";
 
 export default {
   props: {
     mainToken: {
-      type: Object as any,
+      type: Object as PropType<MainTokenInfo>,
+      required: true,
     },
     stakeToken: {
-      type: Object as any,
+      type: Object as PropType<StakeTokenInfo>,
+      required: true,
     },
     selectedNetwork: {
       type: Number,
@@ -121,7 +128,7 @@ export default {
       this.apr = await getMagicApeApy(this.selectedNetwork);
     },
 
-    async fetchKlpApy() {
+    fetchKlpApy() {
       return 0;
       // const { data } = await axios.get(`${ANALYTICS_URK}/kinetix/info`);
       // this.apr = +formatToFixed(data.apr, 2);

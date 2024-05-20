@@ -4,7 +4,35 @@ import { markRaw } from "vue";
 import { SECONDS_PER_DAY } from "@/constants/global";
 import { getGraphUrl } from "@/helpers/stake/magicApe/subgraph/getGraphUrl";
 
-export const getTvl = async (type = "yield", month = 1, chainId = 1) => {
+interface Snapshot {
+  id: string;
+  totalValueLockedUsd: string;
+}
+
+type ResponseData = {
+  tvl: string;
+  date: string;
+  [key: string]: string;
+};
+
+type TvlInfo = {
+  labels: string[];
+  datasets: {
+    label: string;
+    data: string[];
+    borderColor: string;
+    pointBackgroundColor: string;
+    pointBorderColor: string;
+    pointRadius: number;
+    borderWidth: number;
+  }[];
+};
+
+export const getTvl = async (
+  type = "yield",
+  month = 1,
+  chainId = 1
+): Promise<TvlInfo | null> => {
   const days = 30 * month;
   const to = Math.floor(Date.now() / 1000 / SECONDS_PER_DAY);
   const from = to - days;
@@ -23,21 +51,23 @@ export const getTvl = async (type = "yield", month = 1, chainId = 1) => {
 
   try {
     const { data } = await axios.post(getGraphUrl(chainId), { query });
-    const snapshots = data.data?.magicApeTvlDailySnapshots;
+    const snapshots: Snapshot[] = data.data?.magicApeTvlDailySnapshots;
 
-    const response = markRaw(
-      snapshots.map((snapshot: any) => {
+    const response: ResponseData[] = markRaw(
+      snapshots.map((snapshot: Snapshot) => {
         return {
           tvl: snapshot.totalValueLockedUsd,
-          date: moment.unix(snapshot.id * SECONDS_PER_DAY).format("YYYY-MM-DD"),
+          date: moment
+            .unix(Number(snapshot.id) * SECONDS_PER_DAY)
+            .format("YYYY-MM-DD"),
         };
       })
     );
 
-    const reverseData: any = response!.reverse();
-    const chartData: any = { labels: [], tickUpper: [] };
+    const reverseData = response!.reverse();
+    const chartData = { labels: [] as string[], tickUpper: [] as string[] };
 
-    reverseData.forEach((element: any) => {
+    reverseData.forEach((element: ResponseData) => {
       chartData.labels.push(moment(element.date).format("DD.MM"));
       chartData.tickUpper.push(element[type.toLowerCase()]);
     });

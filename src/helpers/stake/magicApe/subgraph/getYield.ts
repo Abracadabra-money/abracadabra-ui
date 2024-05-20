@@ -4,7 +4,35 @@ import { markRaw } from "vue";
 import { SECONDS_PER_DAY } from "@/constants/global";
 import { getGraphUrl } from "@/helpers/stake/magicApe/subgraph/getGraphUrl";
 
-export const getYield = async (month = 1, chainId = 1) => {
+interface Snapshot {
+  id: number;
+  apr: string;
+  apy: string;
+}
+
+type ResponseData = {
+  apr: string;
+  apy: string;
+  date: string;
+};
+
+type YieldInfo = {
+  labels: string[];
+  datasets: {
+    label: string;
+    data: string[];
+    borderColor: string;
+    pointBackgroundColor: string;
+    pointBorderColor: string;
+    pointRadius: number;
+    borderWidth: number;
+  }[];
+};
+
+export const getYield = async (
+  month = 1,
+  chainId = 1
+): Promise<YieldInfo | null> => {
   const days = 30 * month;
   const to = Math.floor(Date.now() / 1000 / SECONDS_PER_DAY);
   const from = to - days;
@@ -23,8 +51,8 @@ export const getYield = async (month = 1, chainId = 1) => {
     const { data } = await axios.post(getGraphUrl(chainId), { query });
     const snapshots = data.data?.magicApeYieldDailySnapshots;
 
-    const response = markRaw(
-      snapshots.map((snapshot: any) => {
+    const response: ResponseData[] = markRaw(
+      snapshots.map((snapshot: Snapshot) => {
         return {
           apr: snapshot.apr,
           apy: snapshot.apy,
@@ -34,9 +62,14 @@ export const getYield = async (month = 1, chainId = 1) => {
     );
 
     const reverseData = response!.reverse();
-    const chartData: any = { labels: [], tickUpper1: [], tickUpper2: [] };
 
-    reverseData.forEach((element: any) => {
+    const chartData = {
+      labels: [] as string[],
+      tickUpper1: [] as string[],
+      tickUpper2: [] as string[],
+    };
+
+    reverseData.forEach((element: ResponseData) => {
       chartData.labels.push(moment(element.date).format("DD.MM"));
       chartData.tickUpper1.push(element.apy);
       chartData.tickUpper2.push(element.apr);
