@@ -14,7 +14,10 @@
     <nav class="nav">
       <component :is="isClassicHeader ? 'HeaderNav' : 'SwapHeaderNav'" />
 
-      <router-link class="header-link msr" :to="{ name: 'MSR' }">
+      <router-link
+        class="header-link msr"
+        :to="{ name: 'MSR', query: { action: 'Lock' } }"
+      >
         MSR
       </router-link>
 

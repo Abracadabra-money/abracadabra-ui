@@ -7,9 +7,8 @@
       :class="{ 'switch-btn-active': name === item, small }"
       :key="i"
       :disabled="disabledTabs.includes(item)"
-      @click="$emit('select', i)"
+      @click="$emit('select', item)"
     >
-      <img class="icon" v-if="icons[i]" :src="icons[i]" alt="Tab icon" />
       {{ item }}
     </button>
   </div>

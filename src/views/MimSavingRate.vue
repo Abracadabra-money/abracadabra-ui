@@ -3,11 +3,9 @@
     <MSRCarousel
       :mimSavingRateInfo="mimSavingRateInfo"
       :actions="actions"
-      :activeIndex="activeIndex"
+      :activeAction="activeAction"
       :isCarouselMode="isCarouselMode"
       @selectAction="selectAction"
-      @next="next"
-      @prev="prev"
     />
 
     <ActionBlock
@@ -71,7 +69,7 @@ export default {
       getChainById: "getChainById",
     }),
 
-    translateOffset(): number {
+    translateOffset() {
       if (this.activeIndex === null) return 0;
       const middleIndex = Math.floor(this.actions.length / 2);
       let marginalElementsOffset = 0;
@@ -94,12 +92,12 @@ export default {
       );
     },
 
-    activeAction(): MSRActionName {
-      return this.actions[this.activeIndex].name;
+    activeAction() {
+      return this.$route.query.action;
     },
 
-    isCarouselMode(): boolean {
-      return this.activeIndex !== null;
+    isCarouselMode() {
+      return this.activeAction !== null;
     },
   },
 
@@ -110,34 +108,11 @@ export default {
   },
 
   methods: {
-    selectAction(index: number) {
-      this.activeIndex = index;
-    },
-
-    prev() {
-      switch (this.activeIndex) {
-        case null:
-          break;
-        case 0:
-          this.activeIndex = this.actions.length - 1;
-          break;
-        default:
-          this.activeIndex = this.activeIndex - 1;
-          break;
-      }
-    },
-
-    next() {
-      switch (this.activeIndex) {
-        case null:
-          break;
-        case this.actions.length - 1:
-          this.activeIndex = 0;
-          break;
-        default:
-          this.activeIndex = this.activeIndex + 1;
-          break;
-      }
+    selectAction(action: MSRAction) {
+      this.$router.replace({
+        name: "MSR",
+        query: { action },
+      });
     },
 
     async createMimSavingRateInfo() {

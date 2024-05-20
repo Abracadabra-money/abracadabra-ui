@@ -25,8 +25,8 @@
           v-for="(item, index) in actions"
           :key="index"
           :class="{
-            active: index === activeIndex,
-            inactive: isCarouselMode && index !== activeIndex,
+            active: item.name === activeAction,
+            inactive: isCarouselMode && item.name != activeAction,
             odd: index % 2 != 0,
             even: index % 2 == 0,
           }"
@@ -54,8 +54,8 @@ export default {
   props: {
     mimSavingRateInfo: { type: Object as PropType<MimSavingRateInfo | null> },
     actions: { type: Array as PropType<MSRAction[]>, required: true },
-    activeIndex: {
-      type: Number as unknown as PropType<number | null>,
+    activeAction: {
+      type: String as unknown as PropType<MSRAction | null>,
     },
     isCarouselMode: { type: Boolean, required: true },
   },
@@ -67,25 +67,28 @@ export default {
   },
 
   computed: {
-    tabItems(): MSRActionName[] {
+    tabItems() {
       return this.actions.map((action: MSRAction) => action.name);
     },
 
     activeTabItem(): MSRActionName {
       return (
-        this.actions.find((action: MSRAction) => action.id == this.activeIndex)
-          ?.name || "Lock"
+        this.actions.find(
+          (action: MSRAction) => action.name == this.activeAction
+        )?.name || "Lock"
       );
     },
 
     translateOffset(): number {
-      if (this.activeIndex === null || this.activeIndex === undefined) return 0;
+      const activeIndex = this.actions.find(
+        (action) => action.name == this.activeAction
+      ).id;
+      if (activeIndex === null || activeIndex === undefined) return 0;
       const middleIndex = Math.floor(this.actions.length / 2);
       let marginalElementsOffset = 0;
 
       return (
-        (middleIndex - this.activeIndex) * this.itemWidth -
-        marginalElementsOffset
+        (middleIndex - activeIndex) * this.itemWidth - marginalElementsOffset
       );
     },
   },
