@@ -1,6 +1,6 @@
 import type { Address, PublicClient } from "viem";
+import type { TokensInfo } from "@/helpers/stake/types";
 import { ONE_ETHER_VIEM, MIM_PRICE } from "@/constants/global";
-import type { TokensInfo } from "@/helpers/stake/magicApe/types";
 import type { MagicApeConfig } from "@/configs/stake/magicApeConfig";
 
 export const getTokensInfo = async (
