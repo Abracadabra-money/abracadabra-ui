@@ -25,37 +25,7 @@
           "
         />
       </div>
-
-      <div class="banner">
-        <div class="description">
-          <img class="blast-icon" src="@/assets/images/networks/blast.png" />
-          <div>
-            <h3 class="description-title">Build on Blast</h3>
-            <h4 class="description-subtitle">
-              Native Yield & Airdrops included
-            </h4>
-          </div>
-        </div>
-
-        <div class="totals-wrap">
-          <div class="total-item">
-            <span class="total-title">Total Points Distributed</span>
-            <span class="total-value">{{
-              formatLargeSum(
-                pointsStatistics?.liquidityPoints?.total?.finalized ?? 0
-              )
-            }}</span>
-          </div>
-          <div class="total-item">
-            <span class="total-title">Total Gold Distributed</span>
-            <span class="total-value">{{
-              formatTokenBalance(
-                pointsStatistics?.developerPoints?.total?.finalized ?? 0
-              )
-            }}</span>
-          </div>
-        </div>
-      </div>
+      <Banner :pointsStatistics="pointsStatistics" />
 
       <div class="row card-info-row">
         <CauldronPointsInfoCard
@@ -247,6 +217,9 @@ export default {
   },
 
   components: {
+    Banner: defineAsyncComponent(
+      () => import("@/components/blastOnboarding/Banner.vue")
+    ),
     CardPointsPending: defineAsyncComponent(
       () => import("@/components/ui/card/CardPointsPending.vue")
     ),
@@ -311,89 +284,6 @@ export default {
   margin-bottom: 47px;
 }
 
-.banner {
-  position: relative;
-  border-radius: 12px;
-  overflow: hidden;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-}
-
-.description {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 45%;
-  gap: 8px;
-  display: flex;
-  align-items: center;
-  color: #000;
-  background: #fcfd02;
-  height: 74px;
-  padding: 13px 26px;
-}
-
-.blast-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-}
-
-.description-title {
-  font-size: 24px;
-  font-weight: 600;
-  line-height: 30px;
-  text-transform: uppercase;
-}
-
-.description-subtitle {
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 16px;
-}
-
-.grid-img {
-  display: none;
-}
-
-.totals-wrap {
-  padding: 4px 24px 4px 0;
-  margin-left: -1px;
-  min-width: 720px;
-  height: 74px;
-  background-image: url("@/assets/images/points-dashboard/baner-bg.png");
-  background-size: cover;
-  color: #000;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  background-position: 0 center;
-  justify-content: space-between;
-}
-
-.total-item {
-  gap: 30px;
-  display: flex;
-  align-items: center;
-}
-
-.total-title {
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 150%;
-  width: 190px;
-}
-
-.total-value {
-  font-size: 26px;
-  font-weight: 600;
-  line-height: 100%;
-  min-width: 200px;
-  text-align: end;
-}
-
 @media screen and (max-width: 1024px) {
   .head-row {
     flex-direction: column;
@@ -408,42 +298,6 @@ export default {
   .card-info-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-  }
-}
-
-@media screen and (max-width: 900px) {
-  .banner {
-    flex-direction: column;
-  }
-
-  .description {
-    position: inherit;
-    width: 100%;
-    margin-bottom: 8px;
-  }
-
-  .grid-img {
-    display: block;
-    width: 100%;
-    height: 25px;
-    object-fit: cover;
-  }
-
-  .totals-wrap {
-    width: 100%;
-    background: transparent;
-    padding: 0;
-    height: auto;
-    gap: 8px;
-    min-width: initial;
-  }
-
-  .total-item {
-    background: #fcfd02;
-
-    width: 100%;
-    padding: 13px 16px;
-    justify-content: space-between;
   }
 }
 
@@ -474,34 +328,6 @@ export default {
 
   .card-info-row {
     grid-template-columns: 1fr;
-  }
-
-  .description {
-    padding: 13px;
-    justify-content: flex-start;
-  }
-
-  .description-title {
-    font-size: 20px;
-  }
-
-  .description-subtitle {
-    font-size: 14px;
-  }
-
-  .total-item {
-    gap: 6px;
-    padding: 13px;
-  }
-
-  .total-title {
-    font-size: 14px;
-    width: auto;
-  }
-
-  .total-value {
-    font-size: 20px;
-    min-width: initial;
   }
 }
 </style>
