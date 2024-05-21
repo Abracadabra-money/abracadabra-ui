@@ -11,12 +11,13 @@ import type { CookData, PayloadDeleverage } from "./types";
 
 const cookDeleverage = async (
   {
-    borrowAmount,
+    repayAmount,
     collateralShare,
     removeCollateralShare,
     itsMax,
     slipage,
     to,
+    withdrawUnwrapToken
   }: PayloadDeleverage,
   cauldronObject: any
 ): Promise<void> => {
@@ -51,7 +52,7 @@ const cookDeleverage = async (
     cookData,
     cauldronObject,
     collateralShare,
-    borrowAmount,
+    repayAmount,
     slipage,
     is0xSwap,
     to
@@ -82,7 +83,8 @@ const cookDeleverage = async (
       cauldronObject,
       removeCollateralShare,
       to,
-      collateral.address
+      collateral.address,
+      withdrawUnwrapToken
     );
   }
 

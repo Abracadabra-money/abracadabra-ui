@@ -28,12 +28,13 @@ export type PayloadBorrow = {
 };
 
 export type PayloadDeleverage = {
-  borrowAmount: BigNumber;
+  repayAmount: BigNumber;
   collateralShare: BigNumber;
   removeCollateralShare: BigNumber;
   itsMax: boolean;
   slipage: number;
   to: Address;
+  withdrawUnwrapToken: boolean;
 };
 
 export type PayloadLeverage = {

@@ -21,19 +21,19 @@ const cookLeverage = async (
     useNativeToken,
     slipage,
     useWrapper,
-    to
+    to,
   }: PayloadLeverage,
-  cauldronObject: any,
+  cauldronObject: any
 ): Promise<void> => {
-  const { whitelistedInfo, isMasterContractApproved } = cauldronObject.additionalInfo;
+  const { whitelistedInfo, isMasterContractApproved } =
+    cauldronObject.additionalInfo;
   const { collateral, leverageSwapper, cauldron } = cauldronObject.contracts;
-  const { is0xSwap, useDegenBoxHelper } = cauldronObject.config.cauldronSettings;
+  const { is0xSwap, useDegenBoxHelper, isOpenocean } =
+    cauldronObject.config.cauldronSettings;
   const { updatePrice } = cauldronObject.mainParams;
 
   const value = useNativeToken ? collateralAmount.toString() : 0;
-  const tokenAddr = useNativeToken
-  ? defaultTokenAddress
-  : collateral.address;
+  const tokenAddr = useNativeToken ? defaultTokenAddress : collateral.address;
 
   let cookData: CookData = {
     events: [],
@@ -41,7 +41,11 @@ const cookLeverage = async (
     datas: [],
   };
 
-  cookData = await checkAndSetMcApprove(cookData, cauldronObject, isMasterContractApproved);
+  cookData = await checkAndSetMcApprove(
+    cookData,
+    cauldronObject,
+    isMasterContractApproved
+  );
 
   if (updatePrice) cookData = await actions.updateExchangeRate(cookData, true);
 
@@ -49,15 +53,17 @@ const cookLeverage = async (
     cookData = await recipeSetMaxBorrow(cookData, whitelistedInfo, to);
   }
 
-  cookData = await recipeAddCollatral(
-    cookData,
-    cauldronObject,
-    tokenAddr,
-    useWrapper,
-    to,
-    collateralAmount,
-    value
-  );
+  if (collateralAmount.gt(0)) {
+    cookData = await recipeAddCollatral(
+      cookData,
+      cauldronObject,
+      tokenAddr,
+      useWrapper,
+      to,
+      collateralAmount,
+      value
+    );
+  }
 
   cookData = await actions.borrow(cookData, mimAmount, leverageSwapper.address);
 
@@ -68,6 +74,7 @@ const cookLeverage = async (
     shareToMin,
     slipage,
     is0xSwap,
+    isOpenocean,
     to
   );
 
