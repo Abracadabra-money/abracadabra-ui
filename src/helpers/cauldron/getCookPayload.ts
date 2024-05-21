@@ -25,9 +25,9 @@ export const getCookPayload = async (
     case ACTION_TYPES.ACTION_REPAY:
       return getRepayPayload(cauldron, actionConfig, account);
     case ACTION_TYPES.ACTION_REMOVE_COLLATERAL:
-      return getRemoveCollateralPayload(cauldron, actionConfig);
+      return getRemoveCollateralPayload(cauldron, actionConfig, account);
     case ACTION_TYPES.ACTION_REPAY_AND_REMOVE_COLLATERAL:
-      return getRemoveCollateralAndRepayPayload(cauldron, actionConfig);
+      return getRemoveCollateralAndRepayPayload(cauldron, actionConfig, account);
     case ACTION_TYPES.ACTION_LEVERAGE:
       return await getLeveragePayload(cauldron, actionConfig);
     case ACTION_TYPES.ACTION_DELEVERAGE:
@@ -124,13 +124,10 @@ const getRepayPayload = (
 
 const getRemoveCollateralPayload = async (
   cauldron: CauldronInfo,
-  actionConfig: ActionConfig
+  actionConfig: ActionConfig,
+  to: Address
 ) => {
-  // TODO: update cauldron types
-  //@ts-ignore
-  const { updatePrice } = cauldron.mainParams;
   const { isMasterContractApproved } = cauldron.additionalInfo;
-
   //@ts-ignore
   const { bentoBox } = cauldron.contracts;
   //@ts-ignore
@@ -147,17 +144,18 @@ const getRemoveCollateralPayload = async (
   const share = await bentoBox.toShare(address, amount, true);
 
   const payload = {
-    amount: share,
-    updatePrice,
+    collateralShare: share,
+    to,
     withdrawUnwrapToken,
   };
 
-  return [payload, isMasterContractApproved, cauldron];
+  return [payload, cauldron];
 };
 
 const getRemoveCollateralAndRepayPayload = async (
   cauldron: CauldronInfo,
-  actionConfig: ActionConfig
+  actionConfig: ActionConfig,
+  to: Address
 ) => {
   // TODO: update cauldron types
   //@ts-ignore
@@ -182,14 +180,14 @@ const getRemoveCollateralAndRepayPayload = async (
   const share = await bentoBox.toShare(address, amount, true);
 
   const payload = {
-    amount: share, // TODO: update after fix this in cook
-    collateralAmount: repayAmount, // TODO: update after fix this in cook
-    updatePrice,
+    collateralShare: share, // TODO: update after fix this in cook
+    mimPart: repayAmount, // TODO: update after fix this in cook
     itsMax: itsMaxRepay,
+    to,
     withdrawUnwrapToken,
   };
 
-  return [payload, isMasterContractApproved, cauldron];
+  return [payload, cauldron];
 };
 
 // TODO: GM payload

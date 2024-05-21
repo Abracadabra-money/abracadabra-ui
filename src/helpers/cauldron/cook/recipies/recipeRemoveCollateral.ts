@@ -6,11 +6,12 @@ const recipeRemoveCollateral = async (
   cauldronObject: any,
   share: any,
   userAddr: string,
-  tokenAddr: string
+  tokenAddr: string,
+  withdrawUnwrapToken: boolean = false
 ): Promise<any> => {
   const wrapInfo = cauldronObject.config?.wrapInfo;
   const { wrapper, unwrappedToken, collateral } = cauldronObject.contracts;
-  if (wrapInfo) {
+  if (wrapInfo && withdrawUnwrapToken) {
     cookData = await actions.removeCollateral(cookData, share, userAddr);
 
     cookData = await bentoWithdrawEncodeHandler(

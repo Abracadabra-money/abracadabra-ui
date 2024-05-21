@@ -49,6 +49,7 @@ export type PayloadLeverage = {
 export type PayloadRemoveCollateral = {
   collateralShare: BigNumber;
   to: Address;
+  withdrawUnwrapToken: boolean;
 };
 
 export type PayloadRemoveCollateralAndRepay = {
@@ -56,6 +57,7 @@ export type PayloadRemoveCollateralAndRepay = {
   mimPart: BigNumber;
   itsMax: boolean;
   to: Address;
+  withdrawUnwrapToken: boolean;
 };
 
 export type PayloadRepay = {

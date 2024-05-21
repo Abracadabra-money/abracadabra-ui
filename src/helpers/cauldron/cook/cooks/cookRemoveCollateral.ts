@@ -8,7 +8,7 @@ import recipeRemoveCollateral from "@/helpers/cauldron/cook/recipies/recipeRemov
 import type { CookData, PayloadRemoveCollateral } from "./types";
 
 const cookRemoveCollateral = async (
-  { collateralShare, to }: PayloadRemoveCollateral,
+  { collateralShare, to, withdrawUnwrapToken }: PayloadRemoveCollateral,
   cauldronObject: any
 ): Promise<void> => {
   const { cauldron } = cauldronObject.contracts;
@@ -36,7 +36,8 @@ const cookRemoveCollateral = async (
     cauldronObject,
     collateralShare,
     to,
-    tokenAddr
+    tokenAddr,
+    withdrawUnwrapToken
   );
 
   if (isMasterContractApproved && useDegenBoxHelper)

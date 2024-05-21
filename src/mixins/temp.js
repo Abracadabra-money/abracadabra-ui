@@ -146,10 +146,10 @@ export default {
             await cooks.cookRepay(...cookPayload);
             break;
           case ACTION_TYPES.ACTION_REMOVE_COLLATERAL:
-            await this.cookRemoveCollateral(...cookPayload);
+            await cooks.cookRemoveCollateral(...cookPayload);
             break;
           case ACTION_TYPES.ACTION_REPAY_AND_REMOVE_COLLATERAL:
-            await this.cookRemoveCollateralAndRepay(...cookPayload);
+            await cooks.cookRemoveCollateralAndRepay(...cookPayload);
             break;
           case ACTION_TYPES.ACTION_LEVERAGE:
             await this.cookLeverage(...cookPayload);
