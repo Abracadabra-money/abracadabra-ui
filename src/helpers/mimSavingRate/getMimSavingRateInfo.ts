@@ -48,7 +48,7 @@ export const getMimSavingRateInfo = async (
   );
 
   const baseApr = (
-    await getMSRBaseApr(publicClient, lockingMultiRewardsInfo, config)
+    await getMSRBaseApr(publicClient, config, lockingMultiRewardsInfo.unlockedSupply)
   ).totalApr;
 
   return {
@@ -59,13 +59,18 @@ export const getMimSavingRateInfo = async (
   };
 };
 
-const getMSRBaseApr = async (
+export const getMSRBaseApr = async (
   publicClient: PublicClient,
-  lockingMultiRewardsInfo: LockingMultiRewardsInfo,
-  config: MimSavingRateConfig
+  config: MimSavingRateConfig,
+  totalSupply: bigint | undefined = undefined,
 ) => {
   try {
-    const totalSupply = lockingMultiRewardsInfo.unlockedSupply;
+    if (totalSupply === undefined)
+      totalSupply = (await publicClient.readContract({
+        ...config.lockingMultiRewardsContract,
+        functionName: "unlockedSupply",
+        args: [],
+      })) as bigint;
 
     const { rewardTokensInfo, stakingTokenPrice }: any = await getTokenPrices(
       config
@@ -94,10 +99,10 @@ const getMSRBaseApr = async (
         Number(rewardData.periodFinish) <= Math.floor(new Date() / 1000)
           ? 0
           : //@ts-ignore
-            formatUnits(rewardData.rewardRate, 18) *
-            (365 * 24 * 60 * 60) *
-            // rewardData.rewardsDuration *
-            rewardTokenPrice;
+          formatUnits(rewardData.rewardRate, 18) *
+          (365 * 24 * 60 * 60) *
+          // rewardData.rewardsDuration *
+          rewardTokenPrice;
 
       const tokenApr = (annualReward / totalStakedInUSD) * 100;
 
