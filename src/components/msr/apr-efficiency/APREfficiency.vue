@@ -2,6 +2,7 @@
   <div class="apr-efficiency">
     <EfficiencyIndicator
       :aprEfficiency="aprEfficiency"
+      :apr="userApr"
       :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
     />
 
@@ -35,11 +36,16 @@ export default {
       return "Lock your Staked MIM for 3 months to get maximum APR Efficiency ";
     },
 
-    aprEfficiency() {
-      if (this.isMimSavingRateInfoLoading) return 0;
+    baseApr() {
+      return this.mimSavingRateInfo!.baseApr;
+    },
 
-      const baseApr = this.mimSavingRateInfo!.baseApr;
-      const boostedApr = baseApr * 3;
+    boostedApr() {
+      return this.baseApr * 3;
+    },
+
+    userApr() {
+      if (this.isMimSavingRateInfoLoading) return 0;
 
       const { unlocked, locked } = this.mimSavingRateInfo!.userInfo.balances;
       const decimals = this.mimSavingRateInfo!.stakingToken.decimals;
@@ -48,9 +54,15 @@ export default {
       const formattedLocked = Number(formatUnits(locked, decimals));
 
       return (
-        (formattedStaked * baseApr + formattedLocked * boostedApr) /
-        (formattedStaked + formattedLocked)
+        (formattedStaked * this.baseApr + formattedLocked * this.boostedApr) /
+          (formattedStaked + formattedLocked) || 0
       );
+    },
+
+    aprEfficiency() {
+      if (this.isMimSavingRateInfoLoading) return 0;
+
+      return (this.userApr * 100) / (this.boostedApr - this.baseApr) || 0;
     },
   },
 

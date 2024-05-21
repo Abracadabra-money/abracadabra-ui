@@ -4,7 +4,7 @@
     <div class="efficiency-info">
       <p class="title">Your APR</p>
       <RowSkeleton v-if="isMimSavingRateInfoLoading" />
-      <p class="percent" v-else>{{ formatPercent(this.aprEfficiency) }}</p>
+      <p class="percent" v-else>{{ formatPercent(apr) }}</p>
     </div>
   </div>
 </template>
@@ -14,10 +14,11 @@ import { defineAsyncComponent } from "vue";
 import LottiePlayer from "lottie-web";
 import { formatPercent } from "@/helpers/filters";
 
-const TOTAL_FRAMES = 60;
+const TOTAL_FRAMES = 85;
 export default {
   props: {
     aprEfficiency: { type: [Number, String], default: 0 },
+    apr: { type: [Number, String], default: 0 },
     isMimSavingRateInfoLoading: { type: Boolean },
   },
 
