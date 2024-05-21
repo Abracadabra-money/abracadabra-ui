@@ -14,7 +14,8 @@ import { defineAsyncComponent } from "vue";
 import LottiePlayer from "lottie-web";
 import { formatPercent } from "@/helpers/filters";
 
-const TOTAL_FRAMES = 85;
+const TOTAL_FRAMES = 90;
+
 export default {
   props: {
     aprEfficiency: { type: [Number, String], default: 0 },
@@ -42,10 +43,7 @@ export default {
         container: anim,
       });
 
-      this.animation.goToAndStop(
-        (TOTAL_FRAMES / 100) * this.aprEfficiency,
-        true
-      );
+      this.animation.goToAndStop((TOTAL_FRAMES / 100) * this.aprEfficiency, true);
     },
   },
 

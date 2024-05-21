@@ -156,7 +156,7 @@ export default {
     },
 
     boostedApr() {
-      return (this.mimSavingRateInfo?.baseApr || 0n) * 3;
+      return (this.mimSavingRateInfo?.baseApr || 0) * 3;
     },
   },
 
