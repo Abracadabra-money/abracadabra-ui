@@ -1,9 +1,17 @@
 <template>
   <div class="action-block">
-    <AvailableNetworksBlock
-      :selectedNetwork="42161"
-      :availableNetworks="[42161]"
-    />
+    <div class="common-info">
+      <AvailableNetworksBlock
+        :selectedNetwork="42161"
+        :availableNetworks="[42161]"
+      />
+
+      <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+      <span class="apr" v-else-if="activeAction != 'Claim'">
+        <Tooltip tooltip="APR" :width="20" :height="20" /> APR:
+        {{ formatPercent(apr) }}
+      </span>
+    </div>
 
     <div class="actions-wrapper">
       <Stake
@@ -47,6 +55,20 @@ export default {
     isMimSavingRateInfoLoading: { type: Boolean },
   },
 
+  computed: {
+    apr(): string | number {
+      const baseApr = this.mimSavingRateInfo?.baseApr || 0;
+      switch (this.activeAction) {
+        case "Stake":
+          return baseApr;
+        case "Lock":
+          return baseApr * 3;
+        default:
+          return "";
+      }
+    },
+  },
+
   methods: {
     formatPercent,
   },
@@ -63,6 +85,12 @@ export default {
     ),
     AvailableNetworksBlock: defineAsyncComponent(
       () => import("@/components/stake/AvailableNetworksBlock.vue")
+    ),
+    Tooltip: defineAsyncComponent(
+      () => import("@/components/ui/icons/Tooltip.vue")
+    ),
+    RowSkeleton: defineAsyncComponent(
+      () => import("@/components/ui/skeletons/RowSkeleton.vue")
     ),
   },
 };
@@ -91,12 +119,23 @@ export default {
   overflow: auto;
 }
 
-.networks-wrap {
+.common-info {
   display: flex;
+  justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
   gap: 24px;
   margin-bottom: 32px;
+}
+
+.apr {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #fff;
+  text-shadow: 0px 0px 16px #ab5de8;
+  font-size: 16px;
+  font-weight: 600;
 }
 
 .actions-wrapper {
@@ -122,6 +161,16 @@ export default {
 
 .actions-wrapper::v-deep(.action-button) {
   margin-top: 24px;
+}
+
+.row-skeleton {
+  height: 24px !important;
+}
+
+@media (max-width: 760px) {
+  .apr {
+    display: none;
+  }
 }
 
 @media (max-width: 500px) {
