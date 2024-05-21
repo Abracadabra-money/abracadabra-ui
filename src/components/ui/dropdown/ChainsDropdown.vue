@@ -42,12 +42,12 @@
       </svg>
     </button>
 
-    <div class="dropdown-list" v-if="showDropdownList">
+    <div class="dropdown-list" ref="dropdownList" v-if="showDropdownList">
       <div class="select-all">
         <h6 class="list-title">Select all</h6>
         <Toggle
-          :selected="selectedChains.length === orderedActiveChains.length"
-          @updateToggle="updateSelectedChain"
+          :selected="allSelected"
+          @updateToggle="$emit('selectAllChains')"
         />
       </div>
 
@@ -62,12 +62,17 @@
         </div>
 
         <div
-          :class="['checkbox', { active: selectedChains.includes(+chainId) }]"
+          :class="[
+            'checkbox',
+            {
+              active: selectedChains.includes(+chainId) && !allSelected,
+            },
+          ]"
           @click="updateSelectedChain(+chainId)"
         >
           <svg
             class="checked"
-            v-show="selectedChains.includes(+chainId)"
+            v-show="selectedChains.includes(+chainId) && !allSelected"
             xmlns="http://www.w3.org/2000/svg"
             width="20"
             height="20"
@@ -113,6 +118,10 @@ export default {
   },
 
   computed: {
+    allSelected() {
+      return this.selectedChains.length === this.orderedActiveChains.length;
+    },
+
     chains() {
       if (!this.selectedChains.length) return [];
       else return [...this.selectedChains].splice(0, 3) || [];
@@ -134,6 +143,16 @@ export default {
     chainsStyle() {
       if (!this.chains.length) return "";
       return `width: ${20 + 10 * (this.chains.length - 1)}px`;
+    },
+  },
+
+  watch: {
+    allSelected(value) {
+      if (value && this.$refs.dropdownList)
+        this.$refs.dropdownList.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
     },
   },
 
