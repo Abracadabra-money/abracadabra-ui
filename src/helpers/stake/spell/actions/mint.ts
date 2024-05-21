@@ -4,8 +4,9 @@ import {
   waitForTransactionReceiptHelper,
 } from "@/helpers/walletClienHelper";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
+import type { ContractInfo } from "@/types/global";
 
-export const mint = async (contract: any, amount: any) => {
+export const mint = async (contract: ContractInfo, amount: bigint) => {
   try {
     const { request } = await simulateContractHelper({
       ...contract,

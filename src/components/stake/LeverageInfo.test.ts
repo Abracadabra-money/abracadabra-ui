@@ -16,7 +16,7 @@ describe("LeverageInfo", () => {
 
   it("does not render router-link when leverageInfo.id is not provided", () => {
     const selectedNetwork = 1;
-    const leverageInfo = { label: "Leverage Info" };
+    const leverageInfo = { label: "Leverage Info", id: 123 };
     const wrapper = shallowMount(LeverageInfo, {
       propsData: { selectedNetwork, leverageInfo },
     });

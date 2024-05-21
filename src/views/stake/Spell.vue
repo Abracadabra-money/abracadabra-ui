@@ -39,9 +39,9 @@
 
             <BaseTokenInput
               :value="inputValue"
-              :icon="fromToken.icon"
-              :name="fromToken.name"
-              :max="fromToken.balance"
+              :icon="fromToken!.icon"
+              :name="fromToken!.name"
+              :max="fromToken!.balance"
               :tokenPrice="formatUnits(fromToken.price, fromToken.decimals)"
               :disabled="isUserLocked"
               @updateInputValue="updateMainValue"
@@ -65,7 +65,7 @@
             v-if="isMSpellActive && isMobile"
             :isUnsupportedChain="isUnsupportedChain"
             :isDisableClaimButton="isDisableClaimButton"
-            :claimAmount="formatAmount(mainToken.claimableAmount)"
+            :claimAmount="formatAmount((mainToken as MSpellInfo).claimableAmount)"
             @claimMim="claimMimHandler"
           />
 
@@ -142,14 +142,14 @@
         />
 
         <div class="row">
-          <StakingAprBlock :apr="mainToken.apr" v-if="!isMobile" />
+          <StakingAprBlock :apr="Number(mainToken?.apr)" v-if="!isMobile" />
 
           <ClaimMimBlock
             class="claim-wrap"
             v-if="isMSpellActive && !isMobile"
             :isUnsupportedChain="isUnsupportedChain"
             :isDisableClaimButton="isDisableClaimButton"
-            :claimAmount="formatAmount(mainToken.claimableAmount)"
+            :claimAmount="formatAmount((mainToken as MSpellInfo).claimableAmount)"
             @claimMim="claimMimHandler"
           />
 
@@ -172,10 +172,15 @@
 
 <script lang="ts">
 import {
+  formatUSD,
   formatToFixed,
   formatTokenBalance,
-  formatUSD,
 } from "@/helpers/filters";
+import type {
+  MSpellInfo,
+  SSpellInfo,
+  SpellStakeInfo,
+} from "@/helpers/stake/spell/types";
 import { utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
@@ -199,13 +204,13 @@ export default {
       ],
       activeTab: "stake",
       tabItems: ["stake", "unstake"],
-      selectedNetwork: null as any,
+      selectedNetwork: 1,
       mSpellNetworks: [1, 250, 42161, 43114],
       sSpelleNetworks: [1],
-      stakeInfoArr: null as any,
-      inputAmount: BigInt(0) as bigint,
+      stakeInfoArr: null as null | SpellStakeInfo[],
+      inputAmount: BigInt(0),
       inputValue: "" as string | bigint,
-      updateInterval: null as any,
+      updateInterval: null as null | NodeJS.Timeout,
       isMobile: false,
       isAdditionalInfo: false,
     };
@@ -223,7 +228,10 @@ export default {
     },
 
     isUserLocked() {
-      const { lockTimestamp } = this.stakeInfo[this.activeToken];
+      if (!this.stakeInfo) return false;
+      const { lockTimestamp } = this.stakeInfo[
+        this.activeToken as "mSpell" | "sSpell"
+      ] as MSpellInfo | SSpellInfo;
       return !!Number(lockTimestamp) && !this.isStakeAction;
     },
 
@@ -234,7 +242,7 @@ export default {
     isDisableClaimButton() {
       if (+this.mainToken?.lockTimestamp) return true;
       if (!this.isUnsupportedChain) return true;
-      return this.mainToken?.claimableAmount <= 0n;
+      return (this.mainToken as MSpellInfo).claimableAmount <= 0n;
     },
 
     isUnsupportedChain() {
@@ -245,10 +253,14 @@ export default {
       if (!this.account) return true;
       if (!this.isStakeAction) return true;
       if (!this.isUnsupportedChain) return true;
-      return this.toToken.approvedAmount >= this.inputAmount;
+      return (
+        (this.toToken as MSpellInfo | SSpellInfo)?.approvedAmount >=
+        this.inputAmount
+      );
     },
 
     isInsufficientBalance() {
+      if (!this.fromToken) return true;
       return this.inputAmount > this.fromToken.balance;
     },
 
@@ -265,7 +277,6 @@ export default {
     },
 
     availableNetworks() {
-      this.stakeInfo;
       if (this.activeToken === "mSpell") return this.mSpellNetworks;
       return this.sSpelleNetworks;
     },
@@ -273,17 +284,21 @@ export default {
     stakeInfo() {
       if (!this.stakeInfoArr) return null;
 
-      return this.stakeInfoArr.find(
-        (info: any) => +info.chainId === +this.selectedNetwork
+      const stakeInfo = this.stakeInfoArr.find(
+        (info: SpellStakeInfo) =>
+          Number(info.chainId) === Number(this.selectedNetwork)
       );
+
+      if (!stakeInfo) return null;
+      return stakeInfo;
     },
 
     stakeToken() {
-      return this.stakeInfo?.spell;
+      return this.stakeInfo!.spell;
     },
 
     mainToken() {
-      return this.stakeInfo[this.activeToken];
+      return this.stakeInfo![this.activeToken as "mSpell" | "sSpell"];
     },
 
     fromToken() {
@@ -295,6 +310,7 @@ export default {
     },
 
     expectedAmount() {
+      if (!this.mainToken) return "0";
       const amount = this.isStakeAction
         ? (this.inputAmount * this.precision) / this.mainToken.rate
         : (this.inputAmount * this.mainToken.rate) / this.precision;
@@ -302,7 +318,8 @@ export default {
       return formatToFixed(formatUnits(amount, this.mainToken.decimals), 6);
     },
 
-    precision(): bigint {
+    precision() {
+      if (!this.mainToken) return parseUnits("1", 18);
       return parseUnits("1", this.mainToken.decimals);
     },
 
@@ -321,7 +338,7 @@ export default {
         },
         {
           label: this.activeToken,
-          icon: this.mainToken.icon,
+          icon: this.mainToken?.icon,
           balance: formatTokenBalance(
             formatUnits(this.mainToken.balance, this.mainToken.decimals)
           ),
@@ -343,7 +360,10 @@ export default {
     },
 
     actionInfo() {
-      const info: any = { methodName: null, options: [] };
+      const info = {
+        methodName: null as null | string,
+        options: [] as bigint[],
+      };
 
       if (this.isStakeAction) {
         if (this.activeToken === "sSpell") {
@@ -391,6 +411,7 @@ export default {
     },
 
     totalSupply() {
+      if (!this.mainToken) return "0";
       return formatTokenBalance(utils.formatUnits(this.mainToken.totalSupply));
     },
   },
@@ -421,10 +442,10 @@ export default {
     formatTokenBalance,
 
     formatAmount(value: bigint) {
-      return formatUnits(value, this.mainToken.decimals);
+      return formatUnits(value, this.mainToken?.decimals || 18);
     },
 
-    changeToken(token: string) {
+    changeToken(token: "mSpell" | "sSpell") {
       localStorage.setItem("SPELL_SELECTED_TOKEN", token);
       this.activeToken = token;
       this.activeTab = "stake";
@@ -452,7 +473,7 @@ export default {
         this.inputAmount = BigInt(0);
       } else {
         this.inputAmount = amount;
-        this.inputValue = formatUnits(amount, this.mainToken.decimals);
+        this.inputValue = formatUnits(amount, this.mainToken?.decimals || 18);
       }
     },
 
@@ -471,10 +492,10 @@ export default {
         notification.pending
       );
 
-      const { error }: any = await actions.withdraw(
-        this.mainToken.contract,
+      const { error } = (await actions.withdraw(
+        this.mainToken!.contract,
         ZERO_VALUE
-      );
+      )) as { error?: string };
 
       if (error) {
         await this.deleteNotification(notificationId);
@@ -495,7 +516,7 @@ export default {
 
       const approve = await approveTokenViem(
         this.stakeToken.contract,
-        this.mainToken.contract.address
+        this.mainToken!.contract.address
       );
 
       if (approve) await this.createStakeInfo();
@@ -525,7 +546,7 @@ export default {
       );
 
       // @ts-ignore
-      const { error }: any = await actions[this.actionInfo.methodName](
+      const { error } = await actions[this.actionInfo.methodName](
         this.mainToken.contract,
         ...this.actionInfo.options
       );
@@ -579,7 +600,7 @@ export default {
   },
 
   beforeUnmount() {
-    clearInterval(this.updateInterval);
+    clearInterval(Number(this.updateInterval));
     window.removeEventListener("resize", this.getWindowSize);
   },
 

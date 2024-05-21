@@ -1,30 +1,34 @@
-import { ONE_ETHER_VIEM } from "@/constants/global";
+import type { PublicClient } from "viem";
 import type { ContractInfo } from "@/types/global";
+import { ONE_ETHER_VIEM } from "@/constants/global";
+import { MAINNET_SPELL_ADDRESS } from "@/constants/tokensAddress";
 
 export const getSpellToSSpellRate = async (
   spell: ContractInfo,
   sSpell: ContractInfo,
-  publicClient: any
+  publicClient: PublicClient
 ) => {
   try {
-    const [spellSSpellBalance, totalSupply]: any =
-      await publicClient.readContracts({
-        contracts: [
-          {
-            address: "0x090185f2135308BaD17527004364eBcC2D37e5F6",
-            abi: spell.abi,
-            functionName: "balanceOf",
-            args: [sSpell.address],
-          },
-          {
-            ...sSpell,
-            functionName: "totalSupply",
-            args: [],
-          },
-        ],
-      });
+    const [spellSSpellBalance, totalSupply] = await publicClient.multicall({
+      contracts: [
+        {
+          address: MAINNET_SPELL_ADDRESS,
+          abi: spell.abi,
+          functionName: "balanceOf",
+          args: [sSpell.address],
+        },
+        {
+          ...sSpell,
+          functionName: "totalSupply",
+          args: [],
+        },
+      ],
+    });
 
-    return (spellSSpellBalance.result * ONE_ETHER_VIEM) / totalSupply.result;
+    return (
+      ((spellSSpellBalance.result as bigint) * ONE_ETHER_VIEM) /
+      (totalSupply.result as bigint)
+    );
   } catch (error) {
     return ONE_ETHER_VIEM;
   }

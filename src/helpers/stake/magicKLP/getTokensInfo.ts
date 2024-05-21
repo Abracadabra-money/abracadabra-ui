@@ -1,12 +1,13 @@
 import { formatUnits } from "viem";
-import type { Address } from "viem";
-import type { TokensInfo } from "@/types/magicKlp/tokensInfo";
+import type { Address, PublicClient } from "viem";
+import type { TokensInfo } from "@/helpers/stake/types";
+import type { ChainConfig } from "@/configs/stake/magicKlpConfig";
 import { ONE_ETHER_VIEM, RANDOM_ACCOUNT } from "@/constants/global";
 
 export const getTokensInfo = async (
   address: Address,
-  config: any,
-  publicClient: any
+  config: ChainConfig,
+  publicClient: PublicClient
 ): Promise<TokensInfo> => {
   const { mainToken, stakeToken, manager, reader } = config;
 
@@ -19,7 +20,7 @@ export const getTokensInfo = async (
     aums,
     lastAdded,
     tokenBalancesWithSupplies,
-  ]: any = await publicClient.multicall({
+  ] = await publicClient.multicall({
     contracts: [
       {
         ...mainToken.contract,
@@ -64,18 +65,22 @@ export const getTokensInfo = async (
     ],
   });
 
-  const aum = aums.result[0];
-  const klpSupply = tokenBalancesWithSupplies.result[1];
+  const aum: bigint = (aums.result as bigint[])[0];
+  const klpSupply: bigint = (tokenBalancesWithSupplies.result as bigint[])[1];
+
   const stakeTokenPrice = (aum * 1000000n) / klpSupply;
 
-  const mainTokenPrice = (stakeTokenPrice * tokensRate.result) / ONE_ETHER_VIEM;
+  const mainTokenPrice =
+    (stakeTokenPrice * (tokensRate.result as bigint)) / ONE_ETHER_VIEM;
 
-  const totalSupplyUsd = (totalSupply.result * mainTokenPrice) / ONE_ETHER_VIEM;
+  const totalSupplyUsd =
+    ((totalSupply.result as bigint) * mainTokenPrice) / ONE_ETHER_VIEM;
   const mainTokenBalanceUsd =
-    (userMainTokenBalance.result * mainTokenPrice) / ONE_ETHER_VIEM;
+    ((userMainTokenBalance.result as bigint) * mainTokenPrice) / ONE_ETHER_VIEM;
 
   const stakeTokenBalanceUsd =
-    (userStakeTokenBalance.result * stakeTokenPrice) / ONE_ETHER_VIEM;
+    ((userStakeTokenBalance.result as bigint) * stakeTokenPrice) /
+    ONE_ETHER_VIEM;
 
   return {
     mainToken: {
@@ -84,10 +89,10 @@ export const getTokensInfo = async (
       rateIcon: mainToken.rateIcon,
       decimals: mainToken.decimals,
       price: mainTokenPrice,
-      rate: tokensRate.result,
-      totalSupply: totalSupply.result,
+      rate: tokensRate.result as bigint,
+      totalSupply: totalSupply.result as bigint,
       totalSupplyUsd,
-      balance: userMainTokenBalance.result,
+      balance: userMainTokenBalance.result as bigint,
       balanceUsd: mainTokenBalanceUsd,
       contract: mainToken.contract,
     },
@@ -96,11 +101,11 @@ export const getTokensInfo = async (
       icon: stakeToken.icon,
       decimals: mainToken.decimals,
       price: stakeTokenPrice,
-      approvedAmount: allowanceAmount.result,
-      balance: userStakeTokenBalance.result,
+      approvedAmount: allowanceAmount.result as bigint,
+      balance: userStakeTokenBalance.result as bigint,
       balanceUsd: stakeTokenBalanceUsd,
       contract: stakeToken.contract,
-      lastAdded: formatUnits(lastAdded.result, 0),
+      lastAdded: formatUnits(lastAdded.result as bigint, 0),
     },
   };
 };

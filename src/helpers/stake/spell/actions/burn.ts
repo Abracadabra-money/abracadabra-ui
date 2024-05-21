@@ -3,9 +3,15 @@ import {
   simulateContractHelper,
   waitForTransactionReceiptHelper,
 } from "@/helpers/walletClienHelper";
+import type { Address } from "viem";
+import type { ContractInfo } from "@/types/global";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 
-export const burn = async (contract: any, account: string, amount: any) => {
+export const burn = async (
+  contract: ContractInfo,
+  account: Address,
+  amount: bigint
+) => {
   try {
     const { request } = await simulateContractHelper({
       ...contract,

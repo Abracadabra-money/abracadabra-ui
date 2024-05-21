@@ -1,3 +1,11 @@
+type LabelCtx = {
+  dataset: {
+    label: string;
+    data: number[];
+  };
+  dataIndex: number;
+};
+
 export const getChartOptions = () => {
   return {
     responsive: true,
@@ -6,7 +14,7 @@ export const getChartOptions = () => {
         mode: "index",
         intersect: false,
         callbacks: {
-          label: function (context: any) {
+          label: function (context: LabelCtx) {
             const { dataset, dataIndex } = context;
             const { label, data } = dataset;
             return ` ${label} ${data[dataIndex].toFixed(2)}%`;
@@ -28,7 +36,7 @@ export const getChartOptions = () => {
             size: 10,
             weight: "light",
           },
-          callback: function (value: any) {
+          callback: function (value: number) {
             return `${value.toFixed(2)}%`;
           },
         },
