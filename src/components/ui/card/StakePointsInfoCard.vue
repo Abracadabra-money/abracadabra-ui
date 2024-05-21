@@ -108,7 +108,33 @@
           </div>
         </template>
 
-        <div class="tab-caming-soon" v-if="activeTab === 3">Coming soon</div>
+        <template v-if="activeTab === 3">
+          <div class="tab-row">
+            <span class="tab-row-title">Potion earned</span>
+            <span class="tab-row-value">{{ potioonDistributionAmount }}</span>
+          </div>
+          <div class="tab-row">
+            <span class="tab-row-title">Your Next Distribution</span>
+            <span class="tab-row-value">
+              {{ potionPendingDistributionAmount }}</span
+            >
+          </div>
+
+          <div class="line"></div>
+
+          <div class="tab-row">
+            <span class="tab-row-title"
+              >Pool Rate
+              <Tooltip
+                :width="20"
+                :height="20"
+                tooltip="Hourly distribution towards the entire liquidity pool"
+            /></span>
+            <span class="tab-row-value">
+              {{ totalPotionPendingDistributionAmount }}</span
+            >
+          </div>
+        </template>
       </div>
     </div>
   </div>
@@ -198,9 +224,21 @@ export default {
       );
     },
 
+    potioonDistributionAmount() {
+      return formatTokenBalance(
+        this.userPointsStatistics?.potionPoints?.lp?.finalized ?? 0
+      );
+    },
+
     goldPendingDistributionAmount() {
       return formatTokenBalance(
         this.userPointsStatistics?.developerPoints?.lp?.pending ?? 0
+      );
+    },
+
+    potionPendingDistributionAmount() {
+      return formatTokenBalance(
+        this.userPointsStatistics?.potionPoints?.lp?.pending ?? 0
       );
     },
 
@@ -213,6 +251,12 @@ export default {
     totalGoldPendingDistributionAmount() {
       return formatTokenBalance(
         this.pointsStatistics?.developerPoints?.lp?.pending ?? 0
+      );
+    },
+
+    totalPotionPendingDistributionAmount() {
+      return formatTokenBalance(
+        this.pointsStatistics?.potionPoints?.lp?.pending ?? 0
       );
     },
   },
