@@ -23,6 +23,12 @@
           :pendingDeveloperPoints="
             userPointsStatistics?.developerPoints?.total?.pending ?? 0
           "
+          :potionPoints="
+            userPointsStatistics?.potionPoints?.total?.finalized ?? 0
+          "
+          :pendingPotionPoints="
+            userPointsStatistics?.potionPoints?.total?.pending ?? 0
+          "
         />
       </div>
       <Banner :pointsStatistics="pointsStatistics" />
