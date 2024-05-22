@@ -19,7 +19,7 @@
 
         <ArbitrumBlock />
 
-        <!-- <CauldronsCarousel /> -->
+        <CauldronsCarousel />
 
         <CauldronsTable
           :cauldrons="cauldrons"
