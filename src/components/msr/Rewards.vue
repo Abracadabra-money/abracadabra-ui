@@ -89,21 +89,24 @@ export default {
 
   computed: {
     rewards(): TokenRewards[] {
-      if (!this.mimSavingRateInfo)
+      if (
+        !this.mimSavingRateInfo ||
+        this.mimSavingRateInfo.userInfo.userRewardLock.items.length === 0
+      )
         return [
           {
             name: "",
             icon: "",
-            total: "",
-            claimable: "",
-            vesting: "",
+            total: "0.0",
+            claimable: "0.0",
+            vesting: "0.0",
           },
           {
             name: "",
             icon: "",
-            total: "",
-            claimable: "",
-            vesting: "",
+            total: "0.0",
+            claimable: "0.0",
+            vesting: "0.0",
           },
         ];
 
@@ -122,8 +125,7 @@ export default {
         };
 
       const unlockTimeTimestamp =
-        Number(this.mimSavingRateInfo.userInfo.userRewardLock.unlockTime) *
-        1000;
+        Number(this.mimSavingRateInfo.nextUnlockTime) * 1000;
 
       return {
         time: moment.utc(unlockTimeTimestamp),
@@ -134,13 +136,16 @@ export default {
 
   methods: {
     createRewardToken(arrayIndex: number): TokenRewards {
-      if (!this.mimSavingRateInfo)
+      if (
+        !this.mimSavingRateInfo ||
+        this.mimSavingRateInfo.userInfo.userRewardLock.items.length === 0
+      )
         return {
           name: "",
           icon: "",
-          total: "",
-          claimable: "",
-          vesting: "",
+          total: "0",
+          claimable: "0",
+          vesting: "0",
         };
 
       const tokenInfo = this.mimSavingRateInfo.rewardTokens[arrayIndex];
