@@ -1,18 +1,19 @@
 import moment from "moment";
+import { formatUnits } from "viem";
 import { useImage } from "@/helpers/useImage";
-import { formatUnits, type Address } from "viem";
+import type { Address, PublicClient } from "viem";
 import { ONE_ETHER_VIEM } from "@/constants/global";
-import type { ChainSpellConfig } from "@/types/spell/configsInfo";
-import type { MSpellInfo, SpellInfo } from "@/types/spell/stakeInfo";
+import type { SpellStakeConfig } from "@/configs/stake/spellConfig";
+import type { MSpellInfo, SpellInfo } from "@/helpers/stake/spell/types";
 
 export const getMSpellInfo = async (
-  { mSpell }: ChainSpellConfig,
+  { mSpell }: SpellStakeConfig,
   spell: SpellInfo,
   price: bigint,
   account: Address,
-  publicClient: any
+  publicClient: PublicClient
 ): Promise<MSpellInfo> => {
-  const [approvedAmount, totalSupply, mSpellUserInfo, rewardAmount]: any =
+  const [approvedAmount, totalSupply, mSpellUserInfo, rewardAmount] =
     await publicClient.multicall({
       contracts: [
         {
@@ -23,7 +24,7 @@ export const getMSpellInfo = async (
         {
           ...spell.contract,
           functionName: "balanceOf",
-          args: [mSpell.contract.address]
+          args: [mSpell.contract.address],
         },
         {
           ...mSpell.contract,
@@ -38,8 +39,8 @@ export const getMSpellInfo = async (
       ],
     });
 
-  const [userMSpellBalance, _, lastAdded]: any = mSpellUserInfo.result;
-  const formatLastAdded = +formatUnits(lastAdded, 0);
+  const [userMSpellBalance, _, lastAdded] = mSpellUserInfo.result as bigint[];
+  const formatLastAdded = Number(formatUnits(lastAdded, 0));
   const currentTimestamp = moment();
   const lastAddedTimestamp = formatLastAdded
     ? moment.unix(formatLastAdded).add(1, "d")
@@ -57,8 +58,8 @@ export const getMSpellInfo = async (
     rate: ONE_ETHER_VIEM,
     lockTimestamp,
     balance: userMSpellBalance,
-    approvedAmount: approvedAmount.result,
-    claimableAmount: rewardAmount.result,
-    totalSupply: totalSupply.result,
+    approvedAmount: approvedAmount.result as bigint,
+    claimableAmount: rewardAmount.result as bigint,
+    totalSupply: totalSupply.result as bigint,
   };
 };

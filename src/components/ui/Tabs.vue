@@ -16,18 +16,19 @@
 </template>
 
 <script lang="ts">
-//  todo
+import type { PropType } from "vue";
+
 export default {
   props: {
     name: {
       type: String,
     },
     items: {
-      type: Array,
+      type: Array as PropType<string[]>,
       default: () => [],
     },
     icons: {
-      type: Array as any,
+      type: Array as PropType<string[]>,
       default: () => [],
     },
     width: {
@@ -43,7 +44,7 @@ export default {
       default: "#7088cc",
     },
     disabledTabs: {
-      type: Array,
+      type: Array as PropType<string[]>,
       default: () => [],
     },
   },

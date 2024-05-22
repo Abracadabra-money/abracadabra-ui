@@ -1,15 +1,17 @@
-import { getAccountHelper } from "@/helpers/walletClienHelper";
+import type { Address } from "viem";
 import { magicApeConfig } from "@/configs/stake/magicApeConfig";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
+import type { MagicApeConfig } from "@/configs/stake/magicApeConfig";
 import { getTokensInfo } from "@/helpers/stake/magicApe/getTokensInfo";
+import type { MagicGlpStakeInfo } from "@/helpers/stake/magicGlp/types";
 import { getAdditionalInfo } from "@/helpers/stake/magicApe/getAdditionalInfo";
 
-export const getStakeInfo = async () => {
-  const { address } = await getAccountHelper();
-
+export const getStakeInfo = async (
+  address: Address
+): Promise<MagicGlpStakeInfo[]> => {
   return await Promise.all(
     Object.keys(magicApeConfig).map(async (chainId: string) => {
-      const config: any =
+      const config: MagicApeConfig =
         magicApeConfig[Number(chainId) as keyof typeof magicApeConfig];
 
       const publicClient = getPublicClient(Number(chainId));
@@ -23,10 +25,12 @@ export const getStakeInfo = async () => {
       const additionalInfo = await getAdditionalInfo(config, publicClient);
 
       return {
-        chainId,
+        chainId: Number(chainId),
         mainToken,
         stakeToken,
-        ...additionalInfo,
+        feePercent: additionalInfo.feePercent,
+        leverageInfo: additionalInfo.leverageInfo,
+        rewardToken: additionalInfo.rewardToken,
       };
     })
   );
