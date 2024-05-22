@@ -242,6 +242,7 @@ const config: Array<CauldronConfig> = [
       hasWithdrawableLimit: false,
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
+      isYvWethV2: true,
     },
     contract: {
       name: "PrivilegedCauldronV4",
@@ -576,6 +577,7 @@ const config: Array<CauldronConfig> = [
       hasWithdrawableLimit: false,
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
+      isCvxTricrypto: true,
     },
     contract: {
       name: "PrivilegedCheckpointCauldronV4",
@@ -925,6 +927,7 @@ const config: Array<CauldronConfig> = [
       hasWithdrawableLimit: false,
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
+      isCvx3pool: true
     },
     contract: {
       name: "PrivilegedCheckpointCauldronV4",

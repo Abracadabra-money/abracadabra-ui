@@ -11,7 +11,12 @@ const recipe0xDeleverage = async (
 ): Promise<any> => {
   const { collateral, mim, liquidationSwapper } = cauldronObject.contracts;
 
-  const swapData = await getDelev0xData(cauldronObject, shareFrom, slipage);
+  const swapData = await getDelev0xData(
+    cauldronObject,
+    shareFrom,
+    slipage,
+    userAddr
+  );
 
   const swapStaticTx = await liquidationSwapper.populateTransaction.swap(
     collateral.address,

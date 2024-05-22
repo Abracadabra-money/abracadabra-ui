@@ -1,15 +1,46 @@
+import { utils } from "ethers";
 import fetchLev0xData from "./fetchLev0xData";
 import getVelodrome0xData from "./getVelodrome0xData";
 
+const apeAddress = "0x4d224452801ACEd8B2F0aebE155379bb5D594381";
+const usdtAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
+
 const getLev0xData = async (cauldronObject, amount, slipage) => {
-  const { isVelodrome, isMagicApe, isStargateUSDT } =
-    cauldronObject.config.cauldronSettings;
+  const {
+    isVelodrome,
+    isMagicApe,
+    isStargateUSDT,
+    isYvWethV2,
+    isCvxTricrypto,
+    isCvx3pool,
+  } = cauldronObject.config.cauldronSettings;
 
   if (isVelodrome) return getVelodrome0xData();
+
   if (isMagicApe)
     return await fetchLev0xData(cauldronObject, amount, slipage, apeAddress);
+
   if (isStargateUSDT)
     return await fetchLev0xData(cauldronObject, amount, slipage, usdtAddress);
+
+  if (isYvWethV2)
+    return await fetchLev0xData(cauldronObject, amount, slipage, wethAddress);
+
+  if (isCvxTricrypto || isCvx3pool) {
+    const swapResponseData = fetchLev0xData(
+      cauldronObject,
+      amount,
+      slipage,
+      usdtAddress
+    );
+
+    const tokenIndex = isCvx3pool ? 2 : 0;
+
+    return utils.defaultAbiCoder.encode(
+      ["address", "uint256", "bytes"],
+      [wethAddress, tokenIndex, swapResponseData]
+    );
+  }
 
   return await fetchLev0xData(cauldronObject, amount, slipage);
 };

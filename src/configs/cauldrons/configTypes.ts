@@ -27,6 +27,9 @@ type CauldronSettings = {
   isTesting?: boolean;
   hasWhitelistLogic?: boolean;
   useDegenBoxHelper?: boolean;
+  isYvWethV2?: boolean;
+  isCvxTricrypto?: boolean;
+  isCvx3pool?: boolean;
 };
 
 type MimInfo = {
