@@ -35,8 +35,10 @@
         <div class="date-time">
           <RowSkeleton v-if="isMimSavingRateInfoLoading" />
           <span class="date" v-else>{{
-            formatTimestampToUnix(mimSavingRateInfo?.nextUnlockTime
-            , "DD MMM. YYYY")
+            formatTimestampToUnix(
+              mimSavingRateInfo?.nextUnlockTime,
+              "DD MMM. YYYY"
+            )
           }}</span>
           <span class="time"> (00:01 UTC)</span>
         </div>
@@ -188,6 +190,7 @@ export default {
       } else {
         this.$emit("updateMimSavingRateInfo");
         await this.createNotification(notification.success);
+        this.resetAmounts();
       }
     },
 
@@ -214,6 +217,7 @@ export default {
       } else {
         this.$emit("updateMimSavingRateInfo");
         await this.createNotification(notification.success);
+        this.resetAmounts();
       }
     },
 
@@ -235,8 +239,6 @@ export default {
       } else {
         await this.lockActionHandler();
       }
-
-      this.resetAmounts();
     },
 
     resetAmounts() {
