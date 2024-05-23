@@ -35,7 +35,8 @@
         <div class="date-time">
           <RowSkeleton v-if="isMimSavingRateInfoLoading" />
           <span class="date" v-else>{{
-            formatTimestampToUnix(mimSavingRateInfo?.nextEpoch, "DD MMM. YYYY")
+            formatTimestampToUnix(mimSavingRateInfo?.nextUnlockTime
+            , "DD MMM. YYYY")
           }}</span>
           <span class="time"> (00:01 UTC)</span>
         </div>

@@ -89,10 +89,7 @@ export default {
 
   computed: {
     rewards(): TokenRewards[] {
-      if (
-        !this.mimSavingRateInfo ||
-        this.mimSavingRateInfo.userInfo.userRewardLock.items.length === 0
-      )
+      if (!this.mimSavingRateInfo)
         return [
           {
             name: "",
@@ -110,7 +107,7 @@ export default {
           },
         ];
 
-      return this.mimSavingRateInfo.userInfo.userRewardLock.items.map(
+      return this.mimSavingRateInfo.rewardTokens.map(
         (_: any, index: number) => {
           return this.createRewardToken(index);
         }
@@ -125,7 +122,7 @@ export default {
         };
 
       const unlockTimeTimestamp =
-        Number(this.mimSavingRateInfo.nextUnlockTime) * 1000;
+        Number(this.mimSavingRateInfo.nextEpoch) * 1000;
 
       return {
         time: moment.utc(unlockTimeTimestamp),
@@ -136,23 +133,13 @@ export default {
 
   methods: {
     createRewardToken(arrayIndex: number): TokenRewards {
-      if (
-        !this.mimSavingRateInfo ||
-        this.mimSavingRateInfo.userInfo.userRewardLock.items.length === 0
-      )
-        return {
-          name: "",
-          icon: "",
-          total: "0",
-          claimable: "0",
-          vesting: "0",
-        };
+      const tokenInfo = this.mimSavingRateInfo!.rewardTokens[arrayIndex];
 
-      const tokenInfo = this.mimSavingRateInfo.rewardTokens[arrayIndex];
-      const userInfo = this.mimSavingRateInfo.userInfo;
+      const userInfo = this.mimSavingRateInfo!.userInfo;
       const total: bigint = userInfo?.earned[`token${arrayIndex}`] || 0n;
 
-      const rewardLockAmount = userInfo.userRewardLock.items[arrayIndex].amount;
+      const rewardLockAmount =
+        userInfo?.userRewardLock.items[arrayIndex]?.amount || 0n;
 
       let claimable: bigint = this.isUserRewardLockExpired
         ? rewardLockAmount
