@@ -66,6 +66,7 @@ export default {
   computed: {
     ...mapGetters({
       account: "getAccount",
+      chainId: "getChainId",
       getChainById: "getChainById",
     }),
 
@@ -103,6 +104,10 @@ export default {
 
   watch: {
     async account() {
+      await this.createMimSavingRateInfo();
+    },
+
+    async chainId() {
       await this.createMimSavingRateInfo();
     },
   },
