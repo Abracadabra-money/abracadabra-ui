@@ -21,9 +21,9 @@
         <BaseLink
           v-if="tokenLinkData"
           :href="tokenLinkData.href"
-          target="_blank"
           :text="tokenLinkData.label"
           :icon="tokenLinkData.icon"
+          target="_blank"
         />
 
         <div class="testing-chip" v-if="showTestnetChip">
@@ -54,16 +54,19 @@
 <script lang="ts">
 import { mapGetters } from "vuex";
 import { formatUnits } from "viem";
-import { defineAsyncComponent } from "vue";
 import { formatLargeSum } from "@/helpers/filters";
 import { BERA_CHAIN_ID } from "@/constants/global";
+import { defineAsyncComponent, type PropType } from "vue";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 import { getTokenLinkData } from "@/helpers/getTokenLinkData";
+import { addTokenToWallet } from "@/helpers/addTokenToWallet";
 import { getChainConfig } from "@/helpers/chains/getChainsInfo";
 
 export default {
   props: {
     cauldron: {
-      type: Object as any,
+      type: Object as PropType<CauldronInfo>,
+      required: true,
     },
   },
 
@@ -77,10 +80,10 @@ export default {
     },
 
     strategyLink() {
-      return this.cauldron.config.cauldronSettings.strategyLink;
+      return this.cauldron.config.cauldronSettings.strategyLink as string;
     },
 
-    tokenLinkData(): any {
+    tokenLinkData() {
       return getTokenLinkData(
         this.cauldron.config.id,
         this.cauldron.config.chainId
@@ -101,8 +104,8 @@ export default {
 
     cauldronScanUrl() {
       const chainConfig = getChainConfig(this.cauldron.config.chainId);
-      // @ts-ignore
-      return `${chainConfig?.viemConfig?.blockExplorers?.etherscan?.url}/address/${this.cauldron.config.contract.address}`;
+      const etherscanUrl = chainConfig?.viemConfig?.blockExplorers.default.url;
+      return `${etherscanUrl}/address/${this.cauldron.config.contract.address}`;
     },
 
     isActiveChain() {
@@ -112,26 +115,8 @@ export default {
 
   methods: {
     async addCollateral() {
-      const { ethereum }: any = window;
       const { collateralInfo, icon } = this.cauldron.config;
-
-      try {
-        // wasAdded is a boolean. Like any RPC method, an error may be thrown.
-        await ethereum.request({
-          method: "wallet_watchAsset",
-          params: {
-            type: "ERC20", // Initially only supports ERC20, but eventually more!
-            options: {
-              address: collateralInfo.address, // The address that the token is at.
-              symbol: collateralInfo.name, // A ticker symbol or shorthand, up to 5 chars.
-              decimals: collateralInfo.decimals, // The number of decimals in the token
-              image: icon, // A string url of the token logo
-            },
-          },
-        });
-      } catch (error) {
-        console.log("Add collateral token error:", error);
-      }
+      await addTokenToWallet(this.chainId, collateralInfo, icon);
     },
   },
 
