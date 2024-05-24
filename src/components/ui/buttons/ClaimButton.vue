@@ -14,7 +14,8 @@ import {
 } from "@/helpers/walletClienHelper";
 import { mapGetters } from "vuex";
 import { formatUnits } from "viem";
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, type PropType } from "vue";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 
 const cvxClaimableRewardAbi = [
@@ -29,7 +30,10 @@ const cvxClaimableRewardAbi = [
 
 export default {
   props: {
-    cauldron: { type: Object as any, require: true },
+    cauldron: {
+      type: Object as PropType<CauldronInfo>,
+      required: true,
+    },
   },
 
   data() {

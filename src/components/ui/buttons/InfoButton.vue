@@ -13,8 +13,8 @@ import { defineAsyncComponent } from "vue";
 
 export default {
   props: {
-    title: { type: String },
-    value: { type: String },
+    title: { type: String, required: true },
+    value: { type: String, required: true },
     tooltip: { type: String, default: "tooltip" },
   },
 

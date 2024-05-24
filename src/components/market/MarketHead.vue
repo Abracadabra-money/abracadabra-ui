@@ -130,14 +130,14 @@ export default {
     BaseLink: defineAsyncComponent(
       () => import("@/components/ui/links/BaseLink.vue")
     ),
-    InfoButton: defineAsyncComponent(
-      () => import("@/components/ui/buttons/InfoButton.vue")
-    ),
     DepositButton: defineAsyncComponent(
       () => import("@/components/ui/buttons/DepositButton.vue")
     ),
     ClaimButton: defineAsyncComponent(
       () => import("@/components/ui/buttons/ClaimButton.vue")
+    ),
+    InfoButton: defineAsyncComponent(
+      () => import("@/components/ui/buttons/InfoButton.vue")
     ),
   },
 };

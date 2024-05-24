@@ -12,12 +12,18 @@
 </template>
 
 <script lang="ts">
+import store from "@/store";
 import { mapGetters } from "vuex";
+import { defineAsyncComponent, type PropType } from "vue";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 import { getAdditionalStakeConfig } from "@/helpers/stake/getAdditionalStakeConfig";
-import { defineAsyncComponent } from "vue";
+
 export default {
   props: {
-    cauldron: { type: Object, required: true },
+    cauldron: {
+      type: Object as PropType<CauldronInfo>,
+      required: true,
+    },
   },
 
   computed: {
@@ -26,7 +32,7 @@ export default {
       chainId: "getChainId",
     }),
 
-    depositConfig(): any {
+    depositConfig() {
       return getAdditionalStakeConfig(
         this.cauldron.config.id,
         this.cauldron.config.chainId
@@ -36,8 +42,7 @@ export default {
 
   methods: {
     openCollateralPopup() {
-      // @ts-ignore
-      this.$store.commit("setPopupState", {
+      store.commit("setPopupState", {
         type: this.depositConfig.type,
         isShow: true,
         data: this.depositConfig?.data,

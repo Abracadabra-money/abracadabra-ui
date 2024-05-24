@@ -20,15 +20,18 @@
 </template>
 
 <script lang="ts">
+import type { PropType } from "vue";
 import { formatUnits, parseUnits } from "viem";
 import { ONE_ETHER_VIEM } from "@/constants/global";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 import { formatTokenBalance, formatToFixed } from "@/helpers/filters";
 
 export default {
   props: {
     cauldron: {
-      type: Object as any,
+      type: Object as PropType<CauldronInfo>,
+      required: true,
     },
   },
 
