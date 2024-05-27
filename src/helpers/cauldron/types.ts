@@ -1,4 +1,4 @@
-import type { BigNumber } from "ethers";
+import type { BigNumber, Contract } from "ethers";
 import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
 
 export type UserBorrowInfo = {
@@ -61,9 +61,20 @@ export type UserTokensInfo = {
   unwrappedTokenAllowance: BigNumber | null;
 };
 
+export type ContractsInfo = {
+  bentoBox: Contract;
+  cauldron: Contract;
+  collateral: Contract;
+  leverageSwapper: Contract;
+  liquidationSwapper: Contract;
+  mim: Contract;
+  unwrappedToken: Contract;
+  wrapper: Contract;
+};
+
 export type CauldronInfo = {
   config: CauldronConfig;
-  contracts: Object | null;
+  contracts: any;
   mainParams: MainParams;
   userPosition: UserPositions;
   userTokensInfo: UserTokensInfo | null;

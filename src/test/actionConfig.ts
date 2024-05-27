@@ -1,11 +1,13 @@
+import type { ActionConfig } from "@/helpers/cauldron/types";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
 import { BigNumber, utils } from "ethers";
 
-export const actionConfig = {
+export const actionConfig: ActionConfig = {
   useLeverage: false,
   useDeleverage: false,
   useNativeToken: false,
   useUnwrapToken: false,
+  withdrawUnwrapToken: false,
   amounts: {
     depositAmounts: {
       inputAmount: BigNumber.from(0),
