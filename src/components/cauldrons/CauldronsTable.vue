@@ -95,11 +95,7 @@ export default {
     },
 
     showEmptyBlock() {
-      return (
-        !this.cauldronsLoading &&
-        !this.cauldronsToRender.length &&
-        this.searchValue.length
-      );
+      return !this.cauldronsLoading && !this.cauldronsToRender.length;
     },
 
     cauldronsToRender() {
@@ -128,7 +124,7 @@ export default {
         this.sortKey,
         this.sortOrder
       );
-
+      
       return sortedByChain;
     },
 

@@ -277,7 +277,7 @@ path {
 .dropdown-list {
   position: absolute;
   top: 50px;
-  left: 0;
+  right: 0;
   border-radius: 12px;
   border: 1px solid rgba(180, 180, 180, 0.08);
   background: linear-gradient(0deg, #131b2d 0%, #131b2d 100%), #151826;
