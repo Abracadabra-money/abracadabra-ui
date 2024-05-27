@@ -13,7 +13,7 @@
         <h3 class="total-title">Total Gold Distributed</h3>
         <p class="total-value">
           {{
-            formatTokenBalance(
+            formatLargeSum(
               pointsStatistics?.developerPoints?.total?.finalized ?? 0
             )
           }}
@@ -33,7 +33,7 @@
         <h3 class="total-title">Total Potions Distributed</h3>
         <p class="total-value">
           {{
-            formatTokenBalance(
+            formatLargeSum(
               pointsStatistics?.potionPoints?.total?.finalized ?? 0
             )
           }}
@@ -44,7 +44,7 @@
 </template>
 
 <script lang="ts">
-import { formatTokenBalance, formatLargeSum } from "@/helpers/filters";
+import { formatLargeSum } from "@/helpers/filters";
 
 export default {
   props: {
@@ -56,7 +56,6 @@ export default {
 
   methods: {
     formatLargeSum,
-    formatTokenBalance,
   },
 };
 </script>
@@ -102,7 +101,7 @@ export default {
 }
 
 .total-wrap {
-  width: 710px;
+  width: 680px;
   display: flex;
   align-items: center;
   justify-content: space-between;
