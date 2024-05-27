@@ -26,20 +26,21 @@ export default {
   props: {
     cauldron: {
       type: Object as PropType<CauldronInfo>,
+      required: true,
     },
   },
 
   computed: {
-    mimLeftToBorrow(): string {
+    mimLeftToBorrow() {
       return formatLargeSum(
         formatUnits(
-          this.cauldron!.mainParams.alternativeData.mimLeftToBorrow,
+          this.cauldron.mainParams.alternativeData.mimLeftToBorrow,
           MIM_DECIMALS
         )
       );
     },
 
-    totalMimToBorrow(): string {
+    totalMimToBorrow() {
       const { mimLeftToBorrow, totalBorrowed } =
         this.cauldron!.mainParams.alternativeData;
 
@@ -48,7 +49,7 @@ export default {
       );
     },
 
-    currentFrame(): number {
+    currentFrame() {
       const { mimLeftToBorrow, totalBorrowed } =
         this.cauldron!.mainParams.alternativeData;
 
@@ -68,15 +69,13 @@ export default {
   },
 
   methods: {
-    initAnimation(): void {
-      const { anim }: any = this.$refs;
-
+    initAnimation() {
       const player = LottiePlayer.loadAnimation({
         renderer: "svg",
         loop: false,
         autoplay: false,
         path: "/mim.json",
-        container: anim,
+        container: this.$refs.anim as Element,
       });
 
       player.goToAndStop(this.currentFrame, true);

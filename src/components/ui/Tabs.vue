@@ -22,6 +22,7 @@ export default {
   props: {
     name: {
       type: String,
+      required: true,
     },
     items: {
       type: Array as PropType<string[]>,

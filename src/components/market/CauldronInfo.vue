@@ -74,14 +74,16 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent } from "vue";
 import { formatToFixed } from "@/helpers/filters";
+import { defineAsyncComponent, type PropType } from "vue";
 import { getCollateralApr } from "@/helpers/collateralsApy";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 
 export default {
   props: {
     cauldron: {
-      type: Object as any,
+      type: Object as PropType<CauldronInfo>,
+      required: true,
     },
   },
 
@@ -100,12 +102,6 @@ export default {
         )}%`;
       }
       return false;
-    },
-    chartData() {
-      return {
-        max: 200,
-        data: [{ value: 135.54 }],
-      };
     },
   },
 

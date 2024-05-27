@@ -2,7 +2,11 @@
   <div class="position-health">
     <div class="track-wrap">
       <div class="icon-wrap">
-        <img class="magician-icon" src="@/assets/images/magician.png" alt="" />
+        <img
+          class="magician-icon"
+          src="@/assets/images/magician.png"
+          alt="Magician icon"
+        />
         <div
           class="question-mark-wrap"
           v-tooltip="
@@ -35,12 +39,16 @@ import {
   getAlternativePositionHealth,
 } from "@/helpers/cauldron/utils";
 import { formatUnits } from "viem";
-import { defineAsyncComponent } from "vue";
 import { formatToFixed } from "@/helpers/filters";
+import { defineAsyncComponent, type PropType } from "vue";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 
 export default {
   props: {
-    cauldron: Object as any,
+    cauldron: {
+      type: Object as PropType<CauldronInfo>,
+      required: true,
+    },
   },
 
   computed: {
@@ -66,7 +74,10 @@ export default {
 
       if (percent > 10000n) return { percent: 100, status };
 
-      return { percent: formatUnits(percent, PERCENT_PRESITION), status };
+      return {
+        percent: Number(formatUnits(percent, PERCENT_PRESITION)),
+        status,
+      };
     },
   },
 
@@ -77,7 +88,7 @@ export default {
   },
 
   methods: {
-    formatPercent(value: any) {
+    formatPercent(value: number) {
       return formatToFixed(100 - value, 2);
     },
 
