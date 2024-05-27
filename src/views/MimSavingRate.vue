@@ -2,6 +2,7 @@
   <div class="msr-view">
     <MSRCarousel
       :mimSavingRateInfo="mimSavingRateInfo"
+      :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
       :actions="actions"
       :activeAction="activeAction"
       :isCarouselMode="isCarouselMode"

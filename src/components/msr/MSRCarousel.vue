@@ -37,9 +37,16 @@
     </div>
 
     <template v-if="isCarouselMode">
+      <RewardsInfo
+        :mimSavingRateInfo="mimSavingRateInfo"
+        :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
+        v-if="isOnClaim"
+      />
       <TotalInfo
         :mimSavingRateInfo="mimSavingRateInfo"
+        :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
         :activeTabItem="activeTabItem"
+        v-else
       />
     </template>
   </div>
@@ -58,6 +65,7 @@ export default {
       type: String as unknown as PropType<MSRActionName | null>,
     },
     isCarouselMode: { type: Boolean, required: true },
+    isMimSavingRateInfoLoading: { type: Boolean },
   },
 
   data() {
@@ -71,12 +79,16 @@ export default {
       return this.actions.map((action: MSRAction) => action.name);
     },
 
-    activeTabItem(): MSRActionName {
+    activeTabItem() {
       return (
         this.actions.find(
           (action: MSRAction) => action.name == this.activeAction
         )?.name || "Lock"
       );
+    },
+
+    isOnClaim() {
+      return this.activeTabItem == "Claim";
     },
 
     translateOffset() {
@@ -95,7 +107,10 @@ export default {
 
   components: {
     TotalInfo: defineAsyncComponent(
-      () => import("@/components/msr/TotalInfo.vue")
+      () => import("@/components/msr/totalInfo/TotalInfo.vue")
+    ),
+    RewardsInfo: defineAsyncComponent(
+      () => import("@/components/msr/totalInfo/RewardsInfo.vue")
     ),
     CarouselTabs: defineAsyncComponent(
       () => import("@/components/msr/CarouselTabs.vue")

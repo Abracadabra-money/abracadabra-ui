@@ -3,7 +3,8 @@
     <div class="tag total">
       <img class="mim-icon" src="@/assets/images/market/m-icon.svg" />
       <span class="title">Total {{ totalDepositedInfo.title }}</span>
-      <span class="value">
+      <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+      <span class="value" v-else>
         <BaseTokenIcon
           :icon="mimSavingRateInfo?.stakingToken.icon"
           :name="mimSavingRateInfo?.stakingToken.name"
@@ -16,7 +17,10 @@
     <div class="tag apr">
       <img class="mim-icon" src="@/assets/images/market/m-icon.svg" />
       <span class="title">APR</span>
-      <span class="value">{{ formatPercent(totalDepositedInfo.apr) }}</span>
+      <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+      <span class="value" v-else>{{
+        formatPercent(totalDepositedInfo.apr)
+      }}</span>
     </div>
   </div>
 </template>
@@ -24,7 +28,6 @@
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
 import type { PropType } from "vue";
-import { mapGetters } from "vuex";
 import { formatUnits } from "viem";
 import { formatLargeSum, formatPercent } from "@/helpers/filters";
 import type { MimSavingRateInfo } from "@/helpers/mimSavingRate/getMimSavingRateInfo";
@@ -34,13 +37,10 @@ export default {
   props: {
     mimSavingRateInfo: { type: Object as PropType<MimSavingRateInfo | null> },
     activeTabItem: { type: String as PropType<MSRActionName> },
+    isMimSavingRateInfoLoading: { type: Boolean },
   },
 
   computed: {
-    ...mapGetters({
-      account: "getAccount",
-    }),
-
     totalDepositedInfo() {
       if (!this.mimSavingRateInfo?.userInfo)
         return {
@@ -83,6 +83,9 @@ export default {
   components: {
     BaseTokenIcon: defineAsyncComponent(
       () => import("@/components/base/BaseTokenIcon.vue")
+    ),
+    RowSkeleton: defineAsyncComponent(
+      () => import("@/components/ui/skeletons/RowSkeleton.vue")
     ),
   },
 };
@@ -140,6 +143,10 @@ export default {
   position: absolute;
   top: 16.84px;
   left: 0;
+}
+
+.row-skeleton {
+  height: 24px !important;
 }
 
 @media (max-width: 760px) {
