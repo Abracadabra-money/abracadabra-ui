@@ -1,10 +1,14 @@
 <template>
   <div class="efficiency-progress">
-    <div ref="anim"></div>
+    <div class="anim" ref="anim"></div>
     <div class="efficiency-info">
       <p class="title">Your APR</p>
       <RowSkeleton v-if="isMimSavingRateInfoLoading" />
-      <p class="percent" v-else>{{ formatPercent(apr) }}</p>
+      <p class="percent" v-else>{{ formatPercent(userApr) }}</p>
+    </div>
+    <div class="edge-percents">
+      <span class="edge-percent base">{{ formatPercent(baseApr) }}</span>
+      <span class="edge-percent boosted">{{ formatPercent(boostedApr) }}</span>
     </div>
   </div>
 </template>
@@ -19,7 +23,9 @@ const TOTAL_FRAMES = 90;
 export default {
   props: {
     aprEfficiency: { type: [Number, String], default: 0 },
-    apr: { type: [Number, String], default: 0 },
+    userApr: { type: [Number, String], default: 0 },
+    baseApr: { type: [Number, String], default: 0 },
+    boostedApr: { type: [Number, String], default: 0 },
     isMimSavingRateInfoLoading: { type: Boolean },
   },
 
@@ -43,7 +49,10 @@ export default {
         container: anim,
       });
 
-      this.animation.goToAndStop((TOTAL_FRAMES / 100) * this.aprEfficiency, true);
+      this.animation.goToAndStop(
+        (TOTAL_FRAMES / 100) * this.aprEfficiency,
+        true
+      );
     },
   },
 
@@ -68,15 +77,19 @@ export default {
 .efficiency-progress {
   position: relative;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-width: 200px;
-  height: 112px;
+  min-width: 215px;
+  max-height: 128px;
+}
+
+.anim {
+  max-height: 120px;
 }
 
 .efficiency-info {
   position: absolute;
-  bottom: 20px;
   display: flex;
   flex-direction: column;
   text-align: center;
@@ -105,6 +118,21 @@ export default {
   border-radius: 12px;
   text-transform: capitalize;
   font-size: 16px;
+  font-weight: 400;
+}
+
+.edge-percents {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 215px;
+  width: 100%;
+  margin-top: -8px;
+}
+
+.edge-percent {
+  color: #878b93;
+  font-size: 14px;
   font-weight: 400;
 }
 

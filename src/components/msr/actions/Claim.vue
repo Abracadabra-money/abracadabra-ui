@@ -65,21 +65,21 @@ export default {
       if (!this.account) return "Connect wallet";
 
       if (this.isEarned && !this.isUserRewardLockAmount)
-        return "Earned to vesting";
+        return "Starts Pending";
 
       if (
         this.isEarned &&
         this.isUserRewardLockAmount &&
         this.isUserRewardLockExpired
       )
-        return "Earned to vesting and claim";
+        return "Starts Pending and Claim rewards";
 
       if (
         !this.isEarned &&
         this.isUserRewardLockAmount &&
         !this.isUserRewardLockExpired
       )
-        return "Wait until unlocks";
+        return "Unlocking";
 
       if (this.isButtonDisabled) return "Unavailable";
 

@@ -2,7 +2,9 @@
   <div class="apr-efficiency">
     <EfficiencyIndicator
       :aprEfficiency="aprEfficiency"
-      :apr="userApr"
+      :userApr="userApr"
+      :baseApr="baseApr"
+      :boostedApr="boostedApr"
       :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
     />
 
@@ -37,7 +39,7 @@ export default {
     },
 
     baseApr() {
-      return this.mimSavingRateInfo!.baseApr;
+      return this.mimSavingRateInfo?.baseApr || 0;
     },
 
     boostedApr() {
