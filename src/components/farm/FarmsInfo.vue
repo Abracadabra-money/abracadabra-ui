@@ -88,7 +88,7 @@ export default {
       let arbitrum = 0;
       this.farms?.forEach((farm) => {
         if (!farm.isMultiReward) {
-          spell += Number(farm.accountInfo.userReward);
+          spell += Number(farm.accountInfo?.userReward || 0);
           this.spellPrice = farm.earnedTokenPrice;
         } else {
           spell += Number(farm.accountInfo.rewardTokensInfo[0].earned);

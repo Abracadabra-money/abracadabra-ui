@@ -158,7 +158,6 @@ export default {
     },
 
     checkLocalData() {
-      console.log("this.bentoBoxData.isCreated", this.bentoBoxData.data);
       if (this.bentoBoxData.isCreated) {
         this.bentoBoxConfigs = this.bentoBoxData.data;
       }

@@ -10,6 +10,7 @@
         :activeChains="activeChains"
         :selectedChains="selectedChains"
         @updateSelectedChain="updateSelectedChain"
+        @selectAllChains="selectAllChains"
       />
 
       <button class="filters" @click="$emit('openMobileFiltersPopup')">
@@ -86,7 +87,7 @@ export default {
   },
 
   computed: {
-    isSelectAllChains() {
+    allChainsSelected() {
       return this.selectedChains.length === this.activeChains.length;
     },
 
@@ -159,19 +160,21 @@ export default {
       this.searchValue = value.toLowerCase();
     },
 
+    selectAllChains() {
+      if (this.allChainsSelected) this.selectedChains = [];
+      else this.selectedChains = [...this.activeChains];
+    },
+
     updateSelectedChain(chainId) {
-      if (!chainId) {
-        if (this.isSelectAllChains) this.selectedChains = [];
-        else this.selectedChains = [...this.activeChains];
-      } else {
-        const index = this.selectedChains.indexOf(chainId);
-        if (index === -1) this.selectedChains.push(chainId);
-        else this.selectedChains.splice(index, 1);
-      }
+      if (this.allChainsSelected) this.selectAllChains();
+
+      const index = this.selectedChains.indexOf(chainId);
+      if (index === -1) this.selectedChains.push(chainId);
+      else this.selectedChains.splice(index, 1);
     },
 
     filterByChain(pools, selectedChains) {
-      if (this.isSelectAllChains) return pools;
+      if (this.allChainsSelected) return pools;
       return pools.filter((pool) => {
         return selectedChains.includes(pool.chainId);
       });
