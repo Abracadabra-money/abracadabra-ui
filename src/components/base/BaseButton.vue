@@ -16,30 +16,37 @@
 
 <script lang="ts">
 export default {
-  name: "BaseButton",
   props: {
     primary: {
       type: Boolean,
+      default: false,
     },
     error: {
       type: Boolean,
+      default: false,
     },
     borderless: {
       type: Boolean,
+      default: false,
     },
     loading: {
       type: Boolean,
+      default: false,
     },
     width: {
       type: String,
+      default: "",
     },
     disabled: {
       type: Boolean,
+      default: false,
     },
     warning: {
       type: Boolean,
+      default: false,
     },
   },
+
   methods: {
     setWidth() {
       return this.width ? this.width : "100%";
@@ -53,7 +60,6 @@ export default {
   cursor: pointer;
   position: relative;
   border-radius: 16px;
-  // background: #403e4a;
   padding: 0 20px;
   display: flex;
   align-items: center;

@@ -67,12 +67,16 @@ export default {
 
   computed: {
     isActiveAutoButton(): boolean {
-      return this.inputValue !== this.defaultAmount;
+      const formattedDefaultAmount = this.getFormattedAmount(
+        this.defaultAmount
+      );
+
+      return this.inputValue !== formattedDefaultAmount;
     },
   },
 
   watch: {
-    inputValue(value, oldValue) {
+    inputValue(value: number, oldValue: number) {
       if (!value) return this.$emit("updateSlippage", BigNumber.from(0));
       if (isNaN(value)) this.inputValue = Number(oldValue);
       if (Number(value) > 100) this.inputValue = 100;

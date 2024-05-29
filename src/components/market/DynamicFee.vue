@@ -16,8 +16,7 @@
 </template>
 
 <script lang="ts">
-import { utils } from "ethers";
-import { mapGetters } from "vuex";
+import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 // @ts-ignore
 import { swap0xRequest } from "@/helpers/0x";
@@ -30,7 +29,8 @@ export default {
       required: true,
     },
     amount: {
-      type: Object as any,
+      type: BigNumber,
+      default: BigNumber.from(0),
     },
     slippage: {
       type: [String, Number],
@@ -113,33 +113,41 @@ export default {
   },
 
   watch: {
-    amount(value) {
+    amount(value: BigNumber) {
       if (!value.isZero()) this.getPrice();
     },
   },
 
   methods: {
-    async getPrice() {
-      if (this.isFetching) return false;
-
-      this.isFetching = true;
-
-      const paylod: any = [
+    createPricePayload() {
+      const basePayload = [
         this.chainId,
         this.buyToken,
         this.sellToken,
         this.slippage,
       ];
 
-      if (this.isClose) paylod.push(0, undefined, this.amount);
-      else paylod.push(this.amount);
+      if (this.isClose) {
+        return [...basePayload, 0, undefined, this.amount];
+      } else {
+        return [...basePayload, this.amount];
+      }
+    },
 
-      const { price }: any = await swap0xRequest(...paylod);
+    async getPrice() {
+      if (this.isFetching) return false;
+      this.isFetching = true;
+      const payload = this.createPricePayload();
+
+      const { price } = (await swap0xRequest(...payload)) as { price: number };
 
       this.isProfit = this.isClose ? price <= 1 : price >= 1;
-
       this.price = price;
       this.isFetching = false;
+
+      console.log("price", price);
+
+      return true;
     },
   },
 

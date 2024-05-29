@@ -35,9 +35,9 @@ export default {
     isPotion: { type: Boolean, default: false },
   },
 
-  data(): any {
+  data() {
     return {
-      inputValue: this.value,
+      inputValue: Number(this.value),
       colors: {
         safe: { start: "#356D37", end: "#67A069" },
         medium: { start: "#A78300", end: "#FED84F" },
@@ -55,8 +55,10 @@ export default {
     gradientRangeTrack() {
       return `linear-gradient(
             90deg,
-            ${this.colors[this.risk].start} 0%,
-            ${this.colors[this.risk].end} ${this.gradientPercent}%,
+            ${this.colors[this.risk as keyof typeof this.colors].start} 0%,
+            ${this.colors[this.risk as keyof typeof this.colors].end} ${
+        this.gradientPercent
+      }%,
             #0C0F1C ${this.gradientPercent}%,
             #212555 100%
           )
@@ -79,22 +81,23 @@ export default {
     },
 
     updateTrackPosition() {
-      return document.documentElement.style.setProperty(
+      document.documentElement.style.setProperty(
         "--track-position",
         this.gradientPercent + "%"
       );
+      return "";
     },
   },
 
   watch: {
-    value(value) {
+    value(value: number) {
       this.inputValue = value;
     },
   },
 
   methods: {
-    updateRange(event: any) {
-      const value = event.target.value;
+    updateRange({ target }: Event) {
+      const value = (target as HTMLInputElement)?.value;
       this.$emit("updateValue", Number(value));
     },
   },

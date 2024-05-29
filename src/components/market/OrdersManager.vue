@@ -16,47 +16,51 @@
 <script lang="ts">
 import { Contract } from "ethers";
 import { mapGetters } from "vuex";
-import { defineAsyncComponent } from "vue";
 import { ZERO_ADDRESS } from "@/constants/gm";
 // @ts-ignore
 import { getSavedOrders } from "@/helpers/gm/orders";
+import { defineAsyncComponent, type PropType } from "vue";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 
 export default {
-  name: "OrdersManager",
   props: {
     cauldronObject: {
-      type: Object as any,
+      type: Object as PropType<CauldronInfo>,
+      required: true,
     },
     recoverLeverage: {
-      type: Function || null,
+      type: Function,
+      required: true,
     },
     deleverageFromOrder: {
-      type: Function || null,
+      type: Function,
+      required: true,
     },
   },
+
   data() {
     return {
-      orders: [] as any,
-      cauldronContract: null,
-      cauldron: null,
+      orders: [] as string[],
+      cauldron: null as any,
     };
   },
+
   computed: {
     ...mapGetters({
-      chainId: "getChainId",
       account: "getAccount",
       provider: "getProvider",
-      signer: "getSigner",
     }),
   },
+
   watch: {
     async cauldronObject() {
       await this.checkOrders();
     },
   },
+
   methods: {
     async checkOrders() {
-      const cauldron =
+      const cauldron: Contract =
         this.cauldronObject.contracts?.cauldron ||
         new Contract(
           this.cauldronObject.config.contract.address,
@@ -66,7 +70,7 @@ export default {
 
       this.cauldron = cauldron;
 
-      const currentOrder: any = await cauldron.orders(this.account);
+      const currentOrder: string = await cauldron.orders(this.account);
 
       const itsZero = currentOrder === ZERO_ADDRESS;
 
@@ -75,7 +79,7 @@ export default {
         return false;
       }
 
-      const savedOrders = getSavedOrders(this.account);
+      const savedOrders: string[] = getSavedOrders(this.account);
 
       const isActiveSaved = savedOrders.indexOf(currentOrder) !== -1;
 
@@ -88,9 +92,11 @@ export default {
       this.orders = [currentOrder];
     },
   },
+
   async created() {
     await this.checkOrders();
   },
+
   components: {
     OrderItem: defineAsyncComponent(
       () => import("@/components/market/OrderItem.vue")
@@ -99,4 +105,4 @@ export default {
 };
 </script>
 
-<style></style>
+<style lang="scss" scoped></style>

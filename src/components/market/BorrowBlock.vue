@@ -26,35 +26,38 @@
 
 <script lang="ts">
 import {
-  applyBorrowFee,
-  getLiquidationPrice,
-  getMaxToBorrow,
-  getMimToBorrowByLtv,
-  getPositionHealth,
   getUserLtv,
+  getMaxToBorrow,
+  applyBorrowFee,
+  getPositionHealth,
+  getMimToBorrowByLtv,
+  getLiquidationPrice,
 } from "@/helpers/cauldron/utils";
 import { BigNumber, utils } from "ethers";
-import { defineAsyncComponent } from "vue";
-import { mapActions, mapGetters, mapMutations } from "vuex";
-import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
 import { trimZeroDecimals } from "@/helpers/numbers";
+import { defineAsyncComponent, type PropType } from "vue";
+import { mapActions, mapGetters, mapMutations } from "vuex";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
+import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
+import type { CauldronInfo, UserTokensInfo } from "@/helpers/cauldron/types";
+
 const MIM_PRICE = 1;
 
 export default {
   props: {
     cauldron: {
-      type: Object as any,
+      type: Object as PropType<CauldronInfo>,
+      required: true,
     },
     inputAmount: {
       type: BigNumber,
+      default: BigNumber.from(0),
     },
     collateralTokenAmount: {
       type: BigNumber,
+      default: BigNumber.from(0),
     },
   },
-
-  emits: ["updateBorrowAmount"],
 
   data() {
     return {
@@ -63,8 +66,10 @@ export default {
     };
   },
 
+  emits: ["updateBorrowAmount"],
+
   watch: {
-    inputAmount(value) {
+    inputAmount(value: BigNumber) {
       if (value.eq(0)) {
         this.inputValue = "";
         return false;
@@ -95,7 +100,7 @@ export default {
 
     expectedCollateralAmount() {
       return this.cauldron.userPosition.collateralInfo.userCollateralAmount.add(
-        this.collateralTokenAmount
+        this.collateralTokenAmount as BigNumber
       );
     },
 
@@ -103,10 +108,10 @@ export default {
       const { borrowFee } = this.cauldron.mainParams;
       const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
 
-      //@ts-ignore
-      return applyBorrowFee(this.inputAmount, borrowFee * 1000).add(
-        userBorrowAmount
-      );
+      return applyBorrowFee(
+        this.inputAmount as BigNumber,
+        borrowFee * 1000
+      ).add(userBorrowAmount);
     },
 
     borrowToken() {
@@ -114,7 +119,7 @@ export default {
       return {
         name: config.mimInfo.name,
         icon: config.mimInfo.icon,
-        balance: userTokensInfo.mimBalance,
+        balance: (userTokensInfo as UserTokensInfo).mimBalance,
         price: MIM_PRICE,
       };
     },

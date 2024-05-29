@@ -25,19 +25,23 @@
 
 <script lang="ts">
 import { BigNumber } from "ethers";
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, type PropType } from "vue";
 // @ts-ignore
 import { getCollateralApr } from "@/helpers/collateralsApy";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 
 export default {
   props: {
     cauldron: {
-      type: Object as any,
+      type: Object as PropType<CauldronInfo>,
+      required: true,
     },
     multiplier: {
       type: Number,
+      default: 1,
     },
     amount: {
+      type: BigNumber,
       default: BigNumber.from(0),
     },
     isClose: {
@@ -49,14 +53,13 @@ export default {
   data() {
     return {
       aprInfo: { value: 0, multiplier: 0 },
+      disabledChains: [2222, 80085],
     };
   },
 
   computed: {
     hideDynamicFee() {
-      const disabledChains = [2222, 80085];
-
-      return disabledChains.indexOf(this.cauldron.config.chainId) !== -1;
+      return this.disabledChains.indexOf(this.cauldron.config.chainId) !== -1;
     },
 
     showDynamicApr() {

@@ -20,24 +20,33 @@
 
 <script lang="ts">
 import {
-  getLeverageAmounts,
-  getLiquidationPrice,
-  getPositionHealth,
   applyBorrowFee,
   PERCENT_PRESITION,
+  getPositionHealth,
+  getLeverageAmounts,
+  getLiquidationPrice,
 } from "@/helpers/cauldron/utils";
 import { mapGetters } from "vuex";
 import { BigNumber, utils } from "ethers";
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, type PropType } from "vue";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 import { getMaxLeverageMultiplierAlternative } from "@/helpers/cauldron/getMaxLeverageMultiplier";
 
 export default {
+  emits: ["updateLeverageAmounts"],
+
   props: {
+    cauldron: {
+      type: Object as PropType<CauldronInfo>,
+      required: true,
+    },
     slippage: {
       type: BigNumber,
+      default: utils.parseUnits("1", PERCENT_PRESITION),
     },
     depositCollateralAmount: {
       type: BigNumber,
+      default: BigNumber.from(0),
     },
     leverageAmounts: {
       default: {
@@ -45,12 +54,7 @@ export default {
         amountToMin: BigNumber.from(0),
       },
     },
-    cauldron: {
-      type: Object as any,
-    },
   },
-
-  emits: ["updateLeverageAmounts"],
 
   data() {
     return {
@@ -78,10 +82,7 @@ export default {
 
     expectedCollateralAmount() {
       return this.cauldron.userPosition.collateralInfo.userCollateralAmount
-        .add(
-          //@ts-ignore
-          this.leverageAmounts.amountToMin
-        )
+        .add(this.leverageAmounts.amountToMin)
         .add(this.depositCollateralAmount);
     },
 
@@ -90,7 +91,6 @@ export default {
       const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
 
       return applyBorrowFee(
-        //@ts-ignore
         this.leverageAmounts.amountFrom,
         borrowFee * 1000
       ).add(userBorrowAmount);
@@ -151,10 +151,8 @@ export default {
       );
 
       const leverageAmounts = getLeverageAmounts(
-        //@ts-ignore
         positionExpectedCollateral,
         multiplier,
-        //@ts-ignore
         this.slippage,
         oracleExchangeRate
       );
@@ -165,9 +163,7 @@ export default {
     getMaxLeverageMultiplier() {
       const maxMultiplier = getMaxLeverageMultiplierAlternative(
         this.cauldron,
-        //@ts-ignore
         this.depositCollateralAmount,
-        //@ts-ignore
         this.slippage!
       );
 

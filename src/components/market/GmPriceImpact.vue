@@ -16,11 +16,12 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent } from "vue";
+import { BigNumber } from "ethers";
+import { formatDeltaUsd } from "@/helpers/gm/numbers";
+import { defineAsyncComponent, type PropType } from "vue";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 import { getDepositAmountsAndFee } from "@/helpers/gm/getDepositAmount";
 import { getWithdrawalAmountsAndFees } from "@/helpers/gm/getWithdrawalAmounts";
-import { formatDeltaUsd } from "@/helpers/gm/numbers";
-import { BigNumber } from "ethers";
 
 const ACTION_LEVERAGE = 1;
 const ACTION_DELEVERAGE = 2;
@@ -33,15 +34,19 @@ const emptyState = {
 export default {
   props: {
     cauldronObject: {
-      type: Object,
+      type: Object as PropType<CauldronInfo>,
+      required: true,
     },
     amount: {
+      type: BigNumber,
       default: BigNumber.from(0),
     },
     actionType: {
+      type: Number,
       default: ACTION_LEVERAGE,
     },
   },
+
   data() {
     return {
       tooltipText: "Swap price impact",
@@ -49,28 +54,27 @@ export default {
   },
 
   computed: {
-    isWarning() {
-      return false;
-    },
     toShortTokenAmount() {
-      //@ts-ignore
-      const shortAmount = this.amount.div(1e12);
-      return shortAmount;
+      return this.amount.div(1e12);
     },
+
     priceImpact() {
       if (!this.cauldronObject) return emptyState;
 
-      if (this.actionType === ACTION_LEVERAGE) return this.priceImpactDeposit;
-      if (this.actionType === ACTION_DELEVERAGE)
-        return this.priceImpactWithdraw;
+      switch (this.actionType) {
+        case ACTION_LEVERAGE:
+          return this.priceImpactDeposit;
+        case ACTION_DELEVERAGE:
+          return this.priceImpactWithdraw;
+        default:
+          return emptyState;
+      }
     },
+
     priceImpactDeposit() {
-      if (
-        this.actionType !== ACTION_LEVERAGE ||
-        (this.amount && +this.amount === 0)
-      )
-        return emptyState;
-      //@ts-ignore
+      if (this.amount && +this.amount === 0) return emptyState;
+      if (this.actionType !== ACTION_LEVERAGE) return emptyState;
+
       const { gmInfo } = this.cauldronObject.additionalInfo;
 
       const { fees, isHighPriceImpact } = getDepositAmountsAndFee(
@@ -80,36 +84,38 @@ export default {
         this.toShortTokenAmount
       );
 
+      if (!fees || !fees.swapPriceImpact) {
+        return emptyState;
+      }
+
       const { swapPriceImpact } = fees;
 
       return {
-        //@ts-ignore
         swapFee: formatDeltaUsd(swapPriceImpact.deltaUsd, swapPriceImpact.bps),
         isHighPriceImpact,
       };
     },
+
     priceImpactWithdraw() {
-      if (
-        this.actionType !== ACTION_DELEVERAGE ||
-        (this.amount && +this.amount === 0)
-      )
-        return emptyState;
-      //@ts-ignore
+      if (this.amount && +this.amount === 0) return emptyState;
+      if (this.actionType !== ACTION_DELEVERAGE) return emptyState;
+
       const { gmInfo } = this.cauldronObject.additionalInfo;
-      //@ts-ignore
-      const { fees, isHighPriceImpact } = getWithdrawalAmountsAndFees(
+      const withdrawalData = getWithdrawalAmountsAndFees(
         gmInfo.marketInfo,
         gmInfo.marketFullInfo,
         gmInfo.dataStoreInfo,
-        //@ts-ignore
         this.amount
       );
 
-      const { swapPriceImpact } = fees;
+      if (!("fees" in withdrawalData)) return emptyState;
 
       return {
-        swapFee: formatDeltaUsd(swapPriceImpact.deltaUsd, swapPriceImpact.bps),
-        isHighPriceImpact,
+        swapFee: formatDeltaUsd(
+          withdrawalData.fees.swapPriceImpact?.deltaUsd ?? BigNumber.from(0),
+          withdrawalData.fees.swapPriceImpact?.bps ?? BigNumber.from(0)
+        ),
+        isHighPriceImpact: withdrawalData.isHighPriceImpact || false,
       };
     },
   },

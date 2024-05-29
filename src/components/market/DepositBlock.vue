@@ -37,38 +37,31 @@
 
 <script lang="ts">
 import { mapGetters } from "vuex";
-import { BigNumber, utils } from "ethers";
-import { defineAsyncComponent } from "vue";
+import { BigNumber, Contract, utils } from "ethers";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import { MAX_ALLOWANCE_VALUE } from "@/constants/global";
+import { defineAsyncComponent, type PropType } from "vue";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 import { getChainConfig } from "@/helpers/chains/getChainsInfo";
-import { applyTokenWrapperRate } from "@/helpers/cauldron/utils";
 import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
-
-type ActiveToken = {
-  name: string;
-  icon: string;
-  balance: BigNumber;
-  decimals: number;
-  allowance: BigNumber;
-  isNative?: boolean;
-  price: string;
-  contract?: any;
-};
+import { applyTokenWrapperRate } from "@/helpers/cauldron/utils";
 
 export default {
   props: {
     cauldron: {
-      type: Object as any,
+      type: Object as PropType<CauldronInfo>,
+      required: true,
     },
     inputAmpunt: {
       type: BigNumber,
     },
     useNativeToken: {
       type: Boolean,
+      default: false,
     },
     useUnwrapToken: {
       type: Boolean,
+      default: false,
     },
     toggleNativeToken: {
       type: Function,
@@ -105,7 +98,7 @@ export default {
       );
     },
 
-    activeToken(): ActiveToken {
+    activeToken() {
       if (this.useNativeToken) return this.nativeToken;
       if (this.useUnwrapToken) return this.unwrappedToken;
       return this.collateralToken;
@@ -114,23 +107,19 @@ export default {
     nativeToken() {
       const { config, userTokensInfo, mainParams, additionalInfo } =
         this.cauldron;
-      const { nativeTokenBalance } = userTokensInfo;
-      const { decimals } = config.collateralInfo;
-      const { baseTokenSymbol, baseTokenIcon }: any = getChainConfig(
-        config.chainId
-      );
 
+      const { decimals } = config.collateralInfo;
+      const chainConfig = getChainConfig(config.chainId);
       const { collateralPrice } = mainParams;
       const { tokensRate } = additionalInfo;
-
       const price = collateralPrice
         .mul(expandDecimals(1, decimals))
         .div(tokensRate);
 
       return {
-        name: baseTokenSymbol,
-        icon: baseTokenIcon,
-        balance: nativeTokenBalance,
+        name: chainConfig?.baseTokenSymbol,
+        icon: chainConfig?.baseTokenIcon,
+        balance: userTokensInfo?.nativeTokenBalance || BigNumber.from(0),
         decimals: 18,
         allowance: BigNumber.from(MAX_ALLOWANCE_VALUE),
         isNative: true,
@@ -141,23 +130,21 @@ export default {
     unwrappedToken() {
       const { config, userTokensInfo, additionalInfo, mainParams } =
         this.cauldron;
+
       const { decimals } = config.collateralInfo;
-      const { name, icon } = config.wrapInfo.unwrappedToken;
-      const { unwrappedTokenBalance, unwrappedTokenAllowance } = userTokensInfo;
       const { collateralPrice } = mainParams;
       const { tokensRate } = additionalInfo;
-
       const price = collateralPrice
         .mul(expandDecimals(1, decimals))
         .div(tokensRate);
 
       return {
-        name,
-        icon,
-        balance: unwrappedTokenBalance,
+        name: config?.wrapInfo?.unwrappedToken.name,
+        icon: config?.wrapInfo?.unwrappedToken.icon,
+        balance: userTokensInfo?.unwrappedTokenBalance || BigNumber.from(0),
         decimals,
-        allowance: unwrappedTokenAllowance,
-        contract: this.cauldron.contracts?.unwrappedToken,
+        allowance: userTokensInfo?.unwrappedTokenAllowance || BigNumber.from(0),
+        contract: this.cauldron.contracts?.unwrappedToken as Contract,
         price: utils.formatUnits(price, decimals),
       };
     },
@@ -167,15 +154,14 @@ export default {
       const { collateralPrice } = mainParams;
       const { icon } = config;
       const { name, decimals } = config.collateralInfo;
-      const { collateralBalance, collateralAllowance } = userTokensInfo;
 
       return {
         name,
         icon,
-        balance: collateralBalance,
+        balance: userTokensInfo?.collateralBalance || BigNumber.from(0),
         decimals,
-        allowance: collateralAllowance,
-        contract: this.cauldron.contracts?.collateral,
+        allowance: userTokensInfo?.collateralAllowance || BigNumber.from(0),
+        contract: this.cauldron.contracts?.collateral as Contract,
         price: utils.formatUnits(collateralPrice, decimals),
       };
     },
@@ -190,7 +176,7 @@ export default {
       this.setEmptyState();
     },
 
-    inputAmpunt(value) {
+    inputAmpunt(value: BigNumber) {
       const { decimals } = this.activeToken;
 
       if (value.eq(0)) {
@@ -204,13 +190,11 @@ export default {
 
   methods: {
     setEmptyState() {
-      const depositAmounts = {
+      this.$emit("updateDepositAmounts", {
         inputAmount: BigNumber.from(0),
         collateralTokenAmount: BigNumber.from(0),
         unwrapTokenAmount: BigNumber.from(0),
-      };
-
-      this.$emit("updateDepositAmounts", depositAmounts);
+      });
 
       this.inputValue = "";
     },
@@ -227,13 +211,11 @@ export default {
 
       const unwrapTokenAmount = this.useUnwrapToken ? value : BigNumber.from(0);
 
-      const depositAmounts = {
+      this.$emit("updateDepositAmounts", {
         inputAmount: value,
         collateralTokenAmount,
         unwrapTokenAmount,
-      };
-
-      this.$emit("updateDepositAmounts", depositAmounts);
+      });
     },
   },
 

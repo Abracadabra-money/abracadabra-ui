@@ -91,9 +91,14 @@
 </template>
 
 <script lang="ts">
+import type {
+  SwapAmounts,
+  ActionConfig,
+  CauldronInfo,
+  DepositAmounts,
+} from "@/helpers/cauldron/types";
 import type { BigNumber } from "ethers";
-import { defineAsyncComponent } from "vue";
-import type { DepositAmounts, SwapAmounts } from "@/helpers/cauldron/types";
+import { defineAsyncComponent, type PropType } from "vue";
 //@ts-ignore
 import tempMixin from "@/mixins/temp";
 
@@ -102,10 +107,12 @@ export default {
   mixins: [tempMixin],
   props: {
     cauldron: {
-      type: Object as any,
+      type: Object as PropType<CauldronInfo>,
+      required: true,
     },
     actionConfig: {
-      type: Object as any,
+      type: Object as PropType<ActionConfig>,
+      required: true,
     },
   },
 
@@ -114,11 +121,11 @@ export default {
       action: "borrow",
     };
   },
-  computed: {
-    isLeverageAllowed() {
-      const { isSwappersActive } = this.cauldron.config.cauldronSettings;
 
-      return isSwappersActive && this.cauldron.contracts.leverageSwapper;
+  computed: {
+    isLeverageAllowed(): boolean {
+      const { isSwappersActive } = this.cauldron.config.cauldronSettings;
+      return isSwappersActive && this.cauldron.contracts?.leverageSwapper;
     },
   },
 

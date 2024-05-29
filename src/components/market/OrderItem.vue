@@ -81,27 +81,28 @@ import {
   // @ts-ignore
 } from "@/helpers/gm/orders";
 import { mapGetters } from "vuex";
-import { utils, BigNumber } from "ethers";
-import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
+import { utils, BigNumber, Contract } from "ethers";
 import { formatTokenBalance } from "@/helpers/filters";
 import FAIL_ICON from "@/assets/images/order-fail.svg";
+import { defineAsyncComponent, type PropType } from "vue";
 import SUCCESS_ICON from "@/assets/images/order-success.svg";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
 
 const DEFAULT_SLIPPAGE = utils.parseUnits("1", PERCENT_PRESITION);
 
 export default {
-  name: "OrderItem",
   emits: ["updateInfo"],
+
   props: {
     cauldronObject: {
-      type: Object,
+      type: Object as PropType<CauldronInfo>,
       required: true,
     },
     cauldron: {
-      type: Object as any,
+      type: Object as PropType<Contract>,
       required: true,
     },
     order: {
@@ -109,10 +110,12 @@ export default {
       required: true,
     },
     recoverLeverage: {
-      type: Function as any,
+      type: Function,
+      required: true,
     },
     deleverageFromOrder: {
-      type: Function as any,
+      type: Function,
+      required: true,
     },
   },
   data() {
@@ -120,7 +123,10 @@ export default {
       slippage: DEFAULT_SLIPPAGE,
       status: ORDER_PENDING,
       type: ORDER_TYPE_UNKNOWN,
-      balances: null as any,
+      balances: null as null | {
+        balanceWETH: BigNumber;
+        balanceUSDC: BigNumber;
+      },
       statuses: {
         0: {
           name: "Pending...",
@@ -214,7 +220,7 @@ export default {
     balancesInfo() {
       if (!this.balances) return [];
 
-      const { balanceUSDC }: any = this.balances;
+      const { balanceUSDC } = this.balances;
 
       const balances = [];
 
@@ -243,7 +249,7 @@ export default {
     },
 
     toMarket() {
-      const { chainId, id } = this.cauldronObject.config.id;
+      const { chainId, id } = this.cauldronObject.config;
 
       this.$router.push({
         name: "Market",

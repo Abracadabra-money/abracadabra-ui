@@ -14,13 +14,13 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent } from "vue";
 import { formatToFixed } from "@/helpers/filters";
+import { defineAsyncComponent, type PropType } from "vue";
 
 export default {
   props: {
     aprInfo: {
-      type: Object,
+      type: Object as PropType<{ value: number; multiplier: number }>,
       required: true,
     },
     multiplier: {
