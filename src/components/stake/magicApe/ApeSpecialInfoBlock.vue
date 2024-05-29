@@ -31,8 +31,8 @@
 </template>
 
 <script lang="ts">
-import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
 import { defineAsyncComponent } from "vue";
+import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
 
 export default {
   data() {

@@ -1,11 +1,12 @@
 import type { Address } from "viem";
+import type { PublicClient } from "viem";
 import { ONE_ETHER_VIEM, MIM_PRICE } from "@/constants/global";
-import type { ChainConfig } from "@/types/magicGlp/configsInfo";
+import type { ChainConfig } from "@/configs/stake/magicGlp/magicGlpConfig";
 
 export const getTokensInfo = async (
   address: Address,
   config: ChainConfig,
-  publicClient: any
+  publicClient: PublicClient
 ) => {
   const { mainToken, stakeToken, oracle } = config;
 
@@ -16,7 +17,7 @@ export const getTokensInfo = async (
     allowanceAmount,
     oracleExchangeRate,
     magicGlpAmount,
-  ]: any = await publicClient.multicall({
+  ] = await publicClient.multicall({
     contracts: [
       {
         ...mainToken.contract,
@@ -52,17 +53,19 @@ export const getTokensInfo = async (
   });
 
   const mainTokenPrice =
-    (MIM_PRICE * ONE_ETHER_VIEM) / oracleExchangeRate.result;
+    (MIM_PRICE * ONE_ETHER_VIEM) / (oracleExchangeRate.result as bigint);
   const tokenRate =
-    (magicGlpAmount.result * ONE_ETHER_VIEM) / totalSupply.result;
+    ((magicGlpAmount.result as bigint) * ONE_ETHER_VIEM) /
+    (totalSupply.result as bigint);
   const stakeTokenPrice = (mainTokenPrice * ONE_ETHER_VIEM) / tokenRate;
 
-  const totalSupplyUsd = (totalSupply.result * mainTokenPrice) / ONE_ETHER_VIEM;
+  const totalSupplyUsd =
+    ((totalSupply.result as bigint) * mainTokenPrice) / ONE_ETHER_VIEM;
   const mainTokenBalanceUsd =
-    (userMagicGlpBalance.result * mainTokenPrice) / ONE_ETHER_VIEM;
+    ((userMagicGlpBalance.result as bigint) * mainTokenPrice) / ONE_ETHER_VIEM;
 
   const stakeTokenBalanceUsd =
-    (userGlpBalance.result * stakeTokenPrice) / ONE_ETHER_VIEM;
+    ((userGlpBalance.result as bigint) * stakeTokenPrice) / ONE_ETHER_VIEM;
 
   return {
     mainToken: {
@@ -72,9 +75,9 @@ export const getTokensInfo = async (
       decimals: mainToken.decimals,
       price: mainTokenPrice,
       rate: tokenRate,
-      totalSupply: totalSupply.result,
+      totalSupply: totalSupply.result as bigint,
       totalSupplyUsd,
-      balance: userMagicGlpBalance.result,
+      balance: userMagicGlpBalance.result as bigint,
       balanceUsd: mainTokenBalanceUsd,
       contract: mainToken.contract,
     },
@@ -84,9 +87,9 @@ export const getTokensInfo = async (
       contract: stakeToken.contract,
       price: stakeTokenPrice,
       decimals: mainToken.decimals,
-      balance: userGlpBalance.result,
+      balance: userGlpBalance.result as bigint,
       balanceUsd: stakeTokenBalanceUsd,
-      approvedAmount: allowanceAmount.result,
+      approvedAmount: allowanceAmount.result as bigint,
     },
   };
 };

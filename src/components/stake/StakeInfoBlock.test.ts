@@ -10,6 +10,14 @@ describe("StakeInfoBlock", () => {
     balance: BigInt(100000000000000000000),
     balanceUsd: BigInt(200000000000000000000),
     decimals: 18,
+    contract: {
+      address: "0x1234" as `0x${string}`,
+      abi: "mainnet",
+    },
+    rateIcon: "rateIcon.png",
+    price: BigInt(100000000000000000000),
+    totalSupply: BigInt(100000000000000000000),
+    totalSupplyUsd: BigInt(100000000000000000000),
   };
 
   const stakeToken = {
@@ -17,6 +25,13 @@ describe("StakeInfoBlock", () => {
     icon: "stake-token-icon",
     balance: BigInt(5000000000000000000),
     balanceUsd: BigInt(7000000000000000000),
+    contract: {
+      address: "0x1234" as `0x${string}`,
+      abi: "mainnet",
+    },
+    price: BigInt(2000),
+    decimals: 18,
+    approvedAmount: BigInt(3000),
   };
 
   it("renders the correct tokens rate", () => {
