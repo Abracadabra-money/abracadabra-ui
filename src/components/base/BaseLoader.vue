@@ -13,13 +13,16 @@
 export default {
   props: {
     type: {
+      type: String,
       default: "spinner",
     },
     color: {
+      type: String,
       default: "linear-gradient(107.5deg, #5282fd -3.19%, #76c3f5 101.2%)",
     },
     text: {
       type: String,
+      default: "",
     },
     small: {
       type: Boolean,

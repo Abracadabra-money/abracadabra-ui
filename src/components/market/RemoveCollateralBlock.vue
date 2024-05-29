@@ -11,43 +11,43 @@
     @updateInputValue="onUpdateWithdrawValue"
   />
 
-  <div class="expected-amount" v-if="withdrawUnwrapToken">
+  <div class="expected-amount" v-if="withdrawUnwrapToken && unwrappedTokenName">
     <span> Expected</span>
-    <span
-      >{{ expectedTokenAmount }}
-      {{ cauldron.config.wrapInfo.unwrappedToken.name }}</span
-    >
+    <span>{{ expectedTokenAmount }} {{ unwrappedTokenName }}</span>
   </div>
 </template>
 
 <script lang="ts">
-import { BigNumber, utils } from "ethers";
-import { defineAsyncComponent } from "vue";
-import { mapGetters } from "vuex";
-import { trimZeroDecimals } from "@/helpers/numbers";
-import { getMaxCollateralToRemove } from "@/helpers/cauldron/utils";
-import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
-import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
+import { BigNumber, Contract, utils } from "ethers";
+import { defineAsyncComponent, type PropType } from "vue";
 import { formatToFixed } from "@/helpers/filters";
+import { trimZeroDecimals } from "@/helpers/numbers";
+import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
+import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
+import { getMaxCollateralToRemove } from "@/helpers/cauldron/utils";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 
 export default {
+  emits: ["updateWithdrawAmount"],
+
   props: {
     cauldron: {
-      type: Object as any,
+      type: Object as PropType<CauldronInfo>,
+      required: true,
     },
     inputAmount: {
       type: BigNumber,
+      default: BigNumber.from(0),
     },
     repayAmount: {
       type: BigNumber,
+      default: BigNumber.from(0),
     },
     withdrawUnwrapToken: {
       type: Boolean,
       default: true,
     },
   },
-
-  emits: ["updateWithdrawAmount"],
 
   data() {
     return {
@@ -56,11 +56,6 @@ export default {
   },
 
   computed: {
-    ...mapGetters({
-      account: "getAccount",
-      chainId: "getChainId",
-    }),
-
     expectedTokenAmount() {
       return formatToFixed(
         +this.inputValue *
@@ -74,15 +69,14 @@ export default {
       const { collateralPrice } = mainParams;
       const { icon } = config;
       const { name, decimals } = config.collateralInfo;
-      const { collateralBalance, collateralAllowance } = userTokensInfo;
 
       return {
         name,
         icon,
-        balance: collateralBalance,
+        balance: userTokensInfo?.collateralBalance || BigNumber.from(0),
         decimals,
-        allowance: collateralAllowance,
-        contract: this.cauldron.contracts?.collateral,
+        allowance: userTokensInfo?.collateralAllowance || BigNumber.from(0),
+        contract: this.cauldron.contracts?.collateral as Contract,
         price: utils.formatUnits(collateralPrice, decimals),
       };
     },
@@ -106,6 +100,10 @@ export default {
       if (maxToRemove.gt(userCollateralAmount)) return userCollateralAmount;
 
       return maxToRemove;
+    },
+
+    unwrappedTokenName() {
+      return this.cauldron.config?.wrapInfo?.unwrappedToken.name || "";
     },
   },
 

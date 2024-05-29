@@ -27,24 +27,26 @@
 </template>
 
 <script lang="ts">
-import { mapGetters } from "vuex";
-import { BigNumber, utils } from "ethers";
-import { defineAsyncComponent } from "vue";
-
 import {
   getLiquidationPrice,
   getPositionHealth,
   getDeleverageAmounts,
-  PERCENT_PRESITION,
 } from "@/helpers/cauldron/utils";
+import { BigNumber } from "ethers";
+import { defineAsyncComponent, type PropType } from "vue";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 
 export default {
+  emits: ["updateDeleverageAmounts"],
+
   props: {
     cauldron: {
-      type: Object as any,
+      type: Object as PropType<CauldronInfo>,
+      required: true,
     },
     slippage: {
       type: BigNumber,
+      required: true,
     },
     deleverageAmounts: {
       default: {
@@ -54,23 +56,18 @@ export default {
     },
     withdrawAmount: {
       type: BigNumber,
+      default: BigNumber.from(0),
     },
   },
 
   data() {
     return {
       value: BigNumber.from(0),
+      disabledChains: [2222, 80085],
     };
   },
 
-  emits: ["updateDeleverageAmounts"],
-
   computed: {
-    ...mapGetters({
-      account: "getAccount",
-      chainId: "getChainId",
-    }),
-
     showDynamicBlock() {
       return (
         !this.hideDynamicFee ||
@@ -79,14 +76,11 @@ export default {
     },
 
     hideDynamicFee() {
-      const disabledChains = [2222, 80085];
-
-      return disabledChains.indexOf(this.cauldron.config.chainId) !== -1;
+      return this.disabledChains.indexOf(this.cauldron.config.chainId) !== -1;
     },
 
     maxToRepay() {
-      const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
-      return userBorrowAmount;
+      return this.cauldron.userPosition.borrowInfo.userBorrowAmount;
     },
 
     expectedBorrowAmount() {
@@ -149,6 +143,7 @@ export default {
       this.value = value;
       this.updateDeleverageAmounts(value);
     },
+
     updateDeleverageAmounts(value: BigNumber) {
       const { oracleExchangeRate } = this.cauldron.mainParams;
 

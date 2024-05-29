@@ -29,6 +29,7 @@ import { formatToFixed } from "@/helpers/filters";
 
 export default {
   emits: ["updateAmount"],
+
   props: {
     amount: { type: BigNumber, default: BigNumber.from(0) },
     maxAmount: { type: BigNumber, default: BigNumber.from(0) },
@@ -39,18 +40,16 @@ export default {
     disabled: { type: Boolean, default: false },
     isPotion: { type: Boolean, default: false },
   },
-  data(): any {
+
+  data() {
     return {
-      inputValue: this.getFormattedAmount(this.amount),
+      inputValue: this.getFormattedAmount(this.amount) as number,
       colors: {
         safe: { start: "#356D37", end: "#67A069" },
         medium: { start: "#A78300", end: "#FED84F" },
         high: { start: "#4F1717", end: "#8C4040" },
         default: { start: "#0C0F1C", end: "#212555" },
       },
-
-      // NOTICE: tumbler icon
-      // imageUrl: "url('/src/assets/images/market/mim.svg')",
     };
   },
 
@@ -70,8 +69,10 @@ export default {
     gradientRangeTrack() {
       return `linear-gradient(
               90deg,
-              ${this.colors[this.risk].start} 0%,
-              ${this.colors[this.risk].end} ${this.gradientPercent}%,
+              ${this.colors[this.risk as keyof typeof this.colors].start} 0%,
+              ${this.colors[this.risk as keyof typeof this.colors].end} ${
+        this.gradientPercent
+      }%,
               #0C0F1C ${this.gradientPercent}%,
               #212555 100%
             )
@@ -102,6 +103,7 @@ export default {
     maxAmount(value: BigNumber) {
       if (value.lt(this.amount)) this.$emit("updateAmount", value);
     },
+
     amount(value: BigNumber) {
       this.inputValue = this.getFormattedAmount(value);
     },
@@ -112,14 +114,16 @@ export default {
       const parsedAmount = utils.formatUnits(amount, this.decimals);
       return Number(this.formatToFixed(parsedAmount, this.rangePrecision));
     },
-    formatToFixed(amount: any, decimals = 4) {
+
+    formatToFixed(amount: string, decimals = 4) {
       return formatToFixed(amount, decimals); //cut string
     },
-    updateRange(event: any) {
-      const value = event.target.value;
+
+    updateRange({ target }: Event) {
+      const value = Number((target as HTMLInputElement)?.value);
 
       const parsedValue = utils.parseUnits(
-        String(event.target.value),
+        String((target as HTMLInputElement)?.value),
         this.decimals
       );
 
@@ -133,14 +137,6 @@ export default {
 
 <style lang="scss" scoped>
 @include range;
-
-// input[type="range"]::-webkit-slider-thumb {
-//   background: v-bind(imageUrl);
-//   background-position: center center;
-//   background-size: contain;
-//   height: 22px;
-//   width: 22px;
-// }
 
 .leverage-range-wrap {
   height: 56px;
