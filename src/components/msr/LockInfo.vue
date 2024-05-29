@@ -104,8 +104,8 @@ export default {
 .lock-info {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-top: 16px;
+  gap: 8px;
+  height: 318px;
 }
 
 .total-locked {
@@ -131,16 +131,9 @@ export default {
   align-items: center;
   align-self: stretch;
   gap: 16px;
-  min-height: 138px;
+  margin: auto;
   padding: 12px 16px 12px 12px;
-  border-radius: 10px;
-  border: 1px solid rgba(180, 180, 180, 0.08);
-  background: linear-gradient(
-    146deg,
-    rgba(0, 10, 35, 0.07) 0%,
-    rgba(0, 80, 156, 0.07) 101.49%
-  );
-  box-shadow: 0px 4px 33px 0px rgba(0, 0, 0, 0.06);
+  max-height: 229px;
 }
 
 .description {
