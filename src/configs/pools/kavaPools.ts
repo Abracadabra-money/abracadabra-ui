@@ -1,6 +1,7 @@
 import erc20Abi from "@/abis/farm/erc20Abi";
 import { useImage } from "@/helpers/useImage";
 import BlastMagicLpAbi from "@/abis/BlastMagicLP";
+import MultiRewardsAbi from "@/abis/MultiRewards";
 import type { PoolConfig } from "@/configs/pools/types";
 
 const kavaPools: Array<PoolConfig> = [
@@ -35,6 +36,10 @@ const kavaPools: Array<PoolConfig> = [
       decimals: 6,
       mainColor: "#53AE94",
       isPopular: true,
+    },
+    stakeContract: {
+      address: "0xcF4f8E9A113433046B990980ebce5c3fA883067f",
+      abi: MultiRewardsAbi,
     },
     settings: {
       isNew: true,

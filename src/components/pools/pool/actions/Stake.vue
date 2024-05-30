@@ -13,6 +13,7 @@
     </div>
 
     <RewardsList
+      v-if="isBlastLockLogic"
       :rewards="rewardsPerHour"
       :inputAmount="inputAmount"
       :isRewardsCalculating="isRewardsCalculating"
@@ -73,8 +74,14 @@ export default {
       account: "getAccount",
     }),
 
+    isBlastLockLogic() {
+      return !!this.pool.lockInfo;
+    },
+
     isAllowed() {
-      return this.pool.lockInfo.allowance >= this.inputAmount;
+      if (this.isBlastLockLogic)
+        return this.pool.lockInfo.allowance >= this.inputAmount;
+      return this.pool.stakeInfo.allowance >= this.inputAmount;
     },
 
     isValid() {
@@ -115,8 +122,7 @@ export default {
 
   watch: {
     async inputAmount(value) {
-      this.isRewardsCalculating = true;
-      await this.getRewardsPerHour();
+      if (this.isBlastLockLogic) this.fetchBlastRewards();
 
       if (value == 0) {
         this.inputValue = "";
@@ -141,6 +147,11 @@ export default {
       this.inputAmount = 0n;
     },
 
+    fetchBlastRewards() {
+      this.isRewardsCalculating = true;
+      this.getRewardsPerHour();
+    },
+
     getRewardsPerHour: debounce(async function getRewards() {
       const deposit =
         Number(formatUnits(this.inputAmount, this.pool.decimals)) *
@@ -161,10 +172,14 @@ export default {
         notification.approvePending
       );
 
+      const contract = this.isBlastLockLogic
+        ? this.pool.lockContract
+        : this.pool.stakeContract;
+
       try {
         await approveTokenViem(
           this.pool.contract,
-          this.pool.lockContract.address,
+          contract.address,
           this.inputAmount
         );
         await this.$emit("updatePoolInfo");
@@ -191,10 +206,14 @@ export default {
         notification.pending
       );
 
+      const contract = this.isBlastLockLogic
+        ? this.pool.lockContract
+        : this.pool.stakeContract;
+
       try {
         const { request } = await simulateContractHelper({
-          address: this.pool.lockContract.address,
-          abi: this.pool.lockContract.abi,
+          address: contract.address,
+          abi: contract.abi,
           functionName: "stake",
           args: [this.inputAmount],
         });
@@ -290,8 +309,7 @@ export default {
   },
 
   async created() {
-    this.isRewardsCalculating = true;
-    await this.getRewardsPerHour();
+    if (this.isBlastLockLogic) this.fetchBlastRewards();
   },
 
   components: {

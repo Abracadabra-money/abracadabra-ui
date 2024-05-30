@@ -71,11 +71,13 @@ export default {
     },
 
     isUserPositionOpen() {
+      const hasLp = this.pool?.userInfo?.balance > 0n;
+      const hasLocked = this.pool?.lockInfo?.balances.locked > 0n;
+      const hasUnlocked = this.pool?.lockInfo?.balances.unlocked > 0n;
+      const hasStaked = this.pool?.stakeInfo?.balance > 0n;
+
       return (
-        this.account &&
-        (this.pool?.userInfo?.balance > 0n ||
-          this.pool.lockInfo?.balances.locked > 0n ||
-          this.pool.lockInfo?.balances.unlocked > 0n)
+        this.account && (hasLp || hasLocked || hasUnlocked || hasStaked)
       );
     },
   },

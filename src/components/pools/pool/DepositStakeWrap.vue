@@ -1,18 +1,11 @@
 <template>
   <div class="deposit-stake-wrap">
-    <div class="condition-management-wrap" v-if="isLockContract">
+    <div class="condition-management-wrap" v-if="hasStakeLogic">
       <Tabs
         class="tabs"
         :name="activeTab"
         :items="tabItems"
         @select="selectTab"
-      />
-
-      <Toggle
-        v-if="isStake && !isLockEnded"
-        text="Lock"
-        :selected="isLock"
-        @updateToggle="changeLockToggle"
       />
 
       <Toggle
@@ -73,14 +66,12 @@ export default {
       tabItems: ["deposit", "stake"],
       isLock: false,
       isBalanced: false,
-      lockEndTimestamp: 1712364937,
-      isLockEnded: true,
     };
   },
 
   computed: {
-    isLockContract() {
-      return this.pool.lockContract;
+    hasStakeLogic() {
+      return this.pool.lockContract || this.pool.stakeContract;
     },
 
     isStake() {
@@ -100,13 +91,6 @@ export default {
     changeBalancedToggle() {
       this.isBalanced = !this.isBalanced;
     },
-  },
-
-  created() {
-    const now = moment().utc();
-    const end = moment.utc(this.lockEndTimestamp * 1000);
-    const isEnded = now.isAfter(end);
-    this.isLockEnded = isEnded;
   },
 
   components: {

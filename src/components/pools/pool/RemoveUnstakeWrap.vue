@@ -1,6 +1,6 @@
 <template>
   <div class="deposit-stake-wrap">
-    <div class="condition-management-wrap" v-if="isLockContract">
+    <div class="condition-management-wrap" v-if="hasStakeLogic">
       <Tabs
         class="tabs"
         :name="activeTab"
@@ -65,8 +65,8 @@ export default {
   },
 
   computed: {
-    isLockContract() {
-      return this.pool.lockContract;
+    hasStakeLogic() {
+      return this.pool.lockContract || this.pool.stakeContract;
     },
 
     isUnstake() {
