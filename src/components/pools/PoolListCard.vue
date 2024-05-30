@@ -12,7 +12,7 @@
           <div class="pool-name">{{ pool.name }}</div>
           <div class="pool-rewards">
             Staking rewards
-            <div class="reward-icons-wrap" v-if="pool.config.chainId === 2222">
+            <div class="reward-icons-wrap" v-if="pool.config.chainId === 81457">
               <img
                 class="reward-icons"
                 v-for="(reward, index) in kavaRewards"
