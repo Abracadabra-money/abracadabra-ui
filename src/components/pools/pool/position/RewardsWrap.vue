@@ -11,7 +11,7 @@
 
         <div class="values-wrap">
           <p class="item-value">{{ tokenRewards.value }}</p>
-          <p class="usd-value">{{ tokenRewards.usd }}</p>
+          <p class="usd-value" v-if="price">{{ tokenRewards.usd }}</p>
         </div>
       </li>
     </ul>
@@ -22,6 +22,8 @@
 import { useImage } from "@/helpers/useImage";
 import { formatUnits } from "viem";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
+import { getCoinsPrices } from "@/helpers/prices/defiLlama/index.ts";
+
 export default {
   name: "RewardsWrap",
   props: {
@@ -34,9 +36,11 @@ export default {
           1: {
             icon: useImage("assets/images/networks/kava.png"),
             name: "wKAVA",
+            address: "0xc86c7C0eFbd6A49B35E8714C5f59D99De09A225b",
           },
         },
       },
+      price: null,
     };
   },
   computed: {
@@ -54,11 +58,13 @@ export default {
     tokenRewards() {
       if (!this.isPoolHasReward) return false;
 
+      const value = this.formatTokenBalance(this.pool.stakeInfo.earned, 18); // TODO: notice decimals
+
       return {
         name: this.reward.name,
         icon: this.reward.icon,
-        value: this.formatTokenBalance(this.pool.stakeInfo.earned, 18), // TODO: notice decimals
-        usd: formatUSD(234.32),
+        value,
+        usd: formatUSD(value),
       };
     },
   },
@@ -66,6 +72,22 @@ export default {
     formatTokenBalance(value, decimals) {
       return formatTokenBalance(formatUnits(value, decimals));
     },
+    async fetchRewardPrice() {
+      if (!this.reward) return false;
+
+      const prices = await getCoinsPrices(this.pool.chainId, [
+        this.reward.address,
+      ]);
+
+      const rewardPrice = prices.find(
+        (price) => price.address === this.reward.address
+      );
+
+      if (rewardPrice) this.price = rewardPrice.price;
+    },
+  },
+  created() {
+    this.fetchRewardPrice();
   },
 };
 </script>
