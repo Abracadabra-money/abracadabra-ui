@@ -12,6 +12,10 @@
       />
     </div>
 
+    <RewardsCard
+      :pool="pool"
+    />
+
     <RewardsList
       v-if="isBlastLockLogic"
       :rewards="rewardsPerHour"
@@ -321,6 +325,9 @@ export default {
     ),
     RewardsList: defineAsyncComponent(() =>
       import("@/components/pools/pool/RewardsList.vue")
+    ),
+    RewardsCard: defineAsyncComponent(() =>
+      import("@/components/pools/pool/RewardsCard.vue")
     ),
   },
 };

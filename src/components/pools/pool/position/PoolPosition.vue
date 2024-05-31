@@ -12,7 +12,12 @@
     />
 
     <div class="pool-position">
-      <Tabs :name="activeTab" :items="tabItems" @select="selectTab" v-if="pointsStatistics.user"/>
+      <Tabs
+        :name="activeTab"
+        :items="tabItems"
+        @select="selectTab"
+        v-if="showTabs"
+      />
 
       <Deposited
         :pool="pool"
@@ -21,21 +26,20 @@
         v-show="activeTab === 'deposited'"
       />
 
-      <template v-if="pointsStatistics.user">
+      <template v-if="hasLockLogic || hasStakeLogic">
         <Staked
-        :pool="pool"
-        :userPointsStatistics="pointsStatistics.user"
-        v-show="activeTab === 'staked'"
-      />
+          :pool="pool"
+          :userPointsStatistics="pointsStatistics.user"
+          v-show="activeTab === 'staked'"
+        />
 
-      <Locked
-        v-if="pointsStatistics.user"
-        :pool="pool"
-        :userPointsStatistics="pointsStatistics.user"
-        v-show="activeTab === 'locked'"
-      />
+        <Locked
+          v-if="hasLockLogic"
+          :pool="pool"
+          :userPointsStatistics="pointsStatistics.user"
+          v-show="activeTab === 'locked'"
+        />
       </template>
-
     </div>
   </div>
 </template>
@@ -55,8 +59,24 @@ export default {
   data() {
     return {
       activeTab: "deposited",
-      tabItems: ["deposited", "staked", "locked"],
     };
+  },
+
+  computed: {
+    hasLockLogic() {
+      return !!this.pool.lockInfo;
+    },
+    hasStakeLogic() {
+      return !!this.pool.stakeInfo;
+    },
+    tabItems() {
+      return this.hasLockLogic
+        ? ["deposited", "staked", "locked"]
+        : ["deposited", "staked"];
+    },
+    showTabs() {
+      return this.hasLockLogic || this.hasStakeLogic;
+    },
   },
 
   methods: {

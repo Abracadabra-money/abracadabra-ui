@@ -2,33 +2,35 @@
   <div class="staked">
     <PoolCompoundCard :lpToken="lpToken" :tokensList="tokensList" />
 
-    <div class="rewards-wrap">
-      <h4 class="title">
-        Staking rewards earned
-        <Tooltip
-          tooltip="Total earned from Staked LPs position for each reward"
-          :width="20"
-          :height="20"
-        />
-      </h4>
+    <template v-if="rewardsList">
+      <div class="rewards-wrap">
+        <h4 class="title">
+          Staking rewards earned
+          <Tooltip
+            tooltip="Total earned from Staked LPs position for each reward"
+            :width="20"
+            :height="20"
+          />
+        </h4>
 
-      <ul class="rewards-list">
-        <li
-          class="list-item"
-          v-for="(reward, index) in rewardsList"
-          :key="index"
-        >
-          <span class="item-title">
-            <img :src="reward.icon" class="reward-icon" />
-            {{ reward.title }}
-          </span>
+        <ul class="rewards-list">
+          <li
+            class="list-item"
+            v-for="(reward, index) in rewardsList"
+            :key="index"
+          >
+            <span class="item-title">
+              <img :src="reward.icon" class="reward-icon" />
+              {{ reward.title }}
+            </span>
 
-          <span class="item-value">{{ reward.value }}</span>
-        </li>
-      </ul>
-    </div>
+            <span class="item-value">{{ reward.value }}</span>
+          </li>
+        </ul>
+      </div>
 
-    <BaseButton primary @click="goToDashboard()">See dashborad</BaseButton>
+      <BaseButton primary @click="goToDashboard()">See dashborad</BaseButton>
+    </template>
   </div>
 </template>
 
@@ -46,26 +48,34 @@ export default {
   },
 
   computed: {
+    hasLockLogic() {
+      return !!this.pool.lockInfo;
+    },
+    hasStakeLogic() {
+      return !!this.pool.stakeInfo;
+    },
+    stakedBalance() {
+      if (this.hasLockLogic) return this.pool.lockInfo.balances.unlocked;
+      return this.pool.stakeInfo.balance;
+    },
     lpToken() {
       return {
         name: this.pool.name,
         icon: this.pool.icon,
         amount: this.formatTokenBalance(
-          this.pool.lockInfo.balances.unlocked || 0n,
+          this.stakedBalance || 0n,
           this.pool.decimals
         ),
         amountUsd: this.formatUSD(
-          formatUnits(
-            this.pool.lockInfo.balances.unlocked || 0n,
-            this.pool.decimals
-          ) * this.pool.price
+          formatUnits(this.stakedBalance || 0n, this.pool.decimals) *
+            this.pool.price
         ),
       };
     },
 
     tokensList() {
       const previewRemoveLiquidityResult = previewRemoveLiquidity(
-        this.pool.lockInfo.balances.unlocked || 0n,
+        this.stakedBalance || 0n,
         this.pool
       );
 
@@ -104,6 +114,8 @@ export default {
     },
 
     rewardsList() {
+      if (!this.userPointsStatistics) return false;
+
       return [
         {
           title: "Points",
