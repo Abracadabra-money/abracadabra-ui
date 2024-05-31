@@ -59,7 +59,7 @@
                 {{ formatLargeSum(baseTokenAmount) }}
               </div>
               <div class="token-value-usd">
-                ${{ formatLargeSum(baseTokenAmountUsd) }}
+                {{ formatPercent(baseTokenPercent) }}
               </div>
             </div>
           </div>
@@ -78,7 +78,7 @@
                 {{ formatLargeSum(quoteTokenAmount) }}
               </div>
               <div class="token-value-usd">
-                ${{ formatLargeSum(quoteTokenAmountUsd) }}
+                {{ formatPercent(quoteTokenPercent) }}
               </div>
             </div>
           </div>
@@ -90,11 +90,11 @@
 
 <script lang="ts">
 import { formatUnits } from "viem";
+import { useImage } from "@/helpers/useImage";
 import { defineAsyncComponent, type PropType } from "vue";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 import type { MagicLPInfo } from "@/helpers/pools/swap/types";
-import { formatLargeSum, formatTokenBalance } from "@/helpers/filters";
-import { useImage } from "@/helpers/useImage";
+import { formatLargeSum, formatPercent } from "@/helpers/filters";
 
 export default {
   props: {
@@ -128,6 +128,10 @@ export default {
       return this.baseTokenAmount * this.pool.baseTokenPrice;
     },
 
+    baseTokenPercent() {
+      return (this.baseTokenAmountUsd * 100) / this.tvl;
+    },
+
     quoteTokenAmount() {
       return Number(
         formatUnits(
@@ -141,8 +145,12 @@ export default {
       return this.quoteTokenAmount * this.pool.quoteTokenPrice;
     },
 
+    quoteTokenPercent() {
+      return (this.quoteTokenAmountUsd * 100) / this.tvl;
+    },
+
     tvl() {
-      return this.baseTokenAmount + this.quoteTokenAmount;
+      return this.baseTokenAmountUsd + this.quoteTokenAmountUsd;
     },
 
     tvlUsd() {
@@ -150,7 +158,11 @@ export default {
     },
   },
 
-  methods: { getChainIcon, formatTokenBalance, formatLargeSum },
+  methods: {
+    getChainIcon,
+    formatPercent,
+    formatLargeSum,
+  },
 
   components: {
     LinkIcon: defineAsyncComponent(
