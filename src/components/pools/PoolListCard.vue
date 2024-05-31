@@ -281,7 +281,7 @@ export default {
 .pool-tvl {
   padding: 12px 19px 12px;
   border-radius: 0 16px 16px 0;
-  background: #000;
+  background: #171b2f;
 }
 
 .tvl-value {
@@ -319,5 +319,12 @@ export default {
   font-size: 12px;
   font-weight: 400;
   line-height: normal;
+}
+
+@media screen and (max-width: 650px) {
+  .pool-card {
+    max-width: 100%;
+    width: 100%;
+  }
 }
 </style>

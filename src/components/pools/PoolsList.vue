@@ -55,14 +55,10 @@ export default {
   align-items: center;
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 650px) {
   .pools-list-wrap {
     height: 500px;
     overflow: auto;
-  }
-
-  .pools-list {
-    margin: 0 auto;
   }
 }
 </style>

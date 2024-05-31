@@ -1,7 +1,7 @@
 <template>
   <div class="pools-page" v-if="pools">
     <div class="pools-container">
-      <PoolsInfo />
+      <PoolsInfo :pools="pools" />
 
       <PoolsList :pools="pools" :poolsLoading="poolsLoading" />
     </div>

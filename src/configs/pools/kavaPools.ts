@@ -8,7 +8,7 @@ const kavaPools: Array<PoolConfig> = [
   {
     id: 1,
     chainId: 2222,
-    name: "MIM / USDt",
+    name: "MIM / USDT",
     icon: useImage(`assets/images/tokens/MIM-USDT.png`),
     decimals: 18,
     contract: {
