@@ -29,11 +29,19 @@
           </li>
         </ul>
       </div>
+    </template>
 
-      <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
-        {{ buttonText }}
-      </BaseButton></template
-    >
+    <div class="reward-wrap" v-if="isPoolHasReward && reward">
+      <p class="title">Staking Rewards</p>
+      <div class="reward-item">
+        <img :src="reward.icon" alt="" class="reward-icon" />
+        <p class="reward-name">{{ reward.name }}</p>
+      </div>
+    </div>
+
+    <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
+      {{ buttonText }}
+    </BaseButton>
   </div>
 </template>
 
@@ -69,6 +77,14 @@ export default {
       },
       isActionProcessing: false,
       isRewardsCalculating: false,
+      rewards: {
+        2222: {
+          1: {
+            icon: useImage("assets/images/networks/kava.png"),
+            name: "wKAVA",
+          },
+        },
+      },
     };
   },
 
@@ -78,8 +94,27 @@ export default {
       chainId: "getChainId",
     }),
 
+    isPoolHasReward() {
+      return (
+        this.rewards[this.pool.chainId] &&
+        this.rewards[this.pool.chainId][this.pool.id]
+      );
+    },
+    reward() {
+      if (!this.isPoolHasReward) return;
+      return this.rewards[this.pool.chainId][this.pool.id];
+    },
+
+    hasLockLogic() {
+      return !!this.pool.lockInfo;
+    },
+    hasStakeLogic() {
+      return !!this.pool.stakeInfo;
+    },
     isAllowed() {
-      return this.pool.lockInfo.allowance >= this.pool.userInfo.balance;
+      if (this.hasLockLogic)
+        return this.pool.lockInfo.allowance >= this.pool.userInfo.balance;
+      return this.pool.stakeInfo.allowance >= this.pool.userInfo.balance;
     },
 
     isValid() {
@@ -223,10 +258,14 @@ export default {
         notification.approvePending
       );
 
+      const contract = this.hasLockLogic
+        ? this.pool.lockContract
+        : this.pool.stakeContract;
+
       try {
         await approveTokenViem(
           this.pool.contract,
-          this.pool.lockContract.address,
+          contract.address,
           this.pool.userInfo.balance
         );
         await this.$emit("updatePoolInfo");
@@ -253,10 +292,14 @@ export default {
         notification.pending
       );
 
+      const contract = this.hasLockLogic
+        ? this.pool.lockContract
+        : this.pool.stakeContract;
+
       try {
         const { request } = await simulateContractHelper({
-          address: this.pool.lockContract.address,
-          abi: this.pool.lockContract.abi,
+          address: contract.address,
+          abi: contract.abi,
           functionName: "stake",
           args: [this.pool.userInfo.balance],
         });
@@ -271,7 +314,6 @@ export default {
 
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.success);
-        this.resetInput();
       } catch (error) {
         console.log("stake lp err:", error);
 
@@ -331,6 +373,33 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.reward-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  .title {
+    font-size: 18px;
+    font-weight: 500;
+    color: #fff;
+  }
+  .reward-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    .reward-icon {
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+    }
+
+    .reward-name {
+      font-size: 16px;
+    }
+  }
+}
+
 .deposited {
   display: flex;
   flex-direction: column;

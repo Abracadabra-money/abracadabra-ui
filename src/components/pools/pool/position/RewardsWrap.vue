@@ -1,0 +1,121 @@
+<template>
+  <div class="token-rewards-wrap" v-if="tokenRewards">
+    <h4 class="title">Earned</h4>
+
+    <ul class="rewards-list">
+      <li class="list-item">
+        <span class="item-title">
+          <img :src="tokenRewards.icon" class="reward-icon" />
+          {{ tokenRewards.name }}
+        </span>
+
+        <div class="values-wrap">
+          <p class="item-value">{{ tokenRewards.value }}</p>
+          <p class="usd-value">{{ tokenRewards.usd }}</p>
+        </div>
+      </li>
+    </ul>
+  </div>
+</template>
+
+<script>
+import { useImage } from "@/helpers/useImage";
+import { formatUnits } from "viem";
+import { formatUSD, formatTokenBalance } from "@/helpers/filters";
+export default {
+  name: "RewardsWrap",
+  props: {
+    pool: { type: Object, required: true },
+  },
+  data() {
+    return {
+      rewards: {
+        2222: {
+          1: {
+            icon: useImage("assets/images/networks/kava.png"),
+            name: "wKAVA",
+          },
+        },
+      },
+    };
+  },
+  computed: {
+    isPoolHasReward() {
+      return (
+        this.rewards[this.pool.chainId] &&
+        this.rewards[this.pool.chainId][this.pool.id]
+      );
+    },
+    reward() {
+      if (!this.isPoolHasReward) return;
+      return this.rewards[this.pool.chainId][this.pool.id];
+    },
+
+    tokenRewards() {
+      if (!this.isPoolHasReward) return false;
+
+      return {
+        name: this.reward.name,
+        icon: this.reward.icon,
+        value: this.formatTokenBalance(this.pool.stakeInfo.earned, 18), // TODO: notice decimals
+        usd: formatUSD(234.32),
+      };
+    },
+  },
+  methods: {
+    formatTokenBalance(value, decimals) {
+      return formatTokenBalance(formatUnits(value, decimals));
+    },
+  },
+};
+</script>
+
+<style scoped lang="scss">
+.token-rewards-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.rewards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  list-style: none;
+}
+
+.list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.item-title {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.reward-icon {
+  width: 24px;
+}
+
+.values-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+
+  .item-value {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.2;
+  }
+
+  .usd-value {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 400;
+    line-height: 1;
+  }
+}
+</style>

@@ -2,6 +2,8 @@
   <div class="staked">
     <PoolCompoundCard :lpToken="lpToken" :tokensList="tokensList" />
 
+    <RewardsWrap :pool="pool" />
+
     <template v-if="rewardsList">
       <div class="rewards-wrap">
         <h4 class="title">
@@ -160,6 +162,9 @@ export default {
     ),
     PoolCompoundCard: defineAsyncComponent(() =>
       import("@/components/pools/pool/position/cards/PoolCompoundCard.vue")
+    ),
+    RewardsWrap: defineAsyncComponent(() =>
+      import("@/components/pools/pool/position/RewardsWrap.vue")
     ),
     Tooltip: defineAsyncComponent(() =>
       import("@/components/ui/icons/Tooltip.vue")
