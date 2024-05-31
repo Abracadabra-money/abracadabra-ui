@@ -29,6 +29,7 @@
       <template v-if="hasLockLogic || hasStakeLogic">
         <Staked
           :pool="pool"
+          @updatePoolInfo="$emit('updateInfo')"
           :userPointsStatistics="pointsStatistics.user"
           v-show="activeTab === 'staked'"
         />

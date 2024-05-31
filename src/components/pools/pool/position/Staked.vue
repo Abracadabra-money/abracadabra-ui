@@ -33,23 +33,52 @@
 
       <BaseButton primary @click="goToDashboard()">See dashborad</BaseButton>
     </template>
+
+    <BaseButton
+      v-if="hasStakeLogic"
+      primary
+      @click="actionHandler"
+      :disabled="isButtonDisabled"
+    >
+      {{ buttonText }}
+    </BaseButton>
   </div>
 </template>
 
 <script>
+import { mapActions, mapGetters, mapMutations } from "vuex";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { defineAsyncComponent } from "vue";
 import { formatUnits } from "viem";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
 import { useImage } from "@/helpers/useImage";
 
+import notification from "@/helpers/notification/notification";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
+import {
+  writeContractHelper,
+  simulateContractHelper,
+  waitForTransactionReceiptHelper,
+} from "@/helpers/walletClienHelper";
 export default {
+  emits: ["updatePoolInfo"],
   props: {
     pool: { type: Object },
     userPointsStatistics: { type: Object },
   },
 
+  data() {
+    return {
+      isActionProcessing: false,
+    };
+  },
+
   computed: {
+    ...mapGetters({
+      account: "getAccount",
+      chainId: "getChainId",
+    }),
     hasLockLogic() {
       return !!this.pool.lockInfo;
     },
@@ -59,6 +88,27 @@ export default {
     stakedBalance() {
       if (this.hasLockLogic) return this.pool.lockInfo.balances.unlocked;
       return this.pool.stakeInfo.balance;
+    },
+    earnedBalance() {
+      if (!this.hasStakeLogic) return 0n;
+      return this.pool.stakeInfo.earned;
+    },
+    isProperNetwork() {
+      return this.chainId == this.pool.chainId;
+    },
+    isButtonDisabled() {
+      if (!this.isProperNetwork) return false;
+      if (!this.account) return false;
+
+      if (this.isActionProcessing || this.earnedBalance == 0n) return true;
+
+      return false;
+    },
+    buttonText() {
+      if (!this.isProperNetwork) return "Switch network";
+      if (!this.account) return "Connect wallet";
+      if (this.isActionProcessing) return "Processing...";
+      return "Claim";
     },
     lpToken() {
       return {
@@ -143,6 +193,9 @@ export default {
   },
 
   methods: {
+    ...mapActions({ createNotification: "notifications/new" }),
+    ...mapMutations({ deleteNotification: "notifications/delete" }),
+
     formatUSD,
 
     formatTokenBalance(value, decimals) {
@@ -153,6 +206,51 @@ export default {
       this.$router.push({
         name: "PointsDashboard",
       });
+    },
+
+    async actionHandler() {
+      if (this.isButtonDisabled) return false;
+      if (!this.isProperNetwork) return switchNetwork(this.pool.chainId);
+
+      await this.claim();
+      this.$emit("updatePoolInfo");
+    },
+    async claim() {
+      this.isActionProcessing = true;
+
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
+
+      const contract = this.pool.stakeContract;
+
+      try {
+        const { request } = await simulateContractHelper({
+          address: contract.address,
+          abi: contract.abi,
+          functionName: "getRewards",
+        });
+
+        const hash = await writeContractHelper(request);
+
+        const { result, error } = await waitForTransactionReceiptHelper({
+          hash,
+        });
+
+        this.deleteNotification(notificationId);
+        await this.createNotification(notification.success);
+      } catch (error) {
+        console.log("stake lp err:", error);
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(error),
+          type: "error",
+        };
+
+        this.deleteNotification(notificationId);
+        await this.createNotification(errorNotification);
+      }
+      this.isActionProcessing = false;
     },
   },
 

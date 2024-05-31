@@ -128,7 +128,7 @@ export default {
       if (this.isActionProcessing) return "Processing...";
       if (!this.isAllowed) return "Approve";
 
-      return "Stake now";
+      return "Stake all";
     },
 
     isProperNetwork() {
