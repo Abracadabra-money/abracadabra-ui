@@ -238,6 +238,9 @@ export default {
 
     updateValue(value, fromBase = false) {
       const tokenLabel = fromBase ? "base" : "quote";
+      const decimals = fromBase
+        ? this.baseToken.config.decimals
+        : this.quoteToken.config.decimals; 
 
       if (value === null) {
         this[`${tokenLabel}InputAmount`] = 0n;
@@ -245,7 +248,7 @@ export default {
       } else {
         this[`${tokenLabel}InputAmount`] = value;
         this[`${tokenLabel}InputValue`] = trimZeroDecimals(
-          formatUnits(value, this.baseToken.config.decimals)
+          formatUnits(value, decimals)
         );
       }
 
