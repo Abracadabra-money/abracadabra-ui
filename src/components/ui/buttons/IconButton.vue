@@ -88,7 +88,10 @@ export default {
       type: Boolean,
       default: false,
     },
-    disable: { type: Boolean, default: false },
+    disable: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   data() {
@@ -102,7 +105,6 @@ export default {
   computed: {
     svgFill() {
       if (this.hover || this.active) return this.svgHoverFillColor;
-
       return this.svgFillColor;
     },
   },
@@ -129,10 +131,6 @@ export default {
     ExitIcon: defineAsyncComponent(
       () => import("@/components/ui/icons/ExitIcon.vue")
     ),
-  },
-
-  methods: {
-    onHover() {},
   },
 };
 </script>

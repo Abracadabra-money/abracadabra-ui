@@ -120,25 +120,18 @@
 import { formatUnits, parseUnits } from "viem";
 import { formatTokenBalance } from "@/helpers/filters";
 import { defineAsyncComponent, type PropType } from "vue";
+import type { ActionConfig, CauldronInfo } from "@/helpers/cauldron/types";
 import { getAlternativeExpectedPostition } from "@/helpers/cauldron/getExpectedPosition";
-
-type ExpectedPosition = {
-  collateralAmount: bigint;
-  mimAmount: bigint;
-  liquidationPrice: bigint;
-  positionHealth: {
-    percent: bigint;
-    status: string;
-  };
-};
 
 export default {
   props: {
     cauldron: {
-      type: Object as any,
+      type: Object as PropType<CauldronInfo>,
+      required: true,
     },
     actionConfig: {
-      type: Object as any,
+      type: Object as PropType<ActionConfig>,
+      required: true,
     },
     actionType: {
       type: String,
@@ -146,11 +139,11 @@ export default {
     },
   },
   computed: {
-    collateralDecimals(): number {
+    collateralDecimals() {
       return this.cauldron.config.collateralInfo.decimals;
     },
 
-    expectedPosition(): ExpectedPosition {
+    expectedPosition() {
       return getAlternativeExpectedPostition(
         this.cauldron,
         this.actionConfig,
@@ -158,11 +151,11 @@ export default {
       );
     },
 
-    collateralPrice(): bigint {
+    collateralPrice() {
       return this.cauldron.mainParams.alternativeData.collateralPrice;
     },
 
-    expectedCollateralInUsd(): bigint {
+    expectedCollateralInUsd() {
       return (
         (this.expectedPosition.collateralAmount * this.collateralPrice) /
         parseUnits("1", this.collateralDecimals)
@@ -171,7 +164,7 @@ export default {
   },
 
   methods: {
-    formatAmount(value: bigint, decimals = 18): string | number {
+    formatAmount(value: bigint, decimals = 18) {
       return formatTokenBalance(formatUnits(value, decimals));
     },
   },

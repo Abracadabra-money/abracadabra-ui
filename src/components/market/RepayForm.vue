@@ -119,8 +119,12 @@
 <script lang="ts">
 import { mapGetters } from "vuex";
 import { BigNumber } from "ethers";
-import { defineAsyncComponent } from "vue";
-import type { SwapAmounts } from "@/helpers/cauldron/types";
+import { defineAsyncComponent, type PropType } from "vue";
+import type {
+  ActionConfig,
+  CauldronInfo,
+  SwapAmounts,
+} from "@/helpers/cauldron/types";
 // @ts-ignore
 import tempMixin from "@/mixins/temp";
 import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
@@ -135,10 +139,12 @@ export default {
   mixins: [tempMixin],
   props: {
     cauldron: {
-      type: Object as any,
+      type: Object as PropType<CauldronInfo>,
+      required: true,
     },
     actionConfig: {
-      type: Object as any,
+      type: Object as PropType<ActionConfig>,
+      required: true,
     },
   },
 
@@ -158,7 +164,6 @@ export default {
     expectedBorrowAmount() {
       const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
 
-      //@ts-ignore
       const { amountToMin } = this.actionConfig.amounts.deleverageAmounts;
 
       const expectedBorrowAmount = userBorrowAmount.sub(amountToMin);
@@ -173,7 +178,6 @@ export default {
       const { userCollateralAmount } =
         this.cauldron.userPosition.collateralInfo;
       const { oracleExchangeRate } = this.cauldron.mainParams;
-      //@ts-ignore
       const { amountFrom } = this.actionConfig.amounts.deleverageAmounts;
 
       const mcr = expandDecimals(this.cauldron.config.mcr, PERCENT_PRESITION);
@@ -208,15 +212,17 @@ export default {
       if (hasActiveGmOrder) return false;
 
       if (this.actionConfig.useDeleverage) return this.hasOpenPosition;
-      const { mimBalance } = this.cauldron.userTokensInfo;
       const { borrowInfo } = this.cauldron.userPosition;
 
       return (
-        this.hasOpenPosition && mimBalance.gte(borrowInfo.userBorrowAmount)
+        this.hasOpenPosition &&
+        this.cauldron.userTokensInfo!.mimBalance.gte(
+          borrowInfo.userBorrowAmount
+        )
       );
     },
 
-    isDeleverageAllowed() {
+    isDeleverageAllowed(): boolean {
       const { isSwappersActive } = this.cauldron.config.cauldronSettings;
 
       return isSwappersActive && this.cauldron.contracts.liquidationSwapper;

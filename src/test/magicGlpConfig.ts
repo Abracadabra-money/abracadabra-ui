@@ -1,4 +1,4 @@
-import { BigNumber, utils } from "ethers";
+import { BigNumber, Contract, utils } from "ethers";
 
 export const magicGlpConfig = {
   config: {
@@ -66,14 +66,14 @@ export const magicGlpConfig = {
     },
   },
   contracts: {
-    cauldron: {},
-    bentoBox: {},
-    collateral: {},
-    mim: {},
-    leverageSwapper: {},
-    liquidationSwapper: {},
-    unwrappedToken: {},
-    wrapper: {},
+    cauldron: {} as Contract,
+    bentoBox: {} as Contract,
+    collateral: {} as Contract,
+    mim: {} as Contract,
+    leverageSwapper: {} as Contract,
+    liquidationSwapper: {} as Contract,
+    unwrappedToken: {} as Contract,
+    wrapper: {} as Contract,
   },
   mainParams: {
     borrowFee: 0,
@@ -87,6 +87,15 @@ export const magicGlpConfig = {
     tvl: utils.parseUnits("10000", 18),
     userMaxBorrow: BigNumber.from("0"),
     updatePrice: true,
+    alternativeData: {
+      collateralPrice: 1000n,
+      mimLeftToBorrow: 1000n,
+      maximumCollateralRatio: 1000n,
+      oracleExchangeRate: 1000n,
+      totalBorrowed: 1000n,
+      tvl: 1000n,
+      userMaxBorrow: 1000n,
+    },
   },
   userPosition: {
     collateralInfo: {
@@ -104,6 +113,17 @@ export const magicGlpConfig = {
     collateralDepositedUsd: 15.317821542654482,
     mimBorrowed: 6.144424838671115,
     hasActiveGmOrder: false,
+    alternativeData: {
+      collateralInfo: {
+        userCollateralShare: 1000n,
+        userCollateralAmount: 1000n,
+      },
+      borrowInfo: {
+        userBorrowPart: 1000n,
+        userBorrowAmount: 1000n,
+      },
+      oracleRate: 1000n,
+    },
   },
   userTokensInfo: {
     collateralBalance: utils.parseUnits("6", 18),

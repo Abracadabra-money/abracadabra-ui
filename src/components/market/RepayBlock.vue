@@ -27,30 +27,34 @@
 </template>
 
 <script lang="ts">
-import { mapGetters } from "vuex";
 import { BigNumber, utils } from "ethers";
-import { defineAsyncComponent } from "vue";
 import { trimZeroDecimals } from "@/helpers/numbers";
+import { defineAsyncComponent, type PropType } from "vue";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
+
 const MIM_PRICE = 1;
 
 export default {
+  emits: ["updateRepayAmount", "updateToggle"],
+
   props: {
     cauldron: {
-      type: Object as any,
+      type: Object as PropType<CauldronInfo>,
+      required: true,
     },
     inputAmount: {
       type: BigNumber,
+      default: BigNumber.from(0),
     },
     withdrawAmount: {
       type: BigNumber,
+      default: BigNumber.from(0),
     },
     useDeleverage: {
       type: Boolean,
       default: false,
     },
   },
-
-  emits: ["updateRepayAmount", "updateToggle"],
 
   data() {
     return {
@@ -59,23 +63,18 @@ export default {
   },
 
   computed: {
-    ...mapGetters({
-      account: "getAccount",
-      chainId: "getChainId",
-    }),
-
-    isDeleverageAllowed() {
+    isDeleverageAllowed(): boolean {
       const { isSwappersActive } = this.cauldron.config.cauldronSettings;
 
       return isSwappersActive && this.cauldron.contracts.liquidationSwapper;
     },
 
     borrowToken() {
-      const { config, userTokensInfo } = this.cauldron;
+      const { config } = this.cauldron;
       return {
         name: config.mimInfo.name,
         icon: config.mimInfo.icon,
-        balance: userTokensInfo.mimBalance,
+        balance: this.cauldron.userTokensInfo?.mimBalance || BigNumber.from(0),
         decimals: 18,
         price: MIM_PRICE,
       };
@@ -83,13 +82,14 @@ export default {
 
     maxToRepay() {
       const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
-      const { mimBalance } = this.cauldron.userTokensInfo;
+      const mimBalance =
+        this.cauldron.userTokensInfo?.mimBalance || BigNumber.from(0);
       return userBorrowAmount.gt(mimBalance) ? mimBalance : userBorrowAmount;
     },
   },
 
   watch: {
-    inputAmount(value) {
+    inputAmount(value: BigNumber) {
       if (value.eq(0)) {
         this.inputValue = "";
         return false;

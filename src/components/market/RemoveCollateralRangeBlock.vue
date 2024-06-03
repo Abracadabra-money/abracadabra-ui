@@ -25,7 +25,7 @@
       <span> Expected</span>
       <span>
         {{ expectedTokenAmount }}
-        {{ cauldron.config.wrapInfo.unwrappedToken.name }}</span
+        {{ cauldron.config.wrapInfo?.unwrappedToken.name }}</span
       >
     </div>
   </div>
@@ -38,16 +38,19 @@ import {
   PERCENT_PRESITION,
   getMaxCollateralToRemove,
 } from "@/helpers/cauldron/utils";
-import { mapGetters } from "vuex";
 import { BigNumber, utils } from "ethers";
-import { defineAsyncComponent } from "vue";
 import { formatToFixed } from "@/helpers/filters";
+import { defineAsyncComponent, type PropType } from "vue";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
 
 export default {
+  emits: ["updateWithdrawAmount", "updateToggle"],
+
   props: {
     cauldron: {
-      type: Object as any,
+      type: Object as PropType<CauldronInfo>,
+      required: true,
     },
     isWithdrawUnwrapToken: {
       type: Boolean,
@@ -65,10 +68,9 @@ export default {
     },
     withdrawAmount: {
       type: BigNumber,
+      default: BigNumber.from(0),
     },
   },
-
-  emits: ["updateWithdrawAmount", "updateToggle"],
 
   data() {
     return {
@@ -79,16 +81,10 @@ export default {
   },
 
   computed: {
-    ...mapGetters({
-      account: "getAccount",
-      chainId: "getChainId",
-    }),
-
     maxToRemove() {
       const { userCollateralAmount } =
         this.cauldron.userPosition.collateralInfo;
       const { oracleExchangeRate } = this.cauldron.mainParams;
-      //@ts-ignore
       const { amountFrom } = this.deleverageAmounts;
 
       const mcr = expandDecimals(this.cauldron.config.mcr, PERCENT_PRESITION);
@@ -110,7 +106,6 @@ export default {
     expectedBorrowAmount() {
       const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
 
-      //@ts-ignore
       const { amountToMin } = this.deleverageAmounts;
 
       const expectedBorrowAmount = userBorrowAmount.sub(amountToMin);
@@ -123,7 +118,6 @@ export default {
     expectedCollateralAmount() {
       const { userCollateralAmount } =
         this.cauldron.userPosition.collateralInfo;
-      //@ts-ignore
       const { amountFrom } = this.deleverageAmounts;
 
       const expectedCollateralAmount = userCollateralAmount
@@ -178,7 +172,7 @@ export default {
   },
 
   watch: {
-    inputAmpunt(value) {
+    inputAmpunt(value: BigNumber) {
       if (value.eq(0)) {
         this.inputValue = 0;
         return false;

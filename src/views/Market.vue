@@ -55,35 +55,38 @@
     </div>
   </div>
 
-  <div class="mobile-navigation" v-if="cauldron">
-    <div
-      class="nav-item"
-      v-for="tab in mobileTabs"
-      :key="`mobileTab=${tab.id}`"
-      :class="{ active: tab.id === currentMobileTab }"
-      @click="currentMobileTab = tab.id"
-    >
-      <img :class="{ mini: tab.id !== 0 }" :src="tab.icon" alt="" />
-      <p>{{ tab.text }}</p>
-    </div>
-  </div>
+  <MobileNavigation
+    v-if="cauldron"
+    :cauldron="cauldron"
+    :currentMobileTab="currentMobileTab"
+    @chamgeMobileTab="(value) => (currentMobileTab = value)"
+  />
 </template>
 
 <script lang="ts">
 import { mapGetters } from "vuex";
-import { defineAsyncComponent } from "vue";
 import { BigNumber, utils } from "ethers";
-import { useImage } from "@/helpers/useImage";
+import { defineAsyncComponent } from "vue";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
+
+type ToggleKeys =
+  | "withdrawUnwrapToken"
+  | "useUnwrapToken"
+  | "useNativeToken"
+  | "useDeleverage"
+  | "useLeverage";
 
 export default {
   data() {
     return {
-      chainId: null as any,
-      cauldronId: null as any,
-      cauldron: null as any,
-      updateInterval: null as any,
+      mobileMode: false,
+      activeTab: "borrow",
+      currentMobileTab: 0,
+      tabItems: ["borrow", "repay"],
+      cauldron: null as null | CauldronInfo,
+      updateInterval: null as null | NodeJS.Timeout,
       actionConfig: {
         useLeverage: false,
         useDeleverage: false,
@@ -110,27 +113,6 @@ export default {
           slippage: utils.parseUnits("1", PERCENT_PRESITION),
         },
       },
-      activeTab: "borrow",
-      tabItems: ["borrow", "repay"],
-      currentMobileTab: 0,
-      mobileTabs: [
-        {
-          id: 0,
-          text: "Manage",
-          icon: useImage("assets/images/nav-1.png"),
-        },
-        {
-          id: 1,
-          text: "My Position",
-          icon: useImage("assets/images/nav-2.png"),
-        },
-        {
-          id: 2,
-          text: "Stats",
-          icon: useImage("assets/images/nav-3.png"),
-        },
-      ],
-      mobileMode: false,
     };
   },
 
@@ -154,22 +136,20 @@ export default {
     },
 
     routeChainId() {
-      const chainId = Number(this.$route.params.chainId);
-
-      return chainId;
+      return Number(this.$route.params.chainId);
     },
 
     routeCauldronId() {
-      const chainId = Number(this.$route.params.cauldronId);
-
-      return chainId;
+      return Number(this.$route.params.cauldronId);
     },
 
     isOpenPosition() {
+      if (!this.cauldron) return false;
+
       return (
-        this.cauldron.userPosition.alternativeData.collateralInfo
+        !!this.cauldron.userPosition.alternativeData.collateralInfo
           .userCollateralShare ||
-        this.cauldron.userPosition.alternativeData.borrowInfo.userBorrowPart
+        !!this.cauldron.userPosition.alternativeData.borrowInfo.userBorrowPart
       );
     },
 
@@ -182,7 +162,7 @@ export default {
     },
 
     isHiddenWrap() {
-      return !!this.cauldron.config?.wrapInfo?.isHiddenWrap;
+      return !!this.cauldron?.config?.wrapInfo?.isHiddenWrap;
     },
   },
 
@@ -227,8 +207,7 @@ export default {
       this.actionConfig.withdrawUnwrapToken = this.isHiddenWrap;
     },
 
-    onUpdateToggle(toggle: string, isReset = false) {
-      // @ts-ignore
+    onUpdateToggle(toggle: ToggleKeys, isReset = false) {
       this.actionConfig[toggle] = !this.actionConfig[toggle];
       if (isReset) this.resetAmounts();
 
@@ -238,8 +217,7 @@ export default {
     checkAndSetQuerySettings() {
       const currentQuery = this.$route.query;
 
-      //@ts-ignore
-      if (currentQuery.action) this.activeTab = currentQuery.action;
+      if (currentQuery.action) this.activeTab = currentQuery.action as string;
       if (currentQuery.leverage === "active")
         this.actionConfig.useLeverage = true;
       if (currentQuery.deleverage === "active")
@@ -298,8 +276,9 @@ export default {
     },
 
     onUpdateAmounts(type: string, value: any) {
-      // @ts-ignore
-      this.actionConfig.amounts[type] = value;
+      this.actionConfig.amounts[
+        type as keyof typeof this.actionConfig.amounts
+      ] = value;
     },
 
     changeTab(action: string) {
@@ -323,16 +302,9 @@ export default {
         this.routeChainId,
         this.account
       );
+
+      if (!this.cauldron) return this.$router.push({ name: "Home" });
     },
-  },
-
-  updated() {
-    this.checkAndUpdateRouteQuery();
-  },
-
-  beforeUnmount() {
-    clearInterval(this.updateInterval);
-    window.removeEventListener("resize", this.getWindowSize);
   },
 
   async created() {
@@ -346,6 +318,15 @@ export default {
     this.updateInterval = setInterval(async () => {
       await this.createCauldronInfo();
     }, 60000);
+  },
+
+  updated() {
+    this.checkAndUpdateRouteQuery();
+  },
+
+  beforeUnmount() {
+    clearInterval(Number(this.updateInterval));
+    window.removeEventListener("resize", this.getWindowSize);
   },
 
   components: {
@@ -371,57 +352,14 @@ export default {
     BaseLoader: defineAsyncComponent(
       () => import("@/components/base/BaseLoader.vue")
     ),
+    MobileNavigation: defineAsyncComponent(
+      () => import("@/components/market/MobileNavigation.vue")
+    ),
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.mobile-navigation {
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 12px;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background: rgba(16, 22, 34, 0.6);
-  gap: 52px;
-  box-shadow: 0px 4px 36.4px 0px rgba(98, 88, 195, 0);
-  backdrop-filter: blur(12.5px);
-  z-index: 100;
-
-  .nav-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    cursor: pointer;
-
-    &.active,
-    &:hover {
-      p {
-        color: #7088cc;
-      }
-    }
-
-    img {
-      width: 50px;
-      height: 50px;
-      object-fit: contain;
-    }
-
-    p {
-      color: #fff;
-      font-size: 16px;
-      font-style: normal;
-      font-weight: 400;
-      line-height: normal;
-      text-align: center;
-      transition: all 0.3s ease;
-    }
-  }
-}
-
 .market-view {
   padding: 100px 0;
   display: flex;
@@ -488,6 +426,7 @@ export default {
     display: flex;
     justify-content: center;
   }
+
   .market-info {
     display: flex;
     flex-direction: column;
@@ -496,32 +435,6 @@ export default {
 
   .top-row {
     justify-content: center;
-  }
-
-  .mobile-navigation {
-    display: flex;
-  }
-}
-
-@media screen and (max-width: 640px) {
-  .mobile-navigation {
-    padding: 8px;
-    gap: 52px;
-
-    .nav-item {
-      img {
-        width: 36px;
-        height: 36px;
-
-        &.mini {
-          width: 28px;
-        }
-      }
-
-      p {
-        font-size: 14px;
-      }
-    }
   }
 }
 </style>
