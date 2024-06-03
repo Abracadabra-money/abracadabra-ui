@@ -41,7 +41,7 @@
             <BaseTokenIcon
               :name="this.pool.name"
               :icon="this.pool.icon"
-              size="24px"
+              size="32px"
             />
             {{ this.pool.name }}
           </span>
