@@ -3,8 +3,8 @@
     <BentoBoxItem
       @withdraw="openPopup(false)"
       @chooseActiveChain="chooseActiveDegenChain"
-      :balance="activeChainDegenConfig.mimInDegenBalance"
-      :mimPrice="activeChainDegenConfig.mimPrice"
+      :balance="activeChainDegenData?.mimInDegenBalance || 0n"
+      :mimPrice="activeChainDegenData?.mimPrice || 1"
       :activeChains="activeChains.degen"
       :activeChain="activeDegenChain"
       :currentChain="chainId"
@@ -14,8 +14,8 @@
     <BentoBoxItem
       @withdraw="openPopup(true)"
       @chooseActiveChain="chooseActiveBentoChain"
-      :balance="activeChainBentoConfig.mimInBentoBalance"
-      :mimPrice="activeChainBentoConfig.mimPrice"
+      :balance="activeChainBentoData?.mimInBentoBalance || 0n"
+      :mimPrice="activeChainBentoData?.mimPrice || 1"
       :activeChains="activeChains.bento"
       :activeChain="activeBentoChain"
       :currentChain="chainId"
@@ -24,43 +24,47 @@
     />
 
     <DegenBentoPopup
-      v-if="popupData.opened"
-      :infoObject="currentChainBentoConfig"
+      v-if="popupData.opened && currentChainBentoData"
+      :infoObject="currentChainBentoData"
       :isBento="popupData.isBento"
       @close="popupData.opened = false"
     />
   </div>
 </template>
 
-<script>
-import { formatUnits } from "viem";
+<script lang="ts">
+import { parseUnits } from "viem";
 import { mapGetters, mapMutations } from "vuex";
 import bentoBoxMixin from "@/mixins/mimBentoDeposit";
 import BentoBoxItem from "@/components/myPositions/BentoBoxItem.vue";
 import DegenBentoPopup from "@/components/popups/DegenBentoPopup.vue";
+import { createBentoBoxDatas } from "@/helpers/bentoBox/createBentoBoxData";
+import type { BentoBoxData } from "@/helpers/bentoBox/types";
 
-import { createBentoBoxConfig } from "@/helpers/bentoBox/createBentoBoxConfig.ts";
-
-const initialPopupData = {
+const initialPopupData: PopupData = {
   opened: false,
-  isBento: null,
-  isDeposit: null,
+  isBento: false,
+  isDeposit: false,
 };
+
+type PopupData = {
+  opened: boolean;
+  isBento: boolean;
+  isDeposit?: boolean;
+};
+
+type ActiveChains = number[];
 
 export default {
   mixins: [bentoBoxMixin],
 
-  props: {
-    activeNetworks: { type: Array },
-  },
-
   data() {
     return {
       popupData: { ...initialPopupData },
-      bentoUpdateInterval: null,
-      bentoBoxConfigs: null,
-      activeBentoChain: null,
-      activeDegenChain: null,
+      bentoUpdateInterval: null as NodeJS.Timeout | null,
+      bentoBoxDatas: [] as BentoBoxData[],
+      activeBentoChain: null as number | null,
+      activeDegenChain: null as number | null,
     };
   },
 
@@ -71,55 +75,53 @@ export default {
       bentoBoxData: "getBentoBoxData",
     }),
 
-    activeChains() {
-      let bento = [];
-      let degen = [];
-      this.bentoBoxConfigs?.forEach((config) => {
-        if (formatUnits(config.mimInBentoBalance || 0, 18) > 0.1)
-          bento.push(config);
-        if (formatUnits(config.mimInDegenBalance || 0, 18) > 0.1)
-          degen.push(config);
+    activeChains(){
+      let bento: BentoBoxData[] = [];
+      let degen: BentoBoxData[] = [];
+
+      const parsedAmountToCompare = parseUnits("0.1", 18);
+
+      this.bentoBoxDatas?.forEach((data: BentoBoxData) => {
+        if (data.mimInBentoBalance > parsedAmountToCompare) bento.push(data);
+        if (data.mimInDegenBalance > parsedAmountToCompare) degen.push(data);
       });
 
-      bento = bento.sort(
-        (a, b) =>
-          formatUnits(b.mimInBentoBalance, 18) -
-          formatUnits(b.mimInBentoBalance, 18)
+      bento = bento.sort((a, b) =>
+        Number(b.mimInBentoBalance - a.mimInBentoBalance)
       );
-      degen = degen.sort(
-        (a, b) =>
-          formatUnits(b.mimInDegenBalance, 18) -
-          formatUnits(b.mimInDegenBalance, 18)
+
+      degen = degen.sort((a, b) =>
+        Number(b.mimInDegenBalance - a.mimInDegenBalance)
       );
 
       return {
-        bento: bento.map((config) => config.chainId),
-        degen: degen.map((config) => config.chainId),
+        bento: bento.map((data) => data.chainId),
+        degen: degen.map((data) => data.chainId),
       };
     },
 
-    currentChainBentoConfig() {
-      return this.bentoBoxConfigs?.find(
-        (config) => this.chainId == config.chainId
+    currentChainBentoData(): BentoBoxData | undefined {
+      return this.bentoBoxDatas?.find(
+        (data: BentoBoxData) => this.chainId == data.chainId
       );
     },
 
-    activeChainBentoConfig() {
-      return this.bentoBoxConfigs?.find(
-        (config) => this.activeBentoChain == config.chainId
+    activeChainBentoData(): BentoBoxData | undefined {
+      return this.bentoBoxDatas?.find(
+        (data: BentoBoxData) => this.activeBentoChain == data.chainId
       );
     },
 
-    activeChainDegenConfig() {
-      return this.bentoBoxConfigs?.find(
-        (config) => this.activeDegenChain == config.chainId
-      );
+    activeChainDegenData(): BentoBoxData | undefined {
+      return this.bentoBoxDatas?.find(
+        (data: BentoBoxData) => this.activeDegenChain == data.chainId
+      )!;
     },
 
     isVisible() {
       return (
-        (this.currentChainBentoConfig?.mimInBentoBalance ||
-          this.currentChainBentoConfig?.mimInDegenBalance) &&
+        (this.currentChainBentoData?.mimInBentoBalance ||
+          this.currentChainBentoData?.mimInDegenBalance) &&
         this.account
       );
     },
@@ -130,7 +132,7 @@ export default {
       await this.createMimBentoData();
     },
 
-    activeChains(newValue) {
+    activeChains(newValue: { bento: ActiveChains; degen: ActiveChains }) {
       this.activeBentoChain = newValue.bento[0];
       this.activeDegenChain = newValue.degen[0];
     },
@@ -141,15 +143,15 @@ export default {
       setBentoBoxData: "setBentoBoxData",
     }),
 
-    chooseActiveBentoChain(e) {
-      this.activeBentoChain = e;
+    chooseActiveBentoChain(chainId: number) {
+      this.activeBentoChain = chainId;
     },
 
-    chooseActiveDegenChain(e) {
-      this.activeDegenChain = e;
+    chooseActiveDegenChain(chainId: number) {
+      this.activeDegenChain = chainId;
     },
 
-    openPopup(isBento) {
+    openPopup(isBento: boolean) {
       this.popupData = { opened: true, isBento };
     },
 
@@ -159,38 +161,27 @@ export default {
 
     checkLocalData() {
       if (this.bentoBoxData.isCreated) {
-        this.bentoBoxConfigs = this.bentoBoxData.data;
+        this.bentoBoxDatas = this.bentoBoxData.data;
       }
     },
 
     async createMimBentoData() {
-      if (!this.account) return false;
-      this.bentoBoxConfigs = await Promise.all(
-        this.activeNetworks.map(async (chainId) => {
-          const config = await createBentoBoxConfig(chainId, this.account);
-          return config;
-        })
-      );
-
-      this.bentoUpdateInterval = setInterval(async () => {
-        this.bentoBoxConfigs = await Promise.all(
-          this.activeNetworks.map(async (chainId) => {
-            const config = await createBentoBoxConfig(chainId, this.account);
-            return config;
-          })
-        );
-      }, 5000);
+      this.bentoBoxDatas = await createBentoBoxDatas(this.account);
     },
   },
 
   async created() {
     this.checkLocalData();
     await this.createMimBentoData();
-    this.setBentoBoxData(this.bentoBoxConfigs);
+    this.setBentoBoxData(this.bentoBoxDatas);
+
+    this.bentoUpdateInterval = setInterval(async () => {
+      await this.createMimBentoData();
+    }, 60000);
   },
 
   beforeUnmount() {
-    clearInterval(this.bentoBoxConfigs);
+    if (this.bentoUpdateInterval) clearInterval(this.bentoUpdateInterval);
   },
 
   components: {

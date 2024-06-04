@@ -2,31 +2,47 @@ import { describe, it, expect } from "vitest";
 import { shallowMount } from "@vue/test-utils";
 import BaseButton from "@/components/base/BaseButton.vue";
 import DegenBentoPopup from "@/components/popups/DegenBentoPopup.vue";
+import type { Address } from "viem";
+
+const testInfoObject = {
+  chainId: 1,
+  tokenInfo: {
+    name: "MIM",
+    symbol: "MIM",
+    chainId: 1,
+    decimals: 18,
+    address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3" as Address,
+    abi: [],
+    image:
+      "https://fra1.digitaloceanspaces.com/static.popsicle.finance/mimlogopng.png",
+  },
+  bentoContractInfo: {
+    chainId: 1,
+    name: "BentoBoxV1",
+    contractChain: "0x01",
+    address: "0xF5BCE5077908a1b7370B9ae04AdC565EBd643966" as Address,
+    abi: [],
+  },
+  degenContractInfo: {
+    chainId: 1,
+    name: "DegenBox",
+    contractChain: "0x01",
+    address: "0xd96f48665a1410C0cd669A88898ecA36B9Fc2cce" as Address,
+    abi: [],
+  },
+  bentoAllowance: 100n,
+  degenAllowance: 200n,
+  mimBalance: 500n,
+  mimInBentoBalance: 300n,
+  mimInDegenBalance: 400n,
+  mimPrice: 1,
+};
 
 describe("DegenBentoPopup", () => {
   it("renders correctly", () => {
     const wrapper = shallowMount(DegenBentoPopup, {
       props: {
-        infoObject: {
-          chainId: 1,
-          tokenInfo: {
-            address: "0x1234567890",
-            abi: [],
-          },
-          bentoContractInfo: {
-            address: "0x9876543210",
-            abi: [],
-          },
-          degenContractInfo: {
-            address: "0x0987654321",
-            abi: [],
-          },
-          bentoAllowance: 100,
-          degenAllowance: 200,
-          mimBalance: 500,
-          mimInBentoBalance: 300,
-          mimInDegenBalance: 400,
-        },
+        infoObject: testInfoObject,
         isBento: true,
         isDeposit: false,
       },
@@ -46,26 +62,7 @@ describe("DegenBentoPopup", () => {
   it('emits "close" event when closePopup is called', () => {
     const wrapper = shallowMount(DegenBentoPopup, {
       props: {
-        infoObject: {
-          chainId: 1,
-          tokenInfo: {
-            address: "0x1234567890",
-            abi: [],
-          },
-          bentoContractInfo: {
-            address: "0x9876543210",
-            abi: [],
-          },
-          degenContractInfo: {
-            address: "0x0987654321",
-            abi: [],
-          },
-          bentoAllowance: 100,
-          degenAllowance: 200,
-          mimBalance: 500,
-          mimInBentoBalance: 300,
-          mimInDegenBalance: 400,
-        },
+        infoObject: testInfoObject,
         isBento: true,
         isDeposit: false,
       },
