@@ -31,7 +31,7 @@
       <div class="positions-list" v-if="sortedCauldrons.length">
         <CauldronPositionItem
           v-for="cauldron in sortedCauldrons"
-          :key="`${cauldron.id} - ${cauldron.chainId}`"
+          :key="`${cauldron.config.id} - ${cauldron.config.chainId}`"
           :cauldron="cauldron"
         />
       </div>
@@ -55,7 +55,10 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineAsyncComponent } from "vue";
+//@ts-ignore
+import debounce from "lodash.debounce";
 import {
   formatUSD,
   formatTokenBalance,
@@ -63,30 +66,39 @@ import {
 } from "@/helpers/filters";
 import { mapGetters, mapMutations } from "vuex";
 import { APR_KEY } from "@/constants/global";
-import BaseLoader from "@/components/base/BaseLoader.vue";
-import SortButton from "@/components/ui/buttons/SortButton.vue";
 import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
-import BaseSearchEmpty from "@/components/base/BaseSearchEmpty.vue";
-import FiltersPopup from "@/components/myPositions/FiltersPopup.vue";
-import BentoBoxBlock from "@/components/myPositions/BentoBoxBlock.vue";
-import ChainsDropdown from "@/components/ui/dropdown/ChainsDropdown.vue";
 import { isApyCalcExist, fetchTokenApy } from "@/helpers/collateralsApy";
-import MyPositionsInfo from "@/components/myPositions/MyPositionsInfo.vue";
-import ConnectWalletBlock from "@/components/myPositions/ConnectWalletBlock.vue";
-import CauldronPositionItem from "@/components/myPositions/CauldronPositionItem.vue";
-import { getUsersTotalAssets } from "@/helpers/cauldron/position/getUsersTotalAssets.ts";
-import { getUserOpenPositions } from "@/helpers/cauldron/position/getUserOpenPositions.ts";
+import { getUsersTotalAssets } from "@/helpers/cauldron/position/getUsersTotalAssets";
+import {
+  getUserOpenPositions,
+  type UserOpenPosition,
+} from "@/helpers/cauldron/position/getUserOpenPositions";
+import type { Address } from "viem";
+import type { UserTotalAssets } from "@/helpers/cauldron/types";
+
+export type PositionsSortKey =
+  | "positionHealth"
+  | "collateralDepositedUsd"
+  | "mimBorrowed"
+  | "apr";
+export type SortOrder = "up" | "down" | null;
+export type SorterData = { tableKey: PositionsSortKey; text: string };
+export type LocalAPRData = {
+  chainId: number;
+  apr: number;
+  createdAt: number;
+};
 
 export default {
   data() {
     return {
-      selectedChains: [],
-      updateInterval: null,
-      cauldrons: [],
+      selectedChains: [] as number[],
+      updateInterval: null as NodeJS.Timeout | null,
+      cauldrons: [] as unknown as UserOpenPosition[],
       positionsIsLoading: true,
-      totalAssets: null,
-      sortKey: "mimBorrowed",
-      sortOrder: "up",
+      totalAssets: null as unknown as UserTotalAssets | null,
+      sortKey: "mimBorrowed" as PositionsSortKey,
+      sortOrder: "up" as SortOrder,
       isFiltersPopupOpened: false,
     };
   },
@@ -111,7 +123,7 @@ export default {
 
     sortedCauldrons() {
       return this.filterByChain(
-        this.sortByKey([...this.cauldrons], this.sortKey),
+        this.sortByKey(this.cauldrons, this.sortKey),
         this.selectedChains
       );
     },
@@ -130,16 +142,16 @@ export default {
       return [
         {
           title: "Collateral Deposit",
-          value: formatUSD(this.totalAssets?.collateralDepositedInUsd),
+          value: formatUSD(this.totalAssets?.collateralDepositedInUsd || 0),
         },
         {
           title: "MIM Minted",
-          value: formatTokenBalance(this.totalAssets?.mimBorrowed),
+          value: formatTokenBalance(this.totalAssets?.mimBorrowed || 0),
         },
-      ].filter((item) => !item.hidden);
+      ];
     },
 
-    sortersData() {
+    sortersData(): SorterData[] {
       return [
         { tableKey: "positionHealth", text: "Health factor" },
         { tableKey: "collateralDepositedUsd", text: "Collateral deposited" },
@@ -149,7 +161,7 @@ export default {
     },
 
     activeChains() {
-      return this.getActiveChain();
+      return this.getActiveChain() || [];
     },
   },
 
@@ -165,7 +177,7 @@ export default {
     },
 
     cauldrons() {
-      this.selectedChains = this.getActiveChain();
+      this.selectedChains = this.getActiveChain() || [];
     },
   },
 
@@ -175,15 +187,20 @@ export default {
       setUserTotalAssets: "setUserTotalAssets",
     }),
 
-    sortByKey(cauldrons = [], key) {
-      if (this.sortOrder === null) return this.cauldrons;
-      const sortedByKey = cauldrons.sort((a, b) => b[key] - a[key]);
+    sortByKey(cauldrons: UserOpenPosition[], key: PositionsSortKey) {
+      console.log(cauldrons);
+
+      if (this.sortOrder === null || this.cauldrons.length < 2)
+        return this.cauldrons;
+      const sortedByKey = cauldrons.sort(
+        (a, b) => (b[key] || 0) - (a[key] || 0)
+      );
 
       if (this.sortOrder == "up") return sortedByKey;
       return sortedByKey.reverse();
     },
 
-    updateSortKey(newKey, newOrder = null) {
+    updateSortKey(newKey: PositionsSortKey, newOrder = null as SortOrder) {
       if (newOrder !== null) {
         this.sortKey = newKey;
         this.sortOrder = newOrder;
@@ -204,7 +221,7 @@ export default {
         this.sortOrder === null ? "up" : this.sortOrder == "up" ? "down" : null;
     },
 
-    getSortOrder(key) {
+    getSortOrder(key: PositionsSortKey) {
       return key === this.sortKey ? this.sortOrder : null;
     },
 
@@ -213,7 +230,7 @@ export default {
       else this.selectedChains = [...this.activeChains];
     },
 
-    updateSelectedChain(chainId) {
+    updateSelectedChain(chainId: number) {
       if (this.allChainsSelected) this.selectAllChains();
 
       const index = this.selectedChains.indexOf(chainId);
@@ -221,7 +238,7 @@ export default {
       else this.selectedChains.splice(index, 1);
     },
 
-    filterByChain(cauldrons, selectedChains) {
+    filterByChain(cauldrons: UserOpenPosition[], selectedChains: number[]) {
       if (this.allChainsSelected) return cauldrons;
       return cauldrons.filter((cauldron) => {
         return selectedChains.includes(cauldron.config?.chainId);
@@ -235,48 +252,54 @@ export default {
       this.totalAssets = getUsersTotalAssets(this.cauldrons);
     },
 
-    async fetchCollateralApy(cauldron, chainId, address) {
+    async fetchCollateralApy(
+      cauldron: UserOpenPosition,
+      chainId: number,
+      address: Address
+    ) {
       const provider = getEthersProvider(chainId);
       const apr = await fetchTokenApy(cauldron, chainId, provider);
       const localData = localStorage.getItem(APR_KEY);
       const parsedData = localData ? JSON.parse(localData) : {};
       parsedData[address] = {
         chainId,
-        apr: Number(formatToFixed(apr, 2)),
+        apr: Number(formatToFixed(apr || 0, 2)),
         createdAt: new Date().getTime(),
       };
       localStorage.setItem(APR_KEY, JSON.stringify(parsedData));
-      return formatToFixed(apr, 2);
+      return Number(formatToFixed(apr || 0, 2));
     },
 
-    timeHasPassed(localData, address) {
+    timeHasPassed(localData: any, address: Address) {
       if (!localData) return true;
-      if (!localData[address]) return true;
+      if (!localData[address as keyof typeof localData]) return true;
       const allowedTime = 5;
-      const { createdAt } = localData[address];
+      const { createdAt }: LocalAPRData =
+        localData[address as keyof typeof localData];
       const currentTime = new Date().getTime();
       const timeDiff = currentTime - createdAt;
       const minutes = Math.floor(timeDiff / 1000 / 60);
       return minutes > allowedTime;
     },
 
-    async getCollateralApr(cauldron) {
+    async getCollateralApr(cauldron: UserOpenPosition) {
       const { chainId, id, contract } = cauldron.config;
       const isApyExist = isApyCalcExist(chainId, id);
       if (isApyExist) {
         const localApr = localStorage.getItem(APR_KEY);
+
         const parseLocalApr = localApr ? JSON.parse(localApr) : null;
         const isOutdated = this.timeHasPassed(parseLocalApr, contract.address);
         const collateralApy = !isOutdated
           ? parseLocalApr[contract.address].apr
           : await this.fetchCollateralApy(cauldron, chainId, contract.address);
-        return collateralApy;
+        return Number(collateralApy);
       } else return 0;
     },
 
     async getCollateralsApr() {
       this.cauldrons = await Promise.all(
-        this.cauldrons.map(async (cauldron) => {
+        this.cauldrons.map(async (cauldron: UserOpenPosition) => {
           const apr = await this.getCollateralApr(cauldron);
           cauldron.apr = apr;
           return cauldron;
@@ -284,12 +307,14 @@ export default {
       );
     },
 
-    getActiveChain() {
-      return this.cauldrons.reduce((acc, { config }) => {
-        if (!acc.includes(config.chainId)) acc.push(config.chainId);
-        return acc;
-      }, []);
-    },
+    getActiveChain: debounce(function getActiveChain(this: any) {
+      return (
+        this.cauldrons.reduce((acc: number[], { config }: UserOpenPosition) => {
+          if (!acc.includes(config.chainId)) acc.push(config.chainId);
+          return acc;
+        }, []) || []
+      );
+    }, 500),
 
     checkLocalData() {
       if (this.localUserPositions.isCreated && this.account) {
@@ -323,19 +348,37 @@ export default {
   },
 
   beforeUnmount() {
-    clearInterval(this.updateInterval);
+    if (this.updateInterval) clearInterval(this.updateInterval);
   },
 
   components: {
-    BentoBoxBlock,
-    CauldronPositionItem,
-    MyPositionsInfo,
-    ChainsDropdown,
-    SortButton,
-    FiltersPopup,
-    BaseLoader,
-    BaseSearchEmpty,
-    ConnectWalletBlock,
+    BentoBoxBlock: defineAsyncComponent(
+      () => import("@/components/myPositions/BentoBoxBlock.vue")
+    ),
+    CauldronPositionItem: defineAsyncComponent(
+      () => import("@/components/myPositions/CauldronPositionItem.vue")
+    ),
+    MyPositionsInfo: defineAsyncComponent(
+      () => import("@/components/myPositions/MyPositionsInfo.vue")
+    ),
+    ChainsDropdown: defineAsyncComponent(
+      () => import("@/components/ui/dropdown/ChainsDropdown.vue")
+    ),
+    SortButton: defineAsyncComponent(
+      () => import("@/components/ui/buttons/SortButton.vue")
+    ),
+    FiltersPopup: defineAsyncComponent(
+      () => import("@/components/myPositions/FiltersPopup.vue")
+    ),
+    BaseLoader: defineAsyncComponent(
+      () => import("@/components/base/BaseLoader.vue")
+    ),
+    BaseSearchEmpty: defineAsyncComponent(
+      () => import("@/components/base/BaseSearchEmpty.vue")
+    ),
+    ConnectWalletBlock: defineAsyncComponent(
+      () => import("@/components/myPositions/ConnectWalletBlock.vue")
+    ),
   },
 };
 </script>

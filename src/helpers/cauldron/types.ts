@@ -15,7 +15,7 @@ export type UserPositions = {
   collateralInfo: UserCollateralInfo;
   borrowInfo: UserBorrowInfo;
   oracleRate: BigNumber;
-  liquidationPrice: String | number;
+  liquidationPrice: string | number;
   alternativeData: {
     collateralInfo: {
       userCollateralShare: bigint;
@@ -71,11 +71,11 @@ export type CauldronInfo = {
 };
 
 export type CauldronPositionItem = {
-  config: object;
+  config: CauldronConfig;
   oracleRate: BigNumber;
   collateralInfo: UserCollateralInfo;
   borrowInfo: UserBorrowInfo;
-  liquidationPrice: number;
+  liquidationPrice: number | string;
 };
 
 export type AdditionalInfo = {
@@ -117,4 +117,9 @@ export type ActionConfig = {
   useUnwrapToken: boolean;
   withdrawUnwrapToken: boolean;
   amounts: ActionAmounts;
+};
+
+export type UserTotalAssets = {
+  collateralDepositedInUsd: number;
+  mimBorrowed: number;
 };
