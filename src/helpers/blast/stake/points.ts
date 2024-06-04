@@ -1,4 +1,5 @@
 import axios from "axios";
+import { cloneDeep } from "lodash";
 import type { Address } from "viem";
 
 export type IterableElement<TargetIterable> = TargetIterable extends Iterable<
@@ -110,9 +111,9 @@ const buildStatistics = (
     },
   };
   const statistics = {
-    liquidityPoints: zeroPointsStatistics,
-    developerPoints: zeroPointsStatistics,
-    potionPoints: zeroPointsStatistics,
+    liquidityPoints: cloneDeep(zeroPointsStatistics),
+    developerPoints: cloneDeep(zeroPointsStatistics),
+    potionPoints: cloneDeep(zeroPointsStatistics),
   };
 
   for (const { state, kind, reason, amount } of data) {
