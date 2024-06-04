@@ -1,6 +1,7 @@
 import tokensAbi from "@/abis/tokensAbi/index";
+import type { MimInfo } from "@/configs/tokens/types";
 
-export default [
+export default <MimInfo[]>[
   {
     name: "MIM",
     symbol: "MIM",

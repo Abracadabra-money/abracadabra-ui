@@ -3,10 +3,7 @@
     <div class="position-page">
       <MyPositionsInfo :totalAssetsData="totalAssetsData" />
 
-      <BentoBoxBlock
-        v-if="activeChains.length && account"
-        :activeNetworks="activeChains"
-      />
+      <BentoBoxBlock v-if="account" />
 
       <div class="positions-list-head" v-if="cauldrons.length">
         <button class="filters" @click="isFiltersPopupOpened = true">
