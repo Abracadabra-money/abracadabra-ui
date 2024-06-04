@@ -1,15 +1,16 @@
-import { parseUnits } from "viem";
-import { getTotalRewards } from "./subgraph/getTotalRewards";
-import type { AdditionalInfo } from "@/types/magicApe/additionalInfo";
+import { parseUnits, type PublicClient } from "viem";
+import type { AdditionalInfo } from "@/helpers/stake/types";
+import type { MagicApeConfig } from "@/configs/stake/magicApeConfig";
+import { getTotalRewards } from "@/helpers/stake/magicApe/subgraph/getTotalRewards";
 
 export const getAdditionalInfo = async (
-  config: any,
-  publicClient: any
+  config: MagicApeConfig,
+  publicClient: PublicClient
 ): Promise<AdditionalInfo> => {
   const { mainToken, chainLink } = config;
   const { rewardToken, leverageInfo } = config.additionalInfo;
 
-  const [feePercent, rewardTokenPrice]: any = await publicClient.multicall({
+  const [feePercent, rewardTokenPrice] = await publicClient.multicall({
     contracts: [
       {
         ...mainToken.contract,
@@ -24,10 +25,10 @@ export const getAdditionalInfo = async (
     ],
   });
 
-  const totalReward: string = await getTotalRewards();
+  const totalReward = await getTotalRewards();
   const totalRewardAmount = parseUnits(totalReward, rewardToken.decimals);
   const totalRewardUsd =
-    (totalRewardAmount * rewardTokenPrice.result) / 100000000n;
+    (totalRewardAmount * (rewardTokenPrice.result as bigint)) / 100000000n;
 
   const rewardTokenInfo = {
     ...rewardToken,
@@ -36,7 +37,7 @@ export const getAdditionalInfo = async (
   };
 
   return {
-    feePercent: feePercent?.result ? feePercent.result / 10000 : 0,
+    feePercent: feePercent?.result ? (feePercent.result as number) / 10000 : 0,
     rewardToken: rewardTokenInfo,
     leverageInfo,
   };

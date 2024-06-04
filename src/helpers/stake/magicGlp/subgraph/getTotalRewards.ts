@@ -1,4 +1,5 @@
 import axios from "axios";
+import { AVALANCHE_MGLP_ADDRESS } from "@/constants/tokensAddress";
 
 const grapthUrls = {
   1: "abra-test-mainnet/v0.0.1",
@@ -8,7 +9,7 @@ const grapthUrls = {
 
 const tokensAddresses = {
   42161: "0x588d402c868add9053f8f0098c2dc3443c991d17",
-  43114: "0x5efc10c353fa30c5758037fdf0a233e971ecc2e0",
+  43114: AVALANCHE_MGLP_ADDRESS,
 };
 
 export const getTotalRewards = async (chainId: number) => {
@@ -20,5 +21,7 @@ export const getTotalRewards = async (chainId: number) => {
 
   const { data } = await axios.post(url, { query });
 
-  return data.data.magicGlp?.totalRewards || 0;
+  console.log(data.data.magicGlp?.totalRewards);
+
+  return Number(data.data.magicGlp?.totalRewards) || 0;
 };

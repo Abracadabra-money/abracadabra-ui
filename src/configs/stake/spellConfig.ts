@@ -1,23 +1,49 @@
 import { useImage } from "@/helpers/useImage";
 import tokensAbi from "@/abis/tokensAbi/index";
-import type { DefaultConfig, SpellConfigs } from "@/types/spell/configsInfo";
+import type { ContractInfo } from "@/types/global";
 
-const spellDefauluConfig: DefaultConfig = {
-  name: "SPELL",
-  decimals: 18,
-  icon: useImage("assets/images/tokens/SPELL.png"),
-  abi: tokensAbi.SPELL,
+export type SpellStakeConfigs = {
+  1: SpellStakeConfig;
+  250: SpellStakeConfig;
+  42161: SpellStakeConfig;
+  43114: SpellStakeConfig;
 };
 
-const mSpellDefauluConfig: DefaultConfig = {
-  name: "mSPELL",
-  decimals: 18,
-  icon: useImage("assets/images/tokens/mSPELL.png"),
+export type SpellStakeConfig = {
+  spell: SpellConfig;
+  sSpell?: SSpellConfig;
+  mSpell: MSpellConfig;
 };
 
-export const spellConfig: SpellConfigs = {
+export type SpellConfig = {
+  name: string;
+  decimals: number;
+  icon: string;
+  abi: any;
+};
+
+export type SSpellConfig = {
+  name: string;
+  decimals: number;
+  icon: string;
+  contract: ContractInfo;
+};
+
+export type MSpellConfig = {
+  name: string;
+  decimals: number;
+  icon: string;
+  contract: ContractInfo;
+};
+
+export const spellStakeConfig: SpellStakeConfigs = {
   1: {
-    spell: spellDefauluConfig,
+    spell: {
+      name: "SPELL",
+      decimals: 18,
+      icon: useImage("assets/images/tokens/SPELL.png"),
+      abi: tokensAbi.SPELL,
+    },
     sSpell: {
       name: "sSPELL",
       decimals: 18,
@@ -27,9 +53,10 @@ export const spellConfig: SpellConfigs = {
         abi: tokensAbi.sSPELL,
       },
     },
-
     mSpell: {
-      ...mSpellDefauluConfig,
+      name: "mSPELL",
+      decimals: 18,
+      icon: useImage("assets/images/tokens/mSPELL.png"),
       contract: {
         address: "0xbD2fBaf2dc95bD78Cf1cD3c5235B33D1165E6797",
         abi: tokensAbi.mSPELL,
@@ -37,9 +64,16 @@ export const spellConfig: SpellConfigs = {
     },
   },
   250: {
-    spell: spellDefauluConfig,
+    spell: {
+      name: "SPELL",
+      decimals: 18,
+      icon: useImage("assets/images/tokens/SPELL.png"),
+      abi: tokensAbi.SPELL,
+    },
     mSpell: {
-      ...mSpellDefauluConfig,
+      name: "mSPELL",
+      decimals: 18,
+      icon: useImage("assets/images/tokens/mSPELL.png"),
       contract: {
         address: "0xa668762fb20bcd7148Db1bdb402ec06Eb6DAD569",
         abi: tokensAbi.mSPELL,
@@ -47,9 +81,16 @@ export const spellConfig: SpellConfigs = {
     },
   },
   42161: {
-    spell: spellDefauluConfig,
+    spell: {
+      name: "SPELL",
+      decimals: 18,
+      icon: useImage("assets/images/tokens/SPELL.png"),
+      abi: tokensAbi.SPELL,
+    },
     mSpell: {
-      ...mSpellDefauluConfig,
+      name: "mSPELL",
+      decimals: 18,
+      icon: useImage("assets/images/tokens/mSPELL.png"),
       contract: {
         address: "0x1DF188958A8674B5177f77667b8D173c3CdD9e51",
         abi: tokensAbi.mSPELL,
@@ -57,9 +98,16 @@ export const spellConfig: SpellConfigs = {
     },
   },
   43114: {
-    spell: spellDefauluConfig,
+    spell: {
+      name: "SPELL",
+      decimals: 18,
+      icon: useImage("assets/images/tokens/SPELL.png"),
+      abi: tokensAbi.SPELL,
+    },
     mSpell: {
-      ...mSpellDefauluConfig,
+      name: "mSPELL",
+      decimals: 18,
+      icon: useImage("assets/images/tokens/mSPELL.png"),
       contract: {
         address: "0xBd84472B31d947314fDFa2ea42460A2727F955Af",
         abi: tokensAbi.mSPELL,
