@@ -75,13 +75,13 @@ import {
 } from "@/helpers/cauldron/position/getUserOpenPositions";
 import type { Address } from "viem";
 import type { UserTotalAssets } from "@/helpers/cauldron/types";
+import type { SortOrder } from "@/types/common";
 
 export type PositionsSortKey =
   | "positionHealth"
   | "collateralDepositedUsd"
   | "mimBorrowed"
   | "apr";
-export type SortOrder = "up" | "down" | null;
 export type SorterData = { tableKey: PositionsSortKey; text: string };
 export type LocalAPRData = {
   chainId: number;

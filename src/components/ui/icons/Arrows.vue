@@ -32,7 +32,7 @@
 
 <script lang="ts">
 import type { PropType } from "vue";
-import type { SortOrder } from "@/views/MyPositions.vue";
+import type { SortOrder } from "@/types/common";
 
 export default {
   props: {
