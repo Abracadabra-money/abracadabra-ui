@@ -57,8 +57,6 @@
 
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
-//@ts-ignore
-import debounce from "lodash.debounce";
 import {
   formatUSD,
   formatTokenBalance,
@@ -188,8 +186,6 @@ export default {
     }),
 
     sortByKey(cauldrons: UserOpenPosition[], key: PositionsSortKey) {
-      console.log(cauldrons);
-
       if (this.sortOrder === null || this.cauldrons.length < 2)
         return this.cauldrons;
       const sortedByKey = cauldrons.sort((a, b) => {
@@ -310,14 +306,15 @@ export default {
       );
     },
 
-    getActiveChain: debounce(function getActiveChain(this: any) {
-      return (
-        this.cauldrons.reduce((acc: number[], { config }: UserOpenPosition) => {
+    getActiveChain() {
+      return this.cauldrons.reduce(
+        (acc: number[], { config }: UserOpenPosition) => {
           if (!acc.includes(config.chainId)) acc.push(config.chainId);
           return acc;
-        }, []) || []
+        },
+        []
       );
-    }, 500),
+    },
 
     checkLocalData() {
       if (this.localUserPositions.isCreated && this.account) {
@@ -347,7 +344,7 @@ export default {
       await this.createOpenPositions();
     }, 60000);
 
-    this.selectedChains = this.getActiveChain();
+    this.selectedChains = this.getActiveChain() || [];
   },
 
   beforeUnmount() {
