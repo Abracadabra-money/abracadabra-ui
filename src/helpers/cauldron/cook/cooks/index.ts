@@ -7,6 +7,7 @@ import cookRepay from "./cookRepay";
 import cookLeverage from "./cookLeverage";
 import cookDeleverage from "./cookDeleverage";
 
+import gmCooks from "./gm";
 
 export default {
     cookAddCollateral,
@@ -16,5 +17,8 @@ export default {
     cookRepay,
     cookRemoveCollateralAndRepay,
     cookLeverage,
-    cookDeleverage
+    cookDeleverage,
+    
+    // GM
+    gmCooks
 }
