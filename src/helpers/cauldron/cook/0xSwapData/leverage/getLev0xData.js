@@ -4,6 +4,7 @@ import getVelodrome0xData from "./getVelodrome0xData";
 
 const apeAddress = "0x4d224452801ACEd8B2F0aebE155379bb5D594381";
 const usdtAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
+const wethAddress = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
 
 const getLev0xData = async (cauldronObject, amount, slipage) => {
   const {

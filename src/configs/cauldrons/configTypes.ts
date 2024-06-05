@@ -30,6 +30,7 @@ type CauldronSettings = {
   isYvWethV2?: boolean;
   isCvxTricrypto?: boolean;
   isCvx3pool?: boolean;
+  isMagicGLP?: boolean;
 };
 
 type MimInfo = {
