@@ -84,6 +84,7 @@ import { mapGetters } from "vuex";
 import { ethers } from "ethers";
 import mimIcon from "@/assets/images/tokens/MIM.png";
 import type { UserOpenPosition } from "@/helpers/cauldron/position/getUserOpenPositions";
+import type { AssetInfo } from "@/components/myPositions/PositionAssets.vue";
 
 export default {
   props: {
@@ -102,10 +103,11 @@ export default {
     ...mapGetters({ chainId: "getChainId" }),
 
     collateralSymbol() {
-      return this.cauldron.config.chainId === 42161 &&
-        this.cauldron.config.id === 2
-        ? this.cauldron.config?.wrapInfo?.unwrappedToken?.name
-        : this.cauldron.config?.collateralInfo.name;
+      return (
+        (this.cauldron.config.chainId === 42161 && this.cauldron.config.id === 2
+          ? this.cauldron.config?.wrapInfo?.unwrappedToken?.name
+          : this.cauldron.config?.collateralInfo.name) || ""
+      );
     },
 
     oracleRate() {
@@ -145,7 +147,7 @@ export default {
       );
     },
 
-    assetsInfo() {
+    assetsInfo(): AssetInfo[] {
       return [
         {
           title: "Collateral Deposited",

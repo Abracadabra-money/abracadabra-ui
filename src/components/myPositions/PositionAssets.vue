@@ -1,13 +1,13 @@
 <template>
   <div class="assets-wrap">
-    <div class="asset" v-for="asset in assetsInfo" :key="asset.name">
+    <div class="asset" v-for="asset in assetsInfo" :key="asset.symbol">
       <p class="asset-title">{{ asset.title }}</p>
       <div class="asset-info">
         <div class="asset-token">
           <BaseTokenIcon
             class="token-icon"
             :icon="asset.icon"
-            :name="asset.name"
+            :name="asset.symbol"
             size="44px"
           />
           <span class="token-name">{{ asset.symbol }}</span>
@@ -24,12 +24,22 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
+import type { PropType } from "vue";
+
+export type AssetInfo = {
+  title: string;
+  symbol: string;
+  icon: string;
+  amount: string | number;
+  amountUsd?: string;
+};
+
 export default {
   props: {
     assetsInfo: {
-      type: Object,
+      type: Array as PropType<AssetInfo[]>,
     },
   },
 
