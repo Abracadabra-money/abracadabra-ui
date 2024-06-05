@@ -82,6 +82,7 @@ import {
 } from "@/helpers/filters";
 import { mapGetters } from "vuex";
 import { ethers } from "ethers";
+//@ts-ignore
 import mimIcon from "@/assets/images/tokens/MIM.png";
 import type { UserOpenPosition } from "@/helpers/cauldron/position/getUserOpenPositions";
 import type { AssetInfo } from "@/components/myPositions/PositionAssets.vue";
