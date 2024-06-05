@@ -16,6 +16,7 @@ export type UserPositions = {
   borrowInfo: UserBorrowInfo;
   oracleRate: BigNumber;
   liquidationPrice: string | number;
+  positionHealth: PositionHealth;
   alternativeData: {
     collateralInfo: {
       userCollateralShare: bigint;
@@ -123,3 +124,7 @@ export type UserTotalAssets = {
   collateralDepositedInUsd: number;
   mimBorrowed: number;
 };
+
+export type PositionHealth = { percent: number; status: PositionHealthStatus };
+
+export type PositionHealthStatus = "safe" | "medium" | "high";

@@ -1,6 +1,9 @@
 <template>
   <div
-    :class="['position', isDeprecated ? 'deprecated' : positionHealth.status]"
+    :class="[
+      'position',
+      isDeprecated ? 'deprecated' : cauldron.positionHealth.status,
+    ]"
   >
     <div class="status-flag" v-if="isDeprecated">Deprecated</div>
     <div class="position-header">
@@ -46,7 +49,7 @@
 
         <PositionIndicator
           tooltip="Collateral Price at which your deposited collateral is eligible for liquidation."
-          :positionRisk="positionHealth.status"
+          :positionRisk="cauldron.positionHealth.status"
           :value="cauldron.liquidationPrice"
         >
           Liquidation Price
@@ -60,9 +63,9 @@
         </PositionIndicator>
       </ul>
       <HealthProgress
-        :positionHealth="formatPercent(100 - positionHealth.percent)"
-        :positionRisk="positionHealth.status"
-        :key="`${cauldron.id} - ${cauldron.chainId}`"
+        :positionHealth="formatPercent(100 - cauldron.positionHealth.percent)"
+        :positionRisk="cauldron.positionHealth.status"
+        :key="`${cauldron.config.id} - ${cauldron.config.chainId}`"
       />
     </div>
 
@@ -70,32 +73,21 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineAsyncComponent, type PropType } from "vue";
 import {
   formatUSD,
   formatTokenBalance,
   formatPercent,
 } from "@/helpers/filters";
 import { mapGetters } from "vuex";
-import { ethers, utils } from "ethers";
+import { ethers } from "ethers";
 import mimIcon from "@/assets/images/tokens/MIM.png";
-import Tooltip from "@/components/ui/icons/Tooltip.vue";
-import OrderButton from "@/components/myPositions/OrderButton.vue";
-import TokenChainIcon from "@/components/ui/icons/TokenChainIcon.vue";
-import PositionAssets from "@/components/myPositions/PositionAssets.vue";
-import HealthProgress from "@/components/myPositions/HealthProgress.vue";
-import PositionIndicator from "@/components/myPositions/PositionIndicator.vue";
-
-import {
-  PERCENT_PRESITION,
-  getLiquidationPrice,
-  getPositionHealth,
-} from "@/helpers/cauldron/utils";
-import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
+import type { UserOpenPosition } from "@/helpers/cauldron/position/getUserOpenPositions";
 
 export default {
   props: {
-    cauldron: { type: Object },
+    cauldron: { type: Object as PropType<UserOpenPosition>, required: true },
   },
 
   data() {
@@ -110,15 +102,18 @@ export default {
     ...mapGetters({ chainId: "getChainId" }),
 
     collateralSymbol() {
-      return this.cauldron.chainId === 42161 && this.cauldron.config.id === 2
+      return this.cauldron.config.chainId === 42161 &&
+        this.cauldron.config.id === 2
         ? this.cauldron.config?.wrapInfo?.unwrappedToken?.name
         : this.cauldron.config?.collateralInfo.name;
     },
 
     oracleRate() {
-      return ethers.utils.formatUnits(
-        this.cauldron.oracleRate,
-        this.cauldron.config?.collateralInfo.decimals
+      return Number(
+        ethers.utils.formatUnits(
+          this.cauldron.oracleRate,
+          this.cauldron.config?.collateralInfo.decimals
+        )
       );
     },
 
@@ -130,50 +125,12 @@ export default {
       return +this.collateralPrice - +this.cauldron.liquidationPrice;
     },
 
-    // TODO: move to position helper
-    positionHealth() {
-      const { oracleExchangeRate } = this.cauldron.mainParams;
-      const { decimals } = this.cauldron.config.collateralInfo;
-
-      const { borrowInfo, collateralInfo } = this.cauldron;
-
-      const expectedLiquidationPrice = getLiquidationPrice(
-        borrowInfo.userBorrowAmount,
-        collateralInfo.userCollateralAmount,
-        this.cauldron.config.mcr,
-        this.cauldron.config.collateralInfo.decimals
-      );
-
-      const { percent, status } = getPositionHealth(
-        expectedLiquidationPrice,
-        oracleExchangeRate,
-        decimals
-      );
-
-      if (percent.gt(expandDecimals(100, PERCENT_PRESITION)))
-        return { percent: 100, status };
-
-      return { percent: utils.formatUnits(percent, PERCENT_PRESITION), status };
-    },
-
-    positionRisk() {
-      if (
-        this.cauldron.positionHealth >= 0 &&
-        this.cauldron.positionHealth <= 5
-      )
-        return "high";
-      if (
-        this.cauldron.positionHealth > 5 &&
-        this.cauldron.positionHealth <= 75
-      )
-        return "medium";
-      return "safe";
-    },
-
     userCollateralAmount() {
-      return ethers.utils.formatUnits(
-        this.cauldron.collateralInfo.userCollateralAmount,
-        this.cauldron.config.collateralInfo.decimals
+      return Number(
+        ethers.utils.formatUnits(
+          this.cauldron.collateralInfo.userCollateralAmount,
+          this.cauldron.config.collateralInfo.decimals
+        )
       );
     },
 
@@ -223,7 +180,7 @@ export default {
     formatPercent,
     formatTokenBalance,
 
-    goToPage(cauldron) {
+    goToPage(cauldron: UserOpenPosition) {
       const { chainId, id } = cauldron.config;
       return {
         name: "Market",
@@ -242,17 +199,29 @@ export default {
     });
   },
 
-  beforeDestroy() {
+  beforeUnmount() {
     window.removeEventListener("resize", this.onResize);
   },
 
   components: {
-    PositionAssets,
-    HealthProgress,
-    PositionIndicator,
-    Tooltip,
-    TokenChainIcon,
-    OrderButton,
+    PositionAssets: defineAsyncComponent(
+      () => import("@/components/myPositions/PositionAssets.vue")
+    ),
+    HealthProgress: defineAsyncComponent(
+      () => import("@/components/myPositions/HealthProgress.vue")
+    ),
+    PositionIndicator: defineAsyncComponent(
+      () => import("@/components/myPositions/PositionIndicator.vue")
+    ),
+    Tooltip: defineAsyncComponent(
+      () => import("@/components/ui/icons/Tooltip.vue")
+    ),
+    TokenChainIcon: defineAsyncComponent(
+      () => import("@/components/ui/icons/TokenChainIcon.vue")
+    ),
+    OrderButton: defineAsyncComponent(
+      () => import("@/components/myPositions/OrderButton.vue")
+    ),
   },
 };
 </script>

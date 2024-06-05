@@ -9,9 +9,9 @@ export type UserOpenPosition = {
   config: CauldronConfig;
   mainParams: MainParams;
   apr?: number;
-  positionHealth?: number;
   collateralDepositedUsd?: number;
   mimBorrowed?: number;
+  hasActiveGmOrder?: boolean;
 } & UserPositions;
 
 export const getUserOpenPositions = async (
