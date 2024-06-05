@@ -8,13 +8,13 @@
   </li>
 </template>
 
-<script>
+<script lang="ts">
 import { formatUSD } from "@/helpers/filters";
 import Tooltip from "@/components/ui/icons/Tooltip.vue";
 
 export default {
   props: {
-    value: { type: [Number, String] },
+    value: { type: [Number, String], required: true },
     positionRisk: { type: String, default: "" },
     tooltip: { type: String },
   },
