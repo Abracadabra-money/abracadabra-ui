@@ -221,7 +221,7 @@ export default {
         this.sortOrder === null ? "up" : this.sortOrder == "up" ? "down" : null;
     },
 
-    getSortOrder(key: PositionsSortKey) {
+    getSortOrder(key: PositionsSortKey): SortOrder {
       return key === this.sortKey ? this.sortOrder : null;
     },
 

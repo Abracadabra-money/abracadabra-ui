@@ -5,17 +5,21 @@
   </button>
 </template>
 
-<script>
-import Arrows from "@/components/ui/icons/Arrows.vue";
+<script lang="ts">
+import { defineAsyncComponent, type PropType } from "vue";
+import type { SortOrder } from "@/views/MyPositions.vue";
 export default {
   props: {
     sortOrder: {
+      type: String as PropType<SortOrder>,
       default: null,
     },
   },
 
   components: {
-    Arrows,
+    Arrows: defineAsyncComponent(
+      () => import("@/components/ui/icons/Arrows.vue")
+    ),
   },
 };
 </script>
