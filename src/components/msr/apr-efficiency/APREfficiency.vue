@@ -5,6 +5,7 @@
       :userApr="userApr"
       :baseApr="baseApr"
       :boostedApr="boostedApr"
+      :isDeposit="isDeposit"
       :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
     />
 
@@ -44,6 +45,12 @@ export default {
 
     boostedApr() {
       return this.baseApr * 3;
+    },
+
+    isDeposit() {
+      if (this.isMimSavingRateInfoLoading) return false;
+      const { unlocked, locked } = this.mimSavingRateInfo!.userInfo.balances;
+      return unlocked > 0n || locked > 0n;
     },
 
     userApr() {

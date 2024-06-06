@@ -16,8 +16,11 @@
     </div>
 
     <div class="lock-status-wrap" v-else>
-      <img class="status-image" :src="lockStatus.image" />
-      <span class="status-title">{{ lockStatus.title }}</span>
+      <Tooltip fill="#67A069" v-if="userLock?.fromStorage" />
+      <img class="status-image" :src="lockStatus.image" v-else />
+      <span :class="['status-title', { unlocked: userLock?.fromStorage }]">{{
+        lockStatus.title
+      }}</span>
     </div>
   </li>
 </template>
@@ -51,7 +54,7 @@ export default {
 
       if (duration.asSeconds() <= 0)
         return {
-          title: "unlocking",
+          title: this.userLock?.fromStorage ? "unlocked" : "unlocking",
           image: useImage("assets/images/msr/lock-status/unlocking.png"),
         };
 
@@ -87,6 +90,9 @@ export default {
     ),
     Timer: defineAsyncComponent(() =>
       import("@/components/stake/earnPoints/Timer.vue")
+    ),
+    Tooltip: defineAsyncComponent(() =>
+      import("@/components/ui/icons/Tooltip.vue")
     ),
   },
 };
@@ -152,5 +158,9 @@ export default {
 
 .status-title {
   text-transform: capitalize;
+}
+
+.unlocked {
+  color: #67a069;
 }
 </style>

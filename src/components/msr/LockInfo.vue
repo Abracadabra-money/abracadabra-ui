@@ -35,7 +35,7 @@
 
 <script>
 import { defineAsyncComponent } from "vue";
-import { mapGetters } from "vuex";
+import { mapGetters, mapMutations } from "vuex";
 import { formatTokenBalance } from "@/helpers/filters";
 import { formatUnits } from "viem";
 import mimIcon from "@/assets/images/tokens/MIM.png";
@@ -48,12 +48,16 @@ export default {
 
   data() {
     return {
+      userLocks: [],
       mimIcon,
     };
   },
 
   computed: {
-    ...mapGetters({ account: "getAccount" }),
+    ...mapGetters({
+      account: "getAccount",
+      localUserLocks: "getUserLocks",
+    }),
 
     totalLocked() {
       return this.account
@@ -66,14 +70,47 @@ export default {
         : "0";
     },
 
-    userLocks() {
-      return this.mimSavingRateInfo?.userInfo.userLocks.length > 0
-        ? this.mimSavingRateInfo?.userInfo.userLocks
-        : [];
+    currentDate() {
+      return Date.now();
+    },
+  },
+
+  watch: {
+    mimSavingRateInfo() {
+      const currentLocks =
+        this.mimSavingRateInfo?.userInfo.userLocks.length > 0
+          ? this.mimSavingRateInfo?.userInfo.userLocks
+          : [];
+
+      this.userLocks = currentLocks.concat(
+        this.localUserLocks.data
+          .map((lock) => {
+            const parsedLock = JSON.parse(lock);
+            return {
+              amount: BigInt(parsedLock.amount.value),
+              unlockTime: BigInt(parsedLock.unlockTime.value),
+              fromStorage: true,
+            };
+          })
+          .filter((lock) => {
+            const expired = Number(lock.unlockTime) * 1000 < this.currentDate;
+            const isFromCurrent = currentLocks.find(
+              (currentLock) => currentLock.unlockTime == lock.unlockTime
+            );
+
+            return expired && !isFromCurrent;
+          })
+      );
+
+      this.setUserLocks(this.userLocks);
     },
   },
 
   methods: {
+    ...mapMutations({
+      setUserLocks: "setUserLocks",
+    }),
+
     formatTokenBalance,
   },
 

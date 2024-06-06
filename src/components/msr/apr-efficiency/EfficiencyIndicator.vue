@@ -27,6 +27,7 @@ export default {
     baseApr: { type: [Number, String], default: 0 },
     boostedApr: { type: [Number, String], default: 0 },
     isMimSavingRateInfoLoading: { type: Boolean },
+    isDeposit: { type: Boolean },
   },
 
   data() {
@@ -41,11 +42,15 @@ export default {
     initAnimation() {
       const { anim } = this.$refs;
 
+      const path = this.isDeposit
+        ? `/apr-efficiency-mim.json`
+        : `/apr-efficiency.json`;
+
       this.animation = LottiePlayer.loadAnimation({
         renderer: "svg",
         loop: false,
         autoplay: false,
-        path: `/apr-efficiency.json`,
+        path,
         container: anim,
       });
 

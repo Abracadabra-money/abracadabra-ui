@@ -230,7 +230,7 @@ export const getUserInfo = async (
     earned: { token0: earnedToken0.result, token1: earnedToken1.result },
     locked: locked.result,
     unlocked: unlocked.result,
-    userLocks: userLocks.result, //todo type
+    userLocks: userLocks.result,
     lastLockIndex: lastLockIndex.result,
     userLocksLength: userLocksLength.result,
     rewards: { token0: rewardsToken0.result, token1: rewardsToken1.result },
