@@ -101,8 +101,9 @@ export default {
 
     cauldronScanUrl() {
       const chainConfig = getChainConfig(this.cauldron.config.chainId);
-      // @ts-ignore
-      return `${chainConfig?.viemConfig?.blockExplorers?.etherscan?.url}/address/${this.cauldron.config.contract.address}`;
+      return `${chainConfig!.viemConfig.blockExplorers.default.url}/address/${
+        this.cauldron.config.contract.address
+      }`;
     },
 
     isActiveChain() {
