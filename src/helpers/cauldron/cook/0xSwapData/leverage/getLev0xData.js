@@ -28,7 +28,7 @@ const getLev0xData = async (cauldronObject, amount, slipage) => {
     return await fetchLev0xData(cauldronObject, amount, slipage, wethAddress);
 
   if (isCvxTricrypto || isCvx3pool) {
-    const swapResponseData = fetchLev0xData(
+    const swapResponseData = await fetchLev0xData(
       cauldronObject,
       amount,
       slipage,
@@ -39,7 +39,7 @@ const getLev0xData = async (cauldronObject, amount, slipage) => {
 
     return utils.defaultAbiCoder.encode(
       ["address", "uint256", "bytes"],
-      [wethAddress, tokenIndex, swapResponseData]
+      [usdtAddress, tokenIndex, swapResponseData]
     );
   }
 
