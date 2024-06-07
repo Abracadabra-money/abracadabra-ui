@@ -1,5 +1,5 @@
 <template>
-  <div class="lock-promo deposited" v-if="isDeposit">
+  <div class="lock-promo deposited" v-if="isStake">
     <div class="promo-title">
       <h4 class="promo-message">Lock your Staked MIM for Boosted APR</h4>
 
@@ -80,10 +80,10 @@ export default {
       return (this.mimSavingRateInfo?.baseApr || 0) * 3;
     },
 
-    isDeposit() {
+    isStake() {
       if (this.isMimSavingRateInfoLoading) return false;
-      const { unlocked, locked } = this.mimSavingRateInfo!.userInfo.balances;
-      return unlocked > 0n || locked > 0n;
+      const { unlocked } = this.mimSavingRateInfo!.userInfo.balances;
+      return unlocked > 0n;
     },
   },
 
