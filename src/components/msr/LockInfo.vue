@@ -82,27 +82,34 @@ export default {
           ? this.mimSavingRateInfo?.userInfo.userLocks
           : [];
 
-      this.userLocks = currentLocks.concat(
-        this.localUserLocks.data
-          .map((lock) => {
-            const parsedLock = JSON.parse(lock);
-            return {
-              amount: BigInt(parsedLock.amount.value),
-              unlockTime: BigInt(parsedLock.unlockTime.value),
-              fromStorage: true,
-            };
-          })
-          .filter((lock) => {
-            const expired = Number(lock.unlockTime) * 1000 < this.currentDate;
-            const isFromCurrent = currentLocks.find(
-              (currentLock) => currentLock.unlockTime == lock.unlockTime
-            );
+      const allAvailableLocks = currentLocks
+        .map((currentLock) => {
+          return { ...currentLock, account: this.account };
+        })
+        .concat(
+          this.localUserLocks.data
+            .map((lock) => {
+              return {
+                ...lock,
+                fromStorage: true,
+              };
+            })
+            .filter((lock) => {
+              const expired = Number(lock.unlockTime) * 1000 < this.currentDate;
+              const isFromCurrent = !!currentLocks.find(
+                (currentLock) => currentLock.unlockTime == lock.unlockTime
+              );
+              const properAccount = lock.account == this.account;
 
-            return expired && !isFromCurrent;
-          })
+              return (expired && !isFromCurrent) || !properAccount;
+            })
+        );
+
+      this.userLocks = allAvailableLocks.filter(
+        (lock) => lock.account === this.account
       );
 
-      this.setUserLocks(this.userLocks);
+      this.setUserLocks(allAvailableLocks);
     },
   },
 

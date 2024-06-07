@@ -190,7 +190,7 @@ export const getAndParseUserLocks = () => {
   }
 
   const userLocks = JSON.parse(lsUserLocks);
-  const data = userLocks.map((item: any) => bigintStringify(item));
+  const data = userLocks.map((item: any) => jsonBigIntTransform(item));
 
   return { data, isCreated: true };
 };
