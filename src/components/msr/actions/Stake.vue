@@ -30,37 +30,11 @@
       >{{ actionValidationData.btnText }}
     </BaseButton>
 
-    <div
-      class="lock-promo"
+    <PromoCard
+      :mimSavingRateInfo="mimSavingRateInfo"
+      :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
       @click="$emit('chooseLockAction')"
-      v-if="mimSavingRateInfo?.userInfo.balances.unlocked"
-    >
-      <div class="promo-title">
-        <h4 class="promo-message">Lock your Staked MIM for Boosted APR</h4>
-
-        <div class="apr-wrap">
-          <span class="apr-message">Boosted APR</span>
-          <RowSkeleton v-if="isMimSavingRateInfoLoading" />
-          <span class="apr-value" v-else>{{ formatPercent(boostedApr) }}</span>
-        </div>
-      </div>
-
-      <div class="staking-wrap">
-        <div class="currently-staked">
-          <div class="title">You Currently Staking</div>
-
-          <RowSkeleton v-if="isMimSavingRateInfoLoading" />
-          <div class="token-amount" v-else>
-            <BaseTokenIcon
-              :icon="mimSavingRateInfo?.stakingToken.icon || mimIcon"
-              :name="mimSavingRateInfo?.stakingToken.name || 'MIM'"
-              size="32px"
-            />
-            {{ formatAmount(mimSavingRateInfo?.userInfo.balances.unlocked) }}
-          </div>
-        </div>
-      </div>
-    </div>
+    />
   </div>
 </template>
 
@@ -70,7 +44,7 @@ import moment from "moment";
 import { formatUnits } from "viem";
 import { approveTokenViem } from "@/helpers/approval";
 import actions from "@/helpers/mimSavingRate/actions";
-import { formatTokenBalance, formatPercent } from "@/helpers/filters";
+import { formatPercent } from "@/helpers/filters";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
@@ -154,10 +128,6 @@ export default {
         this.actionConfig
       );
     },
-
-    boostedApr() {
-      return (this.mimSavingRateInfo?.baseApr || 0) * 3;
-    },
   },
 
   watch: {
@@ -186,12 +156,6 @@ export default {
     changeTab(action: ActiveTab) {
       this.resetAmounts();
       this.activeTab = action;
-    },
-
-    formatAmount(amount: bigint) {
-      return formatTokenBalance(
-        formatUnits(amount, this.mimSavingRateInfo?.stakingToken.decimals || 18)
-      );
     },
 
     onUpdateStakeValue(value: bigint) {
@@ -275,11 +239,8 @@ export default {
     BaseButton: defineAsyncComponent(
       () => import("@/components/base/BaseButton.vue")
     ),
-    BaseTokenIcon: defineAsyncComponent(
-      () => import("@/components/base/BaseTokenIcon.vue")
-    ),
-    RowSkeleton: defineAsyncComponent(
-      () => import("@/components/ui/skeletons/RowSkeleton.vue")
+    PromoCard: defineAsyncComponent(
+      () => import("@/components/msr/PromoCard.vue")
     ),
   },
 };
@@ -290,140 +251,17 @@ export default {
   width: min-content;
 }
 
-.lock-promo {
-  display: flex;
-  flex-direction: column;
-  gap: 21px;
-  margin-top: auto;
-  padding: 16px;
-  border-radius: 16px;
-  background: url("../../../assets/images/msr/mim-bg-image.png"),
-    linear-gradient(
-      90deg,
-      rgba(45, 74, 150, 0.34) 0%,
-      rgba(116, 92, 210, 0.34) 100%
-    );
-  background-repeat: no-repeat;
-  background-position: right 0 bottom 0;
-  box-shadow: 0px 4px 29.8px 0px rgba(0, 0, 0, 0.42) inset;
-  backdrop-filter: blur(50px);
-  cursor: pointer;
-}
-
-.currently-staked,
-.promo-text {
-  width: 50%;
-}
-
-.promo-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 42px;
-}
-
-.promo-message {
-  max-width: 241px;
-  color: #fff;
-  font-size: 20px;
-  font-weight: 500;
-  line-height: 30px;
-}
-
-.apr-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  min-width: 90px;
-}
-
-.apr-message {
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.apr-value {
-  color: #fff;
-  text-shadow: 0px 0px 16px #ab5de8;
-  font-size: 32px;
-  font-weight: 500;
-}
-
-.staking-wrap {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.currently-staked {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
-  font-size: 18px;
-  width: 175px;
-}
-
 .title {
   font-size: 14px;
   font-weight: 500;
-}
-
-.token-amount {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 38px;
 }
 
 .default-button {
   margin-top: 0 !important;
 }
 
-.promo-text {
-  width: 200px;
-  text-align: right;
-  font-size: 16px;
-}
-
 .lock-action-button {
   margin-top: auto;
   width: auto !important;
-}
-
-.row-skeleton {
-  background-image: linear-gradient(
-    90deg,
-    #2d4b966d 0px,
-    #745cd27a 60px,
-    #2d4b966d 120px
-  ) !important;
-}
-
-.apr-wrap .row-skeleton {
-  height: 24px !important ;
-}
-
-.currently-staked .row-skeleton {
-  height: 32px !important ;
-}
-
-@media (max-width: 500px) {
-  .lock-promo {
-    margin-top: 0;
-  }
-
-  .apr-value {
-    font-size: 28px;
-  }
-
-  .promo-message {
-    font-size: 18px;
-  }
-
-  .token-amount {
-    font-size: 32px;
-  }
 }
 </style>
