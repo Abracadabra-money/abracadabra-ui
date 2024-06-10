@@ -132,20 +132,21 @@ const checkForErrors = (
 };
 
 const validateLock = (contractInfo: any, lockAmount: bigint) => {
-  const isAllowed = !lockAmount;
   const { minLockAmount } = contractInfo;
+  const unlockedBalance = contractInfo.userInfo.balances.unlocked
+  const isAllowed = lockAmount >= unlockedBalance >= minLockAmount;
 
   let btnText = isAllowed
-    ? ACTIONS_BTN_TEXT[ACTION_TYPES.ACTION_UNKNOWN]
-    : ACTIONS_BTN_TEXT[ACTION_TYPES.ACTION_LOCK];
+    ? ACTIONS_BTN_TEXT[ACTION_TYPES.ACTION_LOCK]
+    : WARNINGS_BTN_TEXT[WARNING_TYPES.STAKE_BALANCE];
 
-  if (lockAmount && lockAmount < minLockAmount) {
+  if (lockAmount < minLockAmount) {
     btnText = WARNINGS_BTN_TEXT[WARNING_TYPES.LOCK_MIN_AMOUNT];
   }
 
   return {
     isAllowed,
-    isDisabled: lockAmount < minLockAmount || lockAmount <= 0n,
+    isDisabled: !isAllowed,
     btnText,
   };
 };
@@ -161,10 +162,12 @@ const validateStake = (
 
   if (!inputAmount) validationErrors.push(WARNING_TYPES.AMOUNT);
   if (inputAmount > balance) validationErrors.push(WARNING_TYPES.STAKE_BALANCE);
-  if (inputAmount > approvedAmount)
-    validationErrors.push(WARNING_TYPES.STAKE_ALLOWANCE);
+
   if (inputAmount < minLockAmount && isLock)
     validationErrors.push(WARNING_TYPES.STAKE_MIN_AMOUNT);
+
+  if (inputAmount > approvedAmount)
+    validationErrors.push(WARNING_TYPES.STAKE_ALLOWANCE);
 
   return validationErrors;
 };
