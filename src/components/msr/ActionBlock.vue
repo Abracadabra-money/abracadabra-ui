@@ -15,20 +15,20 @@
 
     <div class="actions-wrapper">
       <Stake
-        v-if="activeAction == 'Stake'"
+        v-show="activeAction == 'Stake'"
         :mimSavingRateInfo="mimSavingRateInfo"
         :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
         @chooseLockAction="$emit('chooseLockAction')"
         @updateMimSavingRateInfo="$emit('updateMimSavingRateInfo')"
       />
       <Lock
-        v-if="activeAction == 'Lock'"
+        v-show="activeAction == 'Lock'"
         :mimSavingRateInfo="mimSavingRateInfo"
         :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
         @updateMimSavingRateInfo="$emit('updateMimSavingRateInfo')"
       />
       <Claim
-        v-if="activeAction == 'Claim'"
+        v-show="activeAction == 'Claim'"
         :mimSavingRateInfo="mimSavingRateInfo"
         :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
         @chooseLockAction="$emit('chooseLockAction')"
