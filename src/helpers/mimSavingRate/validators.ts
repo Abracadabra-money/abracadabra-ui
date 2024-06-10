@@ -133,16 +133,21 @@ const checkForErrors = (
 
 const validateLock = (contractInfo: any, lockAmount: bigint) => {
   const { minLockAmount } = contractInfo;
-  const unlockedBalance = contractInfo.userInfo.balances.unlocked
-  const isAllowed = lockAmount >= unlockedBalance >= minLockAmount;
+  const unlockedBalance = contractInfo.userInfo.balances.unlocked;
+  const isAllowed =
+    lockAmount <= unlockedBalance &&
+    lockAmount >= minLockAmount &&
+    lockAmount > 0;
 
   let btnText = isAllowed
     ? ACTIONS_BTN_TEXT[ACTION_TYPES.ACTION_LOCK]
     : WARNINGS_BTN_TEXT[WARNING_TYPES.STAKE_BALANCE];
 
-  if (lockAmount < minLockAmount) {
+  if (lockAmount > 0n && lockAmount < minLockAmount) {
     btnText = WARNINGS_BTN_TEXT[WARNING_TYPES.LOCK_MIN_AMOUNT];
   }
+
+  if (lockAmount == 0n) btnText = WARNINGS_BTN_TEXT[WARNING_TYPES.AMOUNT];
 
   return {
     isAllowed,
