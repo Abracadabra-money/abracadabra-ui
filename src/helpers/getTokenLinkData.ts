@@ -1,14 +1,6 @@
 import { useImage } from "@/helpers/useImage";
 
-type Config = {
-  id: Number;
-  chain: Number;
-  href: String;
-  label: String;
-  icon: String;
-};
-
-const configs: Array<Config> = [
+const configs = [
   {
     id: 8,
     chain: 43114,
@@ -95,10 +87,7 @@ const configs: Array<Config> = [
   },
 ];
 
-export const getTokenLinkData = (
-  cauldronId: number,
-  chainId: number
-): Object => {
+export const getTokenLinkData = (cauldronId: number, chainId: number) => {
   return configs.filter((config) => {
     if (config.id === cauldronId && config.chain === chainId) return true;
   })[0];

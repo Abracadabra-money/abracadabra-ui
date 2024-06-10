@@ -17,6 +17,7 @@
       :amount="withdrawAmount"
       :maxAmount="maxToRemove"
       :risk="positionHealth"
+      :rangePrecision="rangePrecision"
       isPotion
       @updateAmount="onUpdateWithdrawValue"
     />
@@ -43,6 +44,7 @@ import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { formatToFixed } from "@/helpers/filters";
 import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
+import { formatUnits } from "viem";
 
 export default {
   props: {
@@ -172,8 +174,15 @@ export default {
       return formatToFixed(
         this.inputValue *
           +utils.formatUnits(this.cauldron.additionalInfo.tokensRate),
-        2
+        this.rangePrecision
       );
+    },
+
+    rangePrecision() {
+      const price = 100000;
+      const { decimals } = this.cauldron.config.collateralInfo;
+      const { collateralPrice } = this.cauldron.mainParams.alternativeData;
+      return Number(formatUnits(collateralPrice, decimals)) > price ? 6 : 4;
     },
   },
 

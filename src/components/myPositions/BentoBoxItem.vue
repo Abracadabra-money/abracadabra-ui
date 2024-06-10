@@ -41,7 +41,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { formatUnits } from "viem";
 import degenIcon from "@/assets/images/degenbox.svg";
 import mimIcon from "@/assets/images/tokens/MIM.png";
@@ -50,15 +50,16 @@ import { getChainIcon } from "@/helpers/chains/getChainIcon";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
+import type { PropType } from "vue";
 
 export default {
   props: {
     isBento: { type: Boolean, default: false },
-    balance: { type: [String, BigInt], default: "0" },
+    balance: { type: BigInt as any as PropType<bigint>, default: 0n },
     mimPrice: { type: Number, default: 0 },
-    activeChains: { type: Array },
-    activeChain: { type: [Number, String] },
-    currentChain: { type: [Number, String] },
+    activeChains: { type: Array as PropType<number[]>, required: true },
+    activeChain: { type: Number as PropType<number | null> },
+    currentChain: { type: Number },
   },
 
   data() {
@@ -92,7 +93,7 @@ export default {
     },
 
     parsedBalance() {
-      return formatUnits(this.balance, 18);
+      return Number(formatUnits(this.balance, 18));
     },
 
     balanceInUsd() {
@@ -110,7 +111,7 @@ export default {
     formatTokenBalance,
 
     actionHandler() {
-      if (!this.isProperChain) {
+      if (!this.isProperChain && this.activeChain) {
         switchNetwork(this.activeChain);
         return;
       }
@@ -341,11 +342,6 @@ export default {
     width: 122px;
     height: 37px;
     font-size: 14px;
-  }
-}
-
-@media screen and (max-width: 400px) {
-  .bento-block {
   }
 }
 </style>

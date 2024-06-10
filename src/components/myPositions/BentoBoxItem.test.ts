@@ -7,7 +7,7 @@ describe("BentoBoxItem", () => {
     const wrapper = shallowMount(BentoBoxItem, {
       propsData: {
         isBento: true,
-        balance: "100",
+        balance: 100n,
         mimPrice: 1,
         activeChains: [1, 2, 3],
         activeChain: 1,
@@ -22,7 +22,7 @@ describe("BentoBoxItem", () => {
     const wrapper = shallowMount(BentoBoxItem, {
       propsData: {
         isBento: true,
-        balance: "100",
+        balance: 100n,
         mimPrice: 1,
         activeChains: [1, 2, 3],
         activeChain: 1,
@@ -37,7 +37,7 @@ describe("BentoBoxItem", () => {
     const wrapper = shallowMount(BentoBoxItem, {
       propsData: {
         isBento: true,
-        balance: "100",
+        balance: 100n,
         mimPrice: 1,
         activeChains: [1, 2, 3],
         activeChain: 1,

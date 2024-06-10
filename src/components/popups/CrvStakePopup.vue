@@ -10,12 +10,14 @@
       />
     </div>
 
-    <Tabs
-      :name="activeTab"
-      :items="tabItems"
-      @select="changeTab"
-      width="240px"
-    />
+    <div class="tabs-wrap">
+      <Tabs
+        :name="activeTab"
+        :items="tabItems"
+        @select="changeTab"
+        width="240px"
+      />
+    </div>
 
     <div class="inputs-wrap">
       <BaseTokenInput
@@ -271,6 +273,10 @@ export default {
   width: 24px;
   height: 24px;
   cursor: pointer;
+}
+
+.tabs-wrap {
+  max-width: 250px;
 }
 
 .inputs-wrap {
