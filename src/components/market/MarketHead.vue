@@ -6,7 +6,7 @@
       </div>
 
       <div class="icons-wrap group-wrap">
-        <IconButton v-if="isActiveChain" wallet @click="addCollateral" />
+        <IconButton v-if="isAddColateralToken" wallet @click="addCollateral" />
         <IconButton link tag-name="a" :href="cauldronScanUrl" target="_blank" />
       </div>
 
@@ -59,12 +59,19 @@ import { formatLargeSum } from "@/helpers/filters";
 import { BERA_CHAIN_ID } from "@/constants/global";
 import { getTokenLinkData } from "@/helpers/getTokenLinkData";
 import { getChainConfig } from "@/helpers/chains/getChainsInfo";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 
 export default {
   props: {
     cauldron: {
       type: Object as any,
     },
+  },
+
+  data() {
+    return {
+      collateralSymbol: "",
+    };
   },
 
   computed: {
@@ -80,7 +87,7 @@ export default {
       return this.cauldron.config.cauldronSettings.strategyLink;
     },
 
-    tokenLinkData(): any {
+    tokenLinkData() {
       return getTokenLinkData(
         this.cauldron.config.id,
         this.cauldron.config.chainId
@@ -101,12 +108,17 @@ export default {
 
     cauldronScanUrl() {
       const chainConfig = getChainConfig(this.cauldron.config.chainId);
-      // @ts-ignore
-      return `${chainConfig?.viemConfig?.blockExplorers?.etherscan?.url}/address/${this.cauldron.config.contract.address}`;
+      return `${chainConfig!.viemConfig.blockExplorers.default.url}/address/${
+        this.cauldron.config.contract.address
+      }`;
     },
 
     isActiveChain() {
       return this.chainId === this.cauldron.config.chainId;
+    },
+
+    isAddColateralToken() {
+      return this.isActiveChain && this.collateralSymbol.length <= 11;
     },
   },
 
@@ -133,6 +145,17 @@ export default {
         console.log("Add collateral token error:", error);
       }
     },
+  },
+
+  async created() {
+    const publicClient = getPublicClient(this.cauldron.config.chainId);
+
+    this.collateralSymbol = await publicClient.readContract({
+      address: this.cauldron.config.collateralInfo.address,
+      abi: this.cauldron.config.collateralInfo.abi,
+      functionName: "symbol",
+      args: [],
+    });
   },
 
   components: {
