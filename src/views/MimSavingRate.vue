@@ -13,7 +13,7 @@
       :activeAction="activeAction"
       :mimSavingRateInfo="mimSavingRateInfo"
       :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
-      @chooseLockAction="selectAction('Lock')"
+      @chooseLockAction="selectAction('Lock', true)"
       @updateMimSavingRateInfo="createMimSavingRateInfo"
       v-if="isCarouselMode"
     />
@@ -114,10 +114,15 @@ export default {
   },
 
   methods: {
-    selectAction(action: MSRActionName) {
+    selectAction(action: MSRActionName, isPromo = false) {
+      const query: { action: string; promo?: string } = {
+        action: `${action}`,
+      };
+      if (isPromo) query.promo = "promo";
+
       this.$router.replace({
         name: "MSR",
-        query: { action: `${action}` },
+        query,
       });
     },
 

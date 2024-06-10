@@ -112,6 +112,10 @@ export default {
         : this.mimSavingRateInfo?.userInfo.balances.unlocked || 0n;
     },
 
+    fromPromoLink() {
+      return this.$route.query?.promo == "promo";
+    },
+
     isStakeAndLock() {
       return this.actionType === "stakeAndLock";
     },
@@ -127,6 +131,12 @@ export default {
         this.chainId,
         this.actionConfig
       );
+    },
+  },
+
+  watch: {
+    fromPromoLink(isPromo) {
+      if (isPromo) this.actionType = "lock";
     },
   },
 
