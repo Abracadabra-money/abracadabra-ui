@@ -7,23 +7,27 @@ import recipeAddCollatral from "@/helpers/cauldron/cook/recipies/recipeAddCollat
 import { recipeLeverage } from "@/helpers/cauldron/cook/recipies/gm/recipeLeverage";
 import { recipeCreateLeverageOrder } from "@/helpers/cauldron/cook/recipies/gm/recipeCreateLeverageOrder";
 
+import type { CookData, PayloadLeverageGm } from "../types";
 
 // TODO: update payload type & naming
 const cookLeverage = async (
-  { collateralAmount, amount, updatePrice, slipage, to },
-  mcApproved,
-  cauldronObject,
-  isWrap = false
-) => {
+  { collateralAmount, mimAmount, slipage, to, useWrapper }: PayloadLeverageGm,
+  cauldronObject: any
+): Promise<void> => {
+  const { isMasterContractApproved } = cauldronObject.additionalInfo;
   const { collateral, leverageSwapper, cauldron } = cauldronObject.contracts;
 
-  let cookData = {
+  let cookData: CookData = {
     events: [],
     values: [],
     datas: [],
   };
 
-  cookData = await checkAndSetMcApprove(cookData, cauldronObject, mcApproved);
+  cookData = await checkAndSetMcApprove(
+    cookData,
+    cauldronObject,
+    isMasterContractApproved
+  );
 
   if (updatePrice) cookData = await actions.updateExchangeRate(cookData, true);
 
@@ -33,18 +37,18 @@ const cookLeverage = async (
       cookData,
       cauldronObject,
       collateral.address,
-      isWrap,
+      useWrapper,
       to,
       collateralAmount,
       0
     );
   }
 
-  cookData = await actions.borrow(cookData, amount, leverageSwapper.address);
+  cookData = await actions.borrow(cookData, mimAmount, leverageSwapper.address);
 
   const { swapStaticTx, buyAmount } = await recipeLeverage(
     cauldronObject,
-    amount,
+    mimAmount,
     slipage
   );
 
@@ -66,4 +70,4 @@ const cookLeverage = async (
   await cook(cauldron, updatedCookData, executionFee);
 };
 
-export default cookLeverage
+export default cookLeverage;

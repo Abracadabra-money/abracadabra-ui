@@ -7,40 +7,39 @@ import toAmount from "@/helpers/toAmount";
 import { ORDER_AGENT } from "@/constants/gm";
 import { recipeCreateDeleverageOrder } from "@/helpers/cauldron/cook/recipies/gm/recipeCreateDeleverageOrder";
 
+import type { CookData, PayloadWithdrawToOrderGm } from "../types";
+
 // TODO: update payload type & naming
 const cookWitdrawToOrderGM = async (
-  {
-    borrowAmount,
-    collateralAmount, // share TODO
-    removeCollateralAmount,
-    updatePrice,
-    itsMax,
-    slipage,
-  },
-  isApprowed,
-  pool,
-  account
-) => {
-  const { collateral, cauldron, bentoBox } = pool.contracts;
+  { collateralShare }: PayloadWithdrawToOrderGm,
+  cauldronObject
+): Promise<void> => {
+  const { collateral, cauldron, bentoBox } = cauldronObject.contracts;
+  const { updatePrice } = cauldronObject.mainParams;
+  const { isMasterContractApproved } = cauldronObject.additionalInfo;
 
-  let cookData = {
+  let cookData: CookData = {
     events: [],
     values: [],
     datas: [],
   };
 
-  cookData = await checkAndSetMcApprove(cookData, pool, isApprowed);
+  cookData = await checkAndSetMcApprove(
+    cookData,
+    cauldronObject,
+    isMasterContractApproved
+  );
 
   if (updatePrice) cookData = await actions.updateExchangeRate(cookData, true);
 
   // remove collateral to order agent & create order
   cookData = await actions.removeCollateral(
     cookData,
-    collateralAmount,
+    collateralShare,
     ORDER_AGENT
   );
 
-  const amount = await toAmount(bentoBox, collateral.address, collateralAmount);
+  const amount = await toAmount(bentoBox, collateral.address, collateralShare);
 
   const { updatedCookData, executionFee } = await recipeCreateDeleverageOrder(
     cookData,
@@ -51,4 +50,4 @@ const cookWitdrawToOrderGM = async (
   await cook(cauldron, updatedCookData, executionFee);
 };
 
-export default cookWitdrawToOrderGM
+export default cookWitdrawToOrderGM;

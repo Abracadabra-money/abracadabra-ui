@@ -1,5 +1,4 @@
 // @ts-nocheck
-
 import store from "@/store";
 import { getOrderBalances } from "@/helpers/gm/orders";
 import { actions } from "@/helpers/cauldron/cook/actions";
@@ -9,27 +8,27 @@ import { repayEncodeHandler } from "@/helpers/cauldron/cook/degenBoxHelper/actio
 import recipeRemoveCollateral from "@/helpers/cauldron/cook/recipies/recipeRemoveCollateral";
 import { cook } from "@/helpers/cauldron/cauldron";
 
+import type { CookData, PayloadDeleverageFromOrderGm } from "../types";
+
 // TODO: update payload type & naming
 const cookDeleverageFromOrder = async (
   {
-    borrowAmount,
-    collateralAmount, // share TODO
-    removeCollateralAmount,
-    updatePrice,
+    repayAmount,
+    removeCollateralShare,
     itsMax,
     slipage,
-  },
-  cauldronObject,
-  account,
-  order
-) => {
+    to,
+    order,
+  }: PayloadDeleverageFromOrderGm,
+  cauldronObject
+): Promise<void> => {
   const { liquidationSwapper, cauldron, bentoBox } = cauldronObject.contracts;
   const collateralAddress = cauldronObject.config.collateralInfo.address;
 
   const provider = store.getters.getProvider; // TODO: check provider
   const { balanceUSDC } = await getOrderBalances(order, provider);
 
-  let cookData = {
+  let cookData: CookData = {
     events: [],
     values: [],
     datas: [],
@@ -49,7 +48,7 @@ const cookDeleverageFromOrder = async (
     cookData,
     cauldronObject,
     shareFrom,
-    borrowAmount,
+    repayAmount,
     slipage
   );
 
@@ -62,7 +61,7 @@ const cookDeleverageFromOrder = async (
       cookData,
       cauldron.address,
       userBorrowPart,
-      account
+      to
     );
   } else {
     cookData = await actions.getRepayPart(cookData, "-2");
@@ -70,18 +69,18 @@ const cookDeleverageFromOrder = async (
       cookData,
       cauldron.address,
       "-1",
-      account,
+      to,
       false,
       true
     );
   }
 
-  if (+removeCollateralAmount > 0) {
+  if (+removeCollateralShare > 0) {
     cookData = await recipeRemoveCollateral(
       cookData,
       cauldronObject,
-      removeCollateralAmount,
-      account,
+      removeCollateralShare,
+      to,
       collateralAddress
     );
   }

@@ -66,3 +66,29 @@ export type PayloadRepay = {
   itsMax: boolean;
   to: Address;
 };
+
+export type PayloadDeleverageFromOrderGm = {
+  repayAmount: BigNumber;
+  removeCollateralShare: BigNumber;
+  itsMax: boolean;
+  slipage: number;
+  to: Address;
+  order: Address
+}
+
+export type PayloadLeverageGm = {
+  collateralAmount: BigNumber;
+  mimAmount: BigNumber;
+  slipage: number;
+  useWrapper: boolean;
+  to: Address;
+} 
+
+export type PayloadRecoverFailedLeverageGm = {
+  order: Address,
+  to: Address
+}
+
+export type PayloadWithdrawToOrderGm = {
+  collateralShare: BigNumber;
+}
