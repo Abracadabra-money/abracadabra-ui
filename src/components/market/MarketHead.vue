@@ -56,7 +56,7 @@ import { mapGetters } from "vuex";
 import { formatUnits } from "viem";
 import { defineAsyncComponent } from "vue";
 import { formatLargeSum } from "@/helpers/filters";
-import { BERA_CHAIN_ID } from "@/constants/global";
+import { BERA_BARTIO_CHAIN_ID } from "@/constants/global";
 import { getTokenLinkData } from "@/helpers/getTokenLinkData";
 import { getChainConfig } from "@/helpers/chains/getChainsInfo";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
@@ -80,7 +80,7 @@ export default {
     }),
 
     showTestnetChip() {
-      return this.cauldron.config.chainId === BERA_CHAIN_ID;
+      return this.cauldron.config.chainId === BERA_BARTIO_CHAIN_ID;
     },
 
     strategyLink() {

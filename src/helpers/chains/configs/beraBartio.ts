@@ -1,17 +1,15 @@
 import { useImage } from "@/helpers/useImage";
+import { BERA_BARTIO_CHAIN_ID } from "@/constants/global";
 import { initPublicClient } from "@/helpers/chains/initPublicClient";
 import { initStaticJsonRpcProvider } from "@/helpers/chains/initStaticJsonRpcProvider";
 
-const rpcList = [
-  "https://artio.rpc.berachain.com/",
-  "https://rpc.ankr.com/berachain_testnet",
-];
+const rpcList = ["https://bartio.rpc.berachain.com/"];
 
 const viemConfig = {
-  id: 80085,
-  name: "Berachain Artio",
-  network: "berachain-testnet",
-  nativeCurrency: { name: "BERA", symbol: "BERA", decimals: 18 },
+  id: BERA_BARTIO_CHAIN_ID,
+  name: "Berachain Bartio",
+  network: "berachain-bartio",
+  nativeCurrency: { name: "Berachain Bartio", symbol: "BERA", decimals: 18 },
   rpcUrls: {
     public: {
       http: rpcList,
@@ -21,26 +19,26 @@ const viemConfig = {
     },
   },
   blockExplorers: {
-    etherscan: { name: "Berascan", url: "https://artio.beratrail.io/" },
-    default: { name: "Berascan", url: "https://artio.beratrail.io/" },
+    etherscan: { name: "Berascan", url: "https://bartio.beratrail.io/" },
+    default: { name: "Berascan", url: "https://bartio.beratrail.io/" },
   },
   contracts: {
     multicall3: {
-      address: "0xcA11bde05977b3631167028862bE2a173976CA11",
+      address: "0xBFAc81D48C8B4B1d2DaF5F21b78A0C2e472497C4",
       blockCreated: 5022,
     },
   },
 };
 
 const publicClient = initPublicClient(viemConfig);
-const ethersProvider = await initStaticJsonRpcProvider(80085);
+const ethersProvider = await initStaticJsonRpcProvider(BERA_BARTIO_CHAIN_ID);
 
-export const berachainConfig = {
+export const beraBartioConfig = {
   publicClient,
   ethersProvider,
   viemConfig: viemConfig,
-  chainId: 80085,
-  chainName: "Berachain Artio",
+  chainId: BERA_BARTIO_CHAIN_ID,
+  chainName: "Berachain Bartio",
   symbol: "BERA",
   icon: useImage("assets/images/networks/bera.png"),
   baseTokenIcon: useImage("assets/images/tokens/ETH.png"),

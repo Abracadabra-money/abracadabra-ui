@@ -51,9 +51,9 @@ export default <ExtendedContractInfo[]>[
     abi: degenBoxAbi,
   },
   {
-    chainId: 80085,
+    chainId: 80084,
     name: "DegenBox",
-    address: "0x7a3b799E929C9bef403976405D8908fa92080449",
+    address: "0xB734c264F83E39Ef6EC200F99550779998cC812d",
     abi: degenBoxAbi,
   },
 ];

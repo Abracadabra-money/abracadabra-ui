@@ -60,6 +60,7 @@
 <script lang="ts">
 import { formatUnits } from "viem";
 import { formatLargeSum } from "@/helpers/filters";
+import { BERA_BARTIO_CHAIN_ID } from "@/constants/global";
 
 export default {
   props: {
@@ -81,7 +82,7 @@ export default {
     },
 
     poolLabel() {
-      if (this.pool.chainId === 80085) return "testnet";
+      if (this.pool.chainId === BERA_BARTIO_CHAIN_ID) return "testnet";
       if (this.pool.settings?.isNew) return "new";
       if (this.pool.settings?.isDeprecated) return "deprecated";
       return "";

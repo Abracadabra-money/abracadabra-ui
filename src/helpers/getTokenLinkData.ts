@@ -80,7 +80,7 @@ const configs = [
   },
   {
     id: 1,
-    chain: 80085,
+    chain: 80084,
     href: "https://artio.bex.berachain.com/pool/0xC793C76fE0D5c79550034983D966c21a50Fb5e38/add-liquidity",
     label: "Get LP",
     icon: useImage(`assets/images/get-lp-icons/bera.png`),
