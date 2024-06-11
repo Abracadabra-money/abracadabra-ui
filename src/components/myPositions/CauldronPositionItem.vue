@@ -2,7 +2,7 @@
   <div
     :class="[
       'position',
-      isDeprecated ? 'deprecated' : cauldron.positionHealth.status,
+      isDeprecated ? 'deprecated' : cauldron.alternativeData.positionHealth.status,
     ]"
   >
     <div class="status-flag" v-if="isDeprecated">Deprecated</div>
@@ -49,7 +49,7 @@
 
         <PositionIndicator
           tooltip="Collateral Price at which your deposited collateral is eligible for liquidation."
-          :positionRisk="cauldron.positionHealth.status"
+          :positionRisk="cauldron.alternativeData.positionHealth.status"
           :value="cauldron.liquidationPrice"
         >
           Liquidation Price
@@ -63,8 +63,10 @@
         </PositionIndicator>
       </ul>
       <HealthProgress
-        :positionHealth="formatPercent(100 - cauldron.positionHealth.percent)"
-        :positionRisk="cauldron.positionHealth.status"
+        :positionHealth="
+          formatPercent(100 - Number(cauldron.alternativeData.positionHealth.percent) / 100)
+        "
+        :positionRisk="cauldron.alternativeData.positionHealth.status"
         :key="`${cauldron.config.id} - ${cauldron.config.chainId}`"
       />
     </div>

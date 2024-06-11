@@ -27,6 +27,8 @@ export type UserPositions = {
       userBorrowAmount: bigint;
     };
     oracleRate: bigint;
+    liquidationPrice: bigint;
+    positionHealth: AlternativePositionHealth;
   };
 };
 
@@ -126,5 +128,6 @@ export type UserTotalAssets = {
 };
 
 export type PositionHealth = { percent: number; status: PositionHealthStatus };
+export type AlternativePositionHealth = { percent: bigint; status: PositionHealthStatus };
 
 export type PositionHealthStatus = "safe" | "medium" | "high";

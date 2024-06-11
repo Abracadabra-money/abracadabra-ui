@@ -10,11 +10,12 @@ import type {
   PositionHealthStatus,
   UserPositions,
 } from "@/helpers/cauldron/types";
-import { getLiquidationPrice } from "@/helpers/cauldron/utils";
+import { getAlternativeLiquidationPrice, getLiquidationPrice } from "@/helpers/cauldron/utils";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { getLensAddress } from "@/helpers/cauldron/getLensAddress";
 import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
 import type { ExtendedContractInfo } from "@/configs/contracts/types";
+import { getAlternativePositionHealth } from "@/helpers/cauldron/utils";
 
 const emptyPosition: UserPositions = {
   oracleRate: BigNumber.from("0"),
@@ -38,6 +39,8 @@ const emptyPosition: UserPositions = {
       userBorrowAmount: 0n,
     },
     oracleRate: 0n,
+    liquidationPrice: 0n,
+    positionHealth: { percent: 0n, status: "high" },
   },
 };
 
@@ -117,6 +120,14 @@ export const getUserPositions = async (
         )
       )
     );
+    const bigintLiquidationPrice =
+      getAlternativeLiquidationPrice(
+        userPosition.borrowValue,
+        userPosition.collateral.amount +
+        BigInt(collaterallInOrders[index].amount),
+        mcr,
+        decimals
+      );
 
     const leftToDrop = collateralPrice - liquidationPrice;
 
@@ -126,6 +137,12 @@ export const getUserPositions = async (
       config?.cauldronSettings.healthMultiplier,
       Number(userPosition.borrowValue),
       leftToDrop
+    );
+
+    const alternativePositionHealth = getAlternativePositionHealth(
+      bigintLiquidationPrice,
+      oracleExchangeRate,
+      decimals,
     );
 
     const userCollateralAmount = BigNumber.from(
@@ -172,7 +189,9 @@ export const getUserPositions = async (
           userBorrowPart,
           userBorrowAmount: userPosition.borrowValue,
         },
+        liquidationPrice: bigintLiquidationPrice,
         oracleRate: oracleExchangeRate,
+        positionHealth: alternativePositionHealth
       },
     };
   });
