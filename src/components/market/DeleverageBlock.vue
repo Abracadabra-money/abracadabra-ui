@@ -37,6 +37,7 @@ import {
   getDeleverageAmounts,
   PERCENT_PRESITION,
 } from "@/helpers/cauldron/utils";
+import { BERA_BARTIO_CHAIN_ID, KAVA_CHAIN_ID } from "@/constants/global";
 
 export default {
   props: {
@@ -79,7 +80,7 @@ export default {
     },
 
     hideDynamicFee() {
-      const disabledChains = [2222, 80085];
+      const disabledChains = [KAVA_CHAIN_ID, BERA_BARTIO_CHAIN_ID];
 
       return disabledChains.indexOf(this.cauldron.config.chainId) !== -1;
     },

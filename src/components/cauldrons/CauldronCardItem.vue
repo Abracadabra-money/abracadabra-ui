@@ -59,8 +59,8 @@
 
 <script lang="ts">
 import { formatUnits } from "viem";
-import { BERA_CHAIN_ID } from "@/constants/global";
 import type { RouterLinkParams } from "@/types/global";
+import { BERA_BARTIO_CHAIN_ID } from "@/constants/global";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 import { formatToFixed, formatLargeSum } from "@/helpers/filters";
 import type { CauldronListItem } from "@/helpers/cauldron/lists/getMarketList";
@@ -89,7 +89,7 @@ export default {
 
     cauldronLabel(): CauldronLabel {
       const { chainId, cauldronSettings } = this.cauldron.config;
-      if (chainId === BERA_CHAIN_ID) return CauldronLabel.testnet;
+      if (chainId === BERA_BARTIO_CHAIN_ID) return CauldronLabel.testnet;
       if (cauldronSettings?.isNew) return CauldronLabel.new;
       if (cauldronSettings?.isDepreciated) return CauldronLabel.deprecated;
       return CauldronLabel.empty;

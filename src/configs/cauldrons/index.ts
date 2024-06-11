@@ -5,7 +5,7 @@ import arbitrumCauldrons from "@/configs/cauldrons/arbitrumCauldrons";
 import bscCauldrons from "@/configs/cauldrons/bscCauldrons";
 import optimismCauldrons from "@/configs/cauldrons/optimismCauldrons";
 import kavaCauldrons from "@/configs/cauldrons/kavaCauldrons";
-import beraCauldrons from "@/configs/cauldrons/beraCauldrons";
+import beraBartioCauldrons from "@/configs/cauldrons/beraBartioCauldrons";
 import blastCauldrons from "@/configs/cauldrons/blastCauldrons";
 
 export default [
@@ -16,6 +16,6 @@ export default [
   ...bscCauldrons,
   ...optimismCauldrons,
   ...kavaCauldrons,
-  ...beraCauldrons,
+  ...beraBartioCauldrons,
   ...blastCauldrons,
 ];
