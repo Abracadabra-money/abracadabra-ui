@@ -37,7 +37,7 @@ const defiLlamaChainsKeys = {
   42161: "arbitrum",
   43120: "moonriver",
   59144: "linea",
-  80085: "berachain",
+  80084: "berachain",
   81457: "blast",
   168587773: "blast",
 };
