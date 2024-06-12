@@ -24,7 +24,7 @@ const viemConfig = {
   },
   contracts: {
     multicall3: {
-      address: "0xBFAc81D48C8B4B1d2DaF5F21b78A0C2e472497C4",
+      address: "0xcA11bde05977b3631167028862bE2a173976CA11",
       blockCreated: 5022,
     },
   },
