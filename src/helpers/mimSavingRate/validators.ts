@@ -1,5 +1,7 @@
 import { getAccountHelper } from "@/helpers/walletClienHelper";
 
+export type ActionType = "stake" | "unstake" | "stakeAndLock" | "lock";
+
 const ACTION_UNKNOWN = "unknown";
 const ACTION_STAKE = "stake";
 const ACTION_LOCK = "lock";
@@ -74,7 +76,7 @@ const NO_CONTRACT_WARNING = {
 
 export const validateAction = (
   contractInfo: any,
-  actionType: "stake" | "unstake" | "stakeAndLock" | "lock",
+  actionType: ActionType,
   chainId: number,
   actionConfig: any
 ) => {

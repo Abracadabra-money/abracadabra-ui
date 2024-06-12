@@ -22,16 +22,70 @@ export type MimSavingRateInfo = {
 } & LockingMultiRewardsInfo &
   MimSavingRateConfig;
 
+
+export const emptyMimSavingRateInfo = {
+  baseApr: 0,
+  userInfo: {
+    stakeToken: {
+      balance: 0n,
+      approvedAmount: 0n,
+    },
+    totalBalance: 0n,
+    balances: {
+      locked: 0n,
+      unlocked: 0n,
+    },
+    earned: {
+      token0: 0n,
+      token1: 0n,
+    },
+    locked: 0n,
+    unlocked: 0n,
+    userLocks: [],
+    lastLockIndex: 0n,
+    userLocksLength: 0n,
+    rewards: {
+      token0: 0n,
+      token1: 0n,
+    },
+    userRewardLock: {
+      items: [],
+      unlockTime: 0n
+    },
+    userRewardPerTokenPaid: {
+      token0: 0n,
+      token1: 0n,
+    }
+  },
+  paused: false,
+  startOfEpoch: 0,
+  nextEpoch: 0,
+  remainingEpochTime: 0,
+  totalSupply: 0n,
+  lockedSupply: 0n,
+  unlockedSupply: 0n,
+  stakingTokenBalance: 0n,
+  maxLocks: 0n,
+  minLockAmount: 0n,
+  lockDuration: 0,
+  nextUnlockTime: 0,
+  multiplerBoost: 0n,
+  rewardsPerToken: [],
+  rewardsDuration: 0,
+  ...mimSavingRateConfig[0]
+}
+
+
 export const getMimSavingRateInfo = async (
   account: Address,
   publicClient: PublicClient,
   chainId = ARBITRUM_CHAIN_ID
-): Promise<MimSavingRateInfo | null> => {
+): Promise<MimSavingRateInfo> => {
   const config: MimSavingRateConfig | undefined = mimSavingRateConfig.find(
     (config: MimSavingRateConfig) => config.chainId === chainId
   );
 
-  if (!config) return null;
+  if (!config) return emptyMimSavingRateInfo;
 
   const lockingMultiRewardsInfo = await getLockingMultiRewardsInfo(
     publicClient,

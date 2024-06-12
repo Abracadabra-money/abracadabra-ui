@@ -67,10 +67,11 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, type PropType } from "vue";
 import moment from "moment";
 import { formatUnits } from "viem";
 import { formatTokenBalance } from "@/helpers/filters";
+import type { MimSavingRateInfo } from "@/helpers/mimSavingRate/getMimSavingRateInfo";
 
 type TokenRewards = {
   name: string;
@@ -82,7 +83,10 @@ type TokenRewards = {
 
 export default {
   props: {
-    mimSavingRateInfo: { type: Object },
+    mimSavingRateInfo: {
+      type: Object as PropType<MimSavingRateInfo | null>,
+      required: true,
+    },
     isUserRewardLockExpired: { type: Boolean },
     isMimSavingRateInfoLoading: { type: Boolean },
   },
@@ -136,7 +140,10 @@ export default {
       const tokenInfo = this.mimSavingRateInfo!.rewardTokens[arrayIndex];
 
       const userInfo = this.mimSavingRateInfo!.userInfo;
-      const total: bigint = userInfo?.earned[`token${arrayIndex}`] || 0n;
+      const total: bigint =
+        userInfo?.earned[
+          `token${arrayIndex}` as keyof typeof userInfo.earned
+        ] || 0n;
 
       const rewardLockAmount =
         userInfo?.userRewardLock.items[arrayIndex]?.amount || 0n;

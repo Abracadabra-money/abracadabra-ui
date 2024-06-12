@@ -26,13 +26,26 @@
   </p>
 </template>
 
-<script>
-import { defineAsyncComponent } from "vue";
+<script lang="ts">
+import { defineAsyncComponent, type PropType } from "vue";
 import { createEpochTimeline, formatTimestampToUnix } from "@/helpers/time";
+import type { MimSavingRateInfo } from "@/helpers/mimSavingRate/getMimSavingRateInfo";
+
+type DayName =
+  | "Monday"
+  | "Tuesday"
+  | "Wednesday"
+  | "Thursday"
+  | "Friday"
+  | "Saturday"
+  | "Sunday";
 
 export default {
   props: {
-    mimSavingRateInfo: { type: Object },
+    mimSavingRateInfo: {
+      type: Object as PropType<MimSavingRateInfo | null>,
+      required: true,
+    },
     isMimSavingRateInfoLoading: { type: Boolean },
   },
 
@@ -46,22 +59,27 @@ export default {
         "Monday",
         "Tuesday",
         "Wednesday",
-      ],
+      ] as DayName[],
     };
   },
 
   computed: {
     epoch() {
+      if (!this.mimSavingRateInfo)
+        return {
+          start: 0,
+          end: 0,
+        };
       return {
-        start: this.mimSavingRateInfo?.startOfEpoch || 0,
-        end: this.mimSavingRateInfo?.nextEpoch - 1 || 0,
+        start: this.mimSavingRateInfo?.startOfEpoch,
+        end: this.mimSavingRateInfo?.nextEpoch - 1,
       };
     },
 
     epochDays() {
       const epochTimeline = createEpochTimeline(this.epoch.start);
 
-      return this.daysNames.map((name, index) => {
+      return this.daysNames.map((name: DayName, index: number) => {
         return { name, status: epochTimeline[index] };
       });
     },
@@ -70,14 +88,14 @@ export default {
   methods: {
     formatTimestampToUnix,
 
-    formatDayName(name) {
+    formatDayName(name: DayName) {
       return name.slice(0, 3);
     },
   },
 
   components: {
-    Timer: defineAsyncComponent(() =>
-      import("@/components/stake/earnPoints/Timer.vue")
+    Timer: defineAsyncComponent(
+      () => import("@/components/stake/earnPoints/Timer.vue")
     ),
   },
 };

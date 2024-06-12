@@ -25,21 +25,29 @@
   </li>
 </template>
 
-<script>
-import { defineAsyncComponent } from "vue";
+<script lang="ts">
+import { defineAsyncComponent, type PropType } from "vue";
 import moment from "moment";
 import mimIcon from "@/assets/images/tokens/MIM.png";
 import { formatTokenBalance } from "@/helpers/filters";
 import { formatUnits } from "viem";
 import { useImage } from "@/helpers/useImage";
+import type { UserLock } from "@/helpers/mimSavingRate/getUserInfo";
 
 export default {
   props: {
-    userLock: { type: Object },
+    userLock: {
+      type: Object as PropType<UserLock & { decimals: number }>,
+      required: true,
+    },
   },
 
   data() {
-    return { mimIcon, now: null, intervalId: null };
+    return {
+      mimIcon,
+      now: null as any,
+      intervalId: null as null | NodeJS.Timeout,
+    };
   },
 
   computed: {
@@ -81,18 +89,20 @@ export default {
   },
 
   beforeUnmount() {
-    clearInterval(this.intervalId);
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
   },
 
   components: {
-    BaseTokenIcon: defineAsyncComponent(() =>
-      import("@/components/base/BaseTokenIcon.vue")
+    BaseTokenIcon: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenIcon.vue")
     ),
-    Timer: defineAsyncComponent(() =>
-      import("@/components/stake/earnPoints/Timer.vue")
+    Timer: defineAsyncComponent(
+      () => import("@/components/stake/earnPoints/Timer.vue")
     ),
-    Tooltip: defineAsyncComponent(() =>
-      import("@/components/ui/icons/Tooltip.vue")
+    Tooltip: defineAsyncComponent(
+      () => import("@/components/ui/icons/Tooltip.vue")
     ),
   },
 };

@@ -23,14 +23,18 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, type PropType } from "vue";
 import { formatUnits } from "viem";
+import type { MimSavingRateInfo } from "@/helpers/mimSavingRate/getMimSavingRateInfo";
 
 export default {
   emits: ["chooseLockAction"],
 
   props: {
-    mimSavingRateInfo: { type: Object },
+    mimSavingRateInfo: {
+      type: Object as PropType<MimSavingRateInfo | null>,
+      required: true,
+    },
     isMimSavingRateInfoLoading: { type: Boolean },
   },
 

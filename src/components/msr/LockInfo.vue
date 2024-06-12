@@ -20,7 +20,7 @@
         v-for="(userLock, index) in userLocks"
         :userLock="{
           ...userLock,
-          decimals: mimSavingRateInfo.stakingToken.decimals,
+          decimals: mimSavingRateInfo?.stakingToken.decimals || 18,
         }"
         :key="index"
       />
@@ -33,22 +33,27 @@
   </div>
 </template>
 
-<script>
-import { defineAsyncComponent } from "vue";
+<script lang="ts">
+import { defineAsyncComponent, type PropType } from "vue";
 import { mapGetters, mapMutations } from "vuex";
 import { formatTokenBalance } from "@/helpers/filters";
 import { formatUnits } from "viem";
 import mimIcon from "@/assets/images/tokens/MIM.png";
+import type { MimSavingRateInfo } from "@/helpers/mimSavingRate/getMimSavingRateInfo";
+import type { UserLock } from "@/helpers/mimSavingRate/getUserInfo";
 
 export default {
   props: {
-    mimSavingRateInfo: { type: Object },
+    mimSavingRateInfo: {
+      type: Object as PropType<MimSavingRateInfo | null>,
+      required: true,
+    },
     isMimSavingRateInfoLoading: { type: Boolean },
   },
 
   data() {
     return {
-      userLocks: [],
+      userLocks: [] as UserLock[],
       mimIcon,
     };
   },
@@ -77,24 +82,25 @@ export default {
 
   watch: {
     mimSavingRateInfo() {
-      const currentLocks =
+      if (!this.mimSavingRateInfo) return false;
+      const currentLocks: UserLock[] =
         this.mimSavingRateInfo?.userInfo.userLocks.length > 0
           ? this.mimSavingRateInfo?.userInfo.userLocks
           : [];
 
-      const allAvailableLocks = currentLocks
-        .map((currentLock) => {
+      const allAvailableLocks: UserLock[] = currentLocks
+        .map((currentLock: UserLock) => {
           return { ...currentLock, account: this.account };
         })
         .concat(
           this.localUserLocks.data
-            .map((lock) => {
+            .map((lock: UserLock) => {
               return {
                 ...lock,
                 fromStorage: true,
               };
             })
-            .filter((lock) => {
+            .filter((lock: UserLock) => {
               const expired = Number(lock.unlockTime) * 1000 < this.currentDate;
               const isFromCurrent = !!currentLocks.find(
                 (currentLock) => currentLock.unlockTime == lock.unlockTime
@@ -106,7 +112,7 @@ export default {
         );
 
       this.userLocks = allAvailableLocks.filter(
-        (lock) => lock.account === this.account
+        (lock: UserLock) => lock.account === this.account
       );
 
       this.setUserLocks(allAvailableLocks);
@@ -122,23 +128,23 @@ export default {
   },
 
   components: {
-    UserLock: defineAsyncComponent(() =>
-      import("@/components/msr/UserLock.vue")
+    UserLock: defineAsyncComponent(
+      () => import("@/components/msr/UserLock.vue")
     ),
-    BaseTokenIcon: defineAsyncComponent(() =>
-      import("@/components/base/BaseTokenIcon.vue")
+    BaseTokenIcon: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenIcon.vue")
     ),
-    BaseSearchEmpty: defineAsyncComponent(() =>
-      import("@/components/base/BaseSearchEmpty.vue")
+    BaseSearchEmpty: defineAsyncComponent(
+      () => import("@/components/base/BaseSearchEmpty.vue")
     ),
-    ConnectWalletBlock: defineAsyncComponent(() =>
-      import("@/components/myPositions/ConnectWalletBlock.vue")
+    ConnectWalletBlock: defineAsyncComponent(
+      () => import("@/components/myPositions/ConnectWalletBlock.vue")
     ),
-    RowSkeleton: defineAsyncComponent(() =>
-      import("@/components/ui/skeletons/RowSkeleton.vue")
+    RowSkeleton: defineAsyncComponent(
+      () => import("@/components/ui/skeletons/RowSkeleton.vue")
     ),
-    BaseLoader: defineAsyncComponent(() =>
-      import("@/components/base/BaseLoader.vue")
+    BaseLoader: defineAsyncComponent(
+      () => import("@/components/base/BaseLoader.vue")
     ),
   },
 };

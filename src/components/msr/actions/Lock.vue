@@ -33,10 +33,12 @@
         <span class="notification-message"> Lock untill: </span>
 
         <div class="date-time">
-          <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+          <RowSkeleton
+            v-if="isMimSavingRateInfoLoading || !mimSavingRateInfo"
+          />
           <span class="date" v-else>{{
             formatTimestampToUnix(
-              mimSavingRateInfo?.nextUnlockTime,
+              mimSavingRateInfo.nextUnlockTime,
               "DD MMM. YYYY"
             )
           }}</span>
@@ -60,8 +62,8 @@
   </div>
 </template>
 
-<script>
-import { defineAsyncComponent } from "vue";
+<script lang="ts">
+import { defineAsyncComponent, type PropType } from "vue";
 import moment from "moment";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { formatUnits } from "viem";
@@ -69,20 +71,27 @@ import notification from "@/helpers/notification/notification";
 import { approveTokenViem } from "@/helpers/approval";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import actions from "@/helpers/mimSavingRate/actions";
-import { validateAction } from "@/helpers/mimSavingRate/validators";
+import {
+  validateAction,
+  type ActionType,
+} from "@/helpers/mimSavingRate/validators";
 import { formatTimestampToUnix } from "@/helpers/time/index";
 import mimIcon from "@/assets/images/tokens/MIM.png";
+import type { MimSavingRateInfo } from "@/helpers/mimSavingRate/getMimSavingRateInfo";
 
 export default {
   props: {
-    mimSavingRateInfo: { type: Object },
+    mimSavingRateInfo: {
+      type: Object as PropType<MimSavingRateInfo | null>,
+      required: true,
+    },
     isMimSavingRateInfoLoading: { type: Boolean },
   },
 
   data() {
     return {
       inputValue: "",
-      actionType: "stakeAndLock",
+      actionType: "stakeAndLock" as ActionType,
       actionConfig: {
         stakeAmount: 0n,
         lockAmount: 0n,
@@ -125,6 +134,12 @@ export default {
     },
 
     actionValidationData() {
+      if (!this.mimSavingRateInfo)
+        return {
+          isAllowed: false,
+          isDisabled: true,
+          btnText: "Enter amount",
+        };
       return validateAction(
         this.mimSavingRateInfo,
         this.actionType,
@@ -151,7 +166,7 @@ export default {
       this.actionType = this.actionType === "lock" ? "stakeAndLock" : "lock";
     },
 
-    onUpdateLockValue(value) {
+    onUpdateLockValue(value: bigint) {
       if (!value) {
         this.inputValue = "";
         this.actionConfig[this.amountToUse] = BigInt(0);
@@ -165,7 +180,7 @@ export default {
     },
 
     async approveTokenHandler() {
-      if (this.isUnsupportedChain) return false;
+      if (this.isUnsupportedChain || !this.mimSavingRateInfo) return false;
 
       const notificationId = await this.createNotification(
         notification.approvePending
@@ -184,10 +199,12 @@ export default {
     },
 
     async lockActionHandler() {
+      if (!this.mimSavingRateInfo) return false;
+
       const notificationId = await this.createNotification(
         notification.pending
       );
-      const { error } = await actions.lock(
+      const { error }: any = await actions.lock(
         this.mimSavingRateInfo?.lockingMultiRewardsContract,
         this.actionConfig.lockAmount,
         this.lockingDeadline
@@ -205,6 +222,7 @@ export default {
     },
 
     async stakeAndLockActionHandler() {
+      if (!this.mimSavingRateInfo) return false;
       if (!this.isTokenApproved) {
         await this.approveTokenHandler();
         return false;
@@ -214,7 +232,7 @@ export default {
         notification.pending
       );
 
-      const { error } = await actions.stakeLocked(
+      const { error }: any = await actions.stakeLocked(
         this.mimSavingRateInfo?.lockingMultiRewardsContract,
         this.actionConfig.stakeAmount,
         this.lockingDeadline
@@ -240,7 +258,7 @@ export default {
       }
 
       if (this.isUnsupportedChain) {
-        switchNetwork(this.mimSavingRateInfo?.chainId);
+        switchNetwork(this.mimSavingRateInfo!.chainId);
         return false;
       }
 
@@ -262,20 +280,20 @@ export default {
   },
 
   components: {
-    BaseTokenInput: defineAsyncComponent(() =>
-      import("@/components/base/BaseTokenInput.vue")
+    BaseTokenInput: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenInput.vue")
     ),
-    BaseButton: defineAsyncComponent(() =>
-      import("@/components/base/BaseButton.vue")
+    BaseButton: defineAsyncComponent(
+      () => import("@/components/base/BaseButton.vue")
     ),
-    CheckBox: defineAsyncComponent(() =>
-      import("@/components/msr/CheckBox.vue")
+    CheckBox: defineAsyncComponent(
+      () => import("@/components/msr/CheckBox.vue")
     ),
-    LockInfo: defineAsyncComponent(() =>
-      import("@/components/msr/LockInfo.vue")
+    LockInfo: defineAsyncComponent(
+      () => import("@/components/msr/LockInfo.vue")
     ),
-    RowSkeleton: defineAsyncComponent(() =>
-      import("@/components/ui/skeletons/RowSkeleton.vue")
+    RowSkeleton: defineAsyncComponent(
+      () => import("@/components/ui/skeletons/RowSkeleton.vue")
     ),
   },
 };

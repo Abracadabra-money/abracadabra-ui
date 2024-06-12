@@ -13,10 +13,10 @@
     <BaseTokenInput
       :value="inputValue"
       :name="mimSavingRateInfo?.stakingToken?.name || 'MIM'"
-      :decimals="mimSavingRateInfo?.stakingToken.decimals"
-      :icon="mimSavingRateInfo?.stakingToken.icon || mimIcon"
+      :decimals="mimSavingRateInfo?.stakingToken?.decimals || 18"
+      :icon="mimSavingRateInfo?.stakingToken?.icon || mimIcon"
       :max="maxInputValue"
-      :disabled="isMimSavingRateInfoLoading"
+      :disabled="isMimSavingRateInfoLoading || !mimSavingRateInfo"
       :primaryMax="!isStakeAction"
       :tokenPrice="1"
       @updateInputValue="onUpdateStakeValue"
@@ -39,7 +39,7 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, type PropType } from "vue";
 import moment from "moment";
 import { formatUnits } from "viem";
 import { approveTokenViem } from "@/helpers/approval";
@@ -50,6 +50,8 @@ import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
 import { validateAction } from "@/helpers/mimSavingRate/validators";
 import mimIcon from "@/assets/images/tokens/MIM.png";
+import type { MimSavingRateInfo } from "@/helpers/mimSavingRate/getMimSavingRateInfo";
+import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 
 type ActiveTab = "stake" | "unstake";
 type TabItems = string[];
@@ -65,9 +67,8 @@ export default {
 
   props: {
     mimSavingRateInfo: {
-      type: null as any,
-      default: null,
-      required: false,
+      type: Object as PropType<MimSavingRateInfo | null>,
+      required: true,
     },
     isMimSavingRateInfoLoading: { type: Boolean },
   },
@@ -92,7 +93,9 @@ export default {
     ...mapGetters({ account: "getAccount", chainId: "getChainId" }),
 
     isUnsupportedChain(): boolean {
-      return this.chainId != this.mimSavingRateInfo?.chainId;
+      return (
+        this.chainId != (this.mimSavingRateInfo?.chainId || ARBITRUM_CHAIN_ID)
+      );
     },
 
     isStakeAction(): boolean {
@@ -104,8 +107,9 @@ export default {
     },
 
     isTokenApproved(): boolean {
+      if (!this.mimSavingRateInfo) return false;
       const { approvedAmount } =
-        this.mimSavingRateInfo?.userInfo.stakeToken || 0n;
+        this.mimSavingRateInfo?.userInfo?.stakeToken || 0n;
       return approvedAmount >= this.actionConfig.stakeAmount;
     },
 
@@ -114,13 +118,20 @@ export default {
     },
 
     maxInputValue(): bigint {
-      const { balance } = this.mimSavingRateInfo?.userInfo.stakeToken || 0n;
+      if (!this.mimSavingRateInfo) return 0n;
+      const { balance } = this.mimSavingRateInfo?.userInfo?.stakeToken || 0n;
       const { unlocked } = this.mimSavingRateInfo?.userInfo || 0n;
 
       return this.isStakeAction ? balance : unlocked;
     },
 
     actionValidationData() {
+      if (!this.mimSavingRateInfo)
+        return {
+          isAllowed: false,
+          isDisabled: true,
+          btnText: "Enter amount",
+        };
       return validateAction(
         this.mimSavingRateInfo,
         this.activeTab,
@@ -149,7 +160,7 @@ export default {
       this.actionConfig = {
         stakeAmount: 0n,
         withdrawAmount: 0n,
-        lockAmount: this.mimSavingRateInfo.userInfo.unlocked || 0n,
+        lockAmount: this.mimSavingRateInfo?.userInfo.unlocked || 0n,
       };
     },
 
@@ -174,7 +185,7 @@ export default {
     },
 
     async approveTokenHandler() {
-      if (this.isUnsupportedChain) return false;
+      if (this.isUnsupportedChain || !this.mimSavingRateInfo) return false;
 
       const notificationId = await this.createNotification(
         notification.approvePending
@@ -215,7 +226,7 @@ export default {
       );
 
       const { error }: any = await actions[this.actionMethodName](
-        this.mimSavingRateInfo?.lockingMultiRewardsContract,
+        this.mimSavingRateInfo!.lockingMultiRewardsContract,
         this.actionConfig
       );
 

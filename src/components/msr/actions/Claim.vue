@@ -39,7 +39,7 @@
 
 <script lang="ts">
 import moment from "moment";
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, type PropType } from "vue";
 import { formatUnits } from "viem";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { formatTokenBalance } from "@/helpers/filters";
@@ -47,12 +47,16 @@ import notification from "@/helpers/notification/notification";
 import { getRewards } from "@/helpers/mimSavingRate/actions/getRewards";
 import type { RewardTokenConfig } from "@/configs/stake/mimSavingRateConfig";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import type { MimSavingRateInfo } from "@/helpers/mimSavingRate/getMimSavingRateInfo";
 
 export default {
   emits: ["updateMimSavingRateInfo", "chooseLockAction"],
 
   props: {
-    mimSavingRateInfo: { type: Object },
+    mimSavingRateInfo: {
+      type: Object as PropType<MimSavingRateInfo | null>,
+      required: true,
+    },
     isMimSavingRateInfoLoading: { type: Boolean },
   },
 
@@ -87,7 +91,13 @@ export default {
     },
 
     isButtonDisabled() {
-      if (!this.account || this.isUnsupportedChain) return false;
+      if (
+        !this.account ||
+        this.isUnsupportedChain ||
+        !this.mimSavingRateInfo ||
+        this.isMimSavingRateInfoLoading
+      )
+        return false;
 
       return (
         (!this.isEarned && !this.isUserRewardLockAmount) ||
@@ -155,7 +165,7 @@ export default {
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
     async actionHandler() {
-      if (this.isButtonDisabled) return;
+      if (this.isButtonDisabled || !this.mimSavingRateInfo) return false;
 
       if (!this.account && !this.isUnsupportedChain) {
         // @ts-ignore

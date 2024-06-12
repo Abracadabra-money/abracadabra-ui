@@ -26,6 +26,7 @@ import { mapGetters } from "vuex";
 import {
   getMimSavingRateInfo,
   type MimSavingRateInfo,
+  emptyMimSavingRateInfo,
 } from "@/helpers/mimSavingRate/getMimSavingRateInfo";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 import { useImage } from "@/helpers/useImage";
@@ -59,7 +60,7 @@ export default {
       ] as MSRAction[],
       activeIndex: 1 as number,
       itemWidth: 200,
-      mimSavingRateInfo: null as MimSavingRateInfo | null,
+      mimSavingRateInfo: emptyMimSavingRateInfo as MimSavingRateInfo,
       isMimSavingRateInfoLoading: true,
     };
   },
@@ -137,8 +138,6 @@ export default {
       );
 
       this.isMimSavingRateInfoLoading = false;
-
-      console.log(this.mimSavingRateInfo);
     },
   },
 

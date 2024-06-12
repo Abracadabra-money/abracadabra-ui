@@ -2,6 +2,14 @@ import type { Address } from "viem";
 import type { ContractInfo, PublicClient } from "@/types/global";
 import type { RewardTokenConfig } from "@/configs/stake/mimSavingRateConfig";
 
+
+export type UserLock = {
+  amount: bigint;
+  unlockTime: bigint;
+  account: Address;
+  fromStorage?: boolean;
+};
+
 export type UserInfo = {
   stakeToken: {
     balance: bigint;
@@ -18,7 +26,7 @@ export type UserInfo = {
   };
   locked: bigint;
   unlocked: bigint;
-  userLocks: bigint[];
+  userLocks: UserLock[];
   lastLockIndex: bigint;
   userLocksLength: bigint;
   rewards: {
