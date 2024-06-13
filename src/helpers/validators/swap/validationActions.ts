@@ -1,14 +1,18 @@
+import type { ActionConfig } from "@/helpers/pools/swap/getSwapInfo";
 import { validateConnection } from "@/helpers/validators/validateConnection";
-
 const SUPPORTED_CHAINS = [2222, 81457];
 
-export const validationActions = (actionConfig: any, chainId: number) => {
+export const validationActions = (
+  actionConfig: ActionConfig,
+  selectedNetwork: number,
+  chainId: number
+) => {
   const { fromToken, toToken, fromInputValue, toInputValue } = actionConfig;
 
   const connectedError = validateConnection();
   if (connectedError.btnText) return connectedError;
 
-  const chainError = validateChain(chainId);
+  const chainError = validateChain(selectedNetwork, chainId);
   if (chainError.btnText) return chainError;
 
   if (fromToken.config.name === "Select Token")
@@ -36,8 +40,15 @@ export const validationActions = (actionConfig: any, chainId: number) => {
   return { btnText: "Preview", isAllowed: true, method: "swap" };
 };
 
-const validateChain = (connectedChainId: number, btnText = "Switch to KAVA") => {
-  if (!SUPPORTED_CHAINS.includes(connectedChainId))
+const validateChain = (
+  selectedNetwork: number,
+  connectedChainId: number,
+  btnText = "Switch to Chain"
+) => {
+  if (
+    !SUPPORTED_CHAINS.includes(connectedChainId) ||
+    selectedNetwork !== connectedChainId
+  )
     return {
       btnText,
       isAllowed: true,

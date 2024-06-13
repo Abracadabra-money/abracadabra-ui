@@ -4,7 +4,7 @@
     <span
       >1 {{ fromTokenName }} = {{ tokensRateToShow }} {{ toTokenName }}</span
     >
-    <span>({{ price }})</span>
+    <span class="value-usd">({{ price }})</span>
   </div>
   <div v-else>-</div>
 </template>
@@ -118,9 +118,17 @@ export default {
 
 <style lang="scss" scoped>
 .current-price {
-  font-weight: 500;
   gap: 4px;
   display: flex;
   align-items: center;
+  color: #878b93;
+  font-weight: 500;
+  line-height: normal;
+}
+
+.value-usd {
+  color: #575c62;
+  font-weight: 400;
+  line-height: normal;
 }
 </style>
