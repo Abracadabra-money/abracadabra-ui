@@ -61,6 +61,7 @@ export default {
   computed: {
     ...mapGetters({
       account: "getAccount",
+      chainId: "getChainId",
       localUserLocks: "getUserLocks",
     }),
 
@@ -90,7 +91,11 @@ export default {
 
       const allAvailableLocks: UserLock[] = currentLocks
         .map((currentLock: UserLock) => {
-          return { ...currentLock, account: this.account };
+          return {
+            ...currentLock,
+            account: this.account,
+            chainId: this.mimSavingRateInfo?.chainId,
+          };
         })
         .concat(
           this.localUserLocks.data
@@ -106,13 +111,14 @@ export default {
                 (currentLock) => currentLock.unlockTime == lock.unlockTime
               );
               const properAccount = lock.account == this.account;
-
+             
               return (expired && !isFromCurrent) || !properAccount;
             })
         );
 
       this.userLocks = allAvailableLocks.filter(
-        (lock: UserLock) => lock.account === this.account
+        (lock: UserLock) =>
+          lock.account === this.account && lock.chainId == this.chainId
       );
 
       this.setUserLocks(allAvailableLocks);

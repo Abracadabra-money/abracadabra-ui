@@ -6,7 +6,8 @@ import type { RewardTokenConfig } from "@/configs/stake/mimSavingRateConfig";
 export type UserLock = {
   amount: bigint;
   unlockTime: bigint;
-  account: Address;
+  account?: Address;
+  chainId?: number;
   fromStorage?: boolean;
 };
 
