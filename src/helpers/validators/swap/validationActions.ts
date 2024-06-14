@@ -5,7 +5,8 @@ const SUPPORTED_CHAINS = [2222, 81457];
 export const validationActions = (
   actionConfig: ActionConfig,
   selectedNetwork: number,
-  chainId: number
+  chainId: number,
+  isApproving: boolean
 ) => {
   const { fromToken, toToken, fromInputValue, toInputValue } = actionConfig;
 
@@ -16,10 +17,10 @@ export const validationActions = (
   if (chainError.btnText) return chainError;
 
   if (fromToken.config.name === "Select Token")
-    return { btnText: "Select Token", isAllowed: false };
+    return { btnText: "Select token", isAllowed: false };
 
   if (toToken.config.name === "Select Token")
-    return { btnText: "Select Token", isAllowed: false };
+    return { btnText: "Select token", isAllowed: false };
 
   if (!fromInputValue || !toInputValue)
     return { btnText: "Enter amount", isAllowed: false };
@@ -30,6 +31,8 @@ export const validationActions = (
       isAllowed: false,
     };
 
+  if (isApproving) return { btnText: "Approving", isAllowed: false };
+
   if (fromInputValue > fromToken.userInfo.allowance)
     return {
       btnText: `Approve ${fromToken.config.name}`,
@@ -37,7 +40,7 @@ export const validationActions = (
       method: "approvefromToken",
     };
 
-  return { btnText: "Preview", isAllowed: true, method: "swap" };
+  return { btnText: "Review trade", isAllowed: true, method: "swap" };
 };
 
 const validateChain = (

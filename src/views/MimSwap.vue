@@ -59,6 +59,7 @@
           :disabled="!actionValidationData.isAllowed || isFetchSwapInfo"
           :warning="isWarningBtn"
           @click="actionHandler"
+          :loading="isApproving"
           >{{ actionValidationData.btnText }}</BaseButton
         >
       </div>
@@ -163,6 +164,7 @@ export default {
       } as ActionConfig),
       selectedNetwork: KAVA_CHAIN_ID,
       availableNetworks: [KAVA_CHAIN_ID, BLAST_CHAIN_ID],
+      isApproving: false,
     };
   },
 
@@ -178,7 +180,8 @@ export default {
       return validationActions(
         this.actionConfig,
         this.selectedNetwork,
-        this.chainId
+        this.chainId,
+        this.isApproving
       );
     },
 
@@ -437,6 +440,7 @@ export default {
     },
 
     async approveTokenHandler(contract: ContractInfo, valueToApprove: bigint) {
+      this.isApproving = true;
       const notificationId = await this.createNotification(
         notification.approvePending
       );
@@ -450,6 +454,7 @@ export default {
 
       await this.deleteNotification(notificationId);
       if (!approve) await this.createNotification(notification.approveError);
+      this.isApproving = false;
       return false;
     },
 

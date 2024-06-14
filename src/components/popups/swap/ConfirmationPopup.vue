@@ -41,7 +41,7 @@
 
     <PriceUpdatedBlock v-if="isUpdatedPrice" @updatedPrice="updatedPrice" />
 
-    <BaseButton :primary="true" @click="swapHandler">Confirm Swap</BaseButton>
+    <BaseButton :primary="true" @click="swapHandler">Confirm swap</BaseButton>
   </div>
 </template>
 
