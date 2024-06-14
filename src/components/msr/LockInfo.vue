@@ -82,46 +82,51 @@ export default {
   },
 
   watch: {
-    mimSavingRateInfo() {
-      if (!this.mimSavingRateInfo) return false;
-      const currentLocks: UserLock[] =
-        this.mimSavingRateInfo?.userInfo.userLocks.length > 0
-          ? this.mimSavingRateInfo?.userInfo.userLocks
-          : [];
+    mimSavingRateInfo: {
+      immediate: true,
+      handler() {
+        if (!this.mimSavingRateInfo) return false;
 
-      const allAvailableLocks: UserLock[] = currentLocks
-        .map((currentLock: UserLock) => {
-          return {
-            ...currentLock,
-            account: this.account,
-            chainId: this.mimSavingRateInfo?.chainId,
-          };
-        })
-        .concat(
-          this.localUserLocks.data
-            .map((lock: UserLock) => {
-              return {
-                ...lock,
-                fromStorage: true,
-              };
-            })
-            .filter((lock: UserLock) => {
-              const expired = Number(lock.unlockTime) * 1000 < this.currentDate;
-              const isFromCurrent = !!currentLocks.find(
-                (currentLock) => currentLock.unlockTime == lock.unlockTime
-              );
-              const properAccount = lock.account == this.account;
-             
-              return (expired && !isFromCurrent) || !properAccount;
-            })
+        const currentLocks: UserLock[] =
+          this.mimSavingRateInfo?.userInfo.userLocks.length > 0
+            ? this.mimSavingRateInfo?.userInfo.userLocks
+            : [];
+
+        const allAvailableLocks: UserLock[] = currentLocks
+          .map((currentLock: UserLock) => {
+            return {
+              ...currentLock,
+              account: this.account,
+              chainId: this.mimSavingRateInfo?.chainId,
+            };
+          })
+          .concat(
+            this.localUserLocks.data
+              .map((lock: UserLock) => {
+                return {
+                  ...lock,
+                  fromStorage: true,
+                };
+              })
+              .filter((lock: UserLock) => {
+                const expired =
+                  Number(lock.unlockTime) * 1000 < this.currentDate;
+                const isFromCurrent = !!currentLocks.find(
+                  (currentLock) => currentLock.unlockTime == lock.unlockTime
+                );
+                const properAccount = lock.account == this.account;
+
+                return (expired && !isFromCurrent) || !properAccount;
+              })
+          );
+
+        this.userLocks = allAvailableLocks.filter(
+          (lock: UserLock) =>
+            lock.account === this.account && lock.chainId == this.chainId
         );
 
-      this.userLocks = allAvailableLocks.filter(
-        (lock: UserLock) =>
-          lock.account === this.account && lock.chainId == this.chainId
-      );
-
-      this.setUserLocks(allAvailableLocks);
+        this.setUserLocks(allAvailableLocks);
+      },
     },
   },
 
