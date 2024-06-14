@@ -2,11 +2,22 @@
   <div class="swap-info">
     <div class="swap-info-item">
       <div class="item-head">
-        <img
-          class="info-icon"
-          src="@/assets/images/swap/price-impact-icon.png"
-          alt="Price impact icon"
-        />
+        <div class="info-icon-wrap">
+          <img
+            class="info-icon"
+            @mouseenter="showPriceImpactTooltip = true"
+            @mouseleave="showPriceImpactTooltip = false"
+            src="@/assets/images/swap/price-impact-icon.png"
+            alt="Price impact icon"
+          />
+
+          <div class="item-tooltip" v-if="showPriceImpactTooltip">
+            <p>
+              Amet minim mollit non deserunt ullamco est sit aliqua dolor do
+              amet sint.
+            </p>
+          </div>
+        </div>
         <h4 class="info-title">Price impact</h4>
       </div>
       <div
@@ -18,11 +29,25 @@
 
     <div class="swap-info-item">
       <div class="item-head">
-        <img
-          class="info-icon"
-          src="@/assets/images/swap/slippage-icon.png"
-          alt="Slippage icon"
-        />
+        <div class="info-icon-wrap">
+          <img
+            class="info-icon"
+            src="@/assets/images/swap/slippage-icon.png"
+            alt="Slippage icon"
+            @mouseenter="showSlippageTooltip = true"
+            @mouseleave="showSlippageTooltip = false"
+          />
+
+          <div class="item-tooltip" v-if="showSlippageTooltip">
+            <p class="item-tooltip-text">
+              Amet minim mollit non deserunt ullamco est sit aliqua dolor do
+              amet sint.
+            </p>
+
+            <p>Minimum Received</p>
+            <p>{{ minimumReceived }}</p>
+          </div>
+        </div>
         <h4 class="info-title">Slippage</h4>
       </div>
       <div class="info-value">{{ swapSlippage }}%</div>
@@ -30,11 +55,27 @@
 
     <div class="swap-info-item">
       <div class="item-head">
-        <img
-          class="info-icon"
-          src="@/assets/images/swap/fees-icon.png"
-          alt="Fees icon"
-        />
+        <div class="info-icon-wrap">
+          <img
+            class="info-icon"
+            @mouseenter="showFeesTooltip = true"
+            @mouseleave="showFeesTooltip = false"
+            src="@/assets/images/swap/fees-icon.png"
+            alt="Fees icon"
+          />
+
+          <div class="item-tooltip" v-if="showFeesTooltip">
+            <p class="item-tooltip-text">
+              Amet minim mollit non deserunt ullamco est sit aliqua dolor do
+              amet sint.
+            </p>
+            <p class="item-tooltip-text">Gas cost:</p>
+            <p class="item-tooltip-text">
+              Pool fee: {{ feesByCategory.poolFee }}
+            </p>
+            <p>Protocol comission: {{ feesByCategory.protocolComission }}</p>
+          </div>
+        </div>
         <h4 class="info-title">Fees</h4>
       </div>
       <div class="info-value">{{ swapFees }}</div>
@@ -55,9 +96,42 @@ export default {
     priceImpact: { type: [String, Number], default: 0 },
   },
 
+  data() {
+    return {
+      showFeesTooltip: false,
+      showSlippageTooltip: false,
+      showPriceImpactTooltip: false,
+    };
+  },
+
   computed: {
     isWarning() {
       return +this.priceImpact >= 15;
+    },
+
+    feesByCategory() {
+      if (!this.swapInfo.routes.length)
+        return {
+          gasCost: 0,
+          poolFee: 0,
+          protocolComission: 0,
+        };
+
+      const routeInfo: RouteInfo =
+        this.swapInfo.routes[this.swapInfo.routes.length - 1];
+
+      const toTokenPrice = this.actionConfig!.toToken.price;
+      const toTokenDecimals = this.actionConfig!.toToken.config.decimals;
+
+      return {
+        gasCost: 0,
+        poolFee: formatUSD(
+          Number(formatUnits(routeInfo.lpFee, toTokenDecimals)) * toTokenPrice
+        ),
+        protocolComission: formatUSD(
+          Number(formatUnits(routeInfo.mtFee, toTokenDecimals)) * toTokenPrice
+        ),
+      };
     },
 
     swapFees() {
@@ -76,6 +150,19 @@ export default {
 
     swapSlippage() {
       return formatUnits(this.actionConfig!.slippage, 2);
+    },
+
+    minimumReceived() {
+      const amount = formatUnits(
+        this.swapInfo.outputAmountWithSlippage,
+        this.actionConfig!.toToken.config.decimals
+      );
+      const tokenName =
+        this.actionConfig!.toToken.config.name === "Select Token"
+          ? ""
+          : this.actionConfig!.toToken.config.name;
+
+      return `${amount} ${tokenName}`;
     },
   },
 };
@@ -122,9 +209,37 @@ export default {
   align-items: center;
 }
 
+.info-icon-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .info-icon {
   width: 40px;
   height: 40px;
+  cursor: pointer;
+}
+
+.item-tooltip {
+  min-width: 306px;
+  width: 100%;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 20px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(16px);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.item-tooltip-text {
+  margin-bottom: 12px;
 }
 
 .info-title {
@@ -166,6 +281,11 @@ export default {
   .info-icon {
     width: 24px;
     height: 24px;
+  }
+
+  .item-tooltip {
+    left: 0;
+    transform: none;
   }
 
   .info-value {
