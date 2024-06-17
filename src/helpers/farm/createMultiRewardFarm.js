@@ -99,7 +99,7 @@ export const createMultiRewardFarm = async (config, account) => {
     },
     contractInfo: config.contract,
     farmRoi: totalApr, // TODO update ui
-    lpPrice: formatUnits(virtualPrice.result, stakingToken.decimals), // TODO update ui
+    lpPrice: Number(formatUnits(virtualPrice.result, stakingToken.decimals)), // TODO update ui
     tokensApr,
     farmTvl,
     isDeprecated: false,

@@ -1,4 +1,3 @@
-import { markRaw } from "vue";
 import { getFarmYieldAndLpPrice } from "@/helpers/farm/getFarmYieldAndLpPrice";
 import { getRoi } from "@/helpers/farm/getRoi";
 import { getTVL } from "@/helpers/farm/getTVL";
@@ -16,12 +15,43 @@ import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 import { createMultiRewardFarm } from "./createMultiRewardFarm";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 
-export const createFarmItemConfig = async (
+const emptyFarmData: FarmItem = {
+  name: "",
+  icon: "",
+  id: 0,
+  chainId: 1,
+  poolId: 0,
+  earnedTokenPrice: 0,
+  stakingToken: {
+    link: "",
+    name: "",
+    type: "",
+    contractInfo: {
+      address: "0x0000000000",
+      abi: [],
+    },
+  },
+  depositedBalance: {
+    token0: { name: "", icon: "" },
+    token1: { name: "", icon: "" },
+  },
+  contractInfo: {
+    address: "0x0000000000",
+    abi: [],
+  },
+  farmRoi: 0,
+  lpPrice: 0,
+  isDeprecated: false,
+  farmYield: 0,
+  farmTvl: 0,
+};
+
+export const createFarmData = async (
   farmId: number | string,
   chainId: number | string,
   account: Address | undefined,
   isExtended = true
-): Promise<any> => {
+): Promise<FarmItem> => {
   const farmsOnChain = farmsConfig.filter(
     (farm) => farm.contractChain == chainId
   );
@@ -30,7 +60,7 @@ export const createFarmItemConfig = async (
     ({ id }) => id === Number(farmId)
   );
 
-  if (!farmInfo) return null;
+  if (!farmInfo) return emptyFarmData;
 
   const publicClient = getPublicClient(Number(chainId));
 
@@ -115,9 +145,9 @@ export const createFarmItemConfig = async (
       publicClient,
       account
     );
-    return markRaw(farmItemConfig);
+    return farmItemConfig;
   }
-  return markRaw(farmItemConfig);
+  return farmItemConfig;
 };
 
 const getPoolInfo = async (

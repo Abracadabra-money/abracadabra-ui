@@ -1,3 +1,4 @@
+import type { UserInfo } from "@/helpers/farm/getFarmUserInfo";
 import type { Address } from "viem";
 
 type RewardToken = {
@@ -53,7 +54,7 @@ export type FarmItem = {
   id: number;
   chainId: number;
   poolId?: number;
-  earnedTokenPrice: number;
+  earnedTokenPrice?: number;
   stakingToken: {
     link: string;
     name: string;
@@ -68,30 +69,30 @@ export type FarmItem = {
   farmRoi: number;
   lpPrice: number;
   isDeprecated: boolean;
-  farmYield: number;
+  farmYield?: number;
   accountInfo?: FarmAccountInfo;
   farmTvl?: number;
 };
 
 export type FarmAccountInfo = {
   allowance: string;
-  userInfo: object;
+  userInfo: UserInfo;
   userReward: string;
   tokensBalanceInfo: {
     token0: {
-      name: any;
+      name: string;
       amount: number;
       amountInUsd: number;
     };
     token1: {
-      name: any;
+      name: string;
       amount: number;
       amountInUsd: number;
     };
   } | null;
   balance: string;
   depositedBalance: string;
-  depositedBalanceBigInt: BigInt;
+  depositedBalanceBigInt: bigint;
 };
 
 export type PoolInfo = {

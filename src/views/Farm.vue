@@ -78,7 +78,7 @@ import FarmListPopup from "@/components/farm/FarmListPopup.vue";
 import FarmPositionMobilePopup from "@/components/farm/FarmPositionMobilePopup.vue";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification";
-import { createFarmItemConfig } from "@/helpers/farm/createFarmItemConfig";
+import { createFarmData } from "@/helpers/farm/createFarmData";
 import { parseUnits, formatUnits } from "viem";
 import { approveTokenViem } from "@/helpers/approval";
 import actions from "@/helpers/farm/actions";
@@ -379,7 +379,7 @@ export default {
     },
 
     async getSelectedFarm() {
-      this.selectedFarm = await createFarmItemConfig(
+      this.selectedFarm = await createFarmData(
         this.id,
         this.farmChainId,
         this.account
