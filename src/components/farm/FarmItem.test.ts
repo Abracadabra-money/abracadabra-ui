@@ -2,13 +2,19 @@ import { describe, it, expect } from "vitest";
 import { shallowMount } from "@vue/test-utils";
 import FarmItem from "@/components/farm/FarmItem.vue";
 import TokenChainIcon from "@/components/ui/icons/TokenChainIcon.vue";
+import { emptyFarmData } from "@/helpers/farm/createFarmData";
+
+const farm = {
+  ...emptyFarmData,
+  name: "Farm A",
+  farmRoi: 0.05,
+  farmTvl: 1000000,
+  isDeprecated: true,
+  icon: "farm-icon",
+};
 
 describe("FarmItem", () => {
   it("renders the farm name", () => {
-    const farm = {
-      name: "Farm A",
-      // other farm properties
-    };
     const wrapper = shallowMount(FarmItem, {
       propsData: {
         farm,
@@ -19,9 +25,6 @@ describe("FarmItem", () => {
   });
 
   it("renders the APR value", () => {
-    const farm = {
-      farmRoi: 0.05,
-    };
     const wrapper = shallowMount(FarmItem, {
       propsData: {
         farm,
@@ -32,9 +35,6 @@ describe("FarmItem", () => {
   });
 
   it("renders the TVL value", () => {
-    const farm = {
-      farmTvl: 1000000,
-    };
     const wrapper = shallowMount(FarmItem, {
       propsData: {
         farm,
@@ -45,10 +45,6 @@ describe("FarmItem", () => {
   });
 
   it("renders the farm status flag", () => {
-    const farm = {
-      isDeprecated: true,
-      // other farm properties
-    };
     const wrapper = shallowMount(FarmItem, {
       propsData: {
         farm,
@@ -59,10 +55,6 @@ describe("FarmItem", () => {
   });
 
   it("renders the farm icon", () => {
-    const farm = {
-      icon: "farm-icon",
-      // other farm properties
-    };
     const wrapper = shallowMount(FarmItem, {
       propsData: {
         farm,
