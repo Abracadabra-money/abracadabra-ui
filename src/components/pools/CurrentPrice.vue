@@ -6,7 +6,7 @@
     >
     <span class="value-usd">({{ price }})</span>
   </div>
-  <div v-else>-</div>
+  <div class="empty" v-else></div>
 </template>
 
 <script lang="ts">
@@ -130,5 +130,9 @@ export default {
   color: #575c62;
   font-weight: 400;
   line-height: normal;
+}
+
+.empty {
+  height: 24px;
 }
 </style>

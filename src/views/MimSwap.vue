@@ -45,6 +45,8 @@
           :swapInfo="swapInfo"
           :actionConfig="actionConfig"
           :priceImpact="priceImpactPair"
+          :selectedNetwork="selectedNetwork"
+          :nativeTokenPrice="nativeTokenPrice"
         />
 
         <SwapRouterInfoBlock
@@ -116,8 +118,12 @@ import { getAllUniqueTokens } from "@/helpers/pools/swap/tokens";
 import { getTokenListByPools } from "@/helpers/pools/swap/tokens";
 import { getAllPoolsByChain } from "@/helpers/pools/swap/magicLp";
 import { KAVA_CHAIN_ID, BLAST_CHAIN_ID } from "@/constants/global";
-import type { PriceInfo, TokenInfo } from "@/helpers/pools/swap/tokens";
-import { getCoinsPrices, type TokenPrice } from "@/helpers/prices/defiLlama";
+import type { TokenInfo } from "@/helpers/pools/swap/tokens";
+import {
+  getCoinsPrices,
+  getNativeTokensPrice,
+  type TokenPrice,
+} from "@/helpers/prices/defiLlama";
 import { validationActions } from "@/helpers/validators/swap/validationActions";
 
 const emptyTokenInfo: TokenInfo = {
@@ -165,6 +171,7 @@ export default {
       selectedNetwork: KAVA_CHAIN_ID,
       availableNetworks: [KAVA_CHAIN_ID, BLAST_CHAIN_ID],
       isApproving: false,
+      nativeTokenPrice: [] as { chainId: number; price: number }[],
     };
   },
 
@@ -189,14 +196,6 @@ export default {
       const { payload }: any = this.swapInfo.transactionInfo;
       if (!Object.keys(payload).length) return [];
       return Object.values(payload);
-    },
-
-    nativeTokenPrice(): number {
-      return (
-        this.prices.find(
-          ({ address }: PriceInfo) => address === this.wethAddress
-        )?.price || 0
-      );
     },
 
     fromTokenPrice() {
@@ -309,7 +308,7 @@ export default {
       this.createSwapInfo();
     },
 
-    selectedNetwork() {
+    async selectedNetwork() {
       this.resetActionCaonfig();
       this.createSwapInfo();
     },
@@ -492,7 +491,6 @@ export default {
     },
 
     async createSwapInfo() {
-      // this.isFetchSwapInfo = true;
       const filteredPoolsConfig = poolsConfig.filter(
         ({ chainId }) => chainId === this.selectedNetwork
       );
@@ -501,7 +499,6 @@ export default {
         this.tokensList = [];
         this.poolsList = [];
         this.resetActionCaonfig();
-        // this.isFetchSwapInfo = false;
         return;
       }
 
@@ -518,7 +515,6 @@ export default {
         this.selectedNetwork,
         this.account
       );
-      // this.isFetchSwapInfo = false;
     },
 
     changeNetwork(network: number) {
@@ -527,18 +523,9 @@ export default {
   },
 
   async created() {
-    await this.createSwapInfo();
+    this.nativeTokenPrice = await getNativeTokensPrice(this.availableNetworks);
 
-    // NOTICE
-    // TODO: make it dynamic
-    // if (this.tokensList.length) {
-    //   this.actionConfig.fromToken = this.tokensList.find(
-    //     (token: TokenInfo) => token.config.name === "MIM"
-    //   );
-    //   this.actionConfig.toToken = this.tokensList.find(
-    //     (token: TokenInfo) => token.config.name === "USDB"
-    //   );
-    // }
+    await this.createSwapInfo();
 
     this.updateInterval = setInterval(async () => {
       await this.createSwapInfo();
