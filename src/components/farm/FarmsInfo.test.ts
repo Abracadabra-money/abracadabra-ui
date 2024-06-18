@@ -3,6 +3,7 @@ import { ethers } from "ethers";
 import { describe, it, expect } from "vitest";
 import { shallowMount } from "@vue/test-utils";
 import FarmsInfo from "@/components/farm/FarmsInfo.vue";
+import { emptyFarmData } from "@/helpers/farm/createFarmData";
 
 const store = new Vuex.Store({
   modules: {
@@ -16,6 +17,28 @@ const store = new Vuex.Store({
     },
   },
 });
+
+const farm = {
+  ...emptyFarmData,
+  accountInfo: {
+    allowance: "0",
+    userInfo: {
+      amount: "0",
+      amountBigInt: 0n,
+      rewardDebt: "0",
+      remainingIceTokenReward: "0",
+    },
+    userReward: "10",
+    rewardTokensInfo: [
+      { earned: "20", price: 0 },
+      { earned: "30", price: 2.5 },
+    ],
+    balance: "0",
+    depositedBalance: "0",
+    depositedBalanceBigInt: 0n,
+  },
+  earnedTokenPrice: 1.5,
+};
 
 describe("FarmsInfo", () => {
   it("renders the title and description correctly", () => {
@@ -38,15 +61,7 @@ describe("FarmsInfo", () => {
   it("calculates and displays the total spell rewards correctly", () => {
     const wrapper = shallowMount(FarmsInfo, {
       propsData: {
-        farms: [
-          {
-            isMultiReward: false,
-            accountInfo: {
-              userReward: "10",
-            },
-            earnedTokenPrice: 1.5,
-          },
-        ],
+        farms: [farm],
       },
       global: { plugins: [store] },
     });
@@ -63,17 +78,7 @@ describe("FarmsInfo", () => {
   it("calculates and displays the total arbitrum rewards correctly", () => {
     const wrapper = shallowMount(FarmsInfo, {
       propsData: {
-        farms: [
-          {
-            isMultiReward: true,
-            accountInfo: {
-              rewardTokensInfo: [
-                { earned: "20" },
-                { earned: "30", price: 2.5 },
-              ],
-            },
-          },
-        ],
+        farms: [farm],
       },
       global: { plugins: [store] },
     });
