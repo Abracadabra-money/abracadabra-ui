@@ -1,24 +1,54 @@
 import { shallowMount } from "@vue/test-utils";
 import { describe, it, expect } from "vitest";
 import AprTooltip from "@/components/ui/tooltips/AprTooltip.vue";
+import { emptyFarmData } from "@/helpers/farm/createFarmData";
+import type { Address } from "viem";
+
+const farm = {
+  ...emptyFarmData,
+  config: {
+    name: "",
+    icon: "",
+    contractChain: 1,
+    id: 0,
+    stakingToken: {
+      name: "",
+      type: "",
+      link: "",
+      abi: [],
+    },
+    contract: {
+      name: "",
+      address: "0x00000" as Address,
+      abi: [],
+    },
+    rewardTokens: [
+      {
+        address: "0x123" as Address,
+        icon: "token1.png",
+        name: "token1",
+        decimals: 18,
+        oracle: "0x123" as Address,
+        abi: [],
+      },
+      {
+        address: "0x456" as Address,
+        icon: "token2.png",
+        name: "token2",
+        decimals: 18,
+        oracle: "0x456" as Address,
+        abi: [],
+      },
+    ],
+  },
+  farmRoi: 0.15,
+};
 
 describe("AprTooltip", () => {
   it("renders correctly", () => {
     const wrapper = shallowMount(AprTooltip, {
       props: {
-        farm: {
-          tokensApr: [
-            { address: "0x123", apr: 0.05 },
-            { address: "0x456", apr: 0.1 },
-          ],
-          config: {
-            rewardTokens: [
-              { address: "0x123", icon: "token1.png" },
-              { address: "0x456", icon: "token2.png" },
-            ],
-          },
-          farmRoi: 0.15,
-        },
+        farm: farm,
         top: false,
       },
     });
