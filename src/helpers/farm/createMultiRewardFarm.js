@@ -103,6 +103,7 @@ export const createMultiRewardFarm = async (config, account) => {
     tokensApr,
     farmTvl,
     isDeprecated: false,
+    isNew: config.isNew,
   };
 
   if (account)

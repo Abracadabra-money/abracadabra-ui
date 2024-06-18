@@ -1,4 +1,7 @@
-import { getFarmYieldAndLpPrice } from "@/helpers/farm/getFarmYieldAndLpPrice";
+import {
+  type FarmYieldAndPrice,
+  getFarmYieldAndLpPrice,
+} from "@/helpers/farm/getFarmYieldAndLpPrice";
 import { getRoi } from "@/helpers/farm/getRoi";
 import { getTVL } from "@/helpers/farm/getTVL";
 import { getFarmUserInfo } from "@/helpers/farm/getFarmUserInfo";
@@ -94,16 +97,17 @@ export const createFarmData = async (
     abi: farmInfo.stakingToken.abi,
   };
 
-  const { farmYield, lpPrice }: any = await getFarmYieldAndLpPrice(
-    stakingTokenContractInfo,
-    contractInfo,
-    poolInfo,
-    farmInfo,
-    MIMPrice,
-    SPELLPrice,
-    chainId,
-    publicClient
-  );
+  const { farmYield, lpPrice }: FarmYieldAndPrice =
+    await getFarmYieldAndLpPrice(
+      stakingTokenContractInfo,
+      contractInfo,
+      poolInfo,
+      farmInfo,
+      MIMPrice,
+      SPELLPrice,
+      chainId,
+      publicClient
+    );
 
   const farmRoi = farmYield ? await getRoi(farmYield, SPELLPrice) : farmYield;
 
