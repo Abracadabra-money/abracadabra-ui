@@ -69,6 +69,8 @@ export type FarmItem = {
   farmRoi: number;
   lpPrice: number;
   isDeprecated: boolean;
+  isNew?: boolean;
+  isMultiReward?: boolean;
   farmYield?: number;
   accountInfo?: FarmAccountInfo;
   farmTvl?: number;

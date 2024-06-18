@@ -5,16 +5,18 @@
     <img src="@/assets/images/farm-lp-arrow.svg" alt="" />
   </a>
 </template>
-<script>
+
+<script lang="ts">
 import { useImage } from "@/helpers/useImage";
 
 export default {
   props: { link: { type: String, required: true } },
+
   computed: {
     icon() {
       const icons = ["sushi", "curve", "crv"];
       let currentIcon = "";
-      icons.forEach((icon, idx) => {
+      icons.forEach((icon) => {
         if (this.link.includes(icon)) {
           currentIcon = icon == "crv" ? "curve" : icon;
         }
@@ -25,6 +27,7 @@ export default {
   },
 };
 </script>
+
 <style lang="scss">
 .farm-link {
   display: flex;

@@ -15,7 +15,7 @@ import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 import { createMultiRewardFarm } from "./createMultiRewardFarm";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 
-const emptyFarmData: FarmItem = {
+export const emptyFarmData: FarmItem = {
   name: "",
   icon: "",
   id: 0,
@@ -131,6 +131,7 @@ export const createFarmData = async (
     farmYield,
     lpPrice,
     isDeprecated,
+    isNew: farmInfo.isNew,
   };
 
   if (isExtended)
