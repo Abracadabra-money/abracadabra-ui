@@ -121,4 +121,8 @@ export type TokenApr = {
 export type RewardTokenInfo = {
   earned: string | number;
   price: number;
-};
+  balance: string | number;
+  allowance: string | number;
+  rewards: string | number;
+  usd: string | number;
+} & RewardToken;

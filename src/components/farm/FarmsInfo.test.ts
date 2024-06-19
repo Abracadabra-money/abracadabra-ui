@@ -4,6 +4,7 @@ import { describe, it, expect } from "vitest";
 import { shallowMount } from "@vue/test-utils";
 import FarmsInfo from "@/components/farm/FarmsInfo.vue";
 import { emptyFarmData } from "@/helpers/farm/createFarmData";
+import type { Address } from "viem";
 
 const store = new Vuex.Store({
   modules: {
@@ -30,8 +31,34 @@ const farm = {
     },
     userReward: "10",
     rewardTokensInfo: [
-      { earned: "20", price: 0 },
-      { earned: "30", price: 2.5 },
+      {
+        earned: "20",
+        price: 0,
+        balance: "0",
+        allowance: "0",
+        rewards: "0",
+        usd: "0",
+        name: "",
+        icon: "",
+        address: "0x000" as Address,
+        decimals: 18,
+        abi: [],
+        oracle: "0x000" as Address,
+      },
+      {
+        earned: "30",
+        price: 2.5,
+        balance: "0",
+        allowance: "0",
+        rewards: "0",
+        usd: "0",
+        name: "",
+        icon: "",
+        address: "0x000" as Address,
+        decimals: 18,
+        abi: [],
+        oracle: "0x000" as Address,
+      },
     ],
     balance: "0",
     depositedBalance: "0",
