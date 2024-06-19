@@ -92,7 +92,7 @@ export default {
     },
 
     async getMarketsList() {
-      this.farmsList = await getFarmsList(this.chainId, false);
+      this.farmsList = await getFarmsList();
     },
   },
 
