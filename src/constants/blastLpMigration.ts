@@ -9,3 +9,5 @@ export const LOCK_CONTRACT_ADDRESS: Address =
 
 export const MAGIC_LP_ADDRESS: Address =
   "0x163B234120aaE59b46b228d8D88f5Bc02e9baeEa";
+
+export const DEFAULT_DEADLINE_DURATION = 60n * 10n; // 10 minutes

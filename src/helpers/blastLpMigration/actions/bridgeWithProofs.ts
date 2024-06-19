@@ -1,5 +1,8 @@
 import type { Address } from "viem";
-import { BLAST_BRIDGE_ADDRESS } from "@/constants/blastLpMigration";
+import {
+  BLAST_BRIDGE_ADDRESS,
+  DEFAULT_DEADLINE_DURATION,
+} from "@/constants/blastLpMigration";
 import BlastMagicLPBridgeAbi from "@/abis/BlastMagicLPBridge";
 import merkleProof from "../merkleProof.json";
 import {
@@ -8,17 +11,22 @@ import {
   waitForTransactionReceiptHelper,
 } from "@/helpers/walletClienHelper";
 
+import moment from "moment";
+
 import { getEstimateBridgingFee } from "../beam";
+import { setPermit } from "../permit";
 
 type BridgePayload = {
   lpAmount: bigint;
   minMIMAmount: bigint;
   minUSDBAmount: bigint;
+  deadline?: bigint;
 };
 
 export const bridgeWithProofs = async (
   account: Address,
-  payload: BridgePayload
+  payload: BridgePayload,
+  usePermit: boolean = false
 ) => {
   try {
     const proof = merkleProof.items.find(
@@ -27,22 +35,46 @@ export const bridgeWithProofs = async (
 
     const fees = await getEstimateBridgingFee();
 
-    const args = [
-      payload.lpAmount,
-      payload.minMIMAmount,
-      payload.minUSDBAmount,
-      fees,
-      proof,
-    ];
+    const deadline =
+      payload.deadline ??
+      BigInt(moment().unix() + Number(DEFAULT_DEADLINE_DURATION));
+
+    const signature = usePermit
+      ? await setPermit(account, payload.lpAmount, deadline)
+      : undefined;
+
+    const args = usePermit
+      ? [
+          payload.lpAmount,
+          payload.minMIMAmount,
+          payload.minUSDBAmount,
+          fees,
+          payload.deadline,
+          signature?.v,
+          signature?.r,
+          signature?.s,
+          proof,
+        ]
+      : [
+          payload.lpAmount,
+          payload.minMIMAmount,
+          payload.minUSDBAmount,
+          fees,
+          proof,
+        ];
 
     const value = fees.mimGas + fees.usdbGas;
+
+    const functionName = usePermit
+      ? "bridgeWithPermitAndProofs"
+      : "bridgeWithProofs";
 
     const { request } = await simulateContractHelper({
       constract: {
         address: BLAST_BRIDGE_ADDRESS,
         abi: BlastMagicLPBridgeAbi,
       },
-      functionName: "bridgeWithProofs",
+      functionName,
       args,
       value,
     });
