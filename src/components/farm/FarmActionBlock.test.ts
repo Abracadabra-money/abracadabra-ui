@@ -1,14 +1,37 @@
 import { describe, it, expect } from "vitest";
 import { shallowMount } from "@vue/test-utils";
 import FarmActionBlock from "@/components/farm/FarmActionBlock.vue";
+import { emptyFarmData } from "@/helpers/farm/createFarmData";
+import type { Address } from "viem";
+
+const farm = {
+  ...emptyFarmData,
+  config: {
+    name: "",
+    icon: "",
+    contractChain: 1,
+    id: 0,
+    stakingToken: {
+      name: "Token 1",
+      type: "",
+      link: "",
+      abi: [],
+    },
+    contract: {
+      name: "",
+      address: "0x00000" as Address,
+      abi: [],
+    },
+  },
+};
 
 describe("FarmActionBlock", () => {
   it("renders the component correctly", () => {
     const wrapper = shallowMount(FarmActionBlock, {
       propsData: {
-        selectedFarm: { name: "Farm 1", stakingToken: { name: "Token 1" } },
+        selectedFarm: farm,
         inputTitleText: "Input Title",
-        max: BigInt(100),
+        max: 100n,
         error: "",
         value: "",
         isButtonDisabled: false,
@@ -22,9 +45,9 @@ describe("FarmActionBlock", () => {
   it("emits the updateValue event when the input value is updated", () => {
     const wrapper = shallowMount(FarmActionBlock, {
       propsData: {
-        selectedFarm: { name: "Farm 1", stakingToken: { name: "Token 1" } },
+        selectedFarm: farm,
         inputTitleText: "Input Title",
-        max: BigInt(100),
+        max: 100n,
         error: "",
         value: "",
         isButtonDisabled: false,
@@ -42,9 +65,9 @@ describe("FarmActionBlock", () => {
   it("disables the button when isButtonDisabled prop is true", () => {
     const wrapper = shallowMount(FarmActionBlock, {
       propsData: {
-        selectedFarm: { name: "Farm 1", stakingToken: { name: "Token 1" } },
+        selectedFarm: farm,
         inputTitleText: "Input Title",
-        max: BigInt(100),
+        max: 100n,
         error: "",
         value: "",
         isButtonDisabled: true,
@@ -59,9 +82,9 @@ describe("FarmActionBlock", () => {
   it("enables the button when isButtonDisabled prop is false", () => {
     const wrapper = shallowMount(FarmActionBlock, {
       propsData: {
-        selectedFarm: { name: "Farm 1", stakingToken: { name: "Token 1" } },
+        selectedFarm: farm,
         inputTitleText: "Input Title",
-        max: BigInt(100),
+        max: 100n,
         error: "",
         value: "",
         isButtonDisabled: false,
