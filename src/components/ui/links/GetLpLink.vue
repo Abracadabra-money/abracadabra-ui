@@ -1,6 +1,6 @@
 <template>
   <a class="farm-link" :href="link" target="_blank">
-    <img :src="icon" />
+    <img :src="icon" v-if="icon" />
     <p>Get LP’s</p>
     <img src="@/assets/images/farm-lp-arrow.svg" alt="" />
   </a>
@@ -22,7 +22,9 @@ export default {
         }
       });
 
-      return useImage(`assets/images/get-lp-icons/${currentIcon}.png`);
+      return currentIcon
+        ? useImage(`assets/images/get-lp-icons/${currentIcon}.png`)
+        : "";
     },
   },
 };

@@ -95,7 +95,7 @@ export type FarmAccountInfo = {
     };
   } | null;
   rewardTokensInfo?: RewardTokenInfo[];
-  balance: string;
+  balance: string | bigint;
   depositedBalance: string;
   depositedBalanceBigInt: bigint;
 };

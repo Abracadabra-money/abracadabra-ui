@@ -32,7 +32,7 @@ export default {
   props: {
     selectedFarm: { type: Object as PropType<FarmItem> },
     inputTitleText: { type: String },
-    max: { type: BigInt as any as PropType<bigint> },
+    max: { type: BigInt as any as PropType<bigint>, required: true },
     error: { type: String },
     value: { type: String },
     isButtonDisabled: { type: Boolean },
