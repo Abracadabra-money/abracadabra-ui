@@ -158,7 +158,7 @@ export default {
       }
       return !this.isUnstake
         ? (this.selectedFarm?.accountInfo.balance as bigint)
-        : this.selectedFarm?.accountInfo?.depositedBalanceBigInt;
+        : this.selectedFarm?.accountInfo?.depositedBalanceBigInt || 0n;
     },
     error() {
       return this.inputAmount > this.max

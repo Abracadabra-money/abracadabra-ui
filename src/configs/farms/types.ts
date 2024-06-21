@@ -21,7 +21,7 @@ export type FarmConfig = {
   stakingToken: {
     name: string;
     address?: Address;
-    decimals?: number;
+    decimals: number;
     type: string;
     link: string;
     abi: any;
@@ -81,7 +81,7 @@ export type FarmItem = {
 export type FarmAccountInfo = {
   allowance: string;
   userInfo: UserInfo;
-  userReward: string;
+  userReward?: string;
   tokensBalanceInfo?: {
     token0: {
       name: string;
@@ -97,7 +97,7 @@ export type FarmAccountInfo = {
   rewardTokensInfo?: RewardTokenInfo[];
   balance: string | bigint;
   depositedBalance: string;
-  depositedBalanceBigInt: bigint;
+  depositedBalanceBigInt?: bigint;
 };
 
 export type PoolInfo = {

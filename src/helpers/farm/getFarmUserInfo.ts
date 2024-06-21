@@ -6,8 +6,8 @@ import { formatUnits, type Address } from "viem";
 export type UserInfo = {
   amount: string;
   amountBigInt: bigint;
-  rewardDebt: string;
-  remainingIceTokenReward: string;
+  rewardDebt?: string;
+  remainingIceTokenReward?: string;
 };
 
 export const getFarmUserInfo = async (

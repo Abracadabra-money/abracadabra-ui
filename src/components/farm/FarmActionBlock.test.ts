@@ -14,6 +14,7 @@ const farm = {
     stakingToken: {
       name: "Token 1",
       type: "",
+      decimals:18,
       link: "",
       abi: [],
     },

@@ -15,6 +15,7 @@ const farm = {
       name: "",
       type: "",
       link: "",
+      decimals: 18,
       abi: [],
     },
     contract: {
