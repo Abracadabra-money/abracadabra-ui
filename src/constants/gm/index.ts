@@ -2,7 +2,7 @@ import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
 import type { Address } from "viem";
 
 export const ORDER_AGENT: Address =
-  "0x8157075B278718C3c075043FAa85822Ad98d60F2";
+  "0x8e2c80487d847478Ca3F2174fb50BdFBdB2cD862";
 export const GMX_READER: Address = "0xf60becbba223EEA9495Da3f606753867eC10d139";
 export const DATA_STORE: Address = "0xFD70de6b91282D8017aA4E741e9Ae325CAb992d8";
 
