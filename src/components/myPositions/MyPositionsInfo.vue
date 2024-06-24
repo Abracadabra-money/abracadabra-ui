@@ -30,10 +30,20 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import type { PropType } from "vue";
+
+export type TotalAssetsData = {
+  title: string;
+  value: string | number;
+};
+
 export default {
   props: {
-    totalAssetsData: { type: Array },
+    totalAssetsData: {
+      type: Array as PropType<TotalAssetsData[]>,
+      required: true,
+    },
   },
 };
 </script>

@@ -27,7 +27,7 @@
         />
 
         <div class="testing-chip" v-if="showTestnetChip">
-          <p>Artion Testnet</p>
+          <p>Bartio Testnet</p>
         </div>
 
         <DepositButton :cauldron="cauldron" v-if="isActiveChain" />
