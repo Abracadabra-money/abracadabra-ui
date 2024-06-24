@@ -115,16 +115,17 @@ import notification from "@/helpers/notification/notification";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import { waitForMessageReceived } from "@layerzerolabs/scan-client";
 import { BLAST_BRIDGE_ADDRESS } from "@/constants/blastLpMigration";
-import type { UserInfo } from "@/helpers/blastLpMigration/getUserInfo";
-// import { notificationErrorMsg } from "@/helpers/notification/notificationError";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError";
 import { bridgeWithProofs } from "@/helpers/blastLpMigration/actions/bridgeWithProofs";
+import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
+import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
 
 const BLAST_LZ_CHAIN_ID = 243;
 
 export default {
   props: {
     userInfo: {
-      type: Object as PropType<UserInfo | null>,
+      type: Object as any,
       required: true,
     },
     poolInfo: {
@@ -135,10 +136,10 @@ export default {
       default: 0n,
       required: true,
     },
-    previewRemoveLiquidityResult: {
-      type: Object as PropType<any>,
-      required: true,
-    },
+    // previewRemoveLiquidityResult: {
+    //   type: Object as PropType<any>,
+    //   required: true,
+    // },
   },
 
   data() {
@@ -216,8 +217,35 @@ export default {
     },
 
     buttonText() {
+      if (!this.usePermit && !this.isLpApprove) return "Approve";
       if (this.isActionProcessing) return "Processing...";
       return "Remove ";
+    },
+
+    previewRemoveLiquidityResult() {
+      if (!this.poolInfo || !this.userInfo)
+        return { baseAmountOut: 0n, quoteAmountOut: 0n };
+
+      const previewRemoveLiquidityResult = previewRemoveLiquidity(
+        this.userInfo.balance,
+        this.poolInfo
+      );
+
+      previewRemoveLiquidityResult.baseAmountOut = applySlippageToMinOutBigInt(
+        100n,
+        previewRemoveLiquidityResult.baseAmountOut
+      );
+
+      previewRemoveLiquidityResult.quoteAmountOut = applySlippageToMinOutBigInt(
+        100n,
+        previewRemoveLiquidityResult.quoteAmountOut
+      );
+
+      return previewRemoveLiquidityResult;
+    },
+
+    isLpApprove() {
+      return this.userInfo.balance <= this.userInfo.allowance;
     },
   },
 
@@ -228,6 +256,39 @@ export default {
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
     async actionHandler() {
+      if (!this.usePermit && !this.isLpApprove) {
+        await this.approveAction();
+      } else {
+        await this.bridgeAction();
+      }
+    },
+
+    async approveAction() {
+      const notificationId = await this.createNotification(
+        notification.approvePending
+      );
+
+      try {
+        this.isLpApprove = await approveTokenViem(
+          this.poolInfo.contract,
+          BLAST_BRIDGE_ADDRESS
+        );
+
+        await this.deleteNotification(notificationId);
+      } catch (error) {
+        console.log("Approve Error:", error);
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(error),
+          type: "error",
+        };
+
+        await this.deleteNotification(notificationId);
+        await this.createNotification(errorNotification);
+      }
+    },
+
+    async bridgeAction() {
       this.isActionProcessing = true;
 
       const notificationId = await this.createNotification(
@@ -235,9 +296,9 @@ export default {
       );
 
       const payload = {
-        lpAmount: 0n,
-        minMIMAmount: 0n,
-        minUSDBAmount: 0n,
+        lpAmount: this.userInfo.balance,
+        minMIMAmount: this.previewRemoveLiquidityResult.baseAmountOut,
+        minUSDBAmount: this.previewRemoveLiquidityResult.quoteAmountOut,
       };
 
       try {
@@ -274,25 +335,23 @@ export default {
       } catch (error: any) {
         // Add notification
         if (error.message === "Permit: something went wrong!") {
-          await approveTokenViem(this.poolInfo.contract, BLAST_BRIDGE_ADDRESS);
-
           this.usePermit = false;
 
-          const hash = await bridgeWithProofs(
-            this.account,
-            payload,
-            this.usePermit
-          );
-
-          const messageResult = await waitForMessageReceived(
-            BLAST_LZ_CHAIN_ID,
-            hash!
-          );
-
-          this.lzTxInfo = messageResult;
+          const errorNotification = {
+            msg: "Permit: something went wrong! Please approve.",
+            type: "error",
+          };
 
           await this.deleteNotification(notificationId);
-          await this.createNotification(notification.success);
+          await this.createNotification(errorNotification);
+        } else {
+          const errorNotification = {
+            msg: await notificationErrorMsg(error),
+            type: "error",
+          };
+
+          await this.deleteNotification(notificationId);
+          await this.createNotification(errorNotification);
         }
       }
 

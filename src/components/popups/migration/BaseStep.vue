@@ -24,8 +24,6 @@
   </div>
 
   <BaseButton @click="actionHandler" primary>{{ buttonText }}</BaseButton>
-
-  <router-link class="pool-link" to="/my-positions">Unstake MLP</router-link>
 </template>
 
 <script lang="ts">
@@ -44,7 +42,6 @@ export default {
       required: true,
       default: 0n,
     },
-
     poolInfo: {
       type: Object,
       required: true,
@@ -74,6 +71,7 @@ export default {
   },
 
   methods: {
+    formatUnits,
     formatTokenBalance,
 
     actionHandler() {
@@ -144,15 +142,6 @@ export default {
   color: #878b93;
   font-size: 14px;
   font-weight: 500;
-  line-height: normal;
-}
-
-.pool-link {
-  text-align: center;
-  color: #7088cc;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 400;
   line-height: normal;
 }
 </style>

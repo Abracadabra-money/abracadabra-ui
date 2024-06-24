@@ -23,7 +23,12 @@ const MIM_USDB_POOL_ID = 1;
 
 export default {
   data() {
-    return { isCloseBanner: false, userInfo: null as any, poolInfo: null };
+    return {
+      isCloseBanner: false,
+      userInfo: null as any,
+      poolInfo: null,
+      updateInterval: null as any,
+    };
   },
 
   computed: {
@@ -63,11 +68,24 @@ export default {
         MIM_USDB_POOL_ID,
         this.account
       );
+
+      store.commit("setPopupData", {
+        userInfo: this.userInfo,
+        poolInfo: this.poolInfo,
+      });
     },
   },
 
   async mounted() {
     await this.createInfo();
+
+    this.updateInterval = setInterval(async () => {
+      await this.createInfo();
+    }, 10000);
+  },
+
+  beforeUnmount() {
+    clearInterval(Number(this.updateInterval));
   },
 };
 </script>

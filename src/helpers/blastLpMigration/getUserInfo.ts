@@ -9,6 +9,7 @@ import {
 import BlastMagicLPBridgeAbi from "@/abis/BlastMagicLPBridge";
 import BlastMagicLpAbi from "@/abis/BlastMagicLP";
 import BlastLockingMultiRewardsAbi from "@/abis/BlastLockingMultiRewards";
+import { BlastLockingMultiRewards } from "@/constants/blast";
 
 import merkleProof from "./merkleProof.json";
 
@@ -25,6 +26,10 @@ export type UserInfo = {
     amount: bigint;
   };
   amountAllowedInitial: bigint;
+  userLocks: {
+    amount: bigint;
+    unlockTime: bigint;
+  };
 };
 
 export const getUserInfo = async (
@@ -33,7 +38,7 @@ export const getUserInfo = async (
 ): Promise<UserInfo> => {
   const publicClient = getPublicClient(Number(chainId));
 
-  const [balances, balance, allowance, amountAllowed]: any =
+  const [balances, balance, allowance, amountAllowed, userLocksArr]: any =
     await publicClient.multicall({
       contracts: [
         {
@@ -60,6 +65,12 @@ export const getUserInfo = async (
           functionName: "amountAllowed",
           args: [account],
         },
+        {
+          address: BlastLockingMultiRewards,
+          abi: BlastLockingMultiRewardsAbi,
+          functionName: "userLocks",
+          args: [account],
+        },
       ],
     });
 
@@ -68,6 +79,15 @@ export const getUserInfo = async (
   const amountAllowedInitial = merkleProof.items.find(
     (item) => item.account.toLowerCase() === account.toLowerCase()
   )!.amount;
+
+  const userLocks = userLocksArr.result.map(
+    ({ amount, unlockTime }: { amount: bigint; unlockTime: bigint }) => {
+      return {
+        amount,
+        unlockTime,
+      };
+    }
+  );
 
   return {
     nativeBalance,
@@ -82,5 +102,6 @@ export const getUserInfo = async (
       amount: amountAllowed.result.amount,
     },
     amountAllowedInitial: BigInt(amountAllowedInitial),
+    userLocks,
   };
 };

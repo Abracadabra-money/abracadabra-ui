@@ -35,6 +35,10 @@ export const testStore = new Vuex.Store({
           state.showPopup = isShow;
         },
 
+        setPopupData(state, data) {
+          state.popupData = data;
+        },
+
         closePopups(state) {
           state.popupType = null;
           state.showPopup = false;

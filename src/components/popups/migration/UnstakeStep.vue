@@ -59,6 +59,8 @@ import { mapActions, mapGetters, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError";
+import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
+import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
 
 export default {
   emits: ["changeSteap"],
@@ -69,12 +71,7 @@ export default {
       required: true,
     },
 
-    availableAmount: {
-      required: true,
-      default: 0n,
-    },
-
-    previewRemoveLiquidityResult: {
+    userInfo: {
       type: Object as PropType<any>,
       required: true,
     },
@@ -91,8 +88,33 @@ export default {
       chainId: "getChainId",
     }),
 
+    previewRemoveLiquidityResult() {
+      if (!this.poolInfo || !this.userInfo)
+        return { baseAmountOut: 0n, quoteAmountOut: 0n };
+
+      const previewRemoveLiquidityResult = previewRemoveLiquidity(
+        this.userInfo.balances.unlocked,
+        this.poolInfo
+      );
+
+      previewRemoveLiquidityResult.baseAmountOut = applySlippageToMinOutBigInt(
+        100n,
+        previewRemoveLiquidityResult.baseAmountOut
+      );
+
+      previewRemoveLiquidityResult.quoteAmountOut = applySlippageToMinOutBigInt(
+        100n,
+        previewRemoveLiquidityResult.quoteAmountOut
+      );
+
+      return previewRemoveLiquidityResult;
+    },
+
     parseAvailableAmount() {
-      return formatUnits(this.availableAmount, this.poolInfo.decimals || 18);
+      return formatUnits(
+        this.userInfo.balances.unlocked,
+        this.poolInfo.decimals || 18
+      );
     },
 
     availableAmountUsd() {
@@ -183,7 +205,7 @@ export default {
           address: this.poolInfo.lockContract.address,
           abi: this.poolInfo.lockContract.abi,
           functionName: "withdraw",
-          args: [this.availableAmount],
+          args: [this.userInfo.balances.unlocked],
         });
 
         const hash = await writeContractHelper(request);
@@ -195,7 +217,7 @@ export default {
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.success);
 
-        this.$emit("changeSteap", 3);
+        this.$emit("changeSteap", 4);
       } catch (error) {
         console.log("unstake lp err:", error);
 

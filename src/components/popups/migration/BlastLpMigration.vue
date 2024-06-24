@@ -10,21 +10,27 @@
     <BaseStep
       v-if="steap === 1"
       :poolInfo="popupData.poolInfo"
+      :availableAmount="availableAmount"
+      @changeSteap="changeSteap"
+    />
+
+    <MlpAvailableStep
+      v-if="steap === 2"
+      :poolInfo="popupData.poolInfo"
       :userInfo="popupData.userInfo"
       :availableAmount="availableAmount"
       @changeSteap="changeSteap"
     />
 
     <UnstakeStep
-      v-if="steap === 2"
+      v-if="steap === 3"
       :poolInfo="popupData.poolInfo"
-      :availableAmount="availableAmount"
-      :previewRemoveLiquidityResult="previewRemoveLiquidityResult"
-      @changeSteap="steap = 3"
+      :userInfo="popupData.userInfo"
+      @changeSteap="changeSteap"
     />
 
     <MigrateStep
-      v-if="steap === 3"
+      v-if="steap === 4"
       :userInfo="popupData.userInfo"
       :poolInfo="popupData.poolInfo"
       :availableAmount="availableAmount"
@@ -101,6 +107,9 @@ export default {
   components: {
     BaseStep: defineAsyncComponent(
       () => import("@/components/popups/migration/BaseStep.vue")
+    ),
+    MlpAvailableStep: defineAsyncComponent(
+      () => import("@/components/popups/migration/MlpAvailableStep.vue")
     ),
     UnstakeStep: defineAsyncComponent(
       () => import("@/components/popups/migration/UnstakeStep.vue")
