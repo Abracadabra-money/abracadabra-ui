@@ -12,7 +12,7 @@ import BlastLockingMultiRewardsAbi from "@/abis/BlastLockingMultiRewards";
 
 import merkleProof from "./merkleProof.json";
 
-type UserInfo = {
+export type UserInfo = {
   nativeBalance: bigint;
   balances: {
     unlocked: bigint;
@@ -81,6 +81,6 @@ export const getUserInfo = async (
       initialized: amountAllowed.result.initialized,
       amount: amountAllowed.result.amount,
     },
-    amountAllowedInitial: BigInt(amountAllowedInitial)
+    amountAllowedInitial: BigInt(amountAllowedInitial),
   };
 };
