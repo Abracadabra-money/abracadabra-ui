@@ -63,7 +63,7 @@ export const bridgeWithProofs = async (
           [proof.account, proof.amount, proof.proof],
         ];
 
-    const value = fees.mimGas + fees.usdbGas;
+    const value = fees.mimFee + fees.usdbFee;
 
     const functionName = usePermit
       ? "bridgeWithPermitAndProofs"
