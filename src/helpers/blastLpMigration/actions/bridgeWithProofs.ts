@@ -37,7 +37,7 @@ export const bridgeWithProofs = async (
 
     const deadline =
       payload.deadline ??
-      BigInt(moment().unix() + Number(DEFAULT_DEADLINE_DURATION));
+      BigInt(moment().unix() + Number(DEFAULT_DEADLINE_DURATION) * 100);
 
     const signature = usePermit
       ? await setPermit(account, payload.lpAmount, deadline)
@@ -48,19 +48,19 @@ export const bridgeWithProofs = async (
           payload.lpAmount,
           payload.minMIMAmount,
           payload.minUSDBAmount,
-          fees,
-          payload.deadline,
+          [fees.mimFee, fees.mimGas, fees.usdbFee, fees.usdbGas],
+          deadline,
           signature?.v,
           signature?.r,
           signature?.s,
-          proof,
+          [proof.account, proof.amount, proof.proof],
         ]
       : [
           payload.lpAmount,
           payload.minMIMAmount,
           payload.minUSDBAmount,
-          fees,
-          proof,
+          [fees.mimFee, fees.mimGas, fees.usdbFee, fees.usdbGas],
+          [proof.account, proof.amount, proof.proof],
         ];
 
     const value = fees.mimGas + fees.usdbGas;
@@ -70,10 +70,8 @@ export const bridgeWithProofs = async (
       : "bridgeWithProofs";
 
     const { request } = await simulateContractHelper({
-      constract: {
-        address: BLAST_BRIDGE_ADDRESS,
-        abi: BlastMagicLPBridgeAbi,
-      },
+      address: BLAST_BRIDGE_ADDRESS,
+      abi: BlastMagicLPBridgeAbi,
       functionName,
       args,
       value,
