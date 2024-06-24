@@ -71,7 +71,6 @@ export default {
   },
 
   methods: {
-    formatUnits,
     formatTokenBalance,
 
     actionHandler() {

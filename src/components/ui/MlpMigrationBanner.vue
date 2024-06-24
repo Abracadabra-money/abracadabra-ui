@@ -27,7 +27,6 @@ export default {
       isCloseBanner: false,
       userInfo: null as any,
       poolInfo: null,
-      updateInterval: null as any,
     };
   },
 
@@ -68,24 +67,11 @@ export default {
         MIM_USDB_POOL_ID,
         this.account
       );
-
-      store.commit("setPopupData", {
-        userInfo: this.userInfo,
-        poolInfo: this.poolInfo,
-      });
     },
   },
 
   async mounted() {
     await this.createInfo();
-
-    this.updateInterval = setInterval(async () => {
-      await this.createInfo();
-    }, 10000);
-  },
-
-  beforeUnmount() {
-    clearInterval(Number(this.updateInterval));
   },
 };
 </script>

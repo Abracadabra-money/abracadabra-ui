@@ -54,23 +54,22 @@ import {
 } from "@/helpers/walletClienHelper";
 import { formatUnits } from "viem";
 import { useImage } from "@/helpers/useImage";
+import { mapActions, mapMutations } from "vuex";
 import { defineAsyncComponent, type PropType } from "vue";
-import { mapActions, mapGetters, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
+import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
-import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
 
 export default {
-  emits: ["changeSteap"],
+  emits: ["changeSteap", "updateInfo"],
 
   props: {
     poolInfo: {
       type: Object as PropType<any>,
       required: true,
     },
-
     userInfo: {
       type: Object as PropType<any>,
       required: true,
@@ -79,15 +78,12 @@ export default {
 
   data() {
     return {
+      slippage: 100n,
       isActionProcessing: false,
     };
   },
 
   computed: {
-    ...mapGetters({
-      chainId: "getChainId",
-    }),
-
     previewRemoveLiquidityResult() {
       if (!this.poolInfo || !this.userInfo)
         return { baseAmountOut: 0n, quoteAmountOut: 0n };
@@ -98,12 +94,12 @@ export default {
       );
 
       previewRemoveLiquidityResult.baseAmountOut = applySlippageToMinOutBigInt(
-        100n,
+        this.slippage,
         previewRemoveLiquidityResult.baseAmountOut
       );
 
       previewRemoveLiquidityResult.quoteAmountOut = applySlippageToMinOutBigInt(
-        100n,
+        this.slippage,
         previewRemoveLiquidityResult.quoteAmountOut
       );
 
@@ -213,6 +209,8 @@ export default {
         await waitForTransactionReceiptHelper({
           hash,
         });
+
+        this.$emit("updateInfo");
 
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.success);

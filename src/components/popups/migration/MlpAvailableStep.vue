@@ -134,24 +134,20 @@ export default {
       return formatUSD(Number(this.parseAvailableAmount) * this.poolInfo.price);
     },
 
-    isProperNetwork() {
-      return this.chainId === BLAST_CHAIN_ID;
-    },
-
     buttonText() {
       if (this.isDisabledButton) return "Nothing to do";
-
-      if (
-        this.userInfo.balance > 0n ||
-        this.userInfo.balance >= this.availableAmount ||
-        !this.userInfo.balances.unlocked
-      )
-        return "Proceed with Migration";
-      return "Unstake MLP";
+      if (this.userInfo.balances.unlocked) return "Unstake MLP";
+      return "Proceed with Migration";
     },
 
     mlpInfo() {
-      if (!this.userInfo || !this.poolInfo) return {};
+      if (!this.userInfo || !this.poolInfo)
+        return {
+          walletBalance: "0",
+          walletBalanceUsd: "0",
+          stakeBalance: "0",
+          stakeBalanceUsd: "0",
+        };
 
       return {
         walletBalance: formatTokenBalance(
@@ -173,13 +169,8 @@ export default {
     },
 
     nextStep() {
-      if (
-        this.userInfo.balance > 0n ||
-        this.userInfo.balance >= this.availableAmount ||
-        !this.userInfo.balances.unlocked
-      )
-        return 4;
-      return 3;
+      if (this.userInfo.balances.unlocked) return 3;
+      return 4;
     },
 
     isDisabledButton() {

@@ -29,29 +29,35 @@
         alt=""
       />
 
-      <a class="layer-zero-link" href="#" target="_blank">
-        <span v-show="lzTxInfo"> LayerZero </span>
-
-        <svg
-          v-show="lzTxInfo"
-          xmlns="http://www.w3.org/2000/svg"
-          width="18"
-          height="19"
-          viewBox="0 0 18 19"
-          fill="none"
+      <div class="layer-zero-wrap">
+        <a
+          class="layer-zero-link"
+          v-if="layerZeroLink"
+          :href="layerZeroLink"
+          target="_blank"
         >
-          <path
-            d="M13.4375 5.5625V5.0625H12.9375H7.875C7.85842 5.0625 7.84253 5.05592 7.83081 5.04419C7.81908 5.03247 7.8125 5.01658 7.8125 5C7.8125 4.98342 7.81908 4.96753 7.83081 4.95581C7.84253 4.94408 7.85842 4.9375 7.875 4.9375H13.5C13.5166 4.9375 13.5325 4.94409 13.5442 4.95581C13.5559 4.96753 13.5625 4.98342 13.5625 5V10.625C13.5625 10.6416 13.5559 10.6575 13.5442 10.6692C13.5325 10.6809 13.5166 10.6875 13.5 10.6875C13.4834 10.6875 13.4675 10.6809 13.4558 10.6692C13.4441 10.6575 13.4375 10.6416 13.4375 10.625V5.5625Z"
-            fill="white"
-            stroke="#7088CC"
-          />
-          <path
-            d="M13.544 4.95488L13.5449 4.95578C13.5507 4.96159 13.5553 4.96848 13.5585 4.97607L14.0198 4.78465L13.5585 4.97608C13.5616 4.98367 13.5632 4.99181 13.5632 5.00003C13.5632 5.00825 13.5616 5.01639 13.5585 5.02398L14.0203 5.21562L13.5585 5.02399C13.5553 5.03158 13.5507 5.03847 13.5449 5.04428L13.5444 5.04473L3.41943 15.1697L3.76986 15.5201L3.41943 15.1697C3.40758 15.1816 3.3915 15.1882 3.37473 15.1882C3.35797 15.1882 3.34189 15.1816 3.33004 15.1697L2.97648 15.5233L3.33004 15.1697C3.31818 15.1579 3.31152 15.1418 3.31152 15.125C3.31152 15.1083 3.31818 15.0922 3.33004 15.0803L13.455 4.95533L13.4555 4.95489C13.4613 4.94907 13.4682 4.94445 13.4758 4.9413C13.4834 4.93814 13.4915 4.93652 13.4997 4.93652C13.508 4.93652 13.5161 4.93815 13.5237 4.9413L13.7153 4.47948L13.5237 4.9413C13.5313 4.94445 13.5382 4.94907 13.544 4.95488Z"
-            fill="white"
-            stroke="#7088CC"
-          />
-        </svg>
-      </a>
+          <span> LayerZero </span>
+
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="19"
+            viewBox="0 0 18 19"
+            fill="none"
+          >
+            <path
+              d="M13.4375 5.5625V5.0625H12.9375H7.875C7.85842 5.0625 7.84253 5.05592 7.83081 5.04419C7.81908 5.03247 7.8125 5.01658 7.8125 5C7.8125 4.98342 7.81908 4.96753 7.83081 4.95581C7.84253 4.94408 7.85842 4.9375 7.875 4.9375H13.5C13.5166 4.9375 13.5325 4.94409 13.5442 4.95581C13.5559 4.96753 13.5625 4.98342 13.5625 5V10.625C13.5625 10.6416 13.5559 10.6575 13.5442 10.6692C13.5325 10.6809 13.5166 10.6875 13.5 10.6875C13.4834 10.6875 13.4675 10.6809 13.4558 10.6692C13.4441 10.6575 13.4375 10.6416 13.4375 10.625V5.5625Z"
+              fill="white"
+              stroke="#7088CC"
+            />
+            <path
+              d="M13.544 4.95488L13.5449 4.95578C13.5507 4.96159 13.5553 4.96848 13.5585 4.97607L14.0198 4.78465L13.5585 4.97608C13.5616 4.98367 13.5632 4.99181 13.5632 5.00003C13.5632 5.00825 13.5616 5.01639 13.5585 5.02398L14.0203 5.21562L13.5585 5.02399C13.5553 5.03158 13.5507 5.03847 13.5449 5.04428L13.5444 5.04473L3.41943 15.1697L3.76986 15.5201L3.41943 15.1697C3.40758 15.1816 3.3915 15.1882 3.37473 15.1882C3.35797 15.1882 3.34189 15.1816 3.33004 15.1697L2.97648 15.5233L3.33004 15.1697C3.31818 15.1579 3.31152 15.1418 3.31152 15.125C3.31152 15.1083 3.31818 15.0922 3.33004 15.0803L13.455 4.95533L13.4555 4.95489C13.4613 4.94907 13.4682 4.94445 13.4758 4.9413C13.4834 4.93814 13.4915 4.93652 13.4997 4.93652C13.508 4.93652 13.5161 4.93815 13.5237 4.9413L13.7153 4.47948L13.5237 4.9413C13.5313 4.94445 13.5382 4.94907 13.544 4.95488Z"
+              fill="white"
+              stroke="#7088CC"
+            />
+          </svg>
+        </a>
+      </div>
 
       <div>
         <div class="chain-wrap">
@@ -115,10 +121,10 @@ import notification from "@/helpers/notification/notification";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import { waitForMessageReceived } from "@layerzerolabs/scan-client";
 import { BLAST_BRIDGE_ADDRESS } from "@/constants/blastLpMigration";
-import { notificationErrorMsg } from "@/helpers/notification/notificationError";
-import { bridgeWithProofs } from "@/helpers/blastLpMigration/actions/bridgeWithProofs";
-import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
 import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError";
+import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
+import { bridgeWithProofs } from "@/helpers/blastLpMigration/actions/bridgeWithProofs";
 
 const BLAST_LZ_CHAIN_ID = 243;
 
@@ -132,20 +138,13 @@ export default {
       type: Object as PropType<any>,
       required: true,
     },
-    availableAmount: {
-      default: 0n,
-      required: true,
-    },
-    // previewRemoveLiquidityResult: {
-    //   type: Object as PropType<any>,
-    //   required: true,
-    // },
   },
 
   data() {
     return {
-      lzTxInfo: null as any,
+      slippage: 100n,
       usePermit: true,
+      lzTxInfo: null as any,
       isActionProcessing: false,
     };
   },
@@ -232,12 +231,12 @@ export default {
       );
 
       previewRemoveLiquidityResult.baseAmountOut = applySlippageToMinOutBigInt(
-        100n,
+        this.slippage,
         previewRemoveLiquidityResult.baseAmountOut
       );
 
       previewRemoveLiquidityResult.quoteAmountOut = applySlippageToMinOutBigInt(
-        100n,
+        this.slippage,
         previewRemoveLiquidityResult.quoteAmountOut
       );
 
@@ -246,6 +245,11 @@ export default {
 
     isLpApprove() {
       return this.userInfo.balance <= this.userInfo.allowance;
+    },
+
+    layerZeroLink() {
+      if (!this.lzTxInfo) return false;
+      return `https://layerzeroscan.com/tx/${this.lzTxInfo}`;
     },
   },
 
@@ -456,6 +460,10 @@ export default {
   line-height: normal;
 }
 
+.layer-zero-wrap {
+  min-width: 90px;
+}
+
 .layer-zero-link {
   gap: 4px;
   display: flex;
@@ -464,7 +472,6 @@ export default {
   font-size: 14px;
   font-weight: 400;
   line-height: normal;
-  min-width: 90px;
 }
 
 .token-info {
