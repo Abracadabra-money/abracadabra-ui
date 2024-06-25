@@ -98,8 +98,8 @@ export const getUserInfo = async (
     balance: balance.result,
     allowance: allowance.result,
     amountAllowed: {
-      initialized: amountAllowed.result.initialized,
-      amount: amountAllowed.result.amount,
+      initialized: amountAllowed.result[0],
+      amount: amountAllowed.result[1],
     },
     amountAllowedInitial: BigInt(amountAllowedInitial),
     userLocks,
