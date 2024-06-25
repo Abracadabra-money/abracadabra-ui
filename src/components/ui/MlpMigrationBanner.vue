@@ -1,9 +1,58 @@
 <template>
   <div class="banner" v-if="showBanner && !isCloseBanner">
-    <button @click="openPopup">Get Bonus</button>
+    <div class="banner-content">
+      <img
+        class="migration-icon"
+        src="@/assets/images/blastLpMigration/migration-baner.png"
+        alt=""
+      />
+
+      <div>
+        <h3 class="title">
+          <img
+            clas="mlp-icon"
+            src="@/assets/images/tokens/MIM-USDB.png"
+            alt=""
+          />MLP Migration
+        </h3>
+        <h4 class="subtitle">
+          Founders earn of all Points, Gold, and Potions acquired by protocol.
+          <button class="migrate-btn" @click="openPopup">
+            Migrate
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 18 18"
+              fill="none"
+            >
+              <path
+                d="M13.4375 5.0625V4.5625H12.9375H7.875C7.85842 4.5625 7.84253 4.55592 7.83081 4.54419C7.81908 4.53247 7.8125 4.51658 7.8125 4.5C7.8125 4.48342 7.81908 4.46753 7.83081 4.45581C7.84253 4.44408 7.85842 4.4375 7.875 4.4375H13.5C13.5166 4.4375 13.5325 4.44409 13.5442 4.45581C13.5559 4.46753 13.5625 4.48342 13.5625 4.5V10.125C13.5625 10.1416 13.5559 10.1575 13.5442 10.1692C13.5325 10.1809 13.5166 10.1875 13.5 10.1875C13.4834 10.1875 13.4675 10.1809 13.4558 10.1692C13.4441 10.1575 13.4375 10.1416 13.4375 10.125V5.0625Z"
+                fill="white"
+                stroke="white"
+              />
+              <path
+                d="M13.544 4.45488L13.5449 4.45578C13.5507 4.46159 13.5553 4.46848 13.5585 4.47607L14.0198 4.28465L13.5585 4.47608C13.5616 4.48367 13.5632 4.49181 13.5632 4.50003C13.5632 4.50825 13.5616 4.51639 13.5585 4.52398L14.0203 4.71562L13.5585 4.52399C13.5553 4.53158 13.5507 4.53847 13.5449 4.54428L13.5444 4.54473L3.41943 14.6697L3.76986 15.0201L3.41943 14.6697C3.40758 14.6816 3.3915 14.6882 3.37473 14.6882C3.35797 14.6882 3.34189 14.6816 3.33004 14.6697L2.97648 15.0233L3.33004 14.6697C3.31818 14.6579 3.31152 14.6418 3.31152 14.625C3.31152 14.6083 3.31818 14.5922 3.33004 14.5803L13.455 4.45533L13.4555 4.45489C13.4613 4.44907 13.4682 4.44445 13.4758 4.4413C13.4834 4.43814 13.4915 4.43652 13.4997 4.43652C13.508 4.43652 13.5161 4.43815 13.5237 4.4413L13.7153 3.97948L13.5237 4.4413C13.5313 4.44445 13.5382 4.44907 13.544 4.45488Z"
+                fill="white"
+                stroke="white"
+              />
+            </svg>
+          </button>
+        </h4>
+      </div>
+    </div>
+
+    <Timer
+      class="timer"
+      :endDateTimestamp="1722364937"
+      small
+      isLock
+      padding="6px"
+      background="rgba(0, 10, 35, 0.30)"
+    />
 
     <img
-      class="banner-close"
+      class="close-btn"
       src="@/assets/images/close.svg"
       @click="isCloseBanner = true"
       alt="Close"
@@ -18,6 +67,7 @@ import { BLAST_CHAIN_ID } from "@/constants/global";
 import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
 import { getUserInfo } from "@/helpers/blastLpMigration/getUserInfo";
 import { checkAccount } from "@/helpers/blastLpMigration/checkAccount";
+import { defineAsyncComponent } from "vue";
 
 const MIM_USDB_POOL_ID = 1;
 
@@ -73,11 +123,20 @@ export default {
   async mounted() {
     await this.createInfo();
   },
+
+  components: {
+    Timer: defineAsyncComponent(
+      () => import("@/components/stake/earnPoints/Timer.vue")
+    ),
+  },
 };
 </script>
 
 <style lang="scss" scoped>
 .banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   max-width: 1280px;
   width: 100%;
   border-radius: 12px;
@@ -88,8 +147,7 @@ export default {
     rgba(116, 92, 210, 0.52) 100%
   );
   backdrop-filter: blur(19px);
-  padding: 18px 22px;
-
+  padding: 14px 60px 14px 20px;
   position: fixed;
   top: 100px;
   left: 50%;
@@ -98,45 +156,56 @@ export default {
   transform: translateX(-50%);
 }
 
-.banner-text,
-.banner-link {
+.banner-content {
+  gap: 32px;
+  display: flex;
+  align-items: center;
+}
+
+.migration-icon {
+  max-width: 242px;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 24px;
+  gap: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.mlp-icon {
+  width: 2px;
+  height: 28px;
+}
+
+.subtitle {
+  color: rgba(255, 255, 255, 0.6);
   font-weight: 400;
-  font-size: 16px;
-  letter-spacing: 0.035em;
-  color: rgba(255, 255, 255, 0.8);
+  line-height: normal;
+  gap: 10px;
+  display: flex;
+  align-items: center;
 }
 
-.banner-text {
-  text-align: center;
+.migrate-btn {
+  background: transparent;
+  outline: transparent;
+  border: transparent;
+  color: #fff;
+  font-weight: 400;
+  line-height: normal;
+  gap: 4px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
 }
 
-.banner-link {
-  background: linear-gradient(90deg, #9df4ff 0%, #7981ff 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-fill-color: transparent;
-  position: relative;
-}
-
-.banner-link::after {
-  content: "";
-  position: absolute;
-  bottom: 3px;
-  left: 0;
-  width: 100%;
-  height: 1px;
-  background: linear-gradient(90deg, #9df4ff 0%, #7981ff 100%);
-}
-
-.banner-close {
+.close-btn {
   position: absolute;
   top: 16px;
   right: 16px;
   cursor: pointer;
-}
-
-.banner-img {
-  max-width: 55px;
 }
 </style>
