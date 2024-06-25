@@ -208,6 +208,7 @@ export default {
       const balance = this.userInfo.balance;
 
       if (balance < this.availableAmount) return balance;
+      return this.availableAmount;
     },
 
     baseToken() {
@@ -358,7 +359,7 @@ export default {
         minMIMAmount: this.previewRemoveLiquidityResult.baseAmountOut,
         minUSDBAmount: this.previewRemoveLiquidityResult.quoteAmountOut,
       };
-      
+
       const { initialized } = this.userInfo.amountAllowed;
 
       try {
