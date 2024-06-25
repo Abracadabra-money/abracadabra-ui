@@ -168,7 +168,7 @@ import { defineAsyncComponent, type PropType } from "vue";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
-import { waitForMessageReceived } from "@layerzerolabs/scan-client";
+import { getMessagesBySrcTxHash } from "@layerzerolabs/scan-client";
 import { BLAST_BRIDGE_ADDRESS } from "@/constants/blastLpMigration";
 import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError";
@@ -307,7 +307,7 @@ export default {
 
     layerZeroLink() {
       if (!this.lzTxInfo) return false;
-      return `https://layerzeroscan.com/tx/${this.lzTxInfo}`;
+      return `https://layerzeroscan.com/tx/${this.lzTxInfo.srcTxHash}`;
     },
 
     sender() {
@@ -412,12 +412,7 @@ export default {
           return;
         }
 
-        const messageResult = await waitForMessageReceived(
-          BLAST_LZ_CHAIN_ID,
-          hash!
-        );
-
-        this.lzTxInfo = messageResult;
+        this.lzTxInfo = await this.waitTxDelivered(hash);
 
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.success);
@@ -447,6 +442,28 @@ export default {
       }
 
       this.isActionProcessing = false;
+    },
+
+    async waitTxDelivered(hash: string) {
+      return new Promise((resolve, reject) => {
+        const interval = setInterval(async () => {
+          try {
+            const { messages } = await getMessagesBySrcTxHash(
+              BLAST_LZ_CHAIN_ID,
+              hash
+            );
+
+            if (messages.length) {
+              clearInterval(interval);
+              resolve(messages[0]);
+            }
+          } catch (error) {
+            console.log("waitTxDelivered error:", error);
+            clearInterval(interval);
+            reject(error);
+          }
+        }, 1000);
+      });
     },
   },
 
