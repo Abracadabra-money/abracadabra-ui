@@ -208,4 +208,45 @@ export default {
   right: 16px;
   cursor: pointer;
 }
+
+@media screen and (max-width: 1260px) {
+  .banner {
+    padding: 24px 12px;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .migration-icon {
+    max-width: 100%;
+  }
+
+  .banner-content {
+    gap: 16px;
+    flex-direction: column;
+  }
+
+  .title {
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .subtitle {
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .migration-icon {
+    max-width: 80%;
+  }
+
+  .subtitle {
+    font-size: 14px;
+  }
+
+  .close-btn {
+    top: 8px;
+    right: 8px;
+  }
+}
 </style>

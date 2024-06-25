@@ -517,4 +517,45 @@ export default {
   background-size: 20px 1px;
   border: none;
 }
+
+@media screen and (max-width: 600px) {
+  .title {
+    font-size: 18px;
+  }
+
+  .sub-title {
+    font-size: 14px;
+  }
+
+  .migrate-wrap {
+    gap: 24px;
+  }
+
+  .chain-wrap {
+    width: 70px;
+    height: 70px;
+  }
+
+  .chain-icon {
+    width: 50px;
+    height: 50px;
+  }
+
+  .anim {
+    max-width: 200px;
+  }
+
+  .from-address,
+  .to-address {
+    font-size: 14px;
+  }
+
+  .token-info {
+    gap: 8px;
+  }
+
+  .token-amount {
+    font-size: 20px;
+  }
+}
 </style>

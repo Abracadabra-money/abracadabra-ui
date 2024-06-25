@@ -157,4 +157,16 @@ export default {
   top: 32px;
   right: 32px;
 }
+
+@media screen and (max-width: 600px) {
+  .popup {
+    padding: 32px 24px;
+    gap: 12px;
+  }
+
+  .close-btn {
+    top: 16px;
+    right: 16px;
+  }
+}
 </style>

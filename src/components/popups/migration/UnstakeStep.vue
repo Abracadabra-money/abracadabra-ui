@@ -353,4 +353,14 @@ export default {
   font-weight: 500;
   line-height: normal;
 }
+
+@media screen and (max-width: 600px) {
+  .title {
+    font-size: 18px;
+  }
+
+  .sub-title {
+    font-size: 14px;
+  }
+}
 </style>

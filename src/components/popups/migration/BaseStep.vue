@@ -143,4 +143,26 @@ export default {
   font-weight: 500;
   line-height: normal;
 }
+
+@media screen and (max-width: 600px) {
+  .title {
+    font-size: 18px;
+  }
+
+  .sub-title {
+    font-size: 14px;
+  }
+
+  .popup-content {
+    width: 100%;
+  }
+
+  .mlp-info {
+    flex-direction: column;
+  }
+
+  .mlp-balance {
+    gap: 4px;
+  }
+}
 </style>
