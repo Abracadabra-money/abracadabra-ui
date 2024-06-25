@@ -184,6 +184,9 @@ export default {
       type: Object as PropType<any>,
       required: true,
     },
+    availableAmount: {
+      default: 0n,
+    }
   },
 
   data() {
@@ -200,6 +203,12 @@ export default {
       chainId: "getChainId",
       account: "getAccount",
     }),
+
+    amountToMigrate() {
+      const balance = this.userInfo.balance;
+
+      if (balance < this.availableAmount) return balance;
+    },
 
     baseToken() {
       if (!this.poolInfo)
@@ -267,7 +276,7 @@ export default {
         return { baseAmountOut: 0n, quoteAmountOut: 0n };
 
       const previewRemoveLiquidityResult = previewRemoveLiquidity(
-        this.userInfo.balance,
+        this.amountToMigrate,
         this.poolInfo
       );
 
@@ -285,7 +294,7 @@ export default {
     },
 
     isLpApprove() {
-      return this.userInfo.balance <= this.userInfo.allowance;
+      return this.amountToMigrate <= this.userInfo.allowance;
     },
 
     layerZeroLink() {
@@ -345,7 +354,7 @@ export default {
       );
 
       const payload = {
-        lpAmount: this.userInfo.balance,
+        lpAmount: this.amountToMigrate,
         minMIMAmount: this.previewRemoveLiquidityResult.baseAmountOut,
         minUSDBAmount: this.previewRemoveLiquidityResult.quoteAmountOut,
       };

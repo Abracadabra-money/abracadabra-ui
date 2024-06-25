@@ -30,7 +30,7 @@
       @updateInfo="updateInfo"
     />
 
-    <MigrateStep v-if="steap === 4" :userInfo="userInfo" :poolInfo="poolInfo" />
+    <MigrateStep v-if="steap === 4" :userInfo="userInfo" :poolInfo="poolInfo" :availableAmount="availableAmount"/>
   </div>
 </template>
 
