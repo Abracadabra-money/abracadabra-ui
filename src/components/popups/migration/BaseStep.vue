@@ -65,7 +65,7 @@ export default {
     },
 
     buttonText() {
-      if (!this.isProperNetwork) return "Switch network";
+      if (!this.isProperNetwork) return "Switch to Blast";
       return "Proceed with Migration";
     },
   },

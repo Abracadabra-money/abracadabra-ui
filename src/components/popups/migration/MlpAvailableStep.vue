@@ -20,7 +20,7 @@
 
     <div class="line"></div>
 
-    <div class="info">
+    <div class="info" v-if="Number(mlpInfo.walletBalance)">
       <div class="info-title">Balance on wallet</div>
       <div class="info-balance">
         <div class="info-amount">
@@ -30,7 +30,7 @@
       </div>
     </div>
 
-    <div class="info">
+    <div class="info" v-if="Number(mlpInfo.stakeBalance)">
       <div class="info-title">Staked Balance</div>
       <div class="info-balance">
         <div class="info-amount">
@@ -135,8 +135,7 @@ export default {
     },
 
     buttonText() {
-      if (this.isDisabledButton) return "Nothing to do";
-      if (this.userInfo.balances.unlocked) return "Unstake MLP";
+      if (this.isDisabledButton) return "Pending Unlock";
       return "Proceed with Migration";
     },
 
@@ -169,6 +168,7 @@ export default {
     },
 
     nextStep() {
+      if (this.userInfo.balance >= this.availableAmount) return 4;
       if (this.userInfo.balances.unlocked) return 3;
       return 4;
     },

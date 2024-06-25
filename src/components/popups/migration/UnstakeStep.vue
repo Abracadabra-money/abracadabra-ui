@@ -43,7 +43,9 @@
     </div>
   </div>
 
-  <BaseButton @click="unstakeHandler" primary>{{ buttonText }}</BaseButton>
+  <BaseButton :disabled="isActionProcessing" @click="unstakeHandler" primary>{{
+    buttonText
+  }}</BaseButton>
 </template>
 
 <script lang="ts">

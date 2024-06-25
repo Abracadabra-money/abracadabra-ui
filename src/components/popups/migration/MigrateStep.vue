@@ -12,14 +12,18 @@
   <div class="popup-content">
     <div class="migrate-wrap">
       <div>
-        <div class="chain-wrap">
+        <div class="chain-wrap" :class="{ active: isActionProcessing }">
           <img
             class="chain-icon"
             src="@/assets/images/blastLpMigration/blast-icon.png"
             alt=""
           />
         </div>
-        <div class="from-address">0x23...2ee</div>
+        <div
+          :class="['from-address', { 'address-active': isActionProcessing }]"
+        >
+          {{ sender }}
+        </div>
       </div>
 
       <img
@@ -67,7 +71,7 @@
             alt=""
           />
         </div>
-        <div class="to-address">0x23...2ee</div>
+        <div class="to-address">{{ sender }}</div>
       </div>
     </div>
 
@@ -108,7 +112,9 @@
     </div>
   </div>
 
-  <BaseButton @click="actionHandler" primary>{{ buttonText }}</BaseButton>
+  <BaseButton :disabled="isActionProcessing" @click="actionHandler" primary>{{
+    buttonText
+  }}</BaseButton>
 </template>
 
 <script lang="ts">
@@ -166,15 +172,9 @@ export default {
     },
 
     quoteToken() {
-      if (!this.poolInfo)
-        return {
-          name: "USDB",
-          icon: useImage("assets/images/tokens/USDB.png"),
-        };
-
       return {
-        name: this.poolInfo.tokens.quoteToken.config.name,
-        icon: this.poolInfo.tokens.quoteToken.config.icon,
+        name: "USDT",
+        icon: useImage("assets/images/tokens/USDT.png"),
       };
     },
 
@@ -218,7 +218,7 @@ export default {
     buttonText() {
       if (!this.usePermit && !this.isLpApprove) return "Approve";
       if (this.isActionProcessing) return "Processing...";
-      return "Remove ";
+      return "Migrate";
     },
 
     previewRemoveLiquidityResult() {
@@ -250,6 +250,10 @@ export default {
     layerZeroLink() {
       if (!this.lzTxInfo) return false;
       return `https://layerzeroscan.com/tx/${this.lzTxInfo}`;
+    },
+
+    sender() {
+      return `${this.account.slice(0, 3)}...${this.account.slice(-3)}`;
     },
   },
 
@@ -418,14 +422,19 @@ export default {
   height: 94px;
   padding: 12px;
   border-radius: 50%;
-  border: 1px solid #67a069;
+  border: 1px solid #745cd2;
   background: linear-gradient(
     90deg,
     rgba(45, 74, 150, 0.2) 0%,
     rgba(116, 92, 210, 0.2) 100%
   );
-  box-shadow: 0px 4px 29.4px 0px rgba(103, 160, 105, 0.24);
+  box-shadow: 0px 4px 29.4px 0px rgba(85, 82, 253, 0.24);
   margin-bottom: 4px;
+}
+
+.active {
+  border: 1px solid #67a069;
+  box-shadow: 0px 4px 29.4px 0px rgba(103, 160, 105, 0.24);
 }
 
 .chain-icon {
@@ -449,9 +458,13 @@ export default {
 
 .from-address {
   text-align: center;
-  color: #67a069;
+
   font-weight: 500;
   line-height: normal;
+}
+
+.address-active {
+  color: #67a069;
 }
 
 .to-address {
