@@ -83,7 +83,23 @@
         >
       </div>
 
-      <div class="dotted-line"></div>
+      <div class="dotted-line-wrap">
+        <div class="dotted-line"></div>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="8"
+          height="15"
+          viewBox="0 0 5 8"
+          fill="none"
+        >
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M1.25394 0.446251L4.43592 3.62823C4.63119 3.82349 4.63119 4.14008 4.43592 4.33534L1.25394 7.51732C1.05868 7.71258 0.742099 7.71258 0.546837 7.51732C0.351575 7.32206 0.351575 7.00547 0.546837 6.81021L3.08237 4.27468V3.68889L0.546837 1.15336C0.351575 0.958096 0.351575 0.641514 0.546837 0.446251C0.742099 0.250989 1.05868 0.250989 1.25394 0.446251ZM3.33237 3.93889V4.02468L3.37526 3.98179L3.33237 3.93889Z"
+            fill="#7088CC"
+          />
+        </svg>
+      </div>
 
       <div class="token-info">
         <img class="token-icon" :src="baseToken.icon" :alt="baseToken.name" />
@@ -95,16 +111,40 @@
 
     <div class="row">
       <div class="token-info">
-        <img class="token-icon" :src="quoteToken.icon" :alt="quoteToken.name" />
+        <img
+          class="token-icon"
+          :src="quoteToken.fromIcon"
+          :alt="quoteToken.name"
+        />
         <span class="token-amount">
           {{ formattedTokenExpecteds.quote.value }}</span
         >
       </div>
 
-      <div class="dotted-line"></div>
+      <div class="dotted-line-wrap">
+        <div class="dotted-line"></div>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="8"
+          height="15"
+          viewBox="0 0 5 8"
+          fill="none"
+        >
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M1.25394 0.446251L4.43592 3.62823C4.63119 3.82349 4.63119 4.14008 4.43592 4.33534L1.25394 7.51732C1.05868 7.71258 0.742099 7.71258 0.546837 7.51732C0.351575 7.32206 0.351575 7.00547 0.546837 6.81021L3.08237 4.27468V3.68889L0.546837 1.15336C0.351575 0.958096 0.351575 0.641514 0.546837 0.446251C0.742099 0.250989 1.05868 0.250989 1.25394 0.446251ZM3.33237 3.93889V4.02468L3.37526 3.98179L3.33237 3.93889Z"
+            fill="#7088CC"
+          />
+        </svg>
+      </div>
 
       <div class="token-info">
-        <img class="token-icon" :src="quoteToken.icon" :alt="quoteToken.name" />
+        <img
+          class="token-icon"
+          :src="quoteToken.toIcon"
+          :alt="quoteToken.name"
+        />
         <span class="token-amount">
           {{ formattedTokenExpecteds.quote.value }}</span
         >
@@ -174,7 +214,8 @@ export default {
     quoteToken() {
       return {
         name: "USDT",
-        icon: useImage("assets/images/tokens/USDT.png"),
+        toIcon: useImage("assets/images/tokens/USDT.png"),
+        fromIcon: useImage("assets/images/tokens/USDB.png"),
       };
     },
 
@@ -504,6 +545,12 @@ export default {
   line-height: 32px;
 }
 
+.dotted-line-wrap {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
 .dotted-line {
   width: 100%;
   height: 1px;
@@ -514,7 +561,7 @@ export default {
     transparent 75%,
     transparent 100%
   );
-  background-size: 20px 1px;
+  background-size: 5px 5px;
   border: none;
 }
 
