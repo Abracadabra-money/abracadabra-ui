@@ -152,9 +152,12 @@
     </div>
   </div>
 
-  <BaseButton :disabled="isActionProcessing" @click="actionHandler" primary>{{
-    buttonText
-  }}</BaseButton>
+  <BaseButton
+    :disabled="isActionProcessing || isDisabledButton"
+    @click="actionHandler"
+    primary
+    >{{ buttonText }}</BaseButton
+  >
 </template>
 
 <script lang="ts">
@@ -185,6 +188,9 @@ export default {
       required: true,
     },
     availableAmount: {
+      default: 0n,
+    },
+    arbBridgeBalanceUsdt: {
       default: 0n,
     },
   },
@@ -267,6 +273,7 @@ export default {
     },
 
     buttonText() {
+      if (this.isDisabledButton) return "Insufficient funds";
       if (!this.usePermit && !this.isLpApprove) return "Approve";
       if (this.isActionProcessing) return "Processing...";
       return "Migrate";
@@ -305,6 +312,18 @@ export default {
 
     sender() {
       return `${this.account.slice(0, 3)}...${this.account.slice(-3)}`;
+    },
+
+    isDisabledButton() {
+      const arbBridgeBalanceUsdt = Number(
+        formatUnits((this.arbBridgeBalanceUsdt / 100n) * 90n, 6)
+      );
+
+      const usdbAmountToMigrate = Number(
+        formatUnits(this.previewRemoveLiquidityResult.quoteAmountOut, 18)
+      );
+
+      return usdbAmountToMigrate > arbBridgeBalanceUsdt;
     },
   },
 
@@ -348,6 +367,16 @@ export default {
     },
 
     async bridgeAction() {
+      if (this.isDisabledButton) {
+        const errorNotification = {
+          msg: "Insufficient funds",
+          type: "error",
+        };
+
+        await this.createNotification(errorNotification);
+        return;
+      }
+
       this.isActionProcessing = true;
 
       const notificationId = await this.createNotification(

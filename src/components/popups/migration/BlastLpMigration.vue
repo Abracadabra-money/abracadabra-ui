@@ -30,7 +30,13 @@
       @updateInfo="updateInfo"
     />
 
-    <MigrateStep v-if="steap === 4" :userInfo="userInfo" :poolInfo="poolInfo" :availableAmount="availableAmount"/>
+    <MigrateStep
+      v-if="steap === 4"
+      :userInfo="userInfo"
+      :poolInfo="poolInfo"
+      :availableAmount="availableAmount"
+      :arbBridgeBalanceUsdt="arbBridgeBalanceUsdt"
+    />
   </div>
 </template>
 
@@ -38,10 +44,14 @@
 import store from "@/store";
 import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
-import { BLAST_CHAIN_ID } from "@/constants/global";
+import tokensAbi from "@/abis/tokensAbi/index";
 import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
+import { ARB_USDT_ADDRESS } from "@/constants/blastLpMigration";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
+import { ARB_BRIDGE_ADDRESS } from "@/constants/blastLpMigration";
 import { getUserInfo } from "@/helpers/blastLpMigration/getUserInfo";
 import type { UserInfo } from "@/helpers/blastLpMigration/getUserInfo";
+import { ARBITRUM_CHAIN_ID, BLAST_CHAIN_ID } from "@/constants/global";
 
 const MIM_USDB_POOL_ID = 1;
 
@@ -52,6 +62,8 @@ export default {
       poolData: null as any,
       steap: 1,
       updateInterval: null as any,
+      usdtUpdateInterval: null as any,
+      arbBridgeBalanceUsdt: 0n,
     };
   },
 
@@ -102,18 +114,35 @@ export default {
     async updateInfo() {
       await this.createInfo();
     },
+
+    async checkUsdtAmount() {
+      const publicClient = getPublicClient(ARBITRUM_CHAIN_ID);
+
+      this.arbBridgeBalanceUsdt = await publicClient.readContract({
+        address: ARB_USDT_ADDRESS,
+        abi: tokensAbi.USDT,
+        functionName: "balanceOf",
+        args: [ARB_BRIDGE_ADDRESS],
+      });
+    },
   },
 
   async created() {
     await this.createInfo();
+    await this.checkUsdtAmount();
 
     this.updateInterval = setInterval(async () => {
       await this.createInfo();
     }, 30000);
+
+    this.usdtUpdateInterval = setInterval(async () => {
+      await this.checkUsdtAmount();
+    }, 5000);
   },
 
   beforeUnmount() {
     clearInterval(Number(this.updateInterval));
+    clearInterval(Number(this.usdtUpdateInterval));
   },
 
   components: {
