@@ -26,7 +26,8 @@ type BridgePayload = {
 export const bridgeWithProofs = async (
   account: Address,
   payload: BridgePayload,
-  usePermit: boolean = false
+  usePermit: boolean = false,
+  initialized: boolean = false
 ) => {
   try {
     const proof = merkleProof.items.find(
@@ -53,7 +54,7 @@ export const bridgeWithProofs = async (
           signature?.v,
           signature?.r,
           signature?.s,
-          [proof.account, proof.amount, proof.proof],
+          // [proof.account, proof.amount, proof.proof],
         ]
       : [
           payload.lpAmount,
@@ -63,11 +64,19 @@ export const bridgeWithProofs = async (
           [proof.account, proof.amount, proof.proof],
         ];
 
+    if (!initialized && usePermit) {
+      //@ts-ignore
+      args.push([proof.account, proof.amount, proof.proof]);
+    }
+
     const value = fees.mimFee + fees.usdbFee;
 
-    const functionName = usePermit
-      ? "bridgeWithPermitAndProofs"
-      : "bridgeWithProofs";
+    const functionName =
+      usePermit && initialized
+        ? "bridgeWithPermit"
+        : usePermit
+        ? "bridgeWithPermitAndProofs"
+        : "bridgeWithProofs";
 
     const { request } = await simulateContractHelper({
       address: BLAST_BRIDGE_ADDRESS,

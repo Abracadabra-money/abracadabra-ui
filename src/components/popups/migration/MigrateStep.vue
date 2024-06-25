@@ -186,7 +186,7 @@ export default {
     },
     availableAmount: {
       default: 0n,
-    }
+    },
   },
 
   data() {
@@ -358,12 +358,15 @@ export default {
         minMIMAmount: this.previewRemoveLiquidityResult.baseAmountOut,
         minUSDBAmount: this.previewRemoveLiquidityResult.quoteAmountOut,
       };
+      
+      const { initialized } = this.userInfo.amountAllowed;
 
       try {
         const hash = await bridgeWithProofs(
           this.account,
           payload,
-          this.usePermit
+          this.usePermit,
+          initialized
         );
 
         if (!hash) {
