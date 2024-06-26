@@ -10,14 +10,14 @@
       <div>
         <h3 class="title">
           <img
-            clas="mlp-icon"
+            class="mlp-icon"
             src="@/assets/images/tokens/MIM-USDB.png"
             alt=""
           />MLP Migration
         </h3>
         <h4 class="subtitle">
           Founders earn of all Points, Gold, and Potions acquired by protocol.
-          <button class="migrate-btn" @click="openPopup">
+          <span class="migrate-btn" @click="openPopup">
             Migrate
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -37,19 +37,22 @@
                 stroke="white"
               />
             </svg>
-          </button>
+          </span>
         </h4>
       </div>
     </div>
 
-    <Timer
-      class="timer"
-      :endDateTimestamp="1722364937"
-      small
-      isLock
-      padding="6px"
-      background="rgba(0, 10, 35, 0.30)"
-    />
+    <div class="timer-wrap">
+      <Timer
+        class="timer"
+        :endDateTimestamp="1722364937"
+        small
+        isLock
+        padding="6px"
+        background="rgba(0, 10, 35, 0.30)"
+      />
+      <div class="timer-text">Time left to migrate</div>
+    </div>
 
     <img
       class="close-btn"
@@ -176,7 +179,7 @@ export default {
 }
 
 .mlp-icon {
-  width: 2px;
+  width: 28px;
   height: 28px;
 }
 
@@ -184,9 +187,6 @@ export default {
   color: rgba(255, 255, 255, 0.6);
   font-weight: 400;
   line-height: normal;
-  gap: 10px;
-  display: flex;
-  align-items: center;
 }
 
 .migrate-btn {
@@ -197,7 +197,7 @@ export default {
   font-weight: 400;
   line-height: normal;
   gap: 4px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   cursor: pointer;
 }
@@ -209,11 +209,31 @@ export default {
   cursor: pointer;
 }
 
+.timer-text {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: normal;
+}
+
 @media screen and (max-width: 1260px) {
+  .subtitle {
+    font-size: 14px;
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  .migration-icon {
+    max-width: 25%;
+  }
+}
+
+@media screen and (max-width: 768px) {
   .banner {
-    padding: 24px 12px;
+    padding: 12px;
     flex-direction: column;
-    gap: 12px;
+    gap: 24px;
   }
 
   .migration-icon {
@@ -221,19 +241,17 @@ export default {
   }
 
   .banner-content {
-    gap: 16px;
-    flex-direction: column;
+    gap: 10px;
+    flex-direction: column-reverse;
   }
 
   .title {
-    justify-content: center;
     font-size: 16px;
   }
 
   .subtitle {
+    font-size: 16px;
     flex-direction: column;
-    justify-content: center;
-    text-align: center;
   }
 
   .migration-icon {
