@@ -39,7 +39,12 @@
       </div>
     </div>
 
-    <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
+    <BaseButton
+      v-if="hasLockLogic || hasStakeLogic"
+      primary
+      @click="actionHandler"
+      :disabled="isButtonDisabled"
+    >
       {{ buttonText }}
     </BaseButton>
   </div>
@@ -112,6 +117,8 @@ export default {
       return !!this.pool.stakeInfo;
     },
     isAllowed() {
+      if (!this.hasLockLogic && !this.hasStakeLogic) return false;
+
       if (this.hasLockLogic)
         return this.pool.lockInfo.allowance >= this.pool.userInfo.balance;
       return this.pool.stakeInfo.allowance >= this.pool.userInfo.balance;
