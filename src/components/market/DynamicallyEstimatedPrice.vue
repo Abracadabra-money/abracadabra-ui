@@ -28,6 +28,7 @@ import { BigNumber } from "ethers";
 import { defineAsyncComponent } from "vue";
 // @ts-ignore
 import { getCollateralApr } from "@/helpers/collateralsApy";
+import { BERA_BARTIO_CHAIN_ID, KAVA_CHAIN_ID } from "@/constants/global";
 
 export default {
   props: {
@@ -54,7 +55,7 @@ export default {
 
   computed: {
     hideDynamicFee() {
-      const disabledChains = [2222, 80085];
+      const disabledChains = [KAVA_CHAIN_ID, BERA_BARTIO_CHAIN_ID];
 
       return disabledChains.indexOf(this.cauldron.config.chainId) !== -1;
     },

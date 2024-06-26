@@ -1,9 +1,12 @@
 import { utils, BigNumber } from "ethers";
-import type { CauldronPositionItem } from "@/helpers/cauldron/types";
+import type {
+  CauldronPositionItem,
+  UserTotalAssets,
+} from "@/helpers/cauldron/types";
 
 export const getUsersTotalAssets = (
   positions: CauldronPositionItem[]
-): object => {
+): UserTotalAssets => {
   const COLLATERAL_PRECISION = 2;
 
   const collateralDeposited = positions.reduce((accumulator, position) => {
@@ -18,10 +21,9 @@ export const getUsersTotalAssets = (
   }, BigNumber.from(0));
 
   return {
-    collateralDepositedInUsd: utils.formatUnits(
-      collateralDeposited,
-      COLLATERAL_PRECISION
+    collateralDepositedInUsd: Number(
+      utils.formatUnits(collateralDeposited, COLLATERAL_PRECISION)
     ),
-    mimBorrowed: utils.formatUnits(mimBorrowed),
+    mimBorrowed: Number(utils.formatUnits(mimBorrowed)),
   };
 };

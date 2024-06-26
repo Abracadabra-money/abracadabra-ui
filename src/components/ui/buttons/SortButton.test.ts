@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { shallowMount } from "@vue/test-utils";
 import SortButton from "@/components/ui/buttons/SortButton.vue";
+import type { SortOrder } from "@/types/common";
 
 describe("SortButton", () => {
   it("renders the component correctly", () => {
@@ -14,7 +15,7 @@ describe("SortButton", () => {
   });
 
   it("sets the sortOrder prop correctly", () => {
-    const sortOrder: string = "asc";
+    const sortOrder: SortOrder = "up";
     const wrapper: any = shallowMount(SortButton, {
       propsData: {
         sortOrder,

@@ -1,12 +1,13 @@
 import { describe, it, expect } from "vitest";
 import { shallowMount } from "@vue/test-utils";
 import FiltersPopup from "@/components/myPositions/FiltersPopup.vue";
+import type { PositionsSortKey } from "@/views/MyPositions.vue";
 
 describe("FiltersPopup", () => {
   it("renders correctly", () => {
     const sortersData = [
-      { key: "key1", text: "Sorter 1" },
-      { key: "key2", text: "Sorter 2" },
+      { tableKey: "mimBorrowed" as PositionsSortKey, text: "Sorter 1" },
+      { tableKey: "apr" as PositionsSortKey, text: "Sorter 2" },
     ];
 
     const wrapper = shallowMount(FiltersPopup, {
@@ -23,8 +24,8 @@ describe("FiltersPopup", () => {
 
   it("emits updateSortKey event when apply button is clicked", () => {
     const sortersData = [
-      { key: "key1", text: "Sorter 1" },
-      { key: "key2", text: "Sorter 2" },
+      { tableKey: "mimBorrowed" as PositionsSortKey, text: "Sorter 1" },
+      { tableKey: "apr" as PositionsSortKey, text: "Sorter 2" },
     ];
 
     const wrapper = shallowMount(FiltersPopup, {
@@ -40,8 +41,8 @@ describe("FiltersPopup", () => {
 
   it("emits close event when close button is clicked", () => {
     const sortersData = [
-      { key: "key1", text: "Sorter 1" },
-      { key: "key2", text: "Sorter 2" },
+      { tableKey: "mimBorrowed" as PositionsSortKey, text: "Sorter 1" },
+      { tableKey: "apr" as PositionsSortKey, text: "Sorter 2" },
     ];
 
     const wrapper = shallowMount(FiltersPopup, {

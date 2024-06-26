@@ -93,19 +93,19 @@
   </div>
 </template>
 
-<script>
-import { defineAsyncComponent } from "vue";
+<script lang="ts">
+import { defineAsyncComponent, type PropType } from "vue";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 import { getChainConfig } from "@/helpers/chains/getChainsInfo";
 
 export default {
   props: {
     activeChains: {
-      type: Array,
+      type: Array as PropType<number[]>,
       default: () => [],
     },
     selectedChains: {
-      type: Array,
+      type: Array as PropType<number[]>,
       default: () => [],
     },
   },
@@ -147,9 +147,9 @@ export default {
   },
 
   watch: {
-    allSelected(value) {
-      if (value && this.$refs.dropdownList)
-        this.$refs.dropdownList.scrollTo({
+    allSelected(isAllSelected: boolean) {
+      if (isAllSelected && this.$refs.dropdownList)
+        (this.$refs.dropdownList as HTMLDivElement).scrollTo({
           top: 0,
           behavior: "smooth",
         });
@@ -158,9 +158,9 @@ export default {
 
   methods: {
     getChainIcon,
-    getChainName(chainId) {
+    getChainName(chainId: number) {
       const chain = getChainConfig(chainId);
-      return chain.chainName;
+      return chain?.chainName;
     },
 
     toogleDropdown() {
@@ -172,8 +172,8 @@ export default {
       this.showDropdownList = false;
     },
 
-    updateSelectedChain(value) {
-      this.$emit("updateSelectedChain", value);
+    updateSelectedChain(chainId: number) {
+      this.$emit("updateSelectedChain", chainId);
     },
   },
 

@@ -4,24 +4,23 @@ import PositionAssets from "@/components/myPositions/PositionAssets.vue";
 
 describe("PositionAssets", () => {
   it("renders assets correctly", () => {
-    const assetsInfo = {
-      asset1: {
+    const assetsInfo = [
+      {
         title: "Asset 1",
         icon: "icon1",
         name: "Asset 1",
         symbol: "A1",
         amount: 10,
-        amountUsd: 100,
+        amountUsd: "100",
       },
-      asset2: {
+      {
         title: "Asset 2",
         icon: "icon2",
         name: "Asset 2",
         symbol: "A2",
         amount: 20,
-        amountUsd: 200,
       },
-    };
+    ];
 
     const wrapper = shallowMount(PositionAssets, {
       propsData: {
@@ -39,34 +38,26 @@ describe("PositionAssets", () => {
     // Assert that the asset titles are rendered correctly
     const assetTitleElements = wrapper.findAll(".asset-title");
     expect(assetTitleElements.length).toBe(Object.keys(assetsInfo).length);
-    expect(assetTitleElements[0].text()).toBe(assetsInfo.asset1.title);
-    expect(assetTitleElements[1].text()).toBe(assetsInfo.asset2.title);
+    expect(assetTitleElements[0].text()).toBe(assetsInfo[0].title);
+    expect(assetTitleElements[1].text()).toBe(assetsInfo[1].title);
 
     // Assert that the asset icons are rendered correctly
     const assetIconElements = wrapper.findAll(".token-icon");
     expect(assetIconElements.length).toBe(Object.keys(assetsInfo).length);
-    expect(assetIconElements[0].attributes("icon")).toBe(
-      assetsInfo.asset1.icon
-    );
-    expect(assetIconElements[1].attributes("icon")).toBe(
-      assetsInfo.asset2.icon
-    );
+    expect(assetIconElements[0].attributes("icon")).toBe(assetsInfo[0].icon);
+    expect(assetIconElements[1].attributes("icon")).toBe(assetsInfo[1].icon);
 
     // Assert that the asset names are rendered correctly
     const assetNameElements = wrapper.findAll(".token-name");
     expect(assetNameElements.length).toBe(Object.keys(assetsInfo).length);
-    expect(assetNameElements[0].text()).toBe(assetsInfo.asset1.symbol);
-    expect(assetNameElements[1].text()).toBe(assetsInfo.asset2.symbol);
+    expect(assetNameElements[0].text()).toBe(assetsInfo[0].symbol);
+    expect(assetNameElements[1].text()).toBe(assetsInfo[1].symbol);
 
     // Assert that the asset amounts are rendered correctly
     const assetAmountElements = wrapper.findAll(".token-value");
     expect(assetAmountElements.length).toBe(Object.keys(assetsInfo).length);
-    expect(assetAmountElements[0].text()).toBe(
-      assetsInfo.asset1.amount.toString()
-    );
-    expect(assetAmountElements[1].text()).toBe(
-      assetsInfo.asset2.amount.toString()
-    );
+    expect(assetAmountElements[0].text()).toBe(assetsInfo[0].amount.toString());
+    expect(assetAmountElements[1].text()).toBe(assetsInfo[1].amount.toString());
 
     // Assert that the asset USD equivalents are rendered correctly
     const assetUsdEquivalentElements = wrapper.findAll(".usd-equivalent");
@@ -74,10 +65,10 @@ describe("PositionAssets", () => {
       Object.keys(assetsInfo).length
     );
     expect(assetUsdEquivalentElements[0].text()).toBe(
-      assetsInfo.asset1.amountUsd.toString()
+      (assetsInfo[0]?.amountUsd || "").toString()
     );
     expect(assetUsdEquivalentElements[1].text()).toBe(
-      assetsInfo.asset2.amountUsd.toString()
+      (assetsInfo[1]?.amountUsd || "").toString()
     );
   });
 });
