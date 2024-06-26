@@ -1,8 +1,24 @@
 <template>
   <div class="popup-header">
+    <svg
+      class="back-button"
+      @click="$emit('changeSteap', 2)"
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+    >
+      <path
+        d="M11.0302 4.71945C11.1 4.7891 11.1553 4.87182 11.193 4.96287C11.2308 5.05392 11.2502 5.15151 11.2502 5.25007C11.2502 5.34863 11.2308 5.44623 11.193 5.53728C11.1553 5.62833 11.1 5.71104 11.0302 5.7807L5.55993 11.2501L20.2496 11.2501C20.4485 11.2501 20.6393 11.3291 20.7799 11.4697C20.9206 11.6104 20.9996 11.8012 20.9996 12.0001C20.9996 12.199 20.9206 12.3897 20.7799 12.5304C20.6393 12.6711 20.4485 12.7501 20.2496 12.7501L5.55993 12.7501L11.0302 18.2194C11.171 18.3602 11.25 18.551 11.25 18.7501C11.25 18.9491 11.171 19.14 11.0302 19.2807C10.8895 19.4214 10.6986 19.5005 10.4996 19.5005C10.3006 19.5005 10.1097 19.4214 9.96899 19.2807L3.21899 12.5307C3.14926 12.461 3.09394 12.3783 3.05619 12.2873C3.01845 12.1962 2.99902 12.0986 2.99902 12.0001C2.99902 11.9015 3.01845 11.8039 3.05619 11.7129C3.09394 11.6218 3.14926 11.5391 3.21899 11.4694L9.96899 4.71945C10.0386 4.64971 10.1214 4.59439 10.2124 4.55665C10.3035 4.51891 10.4011 4.49948 10.4996 4.49948C10.5982 4.49948 10.6958 4.51891 10.7868 4.55665C10.8779 4.59439 10.9606 4.64971 11.0302 4.71945Z"
+        fill="white"
+      />
+    </svg>
+
     <h3 class="title">Unstake your MLP</h3>
-    <div class="step">Step 1</div>
   </div>
+
+  <Steps :step="2" />
 
   <p class="sub-title">
     Lock your MagicLP for 3 months to obtain the Founder Boost, a permanent
@@ -238,11 +254,24 @@ export default {
     BaseButton: defineAsyncComponent(
       () => import("@/components/base/BaseButton.vue")
     ),
+    Steps: defineAsyncComponent(
+      () => import("@/components/popups/migration/Steps.vue")
+    ),
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.popup-header {
+  gap: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.back-button {
+  cursor: pointer;
+}
+
 .title {
   font-size: 24px;
   font-weight: 500;

@@ -1,10 +1,7 @@
 <template>
-  <h3 class="title">Migrate your MLP with two Steps</h3>
+  <h3 class="title">Migrate your MLP</h3>
 
-  <p class="sub-title">
-    Lock your MagicLP for 3 months to obtain the Founder Boost, a permanent
-    reward boost exclusive to Phase 3.
-  </p>
+  <p class="sub-title">As a Founder you are eligble to Migrate</p>
 
   <div class="popup-content">
     <img
@@ -107,7 +104,7 @@ export default {
 }
 
 .migration-icon {
-  max-width: 263px;
+  max-width: 360px;
   margin: 0 auto;
 }
 
@@ -147,6 +144,10 @@ export default {
 @media screen and (max-width: 600px) {
   .title {
     font-size: 18px;
+  }
+
+  .migration-icon {
+    max-width: 280px;
   }
 
   .sub-title {

@@ -14,7 +14,7 @@
       @changeSteap="changeSteap"
     />
 
-    <MlpAvailableStep
+    <BalancesStep
       v-if="steap === 2"
       :poolInfo="poolInfo"
       :userInfo="userInfo"
@@ -36,6 +36,7 @@
       :poolInfo="poolInfo"
       :availableAmount="availableAmount"
       :arbBridgeBalanceUsdt="arbBridgeBalanceUsdt"
+      @changeSteap="changeSteap"
     />
   </div>
 </template>
@@ -149,8 +150,8 @@ export default {
     BaseStep: defineAsyncComponent(
       () => import("@/components/popups/migration/BaseStep.vue")
     ),
-    MlpAvailableStep: defineAsyncComponent(
-      () => import("@/components/popups/migration/MlpAvailableStep.vue")
+    BalancesStep: defineAsyncComponent(
+      () => import("@/components/popups/migration/BalancesStep.vue")
     ),
     UnstakeStep: defineAsyncComponent(
       () => import("@/components/popups/migration/UnstakeStep.vue")
@@ -168,6 +169,7 @@ export default {
   gap: 24px;
   display: flex;
   flex-direction: column;
+  min-width: 534px;
   max-width: 534px;
   width: 100%;
   padding: 32px;
@@ -189,6 +191,7 @@ export default {
 
 @media screen and (max-width: 600px) {
   .popup {
+    min-width: 100%;
     padding: 32px 24px;
     gap: 12px;
   }

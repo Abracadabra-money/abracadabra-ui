@@ -1,8 +1,24 @@
 <template>
   <div class="popup-header">
-    <h3 class="title">Migrate liquidity</h3>
-    <div class="step">Step 2</div>
+    <svg
+      class="back-button"
+      @click="$emit('changeSteap', 2)"
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+    >
+      <path
+        d="M11.0302 4.71945C11.1 4.7891 11.1553 4.87182 11.193 4.96287C11.2308 5.05392 11.2502 5.15151 11.2502 5.25007C11.2502 5.34863 11.2308 5.44623 11.193 5.53728C11.1553 5.62833 11.1 5.71104 11.0302 5.7807L5.55993 11.2501L20.2496 11.2501C20.4485 11.2501 20.6393 11.3291 20.7799 11.4697C20.9206 11.6104 20.9996 11.8012 20.9996 12.0001C20.9996 12.199 20.9206 12.3897 20.7799 12.5304C20.6393 12.6711 20.4485 12.7501 20.2496 12.7501L5.55993 12.7501L11.0302 18.2194C11.171 18.3602 11.25 18.551 11.25 18.7501C11.25 18.9491 11.171 19.14 11.0302 19.2807C10.8895 19.4214 10.6986 19.5005 10.4996 19.5005C10.3006 19.5005 10.1097 19.4214 9.96899 19.2807L3.21899 12.5307C3.14926 12.461 3.09394 12.3783 3.05619 12.2873C3.01845 12.1962 2.99902 12.0986 2.99902 12.0001C2.99902 11.9015 3.01845 11.8039 3.05619 11.7129C3.09394 11.6218 3.14926 11.5391 3.21899 11.4694L9.96899 4.71945C10.0386 4.64971 10.1214 4.59439 10.2124 4.55665C10.3035 4.51891 10.4011 4.49948 10.4996 4.49948C10.5982 4.49948 10.6958 4.51891 10.7868 4.55665C10.8779 4.59439 10.9606 4.64971 11.0302 4.71945Z"
+        fill="white"
+      />
+    </svg>
+
+    <h3 class="title">Migrate</h3>
   </div>
+
+  <Steps :step="3" />
 
   <p class="sub-title">
     Lock your MagicLP for 3 months to obtain the Founder Boost, a permanent
@@ -152,6 +168,27 @@
     </div>
   </div>
 
+  <div class="warning" v-if="isDisabledButton">
+    <svg
+      class="warning-icon"
+      xmlns="http://www.w3.org/2000/svg"
+      width="32"
+      height="32"
+      viewBox="0 0 32 32"
+      fill="none"
+    >
+      <path
+        d="M29.6004 23.5113L18.6691 4.52758C18.396 4.06249 18.006 3.67686 17.5379 3.40891C17.0698 3.14096 16.5397 3 16.0004 3C15.461 3 14.931 3.14096 14.4629 3.40891C13.9947 3.67686 13.6048 4.06249 13.3316 4.52758L2.40036 23.5113C2.13753 23.9612 1.99902 24.4728 1.99902 24.9938C1.99902 25.5148 2.13753 26.0265 2.40036 26.4763C2.67003 26.9442 3.05933 27.332 3.52832 27.5997C3.9973 27.8675 4.52909 28.0057 5.06911 28.0001H26.9316C27.4712 28.0052 28.0025 27.8669 28.471 27.5991C28.9395 27.3314 29.3284 26.9439 29.5979 26.4763C29.8611 26.0267 30 25.5152 30.0005 24.9942C30.0009 24.4732 29.8628 23.9614 29.6004 23.5113ZM27.8666 25.4751C27.7713 25.6376 27.6345 25.7719 27.4702 25.8642C27.3059 25.9564 27.12 26.0033 26.9316 26.0001H5.06911C4.88071 26.0033 4.69483 25.9564 4.53053 25.8642C4.36622 25.7719 4.22941 25.6376 4.13411 25.4751C4.04779 25.3289 4.00226 25.1623 4.00226 24.9926C4.00226 24.8228 4.04779 24.6562 4.13411 24.5101L15.0654 5.52633C15.1626 5.36455 15.3 5.23068 15.4643 5.13774C15.6286 5.04479 15.8141 4.99595 16.0029 4.99595C16.1916 4.99595 16.3771 5.04479 16.5414 5.13774C16.7057 5.23068 16.8431 5.36455 16.9404 5.52633L27.8716 24.5101C27.9572 24.6567 28.0018 24.8235 28.001 24.9933C28.0001 25.163 27.9537 25.3294 27.8666 25.4751ZM15.0004 18.0001V13.0001C15.0004 12.7349 15.1057 12.4805 15.2933 12.293C15.4808 12.1054 15.7351 12.0001 16.0004 12.0001C16.2656 12.0001 16.5199 12.1054 16.7075 12.293C16.895 12.4805 17.0004 12.7349 17.0004 13.0001V18.0001C17.0004 18.2653 16.895 18.5197 16.7075 18.7072C16.5199 18.8947 16.2656 19.0001 16.0004 19.0001C15.7351 19.0001 15.4808 18.8947 15.2933 18.7072C15.1057 18.5197 15.0004 18.2653 15.0004 18.0001ZM17.5004 22.5001C17.5004 22.7968 17.4124 23.0868 17.2476 23.3334C17.0827 23.5801 16.8485 23.7724 16.5744 23.8859C16.3003 23.9994 15.9987 24.0291 15.7077 23.9713C15.4168 23.9134 15.1495 23.7705 14.9397 23.5607C14.7299 23.351 14.5871 23.0837 14.5292 22.7927C14.4713 22.5017 14.501 22.2001 14.6145 21.9261C14.7281 21.652 14.9203 21.4177 15.167 21.2529C15.4137 21.0881 15.7037 21.0001 16.0004 21.0001C16.3982 21.0001 16.7797 21.1581 17.061 21.4394C17.3423 21.7207 17.5004 22.1023 17.5004 22.5001Z"
+        fill="#FED84F"
+      />
+    </svg>
+
+    <div>
+      Lock your MagicLP for 3 months to obtain the Founder Boost, a permanent
+      reward boost exclusive to Phase
+    </div>
+  </div>
+
   <BaseButton
     :disabled="isActionProcessing || isDisabledButton"
     @click="actionHandler"
@@ -273,7 +310,7 @@ export default {
     },
 
     buttonText() {
-      if (this.isDisabledButton) return "Insufficient funds";
+      if (this.isDisabledButton) return "Pending Top Up";
       if (!this.usePermit && !this.isLpApprove) return "Approve";
       if (this.isActionProcessing) return "Processing...";
       return "Migrate";
@@ -369,7 +406,7 @@ export default {
     async bridgeAction() {
       if (this.isDisabledButton) {
         const errorNotification = {
-          msg: "Insufficient funds",
+          msg: "Pending Top Up",
           type: "error",
         };
 
@@ -471,23 +508,30 @@ export default {
     BaseButton: defineAsyncComponent(
       () => import("@/components/base/BaseButton.vue")
     ),
+    Steps: defineAsyncComponent(
+      () => import("@/components/popups/migration/Steps.vue")
+    ),
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.popup-header {
+  gap: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.back-button {
+  cursor: pointer;
+}
+
 .row {
   width: 100%;
   gap: 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.close {
-  width: 24px;
-  height: 24px;
-  cursor: pointer;
 }
 
 .title {
@@ -622,6 +666,20 @@ export default {
   );
   background-size: 5px 5px;
   border: none;
+}
+
+.warning {
+  gap: 8px;
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.warning-icon {
+  min-width: 32px;
+  height: 32px;
 }
 
 @media screen and (max-width: 600px) {
