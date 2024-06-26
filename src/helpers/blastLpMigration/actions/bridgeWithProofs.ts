@@ -30,6 +30,14 @@ export const bridgeWithProofs = async (
   initialized: boolean = false
 ) => {
   try {
+    const functionName = initialized
+      ? usePermit
+        ? "bridgeWithPermit"
+        : "bridge"
+      : usePermit
+      ? "bridgeWithPermitAndProofs"
+      : "bridgeWithProofs";
+
     const proof = merkleProof.items.find(
       (item) => item.account.toLowerCase() === account.toLowerCase()
     )!;
@@ -44,39 +52,28 @@ export const bridgeWithProofs = async (
       ? await setPermit(account, payload.lpAmount, deadline)
       : undefined;
 
-    const args = usePermit
-      ? [
-          payload.lpAmount,
-          payload.minMIMAmount,
-          payload.minUSDBAmount,
-          [fees.mimFee, fees.mimGas, fees.usdbFee, fees.usdbGas],
-          deadline,
-          signature?.v,
-          signature?.r,
-          signature?.s,
-          // [proof.account, proof.amount, proof.proof],
-        ]
-      : [
-          payload.lpAmount,
-          payload.minMIMAmount,
-          payload.minUSDBAmount,
-          [fees.mimFee, fees.mimGas, fees.usdbFee, fees.usdbGas],
-          [proof.account, proof.amount, proof.proof],
-        ];
+    let baseArgs = [
+      payload.lpAmount,
+      payload.minMIMAmount,
+      payload.minUSDBAmount,
+      [fees.mimFee, fees.mimGas, fees.usdbFee, fees.usdbGas],
+    ];
 
-    if (!initialized && usePermit) {
-      //@ts-ignore
-      args.push([proof.account, proof.amount, proof.proof]);
-    }
+    // Define the permit arguments if needed
+    let permitArgs = usePermit
+      ? [deadline, signature?.v, signature?.r, signature?.s]
+      : [];
+
+    // Define the proof arguments if not initialized
+    let proofArgs = !initialized
+      ? [[proof.account, proof.amount, proof.proof]]
+      : [];
+
+    // Combine the arguments based on the conditions
+    const args = [...baseArgs, ...permitArgs, ...proofArgs];
 
     const value = fees.mimFee + fees.usdbFee;
 
-    const functionName =
-      usePermit && initialized
-        ? "bridgeWithPermit"
-        : usePermit
-        ? "bridgeWithPermitAndProofs"
-        : "bridgeWithProofs";
 
     const { request } = await simulateContractHelper({
       address: BLAST_BRIDGE_ADDRESS,
