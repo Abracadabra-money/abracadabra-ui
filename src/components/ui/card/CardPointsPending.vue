@@ -71,7 +71,7 @@
     </div>
     <div class="card-body" v-else>
       <div class="total-points">
-        <span class="total-title">Potion</span>
+        <span class="total-title">Potions</span>
         <span class="total-earned">{{ formatTokenBalance(potionPoints) }}</span>
       </div>
 
