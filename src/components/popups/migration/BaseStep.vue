@@ -1,7 +1,9 @@
 <template>
-  <h3 class="title">Migrate your MLP</h3>
+  <h3 class="title">Migrate your MagicLP (MLP)</h3>
 
-  <p class="sub-title">As a Founder you are eligble to Migrate</p>
+  <p class="sub-title">
+    As a Founder, you're eligible to migrate your MLP from Blast to Arbitrum
+  </p>
 
   <div class="popup-content">
     <img
@@ -20,7 +22,14 @@
     </div>
   </div>
 
-  <BaseButton @click="actionHandler" primary>{{ buttonText }}</BaseButton>
+  <div class="btn-wrap">
+    <BaseButton @click="actionHandler" primary>{{ buttonText }}</BaseButton>
+
+    <p class="subtitle">
+      This process may require multiple transactions. Ensure you have enough ETH
+      for gas fees on both networks.
+    </p>
+  </div>
 </template>
 
 <script lang="ts">
@@ -138,6 +147,18 @@ export default {
   color: #878b93;
   font-size: 14px;
   font-weight: 500;
+  line-height: normal;
+}
+
+.btn-wrap {
+  gap: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.subtitle {
+  text-align: center;
+  font-size: 12px;
   line-height: normal;
 }
 
