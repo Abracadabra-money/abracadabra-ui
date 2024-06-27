@@ -203,7 +203,41 @@
           </div>
         </template>
 
-        <div class="tab-caming-soon" v-if="activeTab === 3">Coming soon</div>
+        <template v-if="activeTab === 3">
+          <div class="tab-row">
+            <span class="tab-row-title">Potion earned</span>
+            <span class="tab-row-value">{{ potionDistributionAmount }}</span>
+          </div>
+          <div class="tab-row">
+            <span class="tab-row-title primary"
+              >Your Next Distribution
+              <span class="boost">
+                <img
+                  v-tooltip="'Boosted Airdrop for Founders'"
+                  src="@/assets/images/points-dashboard/rocket.svg"
+                  alt=""
+                /> </span
+            ></span>
+            <span class="tab-row-value primary">
+              {{ potionPendingDistributionAmount }}</span
+            >
+          </div>
+
+          <div class="line"></div>
+
+          <div class="tab-row">
+            <span class="tab-row-title"
+              >Pool Rate
+              <Tooltip
+                :width="20"
+                :height="20"
+                tooltip="Pending rewards for the Founders"
+            /></span>
+            <span class="tab-row-value">{{
+              totalPotionPendingDistributionAmount
+            }}</span>
+          </div>
+        </template>
       </div>
     </div>
 
@@ -351,6 +385,12 @@ export default {
       );
     },
 
+    potionDistributionAmount() {
+      return formatTokenBalance(
+        this.userPointsStatistics?.potionPoints.founder.finalized ?? 0
+      );
+    },
+
     goldOneFounderBonus() {
       return formatTokenBalance(
         this.userPointsStatistics?.developerPoints?.phaseOneFounderBonus
@@ -366,6 +406,12 @@ export default {
       );
     },
 
+    potionPendingDistributionAmount() {
+      return formatTokenBalance(
+        this.userPointsStatistics?.potionPoints?.founder?.pending ?? 0
+      );
+    },
+
     totalPendingDistributionAmount() {
       return formatTokenBalance(
         this.pointsStatistics?.liquidityPoints?.founder?.pending ?? 0
@@ -375,6 +421,12 @@ export default {
     totalGoldPendingDistributionAmount() {
       return formatTokenBalance(
         this.pointsStatistics?.developerPoints?.founder?.pending ?? 0
+      );
+    },
+
+    totalPotionPendingDistributionAmount() {
+      return formatTokenBalance(
+        this.pointsStatistics?.potionPoints?.founder?.pending ?? 0
       );
     },
   },
