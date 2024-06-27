@@ -17,7 +17,7 @@
   <NotificationContainer />
   <PopupsWrapper />
   <Banner />
-  <MlpMigrationBanner />
+  <!-- <MlpMigrationBanner /> -->
   <SkullBanner />
   <OldAllowanceBanner />
   <TenderlyMod />
