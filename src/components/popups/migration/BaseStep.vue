@@ -1,7 +1,7 @@
 <template>
   <h3 class="title">Migrate your MagicLP (MLP)</h3>
 
-  <p class="sub-title">
+  <p class="subtitle">
     As a Founder, you're eligible to migrate your MLP from Blast to Arbitrum
   </p>
 
@@ -29,7 +29,7 @@
   <div class="btn-wrap">
     <BaseButton @click="actionHandler" primary>{{ buttonText }}</BaseButton>
 
-    <p class="subtitle">
+    <p class="label">
       This process may require multiple transactions. Ensure you have enough ETH
       for gas fees on both networks.
     </p>
@@ -104,11 +104,6 @@ export default {
   line-height: normal;
 }
 
-.sub-title {
-  font-weight: 500;
-  line-height: normal;
-}
-
 .popup-content {
   width: 100%;
   gap: 24px;
@@ -160,7 +155,7 @@ export default {
   flex-direction: column;
 }
 
-.subtitle {
+.label {
   text-align: center;
   font-size: 12px;
   line-height: normal;
@@ -175,7 +170,7 @@ export default {
     max-width: 280px;
   }
 
-  .sub-title {
+  .subtitle {
     font-size: 14px;
   }
 

@@ -15,20 +15,23 @@
       />
     </svg>
 
-    <h3 class="title">Unstake your MLP</h3>
+    <h3 class="title">Step 2: Unstake your MLP</h3>
   </div>
 
   <Steps :step="2" />
 
-  <p class="sub-title">
-    Lock your MagicLP for 3 months to obtain the Founder Boost, a permanent
-    reward boost exclusive to Phase 3.
+  <p class="subtitle">
+    Unstake your staked MLP to prepare for the tokens migration to Arbitrum
   </p>
 
   <div class="popup-content">
     <div class="mlp-info">
       <div class="mlp-icon-wrap">
-        <img clas="mlp-icon" src="@/assets/images/tokens/MIM-USDB.png" alt="" />
+        <img
+          class="mlp-icon"
+          src="@/assets/images/tokens/MIM-USDB.png"
+          alt=""
+        />
         <span>MLP</span>
       </div>
 
@@ -198,7 +201,7 @@ export default {
 
     buttonText() {
       if (this.isActionProcessing) return "Processing...";
-      return "Unstake ";
+      return "Unstake MLP";
     },
   },
 
@@ -283,11 +286,6 @@ export default {
   font-weight: 500;
   line-height: normal;
   color: #878b93;
-}
-
-.sub-title {
-  font-weight: 500;
-  line-height: normal;
 }
 
 .popup-content {
@@ -388,7 +386,7 @@ export default {
     font-size: 18px;
   }
 
-  .sub-title {
+  .subtitle {
     font-size: 14px;
   }
 }
