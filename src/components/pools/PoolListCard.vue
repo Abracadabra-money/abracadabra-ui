@@ -8,11 +8,11 @@
           <img class="chain-icon" :src="getChainIcon(pool.config.chainId)" />
         </div>
 
-        <div>
+        <div v-if="pool.config.chainId === 81457">
           <div class="pool-name">{{ pool.name }}</div>
           <div class="pool-rewards">
             Staking rewards
-            <div class="reward-icons-wrap" v-if="pool.config.chainId === 81457">
+            <div class="reward-icons-wrap" >
               <img
                 class="reward-icons"
                 v-for="(reward, index) in kavaRewards"
@@ -22,11 +22,11 @@
               />
             </div>
 
-            <img
+            <!-- <img
               class="reward-icon"
               :src="getChainIcon(pool.config.chainId)"
               v-else
-            />
+            /> -->
           </div>
         </div>
       </div>
@@ -107,8 +107,8 @@ export default {
   data() {
     return {
       kavaRewards: [
-        useImage("assets/images/points-dashboard/blast.png"),
-        useImage("assets/images/points-dashboard/gold-points.svg"),
+        // useImage("assets/images/points-dashboard/blast.png"),
+        // useImage("assets/images/points-dashboard/gold-points.svg"),
         useImage("assets/images/points-dashboard/potion.png"),
       ],
     };
