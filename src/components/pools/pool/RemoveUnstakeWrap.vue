@@ -1,6 +1,6 @@
 <template>
   <div class="deposit-stake-wrap">
-    <div class="condition-management-wrap" v-if="isLockContract">
+    <div class="condition-management-wrap" v-if="hasStakeLogic">
       <Tabs
         class="tabs"
         :name="activeTab"
@@ -8,6 +8,15 @@
         @select="selectTab"
       />
 
+      <Toggle
+        v-if="!isUnstake"
+        text="Single Side"
+        :selected="isSingleSide"
+        @updateToggle="changeSingleSideToggle"
+      />
+    </div>
+
+    <div class="condition-management-wrap flex-end" v-else>
       <Toggle
         v-if="!isUnstake"
         text="Single Side"
@@ -56,8 +65,8 @@ export default {
   },
 
   computed: {
-    isLockContract() {
-      return this.pool.lockContract;
+    hasStakeLogic() {
+      return this.pool.lockContract || this.pool.stakeContract;
     },
 
     isUnstake() {
@@ -116,6 +125,10 @@ export default {
   flex-wrap: wrap;
   gap: 20px;
   width: 100%;
+}
+
+.flex-end {
+  justify-content: flex-end
 }
 
 .tabs {

@@ -11,7 +11,7 @@
         class="quote"
         :icon="quoteTokenConfig.icon"
         :name="quoteTokenConfig.name"
-        size="40px"
+        size="46px"
       />
     </div>
 
@@ -59,7 +59,7 @@ export default {
 }
 
 .quote {
-  border-radius: 14px;
+  border-radius: 18px;
   border: 3px solid #0d1527;
   margin-left: -23px;
 }

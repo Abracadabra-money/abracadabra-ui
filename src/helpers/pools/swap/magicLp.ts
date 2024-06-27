@@ -10,7 +10,9 @@ import { getSwapRouterByChain } from "@/configs/pools/routers";
 import poolsConfig from "@/configs/pools/pools";
 import type { PoolConfig } from "@/configs/pools/types";
 
-import { MagicLPPriceAddress } from "@/constants/blast";
+import { getMidPriceAddressByChain } from "@/configs/pools/midPrice";
+import { formatUnits } from "viem";
+import { getCoinsPrices } from "@/helpers/prices/defiLlama";
 
 export const getAllPoolsByChain = async (
   chainId: number,
@@ -70,7 +72,7 @@ export const getLpInfo = async (
         args: [],
       },
       {
-        address: MagicLPPriceAddress,
+        address: getMidPriceAddressByChain(chainId),
         abi: MagicLPPrice as any,
         functionName: "getMidPrice",
         args: [lp.contract.address],
@@ -136,20 +138,29 @@ export const getLpInfo = async (
   // NOTICE: will be updated when we have graph
   const statisticsData = fetchStatisticsData();
 
+  const tokensPrices = await getCoinsPrices(chainId, [
+    lp.baseToken.contract.address,
+    lp.quoteToken.contract.address,
+  ]);
+
   return {
     ...lp,
+    // TODO
+    config: lp,
     contract: {
       address: lp.contract.address,
       abi: BlastMagicLPAbi as any,
     },
     vaultReserve: vaultReserve.result || reserves.result,
     totalSupply: totalSupply.result,
-    midPrice: midPrice.result,
+    midPrice: Number(formatUnits(midPrice.result, lp.quoteToken.decimals)),
     MAX_I: MAX_I.result,
     MAX_K: MAX_K.result,
     PMMState: PMMState.result,
     baseToken: baseToken.result,
+    baseTokenPrice: tokensPrices[0].price,
     quoteToken: quoteToken.result,
+    quoteTokenPrice: tokensPrices[1].price,
     lpFeeRate: lpFeeRate.result,
     balances: {
       baseBalance: baseBalance.result,
