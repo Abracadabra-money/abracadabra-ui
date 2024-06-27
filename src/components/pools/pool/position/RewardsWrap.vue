@@ -39,6 +39,13 @@ export default {
             address: "0xc86c7C0eFbd6A49B35E8714C5f59D99De09A225b",
           },
         },
+        42161: {
+          1: {
+            icon: useImage("assets/images/tokens/SPELL.png"),
+            name: "SPELL",
+            address: "0x3E6648C5a70A150A88bCE65F4aD4d506Fe15d2AF",
+          },
+        },
       },
       price: null,
     };
