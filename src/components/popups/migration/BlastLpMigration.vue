@@ -37,6 +37,16 @@
       :availableAmount="availableAmount"
       :arbBridgeBalanceUsdt="arbBridgeBalanceUsdt"
       @changeSteap="changeSteap"
+      @updateSuccessData="updateSuccessData"
+    />
+
+    <SuccessStep
+      v-if="steap === 5"
+      :poolInfo="poolInfo"
+      :successData="successData"
+      :availableAmount="availableAmount"
+      @changeSteap="changeSteap"
+      @closePopups="closePopup"
     />
   </div>
 </template>
@@ -65,6 +75,7 @@ export default {
       updateInterval: null as any,
       usdtUpdateInterval: null as any,
       arbBridgeBalanceUsdt: 0n,
+      successData: null as any,
     };
   },
 
@@ -126,6 +137,10 @@ export default {
         args: [ARB_BRIDGE_ADDRESS],
       });
     },
+
+    updateSuccessData(data: any) {
+      this.successData = data;
+    },
   },
 
   async created() {
@@ -158,6 +173,9 @@ export default {
     ),
     MigrateStep: defineAsyncComponent(
       () => import("@/components/popups/migration/MigrateStep.vue")
+    ),
+    SuccessStep: defineAsyncComponent(
+      () => import("@/components/popups/migration/SuccessStep.vue")
     ),
   },
 };

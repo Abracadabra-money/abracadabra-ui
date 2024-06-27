@@ -123,7 +123,7 @@
       buttonText
     }}</BaseButton>
 
-    <p class="label">
+    <p class="label" v-if="unlockInProgress">
       Once unlocked, you'll be able to proceed to the next step: Unstaking
     </p>
   </div>

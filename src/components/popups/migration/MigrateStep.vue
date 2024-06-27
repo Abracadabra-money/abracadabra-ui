@@ -200,7 +200,7 @@ import { bridgeWithProofs } from "@/helpers/blastLpMigration/actions/bridgeWithP
 const BLAST_LZ_CHAIN_ID = 243;
 
 export default {
-  emits: ["changeSteap", "updateLzTxInfo"],
+  emits: ["changeSteap", "updateSuccessData"],
 
   props: {
     userInfo: {
@@ -428,7 +428,13 @@ export default {
 
         const lzTxInfo = await this.waitTxDelivered(hash);
 
-        this.$emit("updateLzTxInfo", lzTxInfo);
+        this.$emit("updateSuccessData", {
+          lzTxInfo,
+          amounts: {
+            MIMAmount: this.previewRemoveLiquidityResult.baseAmountOut,
+            USDBAmount: this.previewRemoveLiquidityResult.quoteAmountOut,
+          },
+        });
 
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.success);
