@@ -1,5 +1,4 @@
 import degenBoxAbi from "@/abis/degenBox";
-import blastBoxAbi from "@/abis/blastBox";
 import type { ExtendedContractInfo } from "@/configs/contracts/types";
 export default <ExtendedContractInfo[]>[
   {
@@ -52,15 +51,9 @@ export default <ExtendedContractInfo[]>[
     abi: degenBoxAbi,
   },
   {
-    chainId: 80085,
+    chainId: 80084,
     name: "DegenBox",
-    address: "0x7a3b799E929C9bef403976405D8908fa92080449",
+    address: "0xB734c264F83E39Ef6EC200F99550779998cC812d",
     abi: degenBoxAbi,
-  },
-  {
-    chainId: 168587773,
-    name: "BlastBox",
-    address: "0xdFE08DAfceDF428932336fBfE7BfBF0403Ad58e5",
-    abi: blastBoxAbi,
   },
 ];

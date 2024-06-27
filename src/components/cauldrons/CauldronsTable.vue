@@ -14,6 +14,7 @@
         :activeChains="activeChains"
         :selectedChains="selectedChains"
         @updateSelectedChain="updateSelectedChain"
+        @selectAllChains="selectAllChains"
       />
 
       <button class="filters" @click="$emit('openMobileFiltersPopup')">
@@ -89,16 +90,12 @@ export default {
   },
 
   computed: {
-    isSelectAllChains() {
+    allChainsSelected() {
       return this.selectedChains.length === this.activeChains.length;
     },
 
     showEmptyBlock() {
-      return (
-        !this.cauldronsLoading &&
-        !this.cauldronsToRender.length &&
-        this.searchValue.length
-      );
+      return !this.cauldronsLoading && !this.cauldronsToRender.length;
     },
 
     cauldronsToRender() {
@@ -127,7 +124,7 @@ export default {
         this.sortKey,
         this.sortOrder
       );
-
+      
       return sortedByChain;
     },
 
@@ -169,19 +166,21 @@ export default {
       this.searchValue = value.toLowerCase();
     },
 
+    selectAllChains() {
+      if (this.allChainsSelected) this.selectedChains = [];
+      else this.selectedChains = [...this.activeChains];
+    },
+
     updateSelectedChain(chainId) {
-      if (!chainId) {
-        if (this.isSelectAllChains) this.selectedChains = [];
-        else this.selectedChains = [...this.activeChains];
-      } else {
-        const index = this.selectedChains.indexOf(chainId);
-        if (index === -1) this.selectedChains.push(chainId);
-        else this.selectedChains.splice(index, 1);
-      }
+      if (this.allChainsSelected) this.selectAllChains();
+
+      const index = this.selectedChains.indexOf(chainId);
+      if (index === -1) this.selectedChains.push(chainId);
+      else this.selectedChains.splice(index, 1);
     },
 
     filterByChain(cauldrons, selectedChains) {
-      if (this.isSelectAllChains) return cauldrons;
+      if (this.allChainsSelected) return cauldrons;
       return cauldrons.filter((cauldron) => {
         return selectedChains.includes(cauldron.config?.chainId);
       });

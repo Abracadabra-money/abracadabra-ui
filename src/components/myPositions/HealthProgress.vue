@@ -9,24 +9,30 @@
   </div>
 </template>
 
-<script>
-import LottiePlayer from "lottie-web";
+<script lang="ts">
+import type { PropType } from "vue";
+import LottiePlayer, { type AnimationItem } from "lottie-web";
+import type { PositionHealthStatus } from "@/helpers/cauldron/types";
 const TOTAL_FRAMES = 150;
+
 export default {
   props: {
     positionHealth: { type: [Number, String], default: 0 },
-    positionRisk: { type: String, default: "safe" },
+    positionRisk: {
+      type: String as PropType<PositionHealthStatus>,
+      default: "safe",
+    },
   },
 
   data() {
     return {
-      animation: null,
+      animation: null as AnimationItem | null,
     };
   },
 
   methods: {
     initAnimation() {
-      const { anim } = this.$refs;
+      const anim = this.$refs.anim as Element;
 
       this.animation = LottiePlayer.loadAnimation({
         renderer: "svg",
@@ -37,7 +43,8 @@ export default {
       });
 
       this.animation.goToAndStop(
-        (TOTAL_FRAMES / 100) * Number(+this.positionHealth.slice(0, -1)),
+        (TOTAL_FRAMES / 100) *
+          Number((this.positionHealth as string).slice(0, -1)),
         true
       );
     },
@@ -48,7 +55,7 @@ export default {
   },
 
   beforeUpdate() {
-    this.animation.destroy();
+    if (this.animation) this.animation.destroy();
     this.initAnimation();
   },
 };
