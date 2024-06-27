@@ -8,7 +8,7 @@
       <div :class="['step-item', { 'step-active': stepThree }]">3</div>
     </div>
     <div class="steps-name">
-      <div :class="['step-name', { 'step-active': stepOne }]">Balances</div>
+      <div :class="['step-name', { 'step-active': stepOne }]">Review</div>
       <div :class="['step-name', 'center', { 'step-active': stepTwo }]">
         Unstake
       </div>
@@ -107,7 +107,7 @@ export default {
 }
 
 .center {
-  width: 80px;
+  width: 65px;
 }
 
 .step-active {
