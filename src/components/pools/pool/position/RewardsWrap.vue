@@ -71,7 +71,7 @@ export default {
         name: this.reward.name,
         icon: this.reward.icon,
         value,
-        usd: formatUSD(value),
+        usd: formatUSD(formatUnits(this.pool.stakeInfo.earned, 18) * this.price),
       };
     },
   },
