@@ -32,7 +32,7 @@
       </div>
     </div>
 
-    <SwapInfoBlock
+    <PopupSwapInfoBlock
       :actionConfig="actionConfig"
       :priceImpact="priceImpact"
       :minAmount="BigInt(localData.outputAmountWithSlippage)"
@@ -41,7 +41,7 @@
 
     <PriceUpdatedBlock v-if="isUpdatedPrice" @updatedPrice="updatedPrice" />
 
-    <BaseButton :primary="true" @click="swapHandler">Confirm Swap</BaseButton>
+    <BaseButton :primary="true" @click="swapHandler">Confirm swap</BaseButton>
   </div>
 </template>
 
@@ -68,7 +68,11 @@ export default {
     },
     priceImpact: { type: [String, Number], default: 0 },
     currentPriceInfo: {
-      default: () => ({ midPrice: 0n, amounts: { from: 0n, to: 0n }, fromBase: false }),
+      default: () => ({
+        midPrice: 0,
+        amounts: { from: 0n, to: 0n },
+        fromBase: false,
+      }),
     },
   },
 
@@ -181,8 +185,8 @@ export default {
   },
 
   components: {
-    SwapInfoBlock: defineAsyncComponent(
-      () => import("@/components/swap/SwapInfoBlock.vue")
+    PopupSwapInfoBlock: defineAsyncComponent(
+      () => import("@/components/swap/PopupSwapInfoBlock.vue")
     ),
     BaseButton: defineAsyncComponent(
       () => import("@/components/base/BaseButton.vue")

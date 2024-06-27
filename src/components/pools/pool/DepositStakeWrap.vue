@@ -1,6 +1,6 @@
 <template>
   <div class="deposit-stake-wrap">
-    <div class="condition-management-wrap" v-if="isLockContract">
+    <div class="condition-management-wrap" v-if="hasStakeLogic">
       <Tabs
         class="tabs"
         :name="activeTab"
@@ -9,12 +9,14 @@
       />
 
       <Toggle
-        v-if="isStake && !isLockEnded"
-        text="Lock"
-        :selected="isLock"
-        @updateToggle="changeLockToggle"
+        v-if="!isStake"
+        text="Balanced"
+        :selected="isBalanced"
+        @updateToggle="changeBalancedToggle"
       />
+    </div>
 
+    <div class="condition-management-wrap flex-end" v-else>
       <Toggle
         v-if="!isStake"
         text="Balanced"
@@ -64,14 +66,12 @@ export default {
       tabItems: ["deposit", "stake"],
       isLock: false,
       isBalanced: false,
-      lockEndTimestamp: 1712364937,
-      isLockEnded: true,
     };
   },
 
   computed: {
-    isLockContract() {
-      return this.pool.lockContract;
+    hasStakeLogic() {
+      return this.pool.lockContract || this.pool.stakeContract;
     },
 
     isStake() {
@@ -91,13 +91,6 @@ export default {
     changeBalancedToggle() {
       this.isBalanced = !this.isBalanced;
     },
-  },
-
-  created() {
-    const now = moment().utc();
-    const end = moment.utc(this.lockEndTimestamp * 1000);
-    const isEnded = now.isAfter(end);
-    this.isLockEnded = isEnded;
   },
 
   components: {
@@ -139,6 +132,10 @@ export default {
   justify-content: space-between;
   align-items: center;
   width: 100%;
+}
+
+.flex-end {
+  justify-content: flex-end
 }
 
 .tabs {

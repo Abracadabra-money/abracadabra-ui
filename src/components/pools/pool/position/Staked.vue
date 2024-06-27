@@ -2,70 +2,132 @@
   <div class="staked">
     <PoolCompoundCard :lpToken="lpToken" :tokensList="tokensList" />
 
-    <div class="rewards-wrap">
-      <h4 class="title">
-        Staking rewards earned
-        <Tooltip
-          tooltip="Total earned from Staked LPs position for each reward"
-          :width="20"
-          :height="20"
-        />
-      </h4>
+    <RewardsWrap :pool="pool" />
 
-      <ul class="rewards-list">
-        <li
-          class="list-item"
-          v-for="(reward, index) in rewardsList"
-          :key="index"
-        >
-          <span class="item-title">
-            <img :src="reward.icon" class="reward-icon" />
-            {{ reward.title }}
-          </span>
+    <template v-if="rewardsList">
+      <div class="rewards-wrap">
+        <h4 class="title">
+          Staking rewards earned
+          <Tooltip
+            tooltip="Total earned from Staked LPs position for each reward"
+            :width="20"
+            :height="20"
+          />
+        </h4>
 
-          <span class="item-value">{{ reward.value }}</span>
-        </li>
-      </ul>
-    </div>
+        <ul class="rewards-list">
+          <li
+            class="list-item"
+            v-for="(reward, index) in rewardsList"
+            :key="index"
+          >
+            <span class="item-title">
+              <img :src="reward.icon" class="reward-icon" />
+              {{ reward.title }}
+            </span>
 
-    <BaseButton primary @click="goToDashboard()">See dashborad</BaseButton>
+            <span class="item-value">{{ reward.value }}</span>
+          </li>
+        </ul>
+      </div>
+
+      <BaseButton primary @click="goToDashboard()">See dashborad</BaseButton>
+    </template>
+
+    <BaseButton
+      v-if="hasStakeLogic"
+      primary
+      @click="actionHandler"
+      :disabled="isButtonDisabled"
+    >
+      {{ buttonText }}
+    </BaseButton>
   </div>
 </template>
 
 <script>
+import { mapActions, mapGetters, mapMutations } from "vuex";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { defineAsyncComponent } from "vue";
 import { formatUnits } from "viem";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
 import { useImage } from "@/helpers/useImage";
 
+import notification from "@/helpers/notification/notification";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
+import {
+  writeContractHelper,
+  simulateContractHelper,
+  waitForTransactionReceiptHelper,
+} from "@/helpers/walletClienHelper";
 export default {
+  emits: ["updatePoolInfo"],
   props: {
     pool: { type: Object },
     userPointsStatistics: { type: Object },
   },
 
+  data() {
+    return {
+      isActionProcessing: false,
+    };
+  },
+
   computed: {
+    ...mapGetters({
+      account: "getAccount",
+      chainId: "getChainId",
+    }),
+    hasLockLogic() {
+      return !!this.pool.lockInfo;
+    },
+    hasStakeLogic() {
+      return !!this.pool.stakeInfo;
+    },
+    stakedBalance() {
+      if (this.hasLockLogic) return this.pool.lockInfo.balances.unlocked;
+      return this.pool.stakeInfo.balance;
+    },
+    earnedBalance() {
+      if (!this.hasStakeLogic) return 0n;
+      return this.pool.stakeInfo.earned;
+    },
+    isProperNetwork() {
+      return this.chainId == this.pool.chainId;
+    },
+    isButtonDisabled() {
+      if (!this.isProperNetwork) return false;
+      if (!this.account) return false;
+
+      if (this.isActionProcessing || this.earnedBalance == 0n) return true;
+
+      return false;
+    },
+    buttonText() {
+      if (!this.isProperNetwork) return "Switch network";
+      if (!this.account) return "Connect wallet";
+      if (this.isActionProcessing) return "Processing...";
+      return "Claim";
+    },
     lpToken() {
       return {
         name: this.pool.name,
         icon: this.pool.icon,
         amount: this.formatTokenBalance(
-          this.pool.lockInfo.balances.unlocked || 0n,
+          this.stakedBalance || 0n,
           this.pool.decimals
         ),
         amountUsd: this.formatUSD(
-          formatUnits(
-            this.pool.lockInfo.balances.unlocked || 0n,
-            this.pool.decimals
-          ) * this.pool.price
+          formatUnits(this.stakedBalance || 0n, this.pool.decimals) *
+            this.pool.price
         ),
       };
     },
 
     tokensList() {
       const previewRemoveLiquidityResult = previewRemoveLiquidity(
-        this.pool.lockInfo.balances.unlocked || 0n,
+        this.stakedBalance || 0n,
         this.pool
       );
 
@@ -104,6 +166,8 @@ export default {
     },
 
     rewardsList() {
+      if (!this.userPointsStatistics) return false;
+
       return [
         {
           title: "Points",
@@ -129,6 +193,9 @@ export default {
   },
 
   methods: {
+    ...mapActions({ createNotification: "notifications/new" }),
+    ...mapMutations({ deleteNotification: "notifications/delete" }),
+
     formatUSD,
 
     formatTokenBalance(value, decimals) {
@@ -140,6 +207,51 @@ export default {
         name: "PointsDashboard",
       });
     },
+
+    async actionHandler() {
+      if (this.isButtonDisabled) return false;
+      if (!this.isProperNetwork) return switchNetwork(this.pool.chainId);
+
+      await this.claim();
+      this.$emit("updatePoolInfo");
+    },
+    async claim() {
+      this.isActionProcessing = true;
+
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
+
+      const contract = this.pool.stakeContract;
+
+      try {
+        const { request } = await simulateContractHelper({
+          address: contract.address,
+          abi: contract.abi,
+          functionName: "getRewards",
+        });
+
+        const hash = await writeContractHelper(request);
+
+        const { result, error } = await waitForTransactionReceiptHelper({
+          hash,
+        });
+
+        this.deleteNotification(notificationId);
+        await this.createNotification(notification.success);
+      } catch (error) {
+        console.log("stake lp err:", error);
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(error),
+          type: "error",
+        };
+
+        this.deleteNotification(notificationId);
+        await this.createNotification(errorNotification);
+      }
+      this.isActionProcessing = false;
+    },
   },
 
   components: {
@@ -148,6 +260,9 @@ export default {
     ),
     PoolCompoundCard: defineAsyncComponent(() =>
       import("@/components/pools/pool/position/cards/PoolCompoundCard.vue")
+    ),
+    RewardsWrap: defineAsyncComponent(() =>
+      import("@/components/pools/pool/position/RewardsWrap.vue")
     ),
     Tooltip: defineAsyncComponent(() =>
       import("@/components/ui/icons/Tooltip.vue")

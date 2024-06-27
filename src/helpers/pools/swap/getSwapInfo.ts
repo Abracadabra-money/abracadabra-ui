@@ -37,8 +37,33 @@ const fetchOutputAmount = async (
   sellBase = true,
   amount: bigint
 ) => {
-  // NOTICE: chainId is hardcoded for now
-  const chainId = 81457; // BlastChain
+  if (!account) {
+    if (sellBase) {
+      const { receiveQuoteAmount, mtFee } = querySellBase(
+        amount,
+        lpInfo,
+        lpInfo.userInfo
+      );
+
+      return {
+        receiveAmount: receiveQuoteAmount,
+        mtFee: mtFee,
+      };
+    } else {
+      const { receiveBaseAmount, mtFee } = querySellQuote(
+        amount,
+        lpInfo,
+        lpInfo.userInfo
+      );
+
+      return {
+        receiveAmount: receiveBaseAmount,
+        mtFee: mtFee,
+      };
+    }
+  }
+
+  const chainId = lpInfo.chainId;
   const publicClient = getPublicClient(chainId);
   const result = await publicClient.readContract({
     address: lpInfo.contract.address,
@@ -46,8 +71,6 @@ const fetchOutputAmount = async (
     functionName: sellBase ? "querySellBase" : "querySellQuote",
     args: [account, amount],
   });
-
-  console.log("queryResult", result);
 
   return {
     receiveAmount: result[0] ? result[0] : 0n,

@@ -1,4 +1,5 @@
 import type { Address } from "viem";
+import type { PoolConfig } from "@/configs/pools/types";
 
 type UserFeeRate = {
   lpFeeRate: bigint;
@@ -16,6 +17,9 @@ export type PMMState = {
 };
 
 export type MagicLPInfo = {
+  config: PoolConfig;
+  baseTokenPrice: number;
+  quoteTokenPrice: number;
   contract: {
     address: Address;
     abi: any;
@@ -24,7 +28,7 @@ export type MagicLPInfo = {
   decimals: number;
   vaultReserve: any;
   totalSupply: bigint;
-  midPrice: bigint;
+  midPrice: number;
   MAX_I: bigint;
   MAX_K: bigint;
   PMMState: PMMState;
