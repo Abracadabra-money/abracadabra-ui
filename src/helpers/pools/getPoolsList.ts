@@ -17,7 +17,8 @@ export const getPoolsList = async (account: Address) => {
           );
           return successfulResults;
         })
-        .catch(() => {
+        .catch((error) => {
+          console.log("something went wrong", error)
           return [];
         })
     )

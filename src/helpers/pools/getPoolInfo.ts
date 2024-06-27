@@ -38,6 +38,9 @@ export const getPoolInfo = async (
   if (account && poolConfig.lockContract)
     poolInfo.lockInfo = await getLockInfo(account, poolChainId, poolConfig);
 
+  if (account && poolConfig.stakeContract)
+    poolInfo.stakeInfo = await getStakeInfo(account, poolChainId, poolConfig);
+
   return poolInfo;
 };
 
@@ -121,6 +124,43 @@ export const getLockInfo = async (
       total: locked + unlocked,
     },
     allowance: allowance.result,
+  };
+};
+
+export const getStakeInfo = async (
+  account: Address,
+  chainId: number,
+  config: any
+) => {
+  const publicClient = getPublicClient(chainId);
+
+  const [balance, allowance, earned]: any = await publicClient.multicall({
+    contracts: [
+      {
+        address: config.stakeContract.address,
+        abi: config.stakeContract.abi,
+        functionName: "balanceOf",
+        args: [account],
+      },
+      {
+        address: config.contract.address,
+        abi: config.contract.abi,
+        functionName: "allowance",
+        args: [account, config.stakeContract.address],
+      },
+      {
+        address: config.stakeContract.address,
+        abi: config.stakeContract.abi,
+        functionName: "earned",
+        args: [account, "0xc86c7C0eFbd6A49B35E8714C5f59D99De09A225b"], // Warning: TODO
+      },
+    ],
+  });
+
+  return {
+    balance: balance.result,
+    allowance: allowance.result,
+    earned: earned.result,
   };
 };
 

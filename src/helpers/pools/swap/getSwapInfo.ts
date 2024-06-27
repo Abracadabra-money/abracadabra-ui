@@ -37,8 +37,7 @@ const fetchOutputAmount = async (
   sellBase = true,
   amount: bigint
 ) => {
-  // NOTICE: chainId is hardcoded for now
-  const chainId = 81457; // BlastChain
+  const chainId = lpInfo.chainId;
   const publicClient = getPublicClient(chainId);
   const result = await publicClient.readContract({
     address: lpInfo.contract.address,

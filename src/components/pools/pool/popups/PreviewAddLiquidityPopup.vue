@@ -203,12 +203,8 @@ export default {
       return actionStatus.WAITING;
     },
 
-    formatTokenBalance(value) {
-      return formatTokenBalance(formatUnits(value, 18));
-    },
-
-    formatAmount(value) {
-      return formatTokenBalance(value);
+    formatTokenBalance(value, decimals) {
+      return formatTokenBalance(formatUnits(value, decimals));
     },
 
     actionHandler() {

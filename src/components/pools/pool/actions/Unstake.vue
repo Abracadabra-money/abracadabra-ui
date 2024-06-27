@@ -5,7 +5,7 @@
         :name="pool.name"
         :icon="pool.icon"
         :decimals="pool.decimals"
-        :max="pool.lockInfo?.balances?.unlocked"
+        :max="maxToWithdraw"
         :value="inputValue"
         :tokenPrice="pool.price"
         @updateInputValue="updateValue($event)"
@@ -56,12 +56,22 @@ export default {
       account: "getAccount",
     }),
 
+    isBlastLockLogic() {
+      return !!this.pool.lockInfo;
+    },
+
+    maxToWithdraw() {
+      if (this.isBlastLockLogic) return this.pool.lockInfo?.balances?.unlocked;
+
+      return this.pool.stakeInfo?.balance;
+    },
+
     isValid() {
       return !!this.inputAmount;
     },
 
     error() {
-      if (this.inputAmount > this.pool.lockInfo?.balances?.unlocked)
+      if (this.inputAmount > this.maxToWithdraw)
         return "Insufficient balance";
 
       return null;
@@ -121,10 +131,14 @@ export default {
         notification.pending
       );
 
+      const contract = this.isBlastLockLogic
+        ? this.pool.lockContract
+        : this.pool.stakeContract;
+
       try {
         const { request } = await simulateContractHelper({
-          address: this.pool.lockContract.address,
-          abi: this.pool.lockContract.abi,
+          address: contract.address,
+          abi: contract.abi,
           functionName: "withdraw",
           args: [this.inputAmount],
         });
