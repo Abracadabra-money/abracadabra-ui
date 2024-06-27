@@ -70,7 +70,7 @@
     <div class="timer-wrap">
       <Timer
         class="timer"
-        :endDateTimestamp="1722364937"
+        :endDateTimestamp="1721260800"
         small
         isLock
         padding="6px"
