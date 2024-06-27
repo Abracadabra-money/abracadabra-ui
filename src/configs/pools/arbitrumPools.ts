@@ -2,6 +2,7 @@ import erc20Abi from "@/abis/farm/erc20Abi";
 import { useImage } from "@/helpers/useImage";
 import BlastMagicLpAbi from "@/abis/BlastMagicLP";
 import type { PoolConfig } from "@/configs/pools/types";
+import MultiRewardsAbi from "@/abis/MultiRewards";
 
 const arbitrumPools: Array<PoolConfig> = [
   // {
@@ -73,6 +74,10 @@ const arbitrumPools: Array<PoolConfig> = [
       decimals: 6,
       mainColor: "#53AE94",
       isPopular: true,
+    },
+    stakeContract: {
+      address: "0xc30911b52b5752447aB08615973e434c801CD652",
+      abi: MultiRewardsAbi,
     },
     settings: {
       isNew: true,

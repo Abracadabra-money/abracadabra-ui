@@ -152,7 +152,7 @@ export const getStakeInfo = async (
         address: config.stakeContract.address,
         abi: config.stakeContract.abi,
         functionName: "earned",
-        args: [account, "0xc86c7C0eFbd6A49B35E8714C5f59D99De09A225b"], // Warning: TODO
+        args: [account, "0xBe714699689EBf7aE3a1bA58bE5fF2a59c33051A"], // Warning: TODO
       },
     ],
   });
