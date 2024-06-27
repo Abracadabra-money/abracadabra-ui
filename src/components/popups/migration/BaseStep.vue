@@ -15,7 +15,11 @@
     <div class="mlp-info">
       <p class="mlp-title">MLP available for migration</p>
       <div class="mlp-balance">
-        <img clas="mlp-icon" src="@/assets/images/tokens/MIM-USDB.png" alt="" />
+        <img
+          class="mlp-icon"
+          src="@/assets/images/tokens/MIM-USDB.png"
+          alt=""
+        />
         {{ formatTokenBalance(parseAvailableAmount) }}
       </div>
       <div class="mlp-balance-usd">{{ availableAmountUsd }}</div>

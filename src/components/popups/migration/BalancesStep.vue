@@ -15,18 +15,26 @@
       />
     </svg>
 
-    <h3 class="title">Balances</h3>
+    <h3 class="title">Step 1: Review Your Balances</h3>
   </div>
 
   <Steps :step="1" />
 
-  <p class="sub-title">As a Founder you are eligble to Migrate</p>
+  <p class="subtitle">Founder Status Confirmed: You're eligible to migrate</p>
 
   <div class="popup-content">
     <div class="mlp-info">
       <div class="mlp-icon-wrap">
-        <img clas="mlp-icon" src="@/assets/images/tokens/MIM-USDB.png" alt="" />
-        <span>MLP available for migration</span>
+        <img
+          class="mlp-icon"
+          src="@/assets/images/tokens/MIM-USDB.png"
+          alt=""
+        />
+        <span class="tooltip-wrap"
+          >MLP Available for Migration
+          <TooltipIcon
+            tooltip="This includes your locked MLP tokens. Migration will transfer all the underlying tokens available on your MLP balance to Arbitrum"
+        /></span>
       </div>
 
       <div class="mlp-amounts">
@@ -110,16 +118,22 @@
     </div>
   </div>
 
-  <BaseButton :disabled="isDisabledButton" @click="actionHandler" primary>{{
-    buttonText
-  }}</BaseButton>
+  <div class="btn-wrap">
+    <BaseButton :disabled="isDisabledButton" @click="actionHandler" primary>{{
+      buttonText
+    }}</BaseButton>
+
+    <p class="label">
+      Once unlocked, you'll be able to proceed to the next step: Unstaking
+    </p>
+  </div>
 </template>
 
 <script lang="ts">
+import { mapGetters } from "vuex";
 import { formatUnits } from "viem";
 import { defineAsyncComponent } from "vue";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
-import { mapGetters } from "vuex";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { BLAST_CHAIN_ID } from "@/constants/global";
 
@@ -154,7 +168,9 @@ export default {
     },
 
     buttonText() {
-      if (this.isDisabledButton) return "Pending Unlock";
+      if (!this.unlockInProgress && this.isDisabledButton)
+        return "Insufficient MLP Balances";
+      if (this.isDisabledButton) return "Unlock in Progress";
       return "Proceed with Migration";
     },
 
@@ -195,6 +211,10 @@ export default {
     isDisabledButton() {
       return !this.userInfo.balance && !this.userInfo.balances.unlocked;
     },
+
+    unlockInProgress() {
+      return !!this.userInfo.balances.locked;
+    },
   },
 
   methods: {
@@ -209,14 +229,17 @@ export default {
   },
 
   components: {
-    BaseButton: defineAsyncComponent(
-      () => import("@/components/base/BaseButton.vue")
+    Steps: defineAsyncComponent(
+      () => import("@/components/popups/migration/Steps.vue")
+    ),
+    TooltipIcon: defineAsyncComponent(
+      () => import("@/components/ui/icons/Tooltip.vue")
     ),
     Timer: defineAsyncComponent(
       () => import("@/components/stake/earnPoints/Timer.vue")
     ),
-    Steps: defineAsyncComponent(
-      () => import("@/components/popups/migration/Steps.vue")
+    BaseButton: defineAsyncComponent(
+      () => import("@/components/base/BaseButton.vue")
     ),
   },
 };
@@ -235,11 +258,6 @@ export default {
 
 .title {
   font-size: 24px;
-  font-weight: 500;
-  line-height: normal;
-}
-
-.sub-title {
   font-weight: 500;
   line-height: normal;
 }
@@ -278,6 +296,17 @@ export default {
   color: var(--additional-ffffff, #fff);
   font-weight: 400;
   line-height: normal;
+}
+
+.mlp-icon {
+  width: 28px;
+  height: 28px;
+}
+
+.tooltip-wrap {
+  gap: 8px;
+  display: flex;
+  align-items: center;
 }
 
 .mlp-amounts {
@@ -382,12 +411,24 @@ export default {
   line-height: normal;
 }
 
+.btn-wrap {
+  gap: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  text-align: center;
+  font-size: 12px;
+  line-height: normal;
+}
+
 @media screen and (max-width: 600px) {
   .title {
     font-size: 18px;
   }
 
-  .sub-title {
+  .subtitle {
     font-size: 14px;
   }
 
