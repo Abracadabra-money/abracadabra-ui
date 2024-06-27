@@ -68,7 +68,7 @@ export default {
     },
     priceImpact: { type: [String, Number], default: 0 },
     currentPriceInfo: {
-      default: () => ({ midPrice: 0n, amounts: { from: 0n, to: 0n }, fromBase: false }),
+      default: () => ({ midPrice: 0, amounts: { from: 0n, to: 0n }, fromBase: false }),
     },
   },
 

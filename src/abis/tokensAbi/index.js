@@ -50,6 +50,7 @@ import mimUsdtCurveLp from "@/abis/tokensAbi/mimUsdtCurveLp";
 import TetherUSDtLP from "@/abis/tokensAbi/TetherUSDtLP";
 import yvUSDT from "@/abis/tokensAbi/yvUSDT";
 import yvUSDC from "@/abis/tokensAbi/yvUSDC";
+import USDT from "@/abis/tokensAbi/USDT";
 
 export default {
   ALCX,
@@ -104,4 +105,5 @@ export default {
   TetherUSDtLP,
   yvUSDT,
   yvUSDC,
+  USDT,
 };

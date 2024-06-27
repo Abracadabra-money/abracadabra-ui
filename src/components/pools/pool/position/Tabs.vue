@@ -74,7 +74,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 33%;
+  flex: 1;
   padding: 6px;
   border-radius: 8px;
   background-color: transparent;
