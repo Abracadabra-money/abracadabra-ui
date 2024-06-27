@@ -140,7 +140,7 @@ export default {
     },
 
     layerZeroLink() {
-      if (!this.successData.lzTxInfo) return false;
+      if (!this.successData?.lzTxInfo) return false;
       return `https://layerzeroscan.com/tx/${this.successData.lzTxInfo.srcTxHash}`;
     },
   },

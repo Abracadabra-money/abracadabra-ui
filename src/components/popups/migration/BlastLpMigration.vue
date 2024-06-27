@@ -37,7 +37,8 @@
       :availableAmount="availableAmount"
       :arbBridgeBalanceUsdt="arbBridgeBalanceUsdt"
       @changeSteap="changeSteap"
-      @updateSuccessData="updateSuccessData"
+      @updateAmounts="updateAmounts"
+      @updatelzTxInfo="updatelzTxInfo"
     />
 
     <SuccessStep
@@ -75,7 +76,10 @@ export default {
       updateInterval: null as any,
       usdtUpdateInterval: null as any,
       arbBridgeBalanceUsdt: 0n,
-      successData: null as any,
+      successData: {
+        lzTxInfo: null,
+        amounts: null,
+      },
     };
   },
 
@@ -138,8 +142,12 @@ export default {
       });
     },
 
-    updateSuccessData(data: any) {
-      this.successData = data;
+    updateAmounts(amounts: any) {
+      this.successData.amounts = amounts;
+    },
+
+    updatelzTxInfo(lzTxInfo: any) {
+      this.successData.lzTxInfo = lzTxInfo;
     },
   },
 
