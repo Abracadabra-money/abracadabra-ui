@@ -440,7 +440,7 @@ export default {
           await this.$openWeb3modal();
           break;
         case "switchNetwork":
-          await switchNetwork(2222); //todo
+          await switchNetwork(42161); //todo
           break;
         case "approvefromToken":
           await this.approveTokenHandler(

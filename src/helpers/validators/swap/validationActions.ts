@@ -1,6 +1,6 @@
 import { validateConnection } from "@/helpers/validators/validateConnection";
 
-const SUPPORTED_CHAINS = [2222, 81457];
+const SUPPORTED_CHAINS = [42161, 81457];
 
 export const validationActions = (actionConfig: any, chainId: number) => {
   const { fromToken, toToken, fromInputValue, toInputValue } = actionConfig;
@@ -36,7 +36,7 @@ export const validationActions = (actionConfig: any, chainId: number) => {
   return { btnText: "Preview", isAllowed: true, method: "swap" };
 };
 
-const validateChain = (connectedChainId: number, btnText = "Switch to KAVA") => {
+const validateChain = (connectedChainId: number, btnText = "Switch to Arbitrum") => {
   if (!SUPPORTED_CHAINS.includes(connectedChainId))
     return {
       btnText,
