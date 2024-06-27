@@ -4,7 +4,7 @@
   <div class="mlp-info">
     <div class="mlp-icon-wrap">
       <img class="mlp-icon" src="@/assets/images/tokens/MIM-USDB.png" alt="" />
-      <span class="tooltip-wrap">MLP Available for Migration </span>
+      <span class="mlp-title">MLP Available for Migration </span>
     </div>
 
     <div class="mlp-amounts">
@@ -90,6 +90,7 @@
 import { formatUnits } from "viem";
 import { defineAsyncComponent, type PropType } from "vue";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
+import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 
 export default {
   props: {
@@ -149,7 +150,11 @@ export default {
     formatTokenBalance,
 
     async actionHandler() {
-      this.$router.push({ name: "MarketsFarm" });
+      this.$router.push({
+        name: "Farm",
+        params: { id: 4, farmChainId: ARBITRUM_CHAIN_ID },
+      });
+
       this.$emit("closePopups");
     },
   },
@@ -163,6 +168,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.title {
+  font-size: 24px;
+  font-weight: 500;
+  line-height: normal;
+}
+
 .mlp-info {
   display: flex;
   align-items: center;
@@ -182,7 +193,7 @@ export default {
   height: 28px;
 }
 
-.tooltip-wrap {
+.mlp-title {
   gap: 8px;
   display: flex;
   align-items: center;
@@ -206,41 +217,11 @@ export default {
   line-height: normal;
 }
 
-.popup-header {
-  gap: 4px;
-  display: flex;
-  align-items: center;
-}
-
-.back-button {
-  cursor: pointer;
-}
-
-.row {
-  width: 100%;
-  gap: 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.title {
-  font-size: 24px;
-  font-weight: 500;
-  line-height: normal;
-}
-
-.step {
-  font-size: 14px;
-  font-weight: 500;
-  line-height: normal;
-  color: #878b93;
-}
-
-.popup-content {
+.migrate-wrap {
   gap: 24px;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  position: relative;
 }
 
 .chain-wrap {
@@ -261,45 +242,38 @@ export default {
   margin-bottom: 4px;
 }
 
-.active {
-  border: 1px solid #67a069;
-  box-shadow: 0px 4px 29.4px 0px rgba(103, 160, 105, 0.24);
-}
-
 .chain-icon {
   width: 70px;
   height: 70px;
-}
-
-.migrate-wrap {
-  gap: 24px;
-  display: flex;
-  // justify-content: center;
-  align-items: center;
-  position: relative;
-}
-
-.anim {
-  max-width: 300px;
-  position: absolute;
-  top: 0;
-}
-
-.from-address {
-  text-align: center;
-
-  font-weight: 500;
-  line-height: normal;
-}
-
-.address-active {
-  color: #67a069;
 }
 
 .to-address {
   text-align: center;
   font-weight: 500;
   line-height: normal;
+}
+
+.amounts-info {
+  gap: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.token-info {
+  gap: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.token-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.token-amount {
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 32px;
 }
 
 .btn-wrap {
@@ -323,64 +297,11 @@ export default {
   text-decoration-line: underline;
 }
 
-.token-info {
-  gap: 4px;
-  display: flex;
-  align-items: center;
-}
-
-.token-icon {
-  width: 24px;
-  height: 24px;
-}
-
-.token-amount {
-  font-size: 24px;
-  font-weight: 600;
-  line-height: 32px;
-}
-
-.dotted-line-wrap {
-  display: flex;
-  align-items: center;
-  width: 100%;
-}
-
-.dotted-line {
-  width: 100%;
-  height: 1px;
-  background-image: linear-gradient(
-    90deg,
-    #7088cc,
-    #7088cc 75%,
-    transparent 75%,
-    transparent 100%
-  );
-  background-size: 5px 5px;
-  border: none;
-}
-
-.warning {
-  gap: 8px;
-  display: flex;
-  align-items: center;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: normal;
-}
-
-.warning-icon {
-  min-width: 32px;
-  height: 32px;
-}
-
-.amounts-info {
-  gap: 12px;
-  display: flex;
-  flex-direction: column;
-}
-
 @media screen and (max-width: 600px) {
+  .title {
+    font-size: 18px;
+  }
+
   .mlp-info {
     flex-direction: column;
   }
@@ -393,10 +314,6 @@ export default {
   .mlp-icon-wrap {
     justify-content: flex-start;
     font-size: 15px;
-  }
-
-  .title {
-    font-size: 18px;
   }
 
   .subtitle {
@@ -417,11 +334,6 @@ export default {
     height: 50px;
   }
 
-  .anim {
-    max-width: 200px;
-  }
-
-  .from-address,
   .to-address {
     font-size: 14px;
   }
