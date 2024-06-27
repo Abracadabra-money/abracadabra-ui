@@ -89,6 +89,12 @@ export default {
             name: "wKAVA",
           },
         },
+        42161: {
+          1: {
+            icon: useImage("assets/images/tokens/SPELL.png"),
+            name: "SPELL",
+          },
+        },
       },
     };
   },
@@ -395,7 +401,7 @@ export default {
     gap: 4px;
 
     .reward-icon {
-      border-radius: 50%;
+      // border-radius: 50%;
       width: 24px;
       height: 24px;
       object-fit: contain;

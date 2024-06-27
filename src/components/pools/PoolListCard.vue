@@ -10,12 +10,12 @@
 
         <div>
           <div class="pool-name">{{ pool.name }}</div>
-          <div class="pool-rewards" v-if="pool.config.chainId === 81457">
+          <div class="pool-rewards" v-if="isPoolHasReward">
             Staking rewards
             <div class="reward-icons-wrap">
               <img
                 class="reward-icons"
-                v-for="(reward, index) in kavaRewards"
+                v-for="(reward, index) in poolRewards"
                 :key="index"
                 :src="reward"
                 alt=""
@@ -89,6 +89,7 @@
 </template>
 
 <script lang="ts">
+//@ts-nocheck
 import { formatUnits } from "viem";
 import { useImage } from "@/helpers/useImage";
 import { defineAsyncComponent, type PropType } from "vue";
@@ -106,15 +107,30 @@ export default {
 
   data() {
     return {
-      kavaRewards: [
-        // useImage("assets/images/points-dashboard/blast.png"),
-        // useImage("assets/images/points-dashboard/gold-points.svg"),
-        useImage("assets/images/points-dashboard/potion.png"),
-      ],
+      rewards: {
+        81457: {
+          1: [useImage("assets/images/points-dashboard/potion.png")],
+        },
+        42161: {
+          1: [
+          useImage("assets/images/tokens/SPELL.png")
+          ]
+        },
+      },
     };
   },
 
   computed: {
+    isPoolHasReward() {
+      return (
+        this.rewards[this.pool.chainId] &&
+        this.rewards[this.pool.chainId][this.pool.id]
+      );
+    },
+    poolRewards() {
+      if (!this.isPoolHasReward) return;
+      return this.rewards[this.pool.chainId][this.pool.id];
+    },
     baseTokenAmount() {
       return Number(
         formatUnits(
