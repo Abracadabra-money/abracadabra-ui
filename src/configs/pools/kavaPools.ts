@@ -41,6 +41,17 @@ const kavaPools: Array<PoolConfig> = [
       address: "0xcF4f8E9A113433046B990980ebce5c3fA883067f",
       abi: MultiRewardsAbi,
     },
+    rewardTokens: [
+      {
+        name: "wKava",
+        icon: useImage(`assets/images/tokens/KAVA.png`),
+        decimals: 18,
+        contract: {
+          address: "0xc86c7C0eFbd6A49B35E8714C5f59D99De09A225b",
+          abi: erc20Abi,
+        },
+      },
+    ],
     settings: {
       isNew: true,
       isDeprecated: false,

@@ -10,11 +10,12 @@ import { getCoinsPrices } from "@/helpers/prices/defiLlama/index";
 import { getSwapRouterByChain } from "@/configs/pools/routers";
 
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
+import { getPoolApr } from "./getPoolAPR";
 
 export const getPoolInfo = async (
   poolChainId: number,
   poolId: number,
-  account: Address
+  account?: Address
 ) => {
   const poolConfig = poolsConfig.find(
     ({ id, chainId }: PoolConfig) => id == poolId && chainId == poolChainId
@@ -41,13 +42,16 @@ export const getPoolInfo = async (
   if (account && poolConfig.stakeContract)
     poolInfo.stakeInfo = await getStakeInfo(account, poolChainId, poolConfig);
 
+  if (poolConfig.stakeContract)
+    poolInfo.poolAPR = await getPoolApr(poolChainId, poolInfo);
+
   return poolInfo;
 };
 
 const getTokensInfo = async (
   chainId: number,
   poolConfig: PoolConfig,
-  account: Address
+  account?: Address
 ) => {
   const tokensPrices = await getCoinsPrices(chainId, [
     poolConfig.baseToken.contract.address,

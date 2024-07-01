@@ -29,14 +29,14 @@
         </div>
       </div>
 
-      <!-- <div class="kava-card">
+      <div class="kava-card">
         <h4 class="kava-card-title">To be distributed</h4>
         <div class="kava-card-value">
           <img class="kava-icon" src="@/assets/images/tokens/KAVA.png" alt="" />
 
           {{ formatTokenBalance(toBeDistributed) }}
         </div>
-      </div> -->
+      </div>
     </div>
   </div>
 </template>
@@ -127,11 +127,11 @@ export default {
       });
     },
 
-    // toBeDistributed() {
-    //   if (!this.kavaRewardData) return 0;
-    //   const { rewardRate, rewardsDuration } = this.kavaRewardData;
-    //   return Number(formatUnits(rewardRate * rewardsDuration, 18));
-    // },
+    toBeDistributed() {
+      if (!this.kavaRewardData) return 0;
+      const { rewardRate, rewardsDuration }: RewardData = this.kavaRewardData;
+      return Number(formatUnits(rewardRate * rewardsDuration, 18));
+    },
   },
 
   methods: {
@@ -153,7 +153,7 @@ export default {
   },
 
   async created() {
-    // this.kavaRewardData = await this.getRewardData();
+    this.kavaRewardData = await this.getRewardData();
   },
 };
 </script>

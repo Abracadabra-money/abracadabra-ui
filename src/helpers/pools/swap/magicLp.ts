@@ -13,6 +13,7 @@ import type { PoolConfig } from "@/configs/pools/types";
 import { getMidPriceAddressByChain } from "@/configs/pools/midPrice";
 import { formatUnits } from "viem";
 import { getCoinsPrices } from "@/helpers/prices/defiLlama";
+import { getPoolInfo } from "../getPoolInfo";
 
 export const getAllPoolsByChain = async (
   chainId: number,
@@ -22,7 +23,7 @@ export const getAllPoolsByChain = async (
     poolsConfig
       .filter((config) => config.chainId === chainId)
       .map(async (config) => {
-        return getLpInfo(config, chainId, account);
+        return getPoolInfo(chainId, config.id, account);
       })
   );
 

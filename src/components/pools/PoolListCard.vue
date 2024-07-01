@@ -112,9 +112,10 @@ export default {
           1: [useImage("assets/images/points-dashboard/potion.png")],
         },
         42161: {
-          1: [
-          useImage("assets/images/tokens/SPELL.png")
-          ]
+          1: [useImage("assets/images/tokens/SPELL.png")],
+        },
+        2222: {
+          1: [useImage("assets/images/tokens/KAVA.png")],
         },
       },
     };
@@ -122,6 +123,7 @@ export default {
 
   computed: {
     isPoolHasReward() {
+      console.log(this.pool.poolAPR);
       return (
         this.rewards[this.pool.chainId] &&
         this.rewards[this.pool.chainId][this.pool.id]
