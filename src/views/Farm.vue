@@ -43,7 +43,6 @@
       />
 
       <FarmPosition
-        class="farm-position"
         :selectedFarm="selectedFarm"
         :isProperNetwork="isProperNetwork"
         v-if="isUserPositionOpen"
@@ -458,12 +457,6 @@ export default {
   margin-bottom: 16px;
 }
 
-.farm-position {
-  position: absolute;
-  top: 92px;
-  right: -300px;
-}
-
 .title-desc {
   display: flex;
   flex-direction: column;
@@ -521,10 +514,6 @@ export default {
 
   .my-position-button {
     display: block;
-  }
-
-  .farm-position {
-    display: none;
   }
 }
 

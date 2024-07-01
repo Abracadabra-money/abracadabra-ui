@@ -212,7 +212,6 @@ export default {
   width: 300px;
   padding: 16px;
   gap: 16px;
-
   border-radius: 20px;
   border: 1px solid rgba(45, 74, 150, 0);
   background: linear-gradient(
@@ -221,6 +220,9 @@ export default {
     rgba(116, 92, 210, 0.12) 100%
   );
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  position: absolute;
+  top: 92px;
+  right: -300px;
 }
 
 .subtitle {
@@ -283,5 +285,11 @@ export default {
   color: rgba(255, 255, 255, 0.8);
   font-size: 12px;
   font-weight: 400;
+}
+
+@media (max-width: 1300px) {
+  .farm-position {
+    display: none;
+  }
 }
 </style>
