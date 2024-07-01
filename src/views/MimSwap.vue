@@ -155,7 +155,7 @@ export default {
         toToken: emptyTokenInfo,
         fromInputValue: 0n,
         toInputValue: 0n,
-        slippage: 100n,
+        slippage: 30n,
         deadline: 500n,
       } as ActionConfig,
       updateInterval: null as any,
@@ -165,7 +165,7 @@ export default {
         toToken: emptyTokenInfo,
         fromInputValue: 0n,
         toInputValue: 0n,
-        slippage: 100n,
+        slippage: 30n,
         deadline: 500n,
       } as ActionConfig),
       selectedNetwork: KAVA_CHAIN_ID,
@@ -399,8 +399,8 @@ export default {
     resetActionCaonfig() {
       this.actionConfig.fromInputValue = 0n;
       this.actionConfig.toInputValue = 0n;
-      this.actionConfig.slippage = 100n;
-      this.actionConfig.deadline = 300n;
+      this.actionConfig.slippage = 30n;
+      this.actionConfig.deadline = 500n;
     },
 
     openTokensPopup(type: string) {
