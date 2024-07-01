@@ -310,15 +310,12 @@ export default {
 
     async selectedNetwork() {
       this.resetActionCaonfig();
-      this.createSwapInfo();
+      await this.createSwapInfo();
+      this.selectBaseTokens();
     },
 
     account() {
       this.createSwapInfo();
-    },
-
-    tokensList() {
-      this.selectBaseTokens();
     },
 
     poolsList: {
