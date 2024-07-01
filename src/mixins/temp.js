@@ -175,7 +175,7 @@ export default {
     },
 
     //GM methods
-    async gmLeverageHandler(cookPayload, mcApproved, cauldronObject) {
+    async gmLeverageHandler(cookPayload, cauldronObject) {
       const { cauldron } = cauldronObject.contracts;
       const cauldronActiveOrder = await cauldron.orders(this.account);
 
@@ -185,7 +185,7 @@ export default {
       }
 
       // leverage & create order
-      await this.cookLeverageGM(cookPayload, mcApproved, cauldronObject);
+      await cooks.gmCooks.cookLeverage(cookPayload, cauldronObject);
 
       const order = await cauldron.orders(this.account);
 
@@ -204,14 +204,12 @@ export default {
     },
     async gmDeleverageHandler(
       cookPayload,
-      mcApproved,
       cauldronObject,
-      account,
       notificationId
     ) {
       const { cauldron } = cauldronObject.contracts;
-      const cauldronActiveOrder = await cauldron.orders(account);
-
+      const cauldronActiveOrder = await cauldron.orders(cookPayload.to);
+      
       if (cauldronActiveOrder !== ZERO_ADDRESS) {
         this.deleteAllNotification();
         this.createNotification(notification.gmOrderExist);
@@ -219,16 +217,11 @@ export default {
       }
 
       // withdraw collateral & create order
-      await this.cookWitdrawToOrderGM(
-        cookPayload,
-        mcApproved,
-        cauldronObject,
-        account
-      );
+      await cooks.gmCooks.cookWitdrawToOrderGM(cookPayload, cauldronObject);
 
       this.$emit("clearData");
 
-      const order = await cauldron.orders(account);
+      const order = await cauldron.orders(cookPayload.to);
 
       const itsZero = order === ZERO_ADDRESS;
 
@@ -249,10 +242,9 @@ export default {
       );
 
       try {
-        await this.cookRecoverFaliedLeverage(
-          this.cauldron,
-          order,
-          this.account
+        await cooks.gmCooks.cookRecoverFaliedLeverage(
+          { order, to: this.account },
+          this.cauldron
         );
 
         const { cauldron } = this.cauldron.contracts;
@@ -288,11 +280,9 @@ export default {
       );
 
       try {
-        await this.cookDeleverageFromOrder(
+        await cooks.gmCooks.cookDeleverageFromOrder(
           successPayload,
-          this.cauldron,
-          this.account,
-          order
+          this.cauldron
         );
 
         // save as success

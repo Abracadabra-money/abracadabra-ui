@@ -243,11 +243,6 @@ const getDeleveragePayload = async (
   actionConfig: ActionConfig,
   to: Address
 ) => {
-  // TODO: update cauldron types
-  //@ts-ignore
-  const { updatePrice } = cauldron.mainParams;
-  const { isMasterContractApproved } = cauldron.additionalInfo;
-
   //@ts-ignore
   const { bentoBox } = cauldron.contracts;
   //@ts-ignore
@@ -257,7 +252,6 @@ const getDeleveragePayload = async (
 
   const { deleverageAmounts, withdrawAmount } = actionConfig.amounts;
 
-  const { userCollateralAmount } = cauldron.userPosition.collateralInfo;
   const { userBorrowAmount } = cauldron.userPosition.borrowInfo;
 
   const isMaxRepay = userBorrowAmount.lte(deleverageAmounts.amountToMin);
@@ -282,7 +276,7 @@ const getDeleveragePayload = async (
   const payload = {
     repayAmount,
     collateralShare: shareFrom,
-    removeCollateralShare: withdrawShare, 
+    removeCollateralShare: withdrawShare,
     itsMax: isMaxRepay,
     slipage: slippage,
     to,
