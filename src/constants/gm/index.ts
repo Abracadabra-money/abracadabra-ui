@@ -27,4 +27,4 @@ export const DAYS_CONSIDERED = 7;
 export const MARKET_FEES_URL =
   "https://subgraph.satsuma-prod.com/3b2ced13c8d9/gmx/synthetics-arbitrum-stats/api";
 export const INCENTIVE_STATS_URL =
-  "https://arbitrum-api.gmxinfra.io/incentives/stip";
+  "https://arbitrum-v2-1-api.gmxinfra.io/incentives";
