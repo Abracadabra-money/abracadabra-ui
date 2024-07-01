@@ -41,7 +41,12 @@
 
     <PriceUpdatedBlock v-if="isUpdatedPrice" @updatedPrice="updatedPrice" />
 
-    <BaseButton :primary="true" @click="swapHandler">Confirm swap</BaseButton>
+    <BaseButton
+      :primary="true"
+      :disabled="isActionProcessing"
+      @click="swapHandler"
+      >{{ buttonText }}</BaseButton
+    >
   </div>
 </template>
 
@@ -79,6 +84,7 @@ export default {
   data() {
     return {
       localData: null as any,
+      isActionProcessing: false,
     };
   },
 
@@ -106,6 +112,11 @@ export default {
     isUpdatedPrice() {
       return this.swapInfo.outputAmount !== BigInt(this.localData.outputAmount);
     },
+
+    buttonText() {
+      if (this.isActionProcessing) return "Processing...";
+      return "Confirm Swap ";
+    },
   },
 
   methods: {
@@ -123,6 +134,8 @@ export default {
     },
 
     async swapHandler() {
+      this.isActionProcessing = true;
+
       const notificationId = await this.createNotification(
         notification.pending
       );
@@ -172,6 +185,8 @@ export default {
         this.deleteNotification(notificationId);
         this.createNotification(errorNotification);
       }
+
+      this.isActionProcessing = false;
     },
   },
 

@@ -13,8 +13,7 @@
 
           <div class="item-tooltip" v-if="showPriceImpactTooltip">
             <p>
-              Amet minim mollit non deserunt ullamco est sit aliqua dolor do
-              amet sint.
+              The impact your trade has on the market price of involved pools
             </p>
           </div>
         </div>
@@ -40,8 +39,8 @@
 
           <div class="item-tooltip" v-if="showSlippageTooltip">
             <p class="item-tooltip-text">
-              Amet minim mollit non deserunt ullamco est sit aliqua dolor do
-              amet sint.
+              Your transaction will revert if the price changes unfavorably by
+              more than this percentage
             </p>
 
             <p>Minimum Received</p>
@@ -66,8 +65,8 @@
 
           <div class="item-tooltip" v-if="showFeesTooltip">
             <p class="item-tooltip-text">
-              Amet minim mollit non deserunt ullamco est sit aliqua dolor do
-              amet sint.
+              Fees are applied to ensure development of MIMSwap and
+              profitability for liquidity providers as well as network fee
             </p>
             <p class="item-tooltip-text">Gas cost: {{ formatUSD(gasCost) }}</p>
             <p class="item-tooltip-text">Pool fee: {{ formatUSD(poolFee) }}</p>

@@ -317,6 +317,10 @@ export default {
       this.createSwapInfo();
     },
 
+    tokensList() {
+      this.selectBaseTokens();
+    },
+
     poolsList: {
       async handler() {
         this.actionConfig.fromToken =
@@ -396,14 +400,10 @@ export default {
     },
 
     resetActionCaonfig() {
-      this.actionConfig = {
-        fromToken: emptyTokenInfo as TokenInfo,
-        toToken: emptyTokenInfo as TokenInfo,
-        fromInputValue: 0n,
-        toInputValue: 0n,
-        slippage: 100n, //todo
-        deadline: 300n, //todo
-      };
+      this.actionConfig.fromInputValue = 0n;
+      this.actionConfig.toInputValue = 0n;
+      this.actionConfig.slippage = 100n;
+      this.actionConfig.deadline = 300n;
     },
 
     openTokensPopup(type: string) {
@@ -520,12 +520,23 @@ export default {
     changeNetwork(network: number) {
       this.selectedNetwork = network;
     },
+
+    selectBaseTokens() {
+      this.actionConfig.fromToken = this.tokensList.find(
+        (token: TokenInfo) => token.config.name !== "MIM"
+      );
+
+      this.actionConfig.toToken = this.tokensList.find(
+        (token: TokenInfo) => token.config.name === "MIM"
+      );
+    },
   },
 
   async created() {
     this.nativeTokenPrice = await getNativeTokensPrice(this.availableNetworks);
 
     await this.createSwapInfo();
+    this.selectBaseTokens();
 
     this.updateInterval = setInterval(async () => {
       await this.createSwapInfo();

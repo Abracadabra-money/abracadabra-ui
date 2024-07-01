@@ -17,17 +17,17 @@ export const validationActions = (
   if (chainError.btnText) return chainError;
 
   if (fromToken.config.name === "Select Token")
-    return { btnText: "Select token", isAllowed: false };
+    return { btnText: "Select Token", isAllowed: false };
 
   if (toToken.config.name === "Select Token")
-    return { btnText: "Select token", isAllowed: false };
+    return { btnText: "Select Token", isAllowed: false };
 
   if (!fromInputValue || !toInputValue)
-    return { btnText: "Enter amount", isAllowed: false };
+    return { btnText: "Enter Amount", isAllowed: false };
 
   if (fromInputValue > fromToken.userInfo.balance)
     return {
-      btnText: `Insufficient balance`,
+      btnText: `Insufficient Balance`,
       isAllowed: false,
     };
 
@@ -40,7 +40,7 @@ export const validationActions = (
       method: "approvefromToken",
     };
 
-  return { btnText: "Review trade", isAllowed: true, method: "swap" };
+  return { btnText: "Review Trade", isAllowed: true, method: "swap" };
 };
 
 const validateChain = (
