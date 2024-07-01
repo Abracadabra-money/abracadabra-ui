@@ -10,6 +10,8 @@ import { getCookPayload } from "@/helpers/cauldron/getCookPayload";
 import { ACTION_TYPES } from "@/helpers/cauldron/getCookActionType";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 
+import cooks from "@/helpers/cauldron/cook/cooks";
+
 const approvalWarnings = [
   WARNING_TYPES.DEPOSIT_ALLOWANCE,
   WARNING_TYPES.REPAY_ALLOWANCE,
@@ -132,28 +134,28 @@ export default {
 
         switch (cookActionType) {
           case ACTION_TYPES.ACTION_DEPOSIT:
-            await this.cookAddCollateral(...cookPayload);
+            await cooks.cookAddCollateral(...cookPayload);
             break;
           case ACTION_TYPES.ACTION_BORROW:
-            await this.cookBorrow(...cookPayload);
+            await cooks.cookBorrow(...cookPayload);
             break;
           case ACTION_TYPES.ACTION_DEPOSIT_AND_BORROW:
-            await this.cookAddCollateralAndBorrow(...cookPayload);
+            await cooks.cookAddCollateralAndBorrow(...cookPayload);
             break;
           case ACTION_TYPES.ACTION_REPAY:
-            await this.cookRepay(...cookPayload);
+            await cooks.cookRepay(...cookPayload);
             break;
           case ACTION_TYPES.ACTION_REMOVE_COLLATERAL:
-            await this.cookRemoveCollateral(...cookPayload);
+            await cooks.cookRemoveCollateral(...cookPayload);
             break;
           case ACTION_TYPES.ACTION_REPAY_AND_REMOVE_COLLATERAL:
-            await this.cookRemoveCollateralAndRepay(...cookPayload);
+            await cooks.cookRemoveCollateralAndRepay(...cookPayload);
             break;
           case ACTION_TYPES.ACTION_LEVERAGE:
-            await this.cookLeverage(...cookPayload);
+            await cooks.cookLeverage(...cookPayload);
             break;
           case ACTION_TYPES.ACTION_DELEVERAGE:
-            await this.cookDeleverage(...cookPayload);
+            await cooks.cookDeleverage(...cookPayload);
             break;
         }
 
@@ -173,7 +175,7 @@ export default {
     },
 
     //GM methods
-    async gmLeverageHandler(cookPayload, mcApproved, cauldronObject) {
+    async gmLeverageHandler(cookPayload, cauldronObject) {
       const { cauldron } = cauldronObject.contracts;
       const cauldronActiveOrder = await cauldron.orders(this.account);
 
@@ -183,7 +185,7 @@ export default {
       }
 
       // leverage & create order
-      await this.cookLeverageGM(cookPayload, mcApproved, cauldronObject);
+      await cooks.gmCooks.cookLeverage(cookPayload, cauldronObject);
 
       const order = await cauldron.orders(this.account);
 
@@ -202,14 +204,12 @@ export default {
     },
     async gmDeleverageHandler(
       cookPayload,
-      mcApproved,
       cauldronObject,
-      account,
       notificationId
     ) {
       const { cauldron } = cauldronObject.contracts;
-      const cauldronActiveOrder = await cauldron.orders(account);
-
+      const cauldronActiveOrder = await cauldron.orders(cookPayload.to);
+      
       if (cauldronActiveOrder !== ZERO_ADDRESS) {
         this.deleteAllNotification();
         this.createNotification(notification.gmOrderExist);
@@ -217,16 +217,11 @@ export default {
       }
 
       // withdraw collateral & create order
-      await this.cookWitdrawToOrderGM(
-        cookPayload,
-        mcApproved,
-        cauldronObject,
-        account
-      );
+      await cooks.gmCooks.cookWitdrawToOrderGM(cookPayload, cauldronObject);
 
       this.$emit("clearData");
 
-      const order = await cauldron.orders(account);
+      const order = await cauldron.orders(cookPayload.to);
 
       const itsZero = order === ZERO_ADDRESS;
 
@@ -247,10 +242,9 @@ export default {
       );
 
       try {
-        await this.cookRecoverFaliedLeverage(
-          this.cauldron,
-          order,
-          this.account
+        await cooks.gmCooks.cookRecoverFaliedLeverage(
+          { order, to: this.account },
+          this.cauldron
         );
 
         const { cauldron } = this.cauldron.contracts;
@@ -286,11 +280,9 @@ export default {
       );
 
       try {
-        await this.cookDeleverageFromOrder(
+        await cooks.gmCooks.cookDeleverageFromOrder(
           successPayload,
-          this.cauldron,
-          this.account,
-          order
+          this.cauldron
         );
 
         // save as success

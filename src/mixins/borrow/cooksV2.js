@@ -111,7 +111,6 @@ export default {
       const nonce = await bentoBox.nonces(user);
 
       const parsedSignature = await signMasterContract(
-        this.signer,
         this.chainId,
         verifyingContract,
         user,

@@ -39,6 +39,7 @@ const config: Array<CauldronConfig> = [
       hasWithdrawableLimit: true,
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
+      isVelodrome: true,
     },
     contract: {
       name: "CauldronV3_2",

@@ -24,7 +24,15 @@ type CauldronSettings = {
   isSSpell?: boolean;
   isGMXMarket?: boolean;
   isMimUsdtCurveLp?: boolean;
+  isStargateUSDT?: boolean;
+  isVelodrome?: boolean;
   isTesting?: boolean;
+  hasWhitelistLogic?: boolean;
+  useDegenBoxHelper?: boolean;
+  isYvWethV2?: boolean;
+  isCvxTricrypto?: boolean;
+  isCvx3pool?: boolean;
+  isMagicGLP?: boolean;
 };
 
 type MimInfo = {

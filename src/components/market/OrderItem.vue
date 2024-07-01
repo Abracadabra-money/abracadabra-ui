@@ -275,8 +275,10 @@ export default {
       const payload = {
         itsMax: false,
         slipage: utils.formatUnits(this.slippage, PERCENT_PRESITION),
-        removeCollateralAmount: BigNumber.from(0),
-        borrowAmount: BigNumber.from(0), // TODO share to min
+        removeCollateralShare: BigNumber.from(0),
+        repayAmount: BigNumber.from(0), // TODO share to min
+        to: this.account,
+        order: this.order,
       };
 
       await this.deleverageFromOrder(this.order, payload);
