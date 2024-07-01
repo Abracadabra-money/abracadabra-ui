@@ -144,10 +144,10 @@ export const getMarketsApr = async (provider) => {
     .div(marketAddresses.length)
     .toString();
 
-  //const marketsTokensIncentiveAprData = await getIncentivesBonusApr(provider);
+  const marketsTokensIncentiveAprData = await getIncentivesBonusApr(provider);
 
   const marketsApr = {
-    //marketsTokensIncentiveAprData,
+    marketsTokensIncentiveAprData,
     marketsTokensAPRData,
     avgMarketsAPR,
   };

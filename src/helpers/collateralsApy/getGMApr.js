@@ -7,14 +7,14 @@ export const BASIS_POINTS_DIVISOR = 10000;
 export const getGMApr = async (market, provider) => {
   const marketsApr = await getMarketsApr(provider);
   const aprData = BigNumber.from(marketsApr.marketsTokensAPRData[market]);
-  // const incentiveAprData = BigNumber.from(marketsApr.marketsTokensIncentiveAprData[market]);
+  const incentiveAprData = BigNumber.from(marketsApr.marketsTokensIncentiveAprData[market]);
 
-  // const feesBasicPoints = BASIS_POINTS_DIVISOR - ABRA_FEES;
-  // const bonusApr = incentiveAprData
-  //   .mul(feesBasicPoints)
-  //   .div(BASIS_POINTS_DIVISOR)
+  const feesBasicPoints = BASIS_POINTS_DIVISOR - ABRA_FEES;
+  const bonusApr = incentiveAprData
+    .mul(feesBasicPoints)
+    .div(BASIS_POINTS_DIVISOR)
 
-  // const apr = aprData.add(bonusApr);
+  const apr = aprData.add(bonusApr);
 
-  return utils.formatUnits(aprData, 2);
+  return utils.formatUnits(apr, 2);
 };
