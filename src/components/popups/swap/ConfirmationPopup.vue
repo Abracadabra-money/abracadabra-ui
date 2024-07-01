@@ -279,6 +279,10 @@ export default {
   height: 70px;
 }
 
+.token-amount {
+  text-align: center;
+}
+
 .arrow-wrap {
   max-width: 131px;
   width: 100%;

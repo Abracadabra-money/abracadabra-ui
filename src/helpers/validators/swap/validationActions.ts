@@ -46,7 +46,7 @@ export const validationActions = (
 const validateChain = (
   selectedNetwork: number,
   connectedChainId: number,
-  btnText = "Switch to Chain"
+  btnText = "Switch Network"
 ) => {
   if (
     !SUPPORTED_CHAINS.includes(connectedChainId) ||
