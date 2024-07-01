@@ -1,4 +1,5 @@
 import { ethers } from "ethers";
+import { verifyTypedData } from "ethers/lib/utils";
 
 const signMasterContract = async (
   signer,
@@ -42,6 +43,11 @@ const signMasterContract = async (
   };
 
   const signature = await signer._signTypedData(domain, types, value);
+
+  const verifiedAccount = verifyTypedData(domain, types, value, signature);
+  const isVerified = verifiedAccount.toLowerCase() === user.toLowerCase();
+
+  if (!isVerified) throw new Error("Invalid signature");
 
   const parsedSignature = parseSignature(signature);
 

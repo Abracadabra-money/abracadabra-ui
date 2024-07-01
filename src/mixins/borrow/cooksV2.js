@@ -300,27 +300,28 @@ export default {
       const { bentoBox } = pool.contracts;
       const addNonce = cookData.events.filter((value) => value === 24).length;
 
-      // [leger issue] out of date?
-      if (!this.itsMetamask && !approved) {
+      try {
+        cookData = await this.signAndGetData(
+          cookData,
+          pool,
+          masterContract,
+          approved,
+          addNonce
+        );
+
+        return cookData;
+      } catch (error) {
+        console.log("error", error);
         const approvalMaster = await setMasterContractApproval(
           bentoBox,
           this.account,
           masterContract,
-          true
+          approved
         );
+
         if (!approvalMaster) return false; // TODO: update catch
         return cookData;
       }
-
-      cookData = await this.signAndGetData(
-        cookData,
-        pool,
-        masterContract,
-        approved,
-        addNonce
-      );
-
-      return cookData;
     },
 
     async recipeAddCollatral(
