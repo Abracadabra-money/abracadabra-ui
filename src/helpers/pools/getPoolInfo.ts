@@ -10,11 +10,12 @@ import { getCoinsPrices } from "@/helpers/prices/defiLlama/index";
 import { getSwapRouterByChain } from "@/configs/pools/routers";
 
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
+import { getPoolApr } from "./getPoolAPR";
 
 export const getPoolInfo = async (
   poolChainId: number,
   poolId: number,
-  account: Address
+  account?: Address
 ) => {
   const poolConfig = poolsConfig.find(
     ({ id, chainId }: PoolConfig) => id == poolId && chainId == poolChainId
@@ -38,8 +39,11 @@ export const getPoolInfo = async (
   if (account && poolConfig.lockContract)
     poolInfo.lockInfo = await getLockInfo(account, poolChainId, poolConfig);
 
+  if (poolConfig.stakeContract)
+    poolInfo.poolAPR = await getPoolApr(poolChainId, poolInfo);
+
   if (account && poolConfig.stakeContract)
-    poolInfo.stakeInfo = await getStakeInfo(account, poolChainId, poolConfig);
+    poolInfo.stakeInfo = await getStakeInfo(account, poolChainId, poolConfig, poolInfo.poolAPR.tokensApr!);
 
   return poolInfo;
 };
@@ -47,7 +51,7 @@ export const getPoolInfo = async (
 const getTokensInfo = async (
   chainId: number,
   poolConfig: PoolConfig,
-  account: Address
+  account?: Address
 ) => {
   const tokensPrices = await getCoinsPrices(chainId, [
     poolConfig.baseToken.contract.address,
@@ -130,7 +134,8 @@ export const getLockInfo = async (
 export const getStakeInfo = async (
   account: Address,
   chainId: number,
-  config: any
+  config: any,
+  tokensApr: any
 ) => {
   const publicClient = getPublicClient(chainId);
 
@@ -157,10 +162,30 @@ export const getStakeInfo = async (
     ],
   });
 
+  const earnedBalances = await publicClient.multicall({
+    contracts: [
+      ...config.rewardTokens.map((token: any) => ({
+        address: config.stakeContract.address,
+        abi: config.stakeContract.abi,
+        functionName: "earned",
+        args: [account, token.contract.address],
+      })),
+    ],
+  });
+
+  const earnedInfo = config.rewardTokens.map((token: any, index: number) => ({
+    token,
+    earned: earnedBalances[index].result,
+    ...tokensApr[index]
+  }));
+
+  console.log("earnedInfo", earnedInfo)
+
   return {
     balance: balance.result,
     allowance: allowance.result,
     earned: earned.result,
+    earnedInfo
   };
 };
 

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { shallowMount } from "@vue/test-utils";
-import EmpowerCard from "@/components/cauldrons/EmpowerCard.vue";
+import EmpowerCard from "@/components/cauldrons/promoCards/EmpowerCard.vue";
 
 describe("EmpowerCard", () => {
   it("renders the card with the correct classes and attributes", () => {
