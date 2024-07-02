@@ -18,6 +18,7 @@
         :to="`/pool/${pool.config.id}/${pool.config.chainId}`"
       >
         <svg
+          class="arrow"
           xmlns="http://www.w3.org/2000/svg"
           width="20"
           height="20"
@@ -270,7 +271,7 @@ export default {
 .pool-link {
   width: 44px;
   height: 44px;
-  padding-left: 5px;
+  padding-left: 2px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -279,6 +280,13 @@ export default {
   background: rgba(25, 31, 47, 0.38);
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
   backdrop-filter: blur(12.5px);
+
+  &:hover {
+    .arrow {
+      transition: all 0.2s ease-in-out;
+      transform: translateX(4px);
+    }
+  }
 }
 
 .card-body {
