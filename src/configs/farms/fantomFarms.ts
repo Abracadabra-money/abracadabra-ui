@@ -14,6 +14,7 @@ const fantomFarms: FarmConfig[] = [
     stakingToken: {
       name: "3PoolV2",
       type: "LP",
+      decimals: 18,
       link: "https://ftm.curve.fi/factory/1/deposit",
       abi: crvStakeTokenAbi,
     },

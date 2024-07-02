@@ -15,6 +15,7 @@ const arbitrumFarms: FarmConfig[] = [
     stakingToken: {
       name: "MIM-2Crv",
       type: "LP",
+      decimals: 18,
       link: "https://arbitrum.curve.fi/factory/0/deposit",
       abi: crvStakeTokenAbi,
     },

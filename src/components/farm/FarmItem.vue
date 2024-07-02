@@ -49,17 +49,17 @@
   </router-link>
 </template>
 
-<script>
+<script lang="ts">
+import { defineAsyncComponent, type PropType } from "vue";
 import { mapGetters } from "vuex";
-import Tooltip from "@/components/ui/icons/Tooltip.vue";
 import { formatUSD, formatPercent } from "@/helpers/filters";
-import AprTooltip from "@/components/ui/tooltips/AprTooltip.vue";
-import TokenChainIcon from "@/components/ui/icons/TokenChainIcon.vue";
+import type { FarmItem } from "@/configs/farms/types";
 
 export default {
   props: {
     farm: {
-      type: Object,
+      type: Object as PropType<FarmItem>,
+      required: true,
     },
     top: {
       type: Boolean,
@@ -82,7 +82,7 @@ export default {
     },
 
     tvl() {
-      return formatUSD(this.farm.farmTvl);
+      return formatUSD(this.farm.farmTvl || 0);
     },
 
     farmStatusStyles() {
@@ -93,7 +93,7 @@ export default {
             "background: linear-gradient(180deg, #8c4040 0%, #6b2424 100%);",
           border: "border: 1px solid #4a2130;",
         };
-      if (this.farm.config?.isNew)
+      if (this.farm.isNew)
         return {
           text: "New",
           flagColor:
@@ -124,9 +124,15 @@ export default {
   },
 
   components: {
-    TokenChainIcon,
-    Tooltip,
-    AprTooltip,
+    TokenChainIcon: defineAsyncComponent(
+      () => import("@/components/ui/icons/TokenChainIcon.vue")
+    ),
+    Tooltip: defineAsyncComponent(
+      () => import("@/components/ui/icons/Tooltip.vue")
+    ),
+    AprTooltip: defineAsyncComponent(
+      () => import("@/components/ui/tooltips/AprTooltip.vue")
+    ),
   },
 };
 </script>

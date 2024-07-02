@@ -24,15 +24,15 @@
   </div>
 </template>
 
-<script>
-import BaseTokenInput from "@/components/base/BaseTokenInput.vue";
-import BaseButton from "@/components/base/BaseButton.vue";
+<script lang="ts">
+import { defineAsyncComponent, type PropType } from "vue";
+import type { FarmItem } from "@/configs/farms/types";
 
 export default {
   props: {
-    selectedFarm: { type: Object },
+    selectedFarm: { type: Object as PropType<FarmItem> },
     inputTitleText: { type: String },
-    max: { type: BigInt },
+    max: { type: BigInt as any as PropType<bigint>, required: true },
     error: { type: String },
     value: { type: String },
     isButtonDisabled: { type: Boolean },
@@ -40,12 +40,19 @@ export default {
   },
 
   methods: {
-    updateValue(e) {
+    updateValue(e: bigint) {
       this.$emit("updateValue", e);
     },
   },
 
-  components: { BaseTokenInput, BaseButton },
+  components: {
+    BaseTokenInput: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenInput.vue")
+    ),
+    BaseButton: defineAsyncComponent(
+      () => import("@/components/base/BaseButton.vue")
+    ),
+  },
 };
 </script>
 

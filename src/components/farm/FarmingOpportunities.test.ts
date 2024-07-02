@@ -1,18 +1,26 @@
 import { describe, it, expect } from "vitest";
 import { shallowMount } from "@vue/test-utils";
 import FarmingOpportunities from "@/components/farm/FarmingOpportunities.vue";
+import { emptyFarmData } from "@/helpers/farm/createFarmData";
+import type { Address } from "viem";
+
+const farm = {
+  ...emptyFarmData,
+  farmRoi: 0.1,
+  farmTvl: 1000000,
+  stakingToken: {
+    link: "https://example.com",
+    name: "",
+    type: "",
+    contractInfo: { address: "0x0000000" as Address, abi: [] },
+  },
+};
 
 describe("FarmingOpportunities", () => {
   it("renders the component", () => {
     const wrapper = shallowMount(FarmingOpportunities, {
       propsData: {
-        selectedFarm: {
-          farmRoi: 0.1,
-          farmTvl: 1000000,
-          stakingToken: {
-            link: "https://example.com",
-          },
-        },
+        selectedFarm: farm,
       },
     });
 
@@ -22,13 +30,7 @@ describe("FarmingOpportunities", () => {
   it("displays the APR value", () => {
     const wrapper = shallowMount(FarmingOpportunities, {
       propsData: {
-        selectedFarm: {
-          farmRoi: 0.1,
-          farmTvl: 1000000,
-          stakingToken: {
-            link: "https://example.com",
-          },
-        },
+        selectedFarm: farm,
       },
     });
 
@@ -39,13 +41,7 @@ describe("FarmingOpportunities", () => {
   it("displays the TVL value", () => {
     const wrapper = shallowMount(FarmingOpportunities, {
       propsData: {
-        selectedFarm: {
-          farmRoi: 0.1,
-          farmTvl: 1000000,
-          stakingToken: {
-            link: "https://example.com",
-          },
-        },
+        selectedFarm: farm,
       },
     });
 

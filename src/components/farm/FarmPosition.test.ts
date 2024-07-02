@@ -2,14 +2,23 @@ import { describe, it, expect } from "vitest";
 import { shallowMount } from "@vue/test-utils";
 import BaseButton from "@/components/base/BaseButton.vue";
 import FarmPosition from "@/components/farm/FarmPosition.vue";
+import { emptyFarmData } from "@/helpers/farm/createFarmData";
+import type { Address } from "viem";
+
+const farm = {
+  ...emptyFarmData,
+  farmRoi: 0.1,
+  farmTvl: 1000000,
+  stakingToken: {
+    link: "https://example.com",
+    name: "Token A",
+    type: "",
+    contractInfo: { address: "0x0000000" as Address, abi: [] },
+  },
+};
 
 describe("FarmPosition", () => {
   it("renders deposited token information correctly", () => {
-    const selectedFarm = {
-      stakingToken: {
-        name: "Token A",
-      },
-    };
     const depositedTokenInfo = {
       earned: 100,
       usd: 200,
@@ -17,7 +26,7 @@ describe("FarmPosition", () => {
 
     const wrapper = shallowMount(FarmPosition, {
       propsData: {
-        selectedFarm,
+        selectedFarm: farm,
       },
       computed: {
         depositedTokenInfo: () => depositedTokenInfo,
@@ -30,33 +39,55 @@ describe("FarmPosition", () => {
   });
 
   it("renders reward tokens information correctly", () => {
-    const selectedFarm = {
-      isMultiReward: true,
-      accountInfo: {
-        rewardTokensInfo: [
-          {
-            name: "Token B",
-            earned: 50,
-            price: 2,
-          },
-          {
-            name: "Token C",
-            earned: 75,
-            price: 3,
-          },
-        ],
-        userInfo: {
-          amount: 100,
-        },
-      },
-      stakingToken: {
-        name: "Token A",
-      },
-    };
-
     const wrapper = shallowMount(FarmPosition, {
       propsData: {
-        selectedFarm,
+        selectedFarm: {
+          ...farm,
+          isMultiReward: true,
+          accountInfo: {
+            allowance: "0",
+            userReward: "0",
+            balance: "0",
+            depositedBalance: "0",
+            depositedBalanceBigInt: 0n,
+            rewardTokensInfo: [
+              {
+                name: "Token B",
+                earned: 50,
+                price: 2,
+                balance: "0",
+                allowance: "0",
+                rewards: "0",
+                usd: "0",
+                icon: "",
+                address: "0x000" as Address,
+                decimals: 18,
+                abi: [],
+                oracle: "0x000" as Address,
+              },
+              {
+                name: "Token C",
+                earned: 75,
+                price: 3,
+                balance: "0",
+                allowance: "0",
+                rewards: "0",
+                usd: "0",
+                icon: "",
+                address: "0x000" as Address,
+                decimals: 18,
+                abi: [],
+                oracle: "0x000" as Address,
+              },
+            ],
+            userInfo: {
+              amount: "100",
+              amountBigInt: 100n,
+              rewardDebt: "0",
+              remainingIceTokenReward: "0,",
+            },
+          },
+        },
       },
     });
 
@@ -74,26 +105,50 @@ describe("FarmPosition", () => {
 
   it("disables the earned button when there is insufficient reward or improper network", () => {
     const selectedFarm = {
+      ...farm,
       isMultiReward: true,
       accountInfo: {
+        allowance: "0",
+        userReward: "0",
+        balance: "0",
+        depositedBalance: "0",
+        depositedBalanceBigInt: 0n,
         rewardTokensInfo: [
           {
             name: "Token B",
             earned: 50,
             price: 2,
+            balance: "0",
+            allowance: "0",
+            rewards: "0",
+            usd: "0",
+            icon: "",
+            address: "0x000" as Address,
+            decimals: 18,
+            abi: [],
+            oracle: "0x000" as Address,
           },
           {
             name: "Token C",
             earned: 75,
             price: 3,
+            balance: "0",
+            allowance: "0",
+            rewards: "0",
+            usd: "0",
+            icon: "",
+            address: "0x000" as Address,
+            decimals: 18,
+            abi: [],
+            oracle: "0x000" as Address,
           },
         ],
         userInfo: {
-          amount: 100,
+          amount: "100",
+          amountBigInt: 100n,
+          rewardDebt: "0",
+          remainingIceTokenReward: "0,",
         },
-      },
-      stakingToken: {
-        name: "Token A",
       },
     };
 
@@ -110,34 +165,57 @@ describe("FarmPosition", () => {
   });
 
   it("enables the earned button when there is sufficient reward and proper network", () => {
-    const selectedFarm = {
-      isMultiReward: true,
-      accountInfo: {
-        rewardTokensInfo: [
-          {
-            name: "Token B",
-            earned: 50,
-            price: 2,
-          },
-          {
-            name: "Token C",
-            earned: 75,
-            price: 3,
-          },
-        ],
-        userInfo: {
-          amount: 100,
-        },
-      },
-      stakingToken: {
-        name: "Token A",
-      },
-    };
     const isProperNetwork = true;
 
     const wrapper = shallowMount(FarmPosition, {
       propsData: {
-        selectedFarm,
+        selectedFarm: {
+          ...farm,
+          isMultiReward: true,
+          accountInfo: {
+            allowance: "0",
+            userReward: "0",
+            balance: "0",
+            depositedBalance: "0",
+            depositedBalanceBigInt: 0n,
+            rewardTokensInfo: [
+              {
+                name: "Token B",
+                earned: 50,
+                price: 2,
+                balance: "0",
+                allowance: "0",
+                rewards: "0",
+                usd: "0",
+                icon: "",
+                address: "0x000" as Address,
+                decimals: 18,
+                abi: [],
+                oracle: "0x000" as Address,
+              },
+              {
+                name: "Token C",
+                earned: 75,
+                price: 3,
+                balance: "0",
+                allowance: "0",
+                rewards: "0",
+                usd: "0",
+                icon: "",
+                address: "0x000" as Address,
+                decimals: 18,
+                abi: [],
+                oracle: "0x000" as Address,
+              },
+            ],
+            userInfo: {
+              amount: "100",
+              amountBigInt: 100n,
+              rewardDebt: "0",
+              remainingIceTokenReward: "0,",
+            },
+          },
+        },
         isProperNetwork,
       },
     });

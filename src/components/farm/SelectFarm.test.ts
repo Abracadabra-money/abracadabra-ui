@@ -1,10 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { shallowMount } from "@vue/test-utils";
 import SelectFarm from "@/components/farm/SelectFarm.vue";
+import { emptyFarmData } from "@/helpers/farm/createFarmData";
 
 describe("SelectFarm", () => {
   it("renders the correct selected farm name", () => {
     const selectedFarm = {
+      ...emptyFarmData,
       name: "Farm A",
       icon: "farm-icon",
       chainId: 1,
