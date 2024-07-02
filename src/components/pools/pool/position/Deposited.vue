@@ -111,7 +111,7 @@ export default {
       if (!this.account) return "Connect wallet";
 
       if (this.isActionProcessing) return "Processing...";
-      if (!this.isAllowed) return "Approve";
+      if (!this.isAllowed) return "Approve for Staking";
 
       return "Stake all";
     },

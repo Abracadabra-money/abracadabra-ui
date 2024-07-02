@@ -96,6 +96,16 @@
         />
       </div>
 
+      <div class="pool-rewards" v-else-if="hasPotionReward">
+        Staking rewards
+
+        <img
+          class="reward-icons"
+          src="@/assets/images/points-dashboard/potion.png"
+          alt=""
+        />
+      </div>
+
       <div class="pool-apr" v-if="isShowPoolApr">APR {{ poolApr }}</div>
     </div>
   </div>
@@ -164,6 +174,10 @@ export default {
 
     tvl() {
       return this.baseTokenAmountUsd + this.quoteTokenAmountUsd;
+    },
+
+    hasPotionReward() {
+      return this.pool.config.chainId === BLAST_CHAIN_ID && this.pool.config.id === 1;
     },
 
     isShowPoolApr() {
