@@ -35,8 +35,8 @@
 
     <div class="card-body">
       <div class="pool-tvl">
-        <div class="tvl-value">{{ formatLargeSum(tvl) }}</div>
-        <div class="tvl-usd">${{ formatLargeSum(tvlUsd) }}</div>
+        <div class="tvl-value">{{ formatLargeSum(totalSupply) }}</div>
+        <div class="tvl-usd">${{ formatLargeSum(totalSupplyUsd) }}</div>
       </div>
 
       <div>
@@ -184,16 +184,20 @@ export default {
       return this.baseTokenAmountUsd + this.quoteTokenAmountUsd;
     },
 
-    tvlUsd() {
-      return this.baseTokenAmountUsd + this.quoteTokenAmountUsd;
-    },
-
     isShowPoolApr() {
       return this.pool.chainId !== BLAST_CHAIN_ID;
     },
 
     poolApr() {
       return formatPercent(this.pool.poolAPR?.totalApr || 0);
+    },
+
+    totalSupply() {
+      return Number(formatUnits(this.pool.totalSupply, this.pool.decimals));
+    },
+
+    totalSupplyUsd() {
+      return this.pool?.price ? this.totalSupply * this.pool.price : 0;
     },
   },
 

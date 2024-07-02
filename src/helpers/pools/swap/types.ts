@@ -43,6 +43,7 @@ export type MagicLPInfo = {
   userInfo: MagicLPInfoUserInfo;
   statisticsData: any; // NOTICE: will update when we have the data
   poolAPR?: any;
+  price?: number;
 } & PoolConfig;
 
 export type MagicLPInfoUserInfo = {
