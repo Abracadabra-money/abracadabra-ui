@@ -29,14 +29,14 @@
         </div>
       </div>
 
-      <div class="kava-card">
+      <!-- <div class="kava-card">
         <h4 class="kava-card-title">To be distributed</h4>
         <div class="kava-card-value">
           <img class="kava-icon" src="@/assets/images/tokens/KAVA.png" alt="" />
 
           {{ formatTokenBalance(toBeDistributed) }}
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
@@ -114,7 +114,7 @@ export default {
         );
 
         const quoteTokenAmount = Number(
-          formatUnits(pool.vaultReserve[1], pool.config.baseToken.decimals)
+          formatUnits(pool.vaultReserve[1], pool.config.quoteToken.decimals)
         );
 
         const baseTokenAmountUsd = baseTokenAmount * pool.baseTokenPrice;

@@ -42,6 +42,7 @@ export type MagicLPInfo = {
   lpFeeRate: bigint;
   userInfo: MagicLPInfoUserInfo;
   statisticsData: any; // NOTICE: will update when we have the data
+  poolAPR?: any;
 } & PoolConfig;
 
 export type MagicLPInfoUserInfo = {
