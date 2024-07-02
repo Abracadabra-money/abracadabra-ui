@@ -18,7 +18,7 @@ import { getPoolInfo } from "../getPoolInfo";
 export const getAllPoolsByChain = async (
   chainId: number,
   account?: Address
-): Promise<MagicLPInfo[]> => {
+): Promise<any> => {
   const pools = await Promise.all(
     poolsConfig
       .filter((config) => config.chainId === chainId)

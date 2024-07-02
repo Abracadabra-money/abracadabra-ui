@@ -44,6 +44,7 @@ export const getPoolApr = async (chainId: number, poolInfo: any) => {
       tokensApr.push({
         address: tokenInfo.contract.address,
         apr: tokenApr,
+        price: tokenInfo.price
       });
 
       totalAnnualRewardsInUSD += annualReward;

@@ -43,7 +43,7 @@ const kavaPools: Array<PoolConfig> = [
     },
     rewardTokens: [
       {
-        name: "wKava",
+        name: "wKAVA",
         icon: useImage(`assets/images/tokens/KAVA.png`),
         decimals: 18,
         contract: {

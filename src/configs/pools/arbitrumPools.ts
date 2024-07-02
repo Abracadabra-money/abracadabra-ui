@@ -89,15 +89,15 @@ const arbitrumPools: Array<PoolConfig> = [
           abi: erc20Abi,
         },
       },
-      // {
-      //   name: "ARB",
-      //   icon: useImage(`assets/images/tokens/AETH.png`),
-      //   decimals: 18,
-      //   contract: {
-      //     address: "0x912CE59144191C1204E64559FE8253a0e49E6548",
-      //     abi: erc20Abi,
-      //   },
-      // },
+      {
+        name: "ARB",
+        icon: useImage(`assets/images/tokens/AETH.png`),
+        decimals: 18,
+        contract: {
+          address: "0x912CE59144191C1204E64559FE8253a0e49E6548",
+          abi: erc20Abi,
+        },
+      },
     ],
     settings: {
       isNew: true,

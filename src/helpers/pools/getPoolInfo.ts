@@ -39,11 +39,11 @@ export const getPoolInfo = async (
   if (account && poolConfig.lockContract)
     poolInfo.lockInfo = await getLockInfo(account, poolChainId, poolConfig);
 
-  if (account && poolConfig.stakeContract)
-    poolInfo.stakeInfo = await getStakeInfo(account, poolChainId, poolConfig);
-
   if (poolConfig.stakeContract)
     poolInfo.poolAPR = await getPoolApr(poolChainId, poolInfo);
+
+  if (account && poolConfig.stakeContract)
+    poolInfo.stakeInfo = await getStakeInfo(account, poolChainId, poolConfig, poolInfo.poolAPR.tokensApr!);
 
   return poolInfo;
 };
@@ -134,7 +134,8 @@ export const getLockInfo = async (
 export const getStakeInfo = async (
   account: Address,
   chainId: number,
-  config: any
+  config: any,
+  tokensApr: any
 ) => {
   const publicClient = getPublicClient(chainId);
 
@@ -161,10 +162,30 @@ export const getStakeInfo = async (
     ],
   });
 
+  const earnedBalances = await publicClient.multicall({
+    contracts: [
+      ...config.rewardTokens.map((token: any) => ({
+        address: config.stakeContract.address,
+        abi: config.stakeContract.abi,
+        functionName: "earned",
+        args: [account, token.contract.address],
+      })),
+    ],
+  });
+
+  const earnedInfo = config.rewardTokens.map((token: any, index: number) => ({
+    token,
+    earned: earnedBalances[index].result,
+    ...tokensApr[index]
+  }));
+
+  console.log("earnedInfo", earnedInfo)
+
   return {
     balance: balance.result,
     allowance: allowance.result,
     earned: earned.result,
+    earnedInfo
   };
 };
 

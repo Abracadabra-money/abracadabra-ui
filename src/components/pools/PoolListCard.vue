@@ -89,9 +89,9 @@
 
         <img
           class="reward-icons"
-          v-for="(reward, index) in poolRewards"
+          v-for="(rewardInfo, index) in poolRewards"
           :key="index"
-          :src="reward"
+          :src="rewardInfo.token.icon"
           alt=""
         />
       </div>
@@ -113,38 +113,19 @@ import { formatLargeSum, formatPercent } from "@/helpers/filters";
 export default {
   props: {
     pool: {
-      type: Object as PropType<MagicLPInfo>,
+      type: Object,
       required: true,
     },
   },
 
-  data() {
-    return {
-      rewards: {
-        81457: {
-          1: [useImage("assets/images/points-dashboard/potion.png")],
-        },
-        42161: {
-          1: [useImage("assets/images/tokens/SPELL.png")],
-        },
-        2222: {
-          1: [useImage("assets/images/tokens/KAVA.png")],
-        },
-      } as Record<number, Record<number, string[]>>,
-    };
-  },
-
   computed: {
     isPoolHasReward() {
-      return (
-        this.rewards[this.pool.chainId] &&
-        this.rewards[this.pool.chainId][this.pool.id]
-      );
+      return this.pool.stakeInfo ?? false
     },
 
     poolRewards() {
       if (!this.isPoolHasReward) return;
-      return this.rewards[this.pool.chainId][this.pool.id];
+      return this.pool.stakeInfo.earnedInfo;
     },
 
     baseTokenAmount() {
