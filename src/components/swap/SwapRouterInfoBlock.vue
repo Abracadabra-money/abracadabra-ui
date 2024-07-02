@@ -4,7 +4,9 @@
 
     <h5
       class="empty-state"
-      v-if="!routes?.length || !fromTokenIcon || !toTokenIcon"
+      v-if="
+        !routes?.length || !fromTokenIcon || !toTokenIcon || !routesInfo?.length
+      "
     >
       The best route for chosen tokens will appear here
     </h5>

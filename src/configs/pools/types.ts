@@ -11,6 +11,7 @@ export type PoolConfig = {
   quoteToken: TokenConfig;
   lockContract?: Contract;
   stakeContract?: Contract;
+  rewardTokens?: TokenConfig[];
   settings: PoolSettings;
 };
 

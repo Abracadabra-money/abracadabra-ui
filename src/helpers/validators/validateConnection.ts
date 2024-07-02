@@ -5,7 +5,7 @@ export const validateConnection = () => {
 
   if (!isConnected)
     return {
-      btnText: "Connect wallet",
+      btnText: "Connect Wallet",
       isAllowed: true,
       method: "connectWallet",
     };

@@ -13,7 +13,7 @@
       @updateInputValue="updateFromInputValue"
     />
 
-    <button class="swap-button" @click="$emit('onToogleTokens')">
+    <button class="swap-button" @click="onToogleTokens">
       <SwapIcon />
     </button>
 
@@ -34,7 +34,7 @@
 </template>
 
 <script lang="ts">
-import { formatUnits } from "viem";
+import { formatUnits, parseUnits } from "viem";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import { defineAsyncComponent, type Prop } from "vue";
 import type { TokenInfo } from "@/helpers/pools/swap/tokens";
@@ -80,6 +80,15 @@ export default {
       }
 
       this.$emit("updateFromInputValue", value);
+    },
+
+    onToogleTokens() {
+      this.$emit(
+        "updateFromInputValue",
+        parseUnits(this.fromInputValue, this.toToken!.config.decimals)
+      );
+
+      this.$emit("onToogleTokens");
     },
   },
 

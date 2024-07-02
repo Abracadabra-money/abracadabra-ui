@@ -35,6 +35,8 @@ export const getRoutesInfo = (
         route.outputToken.toLowerCase()
     );
 
+    if (!outputTokenTokenInfo) return null;
+
     path.push({
       address: inputTokenInfo?.config.contract.address,
       icon: inputTokenInfo?.config.icon,
