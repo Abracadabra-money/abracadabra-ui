@@ -1,6 +1,6 @@
 import { shallowMount } from "@vue/test-utils";
 import { describe, it, expect, vi } from "vitest";
-import CamelotCard from "@/components/cauldrons/CamelotCard.vue";
+import CamelotCard from "@/components/cauldrons/promoCards/CamelotCard.vue";
 
 describe("CamelotCard", () => {
   it("renders the card with correct data", () => {

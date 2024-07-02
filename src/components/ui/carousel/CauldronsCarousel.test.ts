@@ -1,10 +1,10 @@
 import { mount } from "@vue/test-utils";
 import { describe, it, expect } from "vitest";
 import { Carousel, Slide, Pagination } from "vue3-carousel";
-import CamelotCard from "@/components/cauldrons/CamelotCard.vue";
-import EmpowerCard from "@/components/cauldrons/EmpowerCard.vue";
-import CrvUsdMimCard from "@/components/cauldrons/CrvUsdMimCard.vue";
-import CamelotUsdcMimCard from "@/components/cauldrons/CamelotUsdcMimCard.vue";
+import CamelotCard from "@/components/cauldrons/promoCards/CamelotCard.vue";
+import EmpowerCard from "@/components/cauldrons/promoCards/EmpowerCard.vue";
+import CrvUsdMimCard from "@/components/cauldrons/promoCards/CrvUsdMimCard.vue";
+import CamelotUsdcMimCard from "@/components/cauldrons/promoCards/CamelotUsdcMimCard.vue";
 
 describe("Carousel", () => {
   it("renders the correct number of slides", () => {

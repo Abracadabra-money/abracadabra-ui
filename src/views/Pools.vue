@@ -12,12 +12,12 @@
 import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
 import { getPoolsList } from "@/helpers/pools/getPoolsList";
-import type { MagicLPInfo } from "@/helpers/pools/swap/types";
+// import type { MagicLPInfo } from "@/helpers/pools/swap/types";
 
 export default {
   data() {
     return {
-      pools: [] as MagicLPInfo[],
+      pools: [] as any[],
       poolsLoading: true,
       updateInterval: null as NodeJS.Timeout | null,
     };
