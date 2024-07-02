@@ -91,7 +91,7 @@
           class="reward-icons"
           v-for="(rewardInfo, index) in poolRewards"
           :key="index"
-          :src="rewardInfo.token.icon"
+          :src="rewardInfo.icon"
           alt=""
         />
       </div>
@@ -120,12 +120,12 @@ export default {
 
   computed: {
     isPoolHasReward() {
-      return this.pool.stakeInfo ?? false
+      return this.pool.config.stakeContract ?? false
     },
 
     poolRewards() {
       if (!this.isPoolHasReward) return;
-      return this.pool.stakeInfo.earnedInfo;
+      return this.pool.config.rewardTokens;
     },
 
     baseTokenAmount() {
@@ -257,7 +257,7 @@ export default {
   align-items: center;
   justify-content: center;
   border-radius: 10px;
-  border: 1px solid #2d4a96;
+  // border: 1px solid #2d4a96;
   background: rgba(25, 31, 47, 0.38);
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
   backdrop-filter: blur(12.5px);

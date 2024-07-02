@@ -1,5 +1,9 @@
 <template>
-  <div class="rewards-card" :class="{'position-view': isPosition}"v-if="isPoolHasReward && poolRewards">
+  <div
+    class="rewards-card"
+    :class="{ 'position-view': isPosition }"
+    v-if="isPoolHasReward && poolRewards"
+  >
     <div class="row">
       <p class="title">Staking Rewards</p>
       <div class="reward-items">
@@ -45,16 +49,19 @@ export default {
   name: "RewardsCard",
   props: {
     pool: { type: Object, required: true },
-    isPosition: { type: Boolean, default: false}
+    isPosition: { type: Boolean, default: false },
   },
   computed: {
     isPoolHasReward() {
-      return this.pool.stakeInfo ?? false;
+      return this.pool.config.stakeContract ?? false;
     },
 
     poolRewards() {
       if (!this.isPoolHasReward) return;
-      return this.pool.stakeInfo.earnedInfo;
+      return this.pool.config.rewardTokens.map((token: any, index: number) => ({
+        token,
+        apr: this.pool.poolAPR?.tokensApr[index].apr ?? 0,
+      }));
     },
   },
   components: {
