@@ -110,7 +110,7 @@ export default {
         z-index: -100;
         position: absolute;
         left: -92px;
-        top: -90px;
+        bottom: 100%;
         min-width: 200px;
         border-radius: 12px;
         background: #15192a;
