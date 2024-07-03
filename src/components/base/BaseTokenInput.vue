@@ -1,6 +1,6 @@
 <template>
   <div class="wrap">
-    <div class="val-input">
+    <div :class="['val-input', { compact }]">
       <div class="token-input-wrap">
         <input
           name="tokenInput"
@@ -10,7 +10,7 @@
           placeholder="0.0"
           :disabled="disabled"
         />
-        <div class="usd-wrap">
+        <div class="usd-wrap" v-if="!compact">
           <p class="usd-equivalent" v-if="tokenPrice">{{ usdEquivalent }}</p>
           <p
             :class="['difference-price', { warning: differencePrice < 0 }]"
@@ -42,7 +42,7 @@
 
         <p
           :class="['wallet-balance', { 'primary-max': primaryMax }]"
-          v-if="!disabled"
+          v-if="!disabled && !compact"
           @click="inputValue = formattedMax"
         >
           <span v-if="primaryMax">MAX:</span>
@@ -75,6 +75,7 @@ export default {
     tokenPrice: { type: [String, Number] },
     disabled: { type: Boolean, default: false },
     primaryMax: { type: Boolean, default: false },
+    compact: { type: Boolean, default: false },
     allowSelectToken: { type: Boolean, default: false },
     differencePrice: { type: Number, default: 0 },
   },
@@ -185,6 +186,10 @@ export default {
   background: rgba(8, 14, 31, 0.6);
   width: 100%;
   min-height: 82px;
+}
+
+.compact {
+  min-height: auto;
 }
 
 .token-input-wrap,

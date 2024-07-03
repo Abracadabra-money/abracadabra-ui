@@ -92,14 +92,19 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/pools",
     name: "Pools",
-    component: () => import("@/views/Pools.vue"),
+    component: () => import("@/views/pool/Pools.vue"),
   },
   {
     path: "/pool/:id?/:poolChainId?",
     name: "Pool",
-    component: () => import("@/views/Pool.vue"),
+    component: () => import("@/views/pool/Pool.vue"),
     props: true,
     beforeEnter: [removeQueryParams],
+  },
+  {
+    path: "/pool-creation",
+    name: "PoolCreation",
+    component: () => import("@/views/pool/PoolCreation.vue"),
   },
   {
     path: "/mim-swap",
