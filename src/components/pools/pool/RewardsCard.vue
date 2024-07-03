@@ -22,7 +22,7 @@
         <p class="title">APR</p>
       </div>
       <div class="value-wrap">
-        <p class="value">{{ Number(pool.poolAPR.totalApr).toFixed(2) }}%</p>
+
         <template v-if="poolRewards && poolRewards.length > 1">
           <Tooltip :width="18" :height="18" fill="#ffffff" :tooltip="''" />
           <div class="apr-info">
@@ -41,6 +41,7 @@
           </div> -->
           </div>
         </template>
+        <p class="value">{{ Number(pool.poolAPR.totalApr).toFixed(2) }}%</p>
       </div>
     </div>
   </div>
