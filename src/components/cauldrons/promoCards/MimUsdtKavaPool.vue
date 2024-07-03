@@ -1,7 +1,7 @@
 <template>
   <router-link class="pool-card" :to="goToPage">
     <div class="primary paragraph">
-      <span class="card-title">ARB BOOSTER</span>
+      <span class="card-title">BOOSTED RETURNES</span>
       <div class="apr-line">
         <span class="apr-text">{{ apr }} Staking APR in</span>
 
