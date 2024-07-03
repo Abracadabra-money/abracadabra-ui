@@ -19,25 +19,29 @@
     </div>
     <div class="row apr-item">
       <div class="title-wrap">
-        <Tooltip :width="18" :height="18" fill="#ffffff" :tooltip="''" />
         <p class="title">APR</p>
-        <div class="apr-info">
-          <div
-            class="apr-item"
-            v-for="item in poolRewards"
-            :key="item.token.address"
-          >
-            <img :src="item.token.icon" alt="" class="token-icon" />
-            <p class="name">{{ item.token.name }}:</p>
-            <p class="apr">{{ Number(item.apr).toFixed(2) }}%</p>
-          </div>
-          <!-- <div class="apr-item total-item">
+      </div>
+      <div class="value-wrap">
+        <p class="value">{{ Number(pool.poolAPR.totalApr).toFixed(2) }}%</p>
+        <template v-if="poolRewards && poolRewards.length > 1">
+          <Tooltip :width="18" :height="18" fill="#ffffff" :tooltip="''" />
+          <div class="apr-info">
+            <div
+              class="apr-item"
+              v-for="item in poolRewards"
+              :key="item.token.address"
+            >
+              <img :src="item.token.icon" alt="" class="token-icon" />
+              <p class="name">{{ item.token.name }}:</p>
+              <p class="apr">{{ Number(item.apr).toFixed(2) }}%</p>
+            </div>
+            <!-- <div class="apr-item total-item">
             <p class="name">Total:</p>
             <p class="apr">{{ Number(pool.poolAPR.totalApr).toFixed(2) }} %</p>
           </div> -->
-        </div>
+          </div>
+        </template>
       </div>
-      <p class="value">{{ Number(pool.poolAPR.totalApr).toFixed(2) }}%</p>
     </div>
   </div>
 </template>
@@ -96,12 +100,15 @@ export default {
   }
 
   .apr-item {
-    .title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    .value-wrap {
+      position: relative;
+      // cursor: pointer;
       display: flex;
       align-items: center;
       gap: 3px;
-      position: relative;
-      cursor: pointer;
 
       &:hover {
         .apr-info {
@@ -155,6 +162,12 @@ export default {
           }
         }
       }
+    }
+
+    .title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 3px;
     }
 
     .value {

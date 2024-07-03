@@ -4,23 +4,28 @@
       <h4 class="title">Rewards Earned</h4>
 
       <div class="apr-wrap">
-        <Tooltip :width="18" :height="18" fill="#ffffff" :tooltip="''" />
+        <template v-if="poolRewards && poolRewards.length > 1">
+          <Tooltip :width="18" :height="18" fill="#ffffff" :tooltip="''" />
+          <div class="apr-info">
+            <div
+              class="apr-item"
+              v-for="item in poolRewards"
+              :key="item.token.address"
+            >
+              <img :src="item.token.icon" alt="" class="token-icon" />
+              <p class="name">{{ item.token.name }}:</p>
+              <p class="apr">{{ Number(item.apr).toFixed(2) }}%</p>
+            </div>
+            <div class="apr-item total-item">
+              <p class="name">Total:</p>
+              <p class="apr">
+                {{ Number(pool.poolAPR.totalApr).toFixed(2) }} %
+              </p>
+            </div>
+          </div>
+        </template>
+
         <p class="title">APR</p>
-        <div class="apr-info">
-          <div
-            class="apr-item"
-            v-for="item in poolRewards"
-            :key="item.token.address"
-          >
-            <img :src="item.token.icon" alt="" class="token-icon" />
-            <p class="name">{{ item.token.name }}:</p>
-            <p class="apr">{{ Number(item.apr).toFixed(2) }}%</p>
-          </div>
-          <div class="apr-item total-item">
-            <p class="name">Total:</p>
-            <p class="apr">{{ Number(pool.poolAPR.totalApr).toFixed(2) }} %</p>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -102,8 +107,8 @@ export default {
     this.fetchRewardPrice();
   },
   components: {
-    Tooltip: defineAsyncComponent(
-      () => import("@/components/ui/icons/Tooltip.vue")
+    Tooltip: defineAsyncComponent(() =>
+      import("@/components/ui/icons/Tooltip.vue")
     ),
   },
 };
@@ -121,7 +126,7 @@ export default {
   align-items: center;
   gap: 3px;
   position: relative;
-  cursor: pointer;
+  // cursor: pointer;
 
   &:hover {
     .apr-info {
