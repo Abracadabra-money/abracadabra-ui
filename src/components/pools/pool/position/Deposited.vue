@@ -31,13 +31,10 @@
       </div>
     </template>
 
-    <div class="reward-wrap" v-if="isPoolHasReward && reward">
-      <p class="title">Staking Rewards</p>
-      <div class="reward-item">
-        <img :src="reward.icon" alt="" class="reward-icon" />
-        <p class="reward-name">{{ reward.name }}</p>
-      </div>
-    </div>
+    <RewardsCard
+      :isPosition="true"
+      :pool="pool"
+    />
 
     <BaseButton
       v-if="hasLockLogic || hasStakeLogic"
@@ -82,20 +79,6 @@ export default {
       },
       isActionProcessing: false,
       isRewardsCalculating: false,
-      rewards: {
-        2222: {
-          1: {
-            icon: useImage("assets/images/networks/kava.png"),
-            name: "wKAVA",
-          },
-        },
-        42161: {
-          1: {
-            icon: useImage("assets/images/tokens/SPELL.png"),
-            name: "SPELL",
-          },
-        },
-      },
     };
   },
 
@@ -104,17 +87,6 @@ export default {
       account: "getAccount",
       chainId: "getChainId",
     }),
-
-    isPoolHasReward() {
-      return (
-        this.rewards[this.pool.chainId] &&
-        this.rewards[this.pool.chainId][this.pool.id]
-      );
-    },
-    reward() {
-      if (!this.isPoolHasReward) return;
-      return this.rewards[this.pool.chainId][this.pool.id];
-    },
 
     hasLockLogic() {
       return !!this.pool.lockInfo;
@@ -139,7 +111,7 @@ export default {
       if (!this.account) return "Connect wallet";
 
       if (this.isActionProcessing) return "Processing...";
-      if (!this.isAllowed) return "Approve";
+      if (!this.isAllowed) return "Approve for Staking";
 
       return "Stake all";
     },
@@ -380,6 +352,9 @@ export default {
     ),
     RowSkeleton: defineAsyncComponent(() =>
       import("@/components/ui/skeletons/RowSkeleton.vue")
+    ),
+    RewardsCard: defineAsyncComponent(() =>
+      import("@/components/pools/pool/RewardsCard.vue")
     ),
   },
 };
