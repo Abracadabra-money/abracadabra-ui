@@ -92,7 +92,7 @@ export default {
     earnedBalance() {
       if (!this.hasStakeLogic) return 0n;
 
-      return !!this.pool.stakeInfo.earnedInfo.find((item) => item.earned > 0);
+      return !!this.pool.stakeInfo.earnedInfo.find((item) => item.earned > 0n);
     },
     isProperNetwork() {
       return this.chainId == this.pool.chainId;
