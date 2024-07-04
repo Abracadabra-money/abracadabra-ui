@@ -15,9 +15,12 @@
         <img
           class="settings-icon"
           src="@/assets/images/pools/pool-creation/settings-icon.svg"
+          @click="$emit('openSlippagePopup')"
         />
       </div>
     </div>
+
+    <div class="chart-wrap"></div>
   </div>
 </template>
 
@@ -76,5 +79,10 @@ export default {
   color: #7088cc;
   font-size: 16px;
   font-weight: 500;
+}
+
+.chart-wrap {
+  width: 689px;
+  height: 325.44px;
 }
 </style>

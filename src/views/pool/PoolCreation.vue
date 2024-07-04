@@ -17,9 +17,14 @@
 
       <div class="pool-creation-info-wrap">
         <CreationTypeTabs />
-        <PoolCreationInfo />
+        <PoolCreationInfo @openSlippagePopup="slippagePopupOpened = true" />
       </div>
     </div>
+
+    <SlippageCoefficientPopup
+      v-if="slippagePopupOpened"
+      @close="slippagePopupOpened = !slippagePopupOpened"
+    />
   </div>
 </template>
 
@@ -27,6 +32,12 @@
 import { defineAsyncComponent } from "vue";
 
 export default {
+  data() {
+    return {
+      slippagePopupOpened: false,
+    };
+  },
+
   components: {
     BaseButton: defineAsyncComponent(
       () => import("@/components/base/BaseButton.vue")
@@ -45,6 +56,12 @@ export default {
     ),
     PoolCreationInfo: defineAsyncComponent(
       () => import("@/components/pools/poolCreation/PoolCreationInfo.vue")
+    ),
+    SlippageCoefficientPopup: defineAsyncComponent(
+      () =>
+        import(
+          "@/components/pools/poolCreation/popups/SlippageCoefficientPopup.vue"
+        )
     ),
   },
 };

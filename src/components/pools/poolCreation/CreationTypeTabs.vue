@@ -57,6 +57,7 @@ export default {};
   );
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
   backdrop-filter: blur(12.5px);
+  cursor: pointer;
 }
 
 .creation-type.active {
