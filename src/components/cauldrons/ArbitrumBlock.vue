@@ -24,7 +24,7 @@ import farmsConfig from "@/configs/farms/farms";
 import { getFarmConfig } from "@/helpers/farm/utils";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 import type { FarmConfig } from "@/configs/farms/types";
-import { createFarmItemConfig } from "@/helpers/farm/createFarmItemConfig";
+import { createFarmData } from "@/helpers/farm/createFarmData";
 
 type Data = {
   MIM2CrvFarmId: number;
@@ -62,7 +62,7 @@ export default {
       const farmConfig = getFarmConfig(this.MIM2CrvFarmId, ARBITRUM_CHAIN_ID);
       if (!farmConfig) return;
 
-      this.farmCardInfo = await createFarmItemConfig(
+      this.farmCardInfo = await createFarmData(
         farmConfig.id,
         farmConfig.contractChain,
         this.account,

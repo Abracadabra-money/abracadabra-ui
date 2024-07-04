@@ -7,6 +7,8 @@ import type { FarmConfig, PoolInfo, ContractInfo } from "@/configs/farms/types";
 const MIMAddress = "0x99d8a9c45b2eca8864373a26d1459e3dff1e17f3";
 const SPELLAddress = "0x090185f2135308bad17527004364ebcc2d37e5f6";
 
+export type FarmYieldAndPrice = { farmYield: number; lpPrice: number };
+
 export const getFarmYieldAndLpPrice = async (
   stakingTokenContractInfo: ContractInfo,
   contractInfo: ContractInfo,
@@ -16,7 +18,7 @@ export const getFarmYieldAndLpPrice = async (
   spellPrice: number,
   chainId: number | string,
   publicClient: any
-) => {
+): Promise<FarmYieldAndPrice> => {
   try {
     if (farmInfo.depositedBalance) {
       const tokenAddress =
@@ -45,7 +47,7 @@ export const getFarmYieldAndLpPrice = async (
       );
 
       return {
-        lpPrice: formatUnits(lpYieldAndPrice?.lpPrice, 18),
+        lpPrice: Number(formatUnits(lpYieldAndPrice?.lpPrice, 18)),
         farmYield,
       };
     }
@@ -69,7 +71,7 @@ export const getFarmYieldAndLpPrice = async (
     );
 
     return {
-      lpPrice: formatUnits(price, 18),
+      lpPrice: Number(formatUnits(price, 18)),
       farmYield,
     };
   } catch (e) {
