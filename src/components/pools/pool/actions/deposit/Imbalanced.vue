@@ -159,9 +159,16 @@ export default {
 
     formattedLpTokenExpected() {
       if (this.isExpectedOptimalCalculating) return { value: "-", usd: "-" };
-      const formattedLpTokenValue = Number(
-        formatUnits(this.expectedOptimal.shares, this.pool.decimals)
+
+      const minimumShares = applySlippageToMinOutBigInt(
+        this.slippage,
+        this.expectedOptimal.shares
       );
+
+      const formattedLpTokenValue = Number(
+        formatUnits(minimumShares, this.pool.decimals)
+      );
+
       const lpTokenValueUsdEquivalent = formattedLpTokenValue * this.pool.price;
 
       return {
@@ -220,11 +227,15 @@ export default {
     },
   },
 
-  // watch: {
-  //   async baseInputValue() {
-  //     this.semulateTransaction()();
-  //   },
-  // },
+  watch: {
+    //   async baseInputValue() {
+    //     this.semulateTransaction()();
+    //   },
+
+    slippage() {
+      this.calculateExpectedOptimal();
+    },
+  },
 
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
