@@ -75,22 +75,25 @@
 </template>
 
 <script>
+import axios from "axios";
 import moment from "moment";
+import { Contract } from "ethers";
+import { formatUnits } from "viem";
 import debounce from "lodash.debounce";
 import { defineAsyncComponent } from "vue";
-import { mapActions, mapGetters, mapMutations } from "vuex";
-import { formatUnits } from "viem";
-import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import notification from "@/helpers/notification/notification";
-import { approveTokenViem } from "@/helpers/approval";
 import { trimZeroDecimals } from "@/helpers/numbers";
-import { formatTokenBalance, formatUSD } from "@/helpers/filters";
-import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
+import { approveTokenViem } from "@/helpers/approval";
+import { mapActions, mapGetters, mapMutations } from "vuex";
+import { TENDERLY_SIMULATE_URL } from "@/constants/tenderly";
+import BlastMIMSwapRouterAbi from "@/abis/BlastMIMSwapRouter";
+import notification from "@/helpers/notification/notification";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import { actionStatus } from "@/components/pools/pool/PoolActionBlock.vue";
-
-import { addLiquidityImbalancedOptimal } from "@/helpers/pools/swap/addLiquidityImbalancedOptimal";
+import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { addLiquidityImbalanced } from "@/helpers/pools/swap/actions/addLiquidityImbalanced";
+import { addLiquidityImbalancedOptimal } from "@/helpers/pools/swap/addLiquidityImbalancedOptimal";
 
 export default {
   props: {
@@ -119,6 +122,7 @@ export default {
     ...mapGetters({
       chainId: "getChainId",
       account: "getAccount",
+      provider: "getProvider",
     }),
 
     baseToken() {
@@ -216,11 +220,58 @@ export default {
     },
   },
 
+  // watch: {
+  //   async baseInputValue() {
+  //     this.semulateTransaction()();
+  //   },
+  // },
+
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
     formatUSD,
+
+    semulateTransaction() {
+      return debounce(async () => {
+        const payload = this.createImbalancedPayload();
+
+        const MIMSwapRouterContract = new Contract(
+          this.pool?.swapRouter,
+          BlastMIMSwapRouterAbi,
+          this.provider
+        );
+
+        const populateTransaction =
+          await MIMSwapRouterContract.populateTransaction.addLiquidityImbalanced(
+            payload
+          );
+
+        const { data } = await axios.post(
+          TENDERLY_SIMULATE_URL,
+          {
+            network_id: this.pool.chainId,
+            from: this.account,
+            to: populateTransaction.to,
+            input: populateTransaction.data,
+            value: "0",
+            save: true,
+            save_if_fails: true,
+            simulation_type: "quick",
+          },
+          {
+            headers: {
+              "X-Access-Key": import.meta.env.VITE_APP_TENDERLY_ACCESS_KEY,
+            },
+          }
+        );
+
+        const assetChanges = data.transaction.transaction_info.asset_changes;
+        const index = assetChanges ? assetChanges.length - 1 : 0;
+        const result = !index ? null : assetChanges[index];
+        console.log("data", result);
+      }, 500);
+    },
 
     clearData() {
       this.baseInputAmount = 0n;
@@ -240,7 +291,7 @@ export default {
       const tokenLabel = fromBase ? "base" : "quote";
       const decimals = fromBase
         ? this.baseToken.config.decimals
-        : this.quoteToken.config.decimals; 
+        : this.quoteToken.config.decimals;
 
       if (value === null) {
         this[`${tokenLabel}InputAmount`] = 0n;
