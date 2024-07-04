@@ -1,6 +1,12 @@
 <template>
   <ul class="creation-type-tabs">
-    <li :class="['creation-type', 'active']">
+    <li
+      :class="[
+        'creation-type',
+        { active: currentCreationType == creationTypes.Pegged },
+      ]"
+      @click="chooseType(creationTypes.Pegged)"
+    >
       <img
         class="mim-icon"
         src="@/assets/images/market/m-icon.svg"
@@ -13,13 +19,19 @@
       </p>
     </li>
 
-    <li :class="['creation-type']">
+    <li
+      :class="[
+        'creation-type',
+        { active: currentCreationType == creationTypes.Standard },
+      ]"
+      @click="chooseType(creationTypes.Standard)"
+    >
       <img
         class="mim-icon"
         src="@/assets/images/market/m-icon.svg"
         alt="Mim icon"
       />
-      <span class="name">Pegged</span>
+      <span class="name">Standard</span>
       <p class="description">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
         tempor
@@ -29,7 +41,30 @@
 </template>
 
 <script lang="ts">
-export default {};
+enum CreationTypes {
+  Pegged = "PEGGED",
+  Standard = "STANDARD",
+}
+
+export default {
+  data() {
+    return {
+      currentCreationType: CreationTypes.Standard,
+    };
+  },
+
+  computed: {
+    creationTypes() {
+      return CreationTypes;
+    },
+  },
+
+  methods: {
+    chooseType(creationType: CreationTypes) {
+      this.currentCreationType = creationType;
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>
@@ -61,7 +96,7 @@ export default {};
 }
 
 .creation-type.active {
-  border: 1px solid var(--Primary-Gradient, #2d4a96);
+  border: 1px solid #2d4a96;
   background: linear-gradient(
       90deg,
       rgba(45, 74, 150, 0.32) 0%,

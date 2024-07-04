@@ -6,10 +6,13 @@
         <Tooltip />
       </h4>
 
-      <div class="checkbox-wrap">
+      <BaseCheckBox
+        :chosen="isAutoPricing"
+        @update="isAutoPricing = !isAutoPricing"
+      >
         <span class="checkbox-text">Auto pricing</span>
         <img class="gecko-icon" src="@/assets/images/coingecko-icon.svg" />
-      </div>
+      </BaseCheckBox>
     </div>
 
     <div class="price-selector">
@@ -35,12 +38,21 @@
 import { defineAsyncComponent } from "vue";
 
 export default {
+  data() {
+    return {
+      isAutoPricing: false,
+    };
+  },
+
   components: {
     BaseTokenIcon: defineAsyncComponent(
       () => import("@/components/base/BaseTokenIcon.vue")
     ),
     BaseTokenInput: defineAsyncComponent(
       () => import("@/components/base/BaseTokenInput.vue")
+    ),
+    BaseCheckBox: defineAsyncComponent(
+      () => import("@/components/base/BaseCheckBox.vue")
     ),
     Tooltip: defineAsyncComponent(
       () => import("@/components/ui/icons/Tooltip.vue")
@@ -112,13 +124,13 @@ export default {
     transform: rotate(0deg);
   }
   50% {
-    transform: rotate(90deg); /* Rotate to the right */
+    transform: rotate(90deg);
   }
   80% {
-    transform: rotate(-40deg); /* Rotate to the right */
+    transform: rotate(-40deg);
   }
   100% {
-    transform: rotate(0deg); /* Return to default position */
+    transform: rotate(0deg);
   }
 }
 </style>

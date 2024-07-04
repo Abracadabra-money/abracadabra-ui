@@ -68,17 +68,21 @@ export default {
   background: rgba(25, 31, 47, 0.38);
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
   backdrop-filter: blur(12.5px);
-  cursor: pointer;
+  transition: border 0.3s ease-in-out;
 }
 
 .slippage-coefficient-selector:hover {
-  border: 1px solid #2d4a96;
+  border: 1px solid #4564b2;
 }
 
 .selector-text {
   color: #7088cc;
   font-size: 16px;
   font-weight: 500;
+}
+
+.settings-icon {
+  cursor: pointer;
 }
 
 .chart-wrap {

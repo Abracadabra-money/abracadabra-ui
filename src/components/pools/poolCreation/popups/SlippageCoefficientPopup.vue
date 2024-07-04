@@ -196,5 +196,6 @@ export default {
   border-radius: 16px;
   border: 1px solid rgba(73, 70, 97, 0.4);
   background: rgba(8, 14, 31, 0.6);
+  color: white;
 }
 </style>
