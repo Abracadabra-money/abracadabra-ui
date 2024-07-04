@@ -81,7 +81,7 @@
           @click="harvest"
           :disabled="disableEarnedButton"
         >
-          Harvest
+          {{ earnButtonText }}
         </BaseButton>
       </div>
     </div>
@@ -106,6 +106,12 @@ export default {
     isProperNetwork: { type: Boolean },
   },
 
+  data() {
+    return {
+      isActionProcessing: false,
+    };
+  },
+
   computed: {
     chainIcon() {
       return getChainConfig(this.selectedFarm.chainId)?.icon || "";
@@ -120,7 +126,7 @@ export default {
 
     rewardTokensInfo() {
       if (this.selectedFarm.isMultiReward) {
-        (this.selectedFarm.accountInfo?.rewardTokensInfo || []).map(
+        return (this.selectedFarm.accountInfo?.rewardTokensInfo || []).map(
           (rewardToken: RewardTokenInfo) => {
             return {
               ...rewardToken,
@@ -179,7 +185,14 @@ export default {
             (tokenInfo: RewardTokenInfo) => +tokenInfo.earned > 0
           ).length === 0
         : !Number(this.selectedFarm.accountInfo?.userReward);
-      return isInsufficientReward || !this.isProperNetwork;
+      return (
+        isInsufficientReward || !this.isProperNetwork || this.isActionProcessing
+      );
+    },
+
+    earnButtonText() {
+      if (this.isActionProcessing) return "Processing...";
+      return "Harvest";
     },
   },
 
@@ -198,6 +211,9 @@ export default {
 
     async harvest() {
       if (this.disableEarnedButton) return;
+
+      this.isActionProcessing = true;
+
       try {
         const { request } = await simulateContractHelper({
           ...this.selectedFarm.contractInfo,
@@ -212,9 +228,13 @@ export default {
         const hash = await writeContractHelper(request);
 
         await waitForTransactionReceiptHelper({ hash });
+
+        this.$emit("updateFarmData");
       } catch (error) {
         console.log("harvest err:", error);
       }
+
+      this.isActionProcessing = false;
     },
 
     closePopup() {

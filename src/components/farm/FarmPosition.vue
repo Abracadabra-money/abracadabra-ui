@@ -58,7 +58,7 @@
     </div>
 
     <BaseButton primary @click="harvest" :disabled="disableEarnedButton">
-      Harvest
+      {{ earnButtonText }}
     </BaseButton>
   </div>
 </template>
@@ -79,6 +79,12 @@ export default {
   props: {
     selectedFarm: { type: Object as PropType<FarmItem>, required: true },
     isProperNetwork: { type: Boolean },
+  },
+
+  data() {
+    return {
+      isActionProcessing: false,
+    };
   },
 
   computed: {
@@ -155,7 +161,14 @@ export default {
           ).length === 0
         : !Number(this.selectedFarm.accountInfo?.userReward);
 
-      return isInsufficientReward || !this.isProperNetwork;
+      return (
+        isInsufficientReward || !this.isProperNetwork || this.isActionProcessing
+      );
+    },
+
+    earnButtonText() {
+      if (this.isActionProcessing) return "Processing...";
+      return "Harvest";
     },
   },
 
@@ -174,6 +187,9 @@ export default {
 
     async harvest() {
       if (this.disableEarnedButton) return;
+
+      this.isActionProcessing = true;
+
       try {
         const { request } = await simulateContractHelper({
           ...this.selectedFarm.contractInfo,
@@ -188,9 +204,13 @@ export default {
         const hash = await writeContractHelper(request);
 
         await waitForTransactionReceiptHelper({ hash });
+
+        this.$emit("updateFarmData");
       } catch (error) {
         console.log("harvest err:", error);
       }
+
+      this.isActionProcessing = false;
     },
   },
 
