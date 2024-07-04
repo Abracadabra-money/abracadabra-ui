@@ -63,6 +63,10 @@ const coingeckoCoinsIds = [
     id: "magic-internet-money",
     addresses: ["0x76DA31D7C9CbEAE102aff34D3398bC450c8374c1"],
   },
+  {
+    id: "magic-internet-money",
+    addresses: ["0x471EE749bA270eb4c1165B5AD95E614947f6fCeb"],
+  },
 ];
 
 export const getNativeTokensPrice = async (chainIds: number[]) => {

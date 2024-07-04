@@ -13,11 +13,12 @@ export const getPoolsList = async (account: Address) => {
         .then((results) => {
           // Filter out only the successful results
           const successfulResults = results.filter(
-            (result) => result instanceof Error === false
+            (result: any) => result instanceof Error === false
           );
           return successfulResults;
         })
-        .catch(() => {
+        .catch((error) => {
+          console.log("something went wrong", error)
           return [];
         })
     )

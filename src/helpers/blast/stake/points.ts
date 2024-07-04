@@ -1,4 +1,5 @@
 import axios from "axios";
+import { cloneDeep } from "lodash";
 import type { Address } from "viem";
 
 export type IterableElement<TargetIterable> = TargetIterable extends Iterable<
@@ -18,7 +19,11 @@ const pointsApiClient = axios.create({
 const states = ["pending", "finalized"] as const;
 type State = IterableElement<typeof states>;
 
-const kinds = ["developer_points", "liquidity_points"] as const;
+const kinds = [
+  "developer_points",
+  "liquidity_points",
+  "potion_points",
+] as const;
 type Kind = IterableElement<typeof kinds>;
 
 const reasons = [
@@ -37,6 +42,7 @@ type Reason = IterableElement<typeof reasons>;
 const kindMap = {
   liquidity_points: "liquidityPoints",
   developer_points: "developerPoints",
+  potion_points: "potionPoints",
 } as const satisfies Record<Kind, string>;
 
 const reasonMap = {
@@ -74,67 +80,40 @@ const buildStatistics = (
   (typeof kindMap)[Kind],
   Record<"total" | (typeof reasonMap)[Reason], Record<State, number>>
 > => {
+  const zeroPointsStatistics = {
+    total: {
+      pending: 0,
+      finalized: 0,
+    },
+    unlocked: {
+      pending: 0,
+      finalized: 0,
+    },
+    locked: {
+      pending: 0,
+      finalized: 0,
+    },
+    cauldron: {
+      pending: 0,
+      finalized: 0,
+    },
+    lp: {
+      pending: 0,
+      finalized: 0,
+    },
+    founder: {
+      pending: 0,
+      finalized: 0,
+    },
+    phaseOneFounderBonus: {
+      pending: 0,
+      finalized: 0,
+    },
+  };
   const statistics = {
-    liquidityPoints: {
-      total: {
-        pending: 0,
-        finalized: 0,
-      },
-      unlocked: {
-        pending: 0,
-        finalized: 0,
-      },
-      locked: {
-        pending: 0,
-        finalized: 0,
-      },
-      cauldron: {
-        pending: 0,
-        finalized: 0,
-      },
-      lp: {
-        pending: 0,
-        finalized: 0,
-      },
-      founder: {
-        pending: 0,
-        finalized: 0,
-      },
-      phaseOneFounderBonus: {
-        pending: 0,
-        finalized: 0,
-      },
-    },
-    developerPoints: {
-      total: {
-        pending: 0,
-        finalized: 0,
-      },
-      unlocked: {
-        pending: 0,
-        finalized: 0,
-      },
-      locked: {
-        pending: 0,
-        finalized: 0,
-      },
-      cauldron: {
-        pending: 0,
-        finalized: 0,
-      },
-      lp: {
-        pending: 0,
-        finalized: 0,
-      },
-      founder: {
-        pending: 0,
-        finalized: 0,
-      },
-      phaseOneFounderBonus: {
-        pending: 0,
-        finalized: 0,
-      },
-    },
+    liquidityPoints: cloneDeep(zeroPointsStatistics),
+    developerPoints: cloneDeep(zeroPointsStatistics),
+    potionPoints: cloneDeep(zeroPointsStatistics),
   };
 
   for (const { state, kind, reason, amount } of data) {

@@ -1,7 +1,7 @@
 <template>
   <div class="pool-view" v-if="pool">
     <div class="chart-wrap">
-      <PieChart :option="chartOption" v-if="chartOption" />
+      <PieChart :option="chartOption" v-if="chartOption && showTvlChart" />
     </div>
 
     <div class="pool">
@@ -23,7 +23,7 @@
         :isMyPositionPopupOpened="isMyPositionPopupOpened"
         @closePopup="isMyPositionPopupOpened = false"
         @updateInfo="getPoolInfo"
-        v-if="isUserPositionOpen"
+        v-if="isUserPositionOpen && pool"
       />
     </div>
   </div>
@@ -66,12 +66,18 @@ export default {
       signer: "getSigner",
     }),
 
+    showTvlChart() {
+      return !!this.pool.lockInfo;
+    },
+
     isUserPositionOpen() {
+      const hasLp = this.pool?.userInfo?.balance > 0n;
+      const hasLocked = this.pool?.lockInfo?.balances.locked > 0n;
+      const hasUnlocked = this.pool?.lockInfo?.balances.unlocked > 0n;
+      const hasStaked = this.pool?.stakeInfo?.balance > 0n;
+
       return (
-        this.account &&
-        (this.pool?.userInfo?.balance > 0n ||
-          this.pool.lockInfo?.balances.locked > 0n ||
-          this.pool.lockInfo?.balances.unlocked > 0n)
+        this.account && (hasLp || hasLocked || hasUnlocked || hasStaked)
       );
     },
   },
@@ -103,6 +109,10 @@ export default {
     },
 
     async getPointsStatistics() {
+      const { isPointsLogic } = this.pool?.settings || {};
+
+      if (!isPointsLogic) return;
+
       [this.pointsStatistics.global, this.pointsStatistics.user] =
         await Promise.all([
           fetchPointsStatistics(),
@@ -115,7 +125,9 @@ export default {
     await this.getPoolInfo();
     await this.getPointsStatistics();
 
-    this.chartOption = await getPoolTvlPieChartOption(this.pool);
+    this.chartOption = this.showTvlChart
+      ? await getPoolTvlPieChartOption(this.pool)
+      : null;
 
     this.poolsTimer = setInterval(async () => {
       await this.getPoolInfo();

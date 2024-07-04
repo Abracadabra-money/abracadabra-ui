@@ -2,7 +2,14 @@
   <div class="swap-view">
     <div class="swap-wrapper">
       <div class="swap-head">
-        <h3 class="title">MIM Swap</h3>
+        <h3 class="title">
+          MIM Swap
+          <AvailableNetworksBlock
+            :selectedNetwork="selectedNetwork"
+            :availableNetworks="availableNetworks"
+            @changeNetwork="changeNetwork"
+          />
+        </h3>
 
         <SwapSettingsPopup
           :slippage="actionConfig.slippage"
@@ -26,11 +33,20 @@
           @updateFromInputValue="updateFromValue"
         />
 
+        <div>
+          <CurrentPrice
+            :fromToken="actionConfig?.fromToken"
+            :toToken="actionConfig?.toToken"
+            :currentPriceInfo="currentPriceInfo"
+          />
+        </div>
+
         <SwapInfoBlock
+          :swapInfo="swapInfo"
           :actionConfig="actionConfig"
           :priceImpact="priceImpactPair"
-          :minAmount="swapInfo.outputAmountWithSlippage"
-          :currentPriceInfo="currentPriceInfo"
+          :selectedNetwork="selectedNetwork"
+          :nativeTokenPrice="nativeTokenPrice"
         />
 
         <SwapRouterInfoBlock
@@ -45,6 +61,7 @@
           :disabled="!actionValidationData.isAllowed || isFetchSwapInfo"
           :warning="isWarningBtn"
           @click="actionHandler"
+          :loading="isApproving"
           >{{ actionValidationData.btnText }}</BaseButton
         >
       </div>
@@ -100,8 +117,17 @@ import notification from "@/helpers/notification/notification";
 import { getAllUniqueTokens } from "@/helpers/pools/swap/tokens";
 import { getTokenListByPools } from "@/helpers/pools/swap/tokens";
 import { getAllPoolsByChain } from "@/helpers/pools/swap/magicLp";
-import type { PriceInfo, TokenInfo } from "@/helpers/pools/swap/tokens";
-import { getCoinsPrices, type TokenPrice } from "@/helpers/prices/defiLlama";
+import {
+  KAVA_CHAIN_ID,
+  BLAST_CHAIN_ID,
+  ARBITRUM_CHAIN_ID,
+} from "@/constants/global";
+import type { TokenInfo } from "@/helpers/pools/swap/tokens";
+import {
+  getCoinsPrices,
+  getNativeTokensPrice,
+  type TokenPrice,
+} from "@/helpers/prices/defiLlama";
 import { validationActions } from "@/helpers/validators/swap/validationActions";
 
 const emptyTokenInfo: TokenInfo = {
@@ -117,9 +143,6 @@ const emptyTokenInfo: TokenInfo = {
     allowance: 0n,
   },
 };
-
-const BLAST_CHAIN_ID = 81457;
-const MIM_USDB_POOL_ID = 1;
 
 export default {
   data() {
@@ -149,6 +172,10 @@ export default {
         slippage: 30n,
         deadline: 500n,
       } as ActionConfig),
+      selectedNetwork: KAVA_CHAIN_ID,
+      availableNetworks: [KAVA_CHAIN_ID, BLAST_CHAIN_ID, ARBITRUM_CHAIN_ID],
+      isApproving: false,
+      nativeTokenPrice: [] as { chainId: number; price: number }[],
     };
   },
 
@@ -161,21 +188,18 @@ export default {
     },
 
     actionValidationData() {
-      return validationActions(this.actionConfig, this.chainId);
+      return validationActions(
+        this.actionConfig,
+        this.selectedNetwork,
+        this.chainId,
+        this.isApproving
+      );
     },
 
     feePayload(): Array<string | bigint | number> {
       const { payload }: any = this.swapInfo.transactionInfo;
       if (!Object.keys(payload).length) return [];
       return Object.values(payload);
-    },
-
-    nativeTokenPrice(): number {
-      return (
-        this.prices.find(
-          ({ address }: PriceInfo) => address === this.wethAddress
-        )?.price || 0
-      );
     },
 
     fromTokenPrice() {
@@ -209,7 +233,7 @@ export default {
 
       if (!routeInfo) {
         return {
-          midPrice: 0n,
+          midPrice: 0,
           amounts: amounts,
           fromBase: false,
         };
@@ -242,15 +266,22 @@ export default {
       const tokenAmountOut = routeInfo.outputAmountWithoutFee;
       if (!tokenAmountIn || !tokenAmountOut) return 0;
 
-      const parsedMidPrice = formatUnits(midPrice, 18);
+      const parsedAmountIn = formatUnits(
+        tokenAmountIn,
+        this.actionConfig.fromToken.config.decimals
+      );
+
+      const parsedAmountOut = formatUnits(
+        tokenAmountOut,
+        this.actionConfig.toToken.config.decimals
+      );
 
       const executionPrice = isBase
-        ? Number(tokenAmountOut) / Number(tokenAmountIn)
-        : Number(tokenAmountIn) / Number(tokenAmountOut);
+        ? Number(parsedAmountOut) / Number(parsedAmountIn)
+        : Number(parsedAmountIn) / Number(parsedAmountOut);
 
       const priceImpact =
-        Math.abs(Number(parsedMidPrice) - executionPrice) /
-        Number(parsedMidPrice);
+        Math.abs(midPrice - executionPrice) / Number(midPrice);
 
       return Number(priceImpact * 100).toFixed(2);
     },
@@ -281,6 +312,12 @@ export default {
       this.createSwapInfo();
     },
 
+    async selectedNetwork() {
+      this.resetActionCaonfig();
+      await this.createSwapInfo();
+      this.selectBaseTokens();
+    },
+
     account() {
       this.createSwapInfo();
     },
@@ -302,7 +339,7 @@ export default {
         this.swapInfo = await getSwapInfo(
           this.poolsList,
           value,
-          this.chainId,
+          this.selectedNetwork,
           this.account
         );
 
@@ -364,14 +401,10 @@ export default {
     },
 
     resetActionCaonfig() {
-      this.actionConfig = {
-        fromToken: emptyTokenInfo as TokenInfo,
-        toToken: emptyTokenInfo as TokenInfo,
-        fromInputValue: 0n,
-        toInputValue: 0n,
-        slippage: 100n, //todo
-        deadline: 300n, //todo
-      };
+      this.actionConfig.fromInputValue = 0n;
+      this.actionConfig.toInputValue = 0n;
+      this.actionConfig.slippage = 30n;
+      this.actionConfig.deadline = 500n;
     },
 
     openTokensPopup(type: string) {
@@ -403,10 +436,11 @@ export default {
       const uniqueTokens = getAllUniqueTokens(poolsConfig);
       const coins = uniqueTokens.map(({ contract }) => contract.address);
       coins.push(this.wethAddress);
-      return await getCoinsPrices(this.chainId, coins);
+      return await getCoinsPrices(this.selectedNetwork, coins);
     },
 
     async approveTokenHandler(contract: ContractInfo, valueToApprove: bigint) {
+      this.isApproving = true;
       const notificationId = await this.createNotification(
         notification.approvePending
       );
@@ -420,6 +454,7 @@ export default {
 
       await this.deleteNotification(notificationId);
       if (!approve) await this.createNotification(notification.approveError);
+      this.isApproving = false;
       return false;
     },
 
@@ -427,13 +462,14 @@ export default {
       if (!this.actionValidationData.isAllowed || this.isFetchSwapInfo)
         return false;
 
-      switch (this.actionValidationData?.method) {
+      // @ts-ignore
+      switch (this.actionValidationData && this.actionValidationData.method) {
         case "connectWallet":
           // @ts-ignore
           await this.$openWeb3modal();
           break;
         case "switchNetwork":
-          await switchNetwork(81457); //todo
+          await switchNetwork(this.selectedNetwork); //todo
           break;
         case "approvefromToken":
           await this.approveTokenHandler(
@@ -456,16 +492,14 @@ export default {
     },
 
     async createSwapInfo() {
-      // this.isFetchSwapInfo = true;
       const filteredPoolsConfig = poolsConfig.filter(
-        ({ chainId }) => chainId === this.chainId
+        ({ chainId }) => chainId === this.selectedNetwork
       );
 
       if (!filteredPoolsConfig.length) {
         this.tokensList = [];
         this.poolsList = [];
         this.resetActionCaonfig();
-        // this.isFetchSwapInfo = false;
         return;
       }
 
@@ -473,27 +507,37 @@ export default {
 
       this.tokensList = await getTokenListByPools(
         filteredPoolsConfig,
-        this.chainId,
+        this.selectedNetwork,
         this.prices,
         this.account
       );
 
-      this.poolsList = await getAllPoolsByChain(this.chainId, this.account);
-      // this.isFetchSwapInfo = false;
+      this.poolsList = await getAllPoolsByChain(
+        this.selectedNetwork,
+        this.account
+      );
+    },
+
+    changeNetwork(network: number) {
+      this.selectedNetwork = network;
+    },
+
+    selectBaseTokens() {
+      this.actionConfig.fromToken = this.tokensList.find(
+        (token: TokenInfo) => token.config.name !== "MIM"
+      );
+
+      this.actionConfig.toToken = this.tokensList.find(
+        (token: TokenInfo) => token.config.name === "MIM"
+      );
     },
   },
 
   async created() {
-    await this.createSwapInfo();
+    this.nativeTokenPrice = await getNativeTokensPrice(this.availableNetworks);
 
-    if (this.tokensList.length) {
-      this.actionConfig.fromToken = this.tokensList.find(
-        (token: TokenInfo) => token.config.name === "MIM"
-      );
-      this.actionConfig.toToken = this.tokensList.find(
-        (token: TokenInfo) => token.config.name === "USDB"
-      );
-    }
+    await this.createSwapInfo();
+    this.selectBaseTokens();
 
     this.updateInterval = setInterval(async () => {
       await this.createSwapInfo();
@@ -504,8 +548,14 @@ export default {
     SwapSettingsPopup: defineAsyncComponent(
       () => import("@/components/popups/swap/SwapSettingsPopup.vue")
     ),
+    AvailableNetworksBlock: defineAsyncComponent(
+      () => import("@/components/stake/AvailableNetworksBlock.vue")
+    ),
     SwapForm: defineAsyncComponent(
       () => import("@/components/swap/SwapForm.vue")
+    ),
+    CurrentPrice: defineAsyncComponent(
+      () => import("@/components/pools/CurrentPrice.vue")
     ),
     SwapInfoBlock: defineAsyncComponent(
       () => import("@/components/swap/SwapInfoBlock.vue")
@@ -558,6 +608,13 @@ export default {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 32px;
+
+  .title {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
 }
 
 .title {

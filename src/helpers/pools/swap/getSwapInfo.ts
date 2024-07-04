@@ -37,8 +37,33 @@ const fetchOutputAmount = async (
   sellBase = true,
   amount: bigint
 ) => {
-  // NOTICE: chainId is hardcoded for now
-  const chainId = 81457; // BlastChain
+  if (!account) {
+    if (sellBase) {
+      const { receiveQuoteAmount, mtFee } = querySellBase(
+        amount,
+        lpInfo,
+        lpInfo.userInfo
+      );
+
+      return {
+        receiveAmount: receiveQuoteAmount,
+        mtFee: mtFee,
+      };
+    } else {
+      const { receiveBaseAmount, mtFee } = querySellQuote(
+        amount,
+        lpInfo,
+        lpInfo.userInfo
+      );
+
+      return {
+        receiveAmount: receiveBaseAmount,
+        mtFee: mtFee,
+      };
+    }
+  }
+
+  const chainId = lpInfo.chainId;
   const publicClient = getPublicClient(chainId);
   const result = await publicClient.readContract({
     address: lpInfo.contract.address,
@@ -46,8 +71,6 @@ const fetchOutputAmount = async (
     functionName: sellBase ? "querySellBase" : "querySellQuote",
     args: [account, amount],
   });
-
-  console.log("queryResult", result);
 
   return {
     receiveAmount: result[0] ? result[0] : 0n,
@@ -163,54 +186,58 @@ export const findBestRoutes = async (
       continue;
     }
 
-    await Promise.all(
-      tokenToPools[token].map(async (pool: any) => {
-        const nextToken =
-          pool.baseToken === token ? pool.quoteToken : pool.baseToken;
-        if (visited.has(nextToken)) {
-          return;
-        }
+    try {
+      await Promise.all(
+        tokenToPools[token].map(async (pool: any) => {
+          const nextToken =
+            pool.baseToken === token ? pool.quoteToken : pool.baseToken;
+          if (visited.has(nextToken)) {
+            return;
+          }
 
-        const { receiveAmount, mtFee } = !fromInputValue
-          ? { receiveAmount: 0n, mtFee: 0n }
-          : await fetchOutputAmount(
-              pool,
-              account,
-              pool.baseToken === token,
-              amount
-            );
+          const { receiveAmount, mtFee } = !fromInputValue
+            ? { receiveAmount: 0n, mtFee: 0n }
+            : await fetchOutputAmount(
+                pool,
+                account,
+                pool.baseToken === token,
+                amount
+              );
 
-        const lpFeeRate = pool.userInfo.userFeeRate.lpFeeRate;
-        const mtFeeRate = pool.userInfo.userFeeRate.mtFeeRate;
+          const lpFeeRate = pool.userInfo.userFeeRate.lpFeeRate;
+          const mtFeeRate = pool.userInfo.userFeeRate.mtFeeRate;
 
-        // Notice: need to review
-        const lpFeeAmount =
-          mtFeeRate === lpFeeRate
-            ? mtFee
-            : DecimalMath.mulFloor(receiveAmount, lpFeeRate);
+          // Notice: need to review
+          const lpFeeAmount =
+            mtFeeRate === lpFeeRate
+              ? mtFee
+              : DecimalMath.mulFloor(receiveAmount, lpFeeRate);
 
-        const receiveAmountWithoutFee = receiveAmount + mtFee + lpFeeAmount;
+          const receiveAmountWithoutFee = receiveAmount + mtFee + lpFeeAmount;
 
-        stack.push({
-          token: nextToken,
-          amount: receiveAmount,
-          route: route.concat([
-            {
-              inputToken: token,
-              outputToken: nextToken,
-              inputAmount: amount,
-              outputAmount: receiveAmount,
-              outputAmountWithoutFee: receiveAmountWithoutFee,
-              mtFee,
-              lpFee: lpFeeAmount,
-              fees: pool.lpFeeRate,
-              lpInfo: pool,
-            },
-          ]),
-          visited: new Set(visited),
-        });
-      })
-    );
+          stack.push({
+            token: nextToken,
+            amount: receiveAmount,
+            route: route.concat([
+              {
+                inputToken: token,
+                outputToken: nextToken,
+                inputAmount: amount,
+                outputAmount: receiveAmount,
+                outputAmountWithoutFee: receiveAmountWithoutFee,
+                mtFee,
+                lpFee: lpFeeAmount,
+                fees: pool.lpFeeRate,
+                lpInfo: pool,
+              },
+            ]),
+            visited: new Set(visited),
+          });
+        })
+      );
+    } catch (error) {
+      return null;
+    }
   }
 
   return bestRoute;

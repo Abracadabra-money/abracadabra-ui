@@ -5,7 +5,12 @@
   >
     <div
       class="time-block"
-      :style="{ padding: padding, 'min-width': width, height: height }"
+      :style="{
+        padding: padding,
+        'min-width': width,
+        height: height,
+        background: background,
+      }"
       v-for="(value, index) in timerValues"
       :key="index"
     >
@@ -56,6 +61,10 @@ export default {
     isLock: {
       type: Boolean,
       default: false,
+    },
+    background: {
+      type: String,
+      default: "rgba(0, 10, 35, 0.3)",
     },
   },
 
