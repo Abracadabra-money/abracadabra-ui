@@ -5,20 +5,17 @@
       <Tooltip />
     </h4>
     <ul class="fee-tier-options">
-      <li :class="['fee-tier-option']">
-        <span class="fee-tier-value">0.04%</span>
+      <li
+        :class="['fee-tier-option', { active: index == currentOptionIndex }]"
+        v-for="({ value, description }, index) in feeTierOptions"
+        :key="index"
+        @click="selectOption(index)"
+      >
+        <span class="fee-tier-value">{{ formatPercent(value) }}</span>
         <p class="fee-tier-description">
-          Lorem ipsum dolor sit amet, consectetur adipiscing
+          {{ description }}
         </p>
-        <RadioButton />
-      </li>
-
-      <li :class="['fee-tier-option', 'active']">
-        <span class="fee-tier-value">0.05%</span>
-        <p class="fee-tier-description">
-          Lorem ipsum dolor sit amet, consectetur adipiscing
-        </p>
-        <RadioButton active />
+        <RadioButton :active="index == currentOptionIndex" />
       </li>
     </ul>
   </div>
@@ -26,8 +23,34 @@
 
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
+import { formatPercent } from "@/helpers/filters";
 
 export default {
+  data() {
+    return {
+      feeTierOptions: [
+        {
+          value: 0.04,
+          description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
+        },
+        {
+          value: 0.05,
+          description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
+        },
+      ],
+
+      currentOptionIndex: 1,
+    };
+  },
+
+  methods: {
+    formatPercent,
+
+    selectOption(index: number) {
+      this.currentOptionIndex = index;
+    },
+  },
+
   components: {
     Tooltip: defineAsyncComponent(
       () => import("@/components/ui/icons/Tooltip.vue")
@@ -66,6 +89,8 @@ export default {
     rgba(0, 80, 156, 0.07) 101.49%
   );
   box-shadow: 0px 4px 33px 0px rgba(0, 0, 0, 0.06);
+
+  transition: all 0.3s ease-in;
 }
 
 .fee-tier-value {
