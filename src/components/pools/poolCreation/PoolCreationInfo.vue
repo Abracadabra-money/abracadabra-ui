@@ -20,14 +20,21 @@
       </div>
     </div>
 
-    <div class="chart-wrap"></div>
+    <SlippageChart />
+    <!-- <div class="chart-wrap"></div> -->
   </div>
 </template>
 
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
 
-export default {};
+export default {
+  components: {
+    SlippageChart: defineAsyncComponent(
+      () => import("@/components/pools/poolCreation/charts/SlippageChart.vue")
+    ),
+  },
+};
 </script>
 
 <style lang="scss" scoped>
