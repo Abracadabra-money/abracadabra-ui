@@ -17,41 +17,31 @@
       </p>
 
       <ul class="slippage-coefficient-options">
-        <li class="slippage-coefficient-option safe">
-          <div class="status-flag">
+        <li
+          :class="['slippage-coefficient-option', type]"
+          v-for="({ value, type, description }, index) in slippageCoefficients"
+          :key="index"
+          @click="selectOption(index)"
+        >
+          <div class="status-flag" v-if="type != 'default'">
             <span class="status-text"> Safe </span>
           </div>
-          <span class="slippage-coefficient-value">K=0.0001</span>
+          <span class="slippage-coefficient-value">K={{ value }}</span>
           <p class="slippage-coefficient-description">
-            Lorem ipsum dolor sit amet, consectetur adipiscing
+            {{ description }}
           </p>
-          <RadioButton active />
+          <RadioButton :active="currentCoefficientIndex == index" />
         </li>
 
-        <li class="slippage-coefficient-option">
-          <span class="slippage-coefficient-value">K=0.00025</span>
-          <p class="slippage-coefficient-description">
-            Lorem ipsum dolor sit amet, consectetur adipiscing
-          </p>
-          <RadioButton />
-        </li>
-
-        <li class="slippage-coefficient-option">
-          <span class="slippage-coefficient-value">K=0.002</span>
-          <p class="slippage-coefficient-description">
-            Lorem ipsum dolor sit amet, consectetur adipiscing
-          </p>
-          <RadioButton />
-        </li>
-
-        <li class="slippage-coefficient-option custom">
+        <li class="slippage-coefficient-option custom" @click="selectOption(3)">
           <span class="slippage-coefficient-value">Custom %</span>
           <input
             class="custom-slippage-input"
             type="number"
             placeholder="0.00"
+            v-model="customCoefficient"
           />
-          <RadioButton />
+          <RadioButton :active="currentCoefficientIndex == 3" />
         </li>
       </ul>
     </div>
@@ -62,7 +52,35 @@
 import { defineAsyncComponent } from "vue";
 
 export default {
+  data() {
+    return {
+      slippageCoefficients: [
+        {
+          value: 0.0001,
+          description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
+          type: "safe",
+        },
+        {
+          value: 0.00025,
+          description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
+          type: "default",
+        },
+        {
+          value: 0.002,
+          description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
+          type: "default",
+        },
+      ],
+      currentCoefficientIndex: 0,
+      customCoefficient: 0,
+    };
+  },
+
   methods: {
+    selectOption(index: number) {
+      this.currentCoefficientIndex = index;
+    },
+
     closePopup() {
       this.$emit("close");
     },

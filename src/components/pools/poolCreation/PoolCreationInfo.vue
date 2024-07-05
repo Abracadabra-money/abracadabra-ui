@@ -27,13 +27,7 @@
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
 
-export default {
-  components: {
-    SettingsButton: defineAsyncComponent(
-      () => import("@/components/ui/buttons/SettingsButton.vue")
-    ),
-  },
-};
+export default {};
 </script>
 
 <style lang="scss" scoped>
@@ -47,13 +41,15 @@ export default {
 .pool-creation-info-header {
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .chosen-creation-type {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  width: 326px;
+  flex-basis: 50%;
 }
 
 .creation-type-title {
@@ -98,7 +94,31 @@ export default {
 }
 
 .chart-wrap {
-  width: 689px;
   height: 325.44px;
+}
+
+@media (max-width: 1300px) {
+  .chosen-creation-type {
+    flex-basis: 100%;
+  }
+
+  .slippage-coefficient-selector {
+    flex-basis: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .pool-creation-info {
+    padding: 16px;
+  }
+
+  .selector-text {
+    font-weight: 400;
+  }
+
+  .coefficient-value {
+    font-size: 14px;
+    font-weight: 400;
+  }
 }
 </style>

@@ -5,7 +5,7 @@
         'creation-type',
         { active: currentCreationType == creationTypes.Pegged },
       ]"
-      @click="chooseType(creationTypes.Pegged)"
+      @click="selectType(creationTypes.Pegged)"
     >
       <img
         class="mim-icon"
@@ -24,7 +24,7 @@
         'creation-type',
         { active: currentCreationType == creationTypes.Standard },
       ]"
-      @click="chooseType(creationTypes.Standard)"
+      @click="selectType(creationTypes.Standard)"
     >
       <img
         class="mim-icon"
@@ -60,7 +60,7 @@ export default {
   },
 
   methods: {
-    chooseType(creationType: CreationTypes) {
+    selectType(creationType: CreationTypes) {
       this.currentCreationType = creationType;
     },
   },
@@ -78,10 +78,6 @@ export default {
 
 .creation-type {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  height: 98px;
   padding: 16px;
   border-radius: 16px;
   border: 1px solid #00296b;
@@ -125,5 +121,12 @@ export default {
   position: absolute;
   top: 17px;
   left: 0;
+}
+
+@media (max-width: 600px) {
+  .creation-type-tabs {
+    flex-direction: column;
+    gap: 12px;
+  }
 }
 </style>
