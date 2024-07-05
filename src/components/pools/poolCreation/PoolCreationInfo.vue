@@ -56,6 +56,18 @@ export default {
   width: 326px;
 }
 
+.creation-type-title {
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.creation-type-description {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  font-weight: 400;
+}
+
 .slippage-coefficient-selector {
   display: flex;
   justify-content: center;
