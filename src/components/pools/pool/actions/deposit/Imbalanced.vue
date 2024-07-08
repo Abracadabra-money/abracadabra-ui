@@ -75,17 +75,13 @@
 </template>
 
 <script>
-import axios from "axios";
 import moment from "moment";
-import { Contract } from "ethers";
 import { formatUnits } from "viem";
 import debounce from "lodash.debounce";
 import { defineAsyncComponent } from "vue";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import { approveTokenViem } from "@/helpers/approval";
 import { mapActions, mapGetters, mapMutations } from "vuex";
-import { TENDERLY_SIMULATE_URL } from "@/constants/tenderly";
-import BlastMIMSwapRouterAbi from "@/abis/BlastMIMSwapRouter";
 import notification from "@/helpers/notification/notification";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
@@ -122,7 +118,6 @@ export default {
     ...mapGetters({
       chainId: "getChainId",
       account: "getAccount",
-      provider: "getProvider",
     }),
 
     baseToken() {
@@ -228,10 +223,6 @@ export default {
   },
 
   watch: {
-    //   async baseInputValue() {
-    //     this.semulateTransaction()();
-    //   },
-
     slippage() {
       this.calculateExpectedOptimal();
     },
@@ -242,47 +233,6 @@ export default {
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
     formatUSD,
-
-    semulateTransaction() {
-      return debounce(async () => {
-        const payload = this.createImbalancedPayload();
-
-        const MIMSwapRouterContract = new Contract(
-          this.pool?.swapRouter,
-          BlastMIMSwapRouterAbi,
-          this.provider
-        );
-
-        const populateTransaction =
-          await MIMSwapRouterContract.populateTransaction.addLiquidityImbalanced(
-            payload
-          );
-
-        const { data } = await axios.post(
-          TENDERLY_SIMULATE_URL,
-          {
-            network_id: this.pool.chainId,
-            from: this.account,
-            to: populateTransaction.to,
-            input: populateTransaction.data,
-            value: "0",
-            save: true,
-            save_if_fails: true,
-            simulation_type: "quick",
-          },
-          {
-            headers: {
-              "X-Access-Key": import.meta.env.VITE_APP_TENDERLY_ACCESS_KEY,
-            },
-          }
-        );
-
-        const assetChanges = data.transaction.transaction_info.asset_changes;
-        const index = assetChanges ? assetChanges.length - 1 : 0;
-        const result = !index ? null : assetChanges[index];
-        console.log("data", result);
-      }, 500);
-    },
 
     clearData() {
       this.baseInputAmount = 0n;
