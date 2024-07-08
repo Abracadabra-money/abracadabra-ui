@@ -43,9 +43,9 @@
       />
 
       <FarmPosition
-        class="farm-position"
         :selectedFarm="selectedFarm"
         :isProperNetwork="isProperNetwork"
+        @updateFarmData="getSelectedFarm()"
         v-if="isUserPositionOpen"
       />
     </div>
@@ -53,6 +53,7 @@
     <FarmPositionMobilePopup
       :selectedFarm="selectedFarm"
       :isProperNetwork="isProperNetwork"
+      @updateFarmData="getSelectedFarm()"
       v-if="isUserPositionOpen && isMyPositionPopupOpened"
       @closePopup="isMyPositionPopupOpened = false"
     />
@@ -67,28 +68,23 @@
   </div>
 </template>
 
-<script>
-import { mapGetters } from "vuex";
-import MarketsSwitch from "@/components/farm/MarketsSwitch.vue";
-import FarmingOpportunities from "@/components/farm/FarmingOpportunities.vue";
-import FarmActionBlock from "@/components/farm/FarmActionBlock.vue";
-import FarmPosition from "@/components/farm/FarmPosition.vue";
-import LocalPopupWrap from "@/components/popups/LocalPopupWrap.vue";
-import FarmListPopup from "@/components/farm/FarmListPopup.vue";
-import FarmPositionMobilePopup from "@/components/farm/FarmPositionMobilePopup.vue";
+<script lang="ts">
+import { defineAsyncComponent } from "vue";
+import { mapGetters, mapMutations, mapActions } from "vuex";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification";
-import { createFarmItemConfig } from "@/helpers/farm/createFarmItemConfig";
+import { createFarmData, emptyFarmData } from "@/helpers/farm/createFarmData";
 import { parseUnits, formatUnits } from "viem";
 import { approveTokenViem } from "@/helpers/approval";
 import actions from "@/helpers/farm/actions";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { trimZeroDecimals } from "@/helpers/numbers";
+import type { FarmItem } from "@/configs/farms/types";
 
 export default {
   props: {
-    id: { type: String },
-    farmChainId: { type: String },
+    id: { type: String, required: true },
+    farmChainId: { type: String, required: true },
   },
 
   data() {
@@ -96,12 +92,12 @@ export default {
       activeNetworks: [1, 250, 43114, 42161],
       isFarmsPopupOpened: false,
       isMyPositionPopupOpened: false,
-      inputAmount: null,
+      inputAmount: 0n as bigint,
       inputValue: "",
       selectedTab: "stake",
       items: ["stake", "unstake"],
-      farmsTimer: null,
-      selectedFarm: null,
+      farmTimer: null as NodeJS.Timeout | null,
+      selectedFarm: emptyFarmData as FarmItem,
       isActionProcessing: false,
     };
   },
@@ -116,15 +112,15 @@ export default {
     isUserPositionOpen() {
       if (!this.selectedFarm?.accountInfo || !this.account) return false;
       const isOpenMultiReward = this.selectedFarm.isMultiReward
-        ? +this.selectedFarm.accountInfo.depositedBalance > 0 ||
-          this.selectedFarm.accountInfo.rewardTokensInfo.filter(
+        ? Number(this.selectedFarm.accountInfo.depositedBalance) > 0 ||
+          (this.selectedFarm.accountInfo?.rewardTokensInfo || []).filter(
             (item) => +item.earned > 0
           ).length > 0
         : false;
 
       const isOpenLegacyFarm =
-        this.selectedFarm.accountInfo?.userReward != 0 ||
-        this.selectedFarm.accountInfo?.userInfo.amount != 0;
+        Number(this.selectedFarm.accountInfo?.userReward) != 0 ||
+        Number(this.selectedFarm.accountInfo?.userInfo.amount) != 0;
 
       return this.selectedFarm.isMultiReward
         ? isOpenMultiReward
@@ -138,7 +134,7 @@ export default {
     isAllowed() {
       if (!this.account || !this.selectedFarm) return false;
       return (
-        parseUnits(this.selectedFarm?.accountInfo?.allowance, 18) >=
+        parseUnits(this.selectedFarm?.accountInfo?.allowance || "0", 18) >=
         this.inputAmount
       );
     },
@@ -155,22 +151,20 @@ export default {
       if (!this.selectedFarm?.accountInfo) return 0n;
       if (this.selectedFarm?.isMultiReward) {
         return !this.isUnstake
-          ? parseUnits(this.selectedFarm?.accountInfo?.balance, 18)
-          : parseUnits(this.selectedFarm?.accountInfo?.depositedBalance, 18);
+          ? parseUnits(this.selectedFarm?.accountInfo.balance as string, 18)
+          : parseUnits(
+              this.selectedFarm?.accountInfo.depositedBalance as string,
+              18
+            );
       }
       return !this.isUnstake
-        ? this.selectedFarm?.accountInfo?.balance
-        : this.selectedFarm?.accountInfo?.depositedBalanceBigInt;
+        ? (this.selectedFarm?.accountInfo.balance as bigint)
+        : this.selectedFarm?.accountInfo?.depositedBalanceBigInt || 0n;
     },
-
-    parsedInputAmount() {
-      return parseUnits(this.inputAmount, 18);
-    },
-
     error() {
       return this.inputAmount > this.max
         ? `The value cannot be greater than ${formatUnits(this.max, 18)}`
-        : null;
+        : undefined;
     },
 
     buttonText() {
@@ -215,7 +209,7 @@ export default {
       async handler() {
         await this.getSelectedFarm();
         const action = this.$route.redirectedFrom?.query.action;
-        if (action) this.selectTab(action);
+        if (action) this.selectTab(action.toString());
       },
     },
 
@@ -224,7 +218,7 @@ export default {
       async handler() {
         await this.getSelectedFarm();
         const action = this.$route.redirectedFrom?.query.action;
-        if (action) this.selectTab(action);
+        if (action) this.selectTab(action.toString());
       },
     },
 
@@ -233,7 +227,7 @@ export default {
     },
 
     max() {
-      this.inputAmount = BigInt(0);
+      this.inputAmount = 0n;
     },
 
     isDeprecated(status) {
@@ -251,25 +245,31 @@ export default {
   },
 
   methods: {
-    updateValue(value) {
-      if (value === null) return (this.inputAmount = BigInt(0));
+    ...mapActions({ createNotification: "notifications/new" }),
+    ...mapMutations({ deleteNotification: "notifications/delete" }),
+
+    updateValue(value: bigint) {
+      if (value === null) return (this.inputAmount = 0n);
       this.inputAmount = value;
     },
 
-    changeActiveMarket({ id, chainId }) {
-      if (+id != +this.id || +chainId != +this.farmChainId)
+    changeActiveMarket({ id, chainId }: { id: number; chainId: number }) {
+      if (
+        Number(id) != Number(this.id) ||
+        Number(chainId) != Number(this.farmChainId)
+      )
         this.$router.push({ path: `/farm/${id}/${chainId}` });
 
       this.isFarmsPopupOpened = false;
     },
 
-    selectTab(action) {
+    selectTab(action: string) {
       this.selectedTab = action;
     },
 
     async actionHandler() {
-      if (this.isButtonDisabled) return false;
-      if (!this.isProperNetwork) return switchNetwork(this.farmChainId);
+      if (this.isButtonDisabled || !this.selectedFarm) return false;
+      if (!this.isProperNetwork) return switchNetwork(Number(this.farmChainId));
       if (!this.account) {
         // @ts-ignore
         return this.$openWeb3modal();
@@ -277,33 +277,33 @@ export default {
 
       this.isActionProcessing = true;
 
-      if (!this.isAllowed & !this.isUnstake) await this.approveHandler();
+      if (!this.isAllowed && !this.isUnstake) await this.approveHandler();
       else if (this.isUnstake) await this.unstakeHandler();
       else await this.stakeHandler();
       this.isActionProcessing = false;
     },
 
     async stakeHandler() {
-      const notificationId = await this.$store.dispatch(
-        "notifications/new",
+      const notificationId = await this.createNotification(
         notification.pending
       );
+
       try {
-        const { error, result } = this.selectedFarm.isMultiReward
+        this.selectedFarm!.isMultiReward
           ? await actions.stake(
-              this.selectedFarm.contractInfo,
+              this.selectedFarm!.contractInfo,
               this.inputAmount
             )
           : await actions.deposit(
-              this.selectedFarm.contractInfo,
-              this.selectedFarm.poolId,
+              this.selectedFarm!.contractInfo,
+              this.selectedFarm!.poolId!,
               this.inputAmount
             );
 
         await this.getSelectedFarm();
 
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", notification.success);
+        await this.deleteNotification(notificationId);
+        await this.createNotification(notification.success);
       } catch (error) {
         console.log("stake err:", error);
 
@@ -312,32 +312,31 @@ export default {
           type: "error",
         };
 
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", errorNotification);
+        await this.deleteNotification(notificationId);
+        await this.createNotification(errorNotification);
       }
     },
 
     async unstakeHandler() {
-      const notificationId = await this.$store.dispatch(
-        "notifications/new",
+      const notificationId = await this.createNotification(
         notification.pending
       );
       try {
-        const args = this.selectedFarm.isMultiReward
+        const args = this.selectedFarm!.isMultiReward
           ? [this.inputAmount]
-          : [this.selectedFarm.poolId, this.inputAmount];
+          : [this.selectedFarm!.poolId, this.inputAmount];
 
         const isExit =
-          this.inputAmount === this.max && this.selectedFarm.isMultiReward;
+          this.inputAmount === this.max && this.selectedFarm!.isMultiReward;
 
-        const { error, result } = isExit
-          ? await actions.exit(this.selectedFarm.contractInfo)
-          : await actions.withdraw(this.selectedFarm.contractInfo, args);
+        isExit
+          ? await actions.exit(this.selectedFarm!.contractInfo)
+          : await actions.withdraw(this.selectedFarm!.contractInfo, args);
 
         await this.getSelectedFarm();
 
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", notification.success);
+        await this.deleteNotification(notificationId);
+        await this.createNotification(notification.success);
       } catch (error) {
         console.log("unstakeHandler err:", error);
 
@@ -346,25 +345,24 @@ export default {
           type: "error",
         };
 
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", errorNotification);
+        await this.deleteNotification(notificationId);
+        await this.createNotification(errorNotification);
       }
     },
 
     async approveHandler() {
-      const notificationId = await this.$store.dispatch(
-        "notifications/new",
+      const notificationId = await this.createNotification(
         notification.approvePending
       );
 
       try {
         await approveTokenViem(
-          this.selectedFarm.stakingToken.contractInfo,
-          this.selectedFarm.contractInfo.address
+          this.selectedFarm!.stakingToken.contractInfo,
+          this.selectedFarm!.contractInfo.address
         );
         await this.getSelectedFarm();
 
-        await this.$store.commit("notifications/delete", notificationId);
+        await this.deleteNotification(notificationId);
       } catch (error) {
         console.log("approve err:", error);
 
@@ -373,17 +371,21 @@ export default {
           type: "error",
         };
 
-        await this.$store.commit("notifications/delete", notificationId);
-        await this.$store.dispatch("notifications/new", errorNotification);
+        await this.deleteNotification(notificationId);
+        await this.createNotification(errorNotification);
       }
     },
 
     async getSelectedFarm() {
-      this.selectedFarm = await createFarmItemConfig(
+      console.log("getSelectedFarm");
+
+      this.selectedFarm = await createFarmData(
         this.id,
         this.farmChainId,
         this.account
       );
+
+      console.log("getSelectedFarm", this.selectedFarm);
     },
 
     openFarmsPopup() {
@@ -398,23 +400,37 @@ export default {
   async created() {
     await this.getSelectedFarm();
 
-    this.farmsTimer = setInterval(async () => {
+    this.farmTimer = setInterval(async () => {
       await this.getSelectedFarm();
     }, 60000);
   },
 
   beforeUnmount() {
-    clearInterval(this.farmsTimer);
+    if (this.farmTimer) clearInterval(this.farmTimer);
   },
 
   components: {
-    LocalPopupWrap,
-    FarmListPopup,
-    FarmPositionMobilePopup,
-    MarketsSwitch,
-    FarmingOpportunities,
-    FarmActionBlock,
-    FarmPosition,
+    LocalPopupWrap: defineAsyncComponent(
+      () => import("@/components/popups/LocalPopupWrap.vue")
+    ),
+    FarmListPopup: defineAsyncComponent(
+      () => import("@/components/farm/FarmListPopup.vue")
+    ),
+    FarmPositionMobilePopup: defineAsyncComponent(
+      () => import("@/components/farm/FarmPositionMobilePopup.vue")
+    ),
+    MarketsSwitch: defineAsyncComponent(
+      () => import("@/components/farm/MarketsSwitch.vue")
+    ),
+    FarmingOpportunities: defineAsyncComponent(
+      () => import("@/components/farm/FarmingOpportunities.vue")
+    ),
+    FarmActionBlock: defineAsyncComponent(
+      () => import("@/components/farm/FarmActionBlock.vue")
+    ),
+    FarmPosition: defineAsyncComponent(
+      () => import("@/components/farm/FarmPosition.vue")
+    ),
   },
 };
 </script>
@@ -445,12 +461,6 @@ export default {
   min-height: 66px;
   width: 100%;
   margin-bottom: 16px;
-}
-
-.farm-position {
-  position: absolute;
-  top: 92px;
-  right: -300px;
 }
 
 .title-desc {
@@ -510,10 +520,6 @@ export default {
 
   .my-position-button {
     display: block;
-  }
-
-  .farm-position {
-    display: none;
   }
 }
 

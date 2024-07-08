@@ -1,8 +1,9 @@
+import type { UserInfo } from "@/helpers/farm/getFarmUserInfo";
 import type { Address } from "viem";
 
-type RewardToken = {
-  name: String;
-  icon: String;
+export type RewardToken = {
+  name: string;
+  icon: string;
   address: Address;
   decimals: number;
   abi: any;
@@ -20,7 +21,7 @@ export type FarmConfig = {
   stakingToken: {
     name: string;
     address?: Address;
-    decimals?: number;
+    decimals: number;
     type: string;
     link: string;
     abi: any;
@@ -44,16 +45,17 @@ export type FarmConfig = {
       icon: string;
     };
   };
-  rewardTokens?: Array<RewardToken>;
+  rewardTokens?: RewardToken[];
 };
 
 export type FarmItem = {
+  config?: FarmConfig;
   name: string;
   icon: string;
   id: number;
   chainId: number;
   poolId?: number;
-  earnedTokenPrice: number;
+  earnedTokenPrice?: number;
   stakingToken: {
     link: string;
     name: string;
@@ -68,30 +70,34 @@ export type FarmItem = {
   farmRoi: number;
   lpPrice: number;
   isDeprecated: boolean;
-  farmYield: number;
+  isNew?: boolean;
+  isMultiReward?: boolean;
+  farmYield?: number;
   accountInfo?: FarmAccountInfo;
   farmTvl?: number;
+  tokensApr?: TokenApr[];
 };
 
 export type FarmAccountInfo = {
   allowance: string;
-  userInfo: object;
-  userReward: string;
-  tokensBalanceInfo: {
+  userInfo: UserInfo;
+  userReward?: string;
+  tokensBalanceInfo?: {
     token0: {
-      name: any;
+      name: string;
       amount: number;
       amountInUsd: number;
     };
     token1: {
-      name: any;
+      name: string;
       amount: number;
       amountInUsd: number;
     };
   } | null;
-  balance: string;
+  rewardTokensInfo?: RewardTokenInfo[];
+  balance: string | bigint;
   depositedBalance: string;
-  depositedBalanceBigInt: BigInt;
+  depositedBalanceBigInt?: bigint;
 };
 
 export type PoolInfo = {
@@ -106,3 +112,17 @@ export type ContractInfo = {
   address: Address;
   abi: any;
 };
+
+export type TokenApr = {
+  address: Address;
+  apr: number;
+};
+
+export type RewardTokenInfo = {
+  earned: string | number;
+  price: number;
+  balance: string | number;
+  allowance: string | number;
+  rewards: string | number;
+  usd: string | number;
+} & RewardToken;
