@@ -114,7 +114,7 @@ export default {
         );
 
         const quoteTokenAmount = Number(
-          formatUnits(pool.vaultReserve[1], pool.config.baseToken.decimals)
+          formatUnits(pool.vaultReserve[1], pool.config.quoteToken.decimals)
         );
 
         const baseTokenAmountUsd = baseTokenAmount * pool.baseTokenPrice;
@@ -127,11 +127,11 @@ export default {
       });
     },
 
-    // toBeDistributed() {
-    //   if (!this.kavaRewardData) return 0;
-    //   const { rewardRate, rewardsDuration } = this.kavaRewardData;
-    //   return Number(formatUnits(rewardRate * rewardsDuration, 18));
-    // },
+    toBeDistributed() {
+      if (!this.kavaRewardData) return 0;
+      const { rewardRate, rewardsDuration }: RewardData = this.kavaRewardData;
+      return Number(formatUnits(rewardRate * rewardsDuration, 18));
+    },
   },
 
   methods: {
@@ -153,7 +153,7 @@ export default {
   },
 
   async created() {
-    // this.kavaRewardData = await this.getRewardData();
+    this.kavaRewardData = await this.getRewardData();
   },
 };
 </script>

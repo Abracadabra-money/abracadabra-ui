@@ -15,6 +15,7 @@ const ethereumFarms: FarmConfig[] = [
     stakingToken: {
       name: "SLP",
       type: "SLP",
+      decimals: 18,
       link: "https://app.sushi.com/add/ETH/0x090185f2135308BaD17527004364eBcC2D37e5F6",
       abi: erc20Abi,
     },
@@ -47,6 +48,7 @@ const ethereumFarms: FarmConfig[] = [
     stakingToken: {
       name: "SLP",
       type: "SLP",
+      decimals: 18,
       link: "https://app.sushi.com/add/ETH/0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
       abi: erc20Abi,
     },
@@ -79,6 +81,7 @@ const ethereumFarms: FarmConfig[] = [
     stakingToken: {
       name: "MIM-3LP3CRV-f-2",
       type: "LP",
+      decimals: 18,
       link: "https://crv.to/pool",
       abi: crvStakeTokenAbi,
     },

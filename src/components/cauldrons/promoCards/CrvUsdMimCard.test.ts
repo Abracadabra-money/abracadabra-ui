@@ -1,6 +1,6 @@
 import { shallowMount } from "@vue/test-utils";
-import { describe, it, expect, vi } from "vitest";
-import CrvUsdMimCard from "@/components/cauldrons/CrvUsdMimCard.vue";
+import { describe, it, expect } from "vitest";
+import CrvUsdMimCard from "@/components/cauldrons/promoCards/CrvUsdMimCard.vue";
 
 describe("CrvUsdMimCard", () => {
   it("renders the card with correct data", () => {

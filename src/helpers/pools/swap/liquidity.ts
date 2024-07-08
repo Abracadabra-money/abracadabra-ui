@@ -284,6 +284,16 @@ export const previewAddLiquidityImbalanced = (
     lpInfo
   );
 
+  const updatedLpInfo = {
+    vaultReserve: [lpInfo.vaultReserve[0], lpInfo.vaultReserve[1]],
+    totalSupply: lpInfo.totalSupply,
+    PMMState: lpInfo.PMMState,
+    balances: {
+      baseBalance: lpInfo.balances.baseBalance,
+      quoteBalance: lpInfo.balances.quoteBalance,
+    },
+  };
+
   // base -> quote
   if (remainingAmountToSwapIsBase) {
     baseAdjustedInAmount +=
@@ -293,6 +303,12 @@ export const previewAddLiquidityImbalanced = (
       lpInfo,
       lpInfo.userInfo
     ).receiveQuoteAmount;
+
+    updatedLpInfo.balances.baseBalance += remainingAmountToSwap;
+    updatedLpInfo.balances.quoteBalance -= quoteAdjustedInAmount;
+
+    updatedLpInfo.vaultReserve[0] += remainingAmountToSwap;
+    updatedLpInfo.vaultReserve[1] -= quoteAdjustedInAmount;
   }
   // quote -> base
   else {
@@ -303,11 +319,19 @@ export const previewAddLiquidityImbalanced = (
     ).receiveBaseAmount;
     quoteAdjustedInAmount +=
       quoteInAmount - quoteAdjustedInAmount - remainingAmountToSwap;
+
+    updatedLpInfo.balances.baseBalance -= baseAdjustedInAmount;
+    updatedLpInfo.balances.quoteBalance += remainingAmountToSwap;
+
+    updatedLpInfo.vaultReserve[0] -= baseAdjustedInAmount;
+    updatedLpInfo.vaultReserve[1] += remainingAmountToSwap;
   }
+
   const previewAddLiquidityImbalancedResult = previewAddLiquidity(
     baseAdjustedInAmount,
     quoteAdjustedInAmount,
-    lpInfo
+    // @ts-ignore
+    updatedLpInfo
   );
 
   return previewAddLiquidityImbalancedResult;

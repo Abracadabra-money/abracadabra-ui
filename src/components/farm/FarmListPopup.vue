@@ -1,6 +1,6 @@
 <template>
   <div class="popup-wrap">
-    <h4 class="popup-title">Select {{ popupTitle }}</h4>
+    <h4 class="popup-title">Select Farm</h4>
 
     <InputSearch class="input-search" @input="changeSearch" />
 
@@ -20,19 +20,17 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineAsyncComponent } from "vue";
 import { mapGetters } from "vuex";
 import { getFarmsList } from "@/helpers/farm/list/getFarmsList";
-import BaseLoader from "@/components/base/BaseLoader.vue";
-import MarketsListPopupFarmItem from "@/components/popups/marketList/MarketsListPopupFarmItem.vue";
-import InputSearch from "@/components/ui/inputs/InputSearch.vue";
-import BaseSearchEmpty from "@/components/base/BaseSearchEmpty.vue";
+import type { FarmItem } from "@/configs/farms/types";
 
 export default {
   data() {
     return {
       search: "",
-      farmsList: [],
+      farmsList: [] as FarmItem[],
       isFarmsLoading: false,
     };
   },
@@ -51,14 +49,6 @@ export default {
         this.search.length &&
         !this.filteredMarketList.length
       );
-    },
-
-    isFarmsMarket() {
-      return this.popupType === "farms";
-    },
-
-    popupTitle() {
-      return "Farm";
     },
 
     marketsList() {
@@ -93,16 +83,16 @@ export default {
   },
 
   methods: {
-    changeSearch({ target }) {
-      this.search = target.value;
+    changeSearch({ target }: Event) {
+      this.search = (target as HTMLInputElement).value;
     },
 
-    changeActiveFarm({ id, chainId }) {
+    changeActiveFarm({ id, chainId }: FarmItem) {
       this.$emit("changeActiveMarket", { id, chainId });
     },
 
     async getMarketsList() {
-      this.farmsList = await getFarmsList(this.chainId, false);
+      this.farmsList = await getFarmsList();
     },
   },
 
@@ -113,10 +103,19 @@ export default {
   },
 
   components: {
-    BaseLoader,
-    MarketsListPopupFarmItem,
-    InputSearch,
-    BaseSearchEmpty,
+    BaseLoader: defineAsyncComponent(
+      () => import("@/components/base/BaseLoader.vue")
+    ),
+    MarketsListPopupFarmItem: defineAsyncComponent(
+      () =>
+        import("@/components/popups/marketList/MarketsListPopupFarmItem.vue")
+    ),
+    InputSearch: defineAsyncComponent(
+      () => import("@/components/ui/inputs/InputSearch.vue")
+    ),
+    BaseSearchEmpty: defineAsyncComponent(
+      () => import("@/components/base/BaseSearchEmpty.vue")
+    ),
   },
 };
 </script>
