@@ -111,8 +111,8 @@ export default {
   watch: {
     slippageValue(value, oldValue): void {
       if (!value) return this.$emit("updateSlippageValue", 0n);
-      if (isNaN(value)) this.slippageValue = Number(oldValue);
-      if (Number(value) > 100) this.slippageValue = 100;
+      else if (isNaN(value)) this.slippageValue = Number(oldValue);
+      else if (Number(value) > 100) this.slippageValue = 100;
       else this.slippageValue = value;
 
       this.$emit(
