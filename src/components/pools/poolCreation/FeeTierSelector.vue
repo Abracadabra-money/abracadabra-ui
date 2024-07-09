@@ -44,10 +44,12 @@ export default {
         return [
           {
             value: 0.04,
+            valueBigint: 400n,
             description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
           },
           {
             value: 0.05,
+            valueBigint: 500n,
             description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
           },
         ];
@@ -56,6 +58,7 @@ export default {
         return [
           {
             value: 0.03,
+            valueBigint: 300n,
             description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
           },
         ];
@@ -64,12 +67,23 @@ export default {
     },
   },
 
+  watch: {
+    poolType() {
+      this.currentOptionIndex = 0;
+    },
+  },
+
   methods: {
     formatPercent,
 
     selectOption(index: number) {
       this.currentOptionIndex = index;
+      this.$emit("selectFeeTier", this.feeTierOptions[index].valueBigint);
     },
+  },
+
+  created() {
+    this.selectOption(0);
   },
 
   components: {

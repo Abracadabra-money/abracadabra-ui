@@ -19,6 +19,7 @@
 
           <FeeTierSelector
             :poolType="actionConfig.poolType"
+            @selectFeeTier="selectFeeTier"
             v-if="actionConfig.poolType"
           />
           <EmptyState v-else>
@@ -34,12 +35,18 @@
           :poolType="actionConfig.poolType"
           @selectPoolType="selectPoolType"
         />
-        <PoolCreationInfo @openSlippagePopup="isSlippagePopupOpened = true" />
+        <PoolCreationInfo
+          :tokensSelected="tokensSelected"
+          :poolType="actionConfig.poolType"
+          :kValue="actionConfig.k"
+          @openSlippagePopup="isSlippagePopupOpened = true"
+        />
       </div>
     </div>
 
     <SlippageCoefficientPopup
       v-if="isSlippagePopupOpened"
+      @selectKValue="selectKValue"
       @close="isSlippagePopupOpened = !isSlippagePopupOpened"
     />
 
@@ -95,6 +102,8 @@ export type ActionConfig = {
   quoteToken: PoolCreationTokenInfo;
   baseInputValue: bigint;
   quoteInputValue: bigint;
+  feeTier: bigint;
+  k: bigint;
 };
 
 export default {
@@ -108,6 +117,8 @@ export default {
         quoteToken: emptyPoolCreationTokenInfo,
         baseInputValue: 0n,
         quoteInputValue: 0n,
+        feeTier: 0n,
+        k: 0n,
       } as ActionConfig,
       isTokensPopupOpened: false,
       isSlippagePopupOpened: false,
@@ -117,6 +128,16 @@ export default {
 
   computed: {
     ...mapGetters({ account: "getAccount", chainId: "getChainId" }),
+
+    tokensSelected() {
+      const { baseToken, quoteToken } = this.actionConfig;
+      const emptyTokenName = emptyPoolCreationTokenInfo.config.name;
+
+      return (
+        baseToken.config.name != emptyTokenName &&
+        quoteToken.config.name != emptyTokenName
+      );
+    },
   },
 
   methods: {
@@ -153,6 +174,15 @@ export default {
 
     selectPoolType(poolType: PoolTypes) {
       this.actionConfig.poolType = poolType;
+    },
+
+    selectFeeTier(feeTier: bigint) {
+      this.actionConfig.feeTier = feeTier;
+    },
+
+    selectKValue(kValue: bigint) {
+      this.actionConfig.k = kValue;
+      console.log(this.actionConfig);
     },
   },
 

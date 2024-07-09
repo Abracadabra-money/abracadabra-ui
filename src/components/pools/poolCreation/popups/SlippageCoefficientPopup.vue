@@ -54,31 +54,40 @@ import { defineAsyncComponent } from "vue";
 export default {
   data() {
     return {
-      slippageCoefficients: [
-        {
-          value: 0.0001,
-          description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
-          type: "safe",
-        },
-        {
-          value: 0.00025,
-          description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
-          type: "default",
-        },
-        {
-          value: 0.002,
-          description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
-          type: "default",
-        },
-      ],
       currentCoefficientIndex: 0,
       customCoefficient: 0,
     };
   },
 
+  computed: {
+    slippageCoefficients() {
+      return [
+        {
+          value: 0.0001,
+          valueBigint: 100000000000000n,
+          description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
+          type: "safe",
+        },
+        {
+          value: 0.00025,
+          valueBigint: 250000000000000n,
+          description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
+          type: "default",
+        },
+        {
+          value: 0.002,
+          valueBigint: 2000000000000000n,
+          description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
+          type: "default",
+        },
+      ];
+    },
+  },
+
   methods: {
     selectOption(index: number) {
       this.currentCoefficientIndex = index;
+      this.$emit("selectKValue", this.slippageCoefficients[index].valueBigint);
     },
 
     closePopup() {

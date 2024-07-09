@@ -1,37 +1,87 @@
 <template>
   <div class="pool-creation-info">
-    <div class="pool-creation-info-header">
-      <div class="chosen-creation-type">
-        <h3 class="creation-type-title">Pegged Pool Type</h3>
-        <p class="creation-type-description">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor
-        </p>
+    <template v-if="tokensSelected && poolType">
+      <div class="pool-creation-info-header">
+        <div class="chosen-creation-type">
+          <h3 class="creation-type-title">{{ poolType }} Pool Type</h3>
+          <p class="creation-type-description">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            eiusmod tempor
+          </p>
+        </div>
+
+        <div class="slippage-coefficient-selector">
+          <span class="selector-text">Slippage Coefficient</span>
+          <span class="coefficient-value">K={{ formattedKValue }}</span>
+          <img
+            class="settings-icon"
+            src="@/assets/images/pools/pool-creation/settings-icon.svg"
+            @click="openSlippagePopup"
+          />
+        </div>
       </div>
 
-      <div class="slippage-coefficient-selector">
-        <span class="selector-text">Slippage Coefficient</span>
-        <span class="coefficient-value">K=0.0001</span>
-        <img
-          class="settings-icon"
-          src="@/assets/images/pools/pool-creation/settings-icon.svg"
-          @click="$emit('openSlippagePopup')"
-        />
-      </div>
+      <SlippageChart />
+    </template>
+
+    <div class="empty-creation-info">
+      <EmptyState column reverse v-if="!poolType">
+        <div class="empty-state-content">
+          <span class="empty-state-main-text">Select Pool Type</span>
+          <p class="empty-state-description">
+            Select Pool Type for your Pool to enable ‘’K’’ and Fee Tier settigns
+          </p>
+        </div>
+      </EmptyState>
+
+      <div class="divider" v-if="!tokensSelected && !poolType"></div>
+
+      <EmptyState column reverse v-if="!tokensSelected">
+        <div class="empty-state-content">
+          <span class="empty-state-main-text">Select Tokens</span>
+          <p class="empty-state-description">
+            Select tokens you would like to create Pool with to enable price
+            settings
+          </p>
+        </div>
+      </EmptyState>
     </div>
-
-    <SlippageChart />
-    <!-- <div class="chart-wrap"></div> -->
   </div>
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, type Prop, type PropType } from "vue";
+import { PoolTypes } from "@/views/pool/PoolCreation.vue";
+import { formatPercent } from "@/helpers/filters";
+import { formatUnits } from "viem";
 
 export default {
+  props: {
+    tokensSelected: Boolean,
+    poolType: { type: String as PropType<PoolTypes | null> },
+    kValue: BigInt as Prop<bigint>,
+  },
+
+  computed: {
+    formattedKValue() {
+      console.log(this.kValue);
+
+      return formatPercent(formatUnits(this.kValue || 0n, 18));
+    },
+  },
+
+  methods: {
+    openSlippagePopup() {
+      if (this.poolType != PoolTypes.Standard) this.$emit("openSlippagePopup");
+    },
+  },
+
   components: {
     SlippageChart: defineAsyncComponent(
       () => import("@/components/pools/poolCreation/charts/SlippageChart.vue")
+    ),
+    EmptyState: defineAsyncComponent(
+      () => import("@/components/pools/poolCreation/PoolCreationEmptyState.vue")
     ),
   },
 };
@@ -63,6 +113,7 @@ export default {
   font-size: 20px;
   font-weight: 500;
   letter-spacing: 0.5px;
+  text-transform: capitalize;
 }
 
 .creation-type-description {
@@ -102,6 +153,42 @@ export default {
 
 .chart-wrap {
   height: 325.44px;
+}
+
+.empty-creation-info {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.empty-state-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.empty-state-main-text {
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.empty-state-description {
+  color: #878b93;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.divider {
+  height: 318px;
+  width: 1px;
+  background: linear-gradient(
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
 }
 
 @media (max-width: 1300px) {
