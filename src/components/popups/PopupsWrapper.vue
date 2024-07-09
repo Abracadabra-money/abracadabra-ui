@@ -8,6 +8,7 @@
       <ClaimPopup v-if="popupActiveType === 'claim'" />
       <RouteOptimisationPopup v-if="popupActiveType === 'mglp-route'" />
       <ApprovalsPopup v-if="popupActiveType === 'approvals'" />
+      <BlastLpMigration v-if="popupActiveType === 'mlp-migration'" />
     </div>
   </div>
 </template>
@@ -40,6 +41,9 @@ export default {
     ),
     ApprovalsPopup: defineAsyncComponent(() =>
       import("@/components/popups/ApprovalsPopup.vue")
+    ),
+    BlastLpMigration: defineAsyncComponent(() =>
+      import("@/components/popups/migration/BlastLpMigration.vue")
     ),
   },
 };

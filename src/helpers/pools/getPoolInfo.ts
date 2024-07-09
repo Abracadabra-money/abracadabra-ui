@@ -10,11 +10,12 @@ import { getCoinsPrices } from "@/helpers/prices/defiLlama/index";
 import { getSwapRouterByChain } from "@/configs/pools/routers";
 
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
+import { getPoolApr } from "./getPoolAPR";
 
 export const getPoolInfo = async (
   poolChainId: number,
   poolId: number,
-  account: Address
+  account?: Address
 ) => {
   const poolConfig = poolsConfig.find(
     ({ id, chainId }: PoolConfig) => id == poolId && chainId == poolChainId
@@ -38,13 +39,19 @@ export const getPoolInfo = async (
   if (account && poolConfig.lockContract)
     poolInfo.lockInfo = await getLockInfo(account, poolChainId, poolConfig);
 
+  if (poolConfig.stakeContract)
+    poolInfo.poolAPR = await getPoolApr(poolChainId, poolInfo);
+
+  if (account && poolConfig.stakeContract)
+    poolInfo.stakeInfo = await getStakeInfo(account, poolChainId, poolConfig, poolInfo.poolAPR.tokensApr!);
+
   return poolInfo;
 };
 
 const getTokensInfo = async (
   chainId: number,
   poolConfig: PoolConfig,
-  account: Address
+  account?: Address
 ) => {
   const tokensPrices = await getCoinsPrices(chainId, [
     poolConfig.baseToken.contract.address,
@@ -121,6 +128,64 @@ export const getLockInfo = async (
       total: locked + unlocked,
     },
     allowance: allowance.result,
+  };
+};
+
+export const getStakeInfo = async (
+  account: Address,
+  chainId: number,
+  config: any,
+  tokensApr: any
+) => {
+  const publicClient = getPublicClient(chainId);
+
+  const [balance, allowance, earned]: any = await publicClient.multicall({
+    contracts: [
+      {
+        address: config.stakeContract.address,
+        abi: config.stakeContract.abi,
+        functionName: "balanceOf",
+        args: [account],
+      },
+      {
+        address: config.contract.address,
+        abi: config.contract.abi,
+        functionName: "allowance",
+        args: [account, config.stakeContract.address],
+      },
+      {
+        address: config.stakeContract.address,
+        abi: config.stakeContract.abi,
+        functionName: "earned",
+        args: [account, "0x3E6648C5a70A150A88bCE65F4aD4d506Fe15d2AF"], // Warning: TODO
+      },
+    ],
+  });
+
+  const earnedBalances = await publicClient.multicall({
+    contracts: [
+      ...config.rewardTokens.map((token: any) => ({
+        address: config.stakeContract.address,
+        abi: config.stakeContract.abi,
+        functionName: "earned",
+        args: [account, token.contract.address],
+      })),
+    ],
+  });
+
+  const earnedInfo = config.rewardTokens.map((token: any, index: number) => ({
+    token,
+    earned: earnedBalances[index].result,
+    ...tokensApr[index]
+  }));
+
+  console.log("earnedInfo", earnedInfo)
+
+  return {
+    balance: balance.result,
+    allowance: allowance.result,
+    earned: earned.result,
+    earnedInfo
   };
 };
 

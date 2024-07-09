@@ -115,9 +115,9 @@ export default <MimInfo[]>[
   {
     name: "MIM",
     symbol: "MIM",
-    chainId: 80085,
+    chainId: 80084,
     decimals: 18,
-    address: "0xB734c264F83E39Ef6EC200F99550779998cC812d",
+    address: "0x08B918dD18E087893bb9d711d9E0BBaA7a63Ef63",
     abi: tokensAbi.MIM,
     image:
       "https://fra1.digitaloceanspaces.com/static.popsicle.finance/mimlogopng.png",

@@ -15,12 +15,14 @@
   </button>
 </template>
 
-<script>
+<script lang="ts">
+import type { PropType } from "vue";
+import type { FarmItem } from "@/configs/farms/types";
 import TokenChainIcon from "@/components/ui/icons/TokenChainIcon.vue";
 
 export default {
   props: {
-    selectedFarm: { type: Object },
+    selectedFarm: { type: Object as PropType<FarmItem> },
   },
 
   components: { TokenChainIcon },

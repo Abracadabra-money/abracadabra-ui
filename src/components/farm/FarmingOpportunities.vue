@@ -40,16 +40,14 @@
   </div>
 </template>
 
-<script>
-import Tooltip from "@/components/ui/icons/Tooltip.vue";
-import SelectFarm from "@/components/farm/SelectFarm.vue";
-import GetLpLink from "@/components/ui/links/GetLpLink.vue";
+<script lang="ts">
+import { defineAsyncComponent, type PropType } from "vue";
 import { formatUSD, formatPercent } from "@/helpers/filters";
-import AprTooltip from "@/components/ui/tooltips/AprTooltip.vue";
+import type { FarmItem } from "@/configs/farms/types";
 
 export default {
   props: {
-    selectedFarm: { type: Object },
+    selectedFarm: { type: Object as PropType<FarmItem>, required: true },
   },
 
   computed: {
@@ -71,10 +69,18 @@ export default {
   },
 
   components: {
-    SelectFarm,
-    GetLpLink,
-    Tooltip,
-    AprTooltip,
+    SelectFarm: defineAsyncComponent(
+      () => import("@/components/farm/SelectFarm.vue")
+    ),
+    GetLpLink: defineAsyncComponent(
+      () => import("@/components/ui/links/GetLpLink.vue")
+    ),
+    Tooltip: defineAsyncComponent(
+      () => import("@/components/ui/icons/Tooltip.vue")
+    ),
+    AprTooltip: defineAsyncComponent(
+      () => import("@/components/ui/tooltips/AprTooltip.vue")
+    ),
   },
 };
 </script>

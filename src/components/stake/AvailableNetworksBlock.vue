@@ -1,6 +1,6 @@
 <template>
   <div class="networks-wrap">
-    <h4 class="title">Available on:</h4>
+    <!-- <h4 class="title">Available on:</h4> -->
     <div class="networks-list">
       <button
         class="network-button"

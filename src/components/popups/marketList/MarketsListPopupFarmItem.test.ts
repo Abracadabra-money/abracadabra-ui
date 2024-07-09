@@ -1,14 +1,16 @@
 import { describe, it, expect } from "vitest";
 import { shallowMount } from "@vue/test-utils";
 import MarketsListPopupFarmItem from "@/components/popups/marketList/MarketsListPopupFarmItem.vue";
+import { emptyFarmData } from "@/helpers/farm/createFarmData";
+
+const marketItem = {
+  ...emptyFarmData,
+  id: 1,
+  chainId: 1,
+};
 
 describe("MarketsListPopupFarmItem", () => {
   it("renders correctly", () => {
-    const marketItem = {
-      id: 1,
-      chainId: 1,
-    };
-
     const wrapper = shallowMount(MarketsListPopupFarmItem, {
       propsData: {
         marketItem,
@@ -19,11 +21,6 @@ describe("MarketsListPopupFarmItem", () => {
   });
 
   it("emits changeActiveMarket event when item is chosen", () => {
-    const marketItem = {
-      id: 1,
-      chainId: 1,
-    };
-
     const wrapper = shallowMount(MarketsListPopupFarmItem, {
       propsData: {
         marketItem,

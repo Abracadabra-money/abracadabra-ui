@@ -46,6 +46,7 @@ const blastPools: Array<PoolConfig> = [
       isNew: true,
       isDeprecated: false,
       isMim: true,
+      isPointsLogic: true,
     },
   },
 ];

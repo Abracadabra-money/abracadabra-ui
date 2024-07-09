@@ -1,25 +1,35 @@
 import { defaultRpc } from "@/helpers/chains";
 import cauldronsConfig from "@/configs/cauldrons";
 import { getMainParams } from "@/helpers/cauldron/getMainParams";
-import type { CauldronPositionItem } from "@/helpers/cauldron/types";
+import type { MainParams, UserPositions } from "@/helpers/cauldron/types";
 import { getUserPositions } from "@/helpers/cauldron/getUserPositions";
+import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
+
+export type UserOpenPosition = {
+  config: CauldronConfig;
+  mainParams: MainParams;
+  apr?: number;
+  collateralDepositedUsd?: number;
+  mimBorrowed?: number;
+  hasActiveGmOrder?: boolean;
+} & UserPositions;
 
 export const getUserOpenPositions = async (
   account: string,
   chains = null
-): Promise<CauldronPositionItem[]> => {
+): Promise<UserOpenPosition[]> => {
   const currentChains = chains ? chains : Object.keys(defaultRpc);
 
-  const positions: any = [];
+  const positions: UserOpenPosition[] = [];
 
   await Promise.all(
     currentChains.map(async (chainId: string) => {
-      const configs: any[] = cauldronsConfig.filter(
+      const configs = cauldronsConfig.filter(
         (config) => config.chainId === Number(chainId)
       );
       if (!configs) return [];
 
-      const userPositions: any = await getUserPositions(
+      const userPositions = await getUserPositions(
         configs,
         account,
         Number(chainId)
@@ -27,22 +37,20 @@ export const getUserOpenPositions = async (
 
       const mainParams = await getMainParams(configs, Number(chainId));
 
-      positions.push(
-        ...userPositions.map((position: any, idx: any) => {
-          return {
+      userPositions.forEach((position: UserPositions, idx: number) => {
+        if (
+          position.collateralInfo.userCollateralShare.gt(0) ||
+          position.borrowInfo.userBorrowPart.gt(0)
+        ) {
+          positions.push({
             config: configs[idx],
             ...position,
             mainParams: mainParams[idx],
-          };
-        })
-      );
+          });
+        }
+      });
     })
   );
 
-  return positions.filter((position: any) => {
-    return (
-      position.collateralInfo.userCollateralShare.gt(0) ||
-      position.borrowInfo.userBorrowPart.gt(0)
-    );
-  });
+  return positions;
 };

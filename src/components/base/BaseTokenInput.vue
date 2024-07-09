@@ -114,26 +114,15 @@ export default {
         return false;
       }
 
-      if (this.isBigNumber) {
-        const emitValue = !value
-          ? BigNumber.from(0)
-          : utils.parseUnits(
-              formatToFixed(value, this.decimals),
-              this.decimals
-            );
-
-        this.$emit("updateInputValue", emitValue);
-      } else {
-        const emitValue = !value
-          ? BigInt(0)
-          : parseUnits(formatToFixed(value, this.decimals), this.decimals);
-
-        this.$emit("updateInputValue", emitValue);
-      }
+      this.updateInputValue(value, this.decimals);
     },
 
     value(value) {
       this.inputValue = value;
+    },
+
+    decimals(newDecimals) {
+      this.updateInputValue(this.inputValue, newDecimals);
     },
   },
 
@@ -144,6 +133,22 @@ export default {
     onSelectClick() {
       if (this.allowSelectToken) this.$emit("onSelectClick");
       return;
+    },
+
+    updateInputValue(value: string, decimals: number) {
+      if (this.isBigNumber) {
+        const emitValue = !this.inputValue
+          ? BigNumber.from(0)
+          : utils.parseUnits(formatToFixed(value, decimals), decimals);
+
+        this.$emit("updateInputValue", emitValue);
+      } else {
+        const emitValue = !value
+          ? BigInt(0)
+          : parseUnits(formatToFixed(value, decimals), decimals);
+
+        this.$emit("updateInputValue", emitValue);
+      }
     },
   },
 

@@ -10,6 +10,8 @@ export type PoolConfig = {
   baseToken: TokenConfig;
   quoteToken: TokenConfig;
   lockContract?: Contract;
+  stakeContract?: Contract;
+  rewardTokens?: TokenConfig[];
   settings: PoolSettings;
 };
 
@@ -18,6 +20,7 @@ type PoolSettings = {
   isNew: boolean;
   isDeprecated: boolean;
   isMim: boolean;
+  isPointsLogic?: boolean;
 };
 
 export type TokenConfig = {

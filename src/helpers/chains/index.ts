@@ -10,8 +10,8 @@ import {
   RPC_AVAX,
   RPC_KAVA,
   PRC_LINEA,
-  RPC_BERRA_ARTIO,
   RPC_BLAST,
+  RPC_BERA_BARTIO,
 } from "@/constants/rpc";
 
 export const defaultRpc = {
@@ -26,7 +26,7 @@ export const defaultRpc = {
   43114: RPC_AVAX,
   2222: RPC_KAVA,
   59144: PRC_LINEA,
-  80085: RPC_BERRA_ARTIO,
+  80084: RPC_BERA_BARTIO,
   81457: RPC_BLAST,
 };
 
