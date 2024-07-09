@@ -22,25 +22,46 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, type PropType } from "vue";
+import { PoolTypes } from "@/views/pool/PoolCreation.vue";
 import { formatPercent } from "@/helpers/filters";
 
 export default {
+  props: {
+    poolType: { type: String as PropType<PoolTypes | null> },
+  },
+
   data() {
     return {
-      feeTierOptions: [
-        {
-          value: 0.04,
-          description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
-        },
-        {
-          value: 0.05,
-          description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
-        },
-      ],
-
-      currentOptionIndex: 1,
+      currentOptionIndex: 0,
+      PoolTypes,
     };
+  },
+
+  computed: {
+    feeTierOptions() {
+      if (this.poolType === PoolTypes.Pegged)
+        return [
+          {
+            value: 0.04,
+            description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
+          },
+          {
+            value: 0.05,
+            description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
+          },
+        ];
+
+      if (this.poolType === PoolTypes.Standard)
+        return [
+          {
+            value: 0.03,
+            description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
+          },
+        ];
+
+      return [];
+    },
   },
 
   methods: {

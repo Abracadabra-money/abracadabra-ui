@@ -1,11 +1,8 @@
 <template>
   <ul class="creation-type-tabs">
     <li
-      :class="[
-        'creation-type',
-        { active: currentCreationType == creationTypes.Pegged },
-      ]"
-      @click="selectType(creationTypes.Pegged)"
+      :class="['creation-type', { active: poolType == PoolTypes.Pegged }]"
+      @click="$emit('selectPoolType', PoolTypes.Pegged)"
     >
       <img
         class="mim-icon"
@@ -20,11 +17,8 @@
     </li>
 
     <li
-      :class="[
-        'creation-type',
-        { active: currentCreationType == creationTypes.Standard },
-      ]"
-      @click="selectType(creationTypes.Standard)"
+      :class="['creation-type', { active: poolType == PoolTypes.Standard }]"
+      @click="$emit('selectPoolType', PoolTypes.Standard)"
     >
       <img
         class="mim-icon"
@@ -41,28 +35,16 @@
 </template>
 
 <script lang="ts">
-enum CreationTypes {
-  Pegged = "PEGGED",
-  Standard = "STANDARD",
-}
+import type { PropType } from "vue";
+import { PoolTypes } from "@/views/pool/PoolCreation.vue";
 
 export default {
+  props: {
+    poolType: { type: String as PropType<PoolTypes | null> },
+  },
+
   data() {
-    return {
-      currentCreationType: CreationTypes.Standard,
-    };
-  },
-
-  computed: {
-    creationTypes() {
-      return CreationTypes;
-    },
-  },
-
-  methods: {
-    selectType(creationType: CreationTypes) {
-      this.currentCreationType = creationType;
-    },
+    return { PoolTypes };
   },
 };
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <div class="base-checkbox-wrap" @click="updateCheckbox">
+  <div :class="['base-checkbox-wrap', { disabled }]" @click="updateCheckbox">
     <img src="@/assets/images/blast/checkbox-active.svg" v-if="chosen" />
     <img src="@/assets/images/blast/checkbox-default.svg" v-else />
 
@@ -34,6 +34,10 @@ export default {
   gap: 8px;
   height: fit-content;
   cursor: pointer;
+}
+
+.base-checkbox-wrap.disabled {
+  cursor: auto;
 }
 
 .checkbox {

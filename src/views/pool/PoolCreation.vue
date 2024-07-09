@@ -8,19 +8,32 @@
           <TokensSelector
             :baseToken="actionConfig.baseToken"
             :quoteToken="actionConfig.quoteToken"
+            @updateTokenInputValue="updateTokenInputValue"
             @openTokensPopup="openTokensPopup"
           />
 
-          <PriceSelector />
+          <PriceSelector
+            :baseToken="actionConfig.baseToken"
+            :quoteToken="actionConfig.quoteToken"
+          />
 
-          <FeeTierSelector />
+          <FeeTierSelector
+            :poolType="actionConfig.poolType"
+            v-if="actionConfig.poolType"
+          />
+          <EmptyState v-else>
+            <span class="empty-state-main-text">Select Pool Type</span>
+          </EmptyState>
 
           <BaseButton primary>Create</BaseButton>
         </div>
       </div>
 
       <div class="pool-creation-info-wrap">
-        <CreationTypeTabs />
+        <CreationTypeTabs
+          :poolType="actionConfig.poolType"
+          @selectPoolType="selectPoolType"
+        />
         <PoolCreationInfo @openSlippagePopup="isSlippagePopupOpened = true" />
       </div>
     </div>
@@ -71,13 +84,17 @@ export enum TokenTypes {
   Quote = "quote",
 }
 
+export enum PoolTypes {
+  Standard = "standard",
+  Pegged = "pegged",
+}
+
 export type ActionConfig = {
+  poolType: PoolTypes | null;
   baseToken: PoolCreationTokenInfo;
   quoteToken: PoolCreationTokenInfo;
   baseInputValue: bigint;
   quoteInputValue: bigint;
-  slippage: bigint;
-  deadline: bigint;
 };
 
 export default {
@@ -86,12 +103,11 @@ export default {
       tokenList: [] as PoolCreationTokenInfo[],
       tokenType: "base",
       actionConfig: {
+        poolType: null,
         baseToken: emptyPoolCreationTokenInfo,
         quoteToken: emptyPoolCreationTokenInfo,
         baseInputValue: 0n,
         quoteInputValue: 0n,
-        slippage: 30n,
-        deadline: 500n,
       } as ActionConfig,
       isTokensPopupOpened: false,
       isSlippagePopupOpened: false,
@@ -104,6 +120,10 @@ export default {
   },
 
   methods: {
+    updateTokenInputValue(type: TokenTypes, value: bigint) {
+      this.actionConfig[`${type}InputValue`] = value;
+    },
+
     openTokensPopup(type: TokenTypes) {
       this.tokenType = type;
       this.isTokensPopupOpened = true;
@@ -130,6 +150,10 @@ export default {
 
       this.isTokensPopupOpened = false;
     },
+
+    selectPoolType(poolType: PoolTypes) {
+      this.actionConfig.poolType = poolType;
+    },
   },
 
   async created() {
@@ -139,6 +163,9 @@ export default {
   components: {
     BaseButton: defineAsyncComponent(
       () => import("@/components/base/BaseButton.vue")
+    ),
+    EmptyState: defineAsyncComponent(
+      () => import("@/components/pools/poolCreation/PoolCreationEmptyState.vue")
     ),
     TokensSelector: defineAsyncComponent(
       () => import("@/components/pools/poolCreation/TokensSelector.vue")
@@ -218,6 +245,11 @@ export default {
   gap: 16px;
 }
 
+.empty-state-main-text {
+  font-size: 18px;
+  font-weight: 500;
+}
+
 @media screen and (max-width: 1200px) {
   .pool-creation-wrap {
     grid-template-columns: 400px 1fr;
@@ -234,6 +266,10 @@ export default {
 @media screen and (max-width: 600px) {
   .action-form {
     padding: 16px;
+  }
+
+  .empty-state-main-text {
+    font-size: 16px;
   }
 }
 </style>

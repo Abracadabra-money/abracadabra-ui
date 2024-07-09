@@ -1,5 +1,5 @@
 <template>
-  <div class="price-selector-wrap">
+  <div :class="['price-selector-wrap', { disabled: isPriceSelectorDisabled }]">
     <div class="price-selector-header">
       <h4 class="action-title">
         Initial Price
@@ -8,6 +8,7 @@
 
       <BaseCheckBox
         :chosen="isAutoPricing"
+        :disabled="isPriceSelectorDisabled"
         @update="isAutoPricing = !isAutoPricing"
       >
         <span class="checkbox-text">Auto pricing</span>
@@ -17,7 +18,7 @@
 
     <div class="price-selector">
       <img
-        class="switch-icon"
+        :class="['switch-icon', { disabled: isPriceSelectorDisabled }]"
         src="@/assets/images/pools/pool-creation/switch-icon.svg"
       />
 
@@ -29,19 +30,45 @@
         </div>
       </div>
       =
-      <BaseTokenInput class="price-input" compact />
+      <BaseTokenInput
+        class="price-input"
+        compact
+        :disabled="isPriceSelectorDisabled"
+      />
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, type PropType } from "vue";
+import type { PoolCreationTokenInfo } from "@/configs/pools/poolCreation/types";
 
 export default {
+  props: {
+    baseToken: {
+      type: Object as PropType<PoolCreationTokenInfo>,
+      required: true,
+    },
+    quoteToken: {
+      type: Object as PropType<PoolCreationTokenInfo>,
+      required: true,
+    },
+  },
+
   data() {
     return {
       isAutoPricing: false,
     };
+  },
+
+  computed: {
+    isPriceSelectorDisabled() {
+      const emptyTokenName = "Select Token";
+      return (
+        this.baseToken.config.name == emptyTokenName ||
+        this.quoteToken.config.name == emptyTokenName
+      );
+    },
   },
 
   components: {
@@ -68,6 +95,10 @@ export default {
   gap: 12px;
 }
 
+.price-selector-wrap.disabled {
+  opacity: 0.5;
+}
+
 .price-selector-header {
   display: flex;
   justify-content: space-between;
@@ -89,10 +120,10 @@ export default {
   width: 24px;
   height: 24px;
   transition: transform 1s ease-in-out;
-  cursor: pointer;
 }
 
-.switch-icon:hover {
+.switch-icon:hover:not(.disabled) {
+  cursor: pointer;
   animation: rotateAndReturn 1s ease-in-out;
 }
 

@@ -10,6 +10,7 @@
         :max="baseToken.userInfo.balance"
         allowSelectToken
         @onSelectClick="$emit('openTokensPopup', TokenTypes.Base)"
+        @updateInputValue="updateBaseTokenInputValue"
       />
 
       <IconButton
@@ -29,6 +30,7 @@
         :max="quoteToken.userInfo.balance"
         allowSelectToken
         @onSelectClick="$emit('openTokensPopup', TokenTypes.Quote)"
+        @updateInputValue="updateQuoteTokenInputValue"
       />
     </div>
   </div>
@@ -53,6 +55,16 @@ export default {
 
   data() {
     return { TokenTypes };
+  },
+
+  methods: {
+    updateBaseTokenInputValue(value: bigint) {
+      this.$emit("updateTokenInputValue", TokenTypes.Base, value);
+    },
+
+    updateQuoteTokenInputValue(value: bigint) {
+      this.$emit("updateTokenInputValue", TokenTypes.Quote, value);
+    },
   },
 
   components: {
