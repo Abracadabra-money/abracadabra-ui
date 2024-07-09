@@ -6,11 +6,12 @@ export type PoolCreationTokenConfig = {
     icon: string;
     decimals: number;
     contract: Contract;
+    isPopular?: boolean;
 }
 
 export type PoolCreationTokenInfo = {
     config: PoolCreationTokenConfig;
-    userInfo?: TokenUserInfo;
+    userInfo: TokenUserInfo;
 }
 
 export type TokenUserInfo = {

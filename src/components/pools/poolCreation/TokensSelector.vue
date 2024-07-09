@@ -3,7 +3,14 @@
     <h4 class="action-title">Select tokens</h4>
 
     <div class="inputs-wrap">
-      <BaseTokenInput allowSelectToken />
+      <BaseTokenInput
+        :name="baseToken.config.name"
+        :icon="baseToken.config.icon"
+        :decimals="baseToken.config.decimals"
+        :max="baseToken.userInfo.balance"
+        allowSelectToken
+        @onSelectClick="$emit('openTokensPopup', TokenTypes.Base)"
+      />
 
       <IconButton
         class="plus-icon"
@@ -15,15 +22,39 @@
         borderRadius="16px"
       />
 
-      <BaseTokenInput allowSelectToken />
+      <BaseTokenInput
+        :name="quoteToken.config.name"
+        :icon="quoteToken.config.icon"
+        :decimals="quoteToken.config.decimals"
+        :max="quoteToken.userInfo.balance"
+        allowSelectToken
+        @onSelectClick="$emit('openTokensPopup', TokenTypes.Quote)"
+      />
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, type PropType } from "vue";
+import type { PoolCreationTokenInfo } from "@/configs/pools/poolCreation/types";
+import { TokenTypes } from "@/views/pool/PoolCreation.vue";
 
 export default {
+  props: {
+    baseToken: {
+      type: Object as PropType<PoolCreationTokenInfo>,
+      required: true,
+    },
+    quoteToken: {
+      type: Object as PropType<PoolCreationTokenInfo>,
+      required: true,
+    },
+  },
+
+  data() {
+    return { TokenTypes };
+  },
+
   components: {
     BaseTokenInput: defineAsyncComponent(
       () => import("@/components/base/BaseTokenInput.vue")

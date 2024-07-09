@@ -7,25 +7,40 @@ const availableChains = Array.from(
   new Set(tokenConfigs.map((token) => token.chainId)).values()
 );
 
-export const getTokenList = async (account?: Address) => {
-  const tokenList = await Promise.all(
-    availableChains.map(async (chainId) =>
-      getAllTokensByChain(chainId, account)
-        .then((results) => {
-          // Filter out only the successful results
-          const successfulResults = results.filter(
-            (result) => result instanceof Error === false
-          );
-          return successfulResults;
-        })
-        .catch((error) => {
-          console.log("something went wrong", error)
-          return [];
-        })
-    )
-  )
+export const getTokenList = async (chainId?: number, account?: Address) => {
+  let tokenList: PoolCreationTokenInfo[] = [];
 
-  return tokenList.flat()
+  if (!chainId) {
+    tokenList = (await Promise.all(
+      availableChains.map(async (chainId) =>
+        getAllTokensByChain(chainId, account)
+          .then((results) => {
+            const successfulResults = results.filter(
+              (result) => result instanceof Error === false
+            );
+            return successfulResults;
+          })
+          .catch((error) => {
+            console.log("something went wrong", error)
+            return [] as PoolCreationTokenInfo[];
+          })
+      )
+    )).flat()
+  } else {
+    tokenList = await getAllTokensByChain(chainId, account)
+      .then((results) => {
+        const successfulResults = results.filter(
+          (result) => result instanceof Error === false
+        );
+        return successfulResults;
+      })
+      .catch((error) => {
+        console.log("something went wrong", error)
+        return [] as PoolCreationTokenInfo[];
+      })
+  }
+
+  return tokenList
 }
 
 export const getAllTokensByChain = async (chainId: number, account?: Address): Promise<PoolCreationTokenInfo[]> => {
