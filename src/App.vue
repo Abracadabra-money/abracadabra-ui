@@ -12,12 +12,12 @@
       alt="Mim"
     />
     <LiquidityLaunchEventBanner />
+    <MlpMigrationBanner />
     <router-view />
   </div>
   <NotificationContainer />
   <PopupsWrapper />
   <Banner />
-  <MlpMigrationBanner />
   <SkullBanner />
   <OldAllowanceBanner />
   <TenderlyMod />
