@@ -19,9 +19,11 @@
       <ul class="slippage-coefficient-options">
         <li
           :class="['slippage-coefficient-option', type]"
-          v-for="({ value, type, description }, index) in slippageCoefficients"
+          v-for="(
+            { value, valueBigint, type, description }, index
+          ) in slippageCoefficients"
           :key="index"
-          @click="selectOption(index)"
+          @click="selectOption(valueBigint)"
         >
           <div class="status-flag" v-if="type != 'default'">
             <span class="status-text"> Safe </span>
@@ -30,10 +32,13 @@
           <p class="slippage-coefficient-description">
             {{ description }}
           </p>
-          <RadioButton :active="currentCoefficientIndex == index" />
+          <RadioButton :active="checkActiveOption(valueBigint)" />
         </li>
 
-        <li class="slippage-coefficient-option custom" @click="selectOption(3)">
+        <li
+          class="slippage-coefficient-option custom"
+          @click="selectOption(BigInt(customCoefficient))"
+        >
           <span class="slippage-coefficient-value">Custom %</span>
           <input
             class="custom-slippage-input"
@@ -49,9 +54,13 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, type Prop } from "vue";
 
 export default {
+  props: {
+    kValue: BigInt as Prop<bigint>,
+  },
+
   data() {
     return {
       currentCoefficientIndex: 0,
@@ -85,9 +94,12 @@ export default {
   },
 
   methods: {
-    selectOption(index: number) {
-      this.currentCoefficientIndex = index;
-      this.$emit("selectKValue", this.slippageCoefficients[index].valueBigint);
+    checkActiveOption(valueBigint: bigint) {
+      return this.kValue == valueBigint;
+    },
+
+    selectOption(valueBigint: bigint) {
+      this.$emit("selectKValue", valueBigint);
     },
 
     closePopup() {

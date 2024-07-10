@@ -45,9 +45,10 @@
     </div>
 
     <SlippageCoefficientPopup
-      v-if="isSlippagePopupOpened"
+      :kValue="actionConfig.k"
       @selectKValue="selectKValue"
       @close="isSlippagePopupOpened = !isSlippagePopupOpened"
+      v-if="isSlippagePopupOpened"
     />
 
     <LocalPopupWrap
@@ -86,6 +87,8 @@ const emptyPoolCreationTokenInfo: PoolCreationTokenInfo = {
   },
 };
 
+const STANDARD_K_VALUE = 100000000000000n;
+
 export enum TokenTypes {
   Base = "base",
   Quote = "quote",
@@ -118,7 +121,7 @@ export default {
         baseInputValue: 0n,
         quoteInputValue: 0n,
         feeTier: 0n,
-        k: 0n,
+        k: STANDARD_K_VALUE,
       } as ActionConfig,
       isTokensPopupOpened: false,
       isSlippagePopupOpened: false,
@@ -174,6 +177,7 @@ export default {
 
     selectPoolType(poolType: PoolTypes) {
       this.actionConfig.poolType = poolType;
+      this.actionConfig.k = STANDARD_K_VALUE;
     },
 
     selectFeeTier(feeTier: bigint) {

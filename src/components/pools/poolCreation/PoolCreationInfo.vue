@@ -64,8 +64,6 @@ export default {
 
   computed: {
     formattedKValue() {
-      console.log(this.kValue);
-
       return formatPercent(formatUnits(this.kValue || 0n, 18));
     },
   },
