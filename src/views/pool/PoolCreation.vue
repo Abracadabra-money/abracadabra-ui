@@ -26,7 +26,13 @@
             <span class="empty-state-main-text">Select Pool Type</span>
           </EmptyState>
 
-          <BaseButton primary>Create</BaseButton>
+          <BaseButton
+            primary
+            :disabled="!validationData.isAllowed"
+            @click="actionHandler"
+          >
+            {{ validationData.btnText }}
+          </BaseButton>
         </div>
       </div>
 
@@ -69,9 +75,15 @@
 
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
-import { mapGetters } from "vuex";
+import { mapActions, mapGetters, mapMutations } from "vuex";
 import { getTokenList } from "@/helpers/pools/poolCreation/getTokenList";
+import { validationActions } from "@/helpers/pools/poolCreation/validationActions";
 import type { PoolCreationTokenInfo } from "@/configs/pools/poolCreation/types";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import { approveTokenViem } from "@/helpers/approval";
+import notification from "@/helpers/notification/notification";
+import type { ContractInfo } from "@/types/global";
+import { getSwapRouterByChain } from "@/configs/pools/routers";
 
 const emptyPoolCreationTokenInfo: PoolCreationTokenInfo = {
   config: {
@@ -141,9 +153,23 @@ export default {
         quoteToken.config.name != emptyTokenName
       );
     },
+
+    validationData() {
+      return validationActions(this.actionConfig, this.chainId);
+    },
+
+    routerAddress() {
+      const router = getSwapRouterByChain(this.chainId);
+      console.log({ chainId: this.chainId, router });
+
+      return router;
+    },
   },
 
   methods: {
+    ...mapActions({ createNotification: "notifications/new" }),
+    ...mapMutations({ deleteNotification: "notifications/delete" }),
+
     updateTokenInputValue(type: TokenTypes, value: bigint) {
       this.actionConfig[`${type}InputValue`] = value;
     },
@@ -187,6 +213,52 @@ export default {
     selectKValue(kValue: bigint) {
       this.actionConfig.k = kValue;
       console.log(this.actionConfig);
+    },
+
+    async approveTokenHandler(contract: ContractInfo, valueToApprove: bigint) {
+      const notificationId = await this.createNotification(
+        notification.approvePending
+      );
+
+      const approve = await approveTokenViem(
+        contract,
+        this.routerAddress,
+        valueToApprove
+      );
+
+      await this.deleteNotification(notificationId);
+      if (!approve) await this.createNotification(notification.approveError);
+      return false;
+    },
+
+    async actionHandler() {
+      if (!this.validationData.isAllowed) return false;
+      console.log(this.validationData);
+
+      switch (this.validationData.method) {
+        case "connectWallet":
+          // @ts-ignore
+          await this.$openWeb3modal();
+          break;
+        case "switchNetwork":
+          await switchNetwork(42161); //todo
+          break;
+        case "approveBaseToken":
+          await this.approveTokenHandler(
+            this.actionConfig.baseToken.config.contract,
+            this.actionConfig.baseInputValue
+          );
+          break;
+        case "approveQuoteToken":
+          await this.approveTokenHandler(
+            this.actionConfig.quoteToken.config.contract,
+            this.actionConfig.quoteInputValue
+          );
+          break;
+        default:
+          console.log("Pool Creation PERFORMING !!!!!");
+          break;
+      }
     },
   },
 
