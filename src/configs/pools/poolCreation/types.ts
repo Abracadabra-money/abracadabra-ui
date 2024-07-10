@@ -11,6 +11,7 @@ export type PoolCreationTokenConfig = {
 
 export type PoolCreationTokenInfo = {
   config: PoolCreationTokenConfig;
+  price: number;
   userInfo: TokenUserInfo;
 };
 

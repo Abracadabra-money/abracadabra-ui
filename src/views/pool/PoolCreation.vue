@@ -44,14 +44,14 @@
         <PoolCreationInfo
           :tokensSelected="tokensSelected"
           :poolType="actionConfig.poolType"
-          :kValue="actionConfig.k"
+          :kValue="actionConfig.K"
           @openSlippagePopup="isSlippagePopupOpened = true"
         />
       </div>
     </div>
 
     <SlippageCoefficientPopup
-      :kValue="actionConfig.k"
+      :kValue="actionConfig.K"
       @selectKValue="selectKValue"
       @close="isSlippagePopupOpened = !isSlippagePopupOpened"
       v-if="isSlippagePopupOpened"
@@ -93,13 +93,16 @@ const emptyPoolCreationTokenInfo: PoolCreationTokenInfo = {
     icon: "",
     contract: { address: "0x", abi: "" },
   },
+  price: 0,
   userInfo: {
     balance: 0n,
     allowance: 0n,
   },
 };
 
-const STANDARD_K_VALUE = 100000000000000n;
+const STANDARD_K_VALUE = 250000000000000n;
+const STANDARD_FEE_TIER = 500000000000000n;
+const STANDARD_I_VALUE = 1000000n;
 
 export enum TokenTypes {
   Base = "base",
@@ -118,7 +121,8 @@ export type ActionConfig = {
   baseInputValue: bigint;
   quoteInputValue: bigint;
   feeTier: bigint;
-  k: bigint;
+  K: bigint;
+  isAutopricingSelected: boolean;
 };
 
 export default {
@@ -132,8 +136,10 @@ export default {
         quoteToken: emptyPoolCreationTokenInfo,
         baseInputValue: 0n,
         quoteInputValue: 0n,
-        feeTier: 0n,
-        k: STANDARD_K_VALUE,
+        feeTier: STANDARD_FEE_TIER,
+        K: STANDARD_K_VALUE,
+        I: STANDARD_I_VALUE,
+        isAutopricingSelected: false,
       } as ActionConfig,
       isTokensPopupOpened: false,
       isSlippagePopupOpened: false,
@@ -163,6 +169,16 @@ export default {
       console.log({ chainId: this.chainId, router });
 
       return router;
+    },
+  },
+
+  watch: {
+    async chainId() {
+      await this.createTokenList();
+    },
+
+    async account() {
+      await this.createTokenList();
     },
   },
 
@@ -203,7 +219,7 @@ export default {
 
     selectPoolType(poolType: PoolTypes) {
       this.actionConfig.poolType = poolType;
-      this.actionConfig.k = STANDARD_K_VALUE;
+      this.actionConfig.K = STANDARD_K_VALUE;
     },
 
     selectFeeTier(feeTier: bigint) {
@@ -211,7 +227,7 @@ export default {
     },
 
     selectKValue(kValue: bigint) {
-      this.actionConfig.k = kValue;
+      this.actionConfig.K = kValue;
       console.log(this.actionConfig);
     },
 
@@ -260,10 +276,14 @@ export default {
           break;
       }
     },
+
+    async createTokenList() {
+      this.tokenList = await getTokenList(this.chainId, this.account);
+    },
   },
 
   async created() {
-    this.tokenList = await getTokenList(this.chainId, this.account);
+    await this.createTokenList();
   },
 
   components: {

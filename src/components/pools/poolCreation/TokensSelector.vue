@@ -8,6 +8,7 @@
         :icon="baseToken.config.icon"
         :decimals="baseToken.config.decimals"
         :max="baseToken.userInfo.balance"
+        :tokenPrice="baseToken.price"
         allowSelectToken
         @onSelectClick="$emit('openTokensPopup', TokenTypes.Base)"
         @updateInputValue="updateBaseTokenInputValue"
@@ -28,6 +29,7 @@
         :icon="quoteToken.config.icon"
         :decimals="quoteToken.config.decimals"
         :max="quoteToken.userInfo.balance"
+        :tokenPrice="quoteToken.price"
         allowSelectToken
         @onSelectClick="$emit('openTokensPopup', TokenTypes.Quote)"
         @updateInputValue="updateQuoteTokenInputValue"

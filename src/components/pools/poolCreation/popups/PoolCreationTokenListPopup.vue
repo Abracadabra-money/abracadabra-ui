@@ -136,7 +136,8 @@ export default {
 
     getTokenBalance(token: PoolCreationTokenInfo) {
       return formatUSD(
-        +formatUnits(token.userInfo.balance, token.config.decimals)
+        +formatUnits(token.userInfo.balance, token.config.decimals) *
+          token.price
       );
     },
 

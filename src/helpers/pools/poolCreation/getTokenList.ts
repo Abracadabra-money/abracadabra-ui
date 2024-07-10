@@ -2,6 +2,7 @@ import tokenConfigs from "@/configs/pools/poolCreation/tokens";
 import type { PoolCreationTokenInfo } from "@/configs/pools/poolCreation/types";
 import type { Address } from "viem";
 import { getPoolCreationTokenInfo } from "./getPoolCreationTokenInfo";
+import { getCoinsPrices } from "@/helpers/prices/defiLlama";
 
 const availableChains = Array.from(
   new Set(tokenConfigs.map((token) => token.chainId)).values()
@@ -44,13 +45,28 @@ export const getTokenList = async (chainId?: number, account?: Address) => {
 }
 
 export const getAllTokensByChain = async (chainId: number, account?: Address): Promise<PoolCreationTokenInfo[]> => {
+
+  const tokenAddresses: Address[] = [];
+  const tokenConfigsOnChain = tokenConfigs.filter((config) => {
+    if (config.chainId === chainId) {
+      tokenAddresses.push(config.contract.address)
+      return config
+    }
+  });
+
+  const tokenPrices = await getCoinsPrices(chainId, tokenAddresses)
+
   const tokensByChain = await Promise.all(
-    tokenConfigs
-      .filter((config) => config.chainId === chainId)
-      .map(async (config) => {
-        return getPoolCreationTokenInfo(config, account);
-      })
+    tokenConfigsOnChain.map(async (config) => {
+      const price = tokenPrices.find(tokenPrice => config.contract.address == tokenPrice.address)?.price || 0
+      return getPoolCreationTokenInfo(config, price, account);
+    })
   );
 
   return tokensByChain;
+}
+
+
+const getTokenPrices = async () => {
+
 }

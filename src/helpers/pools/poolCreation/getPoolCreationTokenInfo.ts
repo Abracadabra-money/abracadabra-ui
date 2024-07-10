@@ -3,8 +3,8 @@ import { getSwapRouterByChain } from "@/configs/pools/routers";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import type { Address } from "viem";
 
-export const getPoolCreationTokenInfo = async (tokenConfig: PoolCreationTokenConfig, account?: Address): Promise<PoolCreationTokenInfo> => {
-    const tokenInfo: PoolCreationTokenInfo = { config: tokenConfig, userInfo: { allowance: 0n, balance: 0n } }
+export const getPoolCreationTokenInfo = async (tokenConfig: PoolCreationTokenConfig, price: number, account?: Address): Promise<PoolCreationTokenInfo> => {
+    const tokenInfo: PoolCreationTokenInfo = { config: tokenConfig, price, userInfo: { allowance: 0n, balance: 0n } }
 
     if (account) {
         tokenInfo.userInfo = await getTokenUserInfo(tokenConfig, account)
