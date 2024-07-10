@@ -177,7 +177,7 @@ export default {
   );
   backdrop-filter: blur(19px);
   padding: 7px 50px 7px 20px;
-  position: fixed;
+  position: relative;
   top: 100px;
   left: 50%;
   right: 0;
