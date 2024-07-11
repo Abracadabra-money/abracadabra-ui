@@ -1,7 +1,7 @@
 // @ts-nocheck
 
 import { actions } from "@/helpers/cauldron/cook/actions";
-import { cook } from "@/helpers/cauldron/cauldron";
+import { cook, cookViem } from "@/helpers/cauldron/cauldron";
 import checkAndSetMcApprove from "@/helpers/cauldron/cook/checkAndSetMcApprove";
 import recipeAddCollatral from "@/helpers/cauldron/cook/recipies/recipeAddCollateral";
 import { recipeLeverage } from "@/helpers/cauldron/cook/recipies/gm/recipeLeverage";
@@ -16,6 +16,7 @@ const cookLeverage = async (
 ): Promise<void> => {
   const { isMasterContractApproved } = cauldronObject.additionalInfo;
   const { collateral, leverageSwapper, cauldron } = cauldronObject.contracts;
+  const { updatePrice } = cauldronObject.mainParams;
 
   let cookData: CookData = {
     events: [],
@@ -67,7 +68,7 @@ const cookLeverage = async (
     buyAmount
   );
 
-  await cook(cauldron, updatedCookData, executionFee);
+  await cookViem(cauldronObject, updatedCookData, executionFee);
 };
 
 export default cookLeverage;

@@ -1,7 +1,7 @@
 import store from "@/store";
 import { getOrderBalances } from "@/helpers/gm/orders";
 import { actions } from "@/helpers/cauldron/cook/actions";
-import { cook } from "@/helpers/cauldron/cauldron";
+import { cook, cookViem } from "@/helpers/cauldron/cauldron";
 import { USDC_ADDRESS, WETH_ADDRESS, ORDER_AGENT } from "@/constants/gm";
 import { recipeCreateLeverageOrder } from "@/helpers/cauldron/cook/recipies/gm/recipeCreateLeverageOrder";
 
@@ -45,7 +45,7 @@ const cookRecoverFaliedLeverage = async (
     balanceUSDC
   );
 
-  await cook(cauldron, updatedCookData, executionFee);
+  await cookViem(cauldronObject, updatedCookData, executionFee);
 };
 
 export default cookRecoverFaliedLeverage;

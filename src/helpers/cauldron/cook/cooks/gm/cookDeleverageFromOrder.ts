@@ -6,7 +6,7 @@ import { USDC_ADDRESS } from "@/constants/gm";
 import { recipeDeleverage } from "@/helpers/cauldron/cook/recipies/gm/recipeDeleverage";
 import { repayEncodeHandler } from "@/helpers/cauldron/cook/degenBoxHelper/actionHandlers.js";
 import recipeRemoveCollateral from "@/helpers/cauldron/cook/recipies/recipeRemoveCollateral";
-import { cook } from "@/helpers/cauldron/cauldron";
+import { cook, cookViem } from "@/helpers/cauldron/cauldron";
 
 import type { CookData, PayloadDeleverageFromOrderGm } from "../types";
 
@@ -85,7 +85,7 @@ const cookDeleverageFromOrder = async (
     );
   }
 
-  await cook(cauldron, cookData, 0);
+  await cookViem(cauldronObject, cookData, 0);
 };
 
 export default cookDeleverageFromOrder;

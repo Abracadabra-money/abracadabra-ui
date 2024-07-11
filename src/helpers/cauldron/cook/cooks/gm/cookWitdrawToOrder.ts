@@ -2,7 +2,7 @@
 
 import checkAndSetMcApprove from "@/helpers/cauldron/cook/checkAndSetMcApprove";
 import { actions } from "@/helpers/cauldron/cook/actions";
-import { cook } from "@/helpers/cauldron/cauldron";
+import { cook, cookViem } from "@/helpers/cauldron/cauldron";
 import toAmount from "@/helpers/toAmount";
 import { ORDER_AGENT } from "@/constants/gm";
 import { recipeCreateDeleverageOrder } from "@/helpers/cauldron/cook/recipies/gm/recipeCreateDeleverageOrder";
@@ -47,7 +47,7 @@ const cookWitdrawToOrderGM = async (
     amount
   );
 
-  await cook(cauldron, updatedCookData, executionFee);
+  await cookViem(cauldronObject, updatedCookData, executionFee);
 };
 
 export default cookWitdrawToOrderGM;

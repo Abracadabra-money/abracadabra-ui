@@ -1,5 +1,5 @@
 import { actions } from "@/helpers/cauldron/cook/actions";
-import { cook } from "@/helpers/cauldron/cauldron";
+import { cook, cookViem } from "@/helpers/cauldron/cauldron";
 import checkAndSetMcApprove from "@/helpers/cauldron/cook/checkAndSetMcApprove";
 import recipeApproveMC from "@/helpers/cauldron/cook/recipies/recipeApproveMC";
 
@@ -41,7 +41,7 @@ const cookRepay = async (
       to
     );
 
-  await cook(cauldron, cookData, 0);
+  await cookViem(cauldronObject, cookData, 0);
 };
 
 export default cookRepay;
