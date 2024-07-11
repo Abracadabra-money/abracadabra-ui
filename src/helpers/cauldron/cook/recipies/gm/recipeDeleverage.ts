@@ -2,6 +2,7 @@ import { USDC_ADDRESS } from "@/constants/gm";
 import toAmount from "@/helpers/toAmount";
 import { swap0xRequest } from "@/helpers/0x";
 import { actions } from "@/helpers/cauldron/cook/actions";
+import store from "@/store";
 
 export const recipeDeleverage = async (
   cookData: any,
@@ -12,7 +13,7 @@ export const recipeDeleverage = async (
 ) => {
   const { mim, liquidationSwapper, bentoBox } = pool.contracts;
 
-  const userAddr = "0x0"; // TODO: add to payload
+  const userAddr = store.getters.getAccount; // TODO: add to payload
   const sellToken = USDC_ADDRESS;
   const chainId = pool.config.chainId; // TODO: check chainId
 

@@ -26,6 +26,7 @@ const cookDeleverageFromOrder = async (
   const collateralAddress = cauldronObject.config.collateralInfo.address;
 
   const provider = store.getters.getProvider; // TODO: check provider
+
   const { balanceUSDC } = await getOrderBalances(order, provider);
 
   let cookData: CookData = {
@@ -59,7 +60,7 @@ const cookDeleverageFromOrder = async (
   if (itsMax || deleverageData.buyAmount.gt(userBorrowPart)) {
     cookData = await repayEncodeHandler(
       cookData,
-      cauldron.address,
+      cauldronObject,
       userBorrowPart,
       to
     );
@@ -67,7 +68,7 @@ const cookDeleverageFromOrder = async (
     cookData = await actions.getRepayPart(cookData, "-2");
     cookData = await repayEncodeHandler(
       cookData,
-      cauldron.address,
+      cauldronObject,
       "-1",
       to,
       false,
