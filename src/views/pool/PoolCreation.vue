@@ -15,6 +15,9 @@
           <PriceSelector
             :baseToken="actionConfig.baseToken"
             :quoteToken="actionConfig.quoteToken"
+            :isAutoPricingEnabled="actionConfig.isAutoPricingEnabled"
+            @updateTokensRate="updateTokensRate"
+            @toggleAutopricing="toggleAutopricing"
           />
 
           <FeeTierSelector
@@ -122,7 +125,8 @@ export type ActionConfig = {
   quoteInputValue: bigint;
   feeTier: bigint;
   K: bigint;
-  isAutopricingSelected: boolean;
+  rate: number;
+  isAutoPricingEnabled: boolean;
 };
 
 export default {
@@ -139,7 +143,8 @@ export default {
         feeTier: STANDARD_FEE_TIER,
         K: STANDARD_K_VALUE,
         I: STANDARD_I_VALUE,
-        isAutopricingSelected: false,
+        rate: 0,
+        isAutoPricingEnabled: false,
       } as ActionConfig,
       isTokensPopupOpened: false,
       isSlippagePopupOpened: false,
@@ -166,8 +171,6 @@ export default {
 
     routerAddress() {
       const router = getSwapRouterByChain(this.chainId);
-      console.log({ chainId: this.chainId, router });
-
       return router;
     },
   },
@@ -228,7 +231,15 @@ export default {
 
     selectKValue(kValue: bigint) {
       this.actionConfig.K = kValue;
-      console.log(this.actionConfig);
+    },
+
+    toggleAutopricing() {
+      this.actionConfig.isAutoPricingEnabled =
+        !this.actionConfig.isAutoPricingEnabled;
+    },
+
+    updateTokensRate(rate: number) {
+      this.actionConfig.rate = rate;
     },
 
     async approveTokenHandler(contract: ContractInfo, valueToApprove: bigint) {
@@ -249,7 +260,6 @@ export default {
 
     async actionHandler() {
       if (!this.validationData.isAllowed) return false;
-      console.log(this.validationData);
 
       switch (this.validationData.method) {
         case "connectWallet":
@@ -297,7 +307,10 @@ export default {
       () => import("@/components/pools/poolCreation/TokensSelector.vue")
     ),
     PriceSelector: defineAsyncComponent(
-      () => import("@/components/pools/poolCreation/PriceSelector.vue")
+      () =>
+        import(
+          "@/components/pools/poolCreation/priceSelector/PriceSelector.vue"
+        )
     ),
     FeeTierSelector: defineAsyncComponent(
       () => import("@/components/pools/poolCreation/FeeTierSelector.vue")
@@ -342,6 +355,11 @@ export default {
   grid-template-columns: 520px 1fr;
   grid-gap: 24px;
   margin: 0 auto;
+}
+
+.pool-creation-title {
+  font-size: 32px;
+  font-weight: 600;
 }
 
 .actions-block {

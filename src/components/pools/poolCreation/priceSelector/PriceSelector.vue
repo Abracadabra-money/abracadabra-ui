@@ -7,9 +7,10 @@
       </h4>
 
       <BaseCheckBox
-        :chosen="isAutoPricing"
+        :chosen="isAutoPricingEnabled"
         :disabled="isPriceSelectorDisabled"
-        @update="isAutoPricing = !isAutoPricing"
+        @update="$emit('toggleAutopricing')"
+        v-if="!isPriceSelectorDisabled"
       >
         <span class="checkbox-text">Auto pricing</span>
         <img class="gecko-icon" src="@/assets/images/coingecko-icon.svg" />
@@ -20,20 +21,29 @@
       <img
         :class="['switch-icon', { disabled: isPriceSelectorDisabled }]"
         src="@/assets/images/pools/pool-creation/switch-icon.svg"
+        @click="isFromBase = !isFromBase"
       />
 
       <div class="comparable-token-wrap">
         1
         <div class="token-info">
-          <BaseTokenIcon size="24px" />
-          <span class="token-name">ETH</span>
+          <BaseTokenIcon
+            :icon="comparedCurrency.icon"
+            :name="comparedCurrency.name"
+            size="24px"
+          />
+          <span class="token-name">{{ comparedCurrency.name }}</span>
         </div>
       </div>
       =
-      <BaseTokenInput
+      <RateInput
         class="price-input"
-        compact
-        :disabled="isPriceSelectorDisabled"
+        v-model="inputValue"
+        :name="benchmarkCurrency.name"
+        :icon="benchmarkCurrency.icon"
+        :isProgrammaticallyChanged="isProgrammaticallyChanged"
+        :disabled="isPriceSelectorDisabled || isAutoPricingEnabled"
+        @toggleProgrammaticalyChange="isProgrammaticallyChanged = false"
       />
     </div>
   </div>
@@ -53,11 +63,15 @@ export default {
       type: Object as PropType<PoolCreationTokenInfo>,
       required: true,
     },
+    isAutoPricingEnabled: Boolean,
   },
 
   data() {
     return {
-      isAutoPricing: false,
+      inputValue: 0,
+      userTokenRate: 0,
+      isFromBase: true,
+      isProgrammaticallyChanged: false,
     };
   },
 
@@ -69,14 +83,73 @@ export default {
         this.quoteToken.config.name == emptyTokenName
       );
     },
+
+    comparedCurrency() {
+      return this.isFromBase ? this.baseToken.config : this.quoteToken.config;
+    },
+
+    benchmarkCurrency() {
+      return !this.isFromBase ? this.baseToken.config : this.quoteToken.config;
+    },
+
+    autoTokenRate() {
+      if (this.isPriceSelectorDisabled || !this.isAutoPricingEnabled) return 0;
+      const baseQuoteRate = this.baseToken.price / this.quoteToken.price;
+      return this.isFromBase ? baseQuoteRate : 1 / baseQuoteRate;
+    },
+  },
+
+  watch: {
+    isAutoPricingEnabled() {
+      this.setInputValue(this.autoTokenRate || this.userTokenRate);
+    },
+
+    inputValue(value: number) {
+      if (
+        !this.isAutoPricingEnabled &&
+        !this.isProgrammaticallyChanged &&
+        value
+      ) {
+        this.userTokenRate = 1 / value;
+      }
+    },
+
+    isFromBase() {
+      if (this.isAutoPricingEnabled) {
+        this.userTokenRate = this.autoTokenRate;
+        this.setInputValue(this.autoTokenRate);
+      } else if (this.userTokenRate) {
+        this.setInputValue(this.userTokenRate);
+        this.userTokenRate = 1 / this.userTokenRate;
+      }
+    },
+
+    userTokenRate(userRate: number) {
+      const rateToEmit = this.isFromBase ? userRate : 1 / userRate;
+      if (this.inputValue && !this.isAutoPricingEnabled)
+        this.$emit("updateTokensRate", rateToEmit);
+    },
+
+    autoTokenRate(autoRate: number) {
+      const rateToEmit = this.isFromBase ? autoRate : 1 / autoRate;
+      if (this.isAutoPricingEnabled) this.$emit("updateTokensRate", rateToEmit);
+    },
+  },
+
+  methods: {
+    setInputValue(newValue: number) {
+      this.isProgrammaticallyChanged = true;
+      this.inputValue = newValue;
+    },
   },
 
   components: {
     BaseTokenIcon: defineAsyncComponent(
       () => import("@/components/base/BaseTokenIcon.vue")
     ),
-    BaseTokenInput: defineAsyncComponent(
-      () => import("@/components/base/BaseTokenInput.vue")
+    RateInput: defineAsyncComponent(
+      () =>
+        import("@/components/pools/poolCreation/priceSelector/RateInput.vue")
     ),
     BaseCheckBox: defineAsyncComponent(
       () => import("@/components/base/BaseCheckBox.vue")
@@ -153,6 +226,11 @@ export default {
 
 .price-input {
   max-width: 319px;
+}
+
+.token-icon,
+.price-input::v-deep(.token-icon) {
+  margin-right: 0 !important;
 }
 
 @media (max-width: 1200px) {
