@@ -81,15 +81,17 @@
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
 import { mapActions, mapGetters, mapMutations } from "vuex";
+import { parseUnits } from "viem";
 import { getTokenList } from "@/helpers/pools/poolCreation/getTokenList";
 import { validationActions } from "@/helpers/pools/poolCreation/validationActions";
+import { createPool } from "@/helpers/pools/poolCreation/actions/createPool";
 import type { PoolCreationTokenInfo } from "@/configs/pools/poolCreation/types";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { approveTokenViem } from "@/helpers/approval";
 import notification from "@/helpers/notification/notification";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError";
 import type { ContractInfo } from "@/types/global";
 import { getSwapRouterByChain } from "@/configs/pools/routers";
-import { parseUnits } from "viem";
 
 const emptyPoolCreationTokenInfo: PoolCreationTokenInfo = {
   config: {
@@ -280,6 +282,30 @@ export default {
       return false;
     },
 
+    async createPoolHandler() {
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
+
+      try {
+        const payload = this.createPayload();
+        await createPool(this.routerAddress, payload);
+        await this.deleteNotification(notificationId);
+
+        await this.createNotification(notification.success);
+      } catch (error) {
+        console.log("create pool err:", error);
+
+        const errorNotification = {
+          msg: await notificationErrorMsg(error),
+          type: "error",
+        };
+
+        await this.deleteNotification(notificationId);
+        await this.createNotification(errorNotification);
+      }
+    },
+
     async actionHandler() {
       if (!this.validationData.isAllowed) return false;
 
@@ -304,9 +330,33 @@ export default {
           );
           break;
         default:
-          console.log("Pool Creation PERFORMING !!!!!");
+          await this.createPoolHandler();
           break;
       }
+    },
+
+    createPayload() {
+      const {
+        baseToken,
+        quoteToken,
+        feeTier,
+        I,
+        K,
+        baseInputValue,
+        quoteInputValue,
+      } = this.actionConfig;
+
+      return {
+        baseToken: baseToken.config.contract.address,
+        quoteToken: quoteToken.config.contract.address,
+        lpFeeRate: feeTier,
+        i: I,
+        k: K,
+        to: this.account,
+        baseInAmount: baseInputValue,
+        quoteInAmount: quoteInputValue,
+        protocolOwnedPool: false,
+      };
     },
 
     async createTokenList() {
