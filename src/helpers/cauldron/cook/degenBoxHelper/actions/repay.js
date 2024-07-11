@@ -1,3 +1,5 @@
+import { actions } from "@/helpers/cauldron/cook/actions";
+
 const repay = async (
   cookData,
   degenBoxHelperContract,
@@ -11,11 +13,12 @@ const repay = async (
   try {
     const useReturnValue = useValue1 || useValue2;
 
-    const repayPartTx = await degenBoxHelperContract.populateTransaction.repayPart(
-      toAddress,
-      cauldronAddress,
-      useReturnValue ? "0" : part
-    );
+    const repayPartTx =
+      await degenBoxHelperContract.populateTransaction.repayPart(
+        toAddress,
+        cauldronAddress,
+        useReturnValue ? "0" : part
+      );
 
     const repayPartByte = useReturnValue
       ? repayPartTx.data.substr(0, 138)
@@ -35,6 +38,5 @@ const repay = async (
     console.log("getRepayPartEncode err:", error);
   }
 };
-
 
 export default repay;

@@ -15,7 +15,7 @@ export const repayEncodeHandler = async (
   const useDegenBoxHelper = cauldron.config.cauldronSettings.useDegenBoxHelper;
   if (!useDegenBoxHelper) return await actions.repay(cookData, part, to, skim);
 
-  const degenBoxHelperContract = getDegenBoxHelperContract(
+  const degenBoxHelperContract = await getDegenBoxHelperContract(
     cauldron.config.chainId
   );
 
@@ -55,7 +55,7 @@ export const bentoDepositEncodeHandler = async (
       value
     );
 
-  const degenBoxHelperContract = getDegenBoxHelperContract(
+  const degenBoxHelperContract = await getDegenBoxHelperContract(
     cauldron.config.chainId
   );
 
@@ -88,7 +88,7 @@ export const bentoWithdrawEncodeHandler = async (
   if (!useDegenBoxHelper)
     return await actions.bentoWithdraw(cookData, token, to, amount, share);
 
-  const degenBoxHelperContract = getDegenBoxHelperContract(
+  const degenBoxHelperContract = await getDegenBoxHelperContract(
     cauldron.config.chainId
   );
 

@@ -5,7 +5,7 @@ const fetchDelevDefault0xData = async (
   collateralAmount,
   slipage
 ) => {
-  const { collateral, liquidationSwapper } = cauldronObject.contracts;
+  const { collateral, liquidationSwapper, mim } = cauldronObject.contracts;
 
   const selToken = collateral.address;
   const selAmount = collateralAmount;

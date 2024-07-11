@@ -2,23 +2,19 @@ import { getDegenBoxHelperAddress } from "@/helpers/cauldron/cook/degenBoxHelper
 import recipeApproveMC from "@/helpers/cauldron/cook/recipies/recipeApproveMC";
 import { getAccountHelper } from "@/helpers/walletClienHelper";
 
-
 const checkAndSetMcApprove = async (cookData, cauldronObject, mcApproved) => {
   const { bentoBox, cauldron } = cauldronObject.contracts;
-  const { address: userAddres } = getAccountHelper()
+  const { address: userAddres } = getAccountHelper();
 
   const useDegenBoxHelper =
     cauldronObject.config.cauldronSettings.useDegenBoxHelper;
 
   const degenBoxHelperAddress = getDegenBoxHelperAddress(
-    cauldronObject.chainId
+    cauldronObject.config.chainId
   );
 
   const isApproved = useDegenBoxHelper
-    ? await bentoBox.masterContractApproved(
-        degenBoxHelperAddress,
-        userAddres
-      )
+    ? await bentoBox.masterContractApproved(degenBoxHelperAddress, userAddres)
     : mcApproved;
 
   const masterContract = useDegenBoxHelper
