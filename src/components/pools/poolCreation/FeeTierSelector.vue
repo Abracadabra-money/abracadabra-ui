@@ -11,7 +11,7 @@
         :key="index"
         @click="selectOption(index)"
       >
-        <span class="fee-tier-value">{{ formatPercent(value) }}</span>
+        <span class="fee-tier-value">{{ formatFeeTier(value) }}</span>
         <p class="fee-tier-description">
           {{ description }}
         </p>
@@ -25,6 +25,9 @@
 import { defineAsyncComponent, type PropType } from "vue";
 import { PoolTypes } from "@/views/pool/PoolCreation.vue";
 import { formatPercent } from "@/helpers/filters";
+import { formatUnits } from "viem";
+
+const FEES_DECIMALS = 16;
 
 export default {
   props: {
@@ -43,13 +46,11 @@ export default {
       if (this.poolType === PoolTypes.Pegged)
         return [
           {
-            value: 0.04,
-            valueBigint: 400n,
+            value: 400000000000000n,
             description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
           },
           {
-            value: 0.05,
-            valueBigint: 500n,
+            value: 500000000000000n,
             description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
           },
         ];
@@ -57,8 +58,7 @@ export default {
       if (this.poolType === PoolTypes.Standard)
         return [
           {
-            value: 0.03,
-            valueBigint: 300n,
+            value: 300000000000000n,
             description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
           },
         ];
@@ -74,11 +74,13 @@ export default {
   },
 
   methods: {
-    formatPercent,
+    formatFeeTier(feeTier: bigint) {
+      return formatPercent(formatUnits(feeTier, FEES_DECIMALS));
+    },
 
     selectOption(index: number) {
       this.currentOptionIndex = index;
-      this.$emit("selectFeeTier", this.feeTierOptions[index].valueBigint);
+      this.$emit("selectFeeTier", this.feeTierOptions[index].value);
     },
   },
 
