@@ -30,6 +30,8 @@
         :decimals="quoteToken.config.decimals"
         :max="quoteToken.userInfo.balance"
         :tokenPrice="quoteToken.price"
+        :disabled="isAutoPricingEnabled"
+        :value="quoteTokenValue"
         allowSelectToken
         @onSelectClick="$emit('openTokensPopup', TokenTypes.Quote)"
         @updateInputValue="updateQuoteTokenInputValue"
@@ -39,9 +41,11 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent, type PropType } from "vue";
+import { defineAsyncComponent, type Prop, type PropType } from "vue";
 import type { PoolCreationTokenInfo } from "@/configs/pools/poolCreation/types";
 import { TokenTypes } from "@/views/pool/PoolCreation.vue";
+import { trimZeroDecimals } from "@/helpers/numbers";
+import { formatUnits } from "viem";
 
 export default {
   props: {
@@ -53,14 +57,42 @@ export default {
       type: Object as PropType<PoolCreationTokenInfo>,
       required: true,
     },
+    quoteTokenAmount: BigInt as Prop<bigint>,
+    isAutoPricingEnabled: Boolean,
   },
 
   data() {
-    return { TokenTypes };
+    return {
+      TokenTypes,
+      baseTokenValue: "",
+      quoteTokenValue: "",
+    };
+  },
+
+  watch: {
+    quoteTokenAmount: {
+      handler(value: bigint) {
+        const { decimals } = this.quoteToken.config;
+        console.log(value);
+
+        if (!value) {
+          this.quoteTokenValue = "";
+          this.baseTokenValue = "";
+        } else
+          this.quoteTokenValue = trimZeroDecimals(formatUnits(value, decimals));
+      },
+      immediate: true,
+    },
   },
 
   methods: {
     updateBaseTokenInputValue(value: bigint) {
+      if (!value) this.baseTokenValue = "";
+      else {
+        const { decimals } = this.quoteToken.config;
+        this.baseTokenValue = trimZeroDecimals(formatUnits(value, decimals));
+      }
+
       this.$emit("updateTokenInputValue", TokenTypes.Base, value);
     },
 

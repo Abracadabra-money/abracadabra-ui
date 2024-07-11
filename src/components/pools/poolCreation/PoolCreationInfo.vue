@@ -12,11 +12,18 @@
 
         <div class="slippage-coefficient-selector">
           <span class="selector-text">Slippage Coefficient</span>
+          <Tooltip
+            :width="20"
+            :height="20"
+            fill="#7088CC"
+            v-if="poolType == PoolTypes.Standard"
+          />
           <span class="coefficient-value">K={{ formattedKValue }}</span>
           <img
             class="settings-icon"
             src="@/assets/images/pools/pool-creation/settings-icon.svg"
             @click="openSlippagePopup"
+            v-if="poolType == PoolTypes.Pegged"
           />
         </div>
       </div>
@@ -51,9 +58,8 @@
 
 <script lang="ts">
 import { defineAsyncComponent, type Prop, type PropType } from "vue";
-import { PoolTypes } from "@/views/pool/PoolCreation.vue";
-import { formatPercent } from "@/helpers/filters";
 import { formatUnits } from "viem";
+import { K_VALUE_DECIMALS, PoolTypes } from "@/views/pool/PoolCreation.vue";
 
 export default {
   props: {
@@ -62,9 +68,13 @@ export default {
     kValue: BigInt as Prop<bigint>,
   },
 
+  data() {
+    return { PoolTypes };
+  },
+
   computed: {
     formattedKValue() {
-      return formatPercent(formatUnits(this.kValue || 0n, 18));
+      return formatUnits(this.kValue || 0n, K_VALUE_DECIMALS);
     },
   },
 
@@ -75,6 +85,9 @@ export default {
   },
 
   components: {
+    Tooltip: defineAsyncComponent(
+      () => import("@/components/ui/icons/Tooltip.vue")
+    ),
     SlippageChart: defineAsyncComponent(
       () => import("@/components/pools/poolCreation/charts/SlippageChart.vue")
     ),

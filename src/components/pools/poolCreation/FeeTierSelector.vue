@@ -23,11 +23,9 @@
 
 <script lang="ts">
 import { defineAsyncComponent, type PropType } from "vue";
-import { PoolTypes } from "@/views/pool/PoolCreation.vue";
+import { FEE_TIER_DECIMALS, PoolTypes } from "@/views/pool/PoolCreation.vue";
 import { formatPercent } from "@/helpers/filters";
 import { formatUnits } from "viem";
-
-const FEES_DECIMALS = 16;
 
 export default {
   props: {
@@ -75,7 +73,7 @@ export default {
 
   methods: {
     formatFeeTier(feeTier: bigint) {
-      return formatPercent(formatUnits(feeTier, FEES_DECIMALS));
+      return formatPercent(formatUnits(feeTier, FEE_TIER_DECIMALS));
     },
 
     selectOption(index: number) {

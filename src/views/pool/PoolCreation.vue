@@ -8,6 +8,8 @@
           <TokensSelector
             :baseToken="actionConfig.baseToken"
             :quoteToken="actionConfig.quoteToken"
+            :quoteTokenAmount="actionConfig.quoteInputValue"
+            :isAutoPricingEnabled="actionConfig.isAutoPricingEnabled"
             @updateTokenInputValue="updateTokenInputValue"
             @openTokensPopup="openTokensPopup"
           />
@@ -87,6 +89,7 @@ import { approveTokenViem } from "@/helpers/approval";
 import notification from "@/helpers/notification/notification";
 import type { ContractInfo } from "@/types/global";
 import { getSwapRouterByChain } from "@/configs/pools/routers";
+import { parseUnits } from "viem";
 
 const emptyPoolCreationTokenInfo: PoolCreationTokenInfo = {
   config: {
@@ -103,8 +106,11 @@ const emptyPoolCreationTokenInfo: PoolCreationTokenInfo = {
   },
 };
 
-const STANDARD_K_VALUE = 250000000000000n;
-const STANDARD_FEE_TIER = 500000000000000n;
+export const K_VALUE_DECIMALS = 18;
+export const FEE_TIER_DECIMALS = 16;
+
+const STANDARD_K_VALUE = parseUnits("1", K_VALUE_DECIMALS);
+const STANDARD_FEE_TIER = parseUnits("0.03", FEE_TIER_DECIMALS);
 const STANDARD_I_VALUE = 1000000n;
 
 export enum TokenTypes {
@@ -125,6 +131,7 @@ export type ActionConfig = {
   quoteInputValue: bigint;
   feeTier: bigint;
   K: bigint;
+  I: bigint;
   rate: number;
   isAutoPricingEnabled: boolean;
 };
@@ -173,6 +180,14 @@ export default {
       const router = getSwapRouterByChain(this.chainId);
       return router;
     },
+
+    IValueDecimals() {
+      return (
+        18 +
+        this.actionConfig.quoteToken.config.decimals -
+        this.actionConfig.baseToken.config.decimals
+      );
+    },
   },
 
   watch: {
@@ -190,6 +205,13 @@ export default {
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
     updateTokenInputValue(type: TokenTypes, value: bigint) {
+      //todo: check decimals
+      if (this.actionConfig.isAutoPricingEnabled) {
+        this.actionConfig.baseInputValue = value;
+        this.actionConfig.quoteInputValue =
+          (value * this.actionConfig.I) / BigInt(1e18);
+        console.log(this.actionConfig);
+      }
       this.actionConfig[`${type}InputValue`] = value;
     },
 
@@ -238,8 +260,8 @@ export default {
         !this.actionConfig.isAutoPricingEnabled;
     },
 
-    updateTokensRate(rate: number) {
-      this.actionConfig.rate = rate;
+    updateTokensRate(I: number) {
+      this.actionConfig.I = parseUnits(I.toString(), this.IValueDecimals);
     },
 
     async approveTokenHandler(contract: ContractInfo, valueToApprove: bigint) {

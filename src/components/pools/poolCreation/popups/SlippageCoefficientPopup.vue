@@ -19,27 +19,27 @@
       <ul class="slippage-coefficient-options">
         <li
           :class="['slippage-coefficient-option', type]"
-          v-for="(
-            { value, valueBigint, type, description }, index
-          ) in slippageCoefficients"
+          v-for="({ value, type, description }, index) in slippageCoefficients"
           :key="index"
-          @click="selectOption(valueBigint)"
+          @click="selectOption(value)"
         >
           <div class="status-flag" v-if="type != 'default'">
             <span class="status-text"> Safe </span>
           </div>
-          <span class="slippage-coefficient-value">K={{ value }}</span>
+          <span class="slippage-coefficient-value"
+            >K={{ formatKValue(value) }}</span
+          >
           <p class="slippage-coefficient-description">
             {{ description }}
           </p>
-          <RadioButton :active="checkActiveOption(valueBigint)" />
+          <RadioButton :active="checkActiveOption(value)" />
         </li>
 
         <li
           class="slippage-coefficient-option custom"
           @click="selectOption(BigInt(customCoefficient))"
         >
-          <span class="slippage-coefficient-value">Custom %</span>
+          <span class="slippage-coefficient-value">Custom</span>
           <input
             class="custom-slippage-input"
             type="number"
@@ -55,6 +55,8 @@
 
 <script lang="ts">
 import { defineAsyncComponent, type Prop } from "vue";
+import { formatUnits, parseUnits } from "viem";
+import { K_VALUE_DECIMALS } from "@/views/pool/PoolCreation.vue";
 
 export default {
   props: {
@@ -72,20 +74,22 @@ export default {
     slippageCoefficients() {
       return [
         {
-          value: 0.0001,
-          valueBigint: 100000000000000n,
+          value: parseUnits("1", K_VALUE_DECIMALS),
           description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
           type: "safe",
         },
         {
-          value: 0.00025,
-          valueBigint: 250000000000000n,
+          value: parseUnits("0.0001", K_VALUE_DECIMALS),
           description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
           type: "default",
         },
         {
-          value: 0.002,
-          valueBigint: 2000000000000000n,
+          value: parseUnits("0.00025", K_VALUE_DECIMALS),
+          description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
+          type: "default",
+        },
+        {
+          value: parseUnits("0.002", K_VALUE_DECIMALS),
           description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
           type: "default",
         },
@@ -94,12 +98,16 @@ export default {
   },
 
   methods: {
-    checkActiveOption(valueBigint: bigint) {
-      return this.kValue == valueBigint;
+    checkActiveOption(value: bigint) {
+      return this.kValue == value;
     },
 
-    selectOption(valueBigint: bigint) {
-      this.$emit("selectKValue", valueBigint);
+    selectOption(value: bigint) {
+      this.$emit("selectKValue", value);
+    },
+
+    formatKValue(KValue: bigint) {
+      return formatUnits(KValue, K_VALUE_DECIMALS);
     },
 
     closePopup() {

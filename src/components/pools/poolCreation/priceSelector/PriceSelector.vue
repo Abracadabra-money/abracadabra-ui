@@ -100,8 +100,15 @@ export default {
   },
 
   watch: {
-    isAutoPricingEnabled() {
-      this.setInputValue(this.autoTokenRate || this.userTokenRate);
+    isAutoPricingEnabled: {
+      immediate: true,
+      handler() {
+        this.setInputValue(this.autoTokenRate || this.userTokenRate);
+      },
+    },
+
+    isPriceSelectorDisabled(value: boolean) {
+      if (!value) this.$emit("toggleAutopricing");
     },
 
     inputValue(value: number) {
