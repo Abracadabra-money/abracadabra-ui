@@ -150,9 +150,9 @@ export default {
         quoteToken: emptyPoolCreationTokenInfo,
         baseInputAmount: 0n,
         quoteInputAmount: 0n,
-        feeTier: STANDARD_FEE_TIER,
-        K: STANDARD_K_VALUE,
-        I: STANDARD_I_VALUE,
+        feeTier: 0n,
+        K: 0n,
+        I: 0n,
         rate: 0,
         isAutoPricingEnabled: false,
       } as ActionConfig,
@@ -236,6 +236,8 @@ export default {
           : (amount * this.actionConfig.I) /
             parseUnits("1", this.IValueDecimals + tokenDecimalsDifference);
       }
+
+      console.log(this.actionConfig);
     },
 
     openTokensPopup(type: TokenTypes) {

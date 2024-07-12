@@ -32,6 +32,7 @@
         :max="quoteToken.userInfo.balance"
         :tokenPrice="quoteToken.price"
         :value="quoteTokenValue"
+        disabled
         allowSelectToken
         @onSelectClick="$emit('openTokensPopup', TokenTypes.Quote)"
         @updateInputValue="updateQuoteTokenInputAmount"
@@ -69,14 +70,14 @@ export default {
 
   computed: {
     baseTokenValue() {
-      if (true) return "";
+      if (!this.baseTokenAmount) return "";
 
       const { decimals } = this.baseToken.config;
       return trimZeroDecimals(formatUnits(this.baseTokenAmount, decimals));
     },
 
     quoteTokenValue() {
-      if (true) return "";
+      if (!this.quoteTokenAmount) return "";
 
       const { decimals } = this.quoteToken.config;
       return trimZeroDecimals(formatUnits(this.quoteTokenAmount, decimals));
@@ -89,7 +90,7 @@ export default {
     },
 
     updateQuoteTokenInputAmount(amount: bigint) {
-      this.$emit("updateTokenInputAmount", TokenTypes.Quote, amount || 0n);
+      // this.$emit("updateTokenInputAmount", TokenTypes.Quote, amount || 0n);
     },
   },
 

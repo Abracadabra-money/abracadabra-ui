@@ -13,7 +13,7 @@ export const validationActions = (
   actionConfig: ActionConfig,
   chainId: number
 ): ValidationData => {
-  const { baseToken, quoteToken, baseInputValue, quoteInputValue } =
+  const { baseToken, quoteToken, baseInputAmount, quoteInputAmount, feeTier, I, K, poolType } =
     actionConfig;
 
   const connectedError = validateConnection();
@@ -28,29 +28,41 @@ export const validationActions = (
   if (quoteToken.config.name === "Select Token")
     return { btnText: "Select Quote Token", isAllowed: false };
 
-  if (!baseInputValue || !quoteInputValue)
+  if (!poolType)
+    return { btnText: "Select Pool Type", isAllowed: false };
+
+  if (!feeTier)
+    return { btnText: "Select Fee Tier", isAllowed: false };
+
+  if (!I)
+    return { btnText: "Select Price", isAllowed: false };
+
+  if (!K)
+    return { btnText: "Select K", isAllowed: false };
+
+  if (!baseInputAmount || !quoteInputAmount)
     return { btnText: "Enter amount", isAllowed: false };
 
-  if (baseInputValue > baseToken.userInfo.balance)
+  if (baseInputAmount > baseToken.userInfo.balance)
     return {
       btnText: `Insufficient ${baseToken.config.name} balance`,
       isAllowed: false,
     };
 
-  if (quoteInputValue > quoteToken.userInfo.balance)
+  if (quoteInputAmount > quoteToken.userInfo.balance)
     return {
       btnText: `Insufficient ${quoteToken.config.name} balance`,
       isAllowed: false,
     };
 
-  if (baseInputValue > baseToken.userInfo.allowance)
+  if (baseInputAmount > baseToken.userInfo.allowance)
     return {
       btnText: `Approve ${baseToken.config.name}`,
       isAllowed: true,
       method: "approveBaseToken",
     };
 
-  if (quoteInputValue > quoteToken.userInfo.allowance)
+  if (quoteInputAmount > quoteToken.userInfo.allowance)
     return {
       btnText: `Approve ${quoteToken.config.name}`,
       isAllowed: true,
