@@ -9,9 +9,10 @@
         :decimals="baseToken.config.decimals"
         :max="baseToken.userInfo.balance"
         :tokenPrice="baseToken.price"
+        :value="baseTokenValue"
         allowSelectToken
         @onSelectClick="$emit('openTokensPopup', TokenTypes.Base)"
-        @updateInputValue="updateBaseTokenInputValue"
+        @updateInputValue="updateBaseTokenInputAmount"
       />
 
       <IconButton
@@ -30,11 +31,10 @@
         :decimals="quoteToken.config.decimals"
         :max="quoteToken.userInfo.balance"
         :tokenPrice="quoteToken.price"
-        :disabled="isAutoPricingEnabled"
         :value="quoteTokenValue"
         allowSelectToken
         @onSelectClick="$emit('openTokensPopup', TokenTypes.Quote)"
-        @updateInputValue="updateQuoteTokenInputValue"
+        @updateInputValue="updateQuoteTokenInputAmount"
       />
     </div>
   </div>
@@ -57,47 +57,39 @@ export default {
       type: Object as PropType<PoolCreationTokenInfo>,
       required: true,
     },
+    baseTokenAmount: BigInt as Prop<bigint>,
     quoteTokenAmount: BigInt as Prop<bigint>,
-    isAutoPricingEnabled: Boolean,
   },
 
   data() {
     return {
       TokenTypes,
-      baseTokenValue: "",
-      quoteTokenValue: "",
     };
   },
 
-  watch: {
-    quoteTokenAmount: {
-      handler(value: bigint) {
-        const { decimals } = this.quoteToken.config;
-        console.log(value);
+  computed: {
+    baseTokenValue() {
+      if (true) return "";
 
-        if (!value) {
-          this.quoteTokenValue = "";
-          this.baseTokenValue = "";
-        } else
-          this.quoteTokenValue = trimZeroDecimals(formatUnits(value, decimals));
-      },
-      immediate: true,
+      const { decimals } = this.baseToken.config;
+      return trimZeroDecimals(formatUnits(this.baseTokenAmount, decimals));
+    },
+
+    quoteTokenValue() {
+      if (true) return "";
+
+      const { decimals } = this.quoteToken.config;
+      return trimZeroDecimals(formatUnits(this.quoteTokenAmount, decimals));
     },
   },
 
   methods: {
-    updateBaseTokenInputValue(value: bigint) {
-      if (!value) this.baseTokenValue = "";
-      else {
-        const { decimals } = this.quoteToken.config;
-        this.baseTokenValue = trimZeroDecimals(formatUnits(value, decimals));
-      }
-
-      this.$emit("updateTokenInputValue", TokenTypes.Base, value);
+    updateBaseTokenInputAmount(amount: bigint) {
+      this.$emit("updateTokenInputAmount", TokenTypes.Base, amount || 0n);
     },
 
-    updateQuoteTokenInputValue(value: bigint) {
-      this.$emit("updateTokenInputValue", TokenTypes.Quote, value);
+    updateQuoteTokenInputAmount(amount: bigint) {
+      this.$emit("updateTokenInputAmount", TokenTypes.Quote, amount || 0n);
     },
   },
 

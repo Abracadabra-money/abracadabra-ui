@@ -8,9 +8,10 @@
           <TokensSelector
             :baseToken="actionConfig.baseToken"
             :quoteToken="actionConfig.quoteToken"
-            :quoteTokenAmount="actionConfig.quoteInputValue"
+            :baseTokenAmount="actionConfig.baseInputAmount"
+            :quoteTokenAmount="actionConfig.quoteInputAmount"
             :isAutoPricingEnabled="actionConfig.isAutoPricingEnabled"
-            @updateTokenInputValue="updateTokenInputValue"
+            @updateTokenInputAmount="updateTokenInputAmount"
             @openTokensPopup="openTokensPopup"
           />
 
@@ -129,8 +130,8 @@ export type ActionConfig = {
   poolType: PoolTypes | null;
   baseToken: PoolCreationTokenInfo;
   quoteToken: PoolCreationTokenInfo;
-  baseInputValue: bigint;
-  quoteInputValue: bigint;
+  baseInputAmount: bigint;
+  quoteInputAmount: bigint;
   feeTier: bigint;
   K: bigint;
   I: bigint;
@@ -147,8 +148,8 @@ export default {
         poolType: null,
         baseToken: emptyPoolCreationTokenInfo,
         quoteToken: emptyPoolCreationTokenInfo,
-        baseInputValue: 0n,
-        quoteInputValue: 0n,
+        baseInputAmount: 0n,
+        quoteInputAmount: 0n,
         feeTier: STANDARD_FEE_TIER,
         K: STANDARD_K_VALUE,
         I: STANDARD_I_VALUE,
@@ -206,15 +207,35 @@ export default {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
-    updateTokenInputValue(type: TokenTypes, value: bigint) {
-      //todo: check decimals
-      if (this.actionConfig.isAutoPricingEnabled) {
-        this.actionConfig.baseInputValue = value;
-        this.actionConfig.quoteInputValue =
-          (value * this.actionConfig.I) / BigInt(1e18);
-        console.log(this.actionConfig);
+    updateTokenInputAmount(type: TokenTypes, amount: bigint) {
+      const baseDecimals = this.actionConfig.baseToken.config.decimals;
+      const quoteDecimals = this.actionConfig.quoteToken.config.decimals;
+
+      const isBaseDecimalsGreater = baseDecimals > quoteDecimals;
+
+      const tokenDecimalsDifference = isBaseDecimalsGreater
+        ? baseDecimals - quoteDecimals
+        : quoteDecimals - baseDecimals;
+
+      if (type == TokenTypes.Base) {
+        this.actionConfig.baseInputAmount = amount;
+        this.actionConfig.quoteInputAmount = isBaseDecimalsGreater
+          ? (amount * parseUnits("1", this.IValueDecimals)) /
+            this.actionConfig.I /
+            parseUnits("1", tokenDecimalsDifference)
+          : (amount *
+              parseUnits("1", this.IValueDecimals + tokenDecimalsDifference)) /
+            this.actionConfig.I;
+      } else {
+        this.actionConfig.quoteInputAmount = amount;
+        this.actionConfig.baseInputAmount = isBaseDecimalsGreater
+          ? (amount *
+              parseUnits("1", tokenDecimalsDifference) *
+              this.actionConfig.I) /
+            parseUnits("1", this.IValueDecimals)
+          : (amount * this.actionConfig.I) /
+            parseUnits("1", this.IValueDecimals + tokenDecimalsDifference);
       }
-      this.actionConfig[`${type}InputValue`] = value;
     },
 
     openTokensPopup(type: TokenTypes) {
@@ -320,19 +341,21 @@ export default {
         case "approveBaseToken":
           await this.approveTokenHandler(
             this.actionConfig.baseToken.config.contract,
-            this.actionConfig.baseInputValue
+            this.actionConfig.baseInputAmount
           );
           break;
         case "approveQuoteToken":
           await this.approveTokenHandler(
             this.actionConfig.quoteToken.config.contract,
-            this.actionConfig.quoteInputValue
+            this.actionConfig.quoteInputAmount
           );
           break;
         default:
           await this.createPoolHandler();
           break;
       }
+
+      await this.createTokenList();
     },
 
     createPayload() {
@@ -342,8 +365,8 @@ export default {
         feeTier,
         I,
         K,
-        baseInputValue,
-        quoteInputValue,
+        baseInputAmount,
+        quoteInputAmount,
       } = this.actionConfig;
 
       return {
@@ -353,8 +376,8 @@ export default {
         i: I,
         k: K,
         to: this.account,
-        baseInAmount: baseInputValue,
-        quoteInAmount: quoteInputValue,
+        baseInAmount: baseInputAmount,
+        quoteInAmount: quoteInputAmount,
         protocolOwnedPool: false,
       };
     },

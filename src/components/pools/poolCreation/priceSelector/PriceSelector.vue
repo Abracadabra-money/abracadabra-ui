@@ -138,7 +138,7 @@ export default {
     },
 
     autoTokenRate(autoRate: number) {
-      const rateToEmit = this.isFromBase ? autoRate : 1 / autoRate;
+      const rateToEmit = !this.isFromBase ? autoRate : 1 / autoRate;
       if (this.isAutoPricingEnabled) this.$emit("updateTokensRate", rateToEmit);
     },
   },
