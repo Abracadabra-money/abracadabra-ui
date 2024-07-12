@@ -30,3 +30,4 @@ export const OPENOCEAN_BASE_URL: string = "https://ethapi.openocean.finance/v2";
 export const GNOSIS_SAFE_ADDRESS = "0xDF2C270f610Dc35d8fFDA5B453E74db5471E126B";
 
 export const APR_KEY = "abracadabraCauldronsApr";
+export const ETHER_DECIMALS = 18;
