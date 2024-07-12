@@ -9,8 +9,8 @@ import recipeRemoveCollateral from "@/helpers/cauldron/cook/recipies/recipeRemov
 import { cook, cookViem } from "@/helpers/cauldron/cauldron";
 
 import type { CookData, PayloadDeleverageFromOrderGm } from "../types";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 
-// TODO: update payload type & naming
 const cookDeleverageFromOrder = async (
   {
     repayAmount,
@@ -20,7 +20,7 @@ const cookDeleverageFromOrder = async (
     to,
     order,
   }: PayloadDeleverageFromOrderGm,
-  cauldronObject
+  cauldronObject: CauldronInfo
 ): Promise<void> => {
   const { liquidationSwapper, cauldron, bentoBox } = cauldronObject.contracts;
   const collateralAddress = cauldronObject.config.collateralInfo.address;

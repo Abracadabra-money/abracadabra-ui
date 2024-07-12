@@ -3,6 +3,7 @@ import { cook, cookViem } from "@/helpers/cauldron/cauldron";
 import checkAndSetMcApprove from "@/helpers/cauldron/cook/checkAndSetMcApprove";
 import recipeAddCollatral from "@/helpers/cauldron/cook/recipies/recipeAddCollateral";
 import recipeApproveMC from "@/helpers/cauldron/cook/recipies/recipeApproveMC";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 
 const defaultTokenAddress = "0x0000000000000000000000000000000000000000";
 
@@ -10,9 +11,10 @@ import type { CookData, PayloadAddCollateral } from "./types";
 
 const cookAddCollateral = async (
   { amount, useNativeToken, useWrapper, to }: PayloadAddCollateral,
-  cauldronObject: any,
+  cauldronObject: CauldronInfo
 ): Promise<void> => {
   const { address } = cauldronObject.config.collateralInfo;
+  //@ts-ignore
   const { cauldron } = cauldronObject.contracts;
   const { isMasterContractApproved } = cauldronObject.additionalInfo;
   const { updatePrice } = cauldronObject.mainParams;

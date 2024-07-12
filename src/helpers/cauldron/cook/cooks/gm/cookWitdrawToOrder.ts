@@ -8,11 +8,11 @@ import { ORDER_AGENT } from "@/constants/gm";
 import { recipeCreateDeleverageOrder } from "@/helpers/cauldron/cook/recipies/gm/recipeCreateDeleverageOrder";
 
 import type { CookData, PayloadWithdrawToOrderGm } from "../types";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 
-// TODO: update payload type & naming
 const cookWitdrawToOrderGM = async (
   { collateralShare }: PayloadWithdrawToOrderGm,
-  cauldronObject
+  cauldronObject: CauldronInfo
 ): Promise<void> => {
   const { collateral, cauldron, bentoBox } = cauldronObject.contracts;
   const { updatePrice } = cauldronObject.mainParams;

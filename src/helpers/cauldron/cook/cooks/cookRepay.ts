@@ -6,11 +6,13 @@ import recipeApproveMC from "@/helpers/cauldron/cook/recipies/recipeApproveMC";
 import recipeRepay from "@/helpers/cauldron/cook/recipies/recipeRepay";
 
 import type { CookData, PayloadRepay } from "./types";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 
 const cookRepay = async (
   { amount, itsMax, to }: PayloadRepay,
-  cauldronObject: any
+  cauldronObject: CauldronInfo
 ): Promise<void> => {
+  //@ts-ignore
   const { cauldron } = cauldronObject.contracts;
   const { isMasterContractApproved } = cauldronObject.additionalInfo;
   const { updatePrice } = cauldronObject.mainParams;

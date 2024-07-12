@@ -7,11 +7,13 @@ import recipeRepay from "@/helpers/cauldron/cook/recipies/recipeRepay";
 import recipeRemoveCollateral from "@/helpers/cauldron/cook/recipies/recipeRemoveCollateral";
 
 import type { CookData, PayloadRemoveCollateralAndRepay } from "./types";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 
 const cookRemoveCollateralAndRepay = async (
   { collateralShare, mimPart, itsMax, to, withdrawUnwrapToken }: PayloadRemoveCollateralAndRepay,
-  cauldronObject: any,
+  cauldronObject: CauldronInfo,
 ): Promise<void> => {
+  //@ts-ignore
   const { cauldron } = cauldronObject.contracts;
   const tokenAddr = cauldronObject.config.collateralInfo.address;
   const { isMasterContractApproved } = cauldronObject.additionalInfo;

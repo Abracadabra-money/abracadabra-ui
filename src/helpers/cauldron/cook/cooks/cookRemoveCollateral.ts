@@ -6,11 +6,13 @@ import recipeApproveMC from "@/helpers/cauldron/cook/recipies/recipeApproveMC";
 import recipeRemoveCollateral from "@/helpers/cauldron/cook/recipies/recipeRemoveCollateral";
 
 import type { CookData, PayloadRemoveCollateral } from "./types";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 
 const cookRemoveCollateral = async (
   { collateralShare, to, withdrawUnwrapToken }: PayloadRemoveCollateral,
-  cauldronObject: any
+  cauldronObject: CauldronInfo
 ): Promise<void> => {
+  //@ts-ignore
   const { cauldron } = cauldronObject.contracts;
   const tokenAddr = cauldronObject.config.collateralInfo.address;
   const { isMasterContractApproved } = cauldronObject.additionalInfo;

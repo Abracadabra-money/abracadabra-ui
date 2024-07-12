@@ -10,6 +10,7 @@ import recipeAddCollatral from "@/helpers/cauldron/cook/recipies/recipeAddCollat
 import recipeLeverage from "@/helpers/cauldron/cook/recipies/recipeLeverage";
 
 import type { CookData, PayloadLeverage } from "./types";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 
 const defaultTokenAddress = "0x0000000000000000000000000000000000000000";
 
@@ -23,10 +24,11 @@ const cookLeverage = async (
     useWrapper,
     to,
   }: PayloadLeverage,
-  cauldronObject: any
+  cauldronObject: CauldronInfo
 ): Promise<void> => {
   const { whitelistedInfo, isMasterContractApproved } =
     cauldronObject.additionalInfo;
+  //@ts-ignore
   const { collateral, leverageSwapper, cauldron } = cauldronObject.contracts;
   const { is0xSwap, useDegenBoxHelper, isOpenocean } =
     cauldronObject.config.cauldronSettings;

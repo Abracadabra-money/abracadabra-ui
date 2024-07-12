@@ -6,15 +6,17 @@ import recipeApproveMC from "@/helpers/cauldron/cook/recipies/recipeApproveMC";
 import checkWhitelistLogic from "@/helpers/cauldron/cook/checkWhitelistLogic";
 import recipeSetMaxBorrow from "@/helpers/cauldron/cook/recipies/recipeSetMaxBorrow";
 import recipeBorrow from "@/helpers/cauldron/cook/recipies/recipeBorrow";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 
 import type { CookData, PayloadBorrow } from "./types";
 
 const cookBorrow = async (
   { amount, to }: PayloadBorrow,
-  cauldronObject: any,
+  cauldronObject: CauldronInfo
 ): Promise<void> => {
   const { address: mimAddress } = cauldronObject.config.mimInfo;
   const { whitelistedInfo } = cauldronObject.additionalInfo;
+  //@ts-ignore
   const { cauldron } = cauldronObject.contracts;
   const { isMasterContractApproved } = cauldronObject.additionalInfo;
   const { updatePrice } = cauldronObject.mainParams;
@@ -28,7 +30,11 @@ const cookBorrow = async (
     datas: [],
   };
 
-  cookData = await checkAndSetMcApprove(cookData, cauldronObject, isMasterContractApproved);
+  cookData = await checkAndSetMcApprove(
+    cookData,
+    cauldronObject,
+    isMasterContractApproved
+  );
 
   if (updatePrice) cookData = await actions.updateExchangeRate(cookData, true);
 

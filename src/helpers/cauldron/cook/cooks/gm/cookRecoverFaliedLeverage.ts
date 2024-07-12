@@ -6,12 +6,14 @@ import { USDC_ADDRESS, WETH_ADDRESS, ORDER_AGENT } from "@/constants/gm";
 import { recipeCreateLeverageOrder } from "@/helpers/cauldron/cook/recipies/gm/recipeCreateLeverageOrder";
 
 import type { CookData, PayloadRecoverFailedLeverageGm } from "../types";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 
 const cookRecoverFaliedLeverage = async (
   { order, to }: PayloadRecoverFailedLeverageGm,
-  cauldronObject: any
+  cauldronObject: CauldronInfo
 ): Promise<void> => {
-  const { cauldron, collateral } = cauldronObject.contracts;
+  //@ts-ignore
+  const { collateral } = cauldronObject.contracts;
   const provider = store.getters.getProvider;
   const { balanceUSDC, balanceWETH } = await getOrderBalances(order, provider);
 

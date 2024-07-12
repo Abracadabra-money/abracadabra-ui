@@ -9,6 +9,7 @@ import type { CookData, PayloadAddCollateralAndBorrow } from "./types";
 
 import recipeBorrow from "@/helpers/cauldron/cook/recipies/recipeBorrow";
 import recipeAddCollatral from "@/helpers/cauldron/cook/recipies/recipeAddCollateral";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 
 const cookAddCollateralAndBorrow = async (
   {
@@ -18,10 +19,11 @@ const cookAddCollateralAndBorrow = async (
     useWrapper,
     to,
   }: PayloadAddCollateralAndBorrow,
-  cauldronObject: any
+  cauldronObject: CauldronInfo
 ): Promise<void> => {
   const { address } = cauldronObject.config.collateralInfo;
   const { address: mimAddress } = cauldronObject.config.mimInfo;
+  //@ts-ignore
   const { cauldron } = cauldronObject.contracts;
   const { isMasterContractApproved } = cauldronObject.additionalInfo;
   const { updatePrice } = cauldronObject.mainParams;
