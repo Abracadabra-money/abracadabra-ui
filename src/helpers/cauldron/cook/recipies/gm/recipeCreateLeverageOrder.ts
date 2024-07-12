@@ -19,7 +19,7 @@ export const recipeCreateLeverageOrder = async (
   const inputToken = USDC_ADDRESS;
   const deposit = true;
 
-  const provider = store.getters.getProvider; // TODO: check provider
+  const provider = store.getters.getProvider;
 
   const gasLimits = await getGasLimits(provider);
   const estimatedDepositGasLimit = estimateExecuteDepositGasLimit(gasLimits);

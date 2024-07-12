@@ -4,7 +4,7 @@ import { swap0xRequest } from "@/helpers/0x";
 
 export const recipeLeverage = async (pool: any, amount: any, slipage: any) => {
   const { leverageSwapper, bentoBox, mim } = pool.contracts;
-  const chainId = pool.config.chainId; // TODO: check chainId
+  const chainId = pool.config.chainId;
   const mimAddress = pool.config.mimInfo.address;
   const buyToken = USDC_ADDRESS;
 

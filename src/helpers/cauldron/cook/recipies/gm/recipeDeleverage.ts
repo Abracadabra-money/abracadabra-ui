@@ -15,7 +15,7 @@ export const recipeDeleverage = async (
 
   const userAddr = store.getters.getAccount; // TODO: add to payload
   const sellToken = USDC_ADDRESS;
-  const chainId = pool.config.chainId; // TODO: check chainId
+  const chainId = pool.config.chainId;
 
   const amountToSwap = await toAmount(bentoBox, sellToken, shareFrom);
 

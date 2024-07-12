@@ -12,7 +12,7 @@ const cookRecoverFaliedLeverage = async (
   cauldronObject: any
 ): Promise<void> => {
   const { cauldron, collateral } = cauldronObject.contracts;
-  const provider = store.getters.getProvider; // TODO: check provider
+  const provider = store.getters.getProvider;
   const { balanceUSDC, balanceWETH } = await getOrderBalances(order, provider);
 
   let cookData: CookData = {

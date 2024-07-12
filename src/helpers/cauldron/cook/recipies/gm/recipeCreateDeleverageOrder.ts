@@ -17,7 +17,7 @@ export const recipeCreateDeleverageOrder = async (
   inputAmount: any
 ) => {
   const deposit = false;
-  const provider = store.getters.getProvider; // TODO: check provider
+  const provider = store.getters.getProvider;
   const gasLimits = await getGasLimits(provider);
 
   const orderAgentContract = new Contract(ORDER_AGENT, OrderAgentAbi, provider);

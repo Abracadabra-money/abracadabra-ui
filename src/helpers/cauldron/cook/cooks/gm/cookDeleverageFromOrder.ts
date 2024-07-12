@@ -25,7 +25,7 @@ const cookDeleverageFromOrder = async (
   const { liquidationSwapper, cauldron, bentoBox } = cauldronObject.contracts;
   const collateralAddress = cauldronObject.config.collateralInfo.address;
 
-  const provider = store.getters.getProvider; // TODO: check provider
+  const provider = store.getters.getProvider;
 
   const { balanceUSDC } = await getOrderBalances(order, provider);
 
