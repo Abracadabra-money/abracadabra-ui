@@ -107,7 +107,7 @@ export default {
       );
     },
 
-    tvlByChains() {
+    tvlByChains(): { tvl: number; chainId: number }[] {
       const tvlByChainId = this.pools.reduce((acc, pool) => {
         const baseTokenAmount = Number(
           formatUnits(pool.vaultReserve[0], pool.config.baseToken.decimals)
