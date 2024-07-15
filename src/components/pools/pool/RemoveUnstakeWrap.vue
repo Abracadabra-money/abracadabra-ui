@@ -9,7 +9,7 @@
       />
 
       <Toggle
-        v-if="!isUnstake"
+        v-if="isToggle"
         text="Single Side"
         :selected="isSingleSide"
         @updateToggle="changeSingleSideToggle"
@@ -72,6 +72,15 @@ export default {
     isUnstake() {
       return this.activeTab == "unstake";
     },
+
+    isArbitrumMimUsdcPool() {
+      return this.pool.chainId === 42161 && this.pool.id === 2;
+    },
+
+    isToggle() {
+      if (this.isArbitrumMimUsdcPool) return false;
+      return !this.isUnstake;
+    },
   },
 
   methods: {
@@ -128,7 +137,7 @@ export default {
 }
 
 .flex-end {
-  justify-content: flex-end
+  justify-content: flex-end;
 }
 
 .tabs {
