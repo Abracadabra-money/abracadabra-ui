@@ -294,7 +294,7 @@ export default {
 }
 
 .pool-tvl {
-  padding: 12px 19px 12px;
+  padding: 12px 12px 12px;
   border-radius: 0 16px 16px 0;
   background: #171b2f;
   display: flex;
@@ -303,7 +303,7 @@ export default {
 }
 
 .tvl-value {
-  font-size: 37px;
+  font-size: 35px;
   font-weight: 500;
   line-height: 33px;
 }
