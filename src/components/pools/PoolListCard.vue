@@ -36,8 +36,9 @@
 
     <div class="card-body">
       <div class="pool-tvl">
-        <div class="tvl-value">{{ formatLargeSum(totalSupply) }}</div>
-        <div class="tvl-usd">${{ formatLargeSum(totalSupplyUsd) }}</div>
+        <!-- <div class="tvl-value">{{ formatLargeSum(totalSupply) }}</div> -->
+        <div class="tvl-value">${{ formatLargeSum(totalSupplyUsd) }}</div>
+        <!-- <div class="tvl-usd">${{ formatLargeSum(totalSupplyUsd) }}</div> -->
       </div>
 
       <div>
@@ -130,7 +131,7 @@ export default {
 
   computed: {
     isPoolHasReward() {
-      return this.pool.config.stakeContract ?? false
+      return this.pool.config.stakeContract ?? false;
     },
 
     poolRewards() {
@@ -177,7 +178,9 @@ export default {
     },
 
     hasPotionReward() {
-      return this.pool.config.chainId === BLAST_CHAIN_ID && this.pool.config.id === 1;
+      return (
+        this.pool.config.chainId === BLAST_CHAIN_ID && this.pool.config.id === 1
+      );
     },
 
     isShowPoolApr() {
@@ -294,6 +297,9 @@ export default {
   padding: 12px 19px 12px;
   border-radius: 0 16px 16px 0;
   background: #171b2f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .tvl-value {

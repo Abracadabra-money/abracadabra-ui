@@ -29,6 +29,10 @@
       <MimUsdtKavaPool />
     </slide>
 
+    <slide :index="1">
+      <MimUsdcArbPool />
+    </slide>
+
     <template #addons>
       <pagination />
     </template>
@@ -44,6 +48,7 @@ import EmpowerCard from "@/components/cauldrons/promoCards/EmpowerCard.vue";
 import CamelotUsdcMimCard from "@/components/cauldrons/promoCards/CamelotUsdcMimCard.vue";
 import MimUsdtArbPool from "@/components/cauldrons/promoCards/MimUsdtArbPool.vue";
 import MimUsdtKavaPool from "@/components/cauldrons/promoCards/MimUsdtKavaPool.vue";
+import MimUsdcArbPool from "@/components/cauldrons/promoCards/MimUsdcArbPool.vue";
 
 export default {
   data() {
@@ -71,6 +76,7 @@ export default {
     CamelotUsdcMimCard,
     MimUsdtArbPool,
     MimUsdtKavaPool,
+    MimUsdcArbPool,
     Carousel,
     Slide,
     Pagination,
