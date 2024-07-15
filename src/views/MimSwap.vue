@@ -73,8 +73,8 @@
       @closePopup="isTokensPopupOpened = false"
     >
       <SwapListPopup
-        :tokensList="tokensList"
-        :popularTokens="tokensList"
+        :tokensList="filterTokensList"
+        :popularTokens="filterTokensList"
         :tokenType="tokenType"
         :fromTokenAddress="actionConfig.fromToken.config.contract.address"
         :toTokenAddress="actionConfig.toToken.config.contract.address"
@@ -304,6 +304,25 @@ export default {
 
       if (!differencePrice) return differencePrice;
       return (differencePrice - 1) * 100;
+    },
+
+    isMIMToken() {
+      return (
+        (this.tokenType === "from" &&
+          this.actionConfig.fromToken.config.name === "MIM") ||
+        (this.tokenType === "to" &&
+          this.actionConfig.toToken.config.name === "MIM")
+      );
+    },
+
+    filterTokensList() {
+      if (this.isMIMToken && this.tokensList.length > 2) {
+        return this.tokensList.filter(
+          (token: TokenInfo) => token.config.name === "MIM"
+        ) as TokenInfo[];
+      }
+
+      return this.tokensList as TokenInfo[];
     },
   },
 
