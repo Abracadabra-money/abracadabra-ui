@@ -21,8 +21,8 @@
 
 <script lang="ts">
 import { formatUnits, parseUnits } from "viem";
-import { ONE_ETHER_VIEM } from "@/constants/global";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
+import { ETHER_DECIMALS, ONE_ETHER_VIEM } from "@/constants/global";
 import { formatTokenBalance, formatToFixed } from "@/helpers/filters";
 
 export default {
@@ -39,9 +39,7 @@ export default {
       const expandDecimals = parseUnits("1", decimals);
       const tokenToMim = (ONE_ETHER_VIEM * expandDecimals) / oracleExchangeRate;
 
-      const tokenPrice = Number(
-        formatUnits(tokenToMim, this.cauldron.config.collateralInfo.decimals)
-      );
+      const tokenPrice = Number(formatUnits(tokenToMim, ETHER_DECIMALS));
 
       const numbersAfterComa =
         tokenPrice > 0.01 ? 2 : tokenPrice < 0.0001 ? 6 : 4;

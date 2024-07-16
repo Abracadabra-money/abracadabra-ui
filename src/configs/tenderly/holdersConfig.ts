@@ -45,4 +45,5 @@ export const holdersConfig = {
     "0x1fc83f75499b7620d53757f0b01e2ae626aae530",
     "0xae64a325027c3c14cf6abc7818aa3b9c07f5c799",
   ],
+  81457: [],
 };
