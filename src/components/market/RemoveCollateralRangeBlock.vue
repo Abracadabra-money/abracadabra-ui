@@ -18,6 +18,7 @@
       :maxAmount="maxToRemove"
       :risk="positionHealth"
       :rangePrecision="rangePrecision"
+      :decimals="collateraDecimals"
       isPotion
       @updateAmount="onUpdateWithdrawValue"
     />
@@ -85,6 +86,10 @@ export default {
       account: "getAccount",
       chainId: "getChainId",
     }),
+
+    collateraDecimals() {
+      return this.cauldron?.config?.collateralInfo?.decimals || 18;
+    },
 
     maxToRemove() {
       const { userCollateralAmount } =

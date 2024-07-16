@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
+import store from "@/store";
 
 const signMasterContract = async (
-  signer,
   chainId,
   verifyingContract,
   user,
@@ -9,6 +9,8 @@ const signMasterContract = async (
   approved,
   nonce
 ) => {
+  const signer = store.getters.getSigner;
+
   const chainHex = ethers.utils.hexlify(chainId);
 
   const domain = {
