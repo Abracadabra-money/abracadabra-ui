@@ -32,7 +32,11 @@
             :name="comparedCurrency.name"
             size="24px"
           />
-          <span class="token-name">{{ comparedCurrency.name }}</span>
+          <span
+            class="token-name"
+            v-if="comparedCurrency.name != 'Select Token'"
+            >{{ comparedCurrency.name }}</span
+          >
         </div>
       </div>
       =

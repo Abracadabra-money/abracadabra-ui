@@ -16,10 +16,15 @@ export const validationActions = (
   quoteToken: PoolCreationTokenInfo,
   actionConfig: ActionConfig,
   poolType: PoolTypes | null,
-  chainId: number
+  chainId: number,
+  isActionProcessing: boolean
 ): ValidationData => {
+
   const { baseInAmount, quoteInAmount, lpFeeRate, I, K } =
     actionConfig;
+
+  if (isActionProcessing)
+    return { btnText: "Processing...", isAllowed: false };
 
   const connectedError = validateConnection();
   if (connectedError.btnText) return connectedError;

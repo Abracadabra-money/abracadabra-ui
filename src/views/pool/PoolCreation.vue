@@ -181,7 +181,8 @@ export default {
         this.quoteToken,
         this.actionConfig,
         this.poolType,
-        this.chainId
+        this.chainId,
+        this.isActionProcessing
       );
     },
 
@@ -380,6 +381,8 @@ export default {
     async actionHandler() {
       if (!this.validationData.isAllowed) return false;
 
+      this.isActionProcessing = true;
+
       switch (this.validationData.method) {
         case "connectWallet":
           // @ts-ignore
@@ -404,6 +407,8 @@ export default {
           await this.createPoolHandler();
           break;
       }
+
+      this.isActionProcessing = false;
     },
 
     async createTokenList() {
