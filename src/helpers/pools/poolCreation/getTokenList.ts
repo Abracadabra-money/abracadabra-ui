@@ -65,8 +65,3 @@ export const getAllTokensByChain = async (chainId: number, account?: Address): P
 
   return tokensByChain;
 }
-
-
-const getTokenPrices = async () => {
-
-}

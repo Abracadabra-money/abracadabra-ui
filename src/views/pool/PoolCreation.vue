@@ -6,27 +6,27 @@
 
         <div class="action-form">
           <TokensSelector
-            :baseToken="actionConfig.baseToken"
-            :quoteToken="actionConfig.quoteToken"
-            :baseTokenAmount="actionConfig.baseInputAmount"
-            :quoteTokenAmount="actionConfig.quoteInputAmount"
-            :isAutoPricingEnabled="actionConfig.isAutoPricingEnabled"
+            :baseToken="baseToken"
+            :quoteToken="quoteToken"
+            :baseTokenAmount="actionConfig.baseInAmount"
+            :quoteTokenAmount="actionConfig.quoteInAmount"
+            :isAutoPricingEnabled="isAutoPricingEnabled"
             @updateTokenInputAmount="updateTokenInputAmount"
             @openTokensPopup="openTokensPopup"
           />
 
           <PriceSelector
-            :baseToken="actionConfig.baseToken"
-            :quoteToken="actionConfig.quoteToken"
-            :isAutoPricingEnabled="actionConfig.isAutoPricingEnabled"
+            :baseToken="baseToken"
+            :quoteToken="quoteToken"
+            :isAutoPricingEnabled="isAutoPricingEnabled"
             @updateTokensRate="updateTokensRate"
             @toggleAutopricing="toggleAutopricing"
           />
 
           <FeeTierSelector
-            :poolType="actionConfig.poolType"
+            :poolType="poolType"
             @selectFeeTier="selectFeeTier"
-            v-if="actionConfig.poolType"
+            v-if="poolType"
           />
           <EmptyState v-else>
             <span class="empty-state-main-text">Select Pool Type</span>
@@ -44,12 +44,12 @@
 
       <div class="pool-creation-info-wrap">
         <CreationTypeTabs
-          :poolType="actionConfig.poolType"
+          :poolType="poolType"
           @selectPoolType="selectPoolType"
         />
         <PoolCreationInfo
           :tokensSelected="tokensSelected"
-          :poolType="actionConfig.poolType"
+          :poolType="poolType"
           :kValue="actionConfig.K"
           @openSlippagePopup="isSlippagePopupOpened = true"
         />
@@ -71,8 +71,8 @@
       <TokenListPopup
         :tokensList="tokenList"
         :tokenType="tokenType"
-        :baseTokenAddress="actionConfig.baseToken.config.contract.address"
-        :quoteTokenAddress="actionConfig.quoteToken.config.contract.address"
+        :baseTokenAddress="baseToken.config.contract.address"
+        :quoteTokenAddress="quoteToken.config.contract.address"
         @updateSelectedToken="updateSelectedToken"
       />
     </LocalPopupWrap>
@@ -82,17 +82,27 @@
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
 import { mapActions, mapGetters, mapMutations } from "vuex";
-import { parseUnits } from "viem";
+import { type Address, parseUnits } from "viem";
 import { getTokenList } from "@/helpers/pools/poolCreation/getTokenList";
 import { validationActions } from "@/helpers/pools/poolCreation/validationActions";
-import { createPool } from "@/helpers/pools/poolCreation/actions/createPool";
-import type { PoolCreationTokenInfo } from "@/configs/pools/poolCreation/types";
+import {
+  type ActionConfig,
+  createPool,
+} from "@/helpers/pools/poolCreation/actions/createPool";
+import type {
+  PoolCreationTokenConfig,
+  PoolCreationTokenInfo,
+} from "@/configs/pools/poolCreation/types";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { approveTokenViem } from "@/helpers/approval";
 import notification from "@/helpers/notification/notification";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError";
 import type { ContractInfo } from "@/types/global";
 import { getSwapRouterByChain } from "@/configs/pools/routers";
+import {
+  getTokenAllowance,
+  getTokenUserInfo,
+} from "@/helpers/pools/poolCreation/getPoolCreationTokenInfo";
 
 const emptyPoolCreationTokenInfo: PoolCreationTokenInfo = {
   config: {
@@ -126,38 +136,29 @@ export enum PoolTypes {
   Pegged = "pegged",
 }
 
-export type ActionConfig = {
-  poolType: PoolTypes | null;
-  baseToken: PoolCreationTokenInfo;
-  quoteToken: PoolCreationTokenInfo;
-  baseInputAmount: bigint;
-  quoteInputAmount: bigint;
-  feeTier: bigint;
-  K: bigint;
-  I: bigint;
-  rate: number;
-  isAutoPricingEnabled: boolean;
-};
-
 export default {
   data() {
     return {
       tokenList: [] as PoolCreationTokenInfo[],
       tokenType: "base",
+      poolType: null as PoolTypes | null,
+      baseToken: emptyPoolCreationTokenInfo,
+      quoteToken: emptyPoolCreationTokenInfo,
       actionConfig: {
-        poolType: null,
-        baseToken: emptyPoolCreationTokenInfo,
-        quoteToken: emptyPoolCreationTokenInfo,
-        baseInputAmount: 0n,
-        quoteInputAmount: 0n,
-        feeTier: 0n,
+        baseToken: "0x",
+        quoteToken: "0x",
+        lpFeeRate: 0n,
         K: 0n,
         I: 0n,
-        rate: 0,
-        isAutoPricingEnabled: false,
+        to: "0x",
+        baseInAmount: 0n,
+        quoteInAmount: 0n,
+        protocolOwnedPool: false,
       } as ActionConfig,
+      isAutoPricingEnabled: false,
       isTokensPopupOpened: false,
       isSlippagePopupOpened: false,
+      isActionProcessing: false,
       updateInterval: null as NodeJS.Timeout | null,
     };
   },
@@ -166,17 +167,22 @@ export default {
     ...mapGetters({ account: "getAccount", chainId: "getChainId" }),
 
     tokensSelected() {
-      const { baseToken, quoteToken } = this.actionConfig;
       const emptyTokenName = emptyPoolCreationTokenInfo.config.name;
 
       return (
-        baseToken.config.name != emptyTokenName &&
-        quoteToken.config.name != emptyTokenName
+        this.baseToken.config.name != emptyTokenName &&
+        this.quoteToken.config.name != emptyTokenName
       );
     },
 
     validationData() {
-      return validationActions(this.actionConfig, this.chainId);
+      return validationActions(
+        this.baseToken,
+        this.quoteToken,
+        this.actionConfig,
+        this.poolType,
+        this.chainId
+      );
     },
 
     routerAddress() {
@@ -186,19 +192,32 @@ export default {
 
     IValueDecimals() {
       return (
-        18 +
-        this.actionConfig.quoteToken.config.decimals -
-        this.actionConfig.baseToken.config.decimals
+        18 + this.quoteToken.config.decimals - this.baseToken.config.decimals
       );
     },
   },
 
   watch: {
+    baseToken: {
+      handler(newValue) {
+        this.actionConfig.baseToken = newValue.config.contract.address;
+      },
+      deep: true,
+    },
+
+    quoteToken: {
+      handler(newValue) {
+        this.actionConfig.quoteToken = newValue.config.contract.address;
+      },
+      deep: true,
+    },
+
     async chainId() {
       await this.createTokenList();
     },
 
-    async account() {
+    async account(address: Address) {
+      this.actionConfig.to = address;
       await this.createTokenList();
     },
   },
@@ -208,8 +227,8 @@ export default {
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
     updateTokenInputAmount(type: TokenTypes, amount: bigint) {
-      const baseDecimals = this.actionConfig.baseToken.config.decimals;
-      const quoteDecimals = this.actionConfig.quoteToken.config.decimals;
+      const baseDecimals = this.baseToken.config.decimals;
+      const quoteDecimals = this.quoteToken.config.decimals;
 
       const isBaseDecimalsGreater = baseDecimals > quoteDecimals;
 
@@ -218,8 +237,8 @@ export default {
         : quoteDecimals - baseDecimals;
 
       if (type == TokenTypes.Base) {
-        this.actionConfig.baseInputAmount = amount;
-        this.actionConfig.quoteInputAmount = isBaseDecimalsGreater
+        this.actionConfig.baseInAmount = amount;
+        this.actionConfig.quoteInAmount = isBaseDecimalsGreater
           ? (amount * parseUnits("1", this.IValueDecimals)) /
             this.actionConfig.I /
             parseUnits("1", tokenDecimalsDifference)
@@ -227,8 +246,8 @@ export default {
               parseUnits("1", this.IValueDecimals + tokenDecimalsDifference)) /
             this.actionConfig.I;
       } else {
-        this.actionConfig.quoteInputAmount = amount;
-        this.actionConfig.baseInputAmount = isBaseDecimalsGreater
+        this.actionConfig.quoteInAmount = amount;
+        this.actionConfig.baseInAmount = isBaseDecimalsGreater
           ? (amount *
               parseUnits("1", tokenDecimalsDifference) *
               this.actionConfig.I) /
@@ -236,8 +255,6 @@ export default {
           : (amount * this.actionConfig.I) /
             parseUnits("1", this.IValueDecimals + tokenDecimalsDifference);
       }
-
-      console.log(this.actionConfig);
     },
 
     openTokensPopup(type: TokenTypes) {
@@ -247,20 +264,20 @@ export default {
 
     updateSelectedToken(token: PoolCreationTokenInfo) {
       if (this.tokenType === "quote") {
-        if (this.actionConfig.baseToken.config.name === token.config.name) {
-          this.actionConfig.baseToken = this.actionConfig.quoteToken;
-          this.actionConfig.quoteToken = token;
+        if (this.baseToken.config.name === token.config.name) {
+          this.baseToken = this.quoteToken;
+          this.quoteToken = token;
         } else {
-          this.actionConfig.quoteToken = token;
+          this.quoteToken = token;
         }
       }
 
       if (this.tokenType === "base") {
-        if (this.actionConfig.quoteToken.config.name === token.config.name) {
-          this.actionConfig.quoteToken = this.actionConfig.baseToken;
-          this.actionConfig.baseToken = token;
+        if (this.quoteToken.config.name === token.config.name) {
+          this.quoteToken = this.baseToken;
+          this.baseToken = token;
         } else {
-          this.actionConfig.baseToken = token;
+          this.baseToken = token;
         }
       }
 
@@ -268,12 +285,12 @@ export default {
     },
 
     selectPoolType(poolType: PoolTypes) {
-      this.actionConfig.poolType = poolType;
+      this.poolType = poolType;
       this.actionConfig.K = STANDARD_K_VALUE;
     },
 
     selectFeeTier(feeTier: bigint) {
-      this.actionConfig.feeTier = feeTier;
+      this.actionConfig.lpFeeRate = feeTier;
     },
 
     selectKValue(kValue: bigint) {
@@ -281,12 +298,38 @@ export default {
     },
 
     toggleAutopricing() {
-      this.actionConfig.isAutoPricingEnabled =
-        !this.actionConfig.isAutoPricingEnabled;
+      this.isAutoPricingEnabled = !this.isAutoPricingEnabled;
     },
 
     updateTokensRate(I: number) {
       this.actionConfig.I = parseUnits(I.toString(), this.IValueDecimals);
+      this.updateTokenInputAmount(
+        TokenTypes.Base,
+        this.actionConfig.baseInAmount
+      );
+    },
+
+    async updateTokenAllowance(contract: ContractInfo) {
+      const isBaseToken = (this.baseToken.config.contract.address =
+        contract.address);
+
+      this[`${isBaseToken ? "base" : "quote"}Token`].userInfo.allowance =
+        await getTokenAllowance(contract, this.chainId, this.account);
+    },
+
+    async updateTokenUserInfo(tokenConfig: PoolCreationTokenConfig) {
+      const isBaseToken = (this.baseToken.config.contract.address =
+        tokenConfig.contract.address);
+
+      this[`${isBaseToken ? "base" : "quote"}Token`].userInfo =
+        await getTokenUserInfo(tokenConfig, this.account);
+    },
+
+    async updateTokensUserInfo() {
+      await Promise.all([
+        this.updateTokenUserInfo(this.baseToken.config),
+        this.updateTokenUserInfo(this.quoteToken.config),
+      ]);
     },
 
     async approveTokenHandler(contract: ContractInfo, valueToApprove: bigint) {
@@ -302,7 +345,8 @@ export default {
 
       await this.deleteNotification(notificationId);
       if (!approve) await this.createNotification(notification.approveError);
-      return false;
+      await this.updateTokenAllowance(contract);
+      await this.createTokenList();
     },
 
     async createPoolHandler() {
@@ -311,9 +355,13 @@ export default {
       );
 
       try {
-        const payload = this.createPayload();
-        await createPool(this.routerAddress, payload);
+        const result = await createPool(this.routerAddress, this.actionConfig);
+        console.log(result);
+
         await this.deleteNotification(notificationId);
+
+        await this.updateTokensUserInfo();
+        await this.createTokenList();
 
         await this.createNotification(notification.success);
       } catch (error) {
@@ -342,46 +390,20 @@ export default {
           break;
         case "approveBaseToken":
           await this.approveTokenHandler(
-            this.actionConfig.baseToken.config.contract,
-            this.actionConfig.baseInputAmount
+            this.baseToken.config.contract,
+            this.actionConfig.baseInAmount
           );
           break;
         case "approveQuoteToken":
           await this.approveTokenHandler(
-            this.actionConfig.quoteToken.config.contract,
-            this.actionConfig.quoteInputAmount
+            this.quoteToken.config.contract,
+            this.actionConfig.quoteInAmount
           );
           break;
         default:
           await this.createPoolHandler();
           break;
       }
-
-      await this.createTokenList();
-    },
-
-    createPayload() {
-      const {
-        baseToken,
-        quoteToken,
-        feeTier,
-        I,
-        K,
-        baseInputAmount,
-        quoteInputAmount,
-      } = this.actionConfig;
-
-      return {
-        baseToken: baseToken.config.contract.address,
-        quoteToken: quoteToken.config.contract.address,
-        lpFeeRate: feeTier,
-        i: I,
-        k: K,
-        to: this.account,
-        baseInAmount: baseInputAmount,
-        quoteInAmount: quoteInputAmount,
-        protocolOwnedPool: false,
-      };
     },
 
     async createTokenList() {
@@ -391,6 +413,15 @@ export default {
 
   async created() {
     await this.createTokenList();
+    this.actionConfig.to = this.account || "0x";
+
+    this.updateInterval = setInterval(async () => {
+      await this.createTokenList();
+    }, 60000);
+  },
+
+  beforeUnmount() {
+    if (this.updateInterval) clearInterval(this.updateInterval);
   },
 
   components: {

@@ -6,12 +6,12 @@ import {
 import type { Address } from "viem";
 import BlastMIMSwapRouterAbi from "@/abis/BlastMIMSwapRouter";
 
-export type CreatePoolPayload = {
+export type ActionConfig = {
   baseToken: Address;
   quoteToken: Address;
   lpFeeRate: bigint;
-  i: bigint;
-  k: bigint;
+  K: bigint;
+  I: bigint;
   to: Address;
   baseInAmount: bigint;
   quoteInAmount: bigint;
@@ -20,14 +20,15 @@ export type CreatePoolPayload = {
 
 export const createPool = async (
   swapRouterAddress: Address,
-  payload: CreatePoolPayload
+  payload: ActionConfig
 ) => {
+
   const {
     baseToken,
     quoteToken,
     lpFeeRate,
-    i,
-    k,
+    I,
+    K,
     to,
     baseInAmount,
     quoteInAmount,
@@ -42,13 +43,13 @@ export const createPool = async (
       baseToken,
       quoteToken,
       lpFeeRate,
-      i,
-      k,
+      I,
+      K,
       to,
       baseInAmount,
       quoteInAmount,
       protocolOwnedPool,
-    ],
+    ]
   });
 
   const hash = await writeContractHelper(request);

@@ -1,6 +1,7 @@
 import type { PoolCreationTokenConfig, PoolCreationTokenInfo, TokenUserInfo } from "@/configs/pools/poolCreation/types";
 import { getSwapRouterByChain } from "@/configs/pools/routers";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
+import type{ ContractInfo } from "@/types/global";
 import type { Address } from "viem";
 
 export const getPoolCreationTokenInfo = async (tokenConfig: PoolCreationTokenConfig, price: number, account?: Address): Promise<PoolCreationTokenInfo> => {
@@ -13,7 +14,7 @@ export const getPoolCreationTokenInfo = async (tokenConfig: PoolCreationTokenCon
     return tokenInfo
 }
 
-const getTokenUserInfo = async (tokenConfig: PoolCreationTokenConfig, account: Address): Promise<TokenUserInfo> => {
+export const getTokenUserInfo = async (tokenConfig: PoolCreationTokenConfig, account: Address): Promise<TokenUserInfo> => {
     const publicClient = getPublicClient(tokenConfig.chainId)
 
     const routerAddress = getSwapRouterByChain(tokenConfig.chainId)
@@ -34,4 +35,18 @@ const getTokenUserInfo = async (tokenConfig: PoolCreationTokenConfig, account: A
     })
 
     return { allowance: allowance.result, balance: balanceOf.result }
+}
+
+export const getTokenAllowance = async (tokenContract: ContractInfo, chainId: number, account: Address) => {
+    const publicClient = getPublicClient(chainId)
+
+    const routerAddress = getSwapRouterByChain(chainId)
+
+    return await publicClient.readContract({
+        chainId: chainId,
+        address: tokenContract.address,
+        abi: tokenContract.abi,
+        functionName: "allowance",
+        args: [account, routerAddress],
+    })
 }
