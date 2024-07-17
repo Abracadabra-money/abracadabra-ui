@@ -9,16 +9,16 @@
       <CrvUsdMimCard />
     </slide> -->
 
-    <slide :index="1">
+    <!-- <slide :index="1">
       <CamelotCard />
-    </slide>
+    </slide> -->
+
+    <!-- <slide :index="1">
+      <CamelotUsdcMimCard />
+    </slide> -->
 
     <slide :index="1">
       <EmpowerCard />
-    </slide>
-
-    <slide :index="1">
-      <CamelotUsdcMimCard />
     </slide>
 
     <slide :index="1">
@@ -43,9 +43,9 @@
 import "vue3-carousel/dist/carousel.css";
 import { Carousel, Slide, Pagination } from "vue3-carousel";
 // import CrvUsdMimCard from "@/components/cauldrons/promoCards/CrvUsdMimCard.vue";
-import CamelotCard from "@/components/cauldrons/promoCards/CamelotCard.vue";
+// import CamelotCard from "@/components/cauldrons/promoCards/CamelotCard.vue";
+// import CamelotUsdcMimCard from "@/components/cauldrons/promoCards/CamelotUsdcMimCard.vue";
 import EmpowerCard from "@/components/cauldrons/promoCards/EmpowerCard.vue";
-import CamelotUsdcMimCard from "@/components/cauldrons/promoCards/CamelotUsdcMimCard.vue";
 import MimUsdtArbPool from "@/components/cauldrons/promoCards/MimUsdtArbPool.vue";
 import MimUsdtKavaPool from "@/components/cauldrons/promoCards/MimUsdtKavaPool.vue";
 import MimUsdcArbPool from "@/components/cauldrons/promoCards/MimUsdcArbPool.vue";
@@ -71,16 +71,16 @@ export default {
   },
 
   components: {
-    CamelotCard,
     EmpowerCard,
-    CamelotUsdcMimCard,
     MimUsdtArbPool,
     MimUsdtKavaPool,
     MimUsdcArbPool,
     Carousel,
     Slide,
     Pagination,
+    // CamelotUsdcMimCard,
     // CrvUsdMimCard,
+    // CamelotCard,
   },
 };
 </script>
