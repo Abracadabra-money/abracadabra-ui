@@ -334,6 +334,8 @@ export default {
     },
 
     async approveTokenHandler(contract: ContractInfo, valueToApprove: bigint) {
+      this.isActionProcessing = true;
+
       const notificationId = await this.createNotification(
         notification.approvePending
       );
@@ -351,6 +353,8 @@ export default {
     },
 
     async createPoolHandler() {
+      this.isActionProcessing = true;
+
       const notificationId = await this.createNotification(
         notification.pending
       );
@@ -381,15 +385,17 @@ export default {
     async actionHandler() {
       if (!this.validationData.isAllowed) return false;
 
-      this.isActionProcessing = true;
-
       switch (this.validationData.method) {
         case "connectWallet":
+          this.isActionProcessing = true;
           // @ts-ignore
           await this.$openWeb3modal();
+          this.isActionProcessing = true;
           break;
         case "switchNetwork":
+          this.isActionProcessing = true;
           await switchNetwork(42161); //todo
+          this.isActionProcessing = true;
           break;
         case "approveBaseToken":
           await this.approveTokenHandler(
