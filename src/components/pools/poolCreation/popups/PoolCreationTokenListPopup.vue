@@ -4,25 +4,52 @@
 
     <InputSearch class="input-search" @input="changeSearch" />
 
-    <template v-if="listToRender.length">
-      <template v-if="popularTokens.length">
-        <h4 class="subtitle">Most traded</h4>
+    <template v-if="popularTokens.length">
+      <h4 class="subtitle">Most traded</h4>
 
-        <div class="popular-tokens">
-          <div
-            class="popular-token-item"
-            v-for="token in popularTokens"
-            :key="token.config.name"
-            @click="$emit('updateSelectedToken', token)"
-          >
-            <img class="popular-token-icon" :src="token.config.icon" alt="" />
-            <span class="popular-token-name">{{ token.config.name }}</span>
+      <div class="popular-tokens">
+        <div
+          class="popular-token-item"
+          v-for="token in popularTokens"
+          :key="token.config.name"
+          @click="$emit('updateSelectedToken', token)"
+        >
+          <img class="popular-token-icon" :src="token.config.icon" alt="" />
+          <span class="popular-token-name">{{ token.config.name }}</span>
+        </div>
+      </div>
+
+      <div class="line"></div>
+    </template>
+
+    <template v-if="isCustom">
+      <div class="tokens-list">
+        <div
+          :class="[
+            'token-item',
+            { active: config.address === activeTokenAddress },
+            {
+              disabled: config.address === disabledTokenAddress,
+            },
+          ]"
+          v-for="config in filteredCustomTokensList"
+          :key="config.name"
+          @click="createCustomToken(config)"
+        >
+          <div class="token-info">
+            <div class="wrap-icon">
+              <SelectedIcon />
+            </div>
+            <img class="token-icon" :src="config.icon" />
+            <div>
+              <div class="token-name">{{ config.name }}</div>
+            </div>
           </div>
         </div>
+      </div>
+    </template>
 
-        <div class="line"></div>
-      </template>
-
+    <template v-else-if="filteredCustomTokensList.length">
       <div class="tokens-list">
         <div
           :class="[
@@ -32,7 +59,7 @@
               disabled: token.config.address === disabledTokenAddress,
             },
           ]"
-          v-for="token in listToRender"
+          v-for="token in filteredLocalTokensList"
           :key="token.config.name"
           @click="updatedSelectedToken(token)"
         >
@@ -113,17 +140,11 @@ export default {
     },
 
     filteredCustomTokensList() {
-      return customTokenConfigs
-        .filter((config) => this.checkForMatch(config))
-        .map((config) => {
-          return { config, price: 0, userInfo: { allowance: 0n, balance: 0n } };
-        });
+      return customTokenConfigs.filter((config) => this.checkForMatch(config));
     },
 
-    listToRender() {
-      return this.filteredLocalTokensList.length
-        ? this.filteredLocalTokensList
-        : this.filteredCustomTokensList;
+    isCustom() {
+      return !this.filteredLocalTokensList.length;
     },
 
     popularTokens() {
@@ -159,6 +180,10 @@ export default {
         +formatUnits(token.userInfo.balance, token.config.decimals) *
           token.price
       );
+    },
+
+    createCustomToken(config: PoolCreationTokenConfig) {
+      console.log("custom token creation");
     },
 
     updatedSelectedToken(token: PoolCreationTokenInfo) {
