@@ -116,7 +116,7 @@ export default {
       return customTokenConfigs
         .filter((config) => this.checkForMatch(config))
         .map((config) => {
-          return { config, price: 0, userInfo: undefined };
+          return { config, price: 0, userInfo: { allowance: 0n, balance: 0n } };
         });
     },
 
