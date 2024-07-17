@@ -5,21 +5,23 @@
     <InputSearch class="input-search" @input="changeSearch" />
 
     <template v-if="filteredTokensList.length">
-      <h4 class="subtitle">Most traded</h4>
+      <template v-if="popularTokens.length">
+        <h4 class="subtitle">Most traded</h4>
 
-      <div class="popular-tokens">
-        <div
-          class="popular-token-item"
-          v-for="token in popularTokens"
-          :key="token.config.name"
-          @click="$emit('updateSelectedToken', token)"
-        >
-          <img class="popular-token-icon" :src="token.config.icon" alt="" />
-          <span class="popular-token-name">{{ token.config.name }}</span>
+        <div class="popular-tokens">
+          <div
+            class="popular-token-item"
+            v-for="token in popularTokens"
+            :key="token.config.name"
+            @click="$emit('updateSelectedToken', token)"
+          >
+            <img class="popular-token-icon" :src="token.config.icon" alt="" />
+            <span class="popular-token-name">{{ token.config.name }}</span>
+          </div>
         </div>
-      </div>
 
-      <div class="line"></div>
+        <div class="line"></div>
+      </template>
 
       <div class="tokens-list">
         <div
