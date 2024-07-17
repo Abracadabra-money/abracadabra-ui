@@ -20,7 +20,7 @@
           />
         </div>
       </div>
-      <span class="token-pair">MIM / USDС Pool</span>
+      <span class="token-pair">MIM / USDC Pool</span>
     </div>
 
     <p class="promo-text">
