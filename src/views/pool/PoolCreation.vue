@@ -103,6 +103,11 @@ import {
   getTokenAllowance,
   getTokenUserInfo,
 } from "@/helpers/pools/poolCreation/getPoolCreationTokenInfo";
+import {
+  PoolTypes,
+  TokenTypes,
+  STANDARD_K_VALUE,
+} from "@/constants/pools/poolCreation";
 
 const emptyPoolCreationTokenInfo: PoolCreationTokenInfo = {
   config: {
@@ -118,23 +123,6 @@ const emptyPoolCreationTokenInfo: PoolCreationTokenInfo = {
     allowance: 0n,
   },
 };
-
-export const K_VALUE_DECIMALS = 18;
-export const FEE_TIER_DECIMALS = 16;
-
-const STANDARD_K_VALUE = parseUnits("1", K_VALUE_DECIMALS);
-const STANDARD_FEE_TIER = parseUnits("0.03", FEE_TIER_DECIMALS);
-const STANDARD_I_VALUE = 1000000n;
-
-export enum TokenTypes {
-  Base = "base",
-  Quote = "quote",
-}
-
-export enum PoolTypes {
-  Standard = "standard",
-  Pegged = "pegged",
-}
 
 export default {
   data() {

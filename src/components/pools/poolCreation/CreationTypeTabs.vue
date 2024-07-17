@@ -36,7 +36,7 @@
 
 <script lang="ts">
 import type { PropType } from "vue";
-import { PoolTypes } from "@/views/pool/PoolCreation.vue";
+import { PoolTypes } from "@/constants/pools/poolCreation";
 
 export default {
   props: {

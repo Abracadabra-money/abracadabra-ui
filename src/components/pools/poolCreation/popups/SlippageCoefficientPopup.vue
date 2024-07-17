@@ -56,7 +56,7 @@
 <script lang="ts">
 import { defineAsyncComponent, type Prop } from "vue";
 import { formatUnits, parseUnits } from "viem";
-import { K_VALUE_DECIMALS } from "@/views/pool/PoolCreation.vue";
+import { K_VALUE_DECIMALS } from "@/constants/pools/poolCreation";
 
 export default {
   props: {

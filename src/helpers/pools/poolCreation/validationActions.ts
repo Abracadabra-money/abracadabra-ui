@@ -1,7 +1,7 @@
 import { validateConnection } from "@/helpers/validators/validateConnection";
 import type { ActionConfig } from "@/helpers/pools/poolCreation/actions/createPool";
-import type { PoolTypes } from "@/views/pool/PoolCreation.vue";
 import type { PoolCreationTokenInfo } from "@/configs/pools/poolCreation/types";
+import { PoolTypes, SUPPORTED_CHAINS } from "@/constants/pools/poolCreation";
 
 type ValidationData = {
   btnText: string;
@@ -9,7 +9,6 @@ type ValidationData = {
   method?: string;
 };
 
-const SUPPORTED_CHAINS = [42161];
 
 export const validationActions = (
   baseToken: PoolCreationTokenInfo,

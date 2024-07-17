@@ -44,9 +44,9 @@
 <script lang="ts">
 import { defineAsyncComponent, type Prop, type PropType } from "vue";
 import type { PoolCreationTokenInfo } from "@/configs/pools/poolCreation/types";
-import { TokenTypes } from "@/views/pool/PoolCreation.vue";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import { formatUnits } from "viem";
+import { TokenTypes } from "@/constants/pools/poolCreation";
 
 export default {
   props: {

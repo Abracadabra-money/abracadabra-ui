@@ -3,7 +3,7 @@
     <div class="price-selector-header">
       <h4 class="action-title">
         Initial Price
-        <Tooltip />
+        <Tooltip tooltip="tooltip" />
       </h4>
 
       <BaseCheckBox

@@ -16,6 +16,7 @@
             :width="20"
             :height="20"
             fill="#7088CC"
+            tooltip="tooltip"
             v-if="poolType == PoolTypes.Standard"
           />
           <span class="coefficient-value">K={{ formattedKValue }}</span>
@@ -59,7 +60,7 @@
 <script lang="ts">
 import { defineAsyncComponent, type Prop, type PropType } from "vue";
 import { formatUnits } from "viem";
-import { K_VALUE_DECIMALS, PoolTypes } from "@/views/pool/PoolCreation.vue";
+import { PoolTypes, K_VALUE_DECIMALS } from "@/constants/pools/poolCreation";
 
 export default {
   props: {

@@ -2,7 +2,7 @@
   <div class="fee-tier-selector-wrap">
     <h4 class="action-title">
       Select a Fee Tier
-      <Tooltip />
+      <Tooltip tooltip="tooltip" />
     </h4>
     <ul class="fee-tier-options">
       <li
@@ -23,9 +23,9 @@
 
 <script lang="ts">
 import { defineAsyncComponent, type PropType } from "vue";
-import { FEE_TIER_DECIMALS, PoolTypes } from "@/views/pool/PoolCreation.vue";
 import { formatPercent } from "@/helpers/filters";
 import { formatUnits } from "viem";
+import { PoolTypes, FEE_TIER_DECIMALS } from "@/constants/pools/poolCreation";
 
 export default {
   props: {
