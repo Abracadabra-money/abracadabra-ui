@@ -4,7 +4,7 @@
 
     <InputSearch class="input-search" @input="changeSearch" />
 
-    <template v-if="filteredTokensList.length">
+    <template v-if="listToRender.length">
       <template v-if="popularTokens.length">
         <h4 class="subtitle">Most traded</h4>
 
@@ -32,7 +32,7 @@
               disabled: token.config.address === disabledTokenAddress,
             },
           ]"
-          v-for="token in filteredTokensList"
+          v-for="token in listToRender"
           :key="token.config.name"
           @click="updatedSelectedToken(token)"
         >
@@ -46,7 +46,7 @@
             </div>
           </div>
 
-          <div class="token-balances">
+          <div class="token-balances" v-if="token.userInfo">
             <div class="token-balance">
               {{
                 formatTokenBalance(
@@ -70,7 +70,13 @@
 import { formatUnits } from "viem";
 import { defineAsyncComponent } from "vue";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
-import type { PoolCreationTokenInfo } from "@/configs/pools/poolCreation/types";
+import type {
+  PoolCreationTokenInfo,
+  PoolCreationTokenConfig,
+} from "@/configs/pools/poolCreation/types";
+import customTokenConfigs from "@/configs/pools/poolCreation/tokens/custom";
+
+const searchFields = ["name", "symbol", "address"];
 
 export default {
   props: {
@@ -100,16 +106,24 @@ export default {
   },
 
   computed: {
-    filteredTokensList() {
-      if (!this.tokensList) return [];
-
+    filteredLocalTokensList() {
       return this.search
-        ? this.tokensList.filter(
-            ({ config }) =>
-              config.name.toLowerCase().indexOf(this.search.toLowerCase()) !==
-              -1
-          )
+        ? this.tokensList.filter(({ config }) => this.checkForMatch(config))
         : this.tokensList;
+    },
+
+    filteredCustomTokensList() {
+      return customTokenConfigs
+        .filter((config) => this.checkForMatch(config))
+        .map((config) => {
+          return { config, price: 0, userInfo: undefined };
+        });
+    },
+
+    listToRender() {
+      return this.filteredLocalTokensList.length
+        ? this.filteredLocalTokensList
+        : this.filteredCustomTokensList;
     },
 
     popularTokens() {
@@ -124,6 +138,10 @@ export default {
     disabledTokenAddress() {
       if (this.tokenType === "base") return this.baseTokenAddress;
       return this.quoteTokenAddress;
+    },
+
+    lowerCaseSearch() {
+      return this.search.toLowerCase();
     },
   },
 
@@ -146,6 +164,14 @@ export default {
     updatedSelectedToken(token: PoolCreationTokenInfo) {
       if (token.config.address !== this.disabledTokenAddress)
         this.$emit("updateSelectedToken", token);
+    },
+
+    checkForMatch(config: PoolCreationTokenConfig) {
+      return searchFields.some((field) =>
+        config[field as keyof PoolCreationTokenConfig]
+          .toLowerCase()
+          .includes(this.lowerCaseSearch)
+      );
     },
   },
 
