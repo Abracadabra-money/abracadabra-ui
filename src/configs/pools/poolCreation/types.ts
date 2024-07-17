@@ -1,12 +1,15 @@
-import type { ContractInfo } from "@/types/global";
+import type { Address } from "viem";
 
 export type PoolCreationTokenConfig = {
-  name: string;
   chainId: number;
-  icon: string;
+  address: Address;
+  name: string;
+  symbol: string;
   decimals: number;
-  contract: ContractInfo;
+  icon?: string;
+  logoURI?: string;
   isPopular?: boolean;
+  abi: any;
 };
 
 export type PoolCreationTokenInfo = {

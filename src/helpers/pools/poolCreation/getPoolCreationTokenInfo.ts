@@ -21,14 +21,14 @@ export const getTokenUserInfo = async (tokenConfig: PoolCreationTokenConfig, acc
 
     const [allowance, balanceOf]: any = await publicClient.multicall({
         contracts: [{
-            address: tokenConfig.contract.address,
-            abi: tokenConfig.contract.abi,
+            address: tokenConfig.address,
+            abi: tokenConfig.abi,
             functionName: "allowance",
             args: [account, routerAddress],
         },
         {
-            address: tokenConfig.contract.address,
-            abi: tokenConfig.contract.abi,
+            address: tokenConfig.address,
+            abi: tokenConfig.abi,
             functionName: "balanceOf",
             args: [account],
         }]

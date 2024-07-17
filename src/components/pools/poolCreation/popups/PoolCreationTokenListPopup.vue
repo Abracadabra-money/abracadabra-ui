@@ -27,9 +27,9 @@
         <div
           :class="[
             'token-item',
-            { active: token.config.contract.address === activeTokenAddress },
+            { active: token.config.address === activeTokenAddress },
             {
-              disabled: token.config.contract.address === disabledTokenAddress,
+              disabled: token.config.address === disabledTokenAddress,
             },
           ]"
           v-for="token in filteredTokensList"
@@ -144,7 +144,7 @@ export default {
     },
 
     updatedSelectedToken(token: PoolCreationTokenInfo) {
-      if (token.config.contract.address !== this.disabledTokenAddress)
+      if (token.config.address !== this.disabledTokenAddress)
         this.$emit("updateSelectedToken", token);
     },
   },

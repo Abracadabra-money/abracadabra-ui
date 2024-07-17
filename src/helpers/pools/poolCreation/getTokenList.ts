@@ -49,7 +49,7 @@ export const getAllTokensByChain = async (chainId: number, account?: Address): P
   const tokenAddresses: Address[] = [];
   const tokenConfigsOnChain = tokenConfigs.filter((config) => {
     if (config.chainId === chainId) {
-      tokenAddresses.push(config.contract.address)
+      tokenAddresses.push(config.address)
       return config
     }
   });
@@ -58,7 +58,7 @@ export const getAllTokensByChain = async (chainId: number, account?: Address): P
 
   const tokensByChain = await Promise.all(
     tokenConfigsOnChain.map(async (config) => {
-      const price = tokenPrices.find(tokenPrice => config.contract.address == tokenPrice.address)?.price || 0
+      const price = tokenPrices.find(tokenPrice => config.address == tokenPrice.address)?.price || 0
       return getPoolCreationTokenInfo(config, price, account);
     })
   );

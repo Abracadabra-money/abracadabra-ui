@@ -71,8 +71,8 @@
       <TokenListPopup
         :tokensList="tokenList"
         :tokenType="tokenType"
-        :baseTokenAddress="baseToken.config.contract.address"
-        :quoteTokenAddress="quoteToken.config.contract.address"
+        :baseTokenAddress="baseToken.config.address"
+        :quoteTokenAddress="quoteToken.config.address"
         @updateSelectedToken="updateSelectedToken"
       />
     </LocalPopupWrap>
@@ -112,10 +112,12 @@ import {
 const emptyPoolCreationTokenInfo: PoolCreationTokenInfo = {
   config: {
     name: "Select Token",
+    symbol: "",
     chainId: 1,
     decimals: 18,
     icon: "",
-    contract: { address: "0x", abi: "" },
+    address: "0x",
+    abi: "",
   },
   price: 0,
   userInfo: {
@@ -188,15 +190,15 @@ export default {
 
   watch: {
     baseToken: {
-      handler(newValue) {
-        this.actionConfig.baseToken = newValue.config.contract.address;
+      handler(newValue: PoolCreationTokenInfo) {
+        this.actionConfig.baseToken = newValue.config.address;
       },
       deep: true,
     },
 
     quoteToken: {
-      handler(newValue) {
-        this.actionConfig.quoteToken = newValue.config.contract.address;
+      handler(newValue: PoolCreationTokenInfo) {
+        this.actionConfig.quoteToken = newValue.config.address;
       },
       deep: true,
     },
@@ -299,16 +301,14 @@ export default {
     },
 
     async updateTokenAllowance(contract: ContractInfo) {
-      const isBaseToken = (this.baseToken.config.contract.address =
-        contract.address);
+      const isBaseToken = (this.baseToken.config.address = contract.address);
 
       this[`${isBaseToken ? "base" : "quote"}Token`].userInfo.allowance =
         await getTokenAllowance(contract, this.chainId, this.account);
     },
 
     async updateTokenUserInfo(tokenConfig: PoolCreationTokenConfig) {
-      const isBaseToken = (this.baseToken.config.contract.address =
-        tokenConfig.contract.address);
+      const isBaseToken = (this.baseToken.config.address = tokenConfig.address);
 
       this[`${isBaseToken ? "base" : "quote"}Token`].userInfo =
         await getTokenUserInfo(tokenConfig, this.account);
@@ -387,13 +387,19 @@ export default {
           break;
         case "approveBaseToken":
           await this.approveTokenHandler(
-            this.baseToken.config.contract,
+            {
+              address: this.baseToken.config.address,
+              abi: this.baseToken.config.abi,
+            },
             this.actionConfig.baseInAmount
           );
           break;
         case "approveQuoteToken":
           await this.approveTokenHandler(
-            this.quoteToken.config.contract,
+            {
+              address: this.quoteToken.config.address,
+              abi: this.quoteToken.config.abi,
+            },
             this.actionConfig.quoteInAmount
           );
           break;
