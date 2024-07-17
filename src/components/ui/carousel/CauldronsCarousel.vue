@@ -9,9 +9,9 @@
       <CrvUsdMimCard />
     </slide> -->
 
-    <slide :index="1">
+    <!-- <slide :index="1">
       <CamelotCard />
-    </slide>
+    </slide> -->
 
     <slide :index="1">
       <EmpowerCard />
@@ -43,7 +43,7 @@
 import "vue3-carousel/dist/carousel.css";
 import { Carousel, Slide, Pagination } from "vue3-carousel";
 // import CrvUsdMimCard from "@/components/cauldrons/promoCards/CrvUsdMimCard.vue";
-import CamelotCard from "@/components/cauldrons/promoCards/CamelotCard.vue";
+// import CamelotCard from "@/components/cauldrons/promoCards/CamelotCard.vue";
 import EmpowerCard from "@/components/cauldrons/promoCards/EmpowerCard.vue";
 import CamelotUsdcMimCard from "@/components/cauldrons/promoCards/CamelotUsdcMimCard.vue";
 import MimUsdtArbPool from "@/components/cauldrons/promoCards/MimUsdtArbPool.vue";
@@ -71,7 +71,6 @@ export default {
   },
 
   components: {
-    CamelotCard,
     EmpowerCard,
     CamelotUsdcMimCard,
     MimUsdtArbPool,
@@ -81,6 +80,7 @@ export default {
     Slide,
     Pagination,
     // CrvUsdMimCard,
+    // CamelotCard,
   },
 };
 </script>
