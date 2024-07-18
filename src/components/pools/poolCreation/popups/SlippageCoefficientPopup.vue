@@ -32,13 +32,12 @@
           <p class="slippage-coefficient-description">
             {{ description }}
           </p>
-          <RadioButton :active="checkActiveOption(value)" />
+          <RadioButton
+            :active="checkActiveOption(value) && !isCustomCoefficient"
+          />
         </li>
 
-        <li
-          class="slippage-coefficient-option custom"
-          @click="selectOption(BigInt(customCoefficient))"
-        >
+        <li class="slippage-coefficient-option custom" @click="selectCustom">
           <span class="slippage-coefficient-value">Custom</span>
           <input
             class="custom-slippage-input"
@@ -46,7 +45,7 @@
             placeholder="0.00"
             v-model="customCoefficient"
           />
-          <RadioButton :active="currentCoefficientIndex == 3" />
+          <RadioButton :active="isCustomCoefficient" />
         </li>
       </ul>
     </div>
@@ -66,7 +65,7 @@ export default {
   data() {
     return {
       currentCoefficientIndex: 0,
-      customCoefficient: 0,
+      isCustomCoefficient: false,
     };
   },
 
@@ -74,26 +73,37 @@ export default {
     slippageCoefficients() {
       return [
         {
-          value: parseUnits("1", K_VALUE_DECIMALS),
+          value: this.parseCoefficientToBigint("1"),
           description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
           type: "safe",
         },
         {
-          value: parseUnits("0.0001", K_VALUE_DECIMALS),
+          value: this.parseCoefficientToBigint("0.0001"),
           description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
           type: "default",
         },
         {
-          value: parseUnits("0.00025", K_VALUE_DECIMALS),
+          value: this.parseCoefficientToBigint("0.00025"),
           description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
           type: "default",
         },
         {
-          value: parseUnits("0.002", K_VALUE_DECIMALS),
+          value: this.parseCoefficientToBigint("0.002"),
           description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
           type: "default",
         },
       ];
+    },
+
+    customCoefficient: {
+      get() {
+        return this.isCustomCoefficient
+          ? this.formatKValue(this.kValue || 0n)
+          : null;
+      },
+      set(value: number) {
+        this.$emit("selectKValue", this.parseCoefficientToBigint(value));
+      },
     },
   },
 
@@ -103,7 +113,12 @@ export default {
     },
 
     selectOption(value: bigint) {
+      this.isCustomCoefficient = false;
       this.$emit("selectKValue", value);
+    },
+
+    selectCustom() {
+      this.isCustomCoefficient = true;
     },
 
     formatKValue(KValue: bigint) {
@@ -113,6 +128,15 @@ export default {
     closePopup() {
       this.$emit("close");
     },
+
+    parseCoefficientToBigint(coefficient: string | number) {
+      return parseUnits(coefficient.toString(), K_VALUE_DECIMALS);
+    },
+  },
+
+  created() {
+    if (!this.slippageCoefficients.some(({ value }) => value == this.kValue))
+      this.isCustomCoefficient = true;
   },
 
   components: {
