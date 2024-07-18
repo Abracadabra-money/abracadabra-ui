@@ -77,6 +77,7 @@ export default {
     primaryMax: { type: Boolean, default: false },
     compact: { type: Boolean, default: false },
     allowSelectToken: { type: Boolean, default: false },
+    poolCreation: { type: Boolean, default: false },
     differencePrice: { type: Number, default: 0 },
   },
 

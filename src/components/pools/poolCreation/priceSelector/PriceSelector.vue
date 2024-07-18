@@ -29,13 +29,13 @@
         <div class="token-info">
           <BaseTokenIcon
             :icon="comparedCurrency.icon"
-            :name="comparedCurrency.name"
+            :name="comparedCurrency.symbol"
             size="24px"
           />
           <span
             class="token-name"
-            v-if="comparedCurrency.name != 'Select Token'"
-            >{{ comparedCurrency.name }}</span
+            v-if="comparedCurrency.symbol != 'Select Token'"
+            >{{ comparedCurrency.symbol }}</span
           >
         </div>
       </div>
@@ -43,7 +43,7 @@
       <RateInput
         class="price-input"
         v-model="inputValue"
-        :name="benchmarkCurrency.name"
+        :name="benchmarkCurrency.symbol"
         :icon="benchmarkCurrency.icon"
         :isProgrammaticallyChanged="isProgrammaticallyChanged"
         :disabled="isPriceSelectorDisabled || isAutoPricingEnabled"

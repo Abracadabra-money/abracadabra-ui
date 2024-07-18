@@ -124,7 +124,7 @@ export default {
     rgba(0, 80, 156, 0.07) 101.49%
   );
   box-shadow: 0px 4px 33px 0px rgba(0, 0, 0, 0.06);
-
+  cursor: pointer;
   transition: all 0.3s ease-in;
 }
 

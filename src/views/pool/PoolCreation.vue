@@ -112,7 +112,7 @@ import {
 const emptyPoolCreationTokenInfo: PoolCreationTokenInfo = {
   config: {
     name: "Select Token",
-    symbol: "",
+    symbol: "Select Token",
     chainId: 1,
     decimals: 18,
     icon: "",
