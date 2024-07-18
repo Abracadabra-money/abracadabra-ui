@@ -2,6 +2,8 @@ import { parseUnits } from "viem";
 
 export const SUPPORTED_CHAINS = [42161];
 
+export const POOL_CREATION_CUSTOM_TOKENS_LS_KEY = 'POOL_CREATION_CUSTOM_TOKENS_LS_KEY'
+
 export const K_VALUE_DECIMALS = 18;
 export const FEE_TIER_DECIMALS = 16;
 

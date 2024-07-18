@@ -1,10 +1,22 @@
 import type { PoolCreationTokenConfig, PoolCreationTokenInfo, TokenUserInfo } from "@/configs/pools/poolCreation/types";
 import { getSwapRouterByChain } from "@/configs/pools/routers";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
-import type{ ContractInfo } from "@/types/global";
+import { getCoinsPrices } from "@/helpers/prices/defiLlama";
+import type { ContractInfo } from "@/types/global";
 import type { Address } from "viem";
 
-export const getPoolCreationTokenInfo = async (tokenConfig: PoolCreationTokenConfig, price: number, account?: Address): Promise<PoolCreationTokenInfo> => {
+export type GetPoolCreationTokenInfoArguments = {
+    tokenConfig: PoolCreationTokenConfig;
+    price?: number;
+    account?: Address;
+}
+
+export const getPoolCreationTokenInfo = async ({ tokenConfig, price, account }: GetPoolCreationTokenInfoArguments): Promise<PoolCreationTokenInfo> => {
+    if (!price) {
+        const { chainId, address } = tokenConfig
+        price = (await getCoinsPrices(chainId, [address]))[0].price
+    }
+
     const tokenInfo: PoolCreationTokenInfo = { config: tokenConfig, price, userInfo: { allowance: 0n, balance: 0n } }
 
     if (account) {

@@ -61,7 +61,7 @@
           ]"
           v-for="token in filteredLocalTokensList"
           :key="token.config.name"
-          @click="updatedSelectedToken(token)"
+          @click="updateSelectedToken(token)"
         >
           <div class="token-info">
             <div class="wrap-icon">
@@ -94,14 +94,17 @@
 </template>
 
 <script lang="ts">
-import { formatUnits } from "viem";
 import { defineAsyncComponent } from "vue";
+import { mapGetters } from "vuex";
+import { formatUnits } from "viem";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import type {
   PoolCreationTokenInfo,
   PoolCreationTokenConfig,
 } from "@/configs/pools/poolCreation/types";
 import customTokenConfigs from "@/configs/pools/poolCreation/tokens/custom";
+import { getPoolCreationTokenInfo } from "@/helpers/pools/poolCreation/getPoolCreationTokenInfo";
+import { updateLocalStorageCustomTokens } from "@/helpers/pools/poolCreation/localStorage";
 
 const searchFields = ["name", "symbol", "address"];
 
@@ -133,6 +136,8 @@ export default {
   },
 
   computed: {
+    ...mapGetters({ account: "getAccount" }),
+
     filteredLocalTokensList() {
       return this.search
         ? this.tokensList.filter(({ config }) => this.checkForMatch(config))
@@ -182,11 +187,18 @@ export default {
       );
     },
 
-    createCustomToken(config: PoolCreationTokenConfig) {
-      console.log("custom token creation");
+    async createCustomToken(config: PoolCreationTokenConfig) {
+      const customTokenInfo = await getPoolCreationTokenInfo({
+        tokenConfig: config,
+        account: this.account,
+      });
+
+      updateLocalStorageCustomTokens(customTokenInfo.config);
+
+      this.updateSelectedToken(customTokenInfo);
     },
 
-    updatedSelectedToken(token: PoolCreationTokenInfo) {
+    updateSelectedToken(token: PoolCreationTokenInfo) {
       if (token.config.address !== this.disabledTokenAddress)
         this.$emit("updateSelectedToken", token);
     },
