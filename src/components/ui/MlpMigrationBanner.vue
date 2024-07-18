@@ -1,5 +1,5 @@
 <template>
-  <div class="banner" v-if="showBanner && !isCloseBanner">
+  <div class="banner" v-if="showBanner && !isCloseBanner && !theEnd">
     <div class="banner-content">
       <img
         class="migration-icon"
@@ -89,6 +89,7 @@
 </template>
 
 <script lang="ts">
+import moment from "moment";
 import store from "@/store";
 import { mapGetters } from "vuex";
 import { BLAST_CHAIN_ID } from "@/constants/global";
@@ -114,6 +115,10 @@ export default {
     showBanner() {
       if (!this.account) return false;
       return checkAccount(this.account);
+    },
+
+    theEnd() {
+      return moment().utc().isAfter(moment.unix(1721260800));
     },
   },
 
