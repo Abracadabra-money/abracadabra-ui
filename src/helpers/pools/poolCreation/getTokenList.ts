@@ -3,7 +3,8 @@ import type { PoolCreationTokenInfo } from "@/configs/pools/poolCreation/types";
 import type { Address } from "viem";
 import { getPoolCreationTokenInfo } from "./getPoolCreationTokenInfo";
 import { getCoinsPrices } from "@/helpers/prices/defiLlama";
-import { getLocalStorageCustomTokens } from "@/helpers/pools/poolCreation/localStorage";
+import store from "@/store";
+
 
 const availableChains = Array.from(
   new Set(localTokenConfigs.map((token) => token.chainId)).values()
@@ -47,7 +48,7 @@ export const getTokenList = async (chainId?: number, account?: Address) => {
 
 export const getAllTokensByChain = async (chainId: number, account?: Address): Promise<PoolCreationTokenInfo[]> => {
 
-  const customTokenConfigs = getLocalStorageCustomTokens();
+  const customTokenConfigs = store.getters.getPoolCreationCustomTokens.data;
 
   const generalTokenConfigs = [...localTokenConfigs, ...customTokenConfigs]
 

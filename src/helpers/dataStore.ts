@@ -10,6 +10,7 @@ export const LS_MAGIC_GLP_STAKE_KEY = "abracadabraMagicGlpStakeData";
 export const LS_MAGIC_GLP_STAKE_CHART_KEY = "abracadabraMagicGlpChartData";
 export const LS_MAGIC_APE_STAKE_KEY = "abracadabraMagicApeStakeData";
 export const LS_MAGIC_APE_STAKE_CHART_KEY = "abracadabraMagicApeChartData";
+export const LS_POOL_CREATION_CUSTOM_TOKENS_KEY = 'abracadabraPoolCreationCustomTokens'
 
 export const bigintStringify = (payload: any) =>
   JSON.stringify(payload, (key, value) =>
@@ -181,3 +182,9 @@ export const getAndParseMagicApeStakeData = () => {
     isCreated: true,
   };
 };
+
+
+export const getAndParsePoolCreationCustomTokens = () => {
+  const storedItem = localStorage.getItem(LS_POOL_CREATION_CUSTOM_TOKENS_KEY);
+  return storedItem ? { data: JSON.parse(storedItem), isCreated: true } : { data: [], isCreated: false };
+}
