@@ -1,7 +1,7 @@
-import { validateConnection } from "@/helpers/validators/validateConnection";
 import type { ActionConfig } from "@/helpers/pools/poolCreation/actions/createPool";
 import type { PoolCreationTokenInfo } from "@/configs/pools/poolCreation/types";
 import { PoolTypes, SUPPORTED_CHAINS } from "@/constants/pools/poolCreation";
+import type { Address } from "viem";
 
 type ValidationData = {
   btnText: string;
@@ -9,24 +9,25 @@ type ValidationData = {
   method?: string;
 };
 
-
 export const validationActions = (
   baseToken: PoolCreationTokenInfo,
   quoteToken: PoolCreationTokenInfo,
   actionConfig: ActionConfig,
   poolType: PoolTypes | null,
   chainId: number,
+  account: Address | null,
   isActionProcessing: boolean
 ): ValidationData => {
+  const { baseInAmount, quoteInAmount, lpFeeRate, I, K } = actionConfig;
 
-  const { baseInAmount, quoteInAmount, lpFeeRate, I, K } =
-    actionConfig;
+  if (isActionProcessing) return { btnText: "Processing...", isAllowed: false };
 
-  if (isActionProcessing)
-    return { btnText: "Processing...", isAllowed: false };
-
-  const connectedError = validateConnection();
-  if (connectedError.btnText) return connectedError;
+  if (!account)
+    return {
+      btnText: "Connect wallet",
+      isAllowed: true,
+      method: "connectWallet",
+    };
 
   const chainError = validateChain(chainId);
   if (chainError.btnText) return chainError;
@@ -37,17 +38,13 @@ export const validationActions = (
   if (quoteToken.config.name === "Select Token")
     return { btnText: "Select Quote Token", isAllowed: false };
 
-  if (!poolType)
-    return { btnText: "Select Pool Type", isAllowed: false };
+  if (!poolType) return { btnText: "Select Pool Type", isAllowed: false };
 
-  if (!lpFeeRate)
-    return { btnText: "Select Fee Tier", isAllowed: false };
+  if (!lpFeeRate) return { btnText: "Select Fee Tier", isAllowed: false };
 
-  if (!I)
-    return { btnText: "Select Price", isAllowed: false };
+  if (!I) return { btnText: "Select Price", isAllowed: false };
 
-  if (!K)
-    return { btnText: "Select K", isAllowed: false };
+  if (!K) return { btnText: "Select K", isAllowed: false };
 
   if (!baseInAmount || !quoteInAmount)
     return { btnText: "Enter amount", isAllowed: false };

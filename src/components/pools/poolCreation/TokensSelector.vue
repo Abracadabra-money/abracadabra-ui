@@ -4,7 +4,7 @@
 
     <div class="inputs-wrap">
       <BaseTokenInput
-        :name="baseToken.config.name"
+        :name="baseToken.config.symbol"
         :icon="baseToken.config.icon"
         :decimals="baseToken.config.decimals"
         :max="baseToken.userInfo.balance"
@@ -26,7 +26,7 @@
       />
 
       <BaseTokenInput
-        :name="quoteToken.config.name"
+        :name="quoteToken.config.symbol"
         :icon="quoteToken.config.icon"
         :decimals="quoteToken.config.decimals"
         :max="quoteToken.userInfo.balance"

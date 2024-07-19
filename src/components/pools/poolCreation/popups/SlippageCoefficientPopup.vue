@@ -73,14 +73,9 @@ export default {
     slippageCoefficients() {
       return [
         {
-          value: this.parseCoefficientToBigint("1"),
-          description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
-          type: "safe",
-        },
-        {
           value: this.parseCoefficientToBigint("0.0001"),
           description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
-          type: "default",
+          type: "safe",
         },
         {
           value: this.parseCoefficientToBigint("0.00025"),

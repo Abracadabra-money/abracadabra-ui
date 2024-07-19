@@ -172,6 +172,7 @@ export default {
         this.actionConfig,
         this.poolType,
         this.chainId,
+        this.account,
         this.isActionProcessing
       );
     },
@@ -254,6 +255,13 @@ export default {
     },
 
     updateSelectedToken(token: PoolCreationTokenInfo) {
+      if (
+        !this.tokenList.some(
+          ({ config }) => config.address == token.config.address
+        )
+      )
+        this.tokenList.push(token);
+
       if (this.tokenType === "quote") {
         if (this.baseToken.config.name === token.config.name) {
           this.baseToken = this.quoteToken;
