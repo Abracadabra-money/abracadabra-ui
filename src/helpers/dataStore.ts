@@ -47,16 +47,23 @@ export const jsonBigIntTransform = (item: any) => {
 };
 
 export const getAndParseCaldronsList = () => {
-  const lsCauldronsList = localStorage.getItem(LS_CAULDRONS_LIST_KEY);
+  try {
+    const lsCauldronsList = localStorage.getItem(LS_CAULDRONS_LIST_KEY);
 
-  if (!lsCauldronsList) {
+    if (!lsCauldronsList) {
+      return { data: [], isCreated: false };
+    }
+
+    const cauldronsList = JSON.parse(lsCauldronsList);
+    const data = cauldronsList.map((item: any) =>
+      jsonBigIntTransform(jsonBigNumberTransform(item))
+    );
+    
+    return { data, isCreated: true };
+  } catch (error) {
+    console.log("getAndParseCaldronsList -> error", error);
     return { data: [], isCreated: false };
   }
-
-  const cauldronsList = JSON.parse(lsCauldronsList);
-  const data = cauldronsList.map((item: any) => jsonBigNumberTransform(item));
-
-  return { data, isCreated: true };
 };
 
 export const getAndParseUserPositions = () => {
