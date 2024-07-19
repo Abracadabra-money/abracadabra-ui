@@ -190,9 +190,23 @@ export default {
   },
 
   watch: {
+    //for tests. remove before live : todo
+    actionConfig: {
+      handler() {},
+      deep: true,
+    },
+    //
     baseToken: {
-      handler(newValue: PoolCreationTokenInfo) {
+      handler(
+        newValue: PoolCreationTokenInfo,
+        oldValue: PoolCreationTokenInfo
+      ) {
         this.actionConfig.baseToken = newValue.config.address;
+        const oldDecimals = oldValue.config.decimals;
+        const newDecimals = newValue.config.decimals;
+        this.actionConfig.baseInAmount =
+          (this.actionConfig.baseInAmount * parseUnits("1", newDecimals)) /
+          parseUnits("1", oldDecimals);
       },
       deep: true,
     },
@@ -202,6 +216,13 @@ export default {
         this.actionConfig.quoteToken = newValue.config.address;
       },
       deep: true,
+    },
+
+    IValueDecimals(newDecimals: number, oldDecimals: number) {
+      const currentI = this.actionConfig.I;
+      this.actionConfig.I =
+        (currentI * parseUnits("1", newDecimals)) /
+        parseUnits("1", oldDecimals);
     },
 
     async chainId() {
@@ -219,6 +240,8 @@ export default {
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
     updateTokenInputAmount(type: TokenTypes, amount: bigint) {
+      if (!this.actionConfig.I) return;
+
       const baseDecimals = this.baseToken.config.decimals;
       const quoteDecimals = this.quoteToken.config.decimals;
 
