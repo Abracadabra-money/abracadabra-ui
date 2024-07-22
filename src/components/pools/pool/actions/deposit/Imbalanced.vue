@@ -34,28 +34,15 @@
       />
     </div>
 
-    <div class="info-blocks">
-      <div class="info-block lp">
-        <div class="tag">
-          <span class="title">
-            <BaseTokenIcon
-              :name="this.pool.name"
-              :icon="this.pool.icon"
-              size="32px"
-            />
-            {{ this.pool.name }}
-          </span>
-          <div class="token-amount">
-            <span class="value">
-              {{ formattedLpTokenExpected.value }}
-            </span>
-            <span class="usd">
-              {{ formattedLpTokenExpected.usd }}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
+    <PreviewAddLiquidity
+      :pool="pool"
+      :slippage="slippage"
+      :baseInputAmount="baseInputAmount"
+      :expectedOptimal="expectedOptimal"
+      :quoteInputAmount="quoteInputAmount"
+      :isExpectedOptimalCalculating="isExpectedOptimalCalculating"
+      :simulatePayload="addLiquidityImbalancedPayload"
+    />
 
     <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
       {{ buttonText }}
@@ -81,9 +68,11 @@ import debounce from "lodash.debounce";
 import { defineAsyncComponent } from "vue";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import { approveTokenViem } from "@/helpers/approval";
+import MIMSwapRouterAbi from "@/abis/MIMSwapRouterAbi";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import { actionStatus } from "@/components/pools/pool/PoolActionBlock.vue";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
@@ -111,6 +100,14 @@ export default {
       isActionProcessing: false,
       transactionStatus: actionStatus.WAITING,
       isPreviewPopupOpened: false,
+      addLiquidityImbalancedPayload: {
+        baseAdjustedInAmount: 0n,
+        quoteAdjustedInAmount: 0n,
+        shares: 0n,
+        swapOutAmount: 0n,
+        baseRefundAmount: 0n,
+        quoteRefundAmount: 0n,
+      },
     };
   },
 
@@ -150,26 +147,6 @@ export default {
       return (
         this.pool.tokens.quoteToken.userInfo.allowance >= this.quoteInputAmount
       );
-    },
-
-    formattedLpTokenExpected() {
-      if (this.isExpectedOptimalCalculating) return { value: "-", usd: "-" };
-
-      const minimumShares = applySlippageToMinOutBigInt(
-        this.slippage,
-        this.expectedOptimal.shares
-      );
-
-      const formattedLpTokenValue = Number(
-        formatUnits(minimumShares, this.pool.decimals)
-      );
-
-      const lpTokenValueUsdEquivalent = formattedLpTokenValue * this.pool.price;
-
-      return {
-        value: formatTokenBalance(formattedLpTokenValue),
-        usd: formatUSD(lpTokenValueUsdEquivalent),
-      };
     },
 
     isValid() {
@@ -266,6 +243,7 @@ export default {
 
       this.isExpectedOptimalCalculating = true;
       this.calculateExpectedOptimal();
+      this.simulateAddLiquidityImbalanced();
     },
 
     calculateExpectedOptimal: debounce(
@@ -330,6 +308,31 @@ export default {
       }
       this.isActionProcessing = false;
     },
+
+    simulateAddLiquidityImbalanced: debounce(
+      async function simulateAddLiquidityImbalanced() {
+        const publicClient = getPublicClient(this.chainId);
+        const payload = this.createImbalancedPayload();
+
+        const { result } = await publicClient.simulateContract({
+          address: this.pool?.swapRouter,
+          abi: MIMSwapRouterAbi,
+          functionName: "addLiquidityImbalanced",
+          args: [payload],
+          account: this.account,
+        });
+
+        this.addLiquidityImbalancedPayload = {
+          baseAdjustedInAmount: result[0],
+          quoteAdjustedInAmount: result[1],
+          shares: result[2],
+          swapOutAmount: result[3],
+          baseRefundAmount: result[4],
+          quoteRefundAmount: result[5],
+        };
+      },
+      500
+    ),
 
     async imbalanceHandler() {
       this.isActionProcessing = true;
@@ -402,8 +405,8 @@ export default {
     BaseTokenInput: defineAsyncComponent(() =>
       import("@/components/base/BaseTokenInput.vue")
     ),
-    BaseTokenIcon: defineAsyncComponent(() =>
-      import("@/components/base/BaseTokenIcon.vue")
+    PreviewAddLiquidity: defineAsyncComponent(() =>
+      import("@/components/pools/pool/PreviewAddLiquidity.vue")
     ),
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")
@@ -441,56 +444,6 @@ export default {
   left: calc(50% - 28px);
   width: 46px;
   height: 46px;
-}
-
-.info-blocks {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  gap: 24px;
-}
-
-.info-block {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(180, 180, 180, 0.08);
-  background: linear-gradient(
-    146deg,
-    rgba(0, 10, 35, 0.07) 0%,
-    rgba(0, 80, 156, 0.07) 101.49%
-  );
-  box-shadow: 0px 4px 33px 0px rgba(0, 0, 0, 0.06);
-}
-
-.tag {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  color: #878b93;
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.token-amount {
-  display: flex;
-  flex-direction: column;
-  align-items: end;
-}
-
-.value {
-  color: #fff;
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.value,
-.title {
-  display: flex;
-  align-items: center;
 }
 
 .apr {
