@@ -140,10 +140,10 @@ export default {
       if (!this.baseInputAmount && !this.quoteInputAmount) return 0;
 
       return this.formattedLpTokenExpected.usd
-        ? (this.tokensAmountWithSlippage -
+        ? ((this.tokensAmountWithSlippage -
             this.tokensCashback -
-            this.formattedLpTokenExpected.usd /
-              this.formattedLpTokenExpected.usd) *
+            this.formattedLpTokenExpected.usd) /
+            this.formattedLpTokenExpected.usd) *
             100
         : 0;
     },
