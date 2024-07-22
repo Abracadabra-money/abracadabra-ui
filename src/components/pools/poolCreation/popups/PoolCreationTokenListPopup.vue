@@ -49,7 +49,7 @@
           </div>
         </div>
 
-        <div class="token-balances" v-if="token.userInfo && token.price">
+        <div class="token-balances" v-if="token.userInfo">
           <div class="token-balance">
             {{
               formatTokenBalance(
@@ -206,7 +206,7 @@ export default {
     },
 
     getTokenBalance(token: PopupTokenInfo) {
-      if (!token.price || !token.userInfo) return 0;
+      if (!token.price || !token.userInfo) return "$0.0";
       return formatUSD(
         +formatUnits(token.userInfo.balance, token.config.decimals) *
           token.price
@@ -220,6 +220,7 @@ export default {
       });
 
       updateLocalStorageCustomTokens(customTokenInfo.config);
+      console.log(customTokenInfo);
 
       return customTokenInfo;
     },

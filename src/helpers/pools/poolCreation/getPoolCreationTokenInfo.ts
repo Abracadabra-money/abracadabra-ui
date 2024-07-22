@@ -93,6 +93,11 @@ export const createTokenConfigByAddress = async (address: Address, chainId: numb
             ],
         })
 
+        if ([name, decimals, symbol].some(element => element.status == 'failure'))
+            throw 'fetching data for config failed'
+
+
+
         return {
             chainId,
             address,
