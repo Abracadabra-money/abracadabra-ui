@@ -4,6 +4,9 @@ import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { getCoinsPrices } from "@/helpers/prices/defiLlama";
 import type { ContractInfo } from "@/types/global";
 import type { Address } from "viem";
+import erc20Abi from "@/abis/farm/erc20Abi";
+import baseTokenIcon from "@/assets/images/base_token_icon.png"
+
 
 export type GetPoolCreationTokenInfoArguments = {
     tokenConfig: PoolCreationTokenConfig;
@@ -61,4 +64,47 @@ export const getTokenAllowance = async (tokenContract: ContractInfo, chainId: nu
         functionName: "allowance",
         args: [account, routerAddress],
     })
+}
+
+export const createTokenConfigByAddress = async (address: Address, chainId: number): Promise<PoolCreationTokenConfig | null> => {
+    try {
+        const publicClient = getPublicClient(chainId)
+
+        const [name, symbol, decimals] = await publicClient.multicall({
+            contracts: [
+                {
+                    address: address,
+                    abi: erc20Abi,
+                    functionName: "name",
+                    args: [],
+                },
+                {
+                    address: address,
+                    abi: erc20Abi,
+                    functionName: "symbol",
+                    args: [],
+                },
+                {
+                    address: address,
+                    abi: erc20Abi,
+                    functionName: "decimals",
+                    args: [],
+                },
+            ],
+        })
+
+        return {
+            chainId,
+            address,
+            name: name.result,
+            symbol: symbol.result,
+            decimals: decimals.result,
+            icon: baseTokenIcon,
+            abi: erc20Abi
+        }
+
+    } catch (error) {
+        console.log('creating custom token config error: ', error);
+        return null;
+    }
 }

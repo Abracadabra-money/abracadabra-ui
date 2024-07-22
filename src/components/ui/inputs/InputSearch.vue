@@ -18,6 +18,7 @@
       type="text"
       placeholder="Search"
       class="search-input"
+      :disabled="disabled"
       @input="changeSearch"
     />
   </div>
@@ -25,6 +26,10 @@
 
 <script lang="ts">
 export default {
+  props: {
+    disabled: { type: Boolean, default: false },
+  },
+
   methods: {
     changeSearch(event: any) {
       this.$emit("changeSearch", event.target.value || "");

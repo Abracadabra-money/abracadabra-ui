@@ -2,7 +2,11 @@
   <div class="popup-content">
     <h3 class="title">Select a token</h3>
 
-    <InputSearch class="input-search" @input="changeSearch" />
+    <InputSearch
+      class="input-search"
+      @input="changeSearch"
+      :disabled="isSearching"
+    />
 
     <template v-if="popularTokens.length">
       <h4 class="subtitle">Most traded</h4>
@@ -12,7 +16,7 @@
           class="popular-token-item"
           v-for="token in popularTokens"
           :key="token.config.name"
-          @click="$emit('updateSelectedToken', token)"
+          @click="updateSelectedToken(token)"
         >
           <img class="popular-token-icon" :src="token.config.icon" alt="" />
           <span class="popular-token-name">{{ token.config.name }}</span>
@@ -22,70 +26,43 @@
       <div class="line"></div>
     </template>
 
-    <template v-if="isCustom">
-      <div class="tokens-list">
-        <div
-          :class="[
-            'token-item',
-            { active: config.address === activeTokenAddress },
-            {
-              disabled: config.address === disabledTokenAddress,
-            },
-          ]"
-          v-for="config in filteredCustomTokensList"
-          :key="config.name"
-          @click="createCustomToken(config)"
-        >
-          <div class="token-info">
-            <div class="wrap-icon">
-              <SelectedIcon />
-            </div>
-            <img class="token-icon" :src="config.icon" />
-            <div>
-              <div class="token-name">{{ config.name }}</div>
-            </div>
+    <div class="tokens-list" v-if="tokensToRender.length">
+      <div
+        :class="[
+          'token-item',
+          { active: token.config.address === activeTokenAddress },
+          {
+            disabled: token.config.address === disabledTokenAddress,
+          },
+        ]"
+        v-for="token in tokensToRender"
+        :key="token.config.name"
+        @click="updateSelectedToken(token)"
+      >
+        <div class="token-info">
+          <div class="wrap-icon">
+            <SelectedIcon />
+          </div>
+          <img class="token-icon" :src="token.config.icon" alt="" />
+          <div>
+            <div class="token-name">{{ token.config.name }}</div>
+          </div>
+        </div>
+
+        <div class="token-balances" v-if="token.userInfo && token.price">
+          <div class="token-balance">
+            {{
+              formatTokenBalance(
+                formatUnits(token.userInfo.balance, token.config.decimals)
+              )
+            }}
+          </div>
+          <div class="token-balance-usd">
+            {{ getTokenBalance(token) }}
           </div>
         </div>
       </div>
-    </template>
-
-    <template v-else-if="filteredCustomTokensList.length">
-      <div class="tokens-list">
-        <div
-          :class="[
-            'token-item',
-            { active: token.config.address === activeTokenAddress },
-            {
-              disabled: token.config.address === disabledTokenAddress,
-            },
-          ]"
-          v-for="token in filteredLocalTokensList"
-          :key="token.config.name"
-          @click="updateSelectedToken(token)"
-        >
-          <div class="token-info">
-            <div class="wrap-icon">
-              <SelectedIcon />
-            </div>
-            <img class="token-icon" :src="token.config.icon" alt="" />
-            <div>
-              <div class="token-name">{{ token.config.name }}</div>
-            </div>
-          </div>
-
-          <div class="token-balances" v-if="token.userInfo">
-            <div class="token-balance">
-              {{
-                formatTokenBalance(
-                  formatUnits(token.userInfo.balance, token.config.decimals)
-                )
-              }}
-            </div>
-            <div class="token-balance-usd">{{ getTokenBalance(token) }}</div>
-          </div>
-        </div>
-      </div>
-    </template>
+    </div>
 
     <div class="empty-wrap" v-else>
       <BaseSearchEmpty text="There are no Token" />
@@ -101,12 +78,23 @@ import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import type {
   PoolCreationTokenInfo,
   PoolCreationTokenConfig,
+  TokenUserInfo,
 } from "@/configs/pools/poolCreation/types";
 import customTokenConfigs from "@/configs/pools/poolCreation/tokens/custom";
-import { getPoolCreationTokenInfo } from "@/helpers/pools/poolCreation/getPoolCreationTokenInfo";
+import {
+  createTokenConfigByAddress,
+  getPoolCreationTokenInfo,
+} from "@/helpers/pools/poolCreation/getPoolCreationTokenInfo";
 import { updateLocalStorageCustomTokens } from "@/helpers/pools/poolCreation/localStorage";
+import { isAddress } from "viem";
 
 const searchFields = ["name", "symbol", "address"];
+
+type PopupTokenInfo = {
+  config: PoolCreationTokenConfig;
+  price?: number;
+  userInfo?: TokenUserInfo;
+};
 
 export default {
   props: {
@@ -132,24 +120,36 @@ export default {
   data() {
     return {
       search: "",
+      tokensFiltered: [] as PopupTokenInfo[],
+      isSearching: false,
     };
   },
 
   computed: {
-    ...mapGetters({ account: "getAccount" }),
+    ...mapGetters({ account: "getAccount", chainId: "getChainId" }),
 
     filteredLocalTokensList() {
-      return this.search
-        ? this.tokensList.filter(({ config }) => this.checkForMatch(config))
-        : this.tokensList;
+      return this.tokensList.filter(({ config }) => this.checkForMatch(config));
     },
 
-    filteredCustomTokensList() {
-      return customTokenConfigs.filter((config) => this.checkForMatch(config));
+    filteredCustomTokensList(): PopupTokenInfo[] {
+      return customTokenConfigs
+        .filter((config) => this.checkForMatch(config))
+        .map((config) => {
+          return { config };
+        });
     },
 
-    isCustom() {
-      return !this.filteredLocalTokensList.length;
+    filteredTokenList() {
+      if (!this.search) return this.tokensList;
+      if (this.filteredLocalTokensList.length)
+        return this.filteredLocalTokensList;
+      return this.filteredCustomTokensList;
+    },
+
+    tokensToRender() {
+      if (this.search) return this.tokensFiltered;
+      return this.tokensList;
     },
 
     popularTokens() {
@@ -171,16 +171,42 @@ export default {
     },
   },
 
+  watch: {
+    async search(value: string) {
+      this.tokensFiltered = await this.searchToken(value);
+    },
+  },
+
   methods: {
     formatUnits,
     formatTokenBalance,
+
+    async searchToken(searchKey: string): Promise<PopupTokenInfo[]> {
+      if (this.filteredLocalTokensList.length)
+        return this.filteredLocalTokensList;
+
+      if (this.filteredCustomTokensList.length)
+        return this.filteredCustomTokensList;
+
+      if (isAddress(searchKey)) {
+        this.isSearching = true;
+        const searchingTokenConfig = await createTokenConfigByAddress(
+          searchKey,
+          this.chainId
+        );
+        this.isSearching = false;
+        return searchingTokenConfig ? [{ config: searchingTokenConfig }] : [];
+      }
+      return [];
+    },
 
     changeSearch(event: InputEvent) {
       const target = event.target as HTMLInputElement;
       this.search = target.value;
     },
 
-    getTokenBalance(token: PoolCreationTokenInfo) {
+    getTokenBalance(token: PopupTokenInfo) {
+      if (!token.price || !token.userInfo) return 0;
       return formatUSD(
         +formatUnits(token.userInfo.balance, token.config.decimals) *
           token.price
@@ -195,12 +221,18 @@ export default {
 
       updateLocalStorageCustomTokens(customTokenInfo.config);
 
-      this.updateSelectedToken(customTokenInfo);
+      return customTokenInfo;
     },
 
-    updateSelectedToken(token: PoolCreationTokenInfo) {
+    async updateSelectedToken(token: PopupTokenInfo) {
+      if (this.isSearching) return;
+
+      let tokenToEmit = token;
+      if (!token.userInfo && !token.price)
+        tokenToEmit = await this.createCustomToken(token.config);
+
       if (token.config.address !== this.disabledTokenAddress)
-        this.$emit("updateSelectedToken", token);
+        this.$emit("updateSelectedToken", tokenToEmit);
     },
 
     checkForMatch(config: PoolCreationTokenConfig) {
