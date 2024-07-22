@@ -32,7 +32,6 @@
         :max="quoteToken.userInfo.balance"
         :tokenPrice="quoteToken.price"
         :value="quoteTokenValue"
-        disabled
         allowSelectToken
         @onSelectClick="$emit('openTokensPopup', TokenTypes.Quote)"
         @updateInputValue="updateQuoteTokenInputAmount"
@@ -64,6 +63,8 @@ export default {
 
   data() {
     return {
+      baseChangedProgrammatically: false,
+      quoteChangedProgrammatically: false,
       TokenTypes,
     };
   },
@@ -84,13 +85,32 @@ export default {
     },
   },
 
+  watch: {
+    baseTokenAmount() {
+      this.baseChangedProgrammatically = true;
+    },
+    quoteTokenAmount() {
+      this.quoteChangedProgrammatically = true;
+    },
+  },
+
   methods: {
     updateBaseTokenInputAmount(amount: bigint) {
+      if (this.baseChangedProgrammatically) {
+        this.baseChangedProgrammatically = false;
+        this.quoteChangedProgrammatically = false;
+        return;
+      }
       this.$emit("updateTokenInputAmount", TokenTypes.Base, amount || 0n);
     },
 
     updateQuoteTokenInputAmount(amount: bigint) {
-      // this.$emit("updateTokenInputAmount", TokenTypes.Quote, amount || 0n);
+      if (this.quoteChangedProgrammatically) {
+        this.baseChangedProgrammatically = false;
+        this.quoteChangedProgrammatically = false;
+        return;
+      }
+      this.$emit("updateTokenInputAmount", TokenTypes.Quote, amount || 0n);
     },
   },
 
