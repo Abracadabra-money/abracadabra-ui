@@ -271,7 +271,7 @@ export const previewAddLiquiditySingleSide = (
   return previewAddLiquidityResult;
 };
 
-export const previewAddLiquidityImbalanced = (
+export const previewAddLiquidityImbalancedTest = (
   lpInfo: MagicLPInfo,
   baseInAmount: bigint,
   quoteInAmount: bigint,
@@ -337,7 +337,7 @@ export const previewAddLiquidityImbalanced = (
   return previewAddLiquidityImbalancedResult;
 };
 
-export const previewAddLiquidityImbalancedTest = (
+export const previewAddLiquidityImbalanced = (
   lpInfo: MagicLPInfo,
   baseInAmount: bigint,
   quoteInAmount: bigint,
@@ -374,23 +374,24 @@ export const previewAddLiquidityImbalancedTest = (
 
     updatedLpInfo.vaultReserve[0] += remainingAmountToSwap;
     updatedLpInfo.vaultReserve[1] -= swapOutAmount;
+  } else {
+    // quote -> base
+    quoteAddLiquidityInAmount = quoteInAmount - remainingAmountToSwap;
+
+    const swapOutAmount = querySellQuote(
+      remainingAmountToSwap,
+      lpInfo,
+      lpInfo.userInfo
+    ).receiveBaseAmount;
+
+    baseAddLiquidityInAmount = baseInAmount + swapOutAmount;
+
+    updatedLpInfo.balances.baseBalance -= swapOutAmount;
+    updatedLpInfo.balances.quoteBalance += remainingAmountToSwap;
+
+    updatedLpInfo.vaultReserve[0] -= swapOutAmount;
+    updatedLpInfo.vaultReserve[1] += remainingAmountToSwap;
   }
-  // quote -> base
-  // else {
-  //   baseAdjustedInAmount += querySellQuote(
-  //     remainingAmountToSwap,
-  //     lpInfo,
-  //     lpInfo.userInfo
-  //   ).receiveBaseAmount;
-  //   quoteAdjustedInAmount +=
-  //     quoteInAmount - quoteAdjustedInAmount - remainingAmountToSwap;
-
-  //   updatedLpInfo.balances.baseBalance -= baseAdjustedInAmount;
-  //   updatedLpInfo.balances.quoteBalance += remainingAmountToSwap;
-
-  //   updatedLpInfo.vaultReserve[0] -= baseAdjustedInAmount;
-  //   updatedLpInfo.vaultReserve[1] += remainingAmountToSwap;
-  // }
 
   const previewAddLiquidityImbalancedResult = previewAddLiquidity(
     baseAddLiquidityInAmount,

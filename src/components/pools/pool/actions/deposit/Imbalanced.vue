@@ -41,7 +41,6 @@
       :expectedOptimal="expectedOptimal"
       :quoteInputAmount="quoteInputAmount"
       :isExpectedOptimalCalculating="isExpectedOptimalCalculating"
-      :simulatePayload="addLiquidityImbalancedPayload"
     />
 
     <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
@@ -68,11 +67,9 @@ import debounce from "lodash.debounce";
 import { defineAsyncComponent } from "vue";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import { approveTokenViem } from "@/helpers/approval";
-import MIMSwapRouterAbi from "@/abis/MIMSwapRouterAbi";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
-import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import { actionStatus } from "@/components/pools/pool/PoolActionBlock.vue";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
@@ -95,19 +92,16 @@ export default {
       baseInputValue: "",
       quoteInputAmount: 0n,
       quoteInputValue: "",
-      expectedOptimal: { remainingAmountToSwap: 0n, shares: 0n },
+      expectedOptimal: {
+        remainingAmountToSwap: 0n,
+        shares: 0n,
+        baseRefundAmount: 0n,
+        quoteRefundAmount: 0n,
+      },
       isExpectedOptimalCalculating: false,
       isActionProcessing: false,
       transactionStatus: actionStatus.WAITING,
       isPreviewPopupOpened: false,
-      addLiquidityImbalancedPayload: {
-        baseAdjustedInAmount: 0n,
-        quoteAdjustedInAmount: 0n,
-        shares: 0n,
-        swapOutAmount: 0n,
-        baseRefundAmount: 0n,
-        quoteRefundAmount: 0n,
-      },
     };
   },
 
@@ -216,7 +210,12 @@ export default {
       this.quoteInputAmount = 0n;
       this.baseInputValue = "";
       this.quoteInputValue = "";
-      this.expectedOptimal = { remainingAmountToSwap: 0n, shares: 0n };
+      this.expectedOptimal = {
+        remainingAmountToSwap: 0n,
+        shares: 0n,
+        baseRefundAmount: 0n,
+        quoteRefundAmount: 0n,
+      };
     },
 
     closePreviewPopup() {
@@ -243,7 +242,6 @@ export default {
 
       this.isExpectedOptimalCalculating = true;
       this.calculateExpectedOptimal();
-      this.simulateAddLiquidityImbalanced();
     },
 
     calculateExpectedOptimal: debounce(
@@ -308,31 +306,6 @@ export default {
       }
       this.isActionProcessing = false;
     },
-
-    simulateAddLiquidityImbalanced: debounce(
-      async function simulateAddLiquidityImbalanced() {
-        const publicClient = getPublicClient(this.chainId);
-        const payload = this.createImbalancedPayload();
-
-        const { result } = await publicClient.simulateContract({
-          address: this.pool?.swapRouter,
-          abi: MIMSwapRouterAbi,
-          functionName: "addLiquidityImbalanced",
-          args: [payload],
-          account: this.account,
-        });
-
-        this.addLiquidityImbalancedPayload = {
-          baseAdjustedInAmount: result[0],
-          quoteAdjustedInAmount: result[1],
-          shares: result[2],
-          swapOutAmount: result[3],
-          baseRefundAmount: result[4],
-          quoteRefundAmount: result[5],
-        };
-      },
-      500
-    ),
 
     async imbalanceHandler() {
       this.isActionProcessing = true;

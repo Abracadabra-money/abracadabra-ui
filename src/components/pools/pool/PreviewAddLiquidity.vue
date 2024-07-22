@@ -79,8 +79,6 @@ export default {
     },
 
     formattedLpTokenExpected() {
-      // if (this.isExpectedOptimalCalculating) return { value: "-", usd: "-" };
-
       const minimumShares = applySlippageToMinOutBigInt(
         this.slippage,
         this.expectedOptimal.shares
@@ -109,26 +107,26 @@ export default {
 
       const refundAmounts = [];
 
-      if (this.simulatePayload.baseRefundAmount) {
+      if (this.expectedOptimal.baseRefundAmount) {
         refundAmounts.push({
           type: "base",
           icon: this.pool.config.baseToken.icon,
           amount: formatTokenBalance(
             formatUnits(
-              this.simulatePayload.baseRefundAmount,
+              this.expectedOptimal.baseRefundAmount,
               this.pool.tokens.baseToken.config.decimals
             )
           ),
         });
       }
 
-      if (this.simulatePayload.quoteRefundAmount) {
+      if (this.expectedOptimal.quoteRefundAmount) {
         refundAmounts.push({
           type: "quote",
           icon: this.pool.config.quoteToken.icon,
           amount: formatTokenBalance(
             formatUnits(
-              this.simulatePayload.quoteRefundAmount,
+              this.expectedOptimal.quoteRefundAmount,
               this.pool.tokens.quoteToken.config.decimals
             )
           ),
@@ -142,10 +140,10 @@ export default {
       if (!this.baseInputAmount && !this.quoteInputAmount) return 0;
 
       return this.formattedLpTokenExpected.usd
-        ? ((this.tokensAmountWithSlippage -
+        ? (this.tokensAmountWithSlippage -
             this.tokensCashback -
-            this.formattedLpTokenExpected.usd) /
-            this.formattedLpTokenExpected.usd) *
+            this.formattedLpTokenExpected.usd /
+              this.formattedLpTokenExpected.usd) *
             100
         : 0;
     },
@@ -157,16 +155,16 @@ export default {
       const quoteTokenPrice = this.pool.tokens.quoteToken.price;
       const quoteTokenDecimals = this.pool.tokens.quoteToken.config.decimals;
 
-      const cashbackBaseToken = this.simulatePayload.baseRefundAmount
+      const cashbackBaseToken = this.expectedOptimal.baseRefundAmount
         ? +formatUnits(
-            this.simulatePayload.baseRefundAmount,
+            this.expectedOptimal.baseRefundAmount,
             baseTokenDecimals
           ) * baseTokenPrice
         : 0;
 
-      const cashbackQuoteToken = this.simulatePayload.quoteRefundAmount
+      const cashbackQuoteToken = this.expectedOptimal.quoteRefundAmount
         ? +formatUnits(
-            this.simulatePayload.quoteRefundAmount,
+            this.expectedOptimal.quoteRefundAmount,
             quoteTokenDecimals
           ) * quoteTokenPrice
         : 0;
