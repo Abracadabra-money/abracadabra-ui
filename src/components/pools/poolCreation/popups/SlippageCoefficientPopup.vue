@@ -40,11 +40,14 @@
         <li class="slippage-coefficient-option custom" @click="selectCustom">
           <span class="slippage-coefficient-value">Custom</span>
           <input
-            class="custom-slippage-input"
+            :class="['custom-slippage-input', { 'error-input': !!error }]"
             type="number"
             placeholder="0.00"
+            min="0"
+            max="0.1"
             v-model="customCoefficient"
           />
+          <p class="error-message" v-if="error">{{ error }}</p>
           <RadioButton :active="isCustomCoefficient" />
         </li>
       </ul>
@@ -100,6 +103,16 @@ export default {
         this.$emit("selectKValue", this.parseCoefficientToBigint(value));
       },
     },
+
+    error() {
+      if (
+        !this.customCoefficient ||
+        (Number(this.customCoefficient) > 0 &&
+          Number(this.customCoefficient) <= 0.1)
+      )
+        return null;
+      return "The slippage coefficient needs to be greater then 0, and less than 0.1";
+    },
   },
 
   methods: {
@@ -114,14 +127,16 @@ export default {
 
     selectCustom() {
       this.isCustomCoefficient = true;
+      this.$emit("selectKValue", 0n);
     },
 
-    formatKValue(KValue: bigint) {
+    formatKValue(KValue: bigint | null) {
+      if (!KValue) return null;
       return formatUnits(KValue, K_VALUE_DECIMALS);
     },
 
     closePopup() {
-      this.$emit("close");
+      if (!this.error) this.$emit("close");
     },
 
     parseCoefficientToBigint(coefficient: string | number) {
@@ -263,5 +278,17 @@ export default {
   border: 1px solid rgba(73, 70, 97, 0.4);
   background: rgba(8, 14, 31, 0.6);
   color: white;
+}
+
+.error-input {
+  border: 1px solid #8c4040;
+}
+
+.error-message {
+  padding: 0 8px;
+  color: #8c4040;
+  font-family: Prompt;
+  font-size: 14px;
+  font-weight: 400;
 }
 </style>

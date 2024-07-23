@@ -107,6 +107,7 @@ import {
   PoolTypes,
   TokenTypes,
   STANDARD_K_VALUE,
+  SAFE_PEGGED_K_VALUE,
 } from "@/constants/pools/poolCreation";
 
 const emptyPoolCreationTokenInfo: PoolCreationTokenInfo = {
@@ -308,7 +309,14 @@ export default {
 
     selectPoolType(poolType: PoolTypes) {
       this.poolType = poolType;
-      this.actionConfig.K = STANDARD_K_VALUE;
+      switch (poolType) {
+        case PoolTypes.Standard:
+          this.actionConfig.K = STANDARD_K_VALUE;
+          break;
+        case PoolTypes.Pegged:
+          this.actionConfig.K = SAFE_PEGGED_K_VALUE;
+          break;
+      }
     },
 
     selectFeeTier(feeTier: bigint) {
