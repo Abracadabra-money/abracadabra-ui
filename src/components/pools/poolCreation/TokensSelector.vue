@@ -11,6 +11,7 @@
         :tokenPrice="baseToken.price"
         :value="baseTokenValue"
         allowSelectToken
+        :isGradientSelector="!checkIsTokenSelected(baseToken)"
         @onSelectClick="$emit('openTokensPopup', TokenTypes.Base)"
         @updateInputValue="updateBaseTokenInputAmount"
       />
@@ -33,6 +34,7 @@
         :tokenPrice="quoteToken.price"
         :value="quoteTokenValue"
         allowSelectToken
+        :isGradientSelector="!checkIsTokenSelected(quoteToken)"
         @onSelectClick="$emit('openTokensPopup', TokenTypes.Quote)"
         @updateInputValue="updateQuoteTokenInputAmount"
       />
@@ -111,6 +113,10 @@ export default {
         return;
       }
       this.$emit("updateTokenInputAmount", TokenTypes.Quote, amount || 0n);
+    },
+
+    checkIsTokenSelected(token: PoolCreationTokenInfo) {
+      return token.config.name != "Select Token";
     },
   },
 

@@ -23,11 +23,22 @@
 
       <div class="token-input-info">
         <div
-          :class="['token-info', { 'select-token': allowSelectToken }]"
+          :class="[
+            'token-info',
+            {
+              'select-token': allowSelectToken,
+              'gradient-selector': isGradientSelector,
+            },
+          ]"
           v-tooltip="tooltip"
           @click="onSelectClick"
         >
-          <BaseTokenIcon :icon="icon" :name="name" size="28px" />
+          <BaseTokenIcon
+            :icon="icon"
+            :name="name"
+            size="28px"
+            v-if="!isGradientSelector"
+          />
           <span class="token-name" ref="tokenName">
             {{ tokenName }}
           </span>
@@ -77,6 +88,7 @@ export default {
     primaryMax: { type: Boolean, default: false },
     compact: { type: Boolean, default: false },
     allowSelectToken: { type: Boolean, default: false },
+    isGradientSelector: { type: Boolean, default: false },
     poolCreation: { type: Boolean, default: false },
     differencePrice: { type: Number, default: 0 },
   },
@@ -258,6 +270,13 @@ export default {
 
 .select-token {
   cursor: pointer;
+}
+
+.gradient-selector {
+  padding: 6px 8px;
+  background: linear-gradient(90deg, #2d4a96 0%, #745cd2 100%);
+  background-size: 101%;
+  background-position: top left -1px;
 }
 
 .token-name {
