@@ -13,7 +13,10 @@
         v-if="!isPriceSelectorDisabled"
       >
         <span class="checkbox-text">Auto pricing</span>
-        <img class="gecko-icon" src="@/assets/images/coingecko-icon.svg" />
+        <img
+          class="price-source-icon"
+          src="@/assets/images/defilama-icon.svg"
+        />
       </BaseCheckBox>
     </div>
 
