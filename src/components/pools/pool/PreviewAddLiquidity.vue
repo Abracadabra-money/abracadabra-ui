@@ -40,23 +40,20 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent } from "vue";
 import { formatUnits } from "viem";
-import {
-  formatPercent,
-  formatTokenBalance,
-  formatUSD,
-} from "@/helpers/filters";
+import { defineAsyncComponent } from "vue";
+import { formatTokenBalance } from "@/helpers/filters";
+import { formatPercent, formatUSD } from "@/helpers/filters";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
 
 export default {
   props: {
     pool: { type: Object as any },
-    slippage: { type: BigInt as any },
+    slippage: { type: BigInt as any, required: true },
     expectedOptimal: { type: Object as any },
-    isExpectedOptimalCalculating: {},
-    simulatePayload: {
-      type: Object as any,
+    isExpectedOptimalCalculating: {
+      type: Boolean,
+      required: true,
     },
     baseInputAmount: {
       type: BigInt as any,
@@ -66,6 +63,12 @@ export default {
       type: BigInt as any,
       default: 0n,
     },
+  },
+
+  data() {
+    return {
+      localPriceImpact: 0,
+    };
   },
 
   computed: {
@@ -139,13 +142,19 @@ export default {
     priceImpact() {
       if (!this.baseInputAmount && !this.quoteInputAmount) return 0;
 
-      return this.formattedLpTokenExpected.usd
+      if (this.isExpectedOptimalCalculating) return this.localPriceImpact;
+
+      const priceImpact = this.formattedLpTokenExpected.usd
         ? ((this.tokensAmountWithSlippage -
             this.tokensCashback -
             this.formattedLpTokenExpected.usd) /
             this.formattedLpTokenExpected.usd) *
-            100
+          100
         : 0;
+
+      this.updatedLocalPriceImpact(priceImpact);
+
+      return priceImpact;
     },
 
     tokensCashback() {
@@ -202,6 +211,10 @@ export default {
     formatUSD,
     formatPercent,
     formatTokenBalance,
+
+    updatedLocalPriceImpact(value: number) {
+      this.localPriceImpact = value;
+    },
   },
 
   components: {
