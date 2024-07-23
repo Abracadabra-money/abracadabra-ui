@@ -76,6 +76,17 @@
         @updateSelectedToken="updateSelectedToken"
       />
     </LocalPopupWrap>
+
+    <LocalPopupWrap
+      isFarm
+      :isOpened="isAutoPricingWarnPopupOpened"
+      @closePopup="isAutoPricingWarnPopupOpened = false"
+    >
+      <AutoPricingWarnPopup
+        @confirm="autoPricingPopupConfirmation"
+        @cancel="isAutoPricingWarnPopupOpened = false"
+      />
+    </LocalPopupWrap>
   </div>
 </template>
 
@@ -149,6 +160,7 @@ export default {
       isAutoPricingEnabled: false,
       isTokensPopupOpened: false,
       isSlippagePopupOpened: false,
+      isAutoPricingWarnPopupOpened: false,
       isActionProcessing: false,
       updateInterval: null as NodeJS.Timeout | null,
     };
@@ -328,7 +340,16 @@ export default {
     },
 
     toggleAutopricing() {
+      if (this.isAutoPricingEnabled) {
+        this.isAutoPricingWarnPopupOpened = true;
+        return;
+      }
       this.isAutoPricingEnabled = !this.isAutoPricingEnabled;
+    },
+
+    autoPricingPopupConfirmation() {
+      this.isAutoPricingEnabled = false;
+      this.isAutoPricingWarnPopupOpened = false;
     },
 
     updateTokensRate(I: number) {
@@ -507,6 +528,12 @@ export default {
       () =>
         import(
           "@/components/pools/poolCreation/popups/PoolCreationTokenListPopup.vue"
+        )
+    ),
+    AutoPricingWarnPopup: defineAsyncComponent(
+      () =>
+        import(
+          "@/components/pools/poolCreation/popups/AutoPricingWarnPopup.vue"
         )
     ),
   },

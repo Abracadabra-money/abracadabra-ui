@@ -112,6 +112,7 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 4px;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.04);
   background: rgba(111, 111, 111, 0.06);
