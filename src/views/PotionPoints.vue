@@ -192,7 +192,7 @@ export default {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
-    async fetchAmountAllowed() {
+    async fetchUserInfo() {
       this.fetching = true;
       const publicClient = getPublicClient(ARBITRUM_CHAIN_ID);
 
@@ -227,13 +227,6 @@ export default {
         notification.pending
       );
 
-      console.log(
-        "payload",
-        this.account,
-        this.userInfo.claimAmount,
-        this.userInfo.proof
-      );
-
       try {
         const { request } = await simulateContractHelper({
           address: this.potionPointRedeemerAddress,
@@ -249,6 +242,8 @@ export default {
         await waitForTransactionReceiptHelper({
           hash,
         });
+
+        await this.fetchUserInfo();
 
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.success);
@@ -269,8 +264,8 @@ export default {
     },
   },
 
-  created() {
-    this.fetchAmountAllowed();
+  async created() {
+    await this.fetchUserInfo();
   },
 
   components: {
