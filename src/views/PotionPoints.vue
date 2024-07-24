@@ -236,7 +236,7 @@ export default {
           address: this.potionPointRedeemerAddress,
           abi: potionPointRedeemerAbi,
           functionName: "redeemWithProofs",
-          args: [this.account, this.userInfo.claimAmount, this.userInfo.proof],
+          args: [[this.account, this.userInfo.claimAmount, this.userInfo.proof]],
         });
 
         const hash = await writeContractHelper(request);
