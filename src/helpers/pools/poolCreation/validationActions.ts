@@ -61,14 +61,14 @@ export const validationActions = (
       isAllowed: false,
     };
 
-  if (baseInAmount >= baseToken.userInfo.allowance)
+  if (baseInAmount > baseToken.userInfo.allowance)
     return {
       btnText: `Approve ${baseToken.config.name}`,
       isAllowed: true,
       method: "approveBaseToken",
     };
 
-  if (quoteInAmount >= quoteToken.userInfo.allowance)
+  if (quoteInAmount > quoteToken.userInfo.allowance)
     return {
       btnText: `Approve ${quoteToken.config.name}`,
       isAllowed: true,

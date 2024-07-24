@@ -381,6 +381,11 @@ export default {
       ]);
     },
 
+    resetInputs() {
+      this.actionConfig.baseInAmount = 0n;
+      this.actionConfig.quoteInAmount = 0n;
+    },
+
     async approveTokenHandler(contract: ContractInfo, valueToApprove: bigint) {
       this.isActionProcessing = true;
 
@@ -417,6 +422,8 @@ export default {
         await this.createTokenList();
 
         await this.createNotification(notification.success);
+
+        this.resetInputs();
       } catch (error) {
         console.log("create pool err:", error);
 
