@@ -196,12 +196,15 @@ export default {
       this.fetching = true;
       const publicClient = getPublicClient(ARBITRUM_CHAIN_ID);
 
-      this.claimInfo = await publicClient.readContract({
+      const response = await publicClient.readContract({
         address: this.potionPointRedeemerAddress,
         abi: potionPointRedeemerAbi,
         functionName: "amountAllowed",
         args: [this.account],
       });
+
+      this.claimInfo.initialized = response[0];
+      this.claimInfo.amount = response[1];
 
       this.fetching = false;
     },
@@ -236,7 +239,9 @@ export default {
           address: this.potionPointRedeemerAddress,
           abi: potionPointRedeemerAbi,
           functionName: "redeemWithProofs",
-          args: [[this.account, this.userInfo.claimAmount, this.userInfo.proof]],
+          args: [
+            [this.account, this.userInfo.claimAmount, this.userInfo.proof],
+          ],
         });
 
         const hash = await writeContractHelper(request);
