@@ -2,7 +2,7 @@
   <div class="potion-points-view">
     <div class="potion-points">
       <div class="user-info">
-        <div>
+        <div class="title-wrap">
           <h3 class="title">Potion Points</h3>
           <h4 class="sub-title">
             Track your Blast, Potion and Gold points earned by taking part in
@@ -490,16 +490,34 @@ export default {
 @media screen and (max-width: 1024px) {
   .potion-points {
     flex-direction: column;
+    position: relative;
   }
 
   .user-info {
     max-width: 100%;
+  }
+
+  .title-wrap {
+    margin-bottom: 120px;
+  }
+
+  .total-potions {
+    position: absolute;
+    top: 120px;
   }
 }
 
 @media screen and (max-width: 600px) {
   .user-info {
     gap: 16px;
+  }
+
+  .title-wrap {
+    margin-bottom: 110px;
+  }
+
+  .total-potions {
+    top: 94px;
   }
 
   .title {
@@ -562,6 +580,16 @@ export default {
 
   .total-value {
     font-size: 28px;
+  }
+}
+
+@media screen and (max-width: 375px) {
+  .title-wrap {
+    margin-bottom: 112px;
+  }
+
+  .total-potions {
+    top: 112px;
   }
 }
 </style>
