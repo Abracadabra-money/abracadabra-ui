@@ -379,6 +379,7 @@ export default {
       import("@/components/base/BaseTokenInput.vue")
     ),
     PreviewAddLiquidity: defineAsyncComponent(() =>
+      //@ts-ignore
       import("@/components/pools/pool/PreviewAddLiquidity.vue")
     ),
     BaseButton: defineAsyncComponent(() =>

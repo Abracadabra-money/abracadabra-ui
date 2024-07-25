@@ -106,7 +106,8 @@ export default {
     },
 
     refundAmounts() {
-      if (!this.baseInputAmount && !this.quoteInputAmount) return [];
+      if (!this.baseInputAmount && !this.quoteInputAmount)
+        return [{ icon: "", amount: formatTokenBalance(0) }];
 
       const refundAmounts = [];
 
@@ -136,7 +137,9 @@ export default {
         });
       }
 
-      return refundAmounts;
+      return refundAmounts.length
+        ? refundAmounts
+        : [{ icon: "", amount: formatTokenBalance(0) }];
     },
 
     priceImpact() {
@@ -315,6 +318,10 @@ export default {
   font-size: 12px;
   border-radius: 12px;
   background: #67a069;
+
+  &::first-letter {
+    text-transform: uppercase;
+  }
 }
 
 .row-info,
