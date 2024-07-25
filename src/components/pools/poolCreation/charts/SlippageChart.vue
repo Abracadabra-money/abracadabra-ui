@@ -16,7 +16,9 @@ import VChart from "vue-echarts";
 import { use } from "echarts/core";
 import { LineChart } from "echarts/charts";
 import { CanvasRenderer } from "echarts/renderers";
-import { ref } from "vue";
+import { computed, type Prop, ref } from "vue";
+import { K_VALUE_DECIMALS } from "@/constants/pools/poolCreation";
+import { parseUnits } from "viem";
 
 use([
   TitleComponent,
@@ -28,32 +30,51 @@ use([
   CanvasRenderer,
 ]);
 
-// defineProps({
-//   option: {
-//     type: Object as any,
-//   },
-// });
+const props = defineProps({
+  kValue: BigInt as Prop<bigint>,
+});
 
-const option = ref({
-  xAxis: {
-    type: "category",
-    splitLine: {
-      show: false,
+const chartData = computed(() => {
+  switch (props.kValue) {
+    case parseUnits("0.0001", K_VALUE_DECIMALS):
+      return [0, 0.001, 0.01, 1, 0.01, 0.001, 0];
+    case parseUnits("0.00025", K_VALUE_DECIMALS):
+      return [0, 0.0025, 0.025, 1, 0.025, 0.0025, 0];
+    case parseUnits("0.002", K_VALUE_DECIMALS):
+      return [0, 0.02, 0.2, 1, 0.2, 0.02, 0];
+    default:
+      return [0, 0.01, 0.1, 1, 0.1, 0.01, 0];
+  }
+});
+
+const option = computed(() => {
+  return {
+    xAxis: {
+      type: "category",
+      splitLine: {
+        show: false,
+      },
+      axisLabel: {
+        show: false,
+      },
     },
-  },
-  yAxis: {
-    type: "value",
-    splitLine: {
-      show: false,
+    yAxis: {
+      type: "value",
+      splitLine: {
+        show: false,
+      },
+      axisLabel: {
+        show: false,
+      },
     },
-  },
-  series: [
-    {
-      data: [0, 0.01, 0.1, 1, 0.1, 0.01, 0],
-      type: "line",
-      areaStyle: {},
-    },
-  ],
+    series: [
+      {
+        data: chartData.value,
+        type: "line",
+        areaStyle: {},
+      },
+    ],
+  };
 });
 </script>
 

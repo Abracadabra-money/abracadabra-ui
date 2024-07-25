@@ -29,7 +29,7 @@
         </div>
       </div>
 
-      <SlippageChart />
+      <SlippageChart :kValue="kValue" />
     </template>
 
     <div class="empty-creation-info">
