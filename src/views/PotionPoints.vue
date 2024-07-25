@@ -186,6 +186,12 @@ export default {
     },
   },
 
+  watch: {
+    account() {
+      this.fetchUserInfo();
+    },
+  },
+
   methods: {
     formatPercent,
     formatTokenBalance,
