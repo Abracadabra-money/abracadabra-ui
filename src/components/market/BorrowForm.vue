@@ -118,7 +118,7 @@ export default {
     isLeverageAllowed() {
       const { isSwappersActive } = this.cauldron.config.cauldronSettings;
 
-      return isSwappersActive && this.cauldron.contracts.leverageSwapper;
+      return isSwappersActive && this.cauldron.config?.leverageInfo;
     },
   },
 

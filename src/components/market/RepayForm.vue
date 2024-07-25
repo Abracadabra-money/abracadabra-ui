@@ -219,7 +219,7 @@ export default {
     isDeleverageAllowed() {
       const { isSwappersActive } = this.cauldron.config.cauldronSettings;
 
-      return isSwappersActive && this.cauldron.contracts.liquidationSwapper;
+      return isSwappersActive && this.cauldron.config.deleverageInfo;
     },
 
     titleText() {

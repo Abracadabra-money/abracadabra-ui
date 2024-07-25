@@ -8,8 +8,6 @@ const fetchCvx3pool0xData = async (
   collateralAmount,
   slipage
 ) => {
-  const { liquidationSwapper, mim } = cauldronObject.contracts;
-
   const selToken = usdtAddress;
   const selAmount = await getCurveWithdrawOneCoinAmount(
     collateralAmount,
@@ -19,11 +17,11 @@ const fetchCvx3pool0xData = async (
 
   const response = await swap0xRequest(
     cauldronObject.config.chainId,
-    mim.address,
+    cauldronObject.config.mimInfo.address,
     selToken,
     slipage,
     selAmount,
-    liquidationSwapper.address
+    cauldronObject.config.deleverageInfo.address
   );
 
   const usdtTokenIndex = 2;

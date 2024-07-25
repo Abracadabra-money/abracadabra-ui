@@ -7,18 +7,18 @@ const fetchDelevMagicApe0xData = async (
   collateralAmount,
   slipage
 ) => {
-  const { collateral, liquidationSwapper, mim } = cauldronObject.contracts;
+  const { collateral } = cauldronObject.contracts;
 
   const selToken = apeAddress;
   const selAmount = await collateral.convertToAssets(collateralAmount);
 
   const response = await swap0xRequest(
     cauldronObject.config.chainId,
-    mim.address,
+    cauldronObject.config.mimInfo.address,
     selToken,
     slipage,
     selAmount,
-    liquidationSwapper.address
+    cauldronObject.config.deleverageInfo.address
   );
   return response.data;
 };

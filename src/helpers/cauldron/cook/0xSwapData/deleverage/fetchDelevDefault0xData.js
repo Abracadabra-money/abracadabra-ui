@@ -5,18 +5,16 @@ const fetchDelevDefault0xData = async (
   collateralAmount,
   slipage
 ) => {
-  const { collateral, liquidationSwapper, mim } = cauldronObject.contracts;
-
-  const selToken = collateral.address;
+  const selToken = cauldronObject.config.collateralInfo.address;
   const selAmount = collateralAmount;
 
   const response = await swap0xRequest(
     cauldronObject.config.chainId,
-    mim.address,
+    cauldronObject.config.mimInfo.address,
     selToken,
     slipage,
     selAmount,
-    liquidationSwapper.address
+    cauldronObject.config.deleverageInfo.address
   );
   return response.data;
 };

@@ -1,9 +1,10 @@
-import { getDegenBoxHelperAddress } from "@/helpers/cauldron/cook/degenBoxHelper/getDegenBoxHelperContract.js";
-import recipeApproveMC from "@/helpers/cauldron/cook/recipies/recipeApproveMC";
+import bentoBoxAbi from "@/abis/bentoBox";
 import { getAccountHelper } from "@/helpers/walletClienHelper";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
+import recipeApproveMC from "@/helpers/cauldron/cook/recipies/recipeApproveMC";
+import { getDegenBoxHelperAddress } from "@/helpers/cauldron/cook/degenBoxHelper/getDegenBoxHelperContract.js";
 
 const checkAndSetMcApprove = async (cookData, cauldronObject, mcApproved) => {
-  const { bentoBox, cauldron } = cauldronObject.contracts;
   const { address: userAddres } = getAccountHelper();
 
   const useDegenBoxHelper =
@@ -13,13 +14,32 @@ const checkAndSetMcApprove = async (cookData, cauldronObject, mcApproved) => {
     cauldronObject.config.chainId
   );
 
+  const publicClient = getPublicClient(cauldronObject.config.chainId);
+
+  const bentoBoxAddress = await publicClient.readContract({
+    address: cauldronObject.config.contract.address,
+    abi: cauldronObject.config.contract.abi,
+    functionName: "bentoBox",
+    args: [],
+  });
+
   const isApproved = useDegenBoxHelper
-    ? await bentoBox.masterContractApproved(degenBoxHelperAddress, userAddres)
+    ? await publicClient.readContract({
+        address: bentoBoxAddress,
+        abi: bentoBoxAbi,
+        functionName: "masterContractApproved",
+        args: [degenBoxHelperAddress, userAddres],
+      })
     : mcApproved;
 
   const masterContract = useDegenBoxHelper
     ? degenBoxHelperAddress
-    : await cauldron.masterContract();
+    : await publicClient.readContract({
+        address: cauldronObject.config.contract.address,
+        abi: cauldronObject.config.contract.abi,
+        functionName: "masterContract",
+        args: [],
+      });
 
   if (!isApproved) {
     cookData = await recipeApproveMC(
