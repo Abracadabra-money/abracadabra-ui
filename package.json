@@ -42,6 +42,7 @@
     "echarts": "^5.4.3",
     "ethers": "^5.7.2",
     "ethers-multicall-provider": "^2.0.0",
+    "gsap": "^3.12.5",
     "lottie-web": "^5.12.2",
     "marked": "^11.2.0",
     "moment": "^2.29.4",
