@@ -81,14 +81,14 @@ export default {
 
     openingAnimation() {
       gsap.fromTo(
-        this.$refs.notification,
+        this.$refs.notification as gsap.TweenTarget,
         { y: "100%" },
         { duration: 0.3, y: "0%", ease: "power2.out" }
       );
     },
 
     closingAnimation() {
-      gsap.to(this.$refs.notification, {
+      gsap.to(this.$refs.notification as gsap.TweenTarget, {
         duration: 0.3,
         x: "-100%",
         ease: "power2.in",
