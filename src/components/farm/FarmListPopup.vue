@@ -124,7 +124,7 @@ export default {
 @include scrollbar;
 
 .input-search {
-  width: 100%;
+  width: 100% !important;
 }
 
 .popup-wrap {
@@ -155,5 +155,12 @@ export default {
   justify-content: center;
   align-items: center;
   height: 100%;
+}
+
+@media (max-width: 600px) {
+  .markets-list {
+    padding: 0 16px 0 4px;
+    width: calc(100% + 16px);
+  }
 }
 </style>

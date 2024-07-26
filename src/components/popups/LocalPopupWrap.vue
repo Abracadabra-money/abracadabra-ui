@@ -1,6 +1,6 @@
 <template>
-  <div class="popup-wrap" v-if="isOpened" @click="closePopup">
-    <div :class="['popup', { farmPopup: isFarm }]" @click.stop>
+  <div class="popup-wrap" @click="closePopup" ref="backdrop">
+    <div :class="['popup', { farmPopup: isFarm }]" @click.stop ref="popup">
       <div class="popup-content">
         <button class="close-btn" @click="closePopup">
           <img
@@ -16,6 +16,8 @@
 </template>
 
 <script>
+import gsap from "gsap";
+
 export default {
   name: "LocalPopupWrap",
   props: {
@@ -29,13 +31,41 @@ export default {
     },
   },
   methods: {
+    openAnimation() {
+      gsap.fromTo(
+        this.$refs.backdrop,
+        { autoAlpha: 0 },
+        { duration: 0.3, autoAlpha: 1, display: "grid" }
+      );
+      gsap.fromTo(
+        this.$refs.popup,
+        { y: "100%" },
+        { duration: 0.3, y: "0%", ease: "power2.out" }
+      );
+    },
+
+    closeAnimation() {
+      gsap.to(this.$refs.backdrop, { duration: 0.3, autoAlpha: 0 });
+      gsap.to(this.$refs.popup, {
+        duration: 0.3,
+        y: "100%",
+        ease: "power2.in",
+      });
+    },
+
     closePopup() {
+      this.closeAnimation();
       this.$emit("closePopup");
     },
   },
+
   watch: {
-    isOpened(value) {
-      document.documentElement.style.overflow = value ? "hidden" : "auto";
+    isOpened: {
+      handler(value) {
+        document.documentElement.style.overflow = value ? "hidden" : "auto";
+        if (value) this.openAnimation();
+      },
+      immediate: true,
     },
   },
 };
@@ -43,13 +73,13 @@ export default {
 
 <style lang="scss" scoped>
 .popup-wrap {
+  display: none;
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100vh;
   z-index: 300;
-  display: grid;
   align-items: center;
   justify-content: center;
   background: rgba(0, 0, 0, 0.04);
