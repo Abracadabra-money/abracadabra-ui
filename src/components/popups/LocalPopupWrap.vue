@@ -31,7 +31,7 @@ export default {
     },
   },
   methods: {
-    openAnimation() {
+    openingAnimation() {
       gsap.fromTo(
         this.$refs.backdrop,
         { autoAlpha: 0 },
@@ -44,7 +44,7 @@ export default {
       );
     },
 
-    closeAnimation() {
+    closingAnimation() {
       gsap.to(this.$refs.backdrop, { duration: 0.3, autoAlpha: 0 });
       gsap.to(this.$refs.popup, {
         duration: 0.3,
@@ -54,7 +54,7 @@ export default {
     },
 
     closePopup() {
-      this.closeAnimation();
+      this.closingAnimation();
       this.$emit("closePopup");
     },
   },
@@ -63,7 +63,7 @@ export default {
     isOpened: {
       handler(value) {
         document.documentElement.style.overflow = value ? "hidden" : "auto";
-        if (value) this.openAnimation();
+        if (value) this.openingAnimation();
       },
       immediate: true,
     },

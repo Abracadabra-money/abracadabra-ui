@@ -1,5 +1,9 @@
 <template>
-  <div class="notification" :class="['notification-' + notification.type]">
+  <div
+    class="notification"
+    :class="['notification-' + notification.type]"
+    ref="notification"
+  >
     <button
       class="close-button"
       @click="closeNotification"
@@ -23,6 +27,8 @@
 import moment from "moment";
 import { useImage } from "@/helpers/useImage";
 import { mapMutations } from "vuex";
+import gsap from "gsap";
+
 export default {
   props: {
     notification: {
@@ -67,7 +73,26 @@ export default {
     },
 
     closeNotification() {
-      this.deleteNotification(this.notification.id);
+      setTimeout(() => {
+        this.deleteNotification(this.notification.id);
+      }, 300);
+      this.closingAnimation();
+    },
+
+    openingAnimation() {
+      gsap.fromTo(
+        this.$refs.notification,
+        { y: "100%" },
+        { duration: 0.3, y: "0%", ease: "power2.out" }
+      );
+    },
+
+    closingAnimation() {
+      gsap.to(this.$refs.notification, {
+        duration: 0.3,
+        x: "-100%",
+        ease: "power2.in",
+      });
     },
   },
 
@@ -81,6 +106,10 @@ export default {
         this.closeNotification();
       }, 15000);
     }
+  },
+
+  mounted() {
+    this.openingAnimation();
   },
 
   beforeUnmount() {
