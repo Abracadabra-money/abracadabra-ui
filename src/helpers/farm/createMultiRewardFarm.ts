@@ -107,7 +107,7 @@ export const createMultiRewardFarm = async (config: FarmConfig, account: Address
     lpPrice: Number(formatUnits(virtualPrice.result, stakingToken.decimals)), // TODO update ui
     tokensApr,
     farmTvl,
-    isDeprecated: false,
+    isDeprecated: config.isDeprecated ? config.isDeprecated : false,
     isNew: config.isNew,
   };
 
