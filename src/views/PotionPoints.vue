@@ -1,90 +1,84 @@
 <template>
   <div class="potion-points-view">
     <div class="potion-points">
-      <div class="user-info">
-        <div class="title-wrap">
-          <h3 class="title">Potion Points</h3>
-          <h4 class="sub-title">
-            Track your Blast, Potion and Gold points earned by taking part in
-            the Abracadabra Ecosystem.
-          </h4>
-        </div>
+      <div class="title-wrap">
+        <h3 class="title">Potion Points {{ isButtonDisabled }}</h3>
+        <h4 class="sub-title">
+          Track your Blast, Potion and Gold points earned by taking part in the
+          Abracadabra Ecosystem.
+        </h4>
+      </div>
 
-        <div class="user-balances">
-          <img
-            class="potion-icon"
-            src="@/assets/images/potion-points/potion.svg"
-            alt=""
-          />
-          <div class="user-balance">
-            <div class="balance-row">
-              <div class="balance-title">Your balance</div>
-              <div class="balance-value">
-                {{ formatTokenBalance(userInfo.amount) }}
-              </div>
-            </div>
-            <div class="balance-row">
-              <div class="balance-title">Your Share</div>
-              <div class="balance-value">{{ formatPercent(share) }}</div>
-            </div>
-          </div>
-        </div>
+      <div class="total-potions">
+        <img
+          class="potion-icon-left"
+          src="@/assets/images/potion-points/left.png"
+          alt=""
+        />
+        <img
+          class="potion-icon-right"
+          src="@/assets/images/potion-points/right.png"
+          alt=""
+        />
+        <div class="gradient"></div>
 
-        <div class="claim-info">
-          <div class="tokens-claim">
-            <div class="token-claim">
-              <div class="token-claim-title">USDT to claim</div>
-              <div class="token-claim-value">
-                <BaseTokenIcon :icon="usdtIcon" name="USDT" size="32px" />
-                {{ formatTokenBalance(usdtToClaim) }}
-              </div>
-            </div>
-
-            <div class="token-claim">
-              <div class="token-claim-title">Spell to claim</div>
-              <div class="token-claim-value">
-                <BaseTokenIcon :icon="spellIcon" name="Spell" size="32px" />
-                {{ formatTokenBalance(spellToClaim) }}
-              </div>
-            </div>
-          </div>
-
-          <BaseButton
-            primary
-            :disabled="isActionProcessing || isButtonDisabled"
-            @click="actionHandler"
-            >{{ buttonText }}</BaseButton
-          >
+        <div class="content">
+          <h5 class="total-title">Total Potions Distributed</h5>
+          <p class="total-value">
+            <img
+              class="total-potion-icon"
+              src="@/assets/images/potion-points/potion.svg"
+              alt=""
+            />10,000,000
+          </p>
         </div>
       </div>
 
-      <div class="total-info">
-        <div class="total-potions">
-          <img
-            class="potion-icon-left"
-            src="@/assets/images/potion-points/left.png"
-            alt=""
-          />
-          <img
-            class="potion-icon-right"
-            src="@/assets/images/potion-points/right.png"
-            alt=""
-          />
-          <div class="gradient"></div>
+      <div class="user-balances">
+        <img
+          class="potion-icon"
+          src="@/assets/images/potion-points/potion.svg"
+          alt=""
+        />
+        <div class="user-balance">
+          <div class="balance-row">
+            <div class="balance-title">Your balance</div>
+            <div class="balance-value">
+              {{ formatTokenBalance(userInfo.amount) }}
+            </div>
+          </div>
+          <div class="balance-row">
+            <div class="balance-title">Your Share</div>
+            <div class="balance-value">{{ formatPercent(share) }}</div>
+          </div>
+        </div>
+      </div>
 
-          <div class="content">
-            <h5 class="total-title">Total Potions Distributed</h5>
-            <p class="total-value">
-              <img
-                class="total-potion-icon"
-                src="@/assets/images/potion-points/potion.svg"
-                alt=""
-              />10,000,000
-            </p>
+      <div class="claim-info">
+        <div class="tokens-claim">
+          <div class="token-claim">
+            <div class="token-claim-title">USDT to claim</div>
+            <div class="token-claim-value">
+              <BaseTokenIcon :icon="usdtIcon" name="USDT" size="32px" />
+              {{ formatTokenBalance(usdtToClaim) }}
+            </div>
+          </div>
+
+          <div class="token-claim">
+            <div class="token-claim-title">Spell to claim</div>
+            <div class="token-claim-value">
+              <BaseTokenIcon :icon="spellIcon" name="Spell" size="32px" />
+              {{ formatTokenBalance(spellToClaim) }}
+            </div>
           </div>
         </div>
 
-        <AccordionList />
+        <BaseButton
+          primary
+          :disabled="isActionProcessing || isButtonDisabled"
+          @click="actionHandler"
+          >{{ buttonText }}</BaseButton
+        >
       </div>
     </div>
   </div>
@@ -182,6 +176,7 @@ export default {
     },
 
     isButtonDisabled() {
+      if (!this.isProperNetwork || !this.account) return false;
       return !this.userInfo.amount;
     },
   },
@@ -281,9 +276,9 @@ export default {
     BaseButton: defineAsyncComponent(
       () => import("@/components/base/BaseButton.vue")
     ),
-    AccordionList: defineAsyncComponent(
-      () => import("@/components/ui/AccordionList.vue")
-    ),
+    // AccordionList: defineAsyncComponent(
+    //   () => import("@/components/ui/AccordionList.vue")
+    // ),
   },
 };
 </script>
@@ -299,19 +294,11 @@ export default {
 }
 
 .potion-points {
-  max-width: 1280px;
+  max-width: 533px;
   width: 100%;
-  gap: 24px;
-  display: flex;
-  justify-content: space-between;
-}
-
-.user-info {
   gap: 24px;
   display: flex;
   flex-direction: column;
-  max-width: 628px;
-  width: 100%;
 }
 
 .title {
@@ -326,6 +313,70 @@ export default {
   font-weight: 400;
   line-height: normal;
   max-width: 490px;
+}
+
+.total-potions {
+  border-radius: 16px;
+  width: 100%;
+  height: 96px;
+  background: linear-gradient(
+    90deg,
+    rgba(45, 74, 150, 0.32) 0%,
+    rgba(116, 92, 210, 0.32) 100%
+  );
+  position: relative;
+  overflow: hidden;
+}
+
+.potion-icon-left,
+.potion-icon-right {
+  width: 100%;
+  height: 96px;
+  border-radius: 12px;
+  position: absolute;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.gradient {
+  position: absolute;
+  width: 100%;
+  height: 96px;
+  background: linear-gradient(
+    90deg,
+    rgba(45, 74, 150, 0.32) 0%,
+    rgba(116, 92, 210, 0.32) 100%
+  );
+  z-index: 2;
+}
+
+.content {
+  position: relative;
+  height: 96px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+}
+
+.total-title {
+  font-weight: 500;
+  line-height: normal;
+}
+
+.total-value {
+  gap: 4px;
+  display: flex;
+  align-items: center;
+  font-size: 32px;
+  font-weight: 500;
+  line-height: normal;
+}
+
+.total-potion-icon {
+  width: 32px;
+  height: 32px;
 }
 
 .user-balances {
@@ -393,9 +444,10 @@ export default {
 
 .tokens-claim {
   padding: 0 32px;
+  gap: 24px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  justify-content: center;
   margin-bottom: 24px;
 }
 
@@ -410,114 +462,22 @@ export default {
 
 .token-claim-value {
   display: flex;
+  justify-content: center;
   font-size: 24px;
   font-style: normal;
   font-weight: 500;
   line-height: normal;
 }
 
-.total-info {
-  width: 100%;
-  gap: 24px;
-  display: flex;
-  flex-direction: column;
-}
-
-.total-potions {
-  border-radius: 12px;
-  width: 100%;
-  height: 96px;
-  background: linear-gradient(
-    90deg,
-    rgba(45, 74, 150, 0.32) 0%,
-    rgba(116, 92, 210, 0.32) 100%
-  );
-  position: relative;
-  overflow: hidden;
-}
-
-.potion-icon-left,
-.potion-icon-right {
-  width: 100%;
-  height: 96px;
-  border-radius: 12px;
-  position: absolute;
-  object-fit: cover;
-  z-index: 1;
-}
-
-.gradient {
-  position: absolute;
-  width: 100%;
-  height: 96px;
-  background: linear-gradient(
-    90deg,
-    rgba(45, 74, 150, 0.32) 0%,
-    rgba(116, 92, 210, 0.32) 100%
-  );
-  z-index: 2;
-}
-
-.content {
-  position: relative;
-  height: 96px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 3;
-}
-
-.total-title {
-  font-weight: 500;
-  line-height: normal;
-}
-
-.total-value {
-  gap: 4px;
-  display: flex;
-  align-items: center;
-  font-size: 32px;
-  font-weight: 500;
-  line-height: normal;
-}
-
-.total-potion-icon {
-  width: 32px;
-  height: 32px;
-}
-
 @media screen and (max-width: 1024px) {
   .potion-points {
     flex-direction: column;
-    position: relative;
-  }
-
-  .user-info {
-    max-width: 100%;
-  }
-
-  .title-wrap {
-    margin-bottom: 120px;
-  }
-
-  .total-potions {
-    position: absolute;
-    top: 120px;
   }
 }
 
 @media screen and (max-width: 600px) {
-  .user-info {
+  .potion-points {
     gap: 16px;
-  }
-
-  .title-wrap {
-    margin-bottom: 110px;
-  }
-
-  .total-potions {
-    top: 94px;
   }
 
   .title {
@@ -551,8 +511,8 @@ export default {
   }
 
   .tokens-claim {
-    flex-direction: column;
     gap: 12px;
+    flex-direction: column;
     margin-bottom: 12px;
   }
 
@@ -580,16 +540,6 @@ export default {
 
   .total-value {
     font-size: 28px;
-  }
-}
-
-@media screen and (max-width: 375px) {
-  .title-wrap {
-    margin-bottom: 112px;
-  }
-
-  .total-potions {
-    top: 112px;
   }
 }
 </style>
