@@ -2,10 +2,12 @@
   <div class="potion-points-view">
     <div class="potion-points">
       <div class="title-wrap">
-        <h3 class="title">Potion Points {{ isButtonDisabled }}</h3>
+        <h3 class="title">Potion Points</h3>
         <h4 class="sub-title">
-          Track your Blast, Potion and Gold points earned by taking part in the
-          Abracadabra Ecosystem.
+          Convert your Potion Points to USDT and Spell tokens! If your Potions
+          balance is greater than zero, you are a Founder of MIMSwap. The
+          protocol wants to thank you for being one of the first to believe in
+          the future of MIMSwap
         </h4>
       </div>
 
@@ -312,7 +314,6 @@ export default {
   font-size: 16px;
   font-weight: 400;
   line-height: normal;
-  max-width: 490px;
 }
 
 .total-potions {
