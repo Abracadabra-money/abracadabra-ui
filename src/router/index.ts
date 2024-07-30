@@ -117,6 +117,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/views/BlastOnboarding.vue"),
   },
   {
+    path: "/ospell",
+    name: "BlastOnboarding",
+    component: () => import("@/views/stake/OSpell.vue"),
+  },
+  {
     path: "/:catchAll(.*)",
     redirect: "/",
   },

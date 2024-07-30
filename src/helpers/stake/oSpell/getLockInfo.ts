@@ -1,12 +1,61 @@
 import type { Address } from "viem";
-import { useImage } from "@/helpers/useImage";
+import { MAINNET_CHAIN_ID } from "@/constants/global";
+import { getCoinsPrices } from "@/helpers/prices/defiLlama";
 import { oSpellLockConfig } from "@/configs/stake/oSpellConfig";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
+import { MAINNET_SPELL_ADDRESS } from "@/constants/tokensAddress";
+import type { SpellLockConfig } from "@/configs/stake/oSpellConfig";
 
-export const getLockInfo = async (account: Address, chainId: number) => {
+type Price = {
+  address: Address;
+  price: number;
+};
+
+export type SpellLockInfo = {
+  spell: {
+    name: string;
+    decimals: number;
+    icon: string;
+    contract: {
+      address: string;
+      abi: any;
+    };
+    price: number;
+  };
+  oSpell: {
+    name: string;
+    decimals: number;
+    icon: string;
+    contract: {
+      address: string;
+      abi: any;
+    };
+    balance: bigint;
+    approvedAmount: bigint;
+  };
+  tokenBank: {
+    address: string;
+    abi: any;
+  };
+  lockInfo: {
+    lockAmount: bigint;
+    claimAmount: bigint;
+    userLocks: bigint;
+    lockDuration: bigint;
+  };
+};
+
+export const getLockInfo = async (
+  account: Address,
+  chainId: number
+): Promise<SpellLockInfo> => {
   const config = oSpellLockConfig[chainId as keyof typeof oSpellLockConfig];
 
-  if (!config || !account) return lockEmptyState;
+  const spellPrice = await getCoinsPrices(MAINNET_CHAIN_ID, [
+    MAINNET_SPELL_ADDRESS,
+  ]);
+
+  if (!account) return getEmptyState(config, spellPrice);
 
   const publicClient = getPublicClient(chainId);
 
@@ -15,10 +64,7 @@ export const getLockInfo = async (account: Address, chainId: number) => {
     oSpellApprovedAmount,
     balances,
     userLocks,
-    nextUnlockTime,
-    epoch,
-    nextEpoch,
-    remainingEpochTime,
+    lockDuration,
   ] = await publicClient.multicall({
     contracts: [
       {
@@ -29,7 +75,7 @@ export const getLockInfo = async (account: Address, chainId: number) => {
       {
         ...config.oSpell.contract,
         functionName: "allowance",
-        args: [account, config.tokenBank],
+        args: [account, config.tokenBank.address],
       },
       {
         ...config.tokenBank,
@@ -39,26 +85,11 @@ export const getLockInfo = async (account: Address, chainId: number) => {
       {
         ...config.tokenBank,
         functionName: "userLocks",
-        args: [],
+        args: [account],
       },
       {
         ...config.tokenBank,
-        functionName: "nextUnlockTime",
-        args: [],
-      },
-      {
-        ...config.tokenBank,
-        functionName: "epoch",
-        args: [],
-      },
-      {
-        ...config.tokenBank,
-        functionName: "nextEpoch",
-        args: [],
-      },
-      {
-        ...config.tokenBank,
-        functionName: "remainingEpochTime",
+        functionName: "lockDuration",
         args: [],
       },
     ],
@@ -67,6 +98,7 @@ export const getLockInfo = async (account: Address, chainId: number) => {
   return {
     spell: {
       ...config.spell,
+      price: spellPrice[0].price || 0,
     },
     oSpell: {
       ...config.oSpell,
@@ -77,37 +109,33 @@ export const getLockInfo = async (account: Address, chainId: number) => {
       ...config.tokenBank,
     },
     lockInfo: {
-      balances: balances.result as bigint,
+      lockAmount: balances.result[0] as bigint,
+      claimAmount: balances.result[1] as bigint,
       userLocks: userLocks.result as bigint,
-      nextUnlockTime: nextUnlockTime.result as bigint,
-      epoch: epoch.result as bigint,
-      nextEpoch: nextEpoch.result as bigint,
-      remainingEpochTime: remainingEpochTime.result as bigint,
+      lockDuration: lockDuration.result as bigint,
     },
   };
 };
 
-const lockEmptyState = {
-  spell: {
-    name: "SPELL",
-    decimals: 18,
-    icon: useImage("assets/images/tokens/SPELL.png"),
-  },
-  oSpell: {
-    name: "OSPELL",
-    decimals: 18,
-    icon: useImage("assets/images/tokens/SPELL.png"),
-  },
-  tokenBank: {
-    address: "",
-    abi: [],
-  },
-  lockInfo: {
-    balances: 0n,
-    userLocks: 0n,
-    nextUnlockTime: 0n,
-    epoch: 0n,
-    nextEpoch: 0n,
-    remainingEpochTime: 0n,
-  },
+const getEmptyState = (config: SpellLockConfig, spellPrice: Price[]) => {
+  return {
+    spell: {
+      ...config.spell,
+      price: spellPrice[0].price || 0,
+    },
+    oSpell: {
+      ...config.oSpell,
+      balance: 0n,
+      approvedAmount: 0n,
+    },
+    tokenBank: {
+      ...config.tokenBank,
+    },
+    lockInfo: {
+      lockAmount: 0n,
+      claimAmount: 0n,
+      userLocks: 0n,
+      lockDuration: 0n,
+    },
+  };
 };

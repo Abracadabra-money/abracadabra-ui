@@ -3,6 +3,7 @@ import {
   simulateContractHelper,
   waitForTransactionReceiptHelper,
 } from "@/helpers/walletClienHelper";
+import moment from "moment";
 import type { ContractInfo } from "@/types/global";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 
@@ -12,10 +13,12 @@ export const deposit = async (
   lockingDeadline: bigint
 ) => {
   try {
+    const deadline = moment().unix() + Number(lockingDeadline);
+
     const { request } = await simulateContractHelper({
       ...contract,
       functionName: "deposit",
-      args: [amount, lockingDeadline],
+      args: [amount, deadline],
     });
 
     const hash = await writeContractHelper(request);

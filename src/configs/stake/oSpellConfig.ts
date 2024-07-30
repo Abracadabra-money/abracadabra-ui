@@ -1,8 +1,37 @@
+import tokenBankAbi from "@/abis/tokenBank";
 import { useImage } from "@/helpers/useImage";
 import tokensAbi from "@/abis/tokensAbi/index";
-import tokenBankAbi from "@/abis/tokenBank";
 
-export const oSpellLockConfig = {
+export type SpellLockConfig = {
+  spell: {
+    name: string;
+    decimals: number;
+    icon: string;
+    contract: {
+      address: string;
+      abi: any;
+    };
+  };
+  oSpell: {
+    name: string;
+    decimals: number;
+    icon: string;
+    contract: {
+      address: string;
+      abi: any;
+    };
+  };
+  tokenBank: {
+    address: string;
+    abi: any;
+  };
+};
+
+type OSpellLockConfig = {
+  [key: number]: SpellLockConfig;
+};
+
+export const oSpellLockConfig: OSpellLockConfig = {
   42161: {
     spell: {
       name: "SPELL",
