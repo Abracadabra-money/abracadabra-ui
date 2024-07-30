@@ -14,6 +14,12 @@
           Pools
         </MobileHeaderLink>
       </li>
+      <li @click="$emit('close-popup')">
+        <MobileHeaderLink to="PotionPoints">
+          <img src="@/assets/images/potion/potion-icon.png" />
+          Potions
+        </MobileHeaderLink>
+      </li>
     </ul>
   </nav>
 </template>

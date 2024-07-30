@@ -14,7 +14,7 @@
       </div>
 
       <div class="primary-block">
-        <BlastButton isMobile />
+        <!-- <BlastButton isMobile /> -->
 
         <SwapMobileButton
           :isClassicHeader="isClassicHeader"
@@ -60,7 +60,7 @@ export default {
     return {
       showStake: false,
       isClassicHeader: true,
-      alternativeHeader: ["MimSwap", "Pools", "Pool"],
+      alternativeHeader: ["MimSwap", "Pools", "Pool", "PotionPoints"],
     };
   },
 
@@ -90,9 +90,9 @@ export default {
     ConnectButton: defineAsyncComponent(() =>
       import("@/components/ui/buttons/ConnectButton.vue")
     ),
-    BlastButton: defineAsyncComponent(() =>
-      import("@/components/ui/buttons/BlastButton.vue")
-    ),
+    // BlastButton: defineAsyncComponent(() =>
+    //   import("@/components/ui/buttons/BlastButton.vue")
+    // ),
     SwapMobileButton: defineAsyncComponent(() =>
       import("@/components/ui/buttons/SwapMobileButton.vue")
     ),
