@@ -7,7 +7,7 @@
       src="@/assets/images/potion/potion-icon.png"
       alt="Potion icon"
     />
-    Potion
+    Potions
   </HeaderLink>
 </template>
 

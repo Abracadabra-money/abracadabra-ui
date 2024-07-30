@@ -17,7 +17,7 @@
       <li @click="$emit('close-popup')">
         <MobileHeaderLink to="PotionPoints">
           <img src="@/assets/images/potion/potion-icon.png" />
-          Potion
+          Potions
         </MobileHeaderLink>
       </li>
     </ul>
