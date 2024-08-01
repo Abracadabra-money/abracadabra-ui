@@ -90,6 +90,26 @@
         </div>
         <p class="link-description">Stake KLP</p>
       </router-link>
+
+      <router-link
+        class="list-link"
+        :to="{ name: 'magicAPE' }"
+        @click="$emit('closeMobileMenu')"
+      >
+        <div class="link-title">
+          <span class="stake-token">
+            <img class="link-icon" src="@/assets/images/stake/tokens/MIM.png" />
+            MIM
+          </span>
+          <span class="apr" v-if="mimApr"
+            >APR: {{ formatPercent(mimApr) }}</span
+          >
+          <div class="loader-wrap" v-else>
+            <BaseLoader type="loader" />
+          </div>
+        </div>
+        <p class="link-description">Stake MIM</p>
+      </router-link>
     </div>
   </div>
 </template>
@@ -107,6 +127,8 @@ import BaseLoader from "@/components/base/BaseLoader.vue";
 import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
 import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
 import { getSpellStakingApr } from "@/helpers/stake/spell/getSpellStakingApr";
+import { getMSRBaseApr } from "@/helpers/mimSavingRate/getMimSavingRateInfo";
+import { mimSavingRateConfig } from "@/configs/stake/mimSavingRateConfig";
 
 export default {
   data() {
@@ -115,11 +137,12 @@ export default {
       glpApr: null,
       apeApr: null,
       klpApr: null,
+      mimApr: null,
     };
   },
 
   computed: {
-    ...mapGetters({ chainId: "getChainId" }),
+    ...mapGetters({ getChainById: "getChainById" }),
   },
 
   methods: {
@@ -144,6 +167,15 @@ export default {
       this.klpApr = data.apr;
     },
 
+    async getMimApr() {
+      const publicClient = this.getChainById(ARBITRUM_CHAIN_ID).publicClient;
+      const config = mimSavingRateConfig.find(
+        (config) => config.chainId === ARBITRUM_CHAIN_ID
+      );
+      const { totalApr } = await getMSRBaseApr(publicClient, config);
+      this.mimApr = totalApr;
+    },
+
     closeDropdown() {
       this.showDropdownList = false;
     },
@@ -154,6 +186,7 @@ export default {
     this.getGlpApr();
     this.getApeApr();
     // await this.getKlpApr();
+    this.getMimApr();
   },
 
   components: {
