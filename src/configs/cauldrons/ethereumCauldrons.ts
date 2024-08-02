@@ -1691,8 +1691,9 @@ const config: Array<CauldronConfig> = [
     borrowFee: 0.5,
     version: 4,
     cauldronSettings: {
-      isSwappersActive: false,
+      isSwappersActive: true,
       isDegenBox: true,
+      is0xSwap: true,
       strategyLink: false,
       isDepreciated: false,
       acceptUseDefaultBalance: false,
@@ -1701,6 +1702,7 @@ const config: Array<CauldronConfig> = [
       hasWithdrawableLimit: true,
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
+      iStdeUSD: true,
     },
     contract: {
       name: "CauldronV4",
@@ -1714,6 +1716,10 @@ const config: Array<CauldronConfig> = [
       abi: erc20Abi,
     },
     mimInfo,
+    leverageInfo: {
+      address: "0xaa0500850199Bf4e90513CeAeF278b9CC7450c87",
+      abi: ERC4626LevSwapper,
+    },
   },
 ];
 
