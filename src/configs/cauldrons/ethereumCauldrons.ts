@@ -1680,7 +1680,6 @@ const config: Array<CauldronConfig> = [
       abi: ERC4626LiqSwapper,
     },
   },
-
   {
     icon: useImage(`assets/images/tokens/deUSD.png`),
     name: "Staked deUSD",
@@ -1703,6 +1702,7 @@ const config: Array<CauldronConfig> = [
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
       iStdeUSD: true,
+      isNoDeleverage: true,
     },
     contract: {
       name: "CauldronV4",
