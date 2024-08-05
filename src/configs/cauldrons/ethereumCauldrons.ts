@@ -1682,7 +1682,7 @@ const config: Array<CauldronConfig> = [
   },
 
   {
-    icon: useImage(`assets/images/tokens/Stargate-USDT.png`),
+    icon: useImage(`assets/images/tokens/deUSD.png`),
     name: "Staked deUSD",
     chainId: 1,
     id: 43,
