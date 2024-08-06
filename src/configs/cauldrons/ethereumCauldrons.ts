@@ -1690,6 +1690,7 @@ const config: Array<CauldronConfig> = [
     borrowFee: 0.5,
     version: 4,
     cauldronSettings: {
+      isNew: true,
       isSwappersActive: true,
       isDegenBox: true,
       is0xSwap: true,
