@@ -5,11 +5,11 @@ import { initPublicClient } from "@/helpers/chains/initPublicClient";
 import { initStaticJsonRpcProvider } from "@/helpers/chains/initStaticJsonRpcProvider";
 
 const rpcList = filterRpcUrls(kava, [
-  "https://evm.kava-rpc.com",
-  "https://kava-evm.publicnode.com",
+  "https://kava-evm-rpc.publicnode.com",
   "https://evm.kava.io",
-  "https://rpc.ankr.com/kava_evm",
   "https://evm.kava.chainstacklabs.com",
+  "https://kava-pokt.nodies.app",
+  "https://kava.drpc.org",
 ]);
 
 const viemConfig = {
