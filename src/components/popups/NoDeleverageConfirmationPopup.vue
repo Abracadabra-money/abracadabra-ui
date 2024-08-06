@@ -8,8 +8,9 @@
         src="@/assets/images/notification-icons/info-icon.png"
       />
       <p class="description-text">
-        Note! Deleverage function for the deUSD cauldron is currently
-        unavailable
+        Automatic deleverage for Staked deUSD is currently unavailable due to
+        the 7 day exit window. If you wish to leverage up, you will have to
+        deleverage manually.
       </p>
     </div>
 
