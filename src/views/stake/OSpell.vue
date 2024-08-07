@@ -3,13 +3,38 @@
     <div class="stake-wrap">
       <div class="actions-block">
         <div class="actions-head">
-          <h3 class="title">UnStake bSpell</h3>
+          <div class="title-wrap">
+            <h3 class="title">oSpell</h3>
+            <a
+              class="docs-link"
+              href="#"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <path
+                  d="M20.0306 7.71938L14.7806 2.46938C14.7109 2.39975 14.6282 2.34454 14.5371 2.3069C14.4461 2.26926 14.3485 2.24992 14.25 2.25H5.25C4.85218 2.25 4.47064 2.40804 4.18934 2.68934C3.90804 2.97064 3.75 3.35218 3.75 3.75V20.25C3.75 20.6478 3.90804 21.0294 4.18934 21.3107C4.47064 21.592 4.85218 21.75 5.25 21.75H18.75C19.1478 21.75 19.5294 21.592 19.8107 21.3107C20.092 21.0294 20.25 20.6478 20.25 20.25V8.25C20.2501 8.15148 20.2307 8.05391 20.1931 7.96286C20.1555 7.87182 20.1003 7.78908 20.0306 7.71938ZM15 4.81031L17.6897 7.5H15V4.81031ZM18.75 20.25H5.25V3.75H13.5V8.25C13.5 8.44891 13.579 8.63968 13.7197 8.78033C13.8603 8.92098 14.0511 9 14.25 9H18.75V20.25Z"
+                  fill="#7088CC"
+                />
+              </svg>
+              View docs
+            </a>
+          </div>
 
-          <AvailableNetworksBlock
-            :selectedNetwork="selectedNetwork"
-            :availableNetworks="availableNetworks"
-            @changeNetwork="changeNetwork"
-          />
+          <div class="networks-wrap">
+            <div class="network-title">Available on:</div>
+            <AvailableNetworksBlock
+              :selectedNetwork="selectedNetwork"
+              :availableNetworks="availableNetworks"
+              @changeNetwork="changeNetwork"
+            />
+          </div>
         </div>
 
         <div class="action-form">
@@ -82,10 +107,12 @@
       </div>
 
       <div class="stake-info">
-        <SpellSpecialInfoBlock
-          title="Meet b/o/z/u/Spell'"
-          :specialInfo="specialInfo"
-        />
+        <div class="info-block-wrap">
+          <SpellSpecialInfoBlock
+            title="Meet b/o/z/u/Spell'"
+            :specialInfo="specialInfo"
+          />
+        </div>
 
         <div class="lock-info">
           <div>
@@ -167,6 +194,17 @@
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            <div class="empty-list" v-if="!userLocks.length">
+              <img
+                class="empty-icon"
+                src="@/assets/images/stake/empty-lock.png"
+                alt=""
+              />
+              <div class="empty-text">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
               </div>
             </div>
           </div>
@@ -464,10 +502,37 @@ export default {
   justify-content: space-between;
 }
 
+.title-wrap {
+  display: flex;
+  justify-content: space-between;
+}
+
 .title {
   font-size: 32px;
   font-weight: 600;
   line-height: normal;
+}
+
+.docs-link {
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--Primary-Gradient, #2d4a96);
+  background: rgba(25, 31, 47, 0.38);
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
+  gap: 8px;
+  display: none;
+  align-items: center;
+  color: #7088cc;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.network-title {
+  display: none;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: 0.4px;
 }
 
 .action-form {
@@ -573,6 +638,7 @@ export default {
 }
 
 .lock-info {
+  min-height: 260px;
   padding: 24px;
   border-radius: 16px;
   border: 1px solid #00296b;
@@ -659,5 +725,90 @@ export default {
 
 .unlocked {
   color: #67a069;
+}
+
+.empty-list {
+  gap: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-icon {
+  max-width: 124px;
+  width: 100%;
+}
+
+.empty-text {
+  max-width: 256px;
+  width: 100%;
+  font-weight: 400;
+  line-height: normal;
+}
+
+@media screen and (max-width: 1024px) {
+  .stake-wrap {
+    grid-template-columns: 1fr;
+  }
+
+  .actions-block {
+    gap: 16px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .actions-head {
+    gap: 20px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .title-wrap {
+    width: 100%;
+    align-items: center;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .docs-link {
+    display: flex;
+  }
+
+  .networks-wrap {
+    gap: 20px;
+    display: flex;
+    align-items: center;
+  }
+
+  .network-title {
+    display: block;
+  }
+
+  .action-form {
+    padding: 16px;
+  }
+
+  .sub-title {
+    font-size: 16px;
+    margin-bottom: 0;
+  }
+
+  .unlock-info {
+    padding: 8px 12px 8px 8px;
+  }
+
+  .claim-info {
+    padding: 16px;
+  }
+
+  .lock-info {
+    padding: 16px;
+  }
+
+  .info-block-wrap {
+    display: none;
+  }
 }
 </style>
