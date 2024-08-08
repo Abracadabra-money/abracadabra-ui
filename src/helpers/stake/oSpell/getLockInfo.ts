@@ -40,7 +40,7 @@ export type SpellLockInfo = {
   lockInfo: {
     lockAmount: bigint;
     claimAmount: bigint;
-    userLocks: bigint;
+    userLocks: any;
     lockDuration: bigint;
   };
 };
@@ -134,7 +134,7 @@ const getEmptyState = (config: SpellLockConfig, spellPrice: Price[]) => {
     lockInfo: {
       lockAmount: 0n,
       claimAmount: 0n,
-      userLocks: 0n,
+      userLocks: [],
       lockDuration: 0n,
     },
   };

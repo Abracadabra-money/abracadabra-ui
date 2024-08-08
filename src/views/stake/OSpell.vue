@@ -328,6 +328,12 @@ export default {
     },
   },
 
+  watch: {
+    async account() {
+      await this.createStakeInfo();
+    },
+  },
+
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({
