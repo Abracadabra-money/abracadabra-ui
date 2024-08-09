@@ -357,15 +357,22 @@ export const previewAddLiquidityImbalanced = (
     },
   };
 
+  let swapOutAmount: bigint;
+  let swapFeeAmount: bigint;
   // base -> quote
   if (remainingAmountToSwapIsBase) {
     baseAddLiquidityInAmount = baseInAmount - remainingAmountToSwap;
 
-    const swapOutAmount = querySellBase(
+    ({
+      receiveQuoteAmount: swapOutAmount,
+      feeAmount: swapFeeAmount,
+      newRState: updatedLpInfo.PMMState.R,
+      newBaseTarget: updatedLpInfo.PMMState.B
+    } = querySellBase(
       remainingAmountToSwap,
       lpInfo,
       lpInfo.userInfo
-    ).receiveQuoteAmount;
+    ));
 
     quoteAddLiquidityInAmount = quoteInAmount + swapOutAmount;
 
@@ -378,11 +385,16 @@ export const previewAddLiquidityImbalanced = (
     // quote -> base
     quoteAddLiquidityInAmount = quoteInAmount - remainingAmountToSwap;
 
-    const swapOutAmount = querySellQuote(
+    ({
+      receiveBaseAmount: swapOutAmount,
+      feeAmount: swapFeeAmount,
+      newRState: updatedLpInfo.PMMState.R,
+      newQuoteTarget: updatedLpInfo.PMMState.Q
+    } = querySellQuote(
       remainingAmountToSwap,
       lpInfo,
       lpInfo.userInfo
-    ).receiveBaseAmount;
+    ));
 
     baseAddLiquidityInAmount = baseInAmount + swapOutAmount;
 
@@ -410,8 +422,10 @@ export const previewAddLiquidityImbalanced = (
 
   return {
     ...previewAddLiquidityImbalancedResult,
-    baseRefundAmount: baseRefundAmount,
-    quoteRefundAmount: quoteRefundAmount,
+    swapOutAmount,
+    swapFeeAmount,
+    baseRefundAmount,
+    quoteRefundAmount,
   };
 };
 

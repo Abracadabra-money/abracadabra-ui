@@ -37,11 +37,13 @@ export const addLiquidityImbalancedOptimal = async (
   let direction: "left" | "right" = "right";
   let baseRefundAmount = 0n;
   let quoteRefundAmount = 0n;
+  let swapOutAmount = 0n;
+  let swapFeeAmount = 0n;
 
   while (left <= right) {
     const amountSwapIn = left + (right - left) / 2n;
 
-    const previewData = await previewAddLiquidityImbalanced(
+    const previewData = previewAddLiquidityImbalanced(
       lpInfo,
       baseInAmount,
       quoteInAmount,
@@ -62,7 +64,7 @@ export const addLiquidityImbalancedOptimal = async (
     const leftSwapIn = bestAmountSwapIn - amountInStep;
     const rightSwapIn = bestAmountSwapIn + amountInStep;
 
-    const previewLeftData = await previewAddLiquidityImbalanced(
+    const previewLeftData = previewAddLiquidityImbalanced(
       lpInfo,
       baseInAmount,
       quoteInAmount,
@@ -72,7 +74,7 @@ export const addLiquidityImbalancedOptimal = async (
 
     const leftShares = leftSwapIn >= left ? previewLeftData.shares : 0n;
 
-    const previewRightData = await previewAddLiquidityImbalanced(
+    const previewRightData = previewAddLiquidityImbalanced(
       lpInfo,
       baseInAmount,
       quoteInAmount,
@@ -95,6 +97,8 @@ export const addLiquidityImbalancedOptimal = async (
       direction = "left";
       baseRefundAmount = previewLeftData.baseRefundAmount;
       quoteRefundAmount = previewLeftData.quoteRefundAmount;
+      swapOutAmount = previewLeftData.swapOutAmount;
+      swapFeeAmount = previewLeftData.swapFeeAmount;
     }
 
     // explore right side
@@ -105,6 +109,8 @@ export const addLiquidityImbalancedOptimal = async (
       direction = "right";
       baseRefundAmount = previewRightData.baseRefundAmount;
       quoteRefundAmount = previewRightData.quoteRefundAmount;
+      swapOutAmount = previewRightData.swapOutAmount;
+      swapFeeAmount = previewRightData.swapFeeAmount;
     }
   }
 
@@ -112,7 +118,9 @@ export const addLiquidityImbalancedOptimal = async (
     remainingAmountToSwapIsBase,
     remainingAmountToSwap: bestAmountSwapIn,
     shares: bestShares,
-    baseRefundAmount: baseRefundAmount,
-    quoteRefundAmount: quoteRefundAmount,
+    swapOutAmount,
+    swapFeeAmount,
+    baseRefundAmount,
+    quoteRefundAmount,
   };
 };
