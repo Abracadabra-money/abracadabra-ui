@@ -82,7 +82,11 @@
     :isFarm="true"
     @closePopup="isDeleverageInfoPopupOpened = false"
   >
-    <NoDeleverageConfirmationPopup @confirmAction="actionHandler" />
+    <NoDeleverageConfirmationPopup
+      :cauldron="cauldron"
+      :actionConfig="actionConfig"
+      @confirmAction="actionHandler"
+    />
   </LocalPopupWrap>
 
   <!-- TODO: MOVE TO MARKET -->
