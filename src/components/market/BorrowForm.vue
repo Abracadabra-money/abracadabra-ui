@@ -77,6 +77,18 @@
     </div>
   </div>
 
+  <LocalPopupWrap
+    :isOpened="isDeleverageInfoPopupOpened"
+    :isFarm="true"
+    @closePopup="isDeleverageInfoPopupOpened = false"
+  >
+    <NoDeleverageConfirmationPopup
+      :cauldron="cauldron"
+      :actionConfig="actionConfig"
+      @confirmAction="actionHandler"
+    />
+  </LocalPopupWrap>
+
   <!-- TODO: MOVE TO MARKET -->
   <template v-if="activeOrder && isOpenGMPopup">
     <GMStatus
@@ -112,6 +124,7 @@ export default {
   data() {
     return {
       action: "borrow",
+      isDeleverageInfoPopupOpened: false,
     };
   },
   computed: {
@@ -175,6 +188,12 @@ export default {
     GMStatus: defineAsyncComponent(
       //@ts-ignore
       () => import("@/components/popups/GMStatus.vue")
+    ),
+    LocalPopupWrap: defineAsyncComponent(
+      () => import("@/components/popups/LocalPopupWrap.vue")
+    ),
+    NoDeleverageConfirmationPopup: defineAsyncComponent(
+      () => import("@/components/popups/NoDeleverageConfirmationPopup.vue")
     ),
   },
 };

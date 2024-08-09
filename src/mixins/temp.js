@@ -49,6 +49,17 @@ export default {
         this.chainId
       );
     },
+    useNoDeleverageConfirmationPopup() {
+      const validTexts = ["Borrow", "Leverage Up", "Add collateral and borrow"];
+      const isProperAction = validTexts.includes(
+        this.cookValidationData.btnText
+      );
+      return (
+        this.cauldron?.config.cauldronSettings.isNoDeleverage &&
+        !this.isDeleverageInfoPopupOpened &&
+        isProperAction
+      );
+    },
   },
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
@@ -77,6 +88,12 @@ export default {
       // @ts-ignore
       if (isConnect) return this.$openWeb3modal();
 
+      if (this.useNoDeleverageConfirmationPopup) {
+        this.isDeleverageInfoPopupOpened = true;
+        return;
+      }
+
+      this.isDeleverageInfoPopupOpened = false;
       return await this.cookHandler();
     },
     async approveTokenHandler() {
@@ -209,7 +226,7 @@ export default {
     ) {
       const { cauldron } = cauldronObject.contracts;
       const cauldronActiveOrder = await cauldron.orders(cookPayload.to);
-      
+
       if (cauldronActiveOrder !== ZERO_ADDRESS) {
         this.deleteAllNotification();
         this.createNotification(notification.gmOrderExist);
