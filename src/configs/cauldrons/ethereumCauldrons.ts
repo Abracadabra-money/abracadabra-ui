@@ -1704,6 +1704,7 @@ const config: Array<CauldronConfig> = [
       hasCrvClaimLogic: false,
       iStdeUSD: true,
       isNoDeleverage: true,
+      hasElixirPotions: true,
     },
     contract: {
       name: "CauldronV4",
