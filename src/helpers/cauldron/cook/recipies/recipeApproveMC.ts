@@ -1,5 +1,6 @@
 import { signMasterContract } from "@/helpers/signature";
 import { actions } from "@/helpers/cauldron/cook/actions";
+import { setMasterContractApproval } from "@/helpers/cauldron/boxes";
 
 const signAndGetData = async (
   cookData: any,
@@ -12,27 +13,40 @@ const signAndGetData = async (
   const { cauldron, bentoBox } = cauldronObject.contracts;
   const verifyingContract = await cauldron.bentoBox();
   const nonce = await bentoBox.nonces(user);
+  
+  try {
+    const parsedSignature: any = await signMasterContract(
+      cauldronObject.config.chainId,
+      verifyingContract,
+      user,
+      masterContract,
+      approved,
+      +nonce + addNonce
+    );
+  
+    cookData = actions.bentoSetApproval(
+      cookData,
+      user,
+      masterContract,
+      approved,
+      parsedSignature.v,
+      parsedSignature.r,
+      parsedSignature.s
+    );
+  
+    return cookData;
+  } catch (error) {
+    console.log("Signature error:", error)
+    const approvalMaster = await setMasterContractApproval(
+      bentoBox,
+      user,
+      masterContract,
+      approved
+    );
 
-  const parsedSignature: any = await signMasterContract(
-    cauldronObject.config.chainId,
-    verifyingContract,
-    user,
-    masterContract,
-    approved,
-    +nonce + addNonce
-  );
-
-  cookData = actions.bentoSetApproval(
-    cookData,
-    user,
-    masterContract,
-    approved,
-    parsedSignature.v,
-    parsedSignature.r,
-    parsedSignature.s
-  );
-
-  return cookData;
+    if (!approvalMaster) return false; // TODO: update catch
+    return cookData;
+  }
 };
 
 const recipeApproveMC = async (
