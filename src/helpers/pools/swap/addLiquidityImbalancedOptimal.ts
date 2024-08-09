@@ -35,13 +35,17 @@ export const addLiquidityImbalancedOptimal = async (
   let bestAmountSwapIn = 0n;
   const amountInStep = (remainingAmountToSwap * stepInBips) / 10_000n;
   let direction: "left" | "right" = "right";
+  let baseAdjustedInAmount = 0n;
+  let quoteAdjustedInAmount = 0n;
   let baseRefundAmount = 0n;
   let quoteRefundAmount = 0n;
+  let swapOutAmount = 0n;
+  let swapFeeAmount = 0n;
 
   while (left <= right) {
     const amountSwapIn = left + (right - left) / 2n;
 
-    const previewData = await previewAddLiquidityImbalanced(
+    const previewData = previewAddLiquidityImbalanced(
       lpInfo,
       baseInAmount,
       quoteInAmount,
@@ -50,8 +54,16 @@ export const addLiquidityImbalancedOptimal = async (
     );
 
     if (previewData.shares > bestShares) {
-      bestShares = previewData.shares;
       bestAmountSwapIn = amountSwapIn;
+      ({
+        shares: bestShares,
+        baseAdjustedInAmount,
+        quoteAdjustedInAmount,
+        baseRefundAmount,
+        quoteRefundAmount,
+        swapOutAmount,
+        swapFeeAmount,
+      } = previewData);
     } else if (direction === "left") {
       left = amountSwapIn + 1n;
     } else {
@@ -62,7 +74,7 @@ export const addLiquidityImbalancedOptimal = async (
     const leftSwapIn = bestAmountSwapIn - amountInStep;
     const rightSwapIn = bestAmountSwapIn + amountInStep;
 
-    const previewLeftData = await previewAddLiquidityImbalanced(
+    const previewLeftData = previewAddLiquidityImbalanced(
       lpInfo,
       baseInAmount,
       quoteInAmount,
@@ -72,7 +84,7 @@ export const addLiquidityImbalancedOptimal = async (
 
     const leftShares = leftSwapIn >= left ? previewLeftData.shares : 0n;
 
-    const previewRightData = await previewAddLiquidityImbalanced(
+    const previewRightData = previewAddLiquidityImbalanced(
       lpInfo,
       baseInAmount,
       quoteInAmount,
@@ -93,8 +105,14 @@ export const addLiquidityImbalancedOptimal = async (
       bestAmountSwapIn = leftSwapIn;
       right = bestAmountSwapIn - 1n;
       direction = "left";
-      baseRefundAmount = previewLeftData.baseRefundAmount;
-      quoteRefundAmount = previewLeftData.quoteRefundAmount;
+      ({
+        baseAdjustedInAmount,
+        quoteAdjustedInAmount,
+        baseRefundAmount,
+        quoteRefundAmount,
+        swapOutAmount,
+        swapFeeAmount,
+      } = previewLeftData);
     }
 
     // explore right side
@@ -103,8 +121,14 @@ export const addLiquidityImbalancedOptimal = async (
       bestAmountSwapIn = rightSwapIn;
       left = bestAmountSwapIn + 1n;
       direction = "right";
-      baseRefundAmount = previewRightData.baseRefundAmount;
-      quoteRefundAmount = previewRightData.quoteRefundAmount;
+      ({
+        baseAdjustedInAmount,
+        quoteAdjustedInAmount,
+        baseRefundAmount,
+        quoteRefundAmount,
+        swapOutAmount,
+        swapFeeAmount,
+      } = previewRightData);
     }
   }
 
@@ -112,7 +136,11 @@ export const addLiquidityImbalancedOptimal = async (
     remainingAmountToSwapIsBase,
     remainingAmountToSwap: bestAmountSwapIn,
     shares: bestShares,
-    baseRefundAmount: baseRefundAmount,
-    quoteRefundAmount: quoteRefundAmount,
+    baseAdjustedInAmount,
+    quoteAdjustedInAmount,
+    swapOutAmount,
+    swapFeeAmount,
+    baseRefundAmount,
+    quoteRefundAmount,
   };
 };

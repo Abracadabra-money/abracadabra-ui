@@ -1,7 +1,7 @@
 import Math from "./Math";
 
-export const ONE = BigInt(10 ** 18);
-export const ONE2 = BigInt(10 ** 36);
+export const ONE = 10n ** 18n;
+export const ONE2 = 10n ** 36n;
 
 export const mulFloor = (target: bigint, d: bigint): bigint => {
   return (target * d) / ONE;
@@ -20,7 +20,7 @@ export const divCeil = (target: bigint, d: bigint): bigint => {
 };
 
 export const reciprocalFloor = (target: bigint): bigint => {
-  return Math.divCeil(ONE2, target);
+  return ONE2 / target;
 };
 
 export default {
