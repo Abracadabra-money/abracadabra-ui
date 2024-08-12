@@ -47,12 +47,14 @@ export const oSpellLockConfig: OSpellLockConfig = {
       decimals: 18,
       icon: useImage("assets/images/tokens/SPELL.png"),
       contract: {
-        address: "0xBe714699689EBf7aE3a1bA58bE5fF2a59c33051A",
+        // address: "0xBe714699689EBf7aE3a1bA58bE5fF2a59c33051A", //prod
+        address: "0x22135c40370926ed6e80371444e200f6f171cd27",
         abi: tokensAbi.OSPELL,
       },
     },
     tokenBank: {
-      address: "0x6c1a332f1f5ae20cf9ebbcc3c7a6917d52b7af96",
+      // address: "0x6c1a332f1f5ae20cf9ebbcc3c7a6917d52b7af96", //prod
+      address: "0xa9f3a1595a383e98acba98ddd7ff3654bc7f091c",
       abi: tokenBankAbi,
     },
   },
