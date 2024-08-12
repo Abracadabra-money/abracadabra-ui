@@ -260,6 +260,7 @@ export const querySellBase = (
 
   return {
     receiveQuoteAmount: receiveQuoteAmountAfterFee,
+    feeAmount: receiveQuoteAmount - receiveQuoteAmountAfterFee,
     mtFee,
     newRState: newR,
     newBaseTarget,
@@ -289,6 +290,7 @@ export const querySellQuote = (
 
   return {
     receiveBaseAmount: receiveBaseAmountAfterFee,
+    feeAmount: receiveBaseAmount - receiveBaseAmountAfterFee,
     mtFee,
     newRState: newR,
     newQuoteTarget,
