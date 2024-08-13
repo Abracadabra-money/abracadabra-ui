@@ -172,8 +172,8 @@ export default {
         slippage: 30n,
         deadline: 500n,
       } as ActionConfig),
-      selectedNetwork: KAVA_CHAIN_ID,
-      availableNetworks: [KAVA_CHAIN_ID, BLAST_CHAIN_ID, ARBITRUM_CHAIN_ID],
+      selectedNetwork: ARBITRUM_CHAIN_ID,
+      availableNetworks: [ARBITRUM_CHAIN_ID, KAVA_CHAIN_ID, BLAST_CHAIN_ID],
       isApproving: false,
       nativeTokenPrice: [] as { chainId: number; price: number }[],
     };
@@ -550,11 +550,16 @@ export default {
         (token: TokenInfo) => token.config.name === "MIM"
       );
     },
+    checkAndSetSelectedChain() {
+      if (this.availableNetworks.includes(this.chainId)) {
+        this.selectedNetwork = this.chainId;
+      }
+    }
   },
 
   async created() {
     this.nativeTokenPrice = await getNativeTokensPrice(this.availableNetworks);
-
+    this.checkAndSetSelectedChain();
     await this.createSwapInfo();
     this.selectBaseTokens();
 
