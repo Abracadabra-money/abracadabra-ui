@@ -36,7 +36,7 @@ const arbitrumFarms: FarmConfig[] = [
     id: 4,
     isMultiReward: true,
     isNew: false,
-    isDeprecated: true,
+    isDeprecated: false,
     stakingToken: {
       name: "MIM-2Crv",
       type: "LP",
