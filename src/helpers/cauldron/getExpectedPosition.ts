@@ -248,7 +248,7 @@ const expectedBorrowMimAmount = (
   return applyBorrowFee(borrowAmount, borrowFee * 1000).add(userBorrowAmount);
 };
 
-const expectedAlternativeBorrowMimAmount = (
+export const expectedAlternativeBorrowMimAmount = (
   userBorrowAmount: bigint,
   actionConfig: ActionConfig,
   borrowFee: number
