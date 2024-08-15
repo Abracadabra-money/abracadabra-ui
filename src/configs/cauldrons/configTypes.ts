@@ -33,6 +33,9 @@ type CauldronSettings = {
   isCvxTricrypto?: boolean;
   isCvx3pool?: boolean;
   isMagicGLP?: boolean;
+  iStdeUSD?: boolean;
+isNoDeleverage?: boolean;
+  hasElixirPotions?: boolean;
 };
 
 type MimInfo = {
