@@ -18,6 +18,8 @@ import { GNOSIS_SAFE_ADDRESS } from "@/constants/global";
 
 import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
 
+import erc20Abi from "@/abis/farm/erc20Abi";
+
 const mimInfo = {
   name: "MIM",
   icon: useImage(`assets/images/tokens/MIM.png`),
@@ -1676,6 +1678,49 @@ const config: Array<CauldronConfig> = [
     deleverageInfo: {
       address: "0xa5564a2d1190a141CAC438c9fde686aC48a18A79",
       abi: ERC4626LiqSwapper,
+    },
+  },
+  {
+    icon: useImage(`assets/images/tokens/deUSD.png`),
+    name: "sdeUSD",
+    chainId: 1,
+    id: 43,
+    liquidationFee: 7.5,
+    mcr: 85,
+    borrowFee: 0.5,
+    version: 4,
+    cauldronSettings: {
+      isNew: true,
+      isSwappersActive: true,
+      isDegenBox: true,
+      is0xSwap: true,
+      strategyLink: false,
+      isDepreciated: false,
+      acceptUseDefaultBalance: false,
+      healthMultiplier: 10,
+      hasAccountBorrowLimit: true,
+      hasWithdrawableLimit: true,
+      localBorrowAmountLimit: false,
+      hasCrvClaimLogic: false,
+      iStdeUSD: true,
+      isNoDeleverage: true,
+      hasElixirPotions: true,
+    },
+    contract: {
+      name: "CauldronV4",
+      address: "0x00380CB5858664078F2289180CC32F74440AC923",
+      abi: poolsAbi.CauldronV4,
+    },
+    collateralInfo: {
+      name: "sdeUSD",
+      decimals: 18,
+      address: "0x5C5b196aBE0d54485975D1Ec29617D42D9198326",
+      abi: erc20Abi,
+    },
+    mimInfo,
+    leverageInfo: {
+      address: "0xaa0500850199Bf4e90513CeAeF278b9CC7450c87",
+      abi: ERC4626LevSwapper,
     },
   },
 ];
