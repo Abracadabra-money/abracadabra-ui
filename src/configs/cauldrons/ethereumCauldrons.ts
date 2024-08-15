@@ -1682,7 +1682,7 @@ const config: Array<CauldronConfig> = [
   },
   {
     icon: useImage(`assets/images/tokens/deUSD.png`),
-    name: "Staked deUSD",
+    name: "sdeUSD",
     chainId: 1,
     id: 43,
     liquidationFee: 7.5,
@@ -1712,7 +1712,7 @@ const config: Array<CauldronConfig> = [
       abi: poolsAbi.CauldronV4,
     },
     collateralInfo: {
-      name: "Staked deUSD",
+      name: "sdeUSD",
       decimals: 18,
       address: "0x5C5b196aBE0d54485975D1Ec29617D42D9198326",
       abi: erc20Abi,
