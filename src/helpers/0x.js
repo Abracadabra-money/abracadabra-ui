@@ -145,16 +145,14 @@ export const swap0xRequestV2 = async (
       }
     );
 
-    const { data, buyAmount, sellAmount, estimatedGas, price } = response.data;
+    const { transaction, buyAmount, sellAmount } = response.data;
 
     return {
-      data: data,
+      data: transaction.data,
       buyToken,
       sellToken,
-      price,
       buyAmount: BigNumber.from(buyAmount),
       sellAmount: BigNumber.from(sellAmount),
-      estimatedGas: BigNumber.from(estimatedGas),
       buyAmountWithSlippage: BigNumber.from(buyAmount)
         .mul(
           BigNumber.from(
