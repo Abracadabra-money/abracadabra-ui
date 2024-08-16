@@ -1719,7 +1719,7 @@ const config: Array<CauldronConfig> = [
     },
     mimInfo,
     leverageInfo: {
-      address: "0xaa0500850199Bf4e90513CeAeF278b9CC7450c87",
+      address: "0xfCf3d75d40C0FAcC5D7cC2Aff9035CF572022D13",
       abi: ERC4626LevSwapper,
     },
   },

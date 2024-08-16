@@ -148,7 +148,9 @@ export const swap0xRequestV2 = async (
     const { transaction, buyAmount, sellAmount } = response.data;
 
     return {
+      response: response.data,
       data: transaction.data,
+      to: transaction.to,
       buyToken,
       sellToken,
       buyAmount: BigNumber.from(buyAmount),

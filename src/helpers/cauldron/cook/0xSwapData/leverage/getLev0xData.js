@@ -29,8 +29,15 @@ const getLev0xData = async (cauldronObject, amount, slipage) => {
   if (isYvWethV2)
     return await fetchLev0xData(cauldronObject, amount, slipage, wethAddress);
 
-  if (iStdeUSD)
-    return await fetchLev0xDataV2(cauldronObject, amount, slipage, deUSDAddress);
+  if (iStdeUSD) {
+    const response = await fetchLev0xDataV2(cauldronObject, amount, slipage, deUSDAddress);
+
+    return utils.defaultAbiCoder.encode(
+      ["address", "bytes"],
+      [response.to, response.data]
+    );
+  }
+    
 
   if (isCvxTricrypto || isCvx3pool) {
     const swapResponseData = await fetchLev0xData(
