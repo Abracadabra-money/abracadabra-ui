@@ -1,5 +1,5 @@
 import { utils } from "ethers";
-import fetchLev0xData from "./fetchLev0xData";
+import {fetchLev0xData, fetchLev0xDataV2} from "./fetchLev0xData";
 import getVelodrome0xData from "./getVelodrome0xData";
 
 const apeAddress = "0x4d224452801ACEd8B2F0aebE155379bb5D594381";
@@ -30,7 +30,7 @@ const getLev0xData = async (cauldronObject, amount, slipage) => {
     return await fetchLev0xData(cauldronObject, amount, slipage, wethAddress);
 
   if (iStdeUSD)
-    return await fetchLev0xData(cauldronObject, amount, slipage, deUSDAddress);
+    return await fetchLev0xDataV2(cauldronObject, amount, slipage, deUSDAddress);
 
   if (isCvxTricrypto || isCvx3pool) {
     const swapResponseData = await fetchLev0xData(
