@@ -121,6 +121,7 @@ import {
   KAVA_CHAIN_ID,
   BLAST_CHAIN_ID,
   ARBITRUM_CHAIN_ID,
+  MAINNET_CHAIN_ID,
 } from "@/constants/global";
 import type { TokenInfo } from "@/helpers/pools/swap/tokens";
 import {
@@ -173,7 +174,12 @@ export default {
         deadline: 500n,
       } as ActionConfig),
       selectedNetwork: ARBITRUM_CHAIN_ID,
-      availableNetworks: [ARBITRUM_CHAIN_ID, KAVA_CHAIN_ID, BLAST_CHAIN_ID],
+      availableNetworks: [
+        ARBITRUM_CHAIN_ID,
+        KAVA_CHAIN_ID,
+        BLAST_CHAIN_ID,
+        MAINNET_CHAIN_ID,
+      ], // TODO: get from configs
       isApproving: false,
       nativeTokenPrice: [] as { chainId: number; price: number }[],
     };
@@ -554,7 +560,7 @@ export default {
       if (this.availableNetworks.includes(this.chainId)) {
         this.selectedNetwork = this.chainId;
       }
-    }
+    },
   },
 
   async created() {
