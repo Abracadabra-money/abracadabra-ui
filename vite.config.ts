@@ -2,6 +2,8 @@ import { fileURLToPath, URL } from "node:url";
 
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
+import wasm from "vite-plugin-wasm";
+import topLevelAwait from "vite-plugin-top-level-await";
 
 import devNodePolyfills from "vite-plugin-node-polyfills";
 import nodePolyfills from "rollup-plugin-polyfill-node";
@@ -14,6 +16,8 @@ export default defineConfig({
       protocolImports: true,
     }),
     vue(),
+    wasm(),
+    topLevelAwait(),
   ],
   esbuild: {
     drop: ["console", "debugger"], // warn: to comment in dev mode to show logs in .ts files
