@@ -1,31 +1,47 @@
-import Math from "./Math";
-
-export const ONE = BigInt(10 ** 18);
-export const ONE2 = BigInt(10 ** 36);
+import { decimalMathLensContract } from "./decimalMathLensContract";
+import { interpretContract } from "./interpretContract";
 
 export const mulFloor = (target: bigint, d: bigint): bigint => {
-  return (target * d) / ONE;
+  return interpretContract({
+    ...decimalMathLensContract,
+    functionName: "mulFloor",
+    args: [target, d],
+  });
 };
 
 export const mulCeil = (target: bigint, d: bigint): bigint => {
-  return Math.divCeil(target * d, ONE);
+  return interpretContract({
+    ...decimalMathLensContract,
+    functionName: "mulCeil",
+    args: [target, d],
+  });
 };
 
 export const divFloor = (target: bigint, d: bigint): bigint => {
-  return (target * ONE) / d;
+  return interpretContract({
+    ...decimalMathLensContract,
+    functionName: "divFloor",
+    args: [target, d],
+  });
 };
 
 export const divCeil = (target: bigint, d: bigint): bigint => {
-  return Math.divCeil(target * ONE, d); // NOTICE: check
+  return interpretContract({
+    ...decimalMathLensContract,
+    functionName: "divCeil",
+    args: [target, d],
+  });
 };
 
 export const reciprocalFloor = (target: bigint): bigint => {
-  return Math.divCeil(ONE2, target);
+  return interpretContract({
+    ...decimalMathLensContract,
+    functionName: "reciprocalFloor",
+    args: [target],
+  });
 };
 
 export default {
-  ONE,
-  ONE2,
   mulFloor,
   mulCeil,
   divFloor,
