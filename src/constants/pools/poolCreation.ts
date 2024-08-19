@@ -20,3 +20,8 @@ export enum PoolTypes {
   Standard = "standard",
   Pegged = "pegged",
 }
+
+export enum EmptyStateTypes {
+  PoolType = 'poolType',
+  Pair = 'pair'
+}

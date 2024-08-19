@@ -32,24 +32,34 @@
       <SlippageChart :kValue="kValue" />
     </template>
 
-    <div class="empty-creation-info">
-      <EmptyState column reverse v-if="!poolType">
+    <div class="empty-creation-info" v-if="!tokensSelected || !poolType">
+      <EmptyState :type="EmptyStateTypes.Pair">
         <div class="empty-state-content">
-          <span class="empty-state-main-text">Select Pool Type</span>
+          <span class="empty-state-main-text">
+            Select Tokens
+            <img
+              :class="['check-icon', { unchecked: !tokensSelected }]"
+              src="@/assets/images/pools/pool-creation/round-check-icon.svg"
+            />
+          </span>
           <p class="empty-state-description">
-            Select Pool Type for your Pool to enable ‘’K’’ and Fee Tier settigns
+            Select tokens you would like to create Pool with to enable price
+            settings
           </p>
         </div>
       </EmptyState>
 
-      <div class="divider" v-if="!tokensSelected && !poolType"></div>
-
-      <EmptyState column reverse v-if="!tokensSelected">
+      <EmptyState>
         <div class="empty-state-content">
-          <span class="empty-state-main-text">Select Tokens</span>
+          <span class="empty-state-main-text">
+            Select Pool Type
+            <img
+              :class="['check-icon', { unchecked: !poolType }]"
+              src="@/assets/images/pools/pool-creation/round-check-icon.svg"
+            />
+          </span>
           <p class="empty-state-description">
-            Select tokens you would like to create Pool with to enable price
-            settings
+            Select Pool Type for your Pool to enable ‘’K’’ and Fee Tier settigns
           </p>
         </div>
       </EmptyState>
@@ -60,7 +70,11 @@
 <script lang="ts">
 import { defineAsyncComponent, type Prop, type PropType } from "vue";
 import { formatUnits } from "viem";
-import { PoolTypes, K_VALUE_DECIMALS } from "@/constants/pools/poolCreation";
+import {
+  PoolTypes,
+  K_VALUE_DECIMALS,
+  EmptyStateTypes,
+} from "@/constants/pools/poolCreation";
 
 export default {
   props: {
@@ -70,7 +84,7 @@ export default {
   },
 
   data() {
-    return { PoolTypes };
+    return { PoolTypes, EmptyStateTypes };
   },
 
   computed: {
@@ -167,28 +181,24 @@ export default {
   height: 325.44px;
 }
 
-.empty-creation-info {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .empty-state-content {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 8px;
 }
 
 .empty-state-main-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 20px;
   font-weight: 500;
   letter-spacing: 0.5px;
+  text-align: left;
 }
 
 .empty-state-description {
   color: #878b93;
-  text-align: center;
   font-size: 16px;
   font-weight: 500;
 }
@@ -201,6 +211,10 @@ export default {
     rgba(255, 255, 255, 0.2) 50%,
     rgba(255, 255, 255, 0) 100%
   );
+}
+
+.unchecked {
+  opacity: 0.3;
 }
 
 @media (max-width: 1300px) {

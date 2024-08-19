@@ -6,18 +6,28 @@
         <Tooltip tooltip="tooltip" />
       </h4>
 
-      <BaseCheckBox
-        :chosen="isAutoPricingEnabled"
-        :disabled="isPriceSelectorDisabled"
-        @update="$emit('toggleAutopricing')"
-        v-if="!isPriceSelectorDisabled"
-      >
-        <span class="checkbox-text">Auto pricing</span>
-        <img
-          class="price-source-icon"
-          src="@/assets/images/defilama-icon.svg"
-        />
-      </BaseCheckBox>
+      <template v-if="!isPriceSelectorDisabled">
+        <BaseCheckBox
+          :chosen="isAutoPricingEnabled"
+          :disabled="isPriceSelectorDisabled"
+          @update="$emit('toggleAutopricing')"
+          v-if="isAutoPricingPossible"
+        >
+          <span class="checkbox-text">Auto pricing</span>
+          <img
+            class="price-source-icon"
+            src="@/assets/images/defilama-icon.svg"
+          />
+        </BaseCheckBox>
+
+        <div class="autopricing-warning" v-else>
+          <img
+            class="warning-icon"
+            src="@/assets/images/pools/pool-creation/warning-triangle.svg"
+          />
+          Warning
+        </div>
+      </template>
     </div>
 
     <div class="price-selector">
@@ -104,6 +114,12 @@ export default {
       const baseQuoteRate = this.baseToken.price / this.quoteToken.price;
       return this.isFromBase ? baseQuoteRate : 1 / baseQuoteRate;
     },
+
+    isAutoPricingPossible() {
+      console.log(this.baseToken, this.quoteToken);
+
+      return this.baseToken.price && this.quoteToken.price;
+    },
   },
 
   watch: {
@@ -115,7 +131,7 @@ export default {
     },
 
     isPriceSelectorDisabled(value: boolean) {
-      if (!value) this.$emit("toggleAutopricing");
+      if (!value && this.isAutoPricingPossible) this.$emit("toggleAutopricing");
     },
 
     inputValue(value: number) {
@@ -213,6 +229,17 @@ export default {
 .switch-icon:hover:not(.disabled) {
   cursor: pointer;
   animation: rotateAndReturn 1s ease-in-out;
+}
+
+.autopricing-warning {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 12px;
+  border-radius: 16px;
+  border: 1px solid #fed84f;
+  background: rgba(254, 216, 79, 0.4);
 }
 
 .price-selector {
