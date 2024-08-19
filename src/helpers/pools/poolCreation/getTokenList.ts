@@ -6,8 +6,8 @@ import { getCoinsPrices } from "@/helpers/prices/defiLlama";
 import store from "@/store";
 
 
-const availableChains = Array.from(
-  new Set(localTokenConfigs.map((token) => token.chainId)).values()
+export const availableNetworks = Array.from(
+  new Set(localTokenConfigs.map(({ chainId }) => chainId)).values()
 );
 
 export const getTokenList = async (chainId?: number, account?: Address) => {
@@ -15,7 +15,7 @@ export const getTokenList = async (chainId?: number, account?: Address) => {
 
   if (!chainId) {
     tokenList = (await Promise.all(
-      availableChains.map(async (chainId) =>
+      availableNetworks.map(async (chainId) =>
         getAllTokensByChain(chainId, account)
           .then((results) => {
             const successfulResults = results.filter(

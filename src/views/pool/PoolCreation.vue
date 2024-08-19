@@ -4,6 +4,12 @@
       <div class="actions-block">
         <h3 class="pool-creation-title">Pool Creation</h3>
 
+        <AvailableNetworksBlock
+          :selectedNetwork="selectedNetwork"
+          :availableNetworks="availableNetworks"
+          @changeNetwork="changeNetwork"
+        />
+
         <div class="action-form">
           <TokensSelector
             :baseToken="baseToken"
@@ -94,7 +100,10 @@
 import { defineAsyncComponent } from "vue";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { type Address, parseUnits } from "viem";
-import { getTokenList } from "@/helpers/pools/poolCreation/getTokenList";
+import {
+  getTokenList,
+  availableNetworks,
+} from "@/helpers/pools/poolCreation/getTokenList";
 import { validationActions } from "@/helpers/pools/poolCreation/validationActions";
 import {
   type ActionConfig,
@@ -120,6 +129,7 @@ import {
   STANDARD_K_VALUE,
   SAFE_PEGGED_K_VALUE,
 } from "@/constants/pools/poolCreation";
+import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 
 const emptyPoolCreationTokenInfo: PoolCreationTokenInfo = {
   config: {
@@ -157,6 +167,8 @@ export default {
         quoteInAmount: 0n,
         protocolOwnedPool: false,
       } as ActionConfig,
+      selectedNetwork: ARBITRUM_CHAIN_ID,
+      availableNetworks,
       isAutoPricingEnabled: false,
       isTokensPopupOpened: false,
       isSlippagePopupOpened: false,
@@ -229,6 +241,10 @@ export default {
         this.actionConfig.quoteToken = newValue.config.address;
       },
       deep: true,
+    },
+
+    async selectedNetwork() {
+      await this.createTokenList();
     },
 
     IValueDecimals(newDecimals: number, oldDecimals: number) {
@@ -386,6 +402,10 @@ export default {
       this.actionConfig.quoteInAmount = 0n;
     },
 
+    changeNetwork(network: number) {
+      this.selectedNetwork = network;
+    },
+
     async approveTokenHandler(contract: ContractInfo, valueToApprove: bigint) {
       this.isActionProcessing = true;
 
@@ -479,7 +499,7 @@ export default {
     },
 
     async createTokenList() {
-      this.tokenList = await getTokenList(this.chainId, this.account);
+      this.tokenList = await getTokenList(this.selectedNetwork, this.account);
     },
   },
 
@@ -542,6 +562,9 @@ export default {
         import(
           "@/components/pools/poolCreation/popups/AutoPricingWarnPopup.vue"
         )
+    ),
+    AvailableNetworksBlock: defineAsyncComponent(
+      () => import("@/components/stake/AvailableNetworksBlock.vue")
     ),
   },
 };
