@@ -59,6 +59,10 @@
           :kValue="actionConfig.K"
           @openSlippagePopup="isSlippagePopupOpened = true"
         />
+        <SimilarPools
+          :tokens="{ baseToken, quoteToken }"
+          :tokensSelected="tokensSelected"
+        />
       </div>
     </div>
 
@@ -541,6 +545,10 @@ export default {
     PoolCreationInfo: defineAsyncComponent(
       () => import("@/components/pools/poolCreation/PoolCreationInfo.vue")
     ),
+    SimilarPools: defineAsyncComponent(
+      () =>
+        import("@/components/pools/poolCreation/similarPools/SimilarPools.vue")
+    ),
     SlippageCoefficientPopup: defineAsyncComponent(
       () =>
         import(
@@ -577,7 +585,7 @@ export default {
 
 .pool-creation-wrap {
   position: relative;
-  max-width: 1310px;
+  max-width: 1311px;
   width: 100%;
   padding: 124px 15px 90px;
   display: grid;

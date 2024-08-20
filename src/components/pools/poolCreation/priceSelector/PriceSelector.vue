@@ -116,8 +116,6 @@ export default {
     },
 
     isAutoPricingPossible() {
-      console.log(this.baseToken, this.quoteToken);
-
       return this.baseToken.price && this.quoteToken.price;
     },
   },
