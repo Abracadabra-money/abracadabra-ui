@@ -1,5 +1,5 @@
 <template>
-  <div class="popup" v-if="isOpen" @click="closePopup">
+  <div class="popup" v-if="isOpen" @click="closePopup" ref="popup">
     <h3 class="title">
       Select {{ popupTitle }} chain
       <img
@@ -35,6 +35,8 @@
 <script lang="ts">
 import type { PropType } from "vue";
 import type { BeamInfo, BeamConfig } from "@/helpers/beam/types";
+import gsap from "gsap";
+
 export default {
   props: {
     isOpen: {
@@ -70,23 +72,45 @@ export default {
       }
     },
     activeChainId() {
-      if(this.popupType == "from") {
+      if (this.popupType == "from") {
         return this.selectedFromChain?.chainId;
       } else {
         return this.selectedToChain?.chainId;
       }
-    }
+    },
   },
 
   methods: {
-    closePopup() {
-      this.$emit("closePopup");
-    },
-
     onChainClick(chainId: number) {
       this.$emit("changeChain", chainId, this.popupType);
       this.closePopup();
     },
+
+    closePopup() {
+      this.closingAnimation();
+      setTimeout(() => this.$emit("closePopup"), 300);
+    },
+
+    openingAnimation() {
+      gsap.fromTo(
+        this.$refs.popup as gsap.TweenTarget,
+        { scale: 0, opacity: 0 },
+        { duration: 0.3, scale: 1, opacity: 1, ease: "power2.out" }
+      );
+    },
+
+    closingAnimation() {
+      gsap.to(this.$refs.popup as gsap.TweenTarget, {
+        duration: 0.3,
+        scale: 0,
+        opacity: 0,
+        ease: "power2.in",
+      });
+    },
+  },
+
+  mounted() {
+    this.openingAnimation();
   },
 };
 </script>

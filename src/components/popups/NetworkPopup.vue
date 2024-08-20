@@ -1,6 +1,6 @@
 <template>
-  <div class="popup-wrap" @click.self="closePopup" v-if="isOpen">
-    <div class="popup">
+  <div class="popup-wrap" @click.self="closePopup" v-if="isOpen" ref="backdrop">
+    <div class="popup" ref="popup">
       <h3 class="title">
         Select Chain
         <img
@@ -36,6 +36,7 @@
 
 <script>
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import gsap from "gsap";
 
 export default {
   props: {
@@ -59,13 +60,41 @@ export default {
 
   methods: {
     closePopup() {
-      this.$emit("closePopup");
+      this.closingAnimation();
+      setTimeout(() => this.$emit("closePopup"), 300);
+    },
+
+    openingAnimation() {
+      gsap.fromTo(
+        this.$refs.backdrop,
+        { autoAlpha: 0 },
+        { duration: 0.3, autoAlpha: 1 }
+      );
+      gsap.fromTo(
+        this.$refs.popup,
+        { scale: 0, opacity: 0 },
+        { duration: 0.3, scale: 1, opacity: 1, ease: "power2.out" }
+      );
+    },
+
+    closingAnimation() {
+      gsap.to(this.$refs.backdrop, { duration: 0.3, autoAlpha: 0 });
+      gsap.to(this.$refs.popup, {
+        duration: 0.3,
+        scale: 0,
+        opacity: 0,
+        ease: "power2.in",
+      });
     },
 
     async switchHandler(chainId) {
       await switchNetwork(chainId);
       this.closePopup();
     },
+  },
+
+  mounted() {
+    if (this.isOpen) this.openingAnimation();
   },
 };
 </script>

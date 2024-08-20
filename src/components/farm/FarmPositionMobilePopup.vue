@@ -1,6 +1,6 @@
 <template>
-  <div class="backdrop" @click.self="closePopup">
-    <div class="farm-position-wrap">
+  <div class="backdrop" @click.self="closePopup" ref="backdrop">
+    <div class="farm-position-wrap" ref="popup">
       <div class="farm-position">
         <div class="deposited">
           <h4 class="subtitle">
@@ -99,9 +99,14 @@ import spellIcon from "@/assets/images/tokens/SPELL.png";
 import { getChainConfig } from "@/helpers/chains/getChainsInfo";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 import type { FarmItem, RewardTokenInfo } from "@/configs/farms/types";
+import gsap from "gsap";
 
 export default {
   props: {
+    isOpened: {
+      type: Boolean,
+      default: false,
+    },
     selectedFarm: { type: Object as PropType<FarmItem>, required: true },
     isProperNetwork: { type: Boolean },
   },
@@ -196,6 +201,16 @@ export default {
     },
   },
 
+  watch: {
+    isOpened: {
+      handler(value) {
+        document.documentElement.style.overflow = "hidden";
+        if (value) this.openingAnimation();
+      },
+      immediate: true,
+    },
+  },
+
   methods: {
     formatUSD,
     formatTokenBalance,
@@ -237,9 +252,43 @@ export default {
       this.isActionProcessing = false;
     },
 
-    closePopup() {
-      this.$emit("closePopup");
+    openingAnimation() {
+      if (this.$refs.backdrop)
+        gsap.fromTo(
+          this.$refs.backdrop,
+          { autoAlpha: 0 },
+          { duration: 0.3, autoAlpha: 1 }
+        );
+      if (this.$refs.popup)
+        gsap.fromTo(
+          this.$refs.popup,
+          { y: 100 },
+          { duration: 0.3, y: 0, ease: "power2.out" }
+        );
     },
+
+    closingAnimation() {
+      if (this.$refs.backdrop)
+        gsap.to(this.$refs.backdrop, { duration: 0.3, autoAlpha: 0 });
+      if (this.$refs.popup)
+        gsap.to(this.$refs.popup, {
+          duration: 0.3,
+          y: 100,
+          ease: "power2.in",
+        });
+    },
+
+    closePopup() {
+      this.closingAnimation();
+      setTimeout(() => {
+        document.documentElement.style.overflow = "auto";
+        this.$emit("closePopup");
+      }, 300);
+    },
+  },
+
+  mounted() {
+    this.openingAnimation();
   },
 
   components: {

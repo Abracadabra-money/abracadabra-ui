@@ -39,8 +39,8 @@ export default {
       );
       gsap.fromTo(
         this.$refs.popup,
-        { y: "100%" },
-        { duration: 0.3, y: "0%", ease: "power2.out" }
+        { scale: 0 },
+        { duration: 0.3, scale: 1, ease: "power2.out" }
       );
     },
 
@@ -48,7 +48,7 @@ export default {
       gsap.to(this.$refs.backdrop, { duration: 0.3, autoAlpha: 0 });
       gsap.to(this.$refs.popup, {
         duration: 0.3,
-        y: "100%",
+        scale: 0,
         ease: "power2.in",
       });
     },
@@ -56,16 +56,6 @@ export default {
     closePopup() {
       this.closingAnimation();
       this.$emit("closePopup");
-    },
-  },
-
-  watch: {
-    isOpened: {
-      handler(value) {
-        document.documentElement.style.overflow = value ? "hidden" : "auto";
-        if (value) this.openingAnimation();
-      },
-      immediate: true,
     },
   },
 };

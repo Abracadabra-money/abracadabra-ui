@@ -90,7 +90,7 @@ export default {
     closingAnimation() {
       gsap.to(this.$refs.notification as gsap.TweenTarget, {
         duration: 0.3,
-        x: "-100%",
+        y: "-100%",
         opacity: 0,
         ease: "power2.in",
       });

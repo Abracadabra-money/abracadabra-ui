@@ -51,10 +51,11 @@
     </div>
 
     <FarmPositionMobilePopup
+      v-if="isUserPositionOpen && isMyPositionPopupOpened"
+      :isOpened="isUserPositionOpen && isMyPositionPopupOpened"
       :selectedFarm="selectedFarm"
       :isProperNetwork="isProperNetwork"
       @updateFarmData="getSelectedFarm()"
-      v-if="isUserPositionOpen && isMyPositionPopupOpened"
       @closePopup="isMyPositionPopupOpened = false"
     />
 

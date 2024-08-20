@@ -2,7 +2,7 @@
   <div
     class="dropdown-tools"
     :class="{ active: showDropdownList }"
-    @click="toggleDropdown()"
+    @click="toggleDropdown"
     v-click-outside="closeDropdown"
   >
     <div class="dropdown-title">
@@ -14,7 +14,7 @@
       />
     </div>
 
-    <div class="list" v-if="showDropdownList">
+    <div class="list" v-show="showDropdownList" ref="dropdownList">
       <router-link class="list-link" :to="{ name: 'StakeSpell' }">
         <div class="link-title">
           <span class="stake-token">
@@ -98,6 +98,7 @@ import BaseLoader from "@/components/base/BaseLoader.vue";
 import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
 import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
 import { getSpellStakingApr } from "@/helpers/stake/spell/getSpellStakingApr";
+import gsap from "gsap";
 
 export default {
   data() {
@@ -137,11 +138,34 @@ export default {
     },
 
     toggleDropdown() {
-      this.showDropdownList = !this.showDropdownList;
+      if (this.showDropdownList) {
+        this.closeDropdown();
+      } else {
+        this.showDropdownList = true;
+        this.openingAnimation();
+      }
     },
 
     closeDropdown() {
-      this.showDropdownList = false;
+      this.closingAnimation();
+      setTimeout(() => (this.showDropdownList = false), 300);
+    },
+
+    openingAnimation() {
+      gsap.fromTo(
+        this.$refs.dropdownList,
+        { y: -20, height: 0 },
+        { duration: 0.3, y: 0, height: "auto", ease: "power2.out" }
+      );
+    },
+
+    closingAnimation() {
+      gsap.to(this.$refs.dropdownList, {
+        duration: 0.3,
+        y: -20,
+        height: 0,
+        ease: "power2.in",
+      });
     },
   },
 
@@ -193,6 +217,7 @@ export default {
   background: #101622;
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
   backdrop-filter: blur(12.5px);
+  overflow: hidden;
 }
 
 .list-link {

@@ -82,7 +82,7 @@
       />
     </LocalPopupWrap>
 
-    <LocalPopupWrap
+    <!-- <LocalPopupWrap
       isFarm
       :isOpened="isConfirmationPopupOpened"
       @closePopup="isConfirmationPopupOpened = false"
@@ -94,7 +94,7 @@
         :currentPriceInfo="currentPriceInfo"
         @confirm="closeConfirmationPopup"
       />
-    </LocalPopupWrap>
+    </LocalPopupWrap> -->
   </div>
 </template>
 

@@ -98,6 +98,7 @@
         :mimAmount="inputAmount"
         @onUpdateAmount="updateDstNativeTokenAmount"
         @closeSettings="isSettingsOpened = false"
+        ref="settingsPopup"
       />
     </div>
   </div>
@@ -112,7 +113,7 @@
 
 <script lang="ts">
 import { utils } from "ethers";
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, type DefineComponent } from "vue";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import { approveTokenViem } from "@/helpers/approval";
 import { sendFrom } from "@/helpers/beam/sendFromNew";
@@ -333,7 +334,11 @@ export default {
     },
 
     toggleSettings() {
-      this.isSettingsOpened = !this.isSettingsOpened;
+      if (this.isSettingsOpened) {
+        (this.$refs.settingsPopup as DefineComponent).closePopup();
+      } else {
+        this.isSettingsOpened = true;
+      }
     },
 
     openNetworkPopup(type: "from" | "to") {
@@ -527,7 +532,6 @@ export default {
     },
 
     async changeChain(chainId: number, type: string) {
-      console.log("changeChain", { chainId, type });
       const chainConfig = this.beamInfoObject!.beamConfigs.find(
         (chain) => chain.chainId === chainId
       );

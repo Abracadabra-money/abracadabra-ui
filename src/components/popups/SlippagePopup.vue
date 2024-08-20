@@ -5,10 +5,10 @@
       :width="26"
       :height="26"
       padding="4px"
-      @click="() => (showPopup = !showPopup)"
+      @click="togglePopup"
     />
 
-    <div class="slippage-popup" v-if="showPopup">
+    <div class="slippage-popup" v-show="showPopup" ref="popup">
       <div class="title-wrap">
         <h3>Slippage settings</h3>
 
@@ -45,6 +45,7 @@ import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { formatToFixed } from "@/helpers/filters";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
+import gsap from "gsap";
 
 export default {
   props: {
@@ -95,8 +96,35 @@ export default {
       return Number(formatToFixed(parsedAmount, PERCENT_PRESITION));
     },
 
+    togglePopup() {
+      if (this.showPopup) {
+        this.closePopup();
+      } else {
+        this.showPopup = true;
+        this.openingAnimation();
+      }
+    },
+
     closePopup() {
-      this.showPopup = false;
+      this.closingAnimation();
+      setTimeout(() => (this.showPopup = false), 300);
+    },
+
+    openingAnimation() {
+      gsap.fromTo(
+        this.$refs.popup as gsap.TweenTarget,
+        { scale: 0, opacity: 0 },
+        { duration: 0.3, scale: 1, opacity: 1, ease: "power2.out" }
+      );
+    },
+
+    closingAnimation() {
+      gsap.to(this.$refs.popup as gsap.TweenTarget, {
+        duration: 0.3,
+        scale: 0,
+        opacity: 0,
+        ease: "power2.in",
+      });
     },
   },
 

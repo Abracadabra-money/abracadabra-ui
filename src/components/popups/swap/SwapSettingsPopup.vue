@@ -1,10 +1,10 @@
 <template>
   <div class="settings-wrap" v-click-outside="closePopup">
-    <button class="settings-button" @click="() => (showPopup = !showPopup)">
+    <button class="settings-button" @click="togglePopup">
       <SetingIcon />
     </button>
 
-    <div class="settings-popup" v-if="showPopup">
+    <div class="settings-popup" v-show="showPopup" ref="popup">
       <h3 class="title">Transaction Setting</h3>
 
       <div>
@@ -70,6 +70,7 @@ import { formatUnits, parseUnits } from "viem";
 import { formatToFixed } from "@/helpers/filters";
 import { defineAsyncComponent, type PropType } from "vue";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
+import gsap from "gsap";
 
 export default {
   props: {
@@ -147,8 +148,35 @@ export default {
       return Number(formatToFixed(parsedAmount, PERCENT_PRESITION));
     },
 
-    closePopup(): void {
-      this.showPopup = false;
+    togglePopup() {
+      if (this.showPopup) {
+        this.closePopup();
+      } else {
+        this.showPopup = true;
+        this.openingAnimation();
+      }
+    },
+
+    closePopup() {
+      this.closingAnimation();
+      setTimeout(() => (this.showPopup = false), 300);
+    },
+
+    openingAnimation() {
+      gsap.fromTo(
+        this.$refs.popup as gsap.TweenTarget,
+        { scale: 0, opacity: 0 },
+        { duration: 0.3, scale: 1, opacity: 1, ease: "power2.out" }
+      );
+    },
+
+    closingAnimation() {
+      gsap.to(this.$refs.popup as gsap.TweenTarget, {
+        duration: 0.3,
+        scale: 0,
+        opacity: 0,
+        ease: "power2.in",
+      });
     },
   },
 

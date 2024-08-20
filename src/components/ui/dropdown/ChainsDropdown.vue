@@ -1,6 +1,6 @@
 <template>
   <div class="dropdown" v-click-outside="closeDropdown">
-    <button class="dropdown-btn" @click="toogleDropdown">
+    <button class="dropdown-btn" @click="toggleDropdown">
       Chains
       <div
         :class="[
@@ -42,7 +42,7 @@
       </svg>
     </button>
 
-    <div class="dropdown-list" ref="dropdownList" v-if="showDropdownList">
+    <div class="dropdown-list" ref="dropdownList" v-show="showDropdownList">
       <div class="select-all">
         <h6 class="list-title">Select all</h6>
         <Toggle
@@ -97,6 +97,7 @@
 import { defineAsyncComponent, type PropType } from "vue";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 import { getChainConfig } from "@/helpers/chains/getChainsInfo";
+import gsap from "gsap";
 
 export default {
   props: {
@@ -147,6 +148,10 @@ export default {
   },
 
   watch: {
+    showDropdownList(value) {
+      if (value) this.openingAnimation();
+    },
+
     allSelected(isAllSelected: boolean) {
       if (isAllSelected && this.$refs.dropdownList)
         (this.$refs.dropdownList as HTMLDivElement).scrollTo({
@@ -163,17 +168,39 @@ export default {
       return chain?.chainName;
     },
 
-    toogleDropdown() {
+    toggleDropdown() {
       if (!this.activeChains.length) return false;
-      this.showDropdownList = !this.showDropdownList;
+      if (this.showDropdownList) {
+        this.closeDropdown();
+      } else {
+        this.showDropdownList = true;
+      }
     },
 
     closeDropdown() {
-      this.showDropdownList = false;
+      this.closingAnimation();
+      setTimeout(() => (this.showDropdownList = false), 300);
     },
 
     updateSelectedChain(chainId: number) {
       this.$emit("updateSelectedChain", chainId);
+    },
+
+    openingAnimation() {
+      gsap.fromTo(
+        this.$refs.dropdownList as gsap.TweenTarget,
+        { y: -20, height: 0 },
+        { duration: 0.3, y: 0, height: "auto", ease: "power2.out" }
+      );
+    },
+
+    closingAnimation() {
+      gsap.to(this.$refs.dropdownList as gsap.TweenTarget, {
+        duration: 0.3,
+        y: -20,
+        height: 0,
+        ease: "power2.in",
+      });
     },
   },
 

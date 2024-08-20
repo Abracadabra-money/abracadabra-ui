@@ -1,12 +1,12 @@
 <template>
-  <div class="settings-popup">
+  <div class="settings-popup" ref="popup">
     <div>
       <div class="title-wrap">
         <p class="title">Gas on Destination Chain</p>
         <Tooltip :tooltip="tooltip" />
         <img
           class="popup-close"
-          @click="$emit('closeSettings')"
+          @click="closePopup"
           src="@/assets/images/cross.svg"
           alt="Close popup"
         />
@@ -79,6 +79,7 @@ import type { BeamInfo, BeamConfig } from "@/helpers/beam/types";
 import type { PropType } from "vue";
 import { chainsConfigs } from "@/helpers/chains/configs";
 import { mapGetters } from "vuex";
+import gsap from "gsap";
 
 export default {
   emits: ["onUpdateAmount", "closeSettings"],
@@ -122,7 +123,7 @@ export default {
     ...mapGetters({
       account: "getAccount",
     }),
-    
+
     dstUpdatedInfo() {
       return this.beamInfoObject.destinationChainsInfo.find(
         (chain) => chain.chainConfig.chainId === this.dstChainInfo.chainId
@@ -133,8 +134,6 @@ export default {
       const chainInfo = chainsConfigs.find(
         (chain) => chain.chainId === this.dstChainInfo.chainId
       );
-
-      console.log("chainInfo", chainInfo);
 
       return {
         icon: chainInfo!.baseTokenIcon,
@@ -147,8 +146,6 @@ export default {
       const chainInfo = chainsConfigs.find(
         (chain) => chain.chainId === this.beamInfoObject.fromChainConfig.chainId
       );
-
-      console.log("chainInfo", chainInfo);
 
       return {
         icon: chainInfo!.baseTokenIcon,
@@ -224,8 +221,6 @@ export default {
         return false;
       }
 
-      console.log("inputValue", value);
-
       this.updateFee();
     },
   },
@@ -233,7 +228,7 @@ export default {
   methods: {
     actionHandler() {
       this.$emit("onUpdateAmount", this.parsedValue);
-      this.$emit("closeSettings");
+      this.closePopup();
     },
 
     updateInputValue(value: any) {
@@ -259,6 +254,32 @@ export default {
       }
       this.fee = updatedFee;
     },
+
+    closePopup() {
+      this.closingAnimation();
+      setTimeout(() => this.$emit("closeSettings"), 300);
+    },
+
+    openingAnimation() {
+      gsap.fromTo(
+        this.$refs.popup as gsap.TweenTarget,
+        { scale: 0, opacity: 0 },
+        { duration: 0.3, scale: 1, opacity: 1, ease: "power2.out" }
+      );
+    },
+
+    closingAnimation() {
+      gsap.to(this.$refs.popup as gsap.TweenTarget, {
+        duration: 0.3,
+        scale: 0,
+        opacity: 0,
+        ease: "power2.in",
+      });
+    },
+  },
+
+  mounted() {
+    this.openingAnimation();
   },
 
   components: {

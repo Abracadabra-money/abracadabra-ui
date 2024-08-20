@@ -1,11 +1,11 @@
 <template>
-  <div class="backdrop" @click.self="$emit('close-popup')">
-    <div class="wrapper">
+  <div class="backdrop" @click.self="closePopup" ref="backdrop">
+    <div class="wrapper" ref="popup">
       <h1 class="title">
         Transaction overview
         <img
           class="popup-close"
-          @click="$emit('close-popup')"
+          @click="closePopup"
           src="@/assets/images/cross.svg"
           alt="Close popup"
         />
@@ -30,10 +30,9 @@
 import BeamProcess from "@/components/beam/successPopup/BeamProcess.vue";
 import BeamInfo from "@/components/beam/successPopup/BeamInfo.vue";
 import TransactionProgressBlock from "@/components/beam/successPopup/TransactionProgressBlock.vue";
-
 import { waitForMessageReceived } from "@layerzerolabs/scan-client";
-
 import { chainsConfigs } from "@/helpers/chains/configs";
+import gsap from "gsap";
 
 export default {
   props: {
@@ -94,9 +93,39 @@ export default {
 
       this.lzTxInfo = messageResult;
     },
+
+    openingAnimation() {
+      gsap.fromTo(
+        this.$refs.backdrop,
+        { autoAlpha: 0 },
+        { duration: 0.3, autoAlpha: 1 }
+      );
+      gsap.fromTo(
+        this.$refs.popup,
+        { scale: 0 },
+        { duration: 0.3, scale: 1, ease: "power2.out" }
+      );
+    },
+
+    closingAnimation() {
+      gsap.to(this.$refs.backdrop, { duration: 0.3, autoAlpha: 0 });
+      gsap.to(this.$refs.popup, {
+        duration: 0.3,
+        scale: 0,
+        ease: "power2.in",
+      });
+    },
+
+    closePopup() {
+      this.closingAnimation();
+      setTimeout(() => this.$emit("close-popup"), 300);
+    },
   },
   created() {
     this.waitForTransaction();
+  },
+  mounted() {
+    this.openingAnimation();
   },
   components: {
     BeamProcess,
