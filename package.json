@@ -45,7 +45,7 @@
     "lottie-web": "^5.12.2",
     "marked": "^11.2.0",
     "moment": "^2.29.4",
-    "revm-interpreter-js": "^0.1.1",
+    "revm-interpreter-js": "^0.1.2",
     "veaury": "^2.3.12",
     "viem": "^2.9.13",
     "vue": "^3.2.47",
