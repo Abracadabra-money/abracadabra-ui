@@ -174,20 +174,4 @@ export default {
   font-weight: 500;
   text-transform: capitalize;
 }
-
-.positionOpened {
-  background: url("@/assets/images/pool/pool-opened-position-background.png"),
-    linear-gradient(
-      91deg,
-      rgba(27, 24, 68, 0.6) 14.68%,
-      rgba(13, 19, 38, 0.6) 76.58%
-    ),
-    linear-gradient(
-      146deg,
-      rgba(0, 10, 35, 0.07) 0%,
-      rgba(0, 80, 156, 0.07) 101.49%
-    );
-
-  background-repeat: no-repeat;
-}
 </style>
