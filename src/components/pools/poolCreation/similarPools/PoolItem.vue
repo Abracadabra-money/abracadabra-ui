@@ -40,7 +40,11 @@
 import { defineAsyncComponent, type PropType } from "vue";
 import { formatUSD, formatPercent } from "@/helpers/filters";
 import type { MagicLPInfo } from "@/helpers/pools/swap/types";
-import { FEE_TIER_DECIMALS, PoolTypes } from "@/constants/pools/poolCreation";
+import {
+  FEE_TIER_DECIMALS,
+  PoolTypes,
+  STANDARD_K_VALUE,
+} from "@/constants/pools/poolCreation";
 import { formatUnits } from "viem";
 
 export default {
@@ -71,7 +75,9 @@ export default {
     },
 
     poolStatus() {
-      return PoolTypes.Pegged;
+      return this.pool.config.initialParameters.K === STANDARD_K_VALUE
+        ? PoolTypes.Standard
+        : PoolTypes.Pegged;
     },
   },
 

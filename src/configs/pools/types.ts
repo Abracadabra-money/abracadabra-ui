@@ -12,6 +12,7 @@ export type PoolConfig = {
   lockContract?: Contract;
   stakeContract?: Contract;
   settings: PoolSettings;
+  initialParameters: InitialParameters
 };
 
 // TODO: may be changed in future
@@ -21,6 +22,13 @@ type PoolSettings = {
   isMim: boolean;
   isPointsLogic?: boolean;
 };
+
+
+type InitialParameters = {
+  I: bigint,
+  K: bigint,
+  lpFeeRate: bigint
+}
 
 export type TokenConfig = {
   name: string;

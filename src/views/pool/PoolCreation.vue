@@ -62,6 +62,7 @@
         <SimilarPools
           :tokens="{ baseToken, quoteToken }"
           :tokensSelected="tokensSelected"
+          :actionConfig="actionConfig"
         />
       </div>
     </div>

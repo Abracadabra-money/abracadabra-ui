@@ -3,8 +3,9 @@
     <h3 class="similar-pools-title">Pools similar to yours</h3>
 
     <div class="similar-pools">
-      <EmptyState v-if="!tokensSelected || similarPools.length <= 0" />
-
+      <template v-if="!tokensSelected || similarPools.length <= 0">
+        <EmptyState v-for="i in 3" :key="i" />
+      </template>
       <PoolItem
         :pool="pool"
         v-for="(pool, index) in similarPools"
@@ -21,16 +22,21 @@ import poolsConfig from "@/configs/pools/pools";
 import { getLpInfo } from "@/helpers/pools/swap/magicLp";
 import type { MagicLPInfo } from "@/helpers/pools/swap/types";
 import type { PoolCreationTokenInfo } from "@/configs/pools/poolCreation/types";
+import type { ActionConfig } from "@/helpers/pools/poolCreation/actions/createPool";
+import type { PoolConfig } from "@/configs/pools/types";
 
 export default {
   props: {
     tokensSelected: { type: Boolean, default: false },
-
     tokens: {
       type: Object as PropType<{
         baseToken: PoolCreationTokenInfo;
         quoteToken: PoolCreationTokenInfo;
       }>,
+      required: true,
+    },
+    actionConfig: {
+      type: Object as PropType<ActionConfig>,
       required: true,
     },
   },
@@ -43,27 +49,58 @@ export default {
 
   watch: {
     async tokens() {
-      if (this.tokensSelected) await this.getSimilarPools();
+      const { K, lpFeeRate } = this.actionConfig;
+      if (this.tokensSelected && K > 0n && lpFeeRate > 0n)
+        await this.getSimilarPools();
     },
   },
 
   methods: {
     async getSimilarPools() {
-      const baseTokenSymbol =
-        this.tokens.baseToken.config.symbol.toLocaleLowerCase();
-      const quoteTokenSymbol =
-        this.tokens.quoteToken.config.symbol.toLocaleLowerCase();
-
-      const similarPoolsConfigs = poolsConfig.filter(
-        ({ name }) =>
-          name.toLocaleLowerCase().includes(baseTokenSymbol) &&
-          name.toLocaleLowerCase().includes(quoteTokenSymbol)
+      const similarPoolsConfigs = poolsConfig.filter((config) =>
+        this.checkPoolSimilarity(config)
       );
 
       this.similarPools = await Promise.all(
         similarPoolsConfigs.map(
           async (config) => await getLpInfo(config, config.chainId)
         )
+      );
+    },
+
+    checkPoolSimilarity(poolConfig: PoolConfig) {
+      const baseTokenSymbol =
+        this.tokens.baseToken.config.symbol.toLocaleLowerCase();
+      const quoteTokenSymbol =
+        this.tokens.quoteToken.config.symbol.toLocaleLowerCase();
+
+      const currentK = this.actionConfig.K;
+      const currentFeeRate = this.actionConfig.lpFeeRate;
+
+      const {
+        name,
+        initialParameters: { K, lpFeeRate },
+      } = poolConfig;
+
+      const isTokensCompoundSimilar =
+        name.toLocaleLowerCase().includes(baseTokenSymbol) &&
+        name.toLocaleLowerCase().includes(quoteTokenSymbol);
+
+      const isFeeRateSimilar = currentFeeRate == lpFeeRate;
+
+      const isKSimilar = this.checkKSimilarity(currentK, K);
+
+      return isTokensCompoundSimilar && isFeeRateSimilar && isKSimilar;
+    },
+
+    checkKSimilarity(
+      current: bigint,
+      toCompare: bigint,
+      dispersionPercentage = 20n
+    ) {
+      const dispersion = (current * dispersionPercentage) / 100n;
+      return (
+        current - dispersion <= toCompare && current + dispersion >= toCompare
       );
     },
   },

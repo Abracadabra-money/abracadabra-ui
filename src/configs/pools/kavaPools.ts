@@ -46,6 +46,12 @@ const kavaPools: Array<PoolConfig> = [
       isDeprecated: false,
       isMim: true,
     },
+    //todo: dummy info. kavascan contract didnt work
+    initialParameters: {
+      I: 1000000000000000000n,
+      K: 250000000000000n,
+      lpFeeRate: 500000000000000n
+    }
   },
 ];
 
