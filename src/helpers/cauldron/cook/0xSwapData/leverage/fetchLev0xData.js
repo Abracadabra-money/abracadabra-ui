@@ -12,11 +12,6 @@ export const fetchLev0xData = async (cauldronObject, amount, slipage, buyToken) 
     leverageSwapper.address
   );
 
-  console.log("swapResponse", swapResponse);
-
-  console.log("swapResponse.buyA", swapResponse.buyAmount.toString())
-  console.log("swapResponse.sellAmount", swapResponse.sellAmount.toString())
-
   return swapResponse.data;
 };
 
