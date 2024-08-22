@@ -208,8 +208,7 @@ export default {
     },
 
     routerAddress() {
-      const router = getSwapRouterByChain(this.chainId);
-      return router;
+      return getSwapRouterByChain(this.chainId);
     },
 
     IValueDecimals() {
@@ -227,16 +226,9 @@ export default {
     },
     //
     baseToken: {
-      handler(
-        newValue: PoolCreationTokenInfo,
-        oldValue: PoolCreationTokenInfo
-      ) {
+      handler(newValue: PoolCreationTokenInfo) {
         this.actionConfig.baseToken = newValue.config.address;
-        const oldDecimals = oldValue.config.decimals;
-        const newDecimals = newValue.config.decimals;
-        this.actionConfig.baseInAmount =
-          (this.actionConfig.baseInAmount * parseUnits("1", newDecimals)) /
-          parseUnits("1", oldDecimals);
+        this.resetInputs();
       },
       deep: true,
     },
@@ -244,6 +236,7 @@ export default {
     quoteToken: {
       handler(newValue: PoolCreationTokenInfo) {
         this.actionConfig.quoteToken = newValue.config.address;
+        this.resetInputs();
       },
       deep: true,
     },
