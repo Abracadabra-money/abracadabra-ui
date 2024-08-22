@@ -12,6 +12,12 @@ const getDeUsd0xData = async (cauldronObject, collateralAmount, slipage) => {
     liquidationSwapper.address
   );
 
+  const liquidityAvailable = response.response.liquidityAvailable;
+
+  if(!liquidityAvailable) {
+    throw new Error("Not enough liquidity available");
+  }
+
   return utils.defaultAbiCoder.encode(
     ["address", "bytes"],
     [response.to, response.data]
