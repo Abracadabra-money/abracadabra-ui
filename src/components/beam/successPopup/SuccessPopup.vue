@@ -98,12 +98,12 @@ export default {
       gsap.fromTo(
         this.$refs.backdrop,
         { autoAlpha: 0 },
-        { duration: 0.3, autoAlpha: 1 }
+        { duration: 0.15, autoAlpha: 1 }
       );
       gsap.fromTo(
         this.$refs.popup,
         { scale: 0 },
-        { duration: 0.3, scale: 1, ease: "power2.out" }
+        { duration: 0.15, scale: 1, ease: "power2.out" }
       );
     },
 
@@ -118,7 +118,7 @@ export default {
 
     closePopup() {
       this.closingAnimation();
-      setTimeout(() => this.$emit("close-popup"), 300);
+      setTimeout(() => this.$emit("close-popup"), 150);
     },
   },
   created() {

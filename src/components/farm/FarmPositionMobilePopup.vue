@@ -257,22 +257,22 @@ export default {
         gsap.fromTo(
           this.$refs.backdrop,
           { autoAlpha: 0 },
-          { duration: 0.3, autoAlpha: 1 }
+          { duration: 0.15, autoAlpha: 1 }
         );
       if (this.$refs.popup)
         gsap.fromTo(
           this.$refs.popup,
           { y: 100 },
-          { duration: 0.3, y: 0, ease: "power2.out" }
+          { duration: 0.15, y: 0, ease: "power2.out" }
         );
     },
 
     closingAnimation() {
       if (this.$refs.backdrop)
-        gsap.to(this.$refs.backdrop, { duration: 0.3, autoAlpha: 0 });
+        gsap.to(this.$refs.backdrop, { duration: 0.15, autoAlpha: 0 });
       if (this.$refs.popup)
         gsap.to(this.$refs.popup, {
-          duration: 0.3,
+          duration: 0.15,
           y: 100,
           ease: "power2.in",
         });
@@ -283,7 +283,7 @@ export default {
       setTimeout(() => {
         document.documentElement.style.overflow = "auto";
         this.$emit("closePopup");
-      }, 300);
+      }, 150);
     },
   },
 

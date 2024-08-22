@@ -75,7 +75,7 @@ export default {
     closeNotification() {
       setTimeout(() => {
         this.deleteNotification(this.notification.id);
-      }, 300);
+      }, 150);
       this.closingAnimation();
     },
 

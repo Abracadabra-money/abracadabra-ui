@@ -159,20 +159,20 @@ export default {
 
     closePopup() {
       this.closingAnimation();
-      setTimeout(() => (this.showPopup = false), 300);
+      setTimeout(() => (this.showPopup = false), 150);
     },
 
     openingAnimation() {
       gsap.fromTo(
         this.$refs.popup as gsap.TweenTarget,
         { scale: 0, opacity: 0 },
-        { duration: 0.3, scale: 1, opacity: 1, ease: "power2.out" }
+        { duration: 0.15, scale: 1, opacity: 1, ease: "power2.out" }
       );
     },
 
     closingAnimation() {
       gsap.to(this.$refs.popup as gsap.TweenTarget, {
-        duration: 0.3,
+        duration: 0.15,
         scale: 0,
         opacity: 0,
         ease: "power2.in",

@@ -30,24 +30,33 @@ export default {
       default: false,
     },
   },
+  watch: {
+    isOpened: {
+      handler(value) {
+        document.documentElement.style.overflow = value ? "hidden" : "auto";
+        if (value) this.openingAnimation();
+      },
+      immediate: true,
+    },
+  },
   methods: {
     openingAnimation() {
       gsap.fromTo(
         this.$refs.backdrop,
         { autoAlpha: 0 },
-        { duration: 0.3, autoAlpha: 1, display: "grid" }
+        { duration: 0.15, autoAlpha: 1, display: "grid" }
       );
       gsap.fromTo(
         this.$refs.popup,
         { scale: 0 },
-        { duration: 0.3, scale: 1, ease: "power2.out" }
+        { duration: 0.15, scale: 1, ease: "power2.out" }
       );
     },
 
     closingAnimation() {
-      gsap.to(this.$refs.backdrop, { duration: 0.3, autoAlpha: 0 });
+      gsap.to(this.$refs.backdrop, { duration: 0.15, autoAlpha: 0 });
       gsap.to(this.$refs.popup, {
-        duration: 0.3,
+        duration: 0.15,
         scale: 0,
         ease: "power2.in",
       });

@@ -206,22 +206,22 @@ export default {
       gsap.fromTo(
         this.$refs.backdrop as gsap.TweenTarget,
         { autoAlpha: 0 },
-        { duration: 0.3, autoAlpha: 1 }
+        { duration: 0.15, autoAlpha: 1 }
       );
       gsap.fromTo(
         this.$refs.popup as gsap.TweenTarget,
         { scale: 0 },
-        { duration: 0.3, scale: 1, ease: "power2.out" }
+        { duration: 0.15, scale: 1, ease: "power2.out" }
       );
     },
 
     closingAnimation() {
       gsap.to(this.$refs.backdrop as gsap.TweenTarget, {
-        duration: 0.3,
+        duration: 0.15,
         autoAlpha: 0,
       });
       gsap.to(this.$refs.popup as gsap.TweenTarget, {
-        duration: 0.3,
+        duration: 0.15,
         scale: 0,
         ease: "power2.in",
       });
@@ -229,7 +229,7 @@ export default {
 
     closePopup() {
       this.closingAnimation();
-      setTimeout(() => this.$emit("close"), 300);
+      setTimeout(() => this.$emit("close"), 150);
     },
   },
 
