@@ -126,6 +126,7 @@ export default {
     },
 
     selectCustom() {
+      if (this.isCustomCoefficient) return;
       this.isCustomCoefficient = true;
       this.$emit("selectKValue", 0n);
     },
