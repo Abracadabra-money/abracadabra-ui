@@ -1,6 +1,6 @@
 <template>
   <div class="popup-content">
-    <h3 class="title">Mint MIM against stdeUSD</h3>
+    <h3 class="title">Mint MIM against sdeUSD</h3>
 
     <div class="popup-content-wrap">
       <div class="notification-wrap">
@@ -9,7 +9,7 @@
           src="@/assets/images/notification-icons/info-icon.png"
         />
         <p class="notification-text">
-          Important Notice: Deleveraging Efficiency Depends on deUSD / stdeUSD
+          Important Notice: Deleveraging Efficiency Depends on deUSD / sdeUSD
           Liquidity
         </p>
       </div>
