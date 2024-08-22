@@ -41,7 +41,6 @@
           <span class="slippage-coefficient-value">Custom</span>
           <input
             :class="['custom-slippage-input', { 'error-input': !!error }]"
-            type="number"
             placeholder="0.00"
             min="0"
             max="0.1"
@@ -69,6 +68,7 @@ export default {
     return {
       currentCoefficientIndex: 0,
       isCustomCoefficient: false,
+      customCoefficient: "",
     };
   },
 
@@ -93,17 +93,6 @@ export default {
       ];
     },
 
-    customCoefficient: {
-      get() {
-        return this.isCustomCoefficient
-          ? this.formatKValue(this.kValue || 0n)
-          : null;
-      },
-      set(value: number) {
-        this.$emit("selectKValue", this.parseCoefficientToBigint(value));
-      },
-    },
-
     error() {
       if (
         !this.customCoefficient ||
@@ -112,6 +101,38 @@ export default {
       )
         return null;
       return "The slippage coefficient needs to be greater then 0, and less than 0.1";
+    },
+  },
+
+  watch: {
+    customCoefficient(value, oldValue) {
+      if (!this.isCustomCoefficient) return;
+
+      if (!value) {
+        this.$emit("selectKValue", 0n);
+        return;
+      }
+
+      if (isNaN(value)) {
+        this.customCoefficient = oldValue;
+        return false;
+      }
+
+      this.$emit("selectKValue", this.parseCoefficientToBigint(value));
+    },
+
+    kValue: {
+      handler(kValue) {
+        if (
+          !this.slippageCoefficients.some(({ value }) => value == this.kValue)
+        )
+          this.isCustomCoefficient = true;
+
+        this.customCoefficient = this.isCustomCoefficient
+          ? this.formatKValue(kValue || 0n)
+          : "";
+      },
+      immediate: true,
     },
   },
 
@@ -132,7 +153,7 @@ export default {
     },
 
     formatKValue(KValue: bigint | null) {
-      if (!KValue) return null;
+      if (!KValue) return "";
       return formatUnits(KValue, K_VALUE_DECIMALS);
     },
 
@@ -143,11 +164,6 @@ export default {
     parseCoefficientToBigint(coefficient: string | number) {
       return parseUnits(coefficient.toString(), K_VALUE_DECIMALS);
     },
-  },
-
-  created() {
-    if (!this.slippageCoefficients.some(({ value }) => value == this.kValue))
-      this.isCustomCoefficient = true;
   },
 
   components: {
