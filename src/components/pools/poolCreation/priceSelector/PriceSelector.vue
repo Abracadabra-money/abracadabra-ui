@@ -143,6 +143,7 @@ export default {
     },
 
     isFromBase() {
+      if (!this.isAutoPricingPossible) return;
       if (this.isAutoPricingEnabled) {
         this.userTokenRate = this.autoTokenRate;
         this.setInputValue(this.autoTokenRate);
