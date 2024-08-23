@@ -133,6 +133,8 @@ import {
   TokenTypes,
   STANDARD_K_VALUE,
   SAFE_PEGGED_K_VALUE,
+  RATE_DECIMALS,
+  RATE_PRECISION,
 } from "@/constants/pools/poolCreation";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 
@@ -172,6 +174,7 @@ export default {
         quoteInAmount: 0n,
         protocolOwnedPool: false,
       } as ActionConfig,
+      IforCalc: 0n,
       selectedNetwork: ARBITRUM_CHAIN_ID,
       availableNetworks,
       isAutoPricingEnabled: false,
@@ -274,28 +277,38 @@ export default {
 
       const isBaseDecimalsGreater = baseDecimals > quoteDecimals;
 
-      const tokenDecimalsDifference = isBaseDecimalsGreater
-        ? baseDecimals - quoteDecimals
-        : quoteDecimals - baseDecimals;
+      const tokenDecimalsDifference = Math.abs(baseDecimals - quoteDecimals);
+      const tokensDecimalsDifferencePrecision = parseUnits(
+        "1",
+        tokenDecimalsDifference
+      );
 
       if (type == TokenTypes.Base) {
         this.actionConfig.baseInAmount = amount;
-        this.actionConfig.quoteInAmount = isBaseDecimalsGreater
-          ? (amount * parseUnits("1", this.IValueDecimals)) /
-            this.actionConfig.I /
-            parseUnits("1", tokenDecimalsDifference)
-          : (amount *
-              parseUnits("1", this.IValueDecimals + tokenDecimalsDifference)) /
-            this.actionConfig.I;
+
+        const baseAdjustedRatePrecision = isBaseDecimalsGreater
+          ? RATE_PRECISION / tokensDecimalsDifferencePrecision
+          : RATE_PRECISION * tokensDecimalsDifferencePrecision;
+
+        this.actionConfig.quoteInAmount =
+          (amount * baseAdjustedRatePrecision) / this.IforCalc;
+
+        // this.actionConfig.quoteInAmount = isBaseDecimalsGreater
+        //   ? (amount * parseUnits("1", this.IValueDecimals)) /
+        //     this.actionConfig.I /
+        //     parseUnits("1", tokenDecimalsDifference)
+        //   : (amount *
+        //       parseUnits("1", this.IValueDecimals + tokenDecimalsDifference)) /
+        //     this.actionConfig.I;
       } else {
         this.actionConfig.quoteInAmount = amount;
-        this.actionConfig.baseInAmount = isBaseDecimalsGreater
-          ? (amount *
-              parseUnits("1", tokenDecimalsDifference) *
-              this.actionConfig.I) /
-            parseUnits("1", this.IValueDecimals)
-          : (amount * this.actionConfig.I) /
-            parseUnits("1", this.IValueDecimals + tokenDecimalsDifference);
+
+        const baseAmountWithPrecision = isBaseDecimalsGreater
+          ? amount * tokensDecimalsDifferencePrecision
+          : amount / tokensDecimalsDifferencePrecision;
+
+        this.actionConfig.baseInAmount =
+          baseAmountWithPrecision / (RATE_PRECISION / this.IforCalc);
       }
     },
 
@@ -366,8 +379,15 @@ export default {
       this.isAutoPricingWarnPopupOpened = false;
     },
 
-    updateTokensRate(I: number) {
-      this.actionConfig.I = parseUnits(I.toString(), this.IValueDecimals);
+    updateTokensRate(I: bigint) {
+      this.IforCalc = I;
+      const decimalsDifferense = Math.abs(RATE_DECIMALS - this.IValueDecimals);
+      const differencePrecision = parseUnits("1", decimalsDifferense);
+      this.actionConfig.I =
+        this.IValueDecimals < RATE_DECIMALS
+          ? I / differencePrecision
+          : I * differencePrecision;
+
       this.updateTokenInputAmount(
         TokenTypes.Base,
         this.actionConfig.baseInAmount

@@ -4,8 +4,8 @@
       <input
         name="tokenInput"
         class="text-field"
-        v-model="value"
-        type="number"
+        v-model="inputValue"
+        type="text"
         placeholder="0.0"
         :disabled="disabled"
       />
@@ -19,35 +19,54 @@
 </template>
 
 <script lang="ts">
+import { RATE_DECIMALS } from "@/constants/pools/poolCreation";
+import { formatToFixed } from "@/helpers/filters";
+import { parseUnits } from "viem";
 import { defineAsyncComponent } from "vue";
 
 export default {
   props: {
+    value: { type: String, default: "" },
     icon: { type: String },
     name: { type: String, default: "Select Token" },
+    decimals: { type: Number, default: RATE_DECIMALS },
     disabled: { type: Boolean, default: false },
-    isProgrammaticallyChanged: Boolean,
-    modelValue: Number,
   },
 
   data() {
     return {
+      inputValue: this.value,
       tooltip: "",
     };
   },
 
-  computed: {
-    value: {
-      get() {
-        return this.modelValue;
-      },
-      set(value: number) {
-        this.$emit("update:modelValue", value || 0);
+  watch: {
+    inputValue(value, oldValue) {
+      if (!value) {
+        this.$emit("updateInputValue", null);
+        return;
+      }
 
-        if (this.isProgrammaticallyChanged) {
-          this.$emit("toggleProgrammaticalyChange");
-        }
-      },
+      if (isNaN(value)) {
+        this.inputValue = oldValue;
+        return false;
+      }
+
+      this.updateInputValue(value, this.decimals);
+    },
+
+    value(value) {
+      this.inputValue = value;
+    },
+  },
+
+  methods: {
+    updateInputValue(value: string, decimals: number) {
+      const emitValue = !value
+        ? BigInt(0)
+        : parseUnits(formatToFixed(value, decimals), decimals);
+
+      this.$emit("updateInputValue", emitValue);
     },
   },
 

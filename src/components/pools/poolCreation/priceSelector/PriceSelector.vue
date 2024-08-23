@@ -55,12 +55,11 @@
       =
       <RateInput
         class="price-input"
-        v-model="inputValue"
+        :value="inputValue"
         :name="benchmarkCurrency.symbol"
         :icon="benchmarkCurrency.icon"
-        :isProgrammaticallyChanged="isProgrammaticallyChanged"
         :disabled="isPriceSelectorDisabled || isAutoPricingEnabled"
-        @toggleProgrammaticalyChange="isProgrammaticallyChanged = false"
+        @updateInputValue="updateInputValue"
       />
     </div>
   </div>
@@ -69,6 +68,8 @@
 <script lang="ts">
 import { defineAsyncComponent, type PropType } from "vue";
 import type { PoolCreationTokenInfo } from "@/configs/pools/poolCreation/types";
+import { formatUnits, parseUnits } from "viem";
+import { RATE_DECIMALS, RATE_PRECISION } from "@/constants/pools/poolCreation";
 
 export default {
   props: {
@@ -85,10 +86,10 @@ export default {
 
   data() {
     return {
-      inputValue: 0,
-      userTokenRate: 0,
+      inputValue: "",
+      inputAmount: 0n,
+      userTokenRate: 0n,
       isFromBase: true,
-      isProgrammaticallyChanged: false,
     };
   },
 
@@ -110,9 +111,21 @@ export default {
     },
 
     autoTokenRate() {
-      if (this.isPriceSelectorDisabled || !this.isAutoPricingEnabled) return 0;
-      const baseQuoteRate = this.baseToken.price / this.quoteToken.price;
-      return this.isFromBase ? baseQuoteRate : 1 / baseQuoteRate;
+      if (this.isPriceSelectorDisabled || !this.isAutoPricingEnabled) return 0n;
+      const basePriceBigInt = parseUnits(
+        this.baseToken.price.toString(),
+        RATE_DECIMALS
+      );
+      const quotePriceBigInt = parseUnits(
+        this.quoteToken.price.toString(),
+        RATE_DECIMALS
+      );
+
+      const baseQuoteRate =
+        (basePriceBigInt * RATE_PRECISION) / quotePriceBigInt;
+      return this.isFromBase
+        ? baseQuoteRate
+        : (RATE_PRECISION * RATE_PRECISION) / baseQuoteRate;
     },
 
     isAutoPricingPossible() {
@@ -124,7 +137,9 @@ export default {
     isAutoPricingEnabled: {
       immediate: true,
       handler() {
-        this.setInputValue(this.autoTokenRate || this.userTokenRate);
+        this.setInputValue(
+          formatUnits(this.autoTokenRate || this.userTokenRate, RATE_DECIMALS)
+        );
       },
     },
 
@@ -132,13 +147,13 @@ export default {
       if (!value && this.isAutoPricingPossible) this.$emit("toggleAutopricing");
     },
 
-    inputValue(value: number) {
+    inputValue(value: string) {
       if (
         !this.isAutoPricingEnabled &&
-        !this.isProgrammaticallyChanged &&
         value
       ) {
-        this.userTokenRate = 1 / value;
+        this.userTokenRate =
+          (RATE_PRECISION * RATE_PRECISION) / parseUnits(value, RATE_DECIMALS);
       }
     },
 
@@ -146,33 +161,46 @@ export default {
       if (!this.isAutoPricingPossible) return;
       if (this.isAutoPricingEnabled) {
         this.userTokenRate = this.autoTokenRate;
-        this.setInputValue(this.autoTokenRate);
+        this.setInputValue(formatUnits(this.autoTokenRate, RATE_DECIMALS));
       } else if (this.userTokenRate) {
-        this.setInputValue(this.userTokenRate);
-        this.userTokenRate = 1 / this.userTokenRate;
+        this.setInputValue(formatUnits(this.userTokenRate, RATE_DECIMALS));
+        this.userTokenRate =
+          (RATE_PRECISION * RATE_PRECISION) / this.userTokenRate;
       }
     },
 
-    userTokenRate(userRate: number) {
-      const rateToEmit = this.isFromBase ? userRate : 1 / userRate;
+    userTokenRate(userRate: bigint) {
+      const rateToEmit = this.isFromBase
+        ? userRate
+        : (RATE_PRECISION * RATE_PRECISION) / userRate;
       if (this.inputValue && !this.isAutoPricingEnabled)
         this.$emit("updateTokensRate", rateToEmit);
     },
 
-    autoTokenRate(autoRate: number) {
+    autoTokenRate(autoRate: bigint) {
       if (autoRate) {
         this.userTokenRate = autoRate;
-        this.setInputValue(autoRate);
+        this.setInputValue(formatUnits(autoRate, RATE_DECIMALS));
+        const rateToEmit = !this.isFromBase
+          ? autoRate
+          : (RATE_PRECISION * RATE_PRECISION) / autoRate;
+        this.$emit("updateTokensRate", rateToEmit);
       }
-      const rateToEmit = !this.isFromBase ? autoRate : 1 / autoRate;
-      if (this.isAutoPricingEnabled) this.$emit("updateTokensRate", rateToEmit);
     },
   },
-
   methods: {
-    setInputValue(newValue: number) {
-      this.isProgrammaticallyChanged = true;
+    setInputValue(newValue: string = "") {
       this.inputValue = newValue;
+    },
+
+    updateInputValue(amount: bigint) {
+      if (!amount) {
+        this.inputValue = "";
+        this.inputAmount = 0n;
+      } else {
+        this.inputAmount = amount;
+        this.inputValue = formatUnits(amount, RATE_DECIMALS);
+      }
     },
   },
 
