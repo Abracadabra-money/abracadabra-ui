@@ -153,6 +153,7 @@ export default {
   watch: {
     selectedChains: {
       handler() {
+        //
         if (!this.selectedChains.length) this.selectAllChains();
       },
       deep: true,
