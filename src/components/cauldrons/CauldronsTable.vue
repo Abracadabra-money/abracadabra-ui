@@ -151,14 +151,6 @@ export default {
   },
 
   watch: {
-    // selectedChains: {
-    //   handler() {
-    //     //
-    //     if (!this.selectedChains.length) this.selectAllChains();
-    //   },
-    //   deep: true,
-    // },
-
     cauldronsLoading() {
       if (!this.cauldronsLoading) this.selectedChains = this.getActiveChain();
     },
@@ -193,6 +185,8 @@ export default {
       const index = this.selectedChains.indexOf(chainId);
       if (index === -1) this.selectedChains.push(chainId);
       else this.selectedChains.splice(index, 1);
+
+      if (!this.selectedChains.length) this.selectAllChains();
     },
 
     filterByChain(cauldrons, selectedChains) {
