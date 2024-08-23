@@ -151,8 +151,15 @@ export default {
   },
 
   watch: {
-    cauldrons() {
-      this.selectedChains = this.getActiveChain();
+    selectedChains: {
+      handler() {
+        if (!this.selectedChains.length) this.selectAllChains();
+      },
+      deep: true,
+    },
+
+    cauldronsLoading() {
+      if (!this.cauldronsLoading) this.selectedChains = this.getActiveChain();
     },
   },
 
