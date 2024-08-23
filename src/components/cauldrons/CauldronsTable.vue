@@ -159,9 +159,9 @@ export default {
       deep: true,
     },
 
-    cauldronsLoading() {
-      if (!this.cauldronsLoading) this.selectedChains = this.getActiveChain();
-    },
+    // cauldronsLoading() {
+    //   if (!this.cauldronsLoading) this.selectedChains = this.getActiveChain();
+    // },
   },
 
   methods: {
