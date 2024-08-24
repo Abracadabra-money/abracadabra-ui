@@ -56,6 +56,7 @@
     "vuex": "^4.0.2"
   },
   "devDependencies": {
+    "@0xmdreamy/rollup-plugin-polyfill-node": "0.13.0-fix-buffer-es6",
     "@rushstack/eslint-patch": "^1.2.0",
     "@types/jsdom": "^21.1.0",
     "@types/lodash": "^4.14.197",
@@ -72,7 +73,6 @@
     "jsdom": "^21.1.0",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.8.4",
-    "rollup-plugin-polyfill-node": "^0.12.0",
     "sass": "^1.60.0",
     "start-server-and-test": "^2.0.0",
     "typescript": "~5.0.4",

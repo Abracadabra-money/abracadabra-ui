@@ -6,7 +6,7 @@ import wasm from "vite-plugin-wasm";
 import topLevelAwait from "vite-plugin-top-level-await";
 
 import devNodePolyfills from "vite-plugin-node-polyfills";
-import nodePolyfills from "rollup-plugin-polyfill-node";
+import nodePolyfills from "@0xmdreamy/rollup-plugin-polyfill-node";
 
 // https://vitejs.dev/config/
 export default defineConfig({
