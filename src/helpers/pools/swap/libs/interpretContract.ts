@@ -1,4 +1,4 @@
-import { interpret } from "revm-interpreter-js";
+import { type InterpretParams, interpret } from "revm-interpreter-js";
 import {
   encodeFunctionData,
   type Abi,
@@ -23,14 +23,14 @@ export function interpretContract<
     abi,
     AbiStateMutability,
     functionName extends ContractFunctionName<abi>
-      ? functionName
-      : ContractFunctionName<abi>
+    ? functionName
+    : ContractFunctionName<abi>
   > = ContractFunctionArgs<
     abi,
     AbiStateMutability,
     functionName extends ContractFunctionName<abi>
-      ? functionName
-      : ContractFunctionName<abi>
+    ? functionName
+    : ContractFunctionName<abi>
   >
 >(
   parameters: EncodeFunctionDataParameters<abi, functionName> & {
@@ -40,6 +40,8 @@ export function interpretContract<
     bytecodeAddress?: Address | ByteArray;
     code: Hex | ByteArray;
     gasLimit?: bigint;
+    staticCall?: boolean;
+    specificationName?: InterpretParams["specificationName"];
   }
 ): DecodeFunctionResultReturnType<abi, functionName, args> {
   const tryToBytes = (
@@ -56,14 +58,17 @@ export function interpretContract<
     args: parameters.args,
   } as EncodeFunctionDataParameters);
   const interpretResult = interpret(
-    isBytes(parameters.code) ? parameters.code : hexToBytes(parameters.code),
-    hexToBytes(encodedData),
-    parameters.value,
-    tryToBytes(parameters.from),
-    tryToBytes(parameters.targetAddress),
-    tryToBytes(parameters.bytecodeAddress),
-    parameters.gasLimit
-  );
+    {
+      bytecode: isBytes(parameters.code) ? parameters.code : hexToBytes(parameters.code),
+      data: hexToBytes(encodedData),
+      value: parameters.value,
+      from: tryToBytes(parameters.from),
+      targetAddress: tryToBytes(parameters.targetAddress),
+      bytecodeAddress: tryToBytes(parameters.bytecodeAddress),
+      gasLimit: parameters.gasLimit,
+      staticCall: parameters.staticCall,
+      specificationName: parameters.specificationName,
+    });
   return decodeFunctionResult({
     abi: parameters.abi,
     functionName: parameters.functionName,
