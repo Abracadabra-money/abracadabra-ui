@@ -367,7 +367,7 @@ export const previewAddLiquidityImbalanced = (
       receiveQuoteAmount: swapOutAmount,
       feeAmount: swapFeeAmount,
       newRState: updatedLpInfo.PMMState.R,
-      newBaseTarget: updatedLpInfo.PMMState.B,
+      newBaseTarget: updatedLpInfo.PMMState.B0,
     } = querySellBase(remainingAmountToSwap, lpInfo, lpInfo.userInfo));
 
     quoteAddLiquidityInAmount = quoteInAmount + swapOutAmount;
@@ -385,7 +385,7 @@ export const previewAddLiquidityImbalanced = (
       receiveBaseAmount: swapOutAmount,
       feeAmount: swapFeeAmount,
       newRState: updatedLpInfo.PMMState.R,
-      newQuoteTarget: updatedLpInfo.PMMState.Q,
+      newQuoteTarget: updatedLpInfo.PMMState.Q0,
     } = querySellQuote(remainingAmountToSwap, lpInfo, lpInfo.userInfo));
 
     baseAddLiquidityInAmount = baseInAmount + swapOutAmount;
