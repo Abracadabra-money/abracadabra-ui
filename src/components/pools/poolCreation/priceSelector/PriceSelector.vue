@@ -70,6 +70,7 @@ import { defineAsyncComponent, type PropType } from "vue";
 import type { PoolCreationTokenInfo } from "@/configs/pools/poolCreation/types";
 import { formatUnits, parseUnits } from "viem";
 import { RATE_DECIMALS, RATE_PRECISION } from "@/constants/pools/poolCreation";
+import { trimZeroDecimals } from "@/helpers/numbers";
 
 export default {
   props: {
@@ -147,13 +148,9 @@ export default {
       if (!value && this.isAutoPricingPossible) this.$emit("toggleAutopricing");
     },
 
-    inputValue(value: string) {
-      if (
-        !this.isAutoPricingEnabled &&
-        value
-      ) {
-        this.userTokenRate =
-          (RATE_PRECISION * RATE_PRECISION) / parseUnits(value, RATE_DECIMALS);
+    inputAmount(amount: bigint) {
+      if (!this.isAutoPricingEnabled && amount) {
+        this.userTokenRate = (RATE_PRECISION * RATE_PRECISION) / amount;
       }
     },
 
@@ -199,7 +196,7 @@ export default {
         this.inputAmount = 0n;
       } else {
         this.inputAmount = amount;
-        this.inputValue = formatUnits(amount, RATE_DECIMALS);
+        this.inputValue = trimZeroDecimals(formatUnits(amount, RATE_DECIMALS));
       }
     },
   },

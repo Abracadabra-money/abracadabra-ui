@@ -292,25 +292,16 @@ export default {
 
         this.actionConfig.quoteInAmount =
           (amount * baseAdjustedRatePrecision) / this.IforCalc;
-
-        // this.actionConfig.quoteInAmount = isBaseDecimalsGreater
-        //   ? (amount * parseUnits("1", this.IValueDecimals)) /
-        //     this.actionConfig.I /
-        //     parseUnits("1", tokenDecimalsDifference)
-        //   : (amount *
-        //       parseUnits("1", this.IValueDecimals + tokenDecimalsDifference)) /
-        //     this.actionConfig.I;
       } else {
         this.actionConfig.quoteInAmount = amount;
 
         const baseAmountWithPrecision = isBaseDecimalsGreater
-          ? amount * tokensDecimalsDifferencePrecision
-          : amount / tokensDecimalsDifferencePrecision;
+          ? RATE_PRECISION / tokensDecimalsDifferencePrecision
+          : RATE_PRECISION * tokensDecimalsDifferencePrecision;
 
         this.actionConfig.baseInAmount =
-          (baseAmountWithPrecision * RATE_PRECISION * RATE_PRECISION) /
-          ((RATE_PRECISION * RATE_PRECISION) / this.IforCalc) /
-          RATE_PRECISION;
+          (amount * this.IforCalc + tokensDecimalsDifferencePrecision) /
+          baseAmountWithPrecision;
       }
     },
 
