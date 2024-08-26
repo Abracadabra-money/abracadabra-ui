@@ -308,7 +308,9 @@ export default {
           : amount / tokensDecimalsDifferencePrecision;
 
         this.actionConfig.baseInAmount =
-          baseAmountWithPrecision / (RATE_PRECISION / this.IforCalc);
+          (baseAmountWithPrecision * RATE_PRECISION * RATE_PRECISION) /
+          ((RATE_PRECISION * RATE_PRECISION) / this.IforCalc) /
+          RATE_PRECISION;
       }
     },
 
