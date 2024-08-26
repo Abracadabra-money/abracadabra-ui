@@ -299,9 +299,10 @@ export default {
           ? RATE_PRECISION / tokensDecimalsDifferencePrecision
           : RATE_PRECISION * tokensDecimalsDifferencePrecision;
 
-        this.actionConfig.baseInAmount =
-          (amount * this.IforCalc + tokensDecimalsDifferencePrecision) /
-          baseAmountWithPrecision;
+        this.actionConfig.baseInAmount = amount
+          ? (amount * this.IforCalc + baseAmountWithPrecision) /
+            baseAmountWithPrecision
+          : 0n;
       }
     },
 
