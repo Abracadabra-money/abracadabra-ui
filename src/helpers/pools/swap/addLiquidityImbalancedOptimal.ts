@@ -12,7 +12,17 @@ export const addLiquidityImbalancedOptimal = async (
   stepInBips: bigint = 100n
 ) => {
   if (baseInAmount == 0n && quoteInAmount == 0n)
-    return { inAmountToSwap: 0n, shares: 0n };
+    return {
+      remainingAmountToSwapIsBase: false,
+      remainingAmountToSwap: 0n,
+      shares: 0n,
+      baseAdjustedInAmount: 0n,
+      quoteAdjustedInAmount: 0n,
+      swapOutAmount: 0n,
+      swapFeeAmount: 0n,
+      baseRefundAmount: 0n,
+      quoteRefundAmount: 0n,
+    };
 
   const previewAddLiquidityResult = previewAddLiquidity(
     baseInAmount,

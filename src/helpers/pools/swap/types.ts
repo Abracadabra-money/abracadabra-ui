@@ -10,7 +10,7 @@ export enum RState {
   ONE,
   ABOVE_ONE,
   BELOW_ONE,
-}
+};
 
 export type PMMState = {
   i: bigint;

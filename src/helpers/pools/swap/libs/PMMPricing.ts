@@ -6,12 +6,12 @@ export const sellBaseToken = (state: PMMState, payBaseAmount: bigint) => {
   let receiveQuoteAmount;
   let newR;
 
-  if (state.R == RState.ONE) {
+  if (state.R === RState.ONE) {
     // case 1: R=1
     // R falls below one
     receiveQuoteAmount = _ROneSellBaseToken(state, payBaseAmount);
     newR = RState.BELOW_ONE;
-  } else if (state.R == RState.ABOVE_ONE) {
+  } else if (state.R === RState.ABOVE_ONE) {
     const backToOnePayBase = state.B0 - state.B;
     const backToOneReceiveQuote = state.Q - state.Q0;
     // case 2: R>1
@@ -25,7 +25,7 @@ export const sellBaseToken = (state: PMMState, payBaseAmount: bigint) => {
         // to make sure spare quote>=0, mannually set receiveQuote=backToOneReceiveQuote
         receiveQuoteAmount = backToOneReceiveQuote;
       }
-    } else if (payBaseAmount == backToOnePayBase) {
+    } else if (payBaseAmount === backToOnePayBase) {
       // case 2.2: R status changes to ONE
       receiveQuoteAmount = backToOneReceiveQuote;
       newR = RState.ONE;
@@ -53,10 +53,10 @@ export const sellQuoteToken = (state: PMMState, payQuoteAmount: bigint) => {
   let receiveBaseAmount;
   let newR;
 
-  if (state.R == RState.ONE) {
+  if (state.R === RState.ONE) {
     receiveBaseAmount = _ROneSellQuoteToken(state, payQuoteAmount);
     newR = RState.ABOVE_ONE;
-  } else if (state.R == RState.ABOVE_ONE) {
+  } else if (state.R === RState.ABOVE_ONE) {
     receiveBaseAmount = _RAboveSellQuoteToken(state, payQuoteAmount);
     newR = RState.ABOVE_ONE;
   } else {
@@ -68,7 +68,7 @@ export const sellQuoteToken = (state: PMMState, payQuoteAmount: bigint) => {
       if (receiveBaseAmount > backToOneReceiveBase) {
         receiveBaseAmount = backToOneReceiveBase;
       }
-    } else if (payQuoteAmount == backToOnePayQuote) {
+    } else if (payQuoteAmount === backToOnePayQuote) {
       receiveBaseAmount = backToOneReceiveBase;
       newR = RState.ONE;
     } else {
