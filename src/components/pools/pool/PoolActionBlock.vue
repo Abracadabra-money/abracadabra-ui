@@ -76,7 +76,7 @@ export default {
       isMyPositionPopupOpened: false,
       activeTab: "deposit",
       tabItems: ["deposit", "remove"],
-      slippage: 100n,
+      slippage: 50n,
       deadline: 100n,
     };
   },

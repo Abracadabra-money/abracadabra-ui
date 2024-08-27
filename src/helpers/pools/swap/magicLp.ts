@@ -2,7 +2,6 @@ import type { Address } from "viem";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 //@ts-ignore
 import BlastMagicLPAbi from "@/abis/BlastMagicLpAbi";
-import MagicLPPrice from "@/abis/MagicLPPrice";
 import type { MagicLPInfo, MagicLPInfoUserInfo } from "./types";
 import PMMPricing from "./libs/PMMPricing";
 import DecimalMath from "./libs/DecimalMath";
@@ -10,7 +9,6 @@ import { getSwapRouterByChain } from "@/configs/pools/routers";
 import poolsConfig from "@/configs/pools/pools";
 import type { PoolConfig } from "@/configs/pools/types";
 
-import { getMidPriceAddressByChain } from "@/configs/pools/midPrice";
 import { formatUnits } from "viem";
 import { getCoinsPrices } from "@/helpers/prices/defiLlama";
 import { getPoolInfo } from "../getPoolInfo";
@@ -41,7 +39,6 @@ export const getLpInfo = async (
     vaultReserve,
     reserves,
     totalSupply,
-    midPrice,
     MAX_I,
     MAX_K,
     PMMState,
@@ -71,12 +68,6 @@ export const getLpInfo = async (
         abi: BlastMagicLPAbi as any,
         functionName: "totalSupply",
         args: [],
-      },
-      {
-        address: getMidPriceAddressByChain(chainId),
-        abi: MagicLPPrice as any,
-        functionName: "getMidPrice",
-        args: [lp.contract.address],
       },
       {
         address: lp.contract.address,
@@ -154,7 +145,12 @@ export const getLpInfo = async (
     },
     vaultReserve: vaultReserve.result || reserves.result,
     totalSupply: totalSupply.result,
-    midPrice: Number(formatUnits(midPrice.result, lp.quoteToken.decimals)),
+    midPrice: Number(
+      formatUnits(
+        PMMPricing.getMidPrice(PMMState.result),
+        lp.quoteToken.decimals
+      )
+    ),
     MAX_I: MAX_I.result,
     MAX_K: MAX_K.result,
     PMMState: PMMState.result,

@@ -80,7 +80,7 @@ import { addLiquidityImbalancedOptimal } from "@/helpers/pools/swap/addLiquidity
 export default {
   props: {
     pool: { type: Object },
-    slippage: { type: BigInt, default: 100n },
+    slippage: { type: BigInt, default: 50n },
     deadline: { type: BigInt, default: 100n },
   },
 

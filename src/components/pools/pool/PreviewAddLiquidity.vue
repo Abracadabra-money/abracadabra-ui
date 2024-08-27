@@ -18,7 +18,7 @@
 
       <div class="line"></div>
 
-      <div class="row">
+      <!-- <div class="row">
         <div class="row-info">
           Price Impact
           <span :class="['status', status]">{{ status }}</span>
@@ -26,10 +26,12 @@
         <div class="row-value">
           {{ formatPercent(priceImpact) }}
         </div>
-      </div>
+      </div> -->
 
       <div class="row" v-for="refund in refundAmounts" :key="refund.icon">
-        <div class="row-info">Refund</div>
+        <div class="row-info">
+          Refund <Tooltip :tooltip="'lorem lorem lorem lorem'" />
+        </div>
         <div class="row-value">
           <BaseTokenIcon :name="pool.name" :icon="refund.icon" size="24px" />
           {{ refund.amount }}
@@ -223,6 +225,9 @@ export default {
   components: {
     BaseTokenIcon: defineAsyncComponent(
       () => import("@/components/base/BaseTokenIcon.vue")
+    ),
+    Tooltip: defineAsyncComponent(
+      () => import("@/components/ui/icons/Tooltip.vue")
     ),
   },
 };
