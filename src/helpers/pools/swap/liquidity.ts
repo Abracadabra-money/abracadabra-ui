@@ -350,7 +350,7 @@ export const previewAddLiquidityImbalanced = (
   const updatedLpInfo = {
     vaultReserve: [lpInfo.vaultReserve[0], lpInfo.vaultReserve[1]],
     totalSupply: lpInfo.totalSupply,
-    PMMState: lpInfo.PMMState,
+    PMMState: { ...lpInfo.PMMState },
     balances: {
       baseBalance: lpInfo.balances.baseBalance,
       quoteBalance: lpInfo.balances.quoteBalance,
