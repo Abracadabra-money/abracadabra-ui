@@ -16,6 +16,8 @@ export const addLiquidityImbalancedOptimal = async (
       remainingAmountToSwapIsBase: false,
       remainingAmountToSwap: 0n,
       shares: 0n,
+      baseAdjustedInAmount: 0n,
+      quoteAdjustedInAmount: 0n,
       swapOutAmount: 0n,
       swapFeeAmount: 0n,
       baseRefundAmount: 0n,
