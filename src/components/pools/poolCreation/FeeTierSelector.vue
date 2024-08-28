@@ -4,7 +4,7 @@
       Select a Fee Tier
       <Tooltip tooltip="tooltip" />
     </h4>
-    <ul class="fee-tier-options">
+    <ul class="fee-tier-options" v-if="poolType">
       <li
         :class="['fee-tier-option', { active: index == currentOptionIndex }]"
         v-for="({ value, description }, index) in feeTierOptions"
@@ -18,6 +18,12 @@
         <RadioButton :active="index == currentOptionIndex" />
       </li>
     </ul>
+
+    <div class="explanation-wrap" v-else>
+      <p class="explanation">
+        Select Pool Type to see available Fee Tiers for your Pool
+      </p>
+    </div>
   </div>
 </template>
 
@@ -41,27 +47,30 @@ export default {
 
   computed: {
     feeTierOptions() {
-      if (this.poolType === PoolTypes.Pegged)
-        return [
-          {
-            value: 400000000000000n,
-            description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
-          },
-          {
-            value: 500000000000000n,
-            description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
-          },
-        ];
+      switch (this.poolType) {
+        case PoolTypes.Pegged:
+          return [
+            {
+              value: 400000000000000n,
+              description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
+            },
+            {
+              value: 500000000000000n,
+              description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
+            },
+          ];
 
-      if (this.poolType === PoolTypes.Standard)
-        return [
-          {
-            value: 300000000000000n,
-            description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
-          },
-        ];
+        case PoolTypes.Standard:
+          return [
+            {
+              value: 300000000000000n,
+              description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
+            },
+          ];
 
-      return [];
+        default:
+          return [];
+      }
     },
   },
 
@@ -78,7 +87,7 @@ export default {
 
     selectOption(index: number) {
       this.currentOptionIndex = index;
-      this.$emit("selectFeeTier", this.feeTierOptions[index].value);
+      this.$emit("selectFeeTier", this.feeTierOptions[index]?.value || 0n);
     },
   },
 
@@ -147,5 +156,18 @@ export default {
   position: absolute;
   top: 8px;
   right: 8px;
+}
+
+.explanation-wrap {
+  @include block-wrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.explanation {
+  max-width: 247px;
+  font-size: 14px;
+  text-align: center;
 }
 </style>

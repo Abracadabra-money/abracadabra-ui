@@ -32,11 +32,7 @@
           <FeeTierSelector
             :poolType="poolType"
             @selectFeeTier="selectFeeTier"
-            v-if="poolType"
           />
-          <EmptyState v-else>
-            <span class="empty-state-main-text">Select Pool Type</span>
-          </EmptyState>
 
           <BaseButton
             primary
@@ -531,9 +527,6 @@ export default {
   components: {
     BaseButton: defineAsyncComponent(
       () => import("@/components/base/BaseButton.vue")
-    ),
-    EmptyState: defineAsyncComponent(
-      () => import("@/components/pools/poolCreation/PoolCreationEmptyState.vue")
     ),
     TokensSelector: defineAsyncComponent(
       () => import("@/components/pools/poolCreation/TokensSelector.vue")
