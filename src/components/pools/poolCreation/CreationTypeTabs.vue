@@ -14,6 +14,8 @@
         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
         tempor
       </p>
+
+      <RadioButton :active="poolType == PoolTypes.Pegged" />
     </li>
 
     <li
@@ -30,12 +32,14 @@
         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
         tempor
       </p>
+
+      <RadioButton :active="poolType == PoolTypes.Standard" />
     </li>
   </ul>
 </template>
 
 <script lang="ts">
-import type { PropType } from "vue";
+import { defineAsyncComponent, type PropType } from "vue";
 import { PoolTypes } from "@/constants/pools/poolCreation";
 
 export default {
@@ -45,6 +49,12 @@ export default {
 
   data() {
     return { PoolTypes };
+  },
+
+  components: {
+    RadioButton: defineAsyncComponent(
+      () => import("@/components/ui/buttons/RadioButton.vue")
+    ),
   },
 };
 </script>
@@ -103,6 +113,12 @@ export default {
   position: absolute;
   top: 17px;
   left: 0;
+}
+
+.radio-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
 }
 
 @media (max-width: 600px) {
