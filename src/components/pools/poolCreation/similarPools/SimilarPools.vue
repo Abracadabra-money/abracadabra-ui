@@ -3,15 +3,12 @@
     <h3 class="similar-pools-title">Pools similar to yours</h3>
 
     <div class="similar-pools">
-      <template v-if="!tokensSelected || similarPools.length <= 0">
-        <EmptyState v-for="i in 3" :key="i" />
-      </template>
       <PoolItem
         :pool="pool"
         v-for="(pool, index) in similarPools"
         :key="index"
-        v-else
       />
+      <EmptyState v-for="i in 3 - similarPools.length" :key="i" />
     </div>
   </div>
 </template>
