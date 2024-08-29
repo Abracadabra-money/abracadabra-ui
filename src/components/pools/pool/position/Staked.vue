@@ -5,7 +5,7 @@
     <RewardsWrap :pool="pool" />
 
     <template v-if="rewardsList">
-      <div class="rewards-wrap">
+      <!-- <div class="rewards-wrap">
         <h4 class="title">
           Staking rewards earned
           <Tooltip
@@ -29,7 +29,7 @@
             <span class="item-value">{{ reward.value }}</span>
           </li>
         </ul>
-      </div>
+      </div> -->
 
       <BaseButton primary @click="goToDashboard()">See dashborad</BaseButton>
     </template>
@@ -265,9 +265,9 @@ export default {
     RewardsWrap: defineAsyncComponent(() =>
       import("@/components/pools/pool/position/RewardsWrap.vue")
     ),
-    Tooltip: defineAsyncComponent(() =>
-      import("@/components/ui/icons/Tooltip.vue")
-    ),
+    // Tooltip: defineAsyncComponent(() =>
+    //   import("@/components/ui/icons/Tooltip.vue")
+    // ),
   },
 };
 </script>
