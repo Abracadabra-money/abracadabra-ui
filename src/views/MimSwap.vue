@@ -13,7 +13,7 @@
 
         <SwapSettingsPopup
           :slippage="actionConfig.slippage"
-          :defaultSlippage="30n"
+          :defaultSlippage="20n"
           :deadline="actionConfig.deadline"
           @updateSlippageValue="updateSlippageValue"
           @updateDeadlineValue="updateDeadlineValue"
@@ -159,7 +159,7 @@ export default {
         toToken: emptyTokenInfo,
         fromInputValue: 0n,
         toInputValue: 0n,
-        slippage: 30n,
+        slippage: 20n,
         deadline: 500n,
       } as ActionConfig,
       updateInterval: null as any,
@@ -169,7 +169,7 @@ export default {
         toToken: emptyTokenInfo,
         fromInputValue: 0n,
         toInputValue: 0n,
-        slippage: 30n,
+        slippage: 20n,
         deadline: 500n,
       } as ActionConfig),
       selectedNetwork: ARBITRUM_CHAIN_ID,
@@ -422,7 +422,7 @@ export default {
     resetActionCaonfig() {
       this.actionConfig.fromInputValue = 0n;
       this.actionConfig.toInputValue = 0n;
-      this.actionConfig.slippage = 30n;
+      this.actionConfig.slippage = 20n;
       this.actionConfig.deadline = 500n;
     },
 
@@ -554,7 +554,7 @@ export default {
       if (this.availableNetworks.includes(this.chainId)) {
         this.selectedNetwork = this.chainId;
       }
-    }
+    },
   },
 
   async created() {
