@@ -50,7 +50,7 @@ const config: Array<CauldronConfig> = [
     mimInfo,
   },
   {
-    icon: useImage(`assets/images/tokens/MIM-HONEY.png`),
+    icon: useImage(`assets/images/tokens/Kodiak-MIM-Honey.png`),
     name: "MIM/HONEY",
     chainId: 80084,
     id: 2,
