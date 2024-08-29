@@ -86,6 +86,13 @@ const configs = [
     icon: useImage(`assets/images/get-lp-icons/bera.png`),
   },
   {
+    id: 2,
+    chain: 80084,
+    href: "https://app.kodiak.finance/#/liquidity/islands/0x74e852a4f88bfbeff01275bb95d5ed77f2967d12?chain=berachain_bartio",
+    label: "Get LP",
+    icon: useImage(`assets/images/get-lp-icons/bera.png`),
+  },
+  {
     id: 43,
     chain: 1,
     href: "https://www.elixir.xyz/apothecary",
