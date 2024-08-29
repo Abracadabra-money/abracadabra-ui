@@ -82,33 +82,35 @@
       </div>
     </div>
 
-    <div class="line"></div>
+    <template v-if="isShowRewardBlock">
+      <div class="line"></div>
 
-    <div class="rewards-wrap">
-      <div class="pool-rewards" v-if="isPoolHasReward">
-        Staking rewards
+      <div class="rewards-wrap">
+        <div class="pool-rewards" v-if="isPoolHasReward">
+          Staking rewards
 
-        <img
-          class="reward-icons"
-          v-for="(rewardInfo, index) in poolRewards"
-          :key="index"
-          :src="rewardInfo.icon"
-          alt=""
-        />
+          <img
+            class="reward-icons"
+            v-for="(rewardInfo, index) in poolRewards"
+            :key="index"
+            :src="rewardInfo.icon"
+            alt=""
+          />
+        </div>
+
+        <div class="pool-rewards" v-else-if="hasPotionReward">
+          Staking rewards
+
+          <img
+            class="reward-icons"
+            src="@/assets/images/points-dashboard/potion.png"
+            alt=""
+          />
+        </div>
+
+        <div class="pool-apr" v-if="isShowPoolApr">APR {{ poolApr }}</div>
       </div>
-
-      <div class="pool-rewards" v-else-if="hasPotionReward">
-        Staking rewards
-
-        <img
-          class="reward-icons"
-          src="@/assets/images/points-dashboard/potion.png"
-          alt=""
-        />
-      </div>
-
-      <div class="pool-apr" v-if="isShowPoolApr">APR {{ poolApr }}</div>
-    </div>
+    </template>
   </div>
 </template>
 
@@ -132,6 +134,10 @@ export default {
   computed: {
     isPoolHasReward() {
       return this.pool.config.stakeContract ?? false;
+    },
+
+    isShowRewardBlock() {
+      return this.poolApr !== "0.0%";
     },
 
     poolRewards() {
