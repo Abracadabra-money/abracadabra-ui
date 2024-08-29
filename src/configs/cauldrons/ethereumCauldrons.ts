@@ -1681,7 +1681,7 @@ const config: Array<CauldronConfig> = [
     },
   },
   {
-    icon: useImage(`assets/images/tokens/deUSD.png`),
+    icon: useImage(`assets/images/tokens/sdeUSD.png`),
     name: "sdeUSD",
     chainId: 1,
     id: 43,
@@ -1728,7 +1728,7 @@ const config: Array<CauldronConfig> = [
     },
   },
   {
-    icon: useImage(`assets/images/tokens/deUSD.png`),
+    icon: useImage(`assets/images/tokens/sdeUSD.png`),
     name: "sdeUSD V2",
     chainId: 1,
     id: 44,
