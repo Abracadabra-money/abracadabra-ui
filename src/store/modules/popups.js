@@ -16,6 +16,10 @@ export default {
       state.showPopup = isShow;
     },
 
+    setPopupData(state, data) {
+      state.popupData = data;
+    },
+
     closePopups(state) {
       state.popupType = null;
       state.showPopup = false;

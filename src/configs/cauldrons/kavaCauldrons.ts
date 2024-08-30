@@ -34,7 +34,7 @@ const config: Array<CauldronConfig> = [
       isOpenocean: true,
       isDegenBox: true,
       strategyLink: "",
-      isDepreciated: false,
+      isDepreciated: true,
       acceptUseDefaultBalance: false,
       healthMultiplier: 1,
       hasAccountBorrowLimit: true,
@@ -94,7 +94,7 @@ const config: Array<CauldronConfig> = [
       isOpenocean: true,
       isDegenBox: true,
       strategyLink: "", //
-      isDepreciated: false,
+      isDepreciated: true,
       acceptUseDefaultBalance: false,
       healthMultiplier: 1,
       hasAccountBorrowLimit: true,

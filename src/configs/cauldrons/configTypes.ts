@@ -1,3 +1,5 @@
+import type { Address } from "viem";
+
 type CauldronSettings = {
   isSwappersActive: boolean;
   is0xSwap?: boolean;
@@ -22,7 +24,18 @@ type CauldronSettings = {
   isSSpell?: boolean;
   isGMXMarket?: boolean;
   isMimUsdtCurveLp?: boolean;
+  isStargateUSDT?: boolean;
+  isVelodrome?: boolean;
   isTesting?: boolean;
+  hasWhitelistLogic?: boolean;
+  useDegenBoxHelper?: boolean;
+  isYvWethV2?: boolean;
+  isCvxTricrypto?: boolean;
+  isCvx3pool?: boolean;
+  isMagicGLP?: boolean;
+  iStdeUSD?: boolean;
+isNoDeleverage?: boolean;
+  hasElixirPotions?: boolean;
 };
 
 type MimInfo = {
@@ -46,13 +59,13 @@ export type CauldronConfig = {
   cauldronSettings: CauldronSettings;
   contract: {
     name: string;
-    address: string;
+    address: Address;
     abi: any;
   };
   collateralInfo: {
     name: string;
     decimals: number;
-    address: string;
+    address: Address;
     abi: any;
   };
   mimInfo: MimInfo;
@@ -62,20 +75,20 @@ export type CauldronConfig = {
     unwrappedToken: {
       name: string;
       icon: string;
-      address: string;
+      address: Address;
       abi: any;
     };
     wrapper: {
-      address: string;
+      address: Address;
       abi: any;
     };
   };
   leverageInfo?: {
-    address: string;
+    address: Address;
     abi: any;
   };
   deleverageInfo?: {
-    address: string;
+    address: Address;
     abi: any;
   };
 };

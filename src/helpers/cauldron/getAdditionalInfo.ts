@@ -43,20 +43,27 @@ export const getAdditionalInfo = async (
     },
   ];
 
+  let tokensRate = oneEther;
+
   if (wrapInfo) {
-    contracts.push({
-      address: collateralInfo.address,
-      abi: collateralInfo.abi,
-      functionName: "convertToAssets",
-      args: [oneEther],
+    const [convertToAssets, toAmount] = await publicClient.multicall({
+      contracts: [
+        {
+          address: collateralInfo.address,
+          abi: collateralInfo.abi,
+          functionName: "convertToAssets",
+          args: [oneEther],
+        },
+        {
+          address: collateralInfo.address,
+          abi: collateralInfo.abi,
+          functionName: "toAmount",
+          args: [oneEther],
+        },
+      ],
     });
 
-    contracts.push({
-      address: collateralInfo.address,
-      abi: collateralInfo.abi,
-      functionName: "toAmount",
-      args: [oneEther],
-    });
+    tokensRate = convertToAssets?.result || toAmount?.result || oneEther;
   }
 
   if (cauldronSettings.hasWithdrawableLimit) {
@@ -68,12 +75,11 @@ export const getAdditionalInfo = async (
     });
   }
 
-  const [masterContractAllowance, convertToAssets, toAmount, withdrawAmount] =
+  const [masterContractAllowance, withdrawAmount] =
     await publicClient.multicall({
       contracts: contracts,
     });
 
-  const tokensRate = convertToAssets?.result || toAmount?.result || oneEther;
   const maxWithdrawAmount = withdrawAmount?.result || BigNumber.from("0");
 
   const whitelistedInfo = await getWhiteListedInfo(

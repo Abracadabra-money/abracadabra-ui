@@ -6,7 +6,7 @@
       </div>
 
       <div class="icons-wrap group-wrap">
-        <IconButton v-if="isActiveChain" wallet @click="addCollateral" />
+        <IconButton v-if="isAddColateralToken" wallet @click="addCollateral" />
         <IconButton link tag-name="a" :href="cauldronScanUrl" target="_blank" />
       </div>
 
@@ -26,8 +26,10 @@
           :icon="tokenLinkData.icon"
         />
 
+        <ElixirPotionsTag v-if="hasElixirPotions" />
+
         <div class="testing-chip" v-if="showTestnetChip">
-          <p>Artion Testnet</p>
+          <p>Bartio Testnet</p>
         </div>
 
         <DepositButton :cauldron="cauldron" v-if="isActiveChain" />
@@ -52,12 +54,14 @@
 </template>
 
 <script lang="ts">
-import { utils } from "ethers";
 import { mapGetters } from "vuex";
+import { formatUnits } from "viem";
 import { defineAsyncComponent } from "vue";
 import { formatLargeSum } from "@/helpers/filters";
+import { BERA_BARTIO_CHAIN_ID } from "@/constants/global";
 import { getTokenLinkData } from "@/helpers/getTokenLinkData";
 import { getChainConfig } from "@/helpers/chains/getChainsInfo";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 
 export default {
   props: {
@@ -66,20 +70,26 @@ export default {
     },
   },
 
+  data() {
+    return {
+      collateralSymbol: "",
+    };
+  },
+
   computed: {
     ...mapGetters({
       chainId: "getChainId",
     }),
 
     showTestnetChip() {
-      return this.cauldron.config.chainId === 80085;
+      return this.cauldron.config.chainId === BERA_BARTIO_CHAIN_ID;
     },
 
     strategyLink() {
       return this.cauldron.config.cauldronSettings.strategyLink;
     },
 
-    tokenLinkData(): any {
+    tokenLinkData() {
       return getTokenLinkData(
         this.cauldron.config.id,
         this.cauldron.config.chainId
@@ -88,22 +98,33 @@ export default {
 
     totalMimBorrowed() {
       return formatLargeSum(
-        utils.formatUnits(this.cauldron.mainParams.totalBorrowed)
+        formatUnits(this.cauldron.mainParams.alternativeData.totalBorrowed, 18)
       );
     },
 
     totalValueLocked() {
-      return formatLargeSum(utils.formatUnits(this.cauldron.mainParams.tvl));
+      return formatLargeSum(
+        formatUnits(this.cauldron.mainParams.alternativeData.tvl, 18)
+      );
     },
 
     cauldronScanUrl() {
       const chainConfig = getChainConfig(this.cauldron.config.chainId);
-      // @ts-ignore
-      return `${chainConfig?.viemConfig?.blockExplorers?.etherscan?.url}/address/${this.cauldron.config.contract.address}`;
+      return `${chainConfig!.viemConfig.blockExplorers.default.url}/address/${
+        this.cauldron.config.contract.address
+      }`;
     },
 
     isActiveChain() {
       return this.chainId === this.cauldron.config.chainId;
+    },
+
+    isAddColateralToken() {
+      return this.isActiveChain && this.collateralSymbol.length <= 11;
+    },
+
+    hasElixirPotions() {
+      return this.cauldron.config.cauldronSettings.hasElixirPotions;
     },
   },
 
@@ -132,6 +153,17 @@ export default {
     },
   },
 
+  async created() {
+    const publicClient = getPublicClient(this.cauldron.config.chainId);
+
+    this.collateralSymbol = await publicClient.readContract({
+      address: this.cauldron.config.collateralInfo.address,
+      abi: this.cauldron.config.collateralInfo.abi,
+      functionName: "symbol",
+      args: [],
+    });
+  },
+
   components: {
     TokenInfo: defineAsyncComponent(
       () => import("@/components/market/TokenInfo.vue")
@@ -150,6 +182,9 @@ export default {
     ),
     ClaimButton: defineAsyncComponent(
       () => import("@/components/ui/buttons/ClaimButton.vue")
+    ),
+    ElixirPotionsTag: defineAsyncComponent(
+      () => import("@/components/market/ElixirPotionsTag.vue")
     ),
   },
 };

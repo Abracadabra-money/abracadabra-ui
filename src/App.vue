@@ -12,6 +12,7 @@
       alt="Mim"
     />
     <LiquidityLaunchEventBanner />
+    <MlpMigrationBanner />
     <router-view />
   </div>
   <NotificationContainer />
@@ -106,6 +107,9 @@ export default {
       import("@/components/popups/PopupsWrapper.vue")
     ),
     Banner: defineAsyncComponent(() => import("@/components/ui/Banner.vue")),
+    MlpMigrationBanner: defineAsyncComponent(() =>
+      import("@/components/ui/MlpMigrationBanner.vue")
+    ),
     SkullBanner: defineAsyncComponent(() =>
       import("@/components/ui/SkullBanner.vue")
     ),
@@ -115,8 +119,9 @@ export default {
     TenderlyMod: defineAsyncComponent(() =>
       import("@/components/tenderly/TenderlyMod.vue")
     ),
-    LiquidityLaunchEventBanner:defineAsyncComponent(()=>import("@/components/blastOnboarding/LiquidityLaunchEventBanner.vue"))
-    
+    LiquidityLaunchEventBanner: defineAsyncComponent(() =>
+      import("@/components/blastOnboarding/LiquidityLaunchEventBanner.vue")
+    ),
   },
 };
 </script>

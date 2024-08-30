@@ -32,7 +32,12 @@
 
     <div class="column">{{ cauldron.mainParams.interest }}%</div>
 
-    <div class="column apr">
+    <div class="column multiplier" v-if="isMultiplierLabel">
+      <div class="multiplier-title">Elixir Potion Multiplier</div>
+      <div class="multiplier-value">5x - 29.5x</div>
+    </div>
+
+    <div class="column apr" v-else>
       {{ loopApr }}
     </div>
   </router-link>
@@ -40,8 +45,8 @@
 
 <script lang="ts">
 import { formatUnits } from "viem";
-import { BERA_CHAIN_ID } from "@/constants/global";
 import type { RouterLinkParams } from "@/types/global";
+import { BERA_BARTIO_CHAIN_ID, MAINNET_CHAIN_ID } from "@/constants/global";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 import { formatToFixed, formatLargeSum } from "@/helpers/filters";
 import type { CauldronListItem } from "@/helpers/cauldron/lists/getMarketList";
@@ -70,7 +75,7 @@ export default {
 
     cauldronLabel(): CauldronLabel {
       const { chainId, cauldronSettings } = this.cauldron.config;
-      if (chainId === BERA_CHAIN_ID) return CauldronLabel.testnet;
+      if (chainId === BERA_BARTIO_CHAIN_ID) return CauldronLabel.testnet;
       if (cauldronSettings?.isNew) return CauldronLabel.new;
       if (cauldronSettings?.isDepreciated) return CauldronLabel.deprecated;
       return CauldronLabel.empty;
@@ -81,6 +86,13 @@ export default {
 
       const { value, multiplier } = this.cauldron.apr;
       return `${value}% - ${formatToFixed(value * multiplier, 2)}%`;
+    },
+
+    isMultiplierLabel() {
+      return (
+        this.cauldron.config.chainId === MAINNET_CHAIN_ID &&
+        this.cauldron.config.id === 43
+      );
     },
   },
 
@@ -200,6 +212,31 @@ export default {
   top: -5px;
   right: -10px;
   border: 1px solid #0d1427;
+}
+
+.multiplier {
+  padding: 6px 12px;
+  background: linear-gradient(
+      270deg,
+      #ffe47c -3.8%,
+      #ff43c3 50.8%,
+      #4156e0 100%
+    ),
+    linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2));
+  border-radius: 10px;
+}
+
+.multiplier-title {
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.multiplier-value {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 16px;
+  text-align: center;
 }
 
 .apr {

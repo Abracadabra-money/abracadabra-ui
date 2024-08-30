@@ -1,6 +1,6 @@
 <template>
   <div class="deposit-stake-wrap">
-    <div class="condition-management-wrap" v-if="isLockContract">
+    <div class="condition-management-wrap" v-if="hasStakeLogic">
       <Tabs
         class="tabs"
         :name="activeTab"
@@ -9,12 +9,14 @@
       />
 
       <Toggle
-        v-if="isStake && !isLockEnded"
-        text="Lock"
-        :selected="isLock"
-        @updateToggle="changeLockToggle"
+        v-if="isToggle"
+        text="Balanced"
+        :selected="isBalanced"
+        @updateToggle="changeBalancedToggle"
       />
+    </div>
 
+    <div class="condition-management-wrap flex-end" v-else>
       <Toggle
         v-if="!isStake"
         text="Balanced"
@@ -46,7 +48,6 @@
 
 <script>
 import { defineAsyncComponent } from "vue";
-import moment from "moment";
 
 export default {
   props: {
@@ -64,18 +65,25 @@ export default {
       tabItems: ["deposit", "stake"],
       isLock: false,
       isBalanced: false,
-      lockEndTimestamp: 1712364937,
-      isLockEnded: true,
     };
   },
 
   computed: {
-    isLockContract() {
-      return this.pool.lockContract;
+    hasStakeLogic() {
+      return this.pool.lockContract || this.pool.stakeContract;
     },
 
     isStake() {
       return this.activeTab == "stake";
+    },
+
+    isArbitrumMimUsdcPool() {
+      return this.pool.chainId === 42161 && this.pool.id === 2;
+    },
+
+    isToggle() {
+      if (this.isArbitrumMimUsdcPool) return false;
+      return !this.isStake;
     },
   },
 
@@ -94,10 +102,7 @@ export default {
   },
 
   created() {
-    const now = moment().utc();
-    const end = moment.utc(this.lockEndTimestamp * 1000);
-    const isEnded = now.isAfter(end);
-    this.isLockEnded = isEnded;
+    if (this.isArbitrumMimUsdcPool) this.isBalanced = true;
   },
 
   components: {
@@ -139,6 +144,10 @@ export default {
   justify-content: space-between;
   align-items: center;
   width: 100%;
+}
+
+.flex-end {
+  justify-content: flex-end;
 }
 
 .tabs {

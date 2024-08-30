@@ -2,8 +2,42 @@ import oracleAbi from "@/abis/oracle";
 import { useImage } from "@/helpers/useImage";
 import chainLinkAbi from "@/abis/chainLink";
 import tokensAbi from "@/abis/tokensAbi/index";
+import type { ContractInfo } from "@/types/global";
 
-export const magicApeConfig = {
+export type MagicApeConfig = {
+  mainToken: {
+    name: string;
+    decimals: number;
+    icon: string;
+    rateIcon: string;
+    contract: ContractInfo;
+  };
+  stakeToken: {
+    name: string;
+    decimals: number;
+    icon: string;
+    contract: ContractInfo;
+  };
+  oracle: ContractInfo;
+  chainLink: ContractInfo;
+  additionalInfo: {
+    rewardToken: {
+      symbol: string;
+      decimals: number;
+      icon: string;
+    };
+    leverageInfo: {
+      label: string;
+      id: number;
+    };
+  };
+};
+
+type MagicApeConfigs = {
+  1: MagicApeConfig;
+};
+
+export const magicApeConfig: MagicApeConfigs = {
   1: {
     mainToken: {
       name: "magicAPE",

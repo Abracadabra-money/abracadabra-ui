@@ -1,14 +1,19 @@
+import type { ActionConfig } from "@/helpers/pools/swap/getSwapInfo";
 import { validateConnection } from "@/helpers/validators/validateConnection";
+const SUPPORTED_CHAINS = [42161, 2222, 81457];
 
-const SUPPORTED_CHAINS = [168587773, 81457];
-
-export const validationActions = (actionConfig: any, chainId: number) => {
+export const validationActions = (
+  actionConfig: ActionConfig,
+  selectedNetwork: number,
+  chainId: number,
+  isApproving: boolean
+) => {
   const { fromToken, toToken, fromInputValue, toInputValue } = actionConfig;
 
   const connectedError = validateConnection();
   if (connectedError.btnText) return connectedError;
 
-  const chainError = validateChain(chainId, "Switch to Blast");
+  const chainError = validateChain(selectedNetwork, chainId);
   if (chainError.btnText) return chainError;
 
   if (fromToken.config.name === "Select Token")
@@ -18,13 +23,15 @@ export const validationActions = (actionConfig: any, chainId: number) => {
     return { btnText: "Select Token", isAllowed: false };
 
   if (!fromInputValue || !toInputValue)
-    return { btnText: "Enter amount", isAllowed: false };
+    return { btnText: "Enter Amount", isAllowed: false };
 
   if (fromInputValue > fromToken.userInfo.balance)
     return {
-      btnText: `Insufficient balance`,
+      btnText: `Insufficient Balance`,
       isAllowed: false,
     };
+
+  if (isApproving) return { btnText: "Approving", isAllowed: false };
 
   if (fromInputValue > fromToken.userInfo.allowance)
     return {
@@ -33,11 +40,18 @@ export const validationActions = (actionConfig: any, chainId: number) => {
       method: "approvefromToken",
     };
 
-  return { btnText: "Preview", isAllowed: true, method: "swap" };
+  return { btnText: "Review Trade", isAllowed: true, method: "swap" };
 };
 
-const validateChain = (connectedChainId: number, btnText = "Switch Chain") => {
-  if (!SUPPORTED_CHAINS.includes(connectedChainId))
+const validateChain = (
+  selectedNetwork: number,
+  connectedChainId: number,
+  btnText = "Switch Network"
+) => {
+  if (
+    !SUPPORTED_CHAINS.includes(connectedChainId) ||
+    selectedNetwork !== connectedChainId
+  )
     return {
       btnText,
       isAllowed: true,

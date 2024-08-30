@@ -32,7 +32,7 @@
       </div>
     </div>
 
-    <SwapInfoBlock
+    <PopupSwapInfoBlock
       :actionConfig="actionConfig"
       :priceImpact="priceImpact"
       :minAmount="BigInt(localData.outputAmountWithSlippage)"
@@ -41,7 +41,12 @@
 
     <PriceUpdatedBlock v-if="isUpdatedPrice" @updatedPrice="updatedPrice" />
 
-    <BaseButton :primary="true" @click="swapHandler">Confirm Swap</BaseButton>
+    <BaseButton
+      :primary="true"
+      :disabled="isActionProcessing"
+      @click="swapHandler"
+      >{{ buttonText }}</BaseButton
+    >
   </div>
 </template>
 
@@ -68,13 +73,18 @@ export default {
     },
     priceImpact: { type: [String, Number], default: 0 },
     currentPriceInfo: {
-      default: () => ({ midPrice: 0n, amounts: { from: 0n, to: 0n }, fromBase: false }),
+      default: () => ({
+        midPrice: 0,
+        amounts: { from: 0n, to: 0n },
+        fromBase: false,
+      }),
     },
   },
 
   data() {
     return {
       localData: null as any,
+      isActionProcessing: false,
     };
   },
 
@@ -102,6 +112,11 @@ export default {
     isUpdatedPrice() {
       return this.swapInfo.outputAmount !== BigInt(this.localData.outputAmount);
     },
+
+    buttonText() {
+      if (this.isActionProcessing) return "Processing...";
+      return "Confirm Swap ";
+    },
   },
 
   methods: {
@@ -119,6 +134,8 @@ export default {
     },
 
     async swapHandler() {
+      this.isActionProcessing = true;
+
       const notificationId = await this.createNotification(
         notification.pending
       );
@@ -168,6 +185,8 @@ export default {
         this.deleteNotification(notificationId);
         this.createNotification(errorNotification);
       }
+
+      this.isActionProcessing = false;
     },
   },
 
@@ -181,8 +200,8 @@ export default {
   },
 
   components: {
-    SwapInfoBlock: defineAsyncComponent(
-      () => import("@/components/swap/SwapInfoBlock.vue")
+    PopupSwapInfoBlock: defineAsyncComponent(
+      () => import("@/components/swap/PopupSwapInfoBlock.vue")
     ),
     BaseButton: defineAsyncComponent(
       () => import("@/components/base/BaseButton.vue")
@@ -258,6 +277,10 @@ export default {
 .token-icon {
   width: 70px;
   height: 70px;
+}
+
+.token-amount {
+  text-align: center;
 }
 
 .arrow-wrap {

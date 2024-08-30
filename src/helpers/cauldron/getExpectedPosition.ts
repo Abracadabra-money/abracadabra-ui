@@ -3,14 +3,18 @@ import type {
   CauldronInfo,
   UserPositions,
 } from "@/helpers/cauldron/types";
-
-import { BigNumber } from "ethers";
 import {
   applyBorrowFee,
+  alternativeApplyBorrowFee,
   getLiquidationPrice,
+  getAlternativeLiquidationPrice,
   getPositionHealth,
+  getAlternativePositionHealth,
 } from "@/helpers/cauldron/utils";
+import { BigNumber } from "ethers";
+import { parseUnits } from "viem";
 
+// todo validateCookByAction
 export const getExpectedPostition = (
   cauldron: CauldronInfo,
   actionConfig: ActionConfig,
@@ -62,6 +66,66 @@ export const getExpectedPostition = (
   };
 };
 
+export const getAlternativeExpectedPostition = (
+  cauldron: CauldronInfo,
+  actionConfig: ActionConfig,
+  action: string
+) => {
+  const { userPosition, mainParams, config } = cauldron;
+  const { borrowFee } = mainParams;
+  const { oracleExchangeRate } = mainParams.alternativeData;
+  const { userBorrowAmount } = userPosition.alternativeData.borrowInfo;
+  const { userCollateralAmount } = userPosition.alternativeData.collateralInfo;
+
+  let mimAmount = userBorrowAmount;
+  let collateralAmount = userCollateralAmount;
+
+  if (action === "borrow") {
+    collateralAmount = expectedAlternativeBorrowCollateralAmount(
+      userCollateralAmount,
+      actionConfig
+    );
+
+    mimAmount = expectedAlternativeBorrowMimAmount(
+      userBorrowAmount,
+      actionConfig,
+      borrowFee
+    );
+  }
+
+  if (action === "repay") {
+    collateralAmount = expectedAlternativeRepayCollateralAmount(
+      userCollateralAmount,
+      actionConfig
+    );
+
+    mimAmount = expectedAlternativeRepayMimAmount(
+      userBorrowAmount,
+      actionConfig
+    );
+  }
+
+  const liquidationPrice = getAlternativeLiquidationPrice(
+    mimAmount,
+    collateralAmount,
+    config.mcr,
+    config.collateralInfo.decimals
+  );
+
+  const positionHealth = getAlternativePositionHealth(
+    liquidationPrice,
+    oracleExchangeRate,
+    config.collateralInfo.decimals
+  );
+
+  return {
+    collateralAmount,
+    mimAmount,
+    liquidationPrice,
+    positionHealth,
+  };
+};
+
 const expectedRepayCollateralAmount = (
   userPosition: UserPositions,
   actionConfig: ActionConfig
@@ -79,6 +143,26 @@ const expectedRepayCollateralAmount = (
     : expectedCollateralAmount;
 };
 
+const expectedAlternativeRepayCollateralAmount = (
+  userCollateralAmount: bigint,
+  actionConfig: ActionConfig
+): bigint => {
+  const withdrawAmount = parseUnits(
+    actionConfig.amounts.withdrawAmount.toString(),
+    0
+  );
+  const amountFrom = parseUnits(
+    actionConfig.amounts.deleverageAmounts.amountFrom.toString(),
+    0
+  );
+
+  const expectedCollateralAmount = actionConfig.useDeleverage
+    ? userCollateralAmount - withdrawAmount - amountFrom
+    : userCollateralAmount - withdrawAmount;
+
+  return expectedCollateralAmount < 0n ? 0n : expectedCollateralAmount;
+};
+
 const expectedRepayMimAmount = (
   userPosition: UserPositions,
   actionConfig: ActionConfig
@@ -91,6 +175,26 @@ const expectedRepayMimAmount = (
     : userBorrowAmount.sub(repayAmount);
 
   return expectedMimAmount.lt(0) ? BigNumber.from(0) : expectedMimAmount;
+};
+
+const expectedAlternativeRepayMimAmount = (
+  userBorrowAmount: bigint,
+  actionConfig: ActionConfig
+) => {
+  const repayAmount = parseUnits(
+    actionConfig.amounts.repayAmount.toString(),
+    0
+  );
+  const amountToMin = parseUnits(
+    actionConfig.amounts.deleverageAmounts.amountToMin.toString(),
+    0
+  );
+
+  const expectedMimAmount = actionConfig.useDeleverage
+    ? userBorrowAmount - amountToMin
+    : userBorrowAmount - repayAmount;
+
+  return expectedMimAmount < 0n ? 0n : expectedMimAmount;
 };
 
 const expectedBorrowCollateralAmount = (
@@ -109,6 +213,25 @@ const expectedBorrowCollateralAmount = (
   return userCollateralAmount.add(depositAmounts.collateralTokenAmount);
 };
 
+const expectedAlternativeBorrowCollateralAmount = (
+  userCollateralAmount: bigint,
+  actionConfig: ActionConfig
+) => {
+  const { depositAmounts, leverageAmounts } = actionConfig.amounts;
+
+  const collateralTokenAmount = parseUnits(
+    depositAmounts.collateralTokenAmount.toString(),
+    0
+  );
+
+  const amountToMin = parseUnits(leverageAmounts.amountToMin.toString(), 0);
+
+  if (actionConfig.useLeverage)
+    return userCollateralAmount + collateralTokenAmount + amountToMin;
+
+  return userCollateralAmount + collateralTokenAmount;
+};
+
 const expectedBorrowMimAmount = (
   userPosition: UserPositions,
   actionConfig: ActionConfig,
@@ -123,4 +246,30 @@ const expectedBorrowMimAmount = (
     );
 
   return applyBorrowFee(borrowAmount, borrowFee * 1000).add(userBorrowAmount);
+};
+
+export const expectedAlternativeBorrowMimAmount = (
+  userBorrowAmount: bigint,
+  actionConfig: ActionConfig,
+  borrowFee: number
+) => {
+  const amountFrom = parseUnits(
+    actionConfig.amounts.leverageAmounts.amountFrom.toString(),
+    0
+  );
+
+  const borrowAmount = parseUnits(
+    actionConfig.amounts.borrowAmount.toString(),
+    0
+  );
+
+  if (actionConfig.useLeverage) {
+    return (
+      alternativeApplyBorrowFee(amountFrom, borrowFee * 1000) + userBorrowAmount
+    );
+  }
+
+  return (
+    alternativeApplyBorrowFee(borrowAmount, borrowFee * 1000) + userBorrowAmount
+  );
 };

@@ -69,7 +69,20 @@
         Gold Per Hour
       </div>
     </div>
-    <div v-else class="empty-info">Coming soon</div>
+    <div class="card-body" v-else>
+      <div class="total-points">
+        <span class="total-title">Potions</span>
+        <span class="total-earned">{{ formatTokenBalance(potionPoints) }}</span>
+      </div>
+
+      <div class="pending-info">
+        Earning
+        <span class="pending-amount">{{
+          formatTokenBalance(pendingPotionPoints)
+        }}</span>
+        Potions Per Hour
+      </div>
+    </div>
   </div>
 </template>
 
@@ -83,6 +96,8 @@ export default {
     pendingLiquidityPoints: { type: Number, default: 0 },
     developerPoints: { type: Number, default: 0 },
     pendingDeveloperPoints: { type: Number, default: 0 },
+    potionPoints: { type: Number, default: 0 },
+    pendingPotionPoints: { type: Number, default: 0 },
   },
 
   data() {

@@ -1,14 +1,6 @@
 import { useImage } from "@/helpers/useImage";
 
-type Config = {
-  id: Number;
-  chain: Number;
-  href: String;
-  label: String;
-  icon: String;
-};
-
-const configs: Array<Config> = [
+const configs = [
   {
     id: 8,
     chain: 43114,
@@ -88,17 +80,21 @@ const configs: Array<Config> = [
   },
   {
     id: 1,
-    chain: 80085,
-    href: "https://artio.bex.berachain.com/pool/0xC793C76fE0D5c79550034983D966c21a50Fb5e38/add-liquidity",
+    chain: 80084,
+    href: "https://bartio.bex.berachain.com/pool/0xa11e60393dbaec5a45416f063de2abf94af2cd50",
     label: "Get LP",
     icon: useImage(`assets/images/get-lp-icons/bera.png`),
   },
+  {
+    id: 43,
+    chain: 1,
+    href: "https://www.elixir.xyz/apothecary",
+    label: "Get sdeUSD Token",
+    icon: useImage(`assets/images/get-lp-icons/elixir.png`),
+  },
 ];
 
-export const getTokenLinkData = (
-  cauldronId: number,
-  chainId: number
-): Object => {
+export const getTokenLinkData = (cauldronId: number, chainId: number) => {
   return configs.filter((config) => {
     if (config.id === cauldronId && config.chain === chainId) return true;
   })[0];

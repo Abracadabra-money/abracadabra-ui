@@ -41,7 +41,7 @@
             <BaseTokenIcon
               :name="this.pool.name"
               :icon="this.pool.icon"
-              size="24px"
+              size="32px"
             />
             {{ this.pool.name }}
           </span>
@@ -76,21 +76,20 @@
 
 <script>
 import moment from "moment";
+import { formatUnits } from "viem";
 import debounce from "lodash.debounce";
 import { defineAsyncComponent } from "vue";
-import { mapActions, mapGetters, mapMutations } from "vuex";
-import { formatUnits } from "viem";
-import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import notification from "@/helpers/notification/notification";
-import { approveTokenViem } from "@/helpers/approval";
 import { trimZeroDecimals } from "@/helpers/numbers";
-import { formatTokenBalance, formatUSD } from "@/helpers/filters";
-import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
+import { approveTokenViem } from "@/helpers/approval";
+import { mapActions, mapGetters, mapMutations } from "vuex";
+import notification from "@/helpers/notification/notification";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import { actionStatus } from "@/components/pools/pool/PoolActionBlock.vue";
-
-import { addLiquidityImbalancedOptimal } from "@/helpers/pools/swap/addLiquidityImbalancedOptimal";
+import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { addLiquidityImbalanced } from "@/helpers/pools/swap/actions/addLiquidityImbalanced";
+import { addLiquidityImbalancedOptimal } from "@/helpers/pools/swap/addLiquidityImbalancedOptimal";
 
 export default {
   props: {
@@ -155,9 +154,16 @@ export default {
 
     formattedLpTokenExpected() {
       if (this.isExpectedOptimalCalculating) return { value: "-", usd: "-" };
-      const formattedLpTokenValue = Number(
-        formatUnits(this.expectedOptimal.shares, this.pool.decimals)
+
+      const minimumShares = applySlippageToMinOutBigInt(
+        this.slippage,
+        this.expectedOptimal.shares
       );
+
+      const formattedLpTokenValue = Number(
+        formatUnits(minimumShares, this.pool.decimals)
+      );
+
       const lpTokenValueUsdEquivalent = formattedLpTokenValue * this.pool.price;
 
       return {
@@ -216,6 +222,12 @@ export default {
     },
   },
 
+  watch: {
+    slippage() {
+      this.calculateExpectedOptimal();
+    },
+  },
+
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
@@ -237,32 +249,22 @@ export default {
     },
 
     updateValue(value, fromBase = false) {
-      if (fromBase) {
-        if (value === null) {
-          this.baseInputAmount = 0n;
-          this.baseInputValue = "";
-          return false;
-        }
+      const tokenLabel = fromBase ? "base" : "quote";
+      const decimals = fromBase
+        ? this.baseToken.config.decimals
+        : this.quoteToken.config.decimals;
 
-        this.baseInputAmount = value;
-        this.baseInputValue = trimZeroDecimals(
-          formatUnits(value, this.baseToken.config.decimals)
-        );
+      if (value === null) {
+        this[`${tokenLabel}InputAmount`] = 0n;
+        this[`${tokenLabel}InputValue`] = "";
       } else {
-        if (value === null) {
-          this.quoteInputAmount = 0n;
-          this.quoteInputValue = "";
-          return false;
-        }
-
-        this.quoteInputAmount = value;
-        this.quoteInputValue = trimZeroDecimals(
-          formatUnits(value, this.quoteToken.config.decimals)
+        this[`${tokenLabel}InputAmount`] = value;
+        this[`${tokenLabel}InputValue`] = trimZeroDecimals(
+          formatUnits(value, decimals)
         );
       }
 
       this.isExpectedOptimalCalculating = true;
-
       this.calculateExpectedOptimal();
     },
 
@@ -274,7 +276,6 @@ export default {
           this.quoteInputAmount,
           100n
         );
-
         this.isExpectedOptimalCalculating = false;
       },
       500

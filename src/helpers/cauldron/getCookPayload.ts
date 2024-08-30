@@ -5,6 +5,7 @@ import type { ActionConfig, CauldronInfo } from "@/helpers/cauldron/types";
 import { getCookTypeByAction, ACTION_TYPES } from "./getCookActionType";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
 import { utils } from "ethers";
+import type { Address } from "viem";
 
 export const getCookPayload = async (
   account: any,
@@ -16,19 +17,23 @@ export const getCookPayload = async (
 
   switch (cookType) {
     case ACTION_TYPES.ACTION_DEPOSIT:
-      return getAddCollateralPayload(cauldron, actionConfig);
+      return getAddCollateralPayload(cauldron, actionConfig, account);
     case ACTION_TYPES.ACTION_BORROW:
-      return getBorrowPayload(cauldron, actionConfig);
+      return getBorrowPayload(cauldron, actionConfig, account);
     case ACTION_TYPES.ACTION_DEPOSIT_AND_BORROW:
-      return getAddCollateralAndBorrowPayload(cauldron, actionConfig);
+      return getAddCollateralAndBorrowPayload(cauldron, actionConfig, account);
     case ACTION_TYPES.ACTION_REPAY:
-      return getRepayPayload(cauldron, actionConfig);
+      return getRepayPayload(cauldron, actionConfig, account);
     case ACTION_TYPES.ACTION_REMOVE_COLLATERAL:
-      return getRemoveCollateralPayload(cauldron, actionConfig);
+      return getRemoveCollateralPayload(cauldron, actionConfig, account);
     case ACTION_TYPES.ACTION_REPAY_AND_REMOVE_COLLATERAL:
-      return getRemoveCollateralAndRepayPayload(cauldron, actionConfig);
+      return getRemoveCollateralAndRepayPayload(
+        cauldron,
+        actionConfig,
+        account
+      );
     case ACTION_TYPES.ACTION_LEVERAGE:
-      return await getLeveragePayload(cauldron, actionConfig);
+      return await getLeveragePayload(cauldron, actionConfig, account);
     case ACTION_TYPES.ACTION_DELEVERAGE:
       return await getDeleveragePayload(cauldron, actionConfig, account);
   }
@@ -38,58 +43,45 @@ export const getCookPayload = async (
 
 const getAddCollateralPayload = (
   cauldron: CauldronInfo,
-  actionConfig: ActionConfig
+  actionConfig: ActionConfig,
+  to: Address
 ) => {
   const { amounts, useNativeToken, useUnwrapToken } = actionConfig;
   const { unwrapTokenAmount, collateralTokenAmount } = amounts.depositAmounts;
-  const { isMasterContractApproved } = cauldron.additionalInfo;
-
-  // TODO: update cauldron types
-  //@ts-ignore
-  const { updatePrice } = cauldron.mainParams;
 
   const amount = useUnwrapToken ? unwrapTokenAmount : collateralTokenAmount;
 
   const payload = {
     amount,
-    updatePrice,
-    itsDefaultBalance: useNativeToken,
+    useNativeToken,
+    useWrapper: useUnwrapToken,
+    to,
   };
 
-  return [
-    payload,
-    isMasterContractApproved,
-    cauldron,
-    useUnwrapToken,
-    useUnwrapToken,
-  ];
+  return [payload, cauldron];
 };
 
 const getBorrowPayload = (
   cauldron: CauldronInfo,
-  actionConfig: ActionConfig
+  actionConfig: ActionConfig,
+  to: Address
 ) => {
   const { amounts } = actionConfig;
-
-  const { isMasterContractApproved } = cauldron.additionalInfo;
-
-  // TODO: update cauldron types
-  //@ts-ignore
-  const { updatePrice } = cauldron.mainParams;
 
   const amount = amounts.borrowAmount;
 
   const payload = {
     amount,
-    updatePrice,
+    to,
   };
 
-  return [payload, isMasterContractApproved, cauldron];
+  return [payload, cauldron];
 };
 
 const getAddCollateralAndBorrowPayload = (
   cauldron: CauldronInfo,
-  actionConfig: ActionConfig
+  actionConfig: ActionConfig,
+  to: Address
 ) => {
   const { amounts, useNativeToken, useUnwrapToken } = actionConfig;
   const { unwrapTokenAmount, collateralTokenAmount } = amounts.depositAmounts;
@@ -106,31 +98,21 @@ const getAddCollateralAndBorrowPayload = (
 
   const payload = {
     collateralAmount,
-    amount,
-    updatePrice,
-    itsDefaultBalance: useNativeToken,
+    mimAmount: amount,
+    useNativeToken,
+    useWrapper: useUnwrapToken,
+    to,
   };
 
-  return [
-    payload,
-    isMasterContractApproved,
-    cauldron,
-    useUnwrapToken,
-    useUnwrapToken,
-  ];
+  return [payload, cauldron];
 };
 
 const getRepayPayload = (
   cauldron: CauldronInfo,
-  actionConfig: ActionConfig
+  actionConfig: ActionConfig,
+  to: Address
 ) => {
-  // TODO: update cauldron types
-  //@ts-ignore
-  const { updatePrice } = cauldron.mainParams;
-  const { isMasterContractApproved } = cauldron.additionalInfo;
-
   const { userBorrowAmount } = cauldron.userPosition.borrowInfo;
-
   const { repayAmount } = actionConfig.amounts;
 
   const itsMax = repayAmount.eq(userBorrowAmount);
@@ -138,21 +120,18 @@ const getRepayPayload = (
   const payload = {
     amount: repayAmount,
     itsMax,
-    updatePrice,
+    to,
   };
 
-  return [payload, isMasterContractApproved, cauldron];
+  return [payload, cauldron];
 };
 
 const getRemoveCollateralPayload = async (
   cauldron: CauldronInfo,
-  actionConfig: ActionConfig
+  actionConfig: ActionConfig,
+  to: Address
 ) => {
-  // TODO: update cauldron types
-  //@ts-ignore
-  const { updatePrice } = cauldron.mainParams;
   const { isMasterContractApproved } = cauldron.additionalInfo;
-
   //@ts-ignore
   const { bentoBox } = cauldron.contracts;
   //@ts-ignore
@@ -169,17 +148,18 @@ const getRemoveCollateralPayload = async (
   const share = await bentoBox.toShare(address, amount, true);
 
   const payload = {
-    amount: share,
-    updatePrice,
+    collateralShare: share,
+    to,
     withdrawUnwrapToken,
   };
 
-  return [payload, isMasterContractApproved, cauldron];
+  return [payload, cauldron];
 };
 
 const getRemoveCollateralAndRepayPayload = async (
   cauldron: CauldronInfo,
-  actionConfig: ActionConfig
+  actionConfig: ActionConfig,
+  to: Address
 ) => {
   // TODO: update cauldron types
   //@ts-ignore
@@ -204,26 +184,22 @@ const getRemoveCollateralAndRepayPayload = async (
   const share = await bentoBox.toShare(address, amount, true);
 
   const payload = {
-    amount: share, // TODO: update after fix this in cook
-    collateralAmount: repayAmount, // TODO: update after fix this in cook
-    updatePrice,
+    collateralShare: share, // TODO: update after fix this in cook
+    mimPart: repayAmount, // TODO: update after fix this in cook
     itsMax: itsMaxRepay,
+    to,
     withdrawUnwrapToken,
   };
 
-  return [payload, isMasterContractApproved, cauldron];
+  return [payload, cauldron];
 };
 
 // TODO: GM payload
 const getLeveragePayload = async (
   cauldron: CauldronInfo,
-  actionConfig: ActionConfig
+  actionConfig: ActionConfig,
+  to: Address
 ) => {
-  // TODO: update cauldron types
-  //@ts-ignore
-  const { updatePrice } = cauldron.mainParams;
-  const { isMasterContractApproved } = cauldron.additionalInfo;
-
   //@ts-ignore
   const { bentoBox } = cauldron.contracts;
 
@@ -250,27 +226,23 @@ const getLeveragePayload = async (
 
   const payload = {
     collateralAmount,
-    amount: leverageAmounts.amountFrom,
-    minExpected: shareToMin,
-    updatePrice,
-    itsDefaultBalance: useNativeToken,
+    mimAmount: leverageAmounts.amountFrom,
+    shareToMin,
+    useNativeToken,
     slipage: slippage, // TODO: naming
+    useWrapper: useUnwrapToken,
+    to,
   };
 
-  return [payload, isMasterContractApproved, cauldron, useUnwrapToken];
+  return [payload, cauldron];
 };
 
 // TODO: GM payload
 const getDeleveragePayload = async (
   cauldron: CauldronInfo,
   actionConfig: ActionConfig,
-  account: any
+  to: Address
 ) => {
-  // TODO: update cauldron types
-  //@ts-ignore
-  const { updatePrice } = cauldron.mainParams;
-  const { isMasterContractApproved } = cauldron.additionalInfo;
-
   //@ts-ignore
   const { bentoBox } = cauldron.contracts;
   //@ts-ignore
@@ -280,7 +252,6 @@ const getDeleveragePayload = async (
 
   const { deleverageAmounts, withdrawAmount } = actionConfig.amounts;
 
-  const { userCollateralAmount } = cauldron.userPosition.collateralInfo;
   const { userBorrowAmount } = cauldron.userPosition.borrowInfo;
 
   const isMaxRepay = userBorrowAmount.lte(deleverageAmounts.amountToMin);
@@ -303,14 +274,14 @@ const getDeleveragePayload = async (
   );
 
   const payload = {
-    borrowAmount: repayAmount, // TODO: update after fix this in cook
-    collateralAmount: shareFrom, // TODO: update after fix this in cook
-    removeCollateralAmount: withdrawShare, // TODO: update after fix this in cook
-    updatePrice,
+    repayAmount,
+    collateralShare: shareFrom,
+    removeCollateralShare: withdrawShare,
     itsMax: isMaxRepay,
     slipage: slippage,
+    to,
     withdrawUnwrapToken,
   };
 
-  return [payload, isMasterContractApproved, cauldron, account];
+  return [payload, cauldron];
 };

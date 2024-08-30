@@ -11,6 +11,11 @@
     />
   </div>
 
+  <DynamicElixirPotionsMultiplier
+    :multiplier="multiplier"
+    v-if="hasElixirPotions"
+  />
+
   <DynamicallyEstimatedPrice
     :multiplier="multiplier"
     :cauldron="cauldron"
@@ -117,6 +122,10 @@ export default {
 
       return status;
     },
+
+    hasElixirPotions() {
+      return this.cauldron.config.cauldronSettings.hasElixirPotions;
+    },
   },
 
   watch: {
@@ -186,6 +195,9 @@ export default {
     ),
     DynamicallyEstimatedPrice: defineAsyncComponent(
       () => import("@/components/market/DynamicallyEstimatedPrice.vue")
+    ),
+    DynamicElixirPotionsMultiplier: defineAsyncComponent(
+      () => import("@/components/market/DynamicElixirPotionsMultiplier.vue")
     ),
   },
 };

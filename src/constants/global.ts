@@ -16,7 +16,7 @@ export const MAINNET_CHAIN_ID: number = 1;
 export const BSC_CHAIN_ID: number = 56;
 export const KAVA_CHAIN_ID: number = 2222;
 export const ARBITRUM_CHAIN_ID: number = 42161;
-export const BERA_CHAIN_ID: number = 80085;
+export const BERA_BARTIO_CHAIN_ID: number = 80084;
 export const AVALANCHE_CHAIN_ID: number = 43114;
 export const BLAST_CHAIN_ID = 81457;
 
@@ -30,3 +30,4 @@ export const OPENOCEAN_BASE_URL: string = "https://ethapi.openocean.finance/v2";
 export const GNOSIS_SAFE_ADDRESS = "0xDF2C270f610Dc35d8fFDA5B453E74db5471E126B";
 
 export const APR_KEY = "abracadabraCauldronsApr";
+export const ETHER_DECIMALS = 18;

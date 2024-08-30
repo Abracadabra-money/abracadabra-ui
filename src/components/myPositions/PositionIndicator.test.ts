@@ -14,7 +14,7 @@ describe("PositionIndicator", () => {
 
   it("sets the correct  tooltip color for safe position risk", () => {
     const wrapper = shallowMount(PositionIndicator, {
-      propsData: { positionRisk: "safe" },
+      propsData: { value: 10, positionRisk: "safe" },
     });
 
     expect(wrapper.vm.tooltipColor).toBe("#67A069");
@@ -22,7 +22,7 @@ describe("PositionIndicator", () => {
 
   it("sets the correct tooltip color for medium position risk", () => {
     const wrapper = shallowMount(PositionIndicator, {
-      propsData: { positionRisk: "medium" },
+      propsData: { value: 75, positionRisk: "medium" },
     });
 
     wrapper.setProps({ positionRisk: "medium" });
@@ -31,7 +31,7 @@ describe("PositionIndicator", () => {
 
   it("sets the correct tooltip color for high position risk", () => {
     const wrapper = shallowMount(PositionIndicator, {
-      propsData: { positionRisk: "high" },
+      propsData: { value: 99, positionRisk: "high" },
     });
 
     wrapper.setProps({ positionRisk: "high" });
@@ -40,7 +40,7 @@ describe("PositionIndicator", () => {
 
   it("sets the correct tooltip color for unknown position risk", () => {
     const wrapper = shallowMount(PositionIndicator, {
-      propsData: { positionRisk: "" },
+      propsData: { value: 0, positionRisk: "" },
     });
 
     wrapper.setProps({ positionRisk: "unknown" });

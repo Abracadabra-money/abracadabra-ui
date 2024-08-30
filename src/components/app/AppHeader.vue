@@ -18,14 +18,14 @@
 
       <SwapLink :isClassicHeader="isClassicHeader" />
 
-      <BlastButton />
+      <!-- <BlastButton /> -->
     </nav>
 
     <div class="user-actions">
       <ChainButton />
 
       <BellButton
-        v-if="notifiCardId && notifiWalletBlockchain"
+        v-if="notifiCardId && notifiWalletBlockchain && account"
         :notifiCardId="notifiCardId"
         :notifiWalletBlockchain="notifiWalletBlockchain"
         :unreadNotificationCount="unreadNotificationCount"
@@ -60,7 +60,7 @@ export default {
       unreadNotificationCount: 0,
       unreadNotificationCountChecker: null,
       isSignedUp: false,
-      alternativeHeader: ["MimSwap", "Pools", "Pool"],
+      alternativeHeader: ["MimSwap", "Pools", "Pool", "PotionPoints"],
       exception: ["Blast", "PointsDashboard"],
       isClassicHeader: true,
     };
@@ -150,9 +150,9 @@ export default {
     SwapLink: defineAsyncComponent(() =>
       import("@/components/ui/links/SwapLink.vue")
     ),
-    BlastButton: defineAsyncComponent(() =>
-      import("@/components/ui/buttons/BlastButton.vue")
-    ),
+    // BlastButton: defineAsyncComponent(() =>
+    //   import("@/components/ui/buttons/BlastButton.vue")
+    // ),
     ChainButton: defineAsyncComponent(() =>
       import("@/components/ui/buttons/ChainButton.vue")
     ),

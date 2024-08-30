@@ -1,4 +1,5 @@
 import type { BigNumber } from "ethers";
+import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
 
 export type UserBorrowInfo = {
   userBorrowPart: BigNumber;
@@ -14,7 +15,8 @@ export type UserPositions = {
   collateralInfo: UserCollateralInfo;
   borrowInfo: UserBorrowInfo;
   oracleRate: BigNumber;
-  liquidationPrice: String | number;
+  liquidationPrice: string | number;
+  positionHealth: PositionHealth;
   alternativeData: {
     collateralInfo: {
       userCollateralShare: bigint;
@@ -25,6 +27,8 @@ export type UserPositions = {
       userBorrowAmount: bigint;
     };
     oracleRate: bigint;
+    liquidationPrice: bigint;
+    positionHealth: AlternativePositionHealth;
   };
 };
 
@@ -39,6 +43,7 @@ export type MainParams = {
   totalBorrowed: BigNumber;
   tvl: BigNumber;
   userMaxBorrow: BigNumber;
+  updatePrice: boolean;
   alternativeData: {
     collateralPrice: bigint;
     mimLeftToBorrow: bigint;
@@ -61,7 +66,7 @@ export type UserTokensInfo = {
 };
 
 export type CauldronInfo = {
-  config: Object | undefined;
+  config: CauldronConfig;
   contracts: Object | null;
   mainParams: MainParams;
   userPosition: UserPositions;
@@ -70,11 +75,11 @@ export type CauldronInfo = {
 };
 
 export type CauldronPositionItem = {
-  config: object;
+  config: CauldronConfig;
   oracleRate: BigNumber;
   collateralInfo: UserCollateralInfo;
   borrowInfo: UserBorrowInfo;
-  liquidationPrice: number;
+  liquidationPrice: number | string;
 };
 
 export type AdditionalInfo = {
@@ -117,3 +122,13 @@ export type ActionConfig = {
   withdrawUnwrapToken: boolean;
   amounts: ActionAmounts;
 };
+
+export type UserTotalAssets = {
+  collateralDepositedInUsd: number;
+  mimBorrowed: number;
+};
+
+export type PositionHealth = { percent: number; status: PositionHealthStatus };
+export type AlternativePositionHealth = { percent: bigint; status: PositionHealthStatus };
+
+export type PositionHealthStatus = "safe" | "medium" | "high";

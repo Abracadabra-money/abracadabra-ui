@@ -42,12 +42,12 @@
       </svg>
     </button>
 
-    <div class="dropdown-list" v-if="showDropdownList">
+    <div class="dropdown-list" ref="dropdownList" v-if="showDropdownList">
       <div class="select-all">
         <h6 class="list-title">Select all</h6>
         <Toggle
-          :selected="selectedChains.length === orderedActiveChains.length"
-          @updateToggle="updateSelectedChain"
+          :selected="allSelected"
+          @updateToggle="$emit('selectAllChains')"
         />
       </div>
 
@@ -62,12 +62,17 @@
         </div>
 
         <div
-          :class="['checkbox', { active: selectedChains.includes(+chainId) }]"
+          :class="[
+            'checkbox',
+            {
+              active: selectedChains.includes(+chainId) && !allSelected,
+            },
+          ]"
           @click="updateSelectedChain(+chainId)"
         >
           <svg
             class="checked"
-            v-show="selectedChains.includes(+chainId)"
+            v-show="selectedChains.includes(+chainId) && !allSelected"
             xmlns="http://www.w3.org/2000/svg"
             width="20"
             height="20"
@@ -88,19 +93,19 @@
   </div>
 </template>
 
-<script>
-import { defineAsyncComponent } from "vue";
+<script lang="ts">
+import { defineAsyncComponent, type PropType } from "vue";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 import { getChainConfig } from "@/helpers/chains/getChainsInfo";
 
 export default {
   props: {
     activeChains: {
-      type: Array,
+      type: Array as PropType<number[]>,
       default: () => [],
     },
     selectedChains: {
-      type: Array,
+      type: Array as PropType<number[]>,
       default: () => [],
     },
   },
@@ -113,6 +118,10 @@ export default {
   },
 
   computed: {
+    allSelected() {
+      return this.selectedChains.length === this.orderedActiveChains.length;
+    },
+
     chains() {
       if (!this.selectedChains.length) return [];
       else return [...this.selectedChains].splice(0, 3) || [];
@@ -137,11 +146,21 @@ export default {
     },
   },
 
+  watch: {
+    allSelected(isAllSelected: boolean) {
+      if (isAllSelected && this.$refs.dropdownList)
+        (this.$refs.dropdownList as HTMLDivElement).scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+    },
+  },
+
   methods: {
     getChainIcon,
-    getChainName(chainId) {
+    getChainName(chainId: number) {
       const chain = getChainConfig(chainId);
-      return chain.chainName;
+      return chain?.chainName;
     },
 
     toogleDropdown() {
@@ -153,8 +172,8 @@ export default {
       this.showDropdownList = false;
     },
 
-    updateSelectedChain(value) {
-      this.$emit("updateSelectedChain", value);
+    updateSelectedChain(chainId: number) {
+      this.$emit("updateSelectedChain", chainId);
     },
   },
 
@@ -258,7 +277,7 @@ path {
 .dropdown-list {
   position: absolute;
   top: 50px;
-  left: 0;
+  right: 0;
   border-radius: 12px;
   border: 1px solid rgba(180, 180, 180, 0.08);
   background: linear-gradient(0deg, #131b2d 0%, #131b2d 100%), #151826;

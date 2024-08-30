@@ -39,7 +39,10 @@ export const getWhiteListedInfo = async (
     if (!userWhitelistedInfo) return userNotWhitelisted;
 
     return {
-      amountAllowedParsed: formatUnits(amountAllowed),
+      amountAllowedParsed: formatUnits(
+        amountAllowed,
+        config.collateralInfo.decimals
+      ),
       userBorrowPart: formatUnits(userWhitelistedInfo.userBorrowPart, 18),
       userWhitelistedInfo,
       contract: {

@@ -1,6 +1,6 @@
 <template>
   <div class="networks-wrap">
-    <h4 class="title">Available on:</h4>
+    <!-- <h4 class="title">Available on:</h4> -->
     <div class="networks-list">
       <button
         class="network-button"
@@ -18,12 +18,13 @@
 </template>
 
 <script lang="ts">
+import type { PropType } from "vue";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 
 export default {
   props: {
     availableNetworks: {
-      type: Array,
+      type: Array as PropType<number[]>,
       default: () => [],
     },
     selectedNetwork: {

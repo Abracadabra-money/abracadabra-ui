@@ -85,6 +85,11 @@
 </template>
 
 <script lang="ts">
+import type {
+  ChartConfig,
+  StakeTokenInfo,
+  AdditionalConfig,
+} from "@/helpers/stake/types";
 import { defineAsyncComponent } from "vue";
 import { formatUnits, parseUnits } from "viem";
 import { formatToFixed } from "@/helpers/filters";
@@ -94,6 +99,7 @@ import { mapGetters, mapActions, mapMutations } from "vuex";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
 import { getStakeInfo } from "@/helpers/stake/magicGlp/getStakeInfo";
+import type { MagicGlpStakeInfo } from "@/helpers/stake/magicGlp/types";
 import { getChartOptions } from "@/helpers/stake/magicGlp/getChartOptions";
 
 export default {
@@ -101,12 +107,12 @@ export default {
     return {
       activeTab: "stake",
       tabItems: ["stake", "unstake"],
-      selectedNetwork: null as any,
+      selectedNetwork: 42161,
       availableNetworks: [42161, 43114],
-      stakeInfoArr: null as any,
-      inputAmount: BigInt(0) as bigint,
+      stakeInfoArr: null as null | MagicGlpStakeInfo[],
+      inputAmount: BigInt(0),
       inputValue: "" as string | bigint,
-      updateInterval: null as any,
+      updateInterval: null as null | NodeJS.Timeout,
       isMobile: false,
       chartToggle: false,
     };
@@ -139,7 +145,9 @@ export default {
       if (!this.account) return true;
       if (!this.isStakeAction) return true;
       if (!this.isUnsupportedChain) return true;
-      return this.fromToken.approvedAmount >= this.inputAmount;
+      return (
+        (this.fromToken as StakeTokenInfo)?.approvedAmount >= this.inputAmount
+      );
     },
 
     isInsufficientBalance() {
@@ -156,17 +164,20 @@ export default {
     stakeInfo() {
       if (!this.stakeInfoArr) return null;
 
-      return this.stakeInfoArr.find(
-        (info: any) => +info.chainId === +this.selectedNetwork
+      const stakeInfo = this.stakeInfoArr.find(
+        (info: MagicGlpStakeInfo) => +info.chainId === +this.selectedNetwork
       );
+
+      if (!stakeInfo) return null;
+      return stakeInfo;
     },
 
     stakeToken() {
-      return this.stakeInfo?.stakeToken;
+      return this.stakeInfo!.stakeToken;
     },
 
     mainToken() {
-      return this.stakeInfo?.mainToken;
+      return this.stakeInfo!.mainToken;
     },
 
     fromToken() {
@@ -189,12 +200,12 @@ export default {
       return formatToFixed(formatUnits(amount, this.mainToken.decimals), 6);
     },
 
-    chartConfig() {
+    chartConfig(): ChartConfig {
       return {
         icon: this.mainToken.icon,
         title: "APR Chart",
         type: "magicGlpTvl",
-        feePercent: this.stakeInfo.feePercent,
+        feePercent: this.stakeInfo!.feePercent,
         intervalButtons: [
           { label: "1m", time: 1 },
           { label: "3m", time: 3 },
@@ -204,8 +215,8 @@ export default {
       };
     },
 
-    additionalConfig() {
-      const { icon, amount, amountUsd } = this.stakeInfo.rewardToken;
+    additionalConfig(): AdditionalConfig[] {
+      const { icon, amount, amountUsd } = this.stakeInfo!.rewardToken;
 
       return [
         {
@@ -222,8 +233,8 @@ export default {
             "Total Amount of Rewards Autocompounded back into the vault.",
           icon: icon,
           decimals: 18,
-          amount: parseUnits(amount, 18),
-          amountUsd: parseUnits(amountUsd.toString(), 18),
+          amount: amount,
+          amountUsd: amountUsd,
         },
       ];
     },
@@ -321,11 +332,11 @@ export default {
 
       const methodName = this.isStakeAction ? "deposit" : "redeem";
 
-      const { error }: any = await actions[methodName](
+      const { error } = (await actions[methodName](
         this.mainToken.contract,
         this.inputAmount,
         this.account
-      );
+      )) as { error?: string };
 
       if (error) {
         await this.deleteNotification(notificationId);
@@ -345,7 +356,7 @@ export default {
     },
 
     async createStakeInfo() {
-      this.stakeInfoArr = await getStakeInfo();
+      this.stakeInfoArr = await getStakeInfo(this.account);
     },
 
     getWindowSize() {
@@ -372,7 +383,7 @@ export default {
   },
 
   beforeUnmount() {
-    clearInterval(this.updateInterval);
+    clearInterval(Number(this.updateInterval));
     window.removeEventListener("resize", this.getWindowSize);
   },
 

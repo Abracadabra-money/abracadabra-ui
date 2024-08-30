@@ -2,7 +2,7 @@
   <div class="farms-view">
     <div class="farms-wrap">
       <div class="farms">
-        <FarmsInfo :farms="this.farms" />
+        <FarmsInfo :farms="farms" />
 
         <div class="farms-list-wrap">
           <div class="farms-list-head">
@@ -30,6 +30,7 @@
                 :activeChains="activeChains"
                 :selectedChains="selectedChains"
                 @updateSelectedChain="updateSelectedChain"
+                @selectAllChains="selectAllChains"
               />
             </div>
 
@@ -60,29 +61,23 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineAsyncComponent } from "vue";
 import { mapGetters, mapMutations } from "vuex";
-import FarmItem from "@/components/farm/FarmItem.vue";
-import Toggle from "@/components/ui/Toggle.vue";
-import ChainsDropdown from "@/components/ui/dropdown/ChainsDropdown.vue";
-import InputSearch from "@/components/ui/inputs/InputSearch.vue";
-import SortButton from "@/components/ui/buttons/SortButton.vue";
-import FarmsInfo from "@/components/farm/FarmsInfo.vue";
-import ScrollToTop from "@/components/ui/ScrollToTop.vue";
-import BaseLoader from "@/components/base/BaseLoader.vue";
-import BaseSearchEmpty from "@/components/base/BaseSearchEmpty.vue";
 import { getFarmsList } from "@/helpers/farm/list/getFarmsList";
+import type { FarmItem } from "@/configs/farms/types";
+import type { SortOrder } from "@/types/common";
 
 export default {
   data() {
     return {
       search: "",
-      farmsInterval: null,
+      farmsInterval: null as NodeJS.Timeout | null,
       isActiveMarkets: true,
       isMyPositions: false,
-      aprOrder: null,
-      farms: null,
-      selectedChains: [],
+      aprOrder: null as SortOrder,
+      farms: [] as FarmItem[],
+      selectedChains: [] as number[],
       isFarmsLoading: false,
     };
   },
@@ -94,23 +89,19 @@ export default {
       localFarmList: "getFarmList",
     }),
 
-    isSelectAllChains() {
+    allChainsSelected() {
       return this.selectedChains.length === this.activeChains.length;
-    },
-
-    showButtonUp() {
-      return this.currentPools.length && this.scrollPosition !== 0;
     },
 
     showEmptyBlock() {
       return !this.isFarmsLoading && !this.filteredFarms.length;
     },
 
-    currentPools() {
+    currentPools(): FarmItem[] {
       return this.farms || [];
     },
 
-    filteredFarms() {
+    filteredFarms(): FarmItem[] {
       return this.sortByApr(
         this.filterByChain(
           this.sortByDepreciate(
@@ -138,7 +129,7 @@ export default {
       setFarmList: "setFarmList",
     }),
 
-    filterBySearch(farms, search) {
+    filterBySearch(farms: FarmItem[], search: string): FarmItem[] {
       return search
         ? farms.filter(
             (farm) =>
@@ -147,30 +138,21 @@ export default {
         : farms;
     },
 
-    updateSearch(value) {
+    updateSearch(value: string) {
       this.search = value.toLowerCase();
     },
 
-    sortByDepreciate(farms = []) {
+    sortByDepreciate(farms: FarmItem[] = []): FarmItem[] {
       if (this.isActiveMarkets) {
         return farms.filter((farm) => {
           return !farm?.isDeprecated;
         });
       } else {
-        return [...farms].sort((a, b) => {
-          if (a?.cauldronSettings || b?.cauldronSettings) {
-            return (
-              +a.cauldronSettings.isDeprecated -
-              +b.cauldronSettings.isDeprecated
-            );
-          }
-
-          return +a.isDeprecated - +b.isDeprecated;
-        });
+        return [...farms].sort((a, b) => +a.isDeprecated - +b.isDeprecated);
       }
     },
 
-    sortByApr(farms = []) {
+    sortByApr(farms: FarmItem[] = []): FarmItem[] {
       if (this.aprOrder === null) return farms;
       const sortedByApr = farms.sort((a, b) => b.farmRoi - a.farmRoi);
 
@@ -182,10 +164,10 @@ export default {
       this.isActiveMarkets = !this.isActiveMarkets;
     },
 
-    filterByOpenedPositions(farms = []) {
+    filterByOpenedPositions(farms: FarmItem[] = []): FarmItem[] {
       if (this.isMyPositions) {
-        return farms.filter((farm) =>
-          Number(farm.accountInfo.depositedBalance)
+        return farms.filter((farm: FarmItem) =>
+          Number(farm.accountInfo?.depositedBalance || 0)
         );
       }
 
@@ -201,29 +183,33 @@ export default {
         this.aprOrder === null ? "up" : this.aprOrder == "up" ? "down" : null;
     },
 
-    filterByChain(farms) {
+    filterByChain(farms: FarmItem[]) {
       if (this.selectedChains.includes(0)) return farms;
       return farms.filter((farm) => {
         return this.selectedChains.includes(farm.chainId);
       });
     },
 
-    updateSelectedChain(chainId) {
-      if (!chainId) {
-        if (this.isSelectAllChains) this.selectedChains = [];
-        else this.selectedChains = [...this.activeChains];
-      } else {
-        const index = this.selectedChains.indexOf(chainId);
-        if (index === -1) this.selectedChains.push(chainId);
-        else this.selectedChains.splice(index, 1);
-      }
+    selectAllChains() {
+      if (this.allChainsSelected) this.selectedChains = [];
+      else this.selectedChains = [...this.activeChains];
     },
 
-    getActiveChain() {
-      return this.farms?.reduce((acc, farm) => {
-        if (!acc.includes(farm.chainId)) acc.push(farm.chainId);
-        return acc;
-      }, []);
+    updateSelectedChain(chainId: number) {
+      if (this.allChainsSelected) this.selectAllChains();
+
+      const index = this.selectedChains.indexOf(chainId);
+      if (index === -1) this.selectedChains.push(chainId);
+      else this.selectedChains.splice(index, 1);
+    },
+
+    getActiveChain(): number[] {
+      return (
+        this.farms?.reduce((acc: number[], farm: FarmItem) => {
+          if (!acc.includes(farm.chainId)) acc.push(farm.chainId);
+          return acc;
+        }, []) || []
+      );
     },
 
     checkLocalData() {
@@ -237,29 +223,47 @@ export default {
   async created() {
     this.isFarmsLoading = true;
     this.checkLocalData();
-    this.farms = await getFarmsList(this.chainId);
+    this.farms = await getFarmsList();
     this.isFarmsLoading = false;
     this.setFarmList(this.farms);
     this.selectedChains = this.getActiveChain();
     this.farmsInterval = setInterval(async () => {
-      this.farms = await getFarmsList(this.chainId, this);
+      this.farms = await getFarmsList();
     }, 60000);
   },
 
   beforeUnmount() {
-    clearInterval(this.farmsInterval);
+    if (this.farmsInterval) {
+      clearInterval(this.farmsInterval);
+    }
   },
 
   components: {
-    FarmItem,
-    Toggle,
-    ChainsDropdown,
-    InputSearch,
-    SortButton,
-    FarmsInfo,
-    ScrollToTop,
-    BaseLoader,
-    BaseSearchEmpty,
+    FarmItem: defineAsyncComponent(
+      () => import("@/components/farm/FarmItem.vue")
+    ),
+    Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
+    ChainsDropdown: defineAsyncComponent(
+      () => import("@/components/ui/dropdown/ChainsDropdown.vue")
+    ),
+    InputSearch: defineAsyncComponent(
+      () => import("@/components/ui/inputs/InputSearch.vue")
+    ),
+    SortButton: defineAsyncComponent(
+      () => import("@/components/ui/buttons/SortButton.vue")
+    ),
+    FarmsInfo: defineAsyncComponent(
+      () => import("@/components/farm/FarmsInfo.vue")
+    ),
+    ScrollToTop: defineAsyncComponent(
+      () => import("@/components/ui/ScrollToTop.vue")
+    ),
+    BaseLoader: defineAsyncComponent(
+      () => import("@/components/base/BaseLoader.vue")
+    ),
+    BaseSearchEmpty: defineAsyncComponent(
+      () => import("@/components/base/BaseSearchEmpty.vue")
+    ),
   },
 };
 </script>

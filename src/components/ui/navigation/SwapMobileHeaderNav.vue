@@ -9,9 +9,15 @@
       </li>
 
       <li @click="$emit('close-popup')">
-        <MobileHeaderLink to="Pool" :params="blastMimUsdbPool">
+        <MobileHeaderLink to="Pools">
           <img src="@/assets/images/header/dropdown/more/pool-icon.png" />
           Pools
+        </MobileHeaderLink>
+      </li>
+      <li @click="$emit('close-popup')">
+        <MobileHeaderLink to="PotionPoints">
+          <img src="@/assets/images/potion/potion-icon.png" />
+          Potions
         </MobileHeaderLink>
       </li>
     </ul>

@@ -103,17 +103,25 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import type { PropType } from "vue";
+import type { SorterData } from "@/views/MyPositions.vue";
+import type { SortOrder } from "@/types/common";
 import BaseButton from "@/components/base/BaseButton.vue";
+
+type PickedSorter = {
+  sorter: SorterData;
+  order: SortOrder;
+};
 
 export default {
   props: {
-    sortersData: { type: Array },
+    sortersData: { type: Array as PropType<SorterData[]>, required: true },
   },
 
   data() {
     return {
-      picked: null,
+      picked: null as PickedSorter | null,
     };
   },
 
@@ -124,7 +132,7 @@ export default {
   },
 
   methods: {
-    comparePikedAndSorter(sorter, order) {
+    comparePikedAndSorter(sorter: SorterData, order: SortOrder) {
       return (
         sorter.tableKey == this.picked?.sorter.tableKey &&
         order == this.picked?.order

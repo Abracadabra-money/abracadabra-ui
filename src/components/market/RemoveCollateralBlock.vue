@@ -29,6 +29,7 @@ import { getMaxCollateralToRemove } from "@/helpers/cauldron/utils";
 import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
 import { formatToFixed } from "@/helpers/filters";
+import { formatUnits } from "viem";
 
 export default {
   props: {
@@ -62,10 +63,17 @@ export default {
     }),
 
     expectedTokenAmount() {
+      const price = 100000;
+      const { decimals } = this.cauldron.config.collateralInfo;
+      const { collateralPrice } = this.cauldron.mainParams.alternativeData;
+
+      const precision =
+        Number(formatUnits(collateralPrice, decimals)) > price ? 6 : 2;
+
       return formatToFixed(
         +this.inputValue *
           +utils.formatUnits(this.cauldron.additionalInfo.tokensRate),
-        2
+        precision
       );
     },
 

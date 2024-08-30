@@ -43,14 +43,17 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import type { PropType } from "vue";
 import { mapGetters } from "vuex";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
+import type { FarmItem } from "@/configs/farms/types";
 
 export default {
   props: {
     farms: {
-      type: Object,
+      type: Array as PropType<FarmItem[]>,
+      default: () => [],
     },
   },
 
@@ -86,15 +89,15 @@ export default {
       if (!this.account) return false;
       let spell = 0;
       let arbitrum = 0;
-      this.farms?.forEach((farm) => {
+      this.farms.forEach((farm: FarmItem) => {
         if (!farm.isMultiReward) {
-          spell += Number(farm.accountInfo.userReward);
-          this.spellPrice = farm.earnedTokenPrice;
-        } else {
-          spell += Number(farm.accountInfo.rewardTokensInfo[0].earned);
-          arbitrum += Number(farm.accountInfo.rewardTokensInfo[1].earned);
+          spell += Number(farm.accountInfo?.userReward || 0);
+          this.spellPrice = farm.earnedTokenPrice || 0;
+        } else if (farm.accountInfo?.rewardTokensInfo) {
+          spell += Number(farm.accountInfo?.rewardTokensInfo[0].earned || 0);
+          arbitrum += Number(farm.accountInfo?.rewardTokensInfo[1].earned || 0);
           this.arbitrumPrice = Number(
-            farm.accountInfo.rewardTokensInfo[1].price
+            farm.accountInfo?.rewardTokensInfo[1].price || 0
           );
         }
       });

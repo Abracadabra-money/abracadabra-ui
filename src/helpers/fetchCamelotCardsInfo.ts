@@ -41,28 +41,36 @@ export const fetchCamelotArbInfo = async () => {
 export const fetchCamelotUsdcInfo = async () => {
   const cachedData = checkAndGetCachedData(storageKeys.CAMELOT_USDC_CARD);
 
-  if (cachedData) return cachedData;
+  try {
+    if (cachedData) return cachedData;
 
-  const camelotPool = "0x0e7AC13617Cc1A289B222E4602BdAaA53ea4dc61";
+    const camelotPool = "0x0e7AC13617Cc1A289B222E4602BdAaA53ea4dc61";
 
-  const poolsInfo = await axios.get(
-    "https://api.angle.money/v2/merkl?chainIds[]=42161"
-  );
-  const liquidityV3Data = await axios.get(
-    "https://api.camelot.exchange/v2/liquidity-v3-data"
-  );
+    const poolsInfo = await axios.get(
+      "https://api.angle.money/v2/merkl?chainIds[]=42161"
+    );
+    const liquidityV3Data = await axios.get(
+      "https://api.camelot.exchange/v2/liquidity-v3-data"
+    );
 
-  const { tvl, meanAPR } = poolsInfo.data[ARBITRUM_CHAIN_ID].pools[camelotPool];
+    const { tvl, meanAPR } =
+      poolsInfo.data[ARBITRUM_CHAIN_ID].pools[camelotPool];
 
-  const { activeTvlAverageAPR } = liquidityV3Data.data.data.pools[camelotPool];
+    const { activeTvlAverageAPR } =
+      liquidityV3Data.data.data.pools[camelotPool];
 
-  const apr = meanAPR + activeTvlAverageAPR;
+    const apr = meanAPR + activeTvlAverageAPR;
 
-  const camelotUsdcData = { tvl: tvl, apr };
+    const camelotUsdcData = { tvl: tvl, apr };
 
-  saveToLocalStorage(storageKeys.CAMELOT_USDC_CARD, camelotUsdcData);
+    saveToLocalStorage(storageKeys.CAMELOT_USDC_CARD, camelotUsdcData);
 
-  return camelotUsdcData;
+    return camelotUsdcData;
+  } catch (error) {
+    console.log("fetchCamelotUsdcInfo error: ", error);
+
+    return { tvl: 0, apr: 0 };
+  }
 };
 
 const checkAndGetCachedData = (storageKey: string, allowedTime = 5) => {

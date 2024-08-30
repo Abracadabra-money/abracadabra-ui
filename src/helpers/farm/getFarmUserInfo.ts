@@ -3,11 +3,11 @@ import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 import type { FarmAccountInfo, FarmItem } from "@/configs/farms/types";
 import { formatUnits, type Address } from "viem";
 
-type UserInfo = {
+export type UserInfo = {
   amount: string;
-  amountBigInt: BigInt;
-  rewardDebt: string;
-  remainingIceTokenReward: string;
+  amountBigInt: bigint;
+  rewardDebt?: string;
+  remainingIceTokenReward?: string;
 };
 
 export const getFarmUserInfo = async (
@@ -15,7 +15,6 @@ export const getFarmUserInfo = async (
   publicClient: any,
   account: Address
 ): Promise<FarmAccountInfo> => {
-
   const [accountBalance, allowance, userInfo, userReward]: any =
     await publicClient.multicall({
       contracts: [
@@ -111,12 +110,12 @@ const getSLPBalances = async (
 
   return {
     token0: {
-      name: farmItemConfig.depositedBalance?.token0.name,
+      name: farmItemConfig.depositedBalance?.token0.name || "",
       amount: token0UserAmount,
       amountInUsd: token0UserAmount * token0Price,
     },
     token1: {
-      name: farmItemConfig.depositedBalance?.token1.name,
+      name: farmItemConfig.depositedBalance?.token1.name || "",
       amount: token1UserAmount,
       amountInUsd: token1UserAmount * token1Price,
     },
