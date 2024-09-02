@@ -30,7 +30,7 @@
 
       <div class="row" v-for="refund in refundAmounts" :key="refund.icon">
         <div class="row-info">
-          Refund <Tooltip :tooltip="'lorem lorem lorem lorem'" />
+          Refund <Tooltip :tooltip="'This amount will be sent back to your wallet due to unbalanced liqudity provision'" />
         </div>
         <div class="row-value">
           <BaseTokenIcon :name="pool.name" :icon="refund.icon" size="24px" />
