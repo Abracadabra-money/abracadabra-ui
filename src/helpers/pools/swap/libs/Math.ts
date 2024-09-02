@@ -60,7 +60,7 @@ const _SolveQuadraticFunctionForTarget = (
   }
 
   if (V1 == 0n) {
-    return 0;
+    return 0n;
   }
 
   let _sqrt: bigint;

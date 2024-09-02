@@ -172,6 +172,7 @@ describe("getRoutesInfo", () => {
     ];
 
     const result = getRoutesInfo(tokensList, routings);
+    //
 
     expect(result).toEqual(expected);
   });
