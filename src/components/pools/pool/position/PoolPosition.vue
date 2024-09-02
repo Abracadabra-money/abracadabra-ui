@@ -75,9 +75,7 @@ export default {
       return !!this.pool.stakeInfo;
     },
     tabItems() {
-      return this.hasLockLogic
-        ? ["deposited", "staked", "locked"]
-        : ["deposited", "staked"];
+      return ["deposited", "staked"];
     },
     showTabs() {
       return this.hasLockLogic || this.hasStakeLogic;
