@@ -929,7 +929,7 @@ const config: Array<CauldronConfig> = [
       hasWithdrawableLimit: false,
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
-      isCvx3pool: true
+      isCvx3pool: true,
     },
     contract: {
       name: "PrivilegedCheckpointCauldronV4",
@@ -1681,7 +1681,7 @@ const config: Array<CauldronConfig> = [
     },
   },
   {
-    icon: useImage(`assets/images/tokens/deUSD.png`),
+    icon: useImage(`assets/images/tokens/sdeUSD.png`),
     name: "sdeUSD",
     chainId: 1,
     id: 43,

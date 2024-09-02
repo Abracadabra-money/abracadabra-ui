@@ -22,8 +22,7 @@
       <div class="scale-wrap">
         <div
           class="base scale"
-          :style="`${formatScaleWidth(tokenParts[0].percent)}
-          background:${baseToken.config.mainColor}`"
+          :style="`${formatScaleWidth(tokenParts[0].percent)}`"
         >
           <BaseTokenIcon
             class="scale-token-icon"
@@ -35,8 +34,7 @@
 
         <div
           class="quote scale"
-          :style="`${formatScaleWidth(tokenParts[1].percent)} 
-          background:${quoteToken.config.mainColor}`"
+          :style="`${formatScaleWidth(tokenParts[1].percent)}`"
         >
           <BaseTokenIcon
             class="scale-token-icon"
@@ -262,16 +260,12 @@ export default {
 }
 
 .scale.base {
-  background: linear-gradient(90deg, #2d4a96 0%, #745cd2 100%);
+  background: #745cd2;
   border-radius: 10px 0 0 10px;
 }
 
 .scale.quote {
-  background: linear-gradient(
-    90deg,
-    rgba(45, 74, 150, 0.12) 0%,
-    rgba(116, 92, 210, 0.12) 100%
-  );
+  background: #2d4a96;
   border-radius: 0 10px 10px 0;
 }
 
