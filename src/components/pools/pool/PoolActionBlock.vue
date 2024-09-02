@@ -5,8 +5,8 @@
         <h3 class="title">MIM Pool</h3>
 
         <SwapSettingsPopup
-          :slippage="50n"
-          :defaultSlippage="50n"
+          :slippage="20n"
+          :defaultSlippage="20n"
           :deadline="100n"
           pool
           @updateSlippageValue="updateSlippageValue"
@@ -76,7 +76,7 @@ export default {
       isMyPositionPopupOpened: false,
       activeTab: "deposit",
       tabItems: ["deposit", "remove"],
-      slippage: 50n,
+      slippage: 20n,
       deadline: 100n,
     };
   },
