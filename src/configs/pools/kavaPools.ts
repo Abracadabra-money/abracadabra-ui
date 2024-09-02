@@ -23,7 +23,6 @@ const kavaPools: Array<PoolConfig> = [
         address: "0x471EE749bA270eb4c1165B5AD95E614947f6fCeb",
         abi: erc20Abi,
       },
-      mainColor: "#C9E5FF",
       isPopular: true,
     },
     quoteToken: {
@@ -34,7 +33,6 @@ const kavaPools: Array<PoolConfig> = [
         abi: erc20Abi,
       },
       decimals: 6,
-      mainColor: "#53AE94",
       isPopular: true,
     },
     stakeContract: {

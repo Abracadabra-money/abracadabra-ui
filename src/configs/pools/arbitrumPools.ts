@@ -23,7 +23,6 @@ const arbitrumPools: Array<PoolConfig> = [
   //       address: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
   //       abi: erc20Abi,
   //     },
-  //     mainColor: "#FE95C0",
   //     isPopular: true,
   //   },
   //   quoteToken: {
@@ -34,7 +33,6 @@ const arbitrumPools: Array<PoolConfig> = [
   //       abi: erc20Abi,
   //     },
   //     decimals: 8,
-  //     mainColor: "#F9AA4B",
   //     isPopular: true,
   //   },
   //   settings: {
@@ -61,7 +59,6 @@ const arbitrumPools: Array<PoolConfig> = [
         address: "0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A",
         abi: erc20Abi,
       },
-      mainColor: "#C9E5FF",
       isPopular: true,
     },
     quoteToken: {
@@ -72,7 +69,6 @@ const arbitrumPools: Array<PoolConfig> = [
         abi: erc20Abi,
       },
       decimals: 6,
-      mainColor: "#53AE94",
       isPopular: true,
     },
     stakeContract: {
@@ -123,7 +119,6 @@ const arbitrumPools: Array<PoolConfig> = [
         address: "0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A",
         abi: erc20Abi,
       },
-      mainColor: "#C9E5FF",
       isPopular: true,
     },
     quoteToken: {
@@ -134,7 +129,6 @@ const arbitrumPools: Array<PoolConfig> = [
         abi: erc20Abi,
       },
       decimals: 6,
-      mainColor: "#5b8ee8",
       isPopular: true,
     },
     stakeContract: {

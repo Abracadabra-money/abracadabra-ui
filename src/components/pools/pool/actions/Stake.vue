@@ -12,16 +12,14 @@
       />
     </div>
 
-    <RewardsCard
-      :pool="pool"
-    />
+    <RewardsCard :pool="pool" />
 
-    <RewardsList
+    <!-- <RewardsList
       v-if="isBlastLockLogic"
       :rewards="rewardsPerHour"
       :inputAmount="inputAmount"
       :isRewardsCalculating="isRewardsCalculating"
-    />
+    /> -->
 
     <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
       {{ buttonText }}
@@ -323,9 +321,9 @@ export default {
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")
     ),
-    RewardsList: defineAsyncComponent(() =>
-      import("@/components/pools/pool/RewardsList.vue")
-    ),
+    // RewardsList: defineAsyncComponent(() =>
+    //   import("@/components/pools/pool/RewardsList.vue")
+    // ),
     RewardsCard: defineAsyncComponent(() =>
       import("@/components/pools/pool/RewardsCard.vue")
     ),

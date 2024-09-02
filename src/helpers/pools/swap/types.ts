@@ -6,6 +6,12 @@ type UserFeeRate = {
   mtFeeRate: bigint;
 };
 
+export enum RState {
+  ONE,
+  ABOVE_ONE,
+  BELOW_ONE,
+};
+
 export type PMMState = {
   i: bigint;
   K: bigint;
@@ -13,7 +19,7 @@ export type PMMState = {
   Q: bigint;
   B0: bigint;
   Q0: bigint;
-  R: number;
+  R: RState;
 };
 
 export type MagicLPInfo = {
