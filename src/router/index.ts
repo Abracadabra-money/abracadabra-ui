@@ -87,7 +87,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/msr",
     name: "MSR",
-    component: () => import("@/views/MimSavingRate.vue"),
+    component: () => import("@/views/stake/MSR.vue"),
   },
   {
     path: "/blast",

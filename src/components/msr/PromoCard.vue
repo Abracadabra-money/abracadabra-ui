@@ -1,53 +1,29 @@
 <template>
-  <div class="lock-promo deposited" v-if="isStake">
-    <div class="promo-title">
-      <h4 class="promo-message">Lock your Staked MIM for Boosted APR</h4>
-
-      <div class="apr-wrap">
-        <span class="apr-message">Boosted APR</span>
-        <RowSkeleton v-if="isMimSavingRateInfoLoading" />
-        <span class="apr-value" v-else>{{ formatPercent(boostedApr) }}</span>
-      </div>
-    </div>
-
-    <div class="staking-wrap">
-      <div class="currently-staked">
-        <div class="title">You Currently Staking</div>
-
-        <RowSkeleton v-if="isMimSavingRateInfoLoading" />
-        <div class="token-amount" v-else>
-          <BaseTokenIcon
-            :icon="mimSavingRateInfo?.stakingToken.icon || mimIcon"
-            :name="mimSavingRateInfo?.stakingToken.name || 'MIM'"
-            size="32px"
-          />
-          {{ formatAmount(mimSavingRateInfo?.userInfo.balances.unlocked) }}
+  <div class="lock-promo-wrap">
+    <div class="decorative-wrap external">
+      <div class="decorative-wrap internal">
+        <div class="promo-text-wrap">
+          <p class="promo-text">
+            Staking allows for instant withdrawls, while the lock option
+            provides a boosted APR
+          </p>
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="lock-promo no-deposited" v-else>
-    <p class="no-deposit-description">
-      Staking allows for instant withdrawls, while the lock option provides a
-      boosted APR
-    </p>
-
-    <div class="min-max-apr">
-      <div class="staked-apr-wrap">
-        <span class="apr-title">Staked APR</span>
-        <RowSkeleton v-if="isMimSavingRateInfoLoading" />
-        <span class="staked-apr-value" v-else>{{
-          formatPercent(mimSavingRateInfo?.baseApr || 0)
-        }}</span>
-      </div>
-
-      <div class="locked-apr-wrap">
-        <span class="apr-title">Locked APR</span>
-        <RowSkeleton v-if="isMimSavingRateInfoLoading" />
-        <span class="locked-apr-value" v-else>{{
-          formatPercent(boostedApr)
-        }}</span>
+    <div class="apr-wrap">
+      <h4 class="apr-title">APR Range</h4>
+      <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+      <div class="apr-range" v-else>
+        <div class="apr">
+          <span class="apr-value">{{ formatPercent(defaultApr) }}</span>
+          <span class="apr-subtitle">Staked APR</span>
+        </div>
+        <span class="dash">-</span>
+        <div class="apr">
+          <span class="apr-value">{{ formatPercent(boostedApr) }}</span>
+          <span class="apr-subtitle">Locked APR</span>
+        </div>
       </div>
     </div>
   </div>
@@ -76,11 +52,16 @@ export default {
   },
 
   computed: {
+    defaultApr() {
+      return this.mimSavingRateInfo?.baseApr || 0;
+    },
+
     boostedApr() {
-      return (this.mimSavingRateInfo?.baseApr || 0) * 3;
+      return this.defaultApr * 3;
     },
 
     isStake() {
+      return true;
       if (this.isMimSavingRateInfoLoading) return false;
       const { unlocked } = this.mimSavingRateInfo!.userInfo.balances;
       return unlocked > 0n;
@@ -98,9 +79,6 @@ export default {
   },
 
   components: {
-    BaseTokenIcon: defineAsyncComponent(
-      () => import("@/components/base/BaseTokenIcon.vue")
-    ),
     RowSkeleton: defineAsyncComponent(
       () => import("@/components/ui/skeletons/RowSkeleton.vue")
     ),
@@ -109,53 +87,65 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.lock-promo {
-  display: flex;
-  flex-direction: column;
-  gap: 21px;
-  height: 191px;
-  margin-top: auto;
-  padding: 16px;
-  border-radius: 16px;
-  box-shadow: 0px 4px 29.8px 0px rgba(0, 0, 0, 0.42) inset;
-  backdrop-filter: blur(50px);
-  cursor: pointer;
-}
-
-.deposited {
-  background: url("@/assets/images/msr/mim-bg-image.png"),
-    linear-gradient(
-      90deg,
-      rgba(45, 74, 150, 0.34) 0%,
-      rgba(116, 92, 210, 0.34) 100%
-    );
-  background-position: right 0 bottom 0;
-  background-repeat: no-repeat;
-}
-
-.no-deposited {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  background-image: url("@/assets/images/msr/lock-promo-card-background.svg");
-  background-position: top -10px left 0;
-  background-repeat: no-repeat;
-}
-
-.currently-staked {
-  width: 50%;
-}
-
-.promo-title {
+.lock-promo-wrap {
+  position: relative;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 42px;
+  align-items: center;
+  height: 191px;
+  width: 100%;
+  border-radius: 16px;
+  border: 1px rgba(180, 180, 180, 0.08);
+  background: linear-gradient(
+    291deg,
+    #102649 -26.37%,
+    #0c0f1c 40.92%,
+    #131728 62.83%,
+    #212555 123.87%
+  );
+  overflow: hidden;
 }
 
-.promo-message {
-  max-width: 241px;
-  color: #fff;
-  font-size: 20px;
+.decorative-wrap,
+.promo-text-wrap {
+  height: 100%;
+  border-radius: 0px 120px 120px 0px;
+}
+
+.external {
+  position: relative;
+  display: flex;
+  align-items: center;
+  top: -7px;
+  left: 0;
+  padding: 0 12px 0 0;
+  max-width: 326px;
+  height: 254px;
+  border-right: 3px solid #745cd24d;
+}
+
+.internal {
+  display: flex;
+  align-items: center;
+  max-width: 314px;
+  height: 244px;
+  padding: 0 8px 0 0;
+  border-right: 4px solid #745cd2ad;
+}
+
+.promo-text-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 235px;
+  width: 302px;
+  background: linear-gradient(90deg, #2d4a96 0%, #745cd2 100%);
+}
+
+.promo-text {
+  width: 266px;
+  padding-left: 24px;
+  font-size: 16px;
   font-weight: 500;
   line-height: 30px;
 }
@@ -164,129 +154,95 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  min-width: 90px;
-}
-
-.apr-message {
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.apr-value {
-  color: #fff;
-  text-shadow: 0px 0px 16px #ab5de8;
-  font-size: 32px;
-  font-weight: 500;
-}
-
-.staking-wrap {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.currently-staked {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
-  font-size: 18px;
-  width: 175px;
-}
-
-.title {
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.token-amount {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 38px;
-}
-
-.row-skeleton {
-  background-image: linear-gradient(
-    90deg,
-    #2d4b966d 0px,
-    #745cd27a 60px,
-    #2d4b966d 120px
-  ) !important;
-}
-
-.apr-wrap .row-skeleton {
-  height: 24px !important ;
-}
-
-.row-skeleton {
-  height: 32px !important ;
-}
-
-.no-deposit-description {
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 30px;
-  justify-self: center;
-  align-self: center;
-}
-
-.min-max-apr {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 16px 0 18px 0;
-}
-
-.staked-apr-wrap,
-.locked-apr-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
+  flex-grow: 1;
+  gap: 16px;
 }
 
 .apr-title {
+  font-size: 24px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.apr-range {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.apr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.apr-value,
+.dash {
+  font-size: 38px;
+  font-weight: 600;
+  line-height: 50px;
+}
+
+.apr-subtitle {
   font-size: 14px;
   font-weight: 500;
 }
 
-.staked-apr-value,
-.locked-apr-value {
-  font-size: 34px;
-  font-weight: 600;
-}
-
-.locked-apr-value {
-  color: #806ec6;
-}
-
-@media (max-width: 500px) {
-  .lock-promo {
-    margin-top: 0;
+@media (max-width: 1200px) {
+  .lock-promo-wrap {
+    flex-direction: column;
+    gap: 19px;
+    padding: 0 0 20px 0;
+    height: auto;
+    overflow-x: hidden;
   }
 
-  .no-deposited {
-    background-position: top -10px left -80px;
+  .decorative-wrap,
+  .promo-text-wrap {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0 0 120px 120px;
   }
 
-  .apr-value {
-    font-size: 28px;
+  .external {
+    top: 0;
+    display: flex;
+    align-items: center;
+    min-width: calc(100% + 40px);
+    height: auto;
+    padding: 0 0 12px 0;
+    border-right: none;
+    border-bottom: 3px solid #745cd24d;
   }
 
-  .promo-message {
-    font-size: 18px;
+  .internal {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: auto;
+    padding: 0 0 8px 0;
+    border-right: none;
+    border-bottom: 3px solid #745cd2ad;
   }
 
-  .token-amount {
-    font-size: 32px;
+  .promo-text-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 140px;
+    width: 100%;
+    background: linear-gradient(90deg, #2d4a96 0%, #745cd2 100%);
   }
 
-  .no-deposit-description {
-    font-size: 14px;
-    line-height: 24px;
+  .promo-text {
+    width: 266px;
+    height: auto;
+    padding-left: 0;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 30px;
+    text-align: center;
   }
 }
 </style>

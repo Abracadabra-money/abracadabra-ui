@@ -1,40 +1,19 @@
 <template>
   <div class="action-block">
-    <div class="common-info">
-      <AvailableNetworksBlock
-        :selectedNetwork="42161"
-        :availableNetworks="[42161]"
-      />
-
-      <RowSkeleton v-if="isMimSavingRateInfoLoading" />
-      <span class="apr" v-else-if="activeAction != 'Claim'">
-        <Tooltip tooltip="APR" :width="20" :height="20" /> APR:
-        {{ formatPercent(apr) }}
-      </span>
-    </div>
-
-    <div class="actions-wrapper">
-      <Stake
-        v-show="activeAction == 'Stake'"
-        :mimSavingRateInfo="mimSavingRateInfo"
-        :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
-        @chooseLockAction="$emit('chooseLockAction')"
-        @updateMimSavingRateInfo="$emit('updateMimSavingRateInfo')"
-      />
-      <Lock
-        v-show="activeAction == 'Lock'"
-        :mimSavingRateInfo="mimSavingRateInfo"
-        :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
-        @updateMimSavingRateInfo="$emit('updateMimSavingRateInfo')"
-      />
-      <Claim
-        v-show="activeAction == 'Claim'"
-        :mimSavingRateInfo="mimSavingRateInfo"
-        :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
-        @chooseLockAction="$emit('chooseLockAction')"
-        @updateMimSavingRateInfo="$emit('updateMimSavingRateInfo')"
-      />
-    </div>
+    <Stake
+      v-show="activeAction == 'Stake'"
+      :mimSavingRateInfo="mimSavingRateInfo"
+      :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
+      @chooseLockAction="$emit('chooseLockAction')"
+      @updateMimSavingRateInfo="$emit('updateMimSavingRateInfo')"
+    />
+    <Claim
+      v-show="activeAction == 'Claim'"
+      :mimSavingRateInfo="mimSavingRateInfo"
+      :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
+      @chooseLockAction="$emit('chooseLockAction')"
+      @updateMimSavingRateInfo="$emit('updateMimSavingRateInfo')"
+    />
   </div>
 </template>
 
@@ -75,22 +54,10 @@ export default {
 
   components: {
     Stake: defineAsyncComponent(
-      () => import("@/components/msr/actions/Stake.vue")
-    ),
-    Lock: defineAsyncComponent(
-      () => import("@/components/msr/actions/Lock.vue")
+      () => import("@/components/msr/actions/stake/Stake.vue")
     ),
     Claim: defineAsyncComponent(
       () => import("@/components/msr/actions/Claim.vue")
-    ),
-    AvailableNetworksBlock: defineAsyncComponent(
-      () => import("@/components/stake/AvailableNetworksBlock.vue")
-    ),
-    Tooltip: defineAsyncComponent(
-      () => import("@/components/ui/icons/Tooltip.vue")
-    ),
-    RowSkeleton: defineAsyncComponent(
-      () => import("@/components/ui/skeletons/RowSkeleton.vue")
     ),
   },
 };
@@ -100,28 +67,11 @@ export default {
 @include scrollbar;
 
 .action-block {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  height: 770px;
-  width: 550px;
-  padding: 24px;
-  margin: 0 auto;
-  border-radius: 20px;
-  border: 1px solid #00296b;
-  background: linear-gradient(
-    146deg,
-    rgba(0, 10, 35, 0.07) 0%,
-    rgba(0, 80, 156, 0.07) 101.49%
-  );
-  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
-  backdrop-filter: blur(50px);
-  overflow: auto;
+  width: 100%;
 }
 
 .common-info {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
   gap: 24px;

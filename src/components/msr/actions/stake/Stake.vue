@@ -1,39 +1,88 @@
 <template>
-  <div class="action">
-    <h2 class="action-title">
-      {{ titleText }} MIM
-      <Tabs
-        class="tabs"
-        :name="activeTab"
-        :items="tabItems"
-        @select="changeTab"
+  <div class="action-wrap">
+    <div class="action">
+      <div class="common-info">
+        Available on:
+        <AvailableNetworksBlock
+          :selectedNetwork="42161"
+          :availableNetworks="[42161]"
+        />
+      </div>
+
+      <h2 class="action-title">
+        {{ titleText }} MIM
+        <Tabs
+          class="tabs"
+          :name="activeTab"
+          :items="tabItems"
+          @select="changeTab"
+        />
+      </h2>
+
+      <BaseTokenInput
+        :value="inputValue"
+        :name="mimSavingRateInfo?.stakingToken?.name || 'MIM'"
+        :decimals="mimSavingRateInfo?.stakingToken?.decimals || 18"
+        :icon="mimSavingRateInfo?.stakingToken?.icon || mimIcon"
+        :max="maxInputValue"
+        :disabled="isMimSavingRateInfoLoading || !mimSavingRateInfo"
+        :primaryMax="!isStakeAction"
+        :tokenPrice="1"
+        @updateInputValue="onUpdateStakeValue"
       />
-    </h2>
 
-    <BaseTokenInput
-      :value="inputValue"
-      :name="mimSavingRateInfo?.stakingToken?.name || 'MIM'"
-      :decimals="mimSavingRateInfo?.stakingToken?.decimals || 18"
-      :icon="mimSavingRateInfo?.stakingToken?.icon || mimIcon"
-      :max="maxInputValue"
-      :disabled="isMimSavingRateInfoLoading || !mimSavingRateInfo"
-      :primaryMax="!isStakeAction"
-      :tokenPrice="1"
-      @updateInputValue="onUpdateStakeValue"
-    />
+      <div class="lock-toggle-wrap" v-if="activeTab == 'stake'">
+        <Toggle
+          :selected="isLock"
+          text="Lock for 3 months to get higher APR"
+          @updateToggle="toggleLock"
+        />
+      </div>
 
-    <BaseButton
-      class="action-button"
-      primary
-      @click="actionHandler"
-      :disabled="actionValidationData.isDisabled"
-      >{{ actionValidationData.btnText }}
-    </BaseButton>
+      <BaseButton
+        class="action-button"
+        primary
+        @click="actionHandler"
+        :disabled="actionValidationData.isDisabled"
+        >{{ actionValidationData.btnText }}
+      </BaseButton>
 
-    <PromoCard
+      <div class="description-wrap">
+        <p class="description">
+          The locked amount will be assigned to the current epoch, with each
+          epoch starting every Thursday at 00:00 UTC.
+        </p>
+
+        <div class="lock-time-notification">
+          <span class="notification-message">
+            Unlock date:
+            <Tooltip
+              tooltip="tooltip"
+              :width="20"
+              :height="20"
+              fill="#878B93"
+            />
+          </span>
+
+          <div class="date-time">
+            <RowSkeleton
+              v-if="isMimSavingRateInfoLoading || !mimSavingRateInfo"
+            />
+            <span class="date" v-else>{{
+              formatTimestampToUnix(
+                mimSavingRateInfo.nextUnlockTime,
+                "DD MMM. YYYY"
+              )
+            }}</span>
+            <span class="time"> (00:01 UTC)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <StakeActionInfo
       :mimSavingRateInfo="mimSavingRateInfo"
       :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
-      @click="$emit('chooseLockAction')"
     />
   </div>
 </template>
@@ -52,6 +101,7 @@ import { validateAction } from "@/helpers/mimSavingRate/validators";
 import mimIcon from "@/assets/images/tokens/MIM.png";
 import type { MimSavingRateInfo } from "@/helpers/mimSavingRate/getMimSavingRateInfo";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
+import { formatTimestampToUnix } from "@/helpers/time";
 
 type ActiveTab = "stake" | "unstake";
 type TabItems = string[];
@@ -83,6 +133,7 @@ export default {
         withdrawAmount: 0n,
         lockAmount: this.mimSavingRateInfo?.userInfo?.unlocked || 0n,
       } as ActionConfig,
+      isLock: false,
       //todo: temporary untill understand how it should work properly
       lockingDeadline: moment().unix() + Number(300n),
       mimIcon,
@@ -153,6 +204,7 @@ export default {
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
     formatPercent,
+    formatTimestampToUnix,
 
     resetAmounts() {
       this.inputValue = "";
@@ -167,6 +219,10 @@ export default {
     changeTab(action: ActiveTab) {
       this.resetAmounts();
       this.activeTab = action;
+    },
+
+    toggleLock() {
+      this.isLock = !this.isLock;
     },
 
     onUpdateStakeValue(value: bigint) {
@@ -243,6 +299,9 @@ export default {
   },
 
   components: {
+    StakeActionInfo: defineAsyncComponent(
+      () => import("@/components/msr/actions/stake/StakeActionInfo.vue")
+    ),
     Tabs: defineAsyncComponent(() => import("@/components/ui/Tabs.vue")),
     BaseTokenInput: defineAsyncComponent(
       () => import("@/components/base/BaseTokenInput.vue")
@@ -250,20 +309,61 @@ export default {
     BaseButton: defineAsyncComponent(
       () => import("@/components/base/BaseButton.vue")
     ),
-    PromoCard: defineAsyncComponent(
-      () => import("@/components/msr/PromoCard.vue")
+    AvailableNetworksBlock: defineAsyncComponent(
+      () => import("@/components/stake/AvailableNetworksBlock.vue")
+    ),
+    Tooltip: defineAsyncComponent(
+      () => import("@/components/ui/icons/Tooltip.vue")
+    ),
+    Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
+    RowSkeleton: defineAsyncComponent(
+      () => import("@/components/ui/skeletons/RowSkeleton.vue")
     ),
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.action-wrap {
+  display: grid;
+  grid-template-columns: 525px auto;
+  gap: 24px;
+}
+
+.action {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  height: fit-content;
+  padding: 24px;
+  border-radius: 20px;
+  border: 1px solid #00296b;
+  background: linear-gradient(
+    146deg,
+    rgba(0, 10, 35, 0.07) 0%,
+    rgba(0, 80, 156, 0.07) 101.49%
+  );
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(50px);
+  overflow: auto;
+}
+
+.common-info {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
 .tabs {
   width: min-content;
 }
 
-.title {
-  font-size: 14px;
+.action-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 24px;
   font-weight: 500;
 }
 
@@ -274,5 +374,113 @@ export default {
 .lock-action-button {
   margin-top: auto;
   width: auto !important;
+}
+
+.lock-toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 10px;
+  border: 1px solid #2d4a96;
+  background: linear-gradient(
+    90deg,
+    rgba(45, 74, 150, 0.12) 0%,
+    rgba(116, 92, 210, 0.12) 100%
+  );
+}
+
+.description-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.description {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 26px;
+  text-align: center;
+}
+
+.lock-time-notification {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-width: 206px;
+  padding: 8px 16px 8px 12px;
+  border-radius: 10px;
+  border: 1px solid #2d4a96;
+  background: linear-gradient(
+      90deg,
+      rgba(45, 74, 150, 0.32) 0%,
+      rgba(116, 92, 210, 0.32) 100%
+    ),
+    url("@/assets/images/msr/lock-until-background-timer.svg");
+  background-repeat: no-repeat;
+  background-position: center center, center top -10px;
+  box-shadow: 0px 4px 33px 0px rgba(0, 0, 0, 0.06);
+}
+
+.notification-message {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #878b93;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 26px;
+}
+
+.date-time {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.date {
+  color: #fff;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 26px;
+}
+
+.time {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 26px;
+}
+
+.row-skeleton {
+  height: 26px !important;
+}
+
+@media (max-width: 1000px) {
+  .action-wrap {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 600px) {
+  .description-wrap {
+    flex-direction: column;
+  }
+
+  .lock-time-notification {
+    width: 100%;
+  }
+
+  .date-time {
+    flex-direction: row;
+    gap: 4px;
+  }
+
+  .date {
+    font-weight: 18px;
+  }
 }
 </style>
