@@ -9,7 +9,7 @@ const ethereumPools: Array<PoolConfig> = [
     id: 1,
     chainId: 1,
     name: "MIM / deUSD",
-    icon: useImage(`assets/images/tokens/MIM-USDT.png`),
+    icon: useImage(`assets/images/tokens/MIM-deUSD.png`),
     decimals: 18,
     contract: {
       address: "0x95b485615c193cf75582b70ABdB08bc7172a80fe",
