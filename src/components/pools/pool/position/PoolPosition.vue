@@ -19,6 +19,10 @@
         v-if="showTabs"
       />
 
+      <p class="position-title" v-if="!showTabs && activeTab === 'deposited'">
+        Your Magic LP
+      </p>
+
       <Deposited
         :pool="pool"
         :pointsStatistics="pointsStatistics"
@@ -108,6 +112,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.position-title {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 22px;
+}
+
 .pool-position-wrap {
   display: flex;
   flex-direction: column;
