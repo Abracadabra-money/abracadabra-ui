@@ -26,6 +26,8 @@
           :icon="tokenLinkData.icon"
         />
 
+        <ElixirPotionsTag v-if="hasElixirPotions" />
+
         <div class="testing-chip" v-if="showTestnetChip">
           <p>Bartio Testnet</p>
         </div>
@@ -120,6 +122,10 @@ export default {
     isAddColateralToken() {
       return this.isActiveChain && this.collateralSymbol.length <= 11;
     },
+
+    hasElixirPotions() {
+      return this.cauldron.config.cauldronSettings.hasElixirPotions;
+    },
   },
 
   methods: {
@@ -176,6 +182,9 @@ export default {
     ),
     ClaimButton: defineAsyncComponent(
       () => import("@/components/ui/buttons/ClaimButton.vue")
+    ),
+    ElixirPotionsTag: defineAsyncComponent(
+      () => import("@/components/market/ElixirPotionsTag.vue")
     ),
   },
 };
