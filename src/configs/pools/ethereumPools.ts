@@ -23,7 +23,6 @@ const ethereumPools: Array<PoolConfig> = [
         address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
         abi: erc20Abi,
       },
-      mainColor: "#C9E5FF",
       isPopular: true,
     },
     quoteToken: {
@@ -34,7 +33,6 @@ const ethereumPools: Array<PoolConfig> = [
         abi: erc20Abi,
       },
       decimals: 18,
-      mainColor: "#53AE94",
       isPopular: true,
     },
     // stakeContract: {
