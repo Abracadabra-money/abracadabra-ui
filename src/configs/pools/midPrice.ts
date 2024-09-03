@@ -5,6 +5,7 @@ export const midPriceLens = {
   42161: "0x842796fd66f9712Dd27e8d9b9baF4D89d9301B86" as Address,
   59144: "0xBFAc81D48C8B4B1d2DaF5F21b78A0C2e472497C4" as Address,
   2222: "0x925c01C568b1892c11329667E0D6D3B8aD166017" as Address,
+  1: "0xe433a9bc3374d99b856294d0fa705e25a3e41de1" as Address,
 };
 
 export const getMidPriceAddressByChain = (chainId: number): Address => {
@@ -17,6 +18,8 @@ export const getMidPriceAddressByChain = (chainId: number): Address => {
       return midPriceLens[59144];
     case 2222:
       return midPriceLens[2222];
+    case 1:
+      return midPriceLens[1];
     default:
       throw new Error("ChainId not supported");
   }

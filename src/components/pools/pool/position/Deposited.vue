@@ -2,7 +2,7 @@
   <div class="deposited">
     <PoolCompoundCard :lpToken="lpToken" :tokensList="tokensList" />
 
-    <template v-if="pointsStatistics.global">
+    <!-- <template v-if="pointsStatistics.global">
       <div class="rewards-wrap">
         <h4 class="title">
           Stake your LP tokens
@@ -29,12 +29,9 @@
           </li>
         </ul>
       </div>
-    </template>
+    </template> -->
 
-    <RewardsCard
-      :isPosition="true"
-      :pool="pool"
-    />
+    <RewardsCard :isPosition="true" :pool="pool" />
 
     <BaseButton
       v-if="hasLockLogic || hasStakeLogic"

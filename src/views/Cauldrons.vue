@@ -17,7 +17,7 @@
           </h4>
         </div>
 
-        <ArbitrumBlock />
+        <!-- <ArbitrumBlock /> -->
 
         <CauldronsCarousel />
 
@@ -158,9 +158,9 @@ export default {
   },
 
   components: {
-    ArbitrumBlock: defineAsyncComponent(
-      () => import("@/components/cauldrons/ArbitrumBlock.vue")
-    ),
+    // ArbitrumBlock: defineAsyncComponent(
+    //   () => import("@/components/cauldrons/ArbitrumBlock.vue")
+    // ),
     CauldronsCarousel: defineAsyncComponent(
       () => import("@/components/ui/carousel/CauldronsCarousel.vue")
     ),
