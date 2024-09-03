@@ -95,7 +95,7 @@ export default {
 <style lang="scss" scoped>
 .tvl-card {
   align-self: center;
-  justify-self: center;
+  justify-self: end;
   display: flex;
   align-items: center;
   gap: 16px;
@@ -183,6 +183,7 @@ export default {
   .tvl-card {
     display: flex;
     flex-direction: column;
+    justify-self: center;
     width: calc(100% - 32px);
     min-width: auto;
   }

@@ -5,13 +5,17 @@ import {
 } from "@/helpers/walletClienHelper";
 import type { ContractInfo } from "@/types/global";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
+import type { ActionConfig } from "@/components/msr/actions/stake/Stake.vue";
 
-export const lock = async (contract: ContractInfo, amount: bigint, lockingDeadline: bigint | number) => {
+export const lock = async (
+  contract: ContractInfo,
+  { lockAmount, lockingDeadline }: any
+) => {
   try {
     const { request } = await simulateContractHelper({
       ...contract,
       functionName: "lock",
-      args: [amount, lockingDeadline],
+      args: [lockAmount, lockingDeadline],
     });
 
     const hash = await writeContractHelper(request);

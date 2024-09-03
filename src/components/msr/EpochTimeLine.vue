@@ -164,6 +164,7 @@ export default {
 }
 
 .description {
+  margin: 8px 0 24px 0;
   font-size: 14px;
   font-weight: 400;
   line-height: 26px;

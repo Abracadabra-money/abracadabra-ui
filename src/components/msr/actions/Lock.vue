@@ -95,6 +95,7 @@ export default {
       actionConfig: {
         stakeAmount: 0n,
         lockAmount: 0n,
+        lockingDeadline: 0,
       },
       //todo: temporary untill understand how it should work properly
       lockingDeadline: moment().unix() + Number(300n),
@@ -144,7 +145,8 @@ export default {
         this.mimSavingRateInfo,
         this.actionType,
         this.chainId,
-        this.actionConfig
+        this.actionConfig,
+        false
       );
     },
   },
@@ -206,8 +208,7 @@ export default {
       );
       const { error }: any = await actions.lock(
         this.mimSavingRateInfo?.lockingMultiRewardsContract,
-        this.actionConfig.lockAmount,
-        this.lockingDeadline
+        this.actionConfig
       );
 
       await this.deleteNotification(notificationId);
@@ -275,6 +276,7 @@ export default {
       this.actionConfig = {
         stakeAmount: 0n,
         lockAmount: 0n,
+        lockingDeadline: 0,
       };
     },
   },

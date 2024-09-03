@@ -1,39 +1,45 @@
 <template>
-  <div class="action">
-    <Assets
-      :locked-amount="userLockedAmount"
-      :unlocked-amount="userUnlockedAmount"
-      :rewardTokens="rewardTokens"
-      :depositedToken="mimSavingRateInfo?.stakingToken"
-      :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
-    />
+  <div class="action-wrap">
+    <div class="action-info"></div>
 
-    <div class="apr-rewards">
-      <APREfficiency
-        :mimSavingRateInfo="mimSavingRateInfo"
-        :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
-        @chooseLockAction="$emit('chooseLockAction')"
-      />
-      <Rewards
-        :mimSavingRateInfo="mimSavingRateInfo"
-        :isUserRewardLockExpired="isUserRewardLockExpired"
+    <div class="action">
+      <Assets
+        :locked-amount="userLockedAmount"
+        :unlocked-amount="userUnlockedAmount"
+        :rewardTokens="rewardTokens"
+        :depositedToken="mimSavingRateInfo?.stakingToken"
         :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
       />
+
+      <div class="apr-rewards">
+        <APREfficiency
+          :mimSavingRateInfo="mimSavingRateInfo"
+          :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
+          @chooseLockAction="$emit('chooseLockAction')"
+        />
+        <!-- <Rewards
+          :mimSavingRateInfo="mimSavingRateInfo"
+          :isUserRewardLockExpired="isUserRewardLockExpired"
+          :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
+        /> -->
+      </div>
+
+      <div class="timeline-button-wrap">
+        <EpochTimeLine
+          :mimSavingRateInfo="mimSavingRateInfo"
+          :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
+        />
+
+        <BaseButton
+          class="action-button"
+          primary
+          @click="actionHandler"
+          :disabled="isButtonDisabled"
+        >
+          {{ buttonText }}
+        </BaseButton>
+      </div>
     </div>
-
-    <EpochTimeLine
-      :mimSavingRateInfo="mimSavingRateInfo"
-      :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
-    />
-
-    <BaseButton
-      class="action-button"
-      primary
-      @click="actionHandler"
-      :disabled="isButtonDisabled"
-    >
-      {{ buttonText }}
-    </BaseButton>
   </div>
 </template>
 
@@ -214,10 +220,21 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.apr-rewards {
+.action-wrap {
+  display: grid;
+  grid-template-columns: 525px auto;
+  gap: 24px;
+}
+
+.action {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 24px;
+}
+
+.apr-rewards,
+.timeline-button-wrap {
+  @include block-wrap;
 }
 
 .title-tooltip {
@@ -227,5 +244,12 @@ export default {
 
 .action-button {
   margin-top: 0 !important;
+}
+
+@media (max-width: 1000px) {
+  .action-wrap {
+    display: flex;
+    flex-direction: column;
+  }
 }
 </style>

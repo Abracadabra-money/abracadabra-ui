@@ -59,7 +59,7 @@ export default {
     }),
 
     activeAction() {
-      return this.$route.query.action as MSRActionName;
+      return (this.$route.query.action as MSRActionName) || "Stake";
     },
   },
 
@@ -157,6 +157,7 @@ export default {
 
 .tvl-card {
   grid-area: total;
+  align-self: start !important;
 }
 
 .action-block {

@@ -26,7 +26,7 @@
         :icon="mimSavingRateInfo?.stakingToken?.icon || mimIcon"
         :max="maxInputValue"
         :disabled="isMimSavingRateInfoLoading || !mimSavingRateInfo"
-        :primaryMax="!isStakeAction"
+        :primaryMax="!isStakeAction || (isStakeAction && isLock)"
         :tokenPrice="1"
         @updateInputValue="onUpdateStakeValue"
       />
@@ -106,10 +106,11 @@ import { formatTimestampToUnix } from "@/helpers/time";
 type ActiveTab = "stake" | "unstake";
 type TabItems = string[];
 type InputValue = string | bigint;
-type ActionConfig = {
+export type ActionConfig = {
   stakeAmount: bigint;
   withdrawAmount: bigint;
   lockAmount: bigint;
+  lockingDeadline: number;
 };
 
 export default {
@@ -132,10 +133,11 @@ export default {
         stakeAmount: 0n,
         withdrawAmount: 0n,
         lockAmount: this.mimSavingRateInfo?.userInfo?.unlocked || 0n,
+        //todo: temporary untill understand how it should work properly
+        lockingDeadline: moment().unix() + Number(300n),
       } as ActionConfig,
       isLock: false,
-      //todo: temporary untill understand how it should work properly
-      lockingDeadline: moment().unix() + Number(300n),
+
       mimIcon,
     };
   },
@@ -165,7 +167,7 @@ export default {
     },
 
     actionMethodName() {
-      return this.isStakeAction ? "stake" : "withdraw";
+      return this.isStakeAction ? (this.isLock ? "lock" : "stake") : "withdraw";
     },
 
     maxInputValue(): bigint {
@@ -173,7 +175,7 @@ export default {
       const { balance } = this.mimSavingRateInfo?.userInfo?.stakeToken || 0n;
       const { unlocked } = this.mimSavingRateInfo?.userInfo || 0n;
 
-      return this.isStakeAction ? balance : unlocked;
+      return this.isStakeAction && !this.isLock ? balance : unlocked;
     },
 
     actionValidationData() {
@@ -187,7 +189,8 @@ export default {
         this.mimSavingRateInfo,
         this.activeTab,
         this.chainId,
-        this.actionConfig
+        this.actionConfig,
+        this.isLock
       );
     },
   },
@@ -213,6 +216,7 @@ export default {
         stakeAmount: 0n,
         withdrawAmount: 0n,
         lockAmount: this.mimSavingRateInfo?.userInfo.unlocked || 0n,
+        lockingDeadline: moment().unix() + Number(300n),
       };
     },
 
@@ -252,6 +256,9 @@ export default {
         this.mimSavingRateInfo?.lockingMultiRewardsContract.address,
         this.actionConfig.stakeAmount
       );
+
+      console.log({ approve });
+
       if (approve) this.$emit("updateMimSavingRateInfo");
 
       await this.deleteNotification(notificationId);

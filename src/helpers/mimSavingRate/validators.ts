@@ -78,7 +78,8 @@ export const validateAction = (
   contractInfo: any,
   actionType: ActionType,
   chainId: number,
-  actionConfig: any
+  actionConfig: any,
+  isLock: boolean
 ) => {
   if (!contractInfo) return NO_CONTRACT_WARNING;
 
@@ -86,8 +87,7 @@ export const validateAction = (
 
   if (!getAccountHelper().isConnected) return CONNECTION_WARNING;
 
-  if (actionType === ACTION_LOCK)
-    return validateLock(contractInfo, actionConfig.lockAmount);
+  if (isLock) return validateLock(contractInfo, actionConfig.lockAmount);
 
   const validationErrors: any = checkForErrors(
     contractInfo,
