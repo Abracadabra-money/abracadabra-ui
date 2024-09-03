@@ -59,6 +59,12 @@ import { formatUnits, parseUnits } from "viem";
 import type { BentoBoxData } from "@/helpers/bentoBox/types";
 import type { PropType } from "vue";
 import gsap from "gsap";
+import {
+  backdropFadeIn,
+  popupFadeIn,
+  backdropFadeOut,
+  popupFadeOut,
+} from "@/helpers/animations/popup";
 
 export default {
   props: {
@@ -203,28 +209,13 @@ export default {
     },
 
     openingAnimation() {
-      gsap.fromTo(
-        this.$refs.backdrop as gsap.TweenTarget,
-        { autoAlpha: 0 },
-        { duration: 0.15, autoAlpha: 1 }
-      );
-      gsap.fromTo(
-        this.$refs.popup as gsap.TweenTarget,
-        { scale: 0 },
-        { duration: 0.15, scale: 1, ease: "power2.out" }
-      );
+      backdropFadeIn(this.$refs.backdrop as gsap.TweenTarget);
+      popupFadeIn(this.$refs.popup as gsap.TweenTarget);
     },
 
     closingAnimation() {
-      gsap.to(this.$refs.backdrop as gsap.TweenTarget, {
-        duration: 0.15,
-        autoAlpha: 0,
-      });
-      gsap.to(this.$refs.popup as gsap.TweenTarget, {
-        duration: 0.15,
-        scale: 0,
-        ease: "power2.in",
-      });
+      backdropFadeOut(this.$refs.backdrop as gsap.TweenTarget);
+      popupFadeOut(this.$refs.popup as gsap.TweenTarget);
     },
 
     closePopup() {

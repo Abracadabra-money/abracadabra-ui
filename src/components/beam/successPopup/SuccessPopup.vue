@@ -32,7 +32,12 @@ import BeamInfo from "@/components/beam/successPopup/BeamInfo.vue";
 import TransactionProgressBlock from "@/components/beam/successPopup/TransactionProgressBlock.vue";
 import { waitForMessageReceived } from "@layerzerolabs/scan-client";
 import { chainsConfigs } from "@/helpers/chains/configs";
-import gsap from "gsap";
+import {
+  backdropFadeIn,
+  backdropFadeOut,
+  popupFadeIn,
+  popupFadeOut,
+} from "@/helpers/animations/popup";
 
 export default {
   props: {
@@ -95,25 +100,13 @@ export default {
     },
 
     openingAnimation() {
-      gsap.fromTo(
-        this.$refs.backdrop,
-        { autoAlpha: 0 },
-        { duration: 0.15, autoAlpha: 1 }
-      );
-      gsap.fromTo(
-        this.$refs.popup,
-        { scale: 0 },
-        { duration: 0.15, scale: 1, ease: "power2.out" }
-      );
+      backdropFadeIn(this.$refs.backdrop);
+      popupFadeIn(this.$refs.popup);
     },
 
     closingAnimation() {
-      gsap.to(this.$refs.backdrop, { duration: 0.3, autoAlpha: 0 });
-      gsap.to(this.$refs.popup, {
-        duration: 0.3,
-        scale: 0,
-        ease: "power2.in",
-      });
+      backdropFadeOut(this.$refs.backdrop);
+      popupFadeOut(this.$refs.popup);
     },
 
     closePopup() {

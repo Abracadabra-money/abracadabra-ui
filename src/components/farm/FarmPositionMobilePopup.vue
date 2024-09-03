@@ -99,7 +99,12 @@ import spellIcon from "@/assets/images/tokens/SPELL.png";
 import { getChainConfig } from "@/helpers/chains/getChainsInfo";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 import type { FarmItem, RewardTokenInfo } from "@/configs/farms/types";
-import gsap from "gsap";
+import {
+  backdropFadeIn,
+  backdropFadeOut,
+  popupFadeInSlideUp,
+  popupFadeOutSlideDown,
+} from "@/helpers/animations/popup";
 
 export default {
   props: {
@@ -253,29 +258,13 @@ export default {
     },
 
     openingAnimation() {
-      if (this.$refs.backdrop)
-        gsap.fromTo(
-          this.$refs.backdrop,
-          { autoAlpha: 0 },
-          { duration: 0.15, autoAlpha: 1 }
-        );
-      if (this.$refs.popup)
-        gsap.fromTo(
-          this.$refs.popup,
-          { y: 100 },
-          { duration: 0.15, y: 0, ease: "power2.out" }
-        );
+      if (this.$refs.backdrop) backdropFadeIn(this.$refs.backdrop);
+      if (this.$refs.popup) popupFadeInSlideUp(this.$refs.popup);
     },
 
     closingAnimation() {
-      if (this.$refs.backdrop)
-        gsap.to(this.$refs.backdrop, { duration: 0.15, autoAlpha: 0 });
-      if (this.$refs.popup)
-        gsap.to(this.$refs.popup, {
-          duration: 0.15,
-          y: 100,
-          ease: "power2.in",
-        });
+      if (this.$refs.backdrop) backdropFadeOut(this.$refs.backdrop);
+      if (this.$refs.popup) popupFadeOutSlideDown(this.$refs.popup);
     },
 
     closePopup() {

@@ -35,8 +35,13 @@
 </template>
 
 <script>
+import {
+  backdropFadeIn,
+  backdropFadeOut,
+  popupFadeIn,
+  popupFadeOut,
+} from "@/helpers/animations/popup";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
-import gsap from "gsap";
 
 export default {
   props: {
@@ -65,26 +70,13 @@ export default {
     },
 
     openingAnimation() {
-      gsap.fromTo(
-        this.$refs.backdrop,
-        { autoAlpha: 0 },
-        { duration: 0.15, autoAlpha: 1 }
-      );
-      gsap.fromTo(
-        this.$refs.popup,
-        { scale: 0, opacity: 0 },
-        { duration: 0.15, scale: 1, opacity: 1, ease: "power2.out" }
-      );
+      backdropFadeIn(this.$refs.backdrop);
+      popupFadeIn(this.$refs.popup);
     },
 
     closingAnimation() {
-      gsap.to(this.$refs.backdrop, { duration: 0.15, autoAlpha: 0 });
-      gsap.to(this.$refs.popup, {
-        duration: 0.15,
-        scale: 0,
-        opacity: 0,
-        ease: "power2.in",
-      });
+      backdropFadeOut(this.$refs.backdrop);
+      popupFadeOut(this.$refs.popup);
     },
 
     async switchHandler(chainId) {

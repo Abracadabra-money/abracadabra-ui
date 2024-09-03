@@ -101,14 +101,14 @@
         ref="settingsPopup"
       />
     </div>
+    <!-- todo: test -->
+    <SuccessPopup
+      v-if="isOpenSuccessPopup && beamInfoObject"
+      :beamInfoObject="beamInfoObject"
+      :successData="successData"
+      @close-popup="isOpenSuccessPopup = false"
+    />
   </div>
-
-  <SuccessPopup
-    v-if="isOpenSuccessPopup && beamInfoObject"
-    :beamInfoObject="beamInfoObject"
-    :successData="successData"
-    @close-popup="isOpenSuccessPopup = false"
-  />
 </template>
 
 <script lang="ts">

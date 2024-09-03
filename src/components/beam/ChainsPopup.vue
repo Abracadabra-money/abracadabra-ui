@@ -35,6 +35,7 @@
 <script lang="ts">
 import type { PropType } from "vue";
 import type { BeamInfo, BeamConfig } from "@/helpers/beam/types";
+import { popupFadeIn, popupFadeOut } from "@/helpers/animations/popup";
 import gsap from "gsap";
 
 export default {
@@ -92,20 +93,11 @@ export default {
     },
 
     openingAnimation() {
-      gsap.fromTo(
-        this.$refs.popup as gsap.TweenTarget,
-        { scale: 0, opacity: 0 },
-        { duration: 0.15, scale: 1, opacity: 1, ease: "power2.out" }
-      );
+      popupFadeIn(this.$refs.popup as gsap.TweenTarget);
     },
 
     closingAnimation() {
-      gsap.to(this.$refs.popup as gsap.TweenTarget, {
-        duration: 0.15,
-        scale: 0,
-        opacity: 0,
-        ease: "power2.in",
-      });
+      popupFadeOut(this.$refs.popup as gsap.TweenTarget);
     },
   },
 
