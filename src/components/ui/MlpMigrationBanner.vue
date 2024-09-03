@@ -1,6 +1,10 @@
 <template>
-  <div class="banner" v-if="showBanner && !isCloseBanner">
-    <img src="@/assets/images/banner/deUSD-topup-bg.png" alt="" class="bg-img">
+  <div class="banner" v-if="!isEnded && !isCloseBanner">
+    <img
+      src="@/assets/images/banner/deUSD-topup-bg.png"
+      alt=""
+      class="bg-img"
+    />
     <div class="banner-content">
       <img
         class="main-icon"
@@ -45,10 +49,11 @@
         :endDateTimestamp="1725458400"
         small
         isLock
-        padding="6px"
+        gap="4px"
+        padding="4px"
         background="rgba(0, 10, 35, 0.30)"
       />
-      <div class="timer-text">Time left to migrate</div>
+      <div class="timer-text">Pending Top Up</div>
     </div>
 
     <img
@@ -74,12 +79,15 @@ export default {
   },
 
   computed: {
-    showBanner() {
-      return true;
+    endDateTimestamp(): number {
+      return 1725458400;
     },
 
-    theEnd() {
-      return moment().utc().isAfter(moment.unix(1721260800));
+    currentTimeUnix(): number {
+      return moment.utc(Date.now()).unix();
+    },
+    isEnded(): boolean {
+      return this.currentTimeUnix > this.endDateTimestamp;
     },
   },
   methods: {

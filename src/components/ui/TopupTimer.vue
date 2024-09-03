@@ -12,7 +12,7 @@
         background="rgba(0, 10, 35, 0.30)"
       />
     </div>
-    <p class="subtitle">13,000,000 MIM soon will be available to Borrow</p>
+    <p class="subtitle">3,000,000 MIMs soon will be available to Borrow</p>
   </div>
 </template>
 
@@ -42,8 +42,8 @@ export default {
 
 <style lang="scss" scoped>
 .topup-timer {
-    margin-top: -20px;
-  padding: 12px 16px;
+  margin-top: -20px;
+  padding: 12px 14px;
   border-radius: 12px;
   position: relative;
   width: 100%;
@@ -73,14 +73,16 @@ export default {
       font-weight: 500;
       line-height: 1.6;
     }
+  }
 
-    .subtitle {
-      font-family: "Poppins", sans-serif;
-      font-size: 14px;
-      font-weight: 400;
-      line-height: 1.2;
-      color: rgba(255, 255, 255, 0.6);
-    }
+  .subtitle {
+    padding-top: 3px;
+    font-family: "Poppins", sans-serif;
+    position: relative;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.2;
+    color: rgba(255, 255, 255, 0.6);
   }
 }
 </style>
