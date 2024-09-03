@@ -88,12 +88,12 @@ export default {
       // @ts-ignore
       if (isConnect) return this.$openWeb3modal();
 
-      if (this.useNoDeleverageConfirmationPopup) {
-        this.isDeleverageInfoPopupOpened = true;
-        return;
-      }
+      // if (this.useNoDeleverageConfirmationPopup) {
+      //   this.isDeleverageInfoPopupOpened = true;
+      //   return;
+      // }
 
-      this.isDeleverageInfoPopupOpened = false;
+      // this.isDeleverageInfoPopupOpened = false;
       return await this.cookHandler();
     },
     async approveTokenHandler() {
