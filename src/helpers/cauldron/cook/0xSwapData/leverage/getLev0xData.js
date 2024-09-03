@@ -39,7 +39,7 @@ const getLev0xData = async (cauldronObject, amount, slipage) => {
 
     const liquidityAvailable = response.response.liquidityAvailable;
 
-    if (!!liquidityAvailable) {
+    if (!liquidityAvailable) {
       throw new Error("Not enough liquidity available");
     }
 
