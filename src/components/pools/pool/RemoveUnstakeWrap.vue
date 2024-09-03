@@ -78,7 +78,7 @@ export default {
     },
 
     isToggle() {
-      if (this.isArbitrumMimUsdcPool) return false;
+      // if (this.isArbitrumMimUsdcPool) return false;
       return !this.isUnstake;
     },
   },
