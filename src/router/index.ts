@@ -64,11 +64,11 @@ const routes: Array<RouteRecordRaw> = [
     name: "magicAPE",
     component: () => import("@/views/stake/MAPE.vue"),
   },
-  {
-    path: "/magicKLP",
-    name: "magicKLP",
-    component: () => import("@/views/stake/MKLP.vue"),
-  },
+  // {
+  //   path: "/magicKLP",
+  //   name: "magicKLP",
+  //   component: () => import("@/views/stake/MKLP.vue"),
+  // },
   {
     path: "/my-positions",
     name: "MyPositions",
