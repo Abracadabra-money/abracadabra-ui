@@ -71,7 +71,7 @@
         <p class="link-description">Stake APE</p>
       </router-link>
 
-      <router-link
+      <!-- <router-link
         class="list-link"
         :to="{ name: 'magicKLP' }"
         @click="$emit('closeMobileMenu')"
@@ -80,36 +80,16 @@
           <span class="stake-token">
             <img class="link-icon" src="@/assets/images/stake/tokens/KLP.png" />
             KLP
-          </span>
-          <!-- <span class="apr" v-if="klpApr"
+          </span> -->
+      <!-- <span class="apr" v-if="klpApr"
             >APR: {{ formatPercent(klpApr) }}</span
           >
           <div class="loader-wrap" v-else>
             <BaseLoader type="loader" />
           </div> -->
-        </div>
+      <!-- </div>
         <p class="link-description">Stake KLP</p>
-      </router-link>
-
-      <router-link
-        class="list-link"
-        :to="{ name: 'magicAPE' }"
-        @click="$emit('closeMobileMenu')"
-      >
-        <div class="link-title">
-          <span class="stake-token">
-            <img class="link-icon" src="@/assets/images/stake/tokens/MIM.png" />
-            MIM
-          </span>
-          <span class="apr" v-if="mimApr"
-            >APR: {{ formatPercent(mimApr) }}</span
-          >
-          <div class="loader-wrap" v-else>
-            <BaseLoader type="loader" />
-          </div>
-        </div>
-        <p class="link-description">Stake MIM</p>
-      </router-link>
+      </router-link> -->
     </div>
   </div>
 </template>

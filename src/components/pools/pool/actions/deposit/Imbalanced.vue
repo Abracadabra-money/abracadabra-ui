@@ -34,28 +34,14 @@
       />
     </div>
 
-    <div class="info-blocks">
-      <div class="info-block lp">
-        <div class="tag">
-          <span class="title">
-            <BaseTokenIcon
-              :name="this.pool.name"
-              :icon="this.pool.icon"
-              size="32px"
-            />
-            {{ this.pool.name }}
-          </span>
-          <div class="token-amount">
-            <span class="value">
-              {{ formattedLpTokenExpected.value }}
-            </span>
-            <span class="usd">
-              {{ formattedLpTokenExpected.usd }}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
+    <PreviewAddLiquidity
+      :pool="pool"
+      :slippage="slippage"
+      :baseInputAmount="baseInputAmount"
+      :expectedOptimal="expectedOptimal"
+      :quoteInputAmount="quoteInputAmount"
+      :isExpectedOptimalCalculating="isExpectedOptimalCalculating"
+    />
 
     <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
       {{ buttonText }}
@@ -94,7 +80,7 @@ import { addLiquidityImbalancedOptimal } from "@/helpers/pools/swap/addLiquidity
 export default {
   props: {
     pool: { type: Object },
-    slippage: { type: BigInt, default: 100n },
+    slippage: { type: BigInt, default: 50n },
     deadline: { type: BigInt, default: 100n },
   },
 
@@ -106,7 +92,12 @@ export default {
       baseInputValue: "",
       quoteInputAmount: 0n,
       quoteInputValue: "",
-      expectedOptimal: { remainingAmountToSwap: 0n, shares: 0n },
+      expectedOptimal: {
+        remainingAmountToSwap: 0n,
+        shares: 0n,
+        baseRefundAmount: 0n,
+        quoteRefundAmount: 0n,
+      },
       isExpectedOptimalCalculating: false,
       isActionProcessing: false,
       transactionStatus: actionStatus.WAITING,
@@ -150,26 +141,6 @@ export default {
       return (
         this.pool.tokens.quoteToken.userInfo.allowance >= this.quoteInputAmount
       );
-    },
-
-    formattedLpTokenExpected() {
-      if (this.isExpectedOptimalCalculating) return { value: "-", usd: "-" };
-
-      const minimumShares = applySlippageToMinOutBigInt(
-        this.slippage,
-        this.expectedOptimal.shares
-      );
-
-      const formattedLpTokenValue = Number(
-        formatUnits(minimumShares, this.pool.decimals)
-      );
-
-      const lpTokenValueUsdEquivalent = formattedLpTokenValue * this.pool.price;
-
-      return {
-        value: formatTokenBalance(formattedLpTokenValue),
-        usd: formatUSD(lpTokenValueUsdEquivalent),
-      };
     },
 
     isValid() {
@@ -239,7 +210,12 @@ export default {
       this.quoteInputAmount = 0n;
       this.baseInputValue = "";
       this.quoteInputValue = "";
-      this.expectedOptimal = { remainingAmountToSwap: 0n, shares: 0n };
+      this.expectedOptimal = {
+        remainingAmountToSwap: 0n,
+        shares: 0n,
+        baseRefundAmount: 0n,
+        quoteRefundAmount: 0n,
+      };
     },
 
     closePreviewPopup() {
@@ -402,8 +378,9 @@ export default {
     BaseTokenInput: defineAsyncComponent(() =>
       import("@/components/base/BaseTokenInput.vue")
     ),
-    BaseTokenIcon: defineAsyncComponent(() =>
-      import("@/components/base/BaseTokenIcon.vue")
+    PreviewAddLiquidity: defineAsyncComponent(() =>
+      //@ts-ignore
+      import("@/components/pools/pool/PreviewAddLiquidity.vue")
     ),
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")
@@ -441,56 +418,6 @@ export default {
   left: calc(50% - 28px);
   width: 46px;
   height: 46px;
-}
-
-.info-blocks {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  gap: 24px;
-}
-
-.info-block {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(180, 180, 180, 0.08);
-  background: linear-gradient(
-    146deg,
-    rgba(0, 10, 35, 0.07) 0%,
-    rgba(0, 80, 156, 0.07) 101.49%
-  );
-  box-shadow: 0px 4px 33px 0px rgba(0, 0, 0, 0.06);
-}
-
-.tag {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  color: #878b93;
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.token-amount {
-  display: flex;
-  flex-direction: column;
-  align-items: end;
-}
-
-.value {
-  color: #fff;
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.value,
-.title {
-  display: flex;
-  align-items: center;
 }
 
 .apr {
