@@ -15,15 +15,16 @@
   </div>
 </template>
 
-<script>
-import { defineAsyncComponent } from "vue";
+<script lang="ts">
+import { defineAsyncComponent, type PropType } from "vue";
 import { formatPercent } from "@/helpers/filters";
+import type { FarmItem, RewardToken, TokenApr } from "@/configs/farms/types";
 
 export default {
   name: "AprTooltip",
   props: {
     farm: {
-      type: Object,
+      type: Object as PropType<FarmItem>,
       required: true,
     },
     top: {
@@ -34,14 +35,16 @@ export default {
   computed: {
     tokensInfo() {
       const { tokensApr } = this.farm;
-      const { rewardTokens } = this.farm.config;
+      const rewardTokens = this.farm.config?.rewardTokens;
 
-      return rewardTokens.map((tokenItem, index) => {
+      if (!tokensApr || !rewardTokens) return [];
+
+      return rewardTokens.map((tokenItem: RewardToken, index: number) => {
         const title = index === 0 ? "Base APR" : "Boosted";
 
-        const { apr } = tokensApr.find(
-          (item) => item.address === tokenItem.address
-        );
+        const apr =
+          tokensApr.find((item: TokenApr) => item.address === tokenItem.address)
+            ?.apr || 0;
 
         return {
           ...tokenItem,
@@ -57,8 +60,8 @@ export default {
   },
 
   components: {
-    Tooltip: defineAsyncComponent(() =>
-      import("@/components/ui/icons/Tooltip.vue")
+    Tooltip: defineAsyncComponent(
+      () => import("@/components/ui/icons/Tooltip.vue")
     ),
   },
 };

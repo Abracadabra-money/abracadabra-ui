@@ -102,36 +102,45 @@ export default {
   computed: {
     totalTvl() {
       return this.tvlByChains.reduce(
-        (acc, chainInfo) => acc + chainInfo.tvl,
+        (acc: any, chainInfo: any) => acc + chainInfo.tvl,
         0
       );
     },
 
-    tvlByChains() {
-      return this.pools.map((pool) => {
+    tvlByChains(): { tvl: number; chainId: number }[] {
+      const tvlByChainId = this.pools.reduce((acc, pool) => {
         const baseTokenAmount = Number(
           formatUnits(pool.vaultReserve[0], pool.config.baseToken.decimals)
         );
-
         const quoteTokenAmount = Number(
-          formatUnits(pool.vaultReserve[1], pool.config.baseToken.decimals)
+          formatUnits(pool.vaultReserve[1], pool.config.quoteToken.decimals)
         );
+        const totalTvlUsd =
+          baseTokenAmount * pool.baseTokenPrice +
+          quoteTokenAmount * pool.quoteTokenPrice;
 
-        const baseTokenAmountUsd = baseTokenAmount * pool.baseTokenPrice;
-        const quoteTokenAmountUsd = quoteTokenAmount * pool.quoteTokenPrice;
+        if (acc[pool.config.chainId as keyof typeof acc]) {
+          // @ts-ignore
+          acc[pool.config.chainId as keyof typeof acc].tvl += totalTvlUsd;
+        } else {
+          // @ts-ignore
+          acc[pool.config.chainId] = {
+            chainId: pool.config.chainId,
+            tvl: totalTvlUsd,
+          };
+        }
 
-        return {
-          chainId: pool.config.chainId,
-          tvl: baseTokenAmountUsd + quoteTokenAmountUsd,
-        };
-      });
+        return acc;
+      }, {});
+
+      return Object.values(tvlByChainId);
     },
 
-    // toBeDistributed() {
-    //   if (!this.kavaRewardData) return 0;
-    //   const { rewardRate, rewardsDuration } = this.kavaRewardData;
-    //   return Number(formatUnits(rewardRate * rewardsDuration, 18));
-    // },
+    toBeDistributed() {
+      if (!this.kavaRewardData) return 0;
+      const { rewardRate, rewardsDuration }: RewardData = this.kavaRewardData;
+      return Number(formatUnits(rewardRate * rewardsDuration, 18));
+    },
   },
 
   methods: {
@@ -153,7 +162,7 @@ export default {
   },
 
   async created() {
-    // this.kavaRewardData = await this.getRewardData();
+    this.kavaRewardData = await this.getRewardData();
   },
 };
 </script>

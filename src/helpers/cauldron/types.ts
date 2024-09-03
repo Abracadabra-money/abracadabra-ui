@@ -43,6 +43,7 @@ export type MainParams = {
   totalBorrowed: BigNumber;
   tvl: BigNumber;
   userMaxBorrow: BigNumber;
+  updatePrice: boolean;
   alternativeData: {
     collateralPrice: bigint;
     mimLeftToBorrow: bigint;

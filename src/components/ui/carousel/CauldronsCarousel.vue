@@ -2,23 +2,35 @@
   <Carousel
     :wrap-around="true"
     :transition="500"
-    :autoplay="3000"
     :breakpoints="breakpoints"
+    :autoplay="3000"
   >
-    <slide :index="1">
+    <!-- <slide :index="1">
       <CrvUsdMimCard />
-    </slide>
+    </slide> -->
 
-    <slide :index="1">
+    <!-- <slide :index="1">
       <CamelotCard />
-    </slide>
+    </slide> -->
+
+    <!-- <slide :index="1">
+      <CamelotUsdcMimCard />
+    </slide> -->
 
     <slide :index="1">
       <EmpowerCard />
     </slide>
 
     <slide :index="1">
-      <CamelotUsdcMimCard />
+      <MimUsdtArbPool />
+    </slide>
+
+    <slide :index="1">
+      <MimUsdtKavaPool />
+    </slide>
+
+    <slide :index="1">
+      <MimUsdcArbPool />
     </slide>
 
     <template #addons>
@@ -30,10 +42,13 @@
 <script>
 import "vue3-carousel/dist/carousel.css";
 import { Carousel, Slide, Pagination } from "vue3-carousel";
-import CrvUsdMimCard from "@/components/cauldrons/CrvUsdMimCard.vue";
-import CamelotCard from "@/components/cauldrons/CamelotCard.vue";
-import EmpowerCard from "@/components/cauldrons/EmpowerCard.vue";
-import CamelotUsdcMimCard from "@/components/cauldrons/CamelotUsdcMimCard.vue";
+// import CrvUsdMimCard from "@/components/cauldrons/promoCards/CrvUsdMimCard.vue";
+// import CamelotCard from "@/components/cauldrons/promoCards/CamelotCard.vue";
+// import CamelotUsdcMimCard from "@/components/cauldrons/promoCards/CamelotUsdcMimCard.vue";
+import EmpowerCard from "@/components/cauldrons/promoCards/EmpowerCard.vue";
+import MimUsdtArbPool from "@/components/cauldrons/promoCards/MimUsdtArbPool.vue";
+import MimUsdtKavaPool from "@/components/cauldrons/promoCards/MimUsdtKavaPool.vue";
+import MimUsdcArbPool from "@/components/cauldrons/promoCards/MimUsdcArbPool.vue";
 
 export default {
   data() {
@@ -56,13 +71,16 @@ export default {
   },
 
   components: {
-    CamelotCard,
     EmpowerCard,
-    CamelotUsdcMimCard,
+    MimUsdtArbPool,
+    MimUsdtKavaPool,
+    MimUsdcArbPool,
     Carousel,
     Slide,
     Pagination,
-    CrvUsdMimCard,
+    // CamelotUsdcMimCard,
+    // CrvUsdMimCard,
+    // CamelotCard,
   },
 };
 </script>

@@ -38,29 +38,31 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import {
   formatUSD,
   formatTokenBalance,
   formatPercent,
 } from "@/helpers/filters";
 import TokenChainIcon from "@/components/ui/icons/TokenChainIcon.vue";
+import type { FarmItem } from "@/configs/farms/types";
+import type { PropType } from "vue";
 
 export default {
   props: {
     marketItem: {
-      type: Object,
-      require: true,
+      type: Object as PropType<FarmItem>,
+      required: true,
     },
   },
 
   computed: {
     balance() {
       if (this.marketItem.isMultiReward) {
-        return Number(this.marketItem.accountInfo?.balance);
+        return Number(this.marketItem.accountInfo?.balance || 0);
       }
       if (this.marketItem.isDeprecated)
-        return this.marketItem.accountInfo?.depositedBalance || 0;
+        return Number(this.marketItem.accountInfo?.depositedBalance || 0);
 
       return Number(this.marketItem.accountInfo?.balance) / 1e18 || 0;
     },
@@ -82,7 +84,7 @@ export default {
           border: "border: 1px solid  #4a2130;",
           tokenInfoMargin: "margin-left: 8px",
         };
-      if (this.marketItem.config?.isNew)
+      if (this.marketItem.isNew)
         return {
           text: "New",
           flagColor:
@@ -110,7 +112,7 @@ export default {
     formatUSD,
     formatTokenBalance,
 
-    choseItem({ id, chainId }) {
+    choseItem({ id, chainId }: FarmItem) {
       this.$emit("changeActiveMarket", { id, chainId });
     },
   },

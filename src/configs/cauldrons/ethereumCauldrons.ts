@@ -18,6 +18,8 @@ import { GNOSIS_SAFE_ADDRESS } from "@/constants/global";
 
 import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
 
+import erc20Abi from "@/abis/farm/erc20Abi";
+
 const mimInfo = {
   name: "MIM",
   icon: useImage(`assets/images/tokens/MIM.png`),
@@ -242,6 +244,7 @@ const config: Array<CauldronConfig> = [
       hasWithdrawableLimit: false,
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
+      isYvWethV2: true,
     },
     contract: {
       name: "PrivilegedCauldronV4",
@@ -576,6 +579,7 @@ const config: Array<CauldronConfig> = [
       hasWithdrawableLimit: false,
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
+      isCvxTricrypto: true,
     },
     contract: {
       name: "PrivilegedCheckpointCauldronV4",
@@ -925,6 +929,7 @@ const config: Array<CauldronConfig> = [
       hasWithdrawableLimit: false,
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
+      isCvx3pool: true,
     },
     contract: {
       name: "PrivilegedCheckpointCauldronV4",
@@ -961,49 +966,49 @@ const config: Array<CauldronConfig> = [
       abi: ConvexWrapperSwapper,
     },
   },
-  {
-    icon: useImage(`assets/images/tokens/UST.png`),
-    name: "UST",
-    chainId: 1,
-    id: 26,
-    liquidationFee: 5,
-    mcr: 90,
-    borrowFee: 1,
-    version: 2,
-    cauldronSettings: {
-      isSwappersActive: true,
-      isDegenBox: true,
-      strategyLink:
-        "https://medium.com/abracadabra-money/our-ust-strategy-the-first-application-of-the-magic-potentialities-of-degenbox-ea35f13d6b5e",
-      isDepreciated: true,
-      acceptUseDefaultBalance: false,
-      healthMultiplier: 10,
-      hasAccountBorrowLimit: false,
-      hasWithdrawableLimit: true,
-      localBorrowAmountLimit: false,
-      hasCrvClaimLogic: false,
-    },
-    contract: {
-      name: "CauldronV2",
-      address: "0x59E9082E068Ddb27FC5eF1690F9a9f22B32e573f",
-      abi: poolsAbi.CauldronV2,
-    },
-    collateralInfo: {
-      name: "UST",
-      decimals: 18,
-      address: "0xa47c8bf37f92aBed4A126BDA807A7b7498661acD",
-      abi: tokensAbi.UST,
-    },
-    mimInfo,
-    leverageInfo: {
-      address: "0x6B44d94ECDFaF0cb00dEF55212e226603BB68793",
-      abi: swapAbi,
-    },
-    deleverageInfo: {
-      address: "0xFf498bbCbf40d0f30f178F553e8Fa36153baf30b",
-      abi: reverseSwapAbi,
-    },
-  },
+  // {
+  //   icon: useImage(`assets/images/tokens/UST.png`),
+  //   name: "UST",
+  //   chainId: 1,
+  //   id: 26,
+  //   liquidationFee: 5,
+  //   mcr: 90,
+  //   borrowFee: 1,
+  //   version: 2,
+  //   cauldronSettings: {
+  //     isSwappersActive: true,
+  //     isDegenBox: true,
+  //     strategyLink:
+  //       "https://medium.com/abracadabra-money/our-ust-strategy-the-first-application-of-the-magic-potentialities-of-degenbox-ea35f13d6b5e",
+  //     isDepreciated: true,
+  //     acceptUseDefaultBalance: false,
+  //     healthMultiplier: 10,
+  //     hasAccountBorrowLimit: false,
+  //     hasWithdrawableLimit: true,
+  //     localBorrowAmountLimit: false,
+  //     hasCrvClaimLogic: false,
+  //   },
+  //   contract: {
+  //     name: "CauldronV2",
+  //     address: "0x59E9082E068Ddb27FC5eF1690F9a9f22B32e573f",
+  //     abi: poolsAbi.CauldronV2,
+  //   },
+  //   collateralInfo: {
+  //     name: "UST",
+  //     decimals: 18,
+  //     address: "0xa47c8bf37f92aBed4A126BDA807A7b7498661acD",
+  //     abi: tokensAbi.UST,
+  //   },
+  //   mimInfo,
+  //   leverageInfo: {
+  //     address: "0x6B44d94ECDFaF0cb00dEF55212e226603BB68793",
+  //     abi: swapAbi,
+  //   },
+  //   deleverageInfo: {
+  //     address: "0xFf498bbCbf40d0f30f178F553e8Fa36153baf30b",
+  //     abi: reverseSwapAbi,
+  //   },
+  // },
   {
     icon: useImage(`assets/images/tokens/WETH.png`),
     name: "WETH",
@@ -1282,6 +1287,7 @@ const config: Array<CauldronConfig> = [
       hasWithdrawableLimit: false,
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
+      hasWhitelistLogic: true,
     },
     contract: {
       name: "CauldronV2Flat",
@@ -1369,6 +1375,7 @@ const config: Array<CauldronConfig> = [
       hasWithdrawableLimit: true,
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
+      useDegenBoxHelper: true,
     },
     contract: {
       name: "CauldronV4",
@@ -1405,6 +1412,7 @@ const config: Array<CauldronConfig> = [
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
       isMigrated: true,
+      useDegenBoxHelper: true,
     },
     contract: {
       name: "PrivilegedCauldronV4",
@@ -1440,6 +1448,7 @@ const config: Array<CauldronConfig> = [
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
       isMigrated: true,
+      useDegenBoxHelper: true,
     },
     contract: {
       name: "PrivilegedCauldronV4",
@@ -1647,6 +1656,7 @@ const config: Array<CauldronConfig> = [
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
       isPrivate: true,
+      isStargateUSDT: true,
       privatelyFor: [GNOSIS_SAFE_ADDRESS],
     },
     contract: {
@@ -1668,6 +1678,49 @@ const config: Array<CauldronConfig> = [
     deleverageInfo: {
       address: "0xa5564a2d1190a141CAC438c9fde686aC48a18A79",
       abi: ERC4626LiqSwapper,
+    },
+  },
+  {
+    icon: useImage(`assets/images/tokens/sdeUSD.png`),
+    name: "sdeUSD",
+    chainId: 1,
+    id: 43,
+    liquidationFee: 7.5,
+    mcr: 85,
+    borrowFee: 0.5,
+    version: 4,
+    cauldronSettings: {
+      isNew: true,
+      isSwappersActive: true,
+      isDegenBox: true,
+      is0xSwap: true,
+      strategyLink: false,
+      isDepreciated: false,
+      acceptUseDefaultBalance: false,
+      healthMultiplier: 10,
+      hasAccountBorrowLimit: true,
+      hasWithdrawableLimit: true,
+      localBorrowAmountLimit: false,
+      hasCrvClaimLogic: false,
+      iStdeUSD: true,
+      isNoDeleverage: true,
+      hasElixirPotions: true,
+    },
+    contract: {
+      name: "CauldronV4",
+      address: "0x00380CB5858664078F2289180CC32F74440AC923",
+      abi: poolsAbi.CauldronV4,
+    },
+    collateralInfo: {
+      name: "sdeUSD",
+      decimals: 18,
+      address: "0x5C5b196aBE0d54485975D1Ec29617D42D9198326",
+      abi: erc20Abi,
+    },
+    mimInfo,
+    leverageInfo: {
+      address: "0xaa0500850199Bf4e90513CeAeF278b9CC7450c87",
+      abi: ERC4626LevSwapper,
     },
   },
 ];

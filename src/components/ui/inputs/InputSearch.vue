@@ -31,8 +31,11 @@ export default {
   },
 
   methods: {
-    changeSearch(event: any) {
-      this.$emit("changeSearch", event.target.value || "");
+    changeSearch(event: Event) {
+      this.$emit(
+        "changeSearch",
+        (event.target as HTMLInputElement).value || ""
+      );
     },
   },
 };

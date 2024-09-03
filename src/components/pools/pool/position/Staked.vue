@@ -5,7 +5,7 @@
     <RewardsWrap :pool="pool" />
 
     <template v-if="rewardsList">
-      <div class="rewards-wrap">
+      <!-- <div class="rewards-wrap">
         <h4 class="title">
           Staking rewards earned
           <Tooltip
@@ -29,7 +29,7 @@
             <span class="item-value">{{ reward.value }}</span>
           </li>
         </ul>
-      </div>
+      </div> -->
 
       <BaseButton primary @click="goToDashboard()">See dashborad</BaseButton>
     </template>
@@ -91,7 +91,8 @@ export default {
     },
     earnedBalance() {
       if (!this.hasStakeLogic) return 0n;
-      return this.pool.stakeInfo.earned;
+
+      return !!this.pool.stakeInfo.earnedInfo.find((item) => item.earned > 0n);
     },
     isProperNetwork() {
       return this.chainId == this.pool.chainId;
@@ -264,9 +265,9 @@ export default {
     RewardsWrap: defineAsyncComponent(() =>
       import("@/components/pools/pool/position/RewardsWrap.vue")
     ),
-    Tooltip: defineAsyncComponent(() =>
-      import("@/components/ui/icons/Tooltip.vue")
-    ),
+    // Tooltip: defineAsyncComponent(() =>
+    //   import("@/components/ui/icons/Tooltip.vue")
+    // ),
   },
 };
 </script>

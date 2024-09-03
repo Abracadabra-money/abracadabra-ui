@@ -34,28 +34,14 @@
       />
     </div>
 
-    <div class="info-blocks">
-      <div class="info-block lp">
-        <div class="tag">
-          <span class="title">
-            <BaseTokenIcon
-              :name="this.pool.name"
-              :icon="this.pool.icon"
-              size="32px"
-            />
-            {{ this.pool.name }}
-          </span>
-          <div class="token-amount">
-            <span class="value">
-              {{ formattedLpTokenExpected.value }}
-            </span>
-            <span class="usd">
-              {{ formattedLpTokenExpected.usd }}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
+    <PreviewAddLiquidity
+      :pool="pool"
+      :slippage="slippage"
+      :baseInputAmount="baseInputAmount"
+      :expectedOptimal="expectedOptimal"
+      :quoteInputAmount="quoteInputAmount"
+      :isExpectedOptimalCalculating="isExpectedOptimalCalculating"
+    />
 
     <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
       {{ buttonText }}
@@ -76,26 +62,25 @@
 
 <script>
 import moment from "moment";
+import { formatUnits } from "viem";
 import debounce from "lodash.debounce";
 import { defineAsyncComponent } from "vue";
-import { mapActions, mapGetters, mapMutations } from "vuex";
-import { formatUnits } from "viem";
-import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import notification from "@/helpers/notification/notification";
-import { approveTokenViem } from "@/helpers/approval";
 import { trimZeroDecimals } from "@/helpers/numbers";
-import { formatTokenBalance, formatUSD } from "@/helpers/filters";
-import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
+import { approveTokenViem } from "@/helpers/approval";
+import { mapActions, mapGetters, mapMutations } from "vuex";
+import notification from "@/helpers/notification/notification";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import { actionStatus } from "@/components/pools/pool/PoolActionBlock.vue";
-
-import { addLiquidityImbalancedOptimal } from "@/helpers/pools/swap/addLiquidityImbalancedOptimal";
+import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { addLiquidityImbalanced } from "@/helpers/pools/swap/actions/addLiquidityImbalanced";
+import { addLiquidityImbalancedOptimal } from "@/helpers/pools/swap/addLiquidityImbalancedOptimal";
 
 export default {
   props: {
     pool: { type: Object },
-    slippage: { type: BigInt, default: 100n },
+    slippage: { type: BigInt, default: 50n },
     deadline: { type: BigInt, default: 100n },
   },
 
@@ -107,7 +92,12 @@ export default {
       baseInputValue: "",
       quoteInputAmount: 0n,
       quoteInputValue: "",
-      expectedOptimal: { remainingAmountToSwap: 0n, shares: 0n },
+      expectedOptimal: {
+        remainingAmountToSwap: 0n,
+        shares: 0n,
+        baseRefundAmount: 0n,
+        quoteRefundAmount: 0n,
+      },
       isExpectedOptimalCalculating: false,
       isActionProcessing: false,
       transactionStatus: actionStatus.WAITING,
@@ -151,19 +141,6 @@ export default {
       return (
         this.pool.tokens.quoteToken.userInfo.allowance >= this.quoteInputAmount
       );
-    },
-
-    formattedLpTokenExpected() {
-      if (this.isExpectedOptimalCalculating) return { value: "-", usd: "-" };
-      const formattedLpTokenValue = Number(
-        formatUnits(this.expectedOptimal.shares, this.pool.decimals)
-      );
-      const lpTokenValueUsdEquivalent = formattedLpTokenValue * this.pool.price;
-
-      return {
-        value: formatTokenBalance(formattedLpTokenValue),
-        usd: formatUSD(lpTokenValueUsdEquivalent),
-      };
     },
 
     isValid() {
@@ -216,6 +193,12 @@ export default {
     },
   },
 
+  watch: {
+    slippage() {
+      this.calculateExpectedOptimal();
+    },
+  },
+
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
@@ -227,7 +210,12 @@ export default {
       this.quoteInputAmount = 0n;
       this.baseInputValue = "";
       this.quoteInputValue = "";
-      this.expectedOptimal = { remainingAmountToSwap: 0n, shares: 0n };
+      this.expectedOptimal = {
+        remainingAmountToSwap: 0n,
+        shares: 0n,
+        baseRefundAmount: 0n,
+        quoteRefundAmount: 0n,
+      };
     },
 
     closePreviewPopup() {
@@ -240,7 +228,7 @@ export default {
       const tokenLabel = fromBase ? "base" : "quote";
       const decimals = fromBase
         ? this.baseToken.config.decimals
-        : this.quoteToken.config.decimals; 
+        : this.quoteToken.config.decimals;
 
       if (value === null) {
         this[`${tokenLabel}InputAmount`] = 0n;
@@ -390,8 +378,9 @@ export default {
     BaseTokenInput: defineAsyncComponent(() =>
       import("@/components/base/BaseTokenInput.vue")
     ),
-    BaseTokenIcon: defineAsyncComponent(() =>
-      import("@/components/base/BaseTokenIcon.vue")
+    PreviewAddLiquidity: defineAsyncComponent(() =>
+      //@ts-ignore
+      import("@/components/pools/pool/PreviewAddLiquidity.vue")
     ),
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")
@@ -429,56 +418,6 @@ export default {
   left: calc(50% - 28px);
   width: 46px;
   height: 46px;
-}
-
-.info-blocks {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  gap: 24px;
-}
-
-.info-block {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(180, 180, 180, 0.08);
-  background: linear-gradient(
-    146deg,
-    rgba(0, 10, 35, 0.07) 0%,
-    rgba(0, 80, 156, 0.07) 101.49%
-  );
-  box-shadow: 0px 4px 33px 0px rgba(0, 0, 0, 0.06);
-}
-
-.tag {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  color: #878b93;
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.token-amount {
-  display: flex;
-  flex-direction: column;
-  align-items: end;
-}
-
-.value {
-  color: #fff;
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.value,
-.title {
-  display: flex;
-  align-items: center;
 }
 
 .apr {

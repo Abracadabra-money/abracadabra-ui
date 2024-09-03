@@ -352,7 +352,7 @@ export default {
     },
     async runDeleverage() {
       this.deleverageinProgress = true;
-      await this.deleverageFromOrder(this.order, this.deleverageSuccessPayload);
+      await this.deleverageFromOrder(this.order, {...this.deleverageSuccessPayload, order: this.order});
       this.deleverageinProgress = false;
     },
 

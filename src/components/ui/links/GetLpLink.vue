@@ -1,30 +1,35 @@
 <template>
   <a class="farm-link" :href="link" target="_blank">
-    <img :src="icon" />
+    <img :src="icon" v-if="icon" />
     <p>Get LP’s</p>
     <img src="@/assets/images/farm-lp-arrow.svg" alt="" />
   </a>
 </template>
-<script>
+
+<script lang="ts">
 import { useImage } from "@/helpers/useImage";
 
 export default {
   props: { link: { type: String, required: true } },
+
   computed: {
     icon() {
       const icons = ["sushi", "curve", "crv"];
       let currentIcon = "";
-      icons.forEach((icon, idx) => {
+      icons.forEach((icon) => {
         if (this.link.includes(icon)) {
           currentIcon = icon == "crv" ? "curve" : icon;
         }
       });
 
-      return useImage(`assets/images/get-lp-icons/${currentIcon}.png`);
+      return currentIcon
+        ? useImage(`assets/images/get-lp-icons/${currentIcon}.png`)
+        : "";
     },
   },
 };
 </script>
+
 <style lang="scss">
 .farm-link {
   display: flex;

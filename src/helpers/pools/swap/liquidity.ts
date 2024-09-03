@@ -271,7 +271,7 @@ export const previewAddLiquiditySingleSide = (
   return previewAddLiquidityResult;
 };
 
-export const previewAddLiquidityImbalanced = (
+export const previewAddLiquidityImbalancedTest = (
   lpInfo: MagicLPInfo,
   baseInAmount: bigint,
   quoteInAmount: bigint,
@@ -284,6 +284,16 @@ export const previewAddLiquidityImbalanced = (
     lpInfo
   );
 
+  const updatedLpInfo = {
+    vaultReserve: [lpInfo.vaultReserve[0], lpInfo.vaultReserve[1]],
+    totalSupply: lpInfo.totalSupply,
+    PMMState: lpInfo.PMMState,
+    balances: {
+      baseBalance: lpInfo.balances.baseBalance,
+      quoteBalance: lpInfo.balances.quoteBalance,
+    },
+  };
+
   // base -> quote
   if (remainingAmountToSwapIsBase) {
     baseAdjustedInAmount +=
@@ -293,6 +303,12 @@ export const previewAddLiquidityImbalanced = (
       lpInfo,
       lpInfo.userInfo
     ).receiveQuoteAmount;
+
+    updatedLpInfo.balances.baseBalance += remainingAmountToSwap;
+    updatedLpInfo.balances.quoteBalance -= quoteAdjustedInAmount;
+
+    updatedLpInfo.vaultReserve[0] += remainingAmountToSwap;
+    updatedLpInfo.vaultReserve[1] -= quoteAdjustedInAmount;
   }
   // quote -> base
   else {
@@ -303,14 +319,110 @@ export const previewAddLiquidityImbalanced = (
     ).receiveBaseAmount;
     quoteAdjustedInAmount +=
       quoteInAmount - quoteAdjustedInAmount - remainingAmountToSwap;
+
+    updatedLpInfo.balances.baseBalance -= baseAdjustedInAmount;
+    updatedLpInfo.balances.quoteBalance += remainingAmountToSwap;
+
+    updatedLpInfo.vaultReserve[0] -= baseAdjustedInAmount;
+    updatedLpInfo.vaultReserve[1] += remainingAmountToSwap;
   }
+
   const previewAddLiquidityImbalancedResult = previewAddLiquidity(
     baseAdjustedInAmount,
     quoteAdjustedInAmount,
-    lpInfo
+    // @ts-ignore
+    updatedLpInfo
   );
 
   return previewAddLiquidityImbalancedResult;
+};
+
+export const previewAddLiquidityImbalanced = (
+  lpInfo: MagicLPInfo,
+  baseInAmount: bigint,
+  quoteInAmount: bigint,
+  remainingAmountToSwapIsBase: boolean,
+  remainingAmountToSwap: bigint
+) => {
+  let baseAddLiquidityInAmount = 0n;
+  let quoteAddLiquidityInAmount = 0n;
+
+  const updatedLpInfo = {
+    vaultReserve: [lpInfo.vaultReserve[0], lpInfo.vaultReserve[1]],
+    totalSupply: lpInfo.totalSupply,
+    PMMState: { ...lpInfo.PMMState },
+    balances: {
+      baseBalance: lpInfo.balances.baseBalance,
+      quoteBalance: lpInfo.balances.quoteBalance,
+    },
+  };
+
+  let swapOutAmount: bigint;
+  let swapFeeAmount: bigint;
+  // base -> quote
+  if (remainingAmountToSwapIsBase) {
+    baseAddLiquidityInAmount = baseInAmount - remainingAmountToSwap;
+
+    let mtFee;
+    ({
+      receiveQuoteAmount: swapOutAmount,
+      feeAmount: swapFeeAmount,
+      mtFee,
+      newRState: updatedLpInfo.PMMState.R,
+      newBaseTarget: updatedLpInfo.PMMState.B0,
+    } = querySellBase(remainingAmountToSwap, lpInfo, lpInfo.userInfo));
+
+    quoteAddLiquidityInAmount = quoteInAmount + swapOutAmount;
+
+    updatedLpInfo.balances.baseBalance += remainingAmountToSwap;
+    updatedLpInfo.balances.quoteBalance -= swapOutAmount + mtFee;
+
+    updatedLpInfo.vaultReserve[0] += remainingAmountToSwap;
+    updatedLpInfo.vaultReserve[1] -= swapOutAmount + mtFee;
+  } else {
+    // quote -> base
+    quoteAddLiquidityInAmount = quoteInAmount - remainingAmountToSwap;
+
+    let mtFee;
+    ({
+      receiveBaseAmount: swapOutAmount,
+      feeAmount: swapFeeAmount,
+      mtFee,
+      newRState: updatedLpInfo.PMMState.R,
+      newQuoteTarget: updatedLpInfo.PMMState.Q0,
+    } = querySellQuote(remainingAmountToSwap, lpInfo, lpInfo.userInfo));
+
+    baseAddLiquidityInAmount = baseInAmount + swapOutAmount;
+
+    updatedLpInfo.balances.baseBalance -= swapOutAmount + mtFee;
+    updatedLpInfo.balances.quoteBalance += remainingAmountToSwap;
+
+    updatedLpInfo.vaultReserve[0] -= swapOutAmount + mtFee;
+    updatedLpInfo.vaultReserve[1] += remainingAmountToSwap;
+  }
+
+  const previewAddLiquidityImbalancedResult = previewAddLiquidity(
+    baseAddLiquidityInAmount,
+    quoteAddLiquidityInAmount,
+    // @ts-ignore
+    updatedLpInfo
+  );
+
+  const baseRefundAmount =
+    baseAddLiquidityInAmount -
+    previewAddLiquidityImbalancedResult.baseAdjustedInAmount;
+
+  const quoteRefundAmount =
+    quoteAddLiquidityInAmount -
+    previewAddLiquidityImbalancedResult.quoteAdjustedInAmount;
+
+  return {
+    ...previewAddLiquidityImbalancedResult,
+    swapOutAmount,
+    swapFeeAmount,
+    baseRefundAmount,
+    quoteRefundAmount,
+  };
 };
 
 export const previewRemoveLiquidityOneSide = (

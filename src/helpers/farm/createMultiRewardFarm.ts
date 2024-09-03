@@ -1,11 +1,17 @@
 import { markRaw } from "vue";
-import { formatUnits } from "viem";
+import { formatUnits, type Address, type PublicClient } from "viem";
 import chainLinkAbi from "@/abis/chainLink";
 import { calculateAPR } from "@/helpers/farm/getRewardTokenApy";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
+import type { FarmConfig, FarmItem } from "@/configs/farms/types";
 // import { getRewardTokenApy} from "@/helpers/farm/getRewardTokenApy";
 
-export const createMultiRewardFarm = async (config, account) => {
+export type RewardPrice = {
+  latestAnswer: bigint | undefined;
+  address: Address;
+}
+
+export const createMultiRewardFarm = async (config: FarmConfig, account: Address | undefined) => {
   const publicClient = getPublicClient(config.contractChain);
 
   const { stakingToken, contract } = config;
@@ -29,7 +35,7 @@ export const createMultiRewardFarm = async (config, account) => {
   });
 
   const rewardPrices = await Promise.all(
-    config.rewardTokens.map(async (tokenInfo) => {
+    config.rewardTokens!.map(async (tokenInfo) => {
       const latestAnswer = await publicClient.readContract({
         address: tokenInfo.oracle,
         abi: chainLinkAbi,
@@ -71,17 +77,16 @@ export const createMultiRewardFarm = async (config, account) => {
   //   })
   // );
 
-  const farmTvl = Number(
-    formatUnits(totalSupply.result, stakingToken.decimals) *
-      formatUnits(virtualPrice.result, stakingToken.decimals)
-  );
+  const farmTvl =
+    Number(formatUnits(totalSupply.result, stakingToken.decimals)) *
+    Number(formatUnits(virtualPrice.result, stakingToken.decimals));
 
   // const apy = rewardsApy.reduce(
   //   (accumulator, currentItem) => accumulator + currentItem.apy,
   //   0
   // );
 
-  const farmItem = {
+  const farmItem: FarmItem = {
     config,
     name: config.name,
     icon: config.icon,
@@ -93,16 +98,17 @@ export const createMultiRewardFarm = async (config, account) => {
       name: config.stakingToken.name,
       type: config.stakingToken.type,
       contractInfo: {
-        address: config.stakingToken.address,
+        address: config.stakingToken.address!,
         abi: config.stakingToken.abi,
       },
     },
     contractInfo: config.contract,
     farmRoi: totalApr, // TODO update ui
-    lpPrice: formatUnits(virtualPrice.result, stakingToken.decimals), // TODO update ui
+    lpPrice: Number(formatUnits(virtualPrice.result, stakingToken.decimals)), // TODO update ui
     tokensApr,
     farmTvl,
-    isDeprecated: false,
+    isDeprecated: config.isDeprecated ? config.isDeprecated : false,
+    isNew: config.isNew,
   };
 
   if (account)
@@ -116,7 +122,7 @@ export const createMultiRewardFarm = async (config, account) => {
   return markRaw(farmItem);
 };
 
-const getUserInfo = async (config, rewardPrices, account, publicClient) => {
+const getUserInfo = async (config: FarmConfig, rewardPrices: RewardPrice[], account: Address, publicClient: PublicClient) => {
   const { contract, stakingToken } = config;
 
   const [stakedBalance, balance, allowance] = await publicClient.multicall({
@@ -128,13 +134,13 @@ const getUserInfo = async (config, rewardPrices, account, publicClient) => {
         args: [account],
       },
       {
-        address: stakingToken.address,
+        address: stakingToken.address!,
         abi: stakingToken.abi,
         functionName: "balanceOf",
         args: [account],
       },
       {
-        address: stakingToken.address,
+        address: stakingToken.address!,
         abi: stakingToken.abi,
         functionName: "allowance",
         args: [account, contract.address],
@@ -143,7 +149,7 @@ const getUserInfo = async (config, rewardPrices, account, publicClient) => {
   });
 
   const rewardTokensInfo = await Promise.all(
-    config.rewardTokens.map(async (tokenInfo) => {
+    config.rewardTokens!.map(async (tokenInfo) => {
       const [balanceOf, allowance, rewards, earned] =
         await publicClient.multicall({
           contracts: [
@@ -174,16 +180,16 @@ const getUserInfo = async (config, rewardPrices, account, publicClient) => {
           ],
         });
 
-      const latestAnswer = rewardPrices.find(
+      const latestAnswer = rewardPrices!.find(
         (item) => item.address === tokenInfo.address
-      ).latestAnswer;
+      )?.latestAnswer;
 
-      const earnedFromatted = formatUnits(earned.result, tokenInfo.decimals);
-      const price = formatUnits(latestAnswer, 8);
+      const earnedFromatted = Number(formatUnits(earned.result as bigint, tokenInfo.decimals));
+      const price = Number(formatUnits(latestAnswer || 0n, 8));
       return {
-        balance: formatUnits(balanceOf.result, tokenInfo.decimals),
-        allowance: formatUnits(allowance.result, tokenInfo.decimals),
-        rewards: formatUnits(rewards.result, tokenInfo.decimals),
+        balance: formatUnits(balanceOf.result as bigint, tokenInfo.decimals),
+        allowance: formatUnits(allowance.result as bigint, tokenInfo.decimals),
+        rewards: formatUnits(rewards.result as bigint, tokenInfo.decimals),
         earned: earnedFromatted,
         price,
         usd: (earnedFromatted * price).toString(),
@@ -193,12 +199,13 @@ const getUserInfo = async (config, rewardPrices, account, publicClient) => {
   );
 
   return {
-    allowance: formatUnits(allowance.result, stakingToken.decimals),
-    balance: formatUnits(balance.result, stakingToken.decimals),
-    depositedBalance: formatUnits(stakedBalance.result, stakingToken.decimals),
+    allowance: formatUnits(allowance.result  as bigint, stakingToken.decimals),
+    balance: formatUnits(balance.result as bigint, stakingToken.decimals),
+    depositedBalance: formatUnits(stakedBalance.result as bigint, stakingToken.decimals),
     // TODO
     userInfo: {
-      amount: formatUnits(stakedBalance.result, stakingToken.decimals),
+      amount: formatUnits(stakedBalance.result as bigint, stakingToken.decimals),
+      amountBigInt: stakedBalance.result as bigint,
     },
     rewardTokensInfo,
   };

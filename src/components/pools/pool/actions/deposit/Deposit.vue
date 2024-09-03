@@ -24,7 +24,7 @@ import { defineAsyncComponent } from "vue";
 export default {
   props: {
     pool: { type: Object },
-    slippage: { type: BigInt, default: 100n },
+    slippage: { type: BigInt, default: 50n },
     deadline: { type: BigInt, default: 100n },
     isBalanced: { type: Boolean },
   },

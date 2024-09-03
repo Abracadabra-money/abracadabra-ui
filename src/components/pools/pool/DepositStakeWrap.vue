@@ -9,7 +9,7 @@
       />
 
       <Toggle
-        v-if="!isStake"
+        v-if="isToggle"
         text="Balanced"
         :selected="isBalanced"
         @updateToggle="changeBalancedToggle"
@@ -48,7 +48,6 @@
 
 <script>
 import { defineAsyncComponent } from "vue";
-import moment from "moment";
 
 export default {
   props: {
@@ -77,6 +76,15 @@ export default {
     isStake() {
       return this.activeTab == "stake";
     },
+
+    isArbitrumMimUsdcPool() {
+      return this.pool.chainId === 42161 && this.pool.id === 2;
+    },
+
+    isToggle() {
+      if (this.isArbitrumMimUsdcPool) return false;
+      return !this.isStake;
+    },
   },
 
   methods: {
@@ -91,6 +99,10 @@ export default {
     changeBalancedToggle() {
       this.isBalanced = !this.isBalanced;
     },
+  },
+
+  created() {
+    if (this.isArbitrumMimUsdcPool) this.isBalanced = true;
   },
 
   components: {
@@ -135,7 +147,7 @@ export default {
 }
 
 .flex-end {
-  justify-content: flex-end
+  justify-content: flex-end;
 }
 
 .tabs {

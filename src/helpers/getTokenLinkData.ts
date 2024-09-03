@@ -85,6 +85,13 @@ const configs = [
     label: "Get LP",
     icon: useImage(`assets/images/get-lp-icons/bera.png`),
   },
+  {
+    id: 43,
+    chain: 1,
+    href: "https://www.elixir.xyz/apothecary",
+    label: "Get sdeUSD Token",
+    icon: useImage(`assets/images/get-lp-icons/elixir.png`),
+  },
 ];
 
 export const getTokenLinkData = (cauldronId: number, chainId: number) => {

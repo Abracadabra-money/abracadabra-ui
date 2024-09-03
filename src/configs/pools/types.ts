@@ -11,6 +11,7 @@ export type PoolConfig = {
   quoteToken: TokenConfig;
   lockContract?: Contract;
   stakeContract?: Contract;
+  rewardTokens?: TokenConfig[];
   settings: PoolSettings;
   initialParameters: InitialParameters
 };
@@ -35,6 +36,5 @@ export type TokenConfig = {
   icon: string;
   decimals: number;
   contract: Contract;
-  mainColor?: string;
   isPopular?: boolean;
 };
