@@ -3,7 +3,7 @@
     <div class="title-wrap">
       <h4 class="title">Rewards Earned</h4>
 
-      <div class="apr-wrap">
+      <div class="apr-wrap" v-if="!isElixir">
         <template v-if="poolRewards && poolRewards.length > 1">
           <Tooltip :width="18" :height="18" fill="#ffffff" :tooltip="''" />
           <div class="apr-info">
@@ -28,8 +28,9 @@
         <p class="title">APR</p>
       </div>
     </div>
+    <ElixirReward v-if="isElixir" />
 
-    <ul class="rewards-list" v-if="tokenRewards">
+    <ul class="rewards-list" v-if="tokenRewards && !isElixir">
       <li class="list-item" v-for="(item, index) in tokenRewards" :key="index">
         <span class="item-title">
           <img :src="item.token.icon" class="reward-icon" />
@@ -84,6 +85,10 @@ export default {
 
       return rewards;
     },
+
+    isElixir() {
+      return this.pool.config.id === 1 && this.pool.config.chainId === 1;
+    },
   },
   methods: {
     formatTokenBalance(value, decimals) {
@@ -109,6 +114,9 @@ export default {
   components: {
     Tooltip: defineAsyncComponent(() =>
       import("@/components/ui/icons/Tooltip.vue")
+    ),
+    ElixirReward: defineAsyncComponent(() =>
+      import("@/components/pools/pool/ElixirReward.vue")
     ),
   },
 };
