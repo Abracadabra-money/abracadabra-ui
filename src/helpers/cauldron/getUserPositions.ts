@@ -52,7 +52,7 @@ export const getUserPositions = async (
   account: string | undefined,
   chainId: number
 ): Promise<Array<UserPositions>> => {
-  if (!account) configs.map(() => emptyPosition);
+  if (!account) return configs.map(() => emptyPosition);
 
   const lensAddress = getLensAddress(chainId);
   const publicClient = getPublicClient(chainId);
