@@ -64,6 +64,11 @@ const ethereumPools: Array<PoolConfig> = [
       isDeprecated: false,
       isMim: true,
     },
+    initialParameters: {
+      I: 1000000000000000000n,
+      K: 250000000000000n,
+      lpFeeRate: 500000000000000n
+    }
   },
 ];
 
