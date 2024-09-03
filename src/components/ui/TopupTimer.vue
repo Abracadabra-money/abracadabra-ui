@@ -1,11 +1,11 @@
 <template>
-  <div class="topup-timer">
+  <div class="topup-timer" v-if="!isEnded">
     <img src="@/assets/images/topup-bg.png" alt="" class="bg-img" />
     <div class="timer-wrap">
       <div class="timer-text">Pending Top Up</div>
       <Timer
         class="timer"
-        :endDateTimestamp="1725458400"
+        :endDateTimestamp="endDateTimestamp"
         small
         gap="4px"
         padding="2px"
@@ -18,7 +18,20 @@
 
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
+import moment from "moment";
+
 export default {
+  computed: {
+    endDateTimestamp(): number {
+      return 1725458400;
+    },
+    currentTimeUnix(): number {
+      return moment.utc(Date.now()).unix();
+    },
+    isEnded(): boolean {
+      return this.currentTimeUnix > this.endDateTimestamp;
+    },
+  },
   components: {
     Timer: defineAsyncComponent(
       () => import("@/components/stake/earnPoints/Timer.vue")
