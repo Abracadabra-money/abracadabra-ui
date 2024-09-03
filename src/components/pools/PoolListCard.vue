@@ -120,7 +120,7 @@
 
           <img
             class="reward-icons"
-            src="@/assets/images/pools/multiplier-icon.png"
+            src="@/assets/images/pools/elixir-icon.svg"
             alt=""
           />
         </div>
