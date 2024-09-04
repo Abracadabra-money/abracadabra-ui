@@ -28,6 +28,10 @@ import moment from "moment";
 import { useImage } from "@/helpers/useImage";
 import { mapMutations } from "vuex";
 import gsap from "gsap";
+import {
+  notificationSlideIn,
+  notificationFadeOutSlideOut,
+} from "@/helpers/animations/notification";
 
 export default {
   props: {
@@ -80,20 +84,11 @@ export default {
     },
 
     openingAnimation() {
-      gsap.fromTo(
-        this.$refs.notification as gsap.TweenTarget,
-        { y: "100%" },
-        { duration: 0.3, y: "0%", ease: "power2.out" }
-      );
+      notificationSlideIn(this.$refs.notification as gsap.TweenTarget);
     },
 
     closingAnimation() {
-      gsap.to(this.$refs.notification as gsap.TweenTarget, {
-        duration: 0.3,
-        y: "-100%",
-        opacity: 0,
-        ease: "power2.in",
-      });
+      notificationFadeOutSlideOut(this.$refs.notification as gsap.TweenTarget);
     },
   },
 
