@@ -98,6 +98,10 @@ import { defineAsyncComponent, type PropType } from "vue";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 import { getChainConfig } from "@/helpers/chains/getChainsInfo";
 import gsap from "gsap";
+import {
+  dropdownRollDown,
+  dropdownRollUp,
+} from "@/helpers/animations/dropdown";
 
 export default {
   props: {
@@ -187,20 +191,11 @@ export default {
     },
 
     openingAnimation() {
-      gsap.fromTo(
-        this.$refs.dropdownList as gsap.TweenTarget,
-        { y: -20, height: 0 },
-        { duration: 0.3, y: 0, height: "auto", ease: "power2.out" }
-      );
+      dropdownRollDown(this.$refs.dropdownList as gsap.TweenTarget);
     },
 
     closingAnimation() {
-      gsap.to(this.$refs.dropdownList as gsap.TweenTarget, {
-        duration: 0.3,
-        y: -20,
-        height: 0,
-        ease: "power2.in",
-      });
+      dropdownRollUp(this.$refs.dropdownList as gsap.TweenTarget);
     },
   },
 

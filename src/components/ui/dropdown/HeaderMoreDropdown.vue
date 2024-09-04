@@ -98,7 +98,10 @@ import GitHub from "@/components/ui/icons/GitHub.vue";
 import Twitter from "@/components/ui/icons/Twitter.vue";
 import Discord from "@/components/ui/icons/Discord.vue";
 import V2 from "@/components/ui/icons/V2.vue";
-import gsap from "gsap";
+import {
+  dropdownRollDown,
+  dropdownRollUp,
+} from "@/helpers/animations/dropdown";
 
 export default {
   data() {
@@ -123,20 +126,11 @@ export default {
     },
 
     openingAnimation() {
-      gsap.fromTo(
-        this.$refs.dropdownList,
-        { y: -20, height: 0 },
-        { duration: 0.3, y: 0, height: "auto", ease: "power2.out" }
-      );
+      dropdownRollDown(this.$refs.dropdownList);
     },
 
     closingAnimation() {
-      gsap.to(this.$refs.dropdownList, {
-        duration: 0.3,
-        y: -20,
-        height: 0,
-        ease: "power2.in",
-      });
+      dropdownRollUp(this.$refs.dropdownList);
     },
   },
 

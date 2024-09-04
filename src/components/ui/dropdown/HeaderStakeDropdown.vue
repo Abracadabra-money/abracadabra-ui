@@ -98,7 +98,10 @@ import BaseLoader from "@/components/base/BaseLoader.vue";
 import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
 import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
 import { getSpellStakingApr } from "@/helpers/stake/spell/getSpellStakingApr";
-import gsap from "gsap";
+import {
+  dropdownRollDown,
+  dropdownRollUp,
+} from "@/helpers/animations/dropdown";
 
 export default {
   data() {
@@ -152,20 +155,11 @@ export default {
     },
 
     openingAnimation() {
-      gsap.fromTo(
-        this.$refs.dropdownList,
-        { y: -20, height: 0 },
-        { duration: 0.3, y: 0, height: "auto", ease: "power2.out" }
-      );
+      dropdownRollDown(this.$refs.dropdownList);
     },
 
     closingAnimation() {
-      gsap.to(this.$refs.dropdownList, {
-        duration: 0.3,
-        y: -20,
-        height: 0,
-        ease: "power2.in",
-      });
+      dropdownRollUp(this.$refs.dropdownList);
     },
   },
 
