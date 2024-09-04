@@ -16,7 +16,12 @@
 </template>
 
 <script>
-import gsap from "gsap";
+import {
+  popupFadeIn,
+  popupFadeOut,
+  backdropFadeOut,
+  localPopupWrapFadeIn,
+} from "@/helpers/animations/popup";
 
 export default {
   name: "LocalPopupWrap",
@@ -41,25 +46,13 @@ export default {
   },
   methods: {
     openingAnimation() {
-      gsap.fromTo(
-        this.$refs.backdrop,
-        { autoAlpha: 0 },
-        { duration: 0.15, autoAlpha: 1, display: "grid" }
-      );
-      gsap.fromTo(
-        this.$refs.popup,
-        { scale: 0 },
-        { duration: 0.15, scale: 1, ease: "power2.out" }
-      );
+      localPopupWrapFadeIn(this.$refs.backdrop);
+      popupFadeIn(this.$refs.popup);
     },
 
     closingAnimation() {
-      gsap.to(this.$refs.backdrop, { duration: 0.15, autoAlpha: 0 });
-      gsap.to(this.$refs.popup, {
-        duration: 0.15,
-        scale: 0,
-        ease: "power2.in",
-      });
+      backdropFadeOut(this.$refs.backdrop);
+      popupFadeOut(this.$refs.popup);
     },
 
     closePopup() {

@@ -42,10 +42,13 @@ export const backdropFadeIn = (backdrop: gsap.TweenTarget) => {
 }
 
 export const backdropFadeOut = (backdrop: gsap.TweenTarget) => {
-    gsap.to(backdrop, {
-        duration: 0.15,
-        scale: 0,
-        opacity: 0,
-        ease: "power2.in",
-    });
+    gsap.to(backdrop, { duration: 0.15, autoAlpha: 0 });
+}
+
+export const localPopupWrapFadeIn = (backdrop: gsap.TweenTarget) => {
+    gsap.fromTo(
+        backdrop,
+        { autoAlpha: 0 },
+        { duration: 0.15, autoAlpha: 1, display: "grid" }
+    );
 }
