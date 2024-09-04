@@ -50,6 +50,11 @@ const routes: Array<RouteRecordRaw> = [
     redirect: "/beam",
   },
   {
+    path: "/stake-list",
+    name: "StakeList",
+    component: () => import("@/views/stake/StakeList.vue"),
+  },
+  {
     path: "/spell",
     name: "StakeSpell",
     component: () => import("@/views/stake/Spell.vue"),
