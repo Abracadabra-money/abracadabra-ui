@@ -1759,7 +1759,7 @@ const config: Array<CauldronConfig> = [
       abi: poolsAbi.CauldronV4,
     },
     collateralInfo: {
-      name: "sdeUSD V2",
+      name: "sdeUSD",
       decimals: 18,
       address: "0x5C5b196aBE0d54485975D1Ec29617D42D9198326",
       abi: erc20Abi,
