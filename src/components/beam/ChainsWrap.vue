@@ -21,7 +21,10 @@
         />
       </button>
 
-      <button class="select-item" @click="chainSelectHandler('to')">
+      <button
+        :class="['select-item', { disabled: toChainDisabled }]"
+        @click="chainSelectHandler('to')"
+      >
         <div class="icon-wrap">
           <img class="chain-icon" :src="toChainInfo.icon" alt="Icon" />
         </div>
@@ -51,6 +54,10 @@ export default {
     },
     toChain: {
       type: Object as PropType<BeamConfig>,
+    },
+    toChainDisabled: {
+      type: Boolean,
+      default: false,
     },
   },
 
@@ -82,8 +89,10 @@ export default {
 
   methods: {
     chainSelectHandler(type: "from" | "to") {
+      if (this.toChainDisabled && type === "to") return;
       this.$emit("onChainSelectClick", type);
     },
+
     switchChains() {
       this.$emit("switchChains");
     },
@@ -181,6 +190,7 @@ export default {
 
 .disabled {
   opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .switch-chain-image {

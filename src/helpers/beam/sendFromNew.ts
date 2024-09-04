@@ -22,9 +22,6 @@ export const sendFrom = async (
 
   if (!itsV2) args.unshift(payload.account); // 'from' address to send tokens
 
-  console.log("methodName", methodName);
-  console.log("args", args);
-
   const { request } = await simulateContractHelper({
     ...fromChainConfig.contract,
     functionName: methodName,

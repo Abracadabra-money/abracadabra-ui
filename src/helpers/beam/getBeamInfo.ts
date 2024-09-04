@@ -1,43 +1,44 @@
-import mimConfigs from "@/configs/tokens/mim";
-import beamConfigs from "@/configs/beam/beamConfigs";
 import type { Address } from "viem";
-import { getPublicClient } from "@/helpers/chains/getChainsInfo";
-import { getNativeTokensPrice } from "../prices/defiLlama";
-import relayerAbi from "@/abis/beam/relayer.js";
-import { tokensChainLink } from "@/configs/chainLink/config";
-import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
+import mimConfigs from "@/configs/tokens/mim";
 import { useImage } from "@/helpers/useImage";
-import type {
-  BeamInfo,
-  BeamTokenConfig,
-  BeamUserInfo,
-  BeamConfig,
-} from "./types";
+import relayerAbi from "@/abis/beam/relayer.js";
+import spellConfigs from "@/configs/tokens/spell";
+import { beamConfigs } from "@/configs/beam/beamConfigs";
+import { tokensChainLink } from "@/configs/chainLink/config";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
+import { getNativeTokensPrice } from "@/helpers/prices/defiLlama";
+import type { BeamUserInfo, BeamConfig } from "@/helpers/beam/types";
+import type { BeamInfo, BeamTokenConfig } from "@/helpers/beam/types";
+import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 
 const PACKET_TYPE: number = 0;
 
 export const getBeamInfo = async (
   chainId: number,
-  account: Address | null = null
+  account: Address | null = null,
+  tokenType: number = 0
 ): Promise<BeamInfo> => {
-  const fromChainConfig = beamConfigs.find((item) => item.chainId === chainId);
+  const configs = beamConfigs[tokenType];
+
+  const fromChainConfig = configs.find(
+    (item: BeamConfig) => item.chainId === chainId
+  );
 
   if (!fromChainConfig) {
     throw new Error("No Beam config found for chainId");
   }
 
-  const mimConfig = mimConfigs.find(
-    (item) => item.chainId === fromChainConfig.chainId
+  const { tokenConfig, tokenPrice } = await getTokenInfo(
+    tokenType,
+    fromChainConfig
   );
-
-  mimConfig!.image = useImage("assets/images/tokens/MIM.png");
 
   const destinationChainsConfig = filterDestinationChains(
     fromChainConfig,
-    beamConfigs
+    configs
   );
 
-  const userInfo = await getUserInfo(mimConfig, fromChainConfig, account);
+  const userInfo = await getUserInfo(tokenConfig, fromChainConfig, account);
 
   const publicClient = getPublicClient(fromChainConfig.chainId);
 
@@ -66,7 +67,7 @@ export const getBeamInfo = async (
   });
 
   const prices = await getNativeTokensPrice(
-    beamConfigs.map((config: BeamConfig) => config.chainId)
+    configs.map((config: BeamConfig) => config.chainId)
   );
 
   const destinationChainsInfo = destinationChainsConfig.map(
@@ -82,22 +83,38 @@ export const getBeamInfo = async (
     }
   );
 
-  const mimPrice = await getTokenPriceByChain(
-    tokensChainLink.mim.chainId,
-    tokensChainLink.mim.address
-  );
+  const nativePrice =
+    prices.find((info) => info.chainId === fromChainConfig.chainId)?.price || 0;
 
   return {
-    beamConfigs: beamConfigs,
+    beamConfigs: configs,
     fromChainConfig: fromChainConfig,
     destinationChainsInfo,
-    tokenConfig: mimConfig as BeamTokenConfig,
-    mimPrice,
-    nativePrice:
-      prices.find((info) => info.chainId === fromChainConfig.chainId)?.price ||
-      0,
+    tokenConfig: tokenConfig as BeamTokenConfig,
+    tokenPrice,
+    nativePrice,
     userInfo,
   };
+};
+
+const getTokenInfo = async (tokenType: number, fromChainConfig: any) => {
+  const tokenConfig =
+    tokenType === 0
+      ? mimConfigs.find((item) => item.chainId === fromChainConfig.chainId)
+      : spellConfigs.find((item) => item.chainId === fromChainConfig.chainId);
+
+  if (tokenType === 0) {
+    tokenConfig!.image = useImage("assets/images/tokens/MIM.png");
+  }
+
+  const activeTokenSymbol = tokenType === 0 ? "mim" : "spell";
+
+  const tokenPrice = await getTokenPriceByChain(
+    tokensChainLink[activeTokenSymbol].chainId,
+    tokensChainLink[activeTokenSymbol].address
+  );
+
+  return { tokenConfig, tokenPrice };
 };
 
 const getUserInfo = async (
@@ -112,7 +129,7 @@ const getUserInfo = async (
       nativeBalance: 0n,
     };
   }
-  
+
   const publicClient = getPublicClient(beamConfig.chainId);
 
   const [balance, allowance] = await publicClient.multicall({

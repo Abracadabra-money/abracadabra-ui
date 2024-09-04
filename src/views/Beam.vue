@@ -21,24 +21,41 @@
         </div>
       </div>
 
+      <div class="tabs">
+        <button
+          :class="['tab-item', { active: tokenType === tab.id }]"
+          v-for="tab in tabsInfo"
+          :key="tab.id"
+          @click="changeTokenType(tab.id)"
+        >
+          <img class="tab-icon" :src="tab.icon" alt="" />
+          {{ tab.name }}
+        </button>
+      </div>
+
       <div class="beam-actions" v-if="!isOpenNetworkPopup && !isSettingsOpened">
         <ChainsWrap
           :fromChain="fromChain"
           :toChain="toChain"
+          :toChainDisabled="isLoadingBeamInfo"
           @onChainSelectClick="openNetworkPopup"
           @switchChains="switchChains"
         />
 
         <div class="inputs-wrap" v-if="tokenConfig">
           <div>
-            <h4 class="input-label">MIM to Beam</h4>
+            <h4 class="input-label">{{ tokenSymbol }} to Beam</h4>
+
+            <div class="row-skeleton" v-if="isLoadingBeamInfo"></div>
+
             <BaseTokenInput
+              v-else
               class="beam-input"
               :decimals="tokenConfig.decimals"
               :max="maxMimAmount"
               :value="inputValue"
               :name="tokenConfig.symbol"
-              :icon="tokenConfig.image"
+              :icon="beamInfoObject.tokenConfig.image"
               @updateInputValue="updateMainValue"
               :error="amountError"
             />
@@ -111,26 +128,26 @@
 </template>
 
 <script lang="ts">
-import { utils } from "ethers";
-import { defineAsyncComponent } from "vue";
-import { trimZeroDecimals } from "@/helpers/numbers";
-import { approveTokenViem } from "@/helpers/approval";
-import { sendFrom } from "@/helpers/beam/sendFromNew";
-import { mapGetters, mapActions, mapMutations } from "vuex";
-import { switchNetwork } from "@/helpers/chains/switchNetwork";
-import notification from "@/helpers/notification/notification";
-import beamConfigs from "@/configs/beam/beamConfigs";
-import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFeeNew";
-
-import { getBeamInfo } from "@/helpers/beam/getBeamInfo";
-import { formatUnits, type Address } from "viem";
-
 import type {
   BeamConfig,
   BeamInfo,
   DestinationChainInfo,
 } from "@/helpers/beam/types";
+import { utils } from "ethers";
+import { defineAsyncComponent } from "vue";
+import { formatUnits, type Address } from "viem";
 import type { ContractInfo } from "@/types/global";
+import { useImage } from "@/helpers/useImage";
+import { MIM_ID, SPELL_ID } from "@/constants/beam";
+import { trimZeroDecimals } from "@/helpers/numbers";
+import { approveTokenViem } from "@/helpers/approval";
+import { sendFrom } from "@/helpers/beam/sendFromNew";
+import { beamConfigs } from "@/configs/beam/beamConfigs";
+import { getBeamInfo } from "@/helpers/beam/getBeamInfo";
+import { mapGetters, mapActions, mapMutations } from "vuex";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import notification from "@/helpers/notification/notification";
+import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFeeNew";
 
 export default {
   data() {
@@ -161,6 +178,8 @@ export default {
       isShowDstAddress: false,
 
       estimateSendFee: 0n,
+      tokenType: MIM_ID,
+      isLoadingBeamInfo: false,
     };
   },
 
@@ -249,6 +268,29 @@ export default {
       if (this.isBeaming) return { disable: true, text: "Beaming" };
       return { disable: false, text: "Beam" };
     },
+
+    tabsInfo() {
+      return [
+        {
+          id: MIM_ID,
+          name: "MIM",
+          icon: useImage("assets/images/tokens/MIM.png"),
+        },
+        {
+          id: SPELL_ID,
+          name: "Spell",
+          icon: useImage("assets/images/tokens/SPELL.png"),
+        },
+      ];
+    },
+
+    tokenSymbol() {
+      return this.tabsInfo.find((tab) => tab.id === this.tokenType)?.name;
+    },
+
+    tokenIcon() {
+      return this.tabsInfo.find((tab) => tab.id === this.tokenType)?.icon;
+    },
   },
 
   watch: {
@@ -304,6 +346,20 @@ export default {
         this.initBeamInfo(value);
       }
     },
+    async tokenType() {
+      this.toChain = undefined;
+      this.isOpenNetworkPopup = false;
+      this.isShowDstAddress = false;
+      this.isSettingsOpened = false;
+
+      const currentChain = this.beamInfoObject
+        ? this.beamInfoObject.fromChainConfig.chainId
+        : this.chainId;
+      this.clearData();
+      this.isLoadingBeamInfo = true;
+      await this.initBeamInfo(currentChain);
+      this.isLoadingBeamInfo = false;
+    },
   },
 
   methods: {
@@ -312,6 +368,10 @@ export default {
       deleteNotification: "notifications/delete",
       updateNotification: "notifications/updateTitle",
     }),
+
+    changeTokenType(type: number) {
+      this.tokenType = type;
+    },
 
     checkChainsCompability(fromChain: number, toChain: number) {
       if (!this.fromChain || !this.toChain) return false;
@@ -393,7 +453,8 @@ export default {
 
         const isTokenApproved = await approveTokenViem(
           mimContract,
-          beamContract.address
+          beamContract.address,
+          this.inputAmount
         );
 
         this.isApproving = false;
@@ -463,6 +524,7 @@ export default {
         console.log("Success Popup Data:", successPopupData);
 
         this.successData = successPopupData;
+        this.successData.tokenIcon = this.tokenIcon;
         this.isOpenSuccessPopup = true;
 
         this.clearData();
@@ -566,12 +628,15 @@ export default {
 
     async initBeamInfo(chainId: number): Promise<number | undefined> {
       try {
-        const isChainIdValid = beamConfigs.some(
-          (item) => item.chainId === chainId
-        );
-        const beamChainId = isChainIdValid ? chainId : beamConfigs[0].chainId;
+        const configs = beamConfigs[this.tokenType as keyof typeof beamConfigs];
+        const isChainIdValid = configs.some((item) => item.chainId === chainId);
+        const beamChainId = isChainIdValid ? chainId : configs[0].chainId;
 
-        this.beamInfoObject = await getBeamInfo(beamChainId, this.account);
+        this.beamInfoObject = await getBeamInfo(
+          beamChainId,
+          this.account,
+          this.tokenType
+        );
 
         return this.beamInfoObject.fromChainConfig.chainId;
       } catch (error) {
@@ -651,7 +716,7 @@ export default {
   margin-top: 50px;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 20px;
   position: relative;
 }
 
@@ -722,6 +787,40 @@ export default {
   z-index: 1;
 }
 
+.tabs {
+  display: flex;
+  padding: 6px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: rgba(16, 18, 23, 0.38);
+  backdrop-filter: blur(20px);
+  max-width: 236px;
+}
+
+.tab-item {
+  padding: 6px 24px;
+  gap: 8px;
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  border: transparent;
+  outline: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 500;
+  line-height: normal;
+  background: transparent;
+  cursor: pointer;
+}
+
+.active {
+  background: rgba(111, 111, 111, 0.06);
+}
+
+.tab-icon {
+  width: 20px;
+  height: 20px;
+}
+
 .inputs-wrap {
   display: flex;
   flex-direction: column;
@@ -761,6 +860,32 @@ export default {
 
 .caption-icon {
   max-width: 85px;
+}
+
+.row-skeleton {
+  height: 82px;
+  width: 100%;
+  border-radius: 16px;
+  border: 1px solid rgba(73, 70, 97, 0.4);
+  background-image: linear-gradient(
+    90deg,
+    rgba(8, 14, 31, 0.6) 0px,
+    rgba(35, 41, 64, 1) 60px,
+    rgba(19, 24, 42, 1) 120px
+  );
+  background-size: 1000px;
+  animation: skeleton 1.6s infinite forwards;
+}
+
+@keyframes skeleton {
+  0% {
+    background-position: -100px;
+  }
+
+  50%,
+  100% {
+    background-position: 480px;
+  }
 }
 
 @media (max-width: 600px) {

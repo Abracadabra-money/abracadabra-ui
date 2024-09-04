@@ -13,7 +13,7 @@
       <img class="beam-gif" src="@/assets/gifs/beam.gif" />
       <div class="process-title">Beaming</div>
       <div class="beam-amount">
-        <img class="mim-icon" src="@/assets/images/tokens/MIM.png" />
+        <img class="mim-icon" :src="successData.tokenIcon" />
         {{ parsedMimAmount }}
       </div>
     </div>
