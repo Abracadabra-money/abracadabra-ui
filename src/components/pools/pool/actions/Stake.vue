@@ -12,7 +12,8 @@
       />
     </div>
 
-    <RewardsCard :pool="pool" />
+    <RewardsCard :pool="pool" v-if="!isElixir" />
+    <ElixirPotions v-else />
 
     <!-- <RewardsList
       v-if="isBlastLockLogic"
@@ -119,6 +120,10 @@ export default {
 
     isProperNetwork() {
       return this.chainId == this.pool.chainId;
+    },
+
+    isElixir() {
+      return this.pool.config.id === 1 && this.pool.config.chainId === 1;
     },
   },
 
@@ -326,6 +331,9 @@ export default {
     // ),
     RewardsCard: defineAsyncComponent(() =>
       import("@/components/pools/pool/RewardsCard.vue")
+    ),
+    ElixirPotions: defineAsyncComponent(() =>
+      import("@/components/pools/pool/ElixirPotions.vue")
     ),
   },
 };

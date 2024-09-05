@@ -111,6 +111,23 @@
         <div class="pool-apr" v-if="isShowPoolApr">APR {{ poolApr }}</div>
       </div>
     </template>
+
+    <template v-if="isElixir">
+      <div class="line"></div>
+      <div class="rewards-wrap">
+        <div class="pool-rewards">
+          Staking rewards
+
+          <img
+            class="reward-icons"
+            src="@/assets/images/pools/elixir-icon.svg"
+            alt=""
+          />
+        </div>
+
+        <div class="pool-multiplier">5x Multiplier</div>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -203,6 +220,10 @@ export default {
 
     totalSupplyUsd() {
       return this.pool?.price ? this.totalSupply * this.pool.price : 0;
+    },
+
+    isElixir() {
+      return this.pool.config.id === 1 && this.pool.config.chainId === 1;
     },
   },
 
@@ -382,6 +403,12 @@ export default {
 
 .reward-icons:not(:first-child) {
   margin-left: -8px;
+}
+
+.pool-multiplier {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 135%;
 }
 
 @media screen and (max-width: 650px) {
