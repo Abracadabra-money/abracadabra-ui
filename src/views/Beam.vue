@@ -37,7 +37,7 @@
         <ChainsWrap
           :fromChain="fromChain"
           :toChain="toChain"
-          :toChainDisabled="isLoadingBeamInfo"
+          :isChainsDisabled="isLoadingBeamInfo"
           @onChainSelectClick="openNetworkPopup"
           @switchChains="switchChains"
         />
@@ -303,6 +303,7 @@ export default {
       this.inputValue = trimZeroDecimals(formatUnits(value, 18));
     },
     fromChain(value) {
+      if (!value) return;
       if (this.toChain && this.toChain.chainId === value.chainId)
         this.toChain = undefined;
 
@@ -347,6 +348,10 @@ export default {
       }
     },
     async tokenType() {
+      const fromChainId = this.fromChain?.chainId || 1;
+
+      this.fromChain = undefined;
+
       this.toChain = undefined;
       this.isOpenNetworkPopup = false;
       this.isShowDstAddress = false;
@@ -358,6 +363,17 @@ export default {
       this.clearData();
       this.isLoadingBeamInfo = true;
       await this.initBeamInfo(currentChain);
+
+      const chainConfig = this.beamInfoObject!.beamConfigs.find(
+        (chain) => chain.chainId === fromChainId
+      );
+
+      if (!chainConfig) {
+        this.fromChain = this.beamInfoObject!.beamConfigs[0];
+      } else {
+        this.fromChain = chainConfig;
+      }
+
       this.isLoadingBeamInfo = false;
     },
   },
@@ -589,7 +605,6 @@ export default {
     },
 
     async changeChain(chainId: number, type: string) {
-      console.log("changeChain", { chainId, type });
       const chainConfig = this.beamInfoObject!.beamConfigs.find(
         (chain) => chain.chainId === chainId
       );
