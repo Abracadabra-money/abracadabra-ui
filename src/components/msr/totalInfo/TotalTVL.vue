@@ -184,7 +184,7 @@ export default {
     display: flex;
     flex-direction: column;
     justify-self: center;
-    width: calc(100% - 32px);
+    width: 100%;
     min-width: auto;
   }
 

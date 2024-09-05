@@ -1,6 +1,12 @@
 <template>
   <div class="action-wrap">
-    <div class="action-info"></div>
+    <div class="action-info">
+      <Rewards
+        :mimSavingRateInfo="mimSavingRateInfo"
+        :isUserRewardLockExpired="isUserRewardLockExpired"
+        :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
+      />
+    </div>
 
     <div class="action">
       <Assets
@@ -11,18 +17,18 @@
         :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
       />
 
-      <div class="apr-rewards">
-        <APREfficiency
-          :mimSavingRateInfo="mimSavingRateInfo"
-          :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
-          @chooseLockAction="$emit('chooseLockAction')"
-        />
-        <!-- <Rewards
-          :mimSavingRateInfo="mimSavingRateInfo"
-          :isUserRewardLockExpired="isUserRewardLockExpired"
-          :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
-        /> -->
-      </div>
+      <APREfficiency
+        :mimSavingRateInfo="mimSavingRateInfo"
+        :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
+        @chooseLockAction="$emit('chooseLockAction')"
+      />
+
+      <Rewards
+        class="mobile-rewards"
+        :mimSavingRateInfo="mimSavingRateInfo"
+        :isUserRewardLockExpired="isUserRewardLockExpired"
+        :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
+      />
 
       <div class="timeline-button-wrap">
         <EpochTimeLine
@@ -232,7 +238,10 @@ export default {
   gap: 24px;
 }
 
-.apr-rewards,
+.mobile-rewards {
+  display: none !important;
+}
+
 .timeline-button-wrap {
   @include block-wrap;
 }
@@ -249,7 +258,26 @@ export default {
 @media (max-width: 1000px) {
   .action-wrap {
     display: flex;
-    flex-direction: column;
+    flex-direction: column-reverse;
+  }
+
+  .action-info {
+    display: none;
+  }
+
+  .mobile-rewards {
+    display: flex !important;
+  }
+}
+
+@media (max-width: 500px) {
+  .timeline-button-wrap {
+    padding: 0;
+    border-radius: 0;
+    border: none;
+    background: none;
+    box-shadow: none;
+    backdrop-filter: none;
   }
 }
 </style>

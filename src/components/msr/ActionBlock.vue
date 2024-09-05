@@ -126,7 +126,6 @@ export default {
 @media (max-width: 500px) {
   .action-block {
     height: auto;
-    padding: 16px;
     border: none;
     border-radius: 0;
     background: none;

@@ -100,6 +100,7 @@ export default {
 }
 
 .apr-efficiency {
+  @include block-wrap;
   display: flex;
   justify-content: space-between;
   gap: 21px;
@@ -132,6 +133,12 @@ export default {
 @media (max-width: 500px) {
   .apr-efficiency {
     flex-direction: column;
+    padding: 0;
+    border-radius: 0;
+    border: none;
+    background: none;
+    box-shadow: none;
+    backdrop-filter: none;
   }
 }
 </style>

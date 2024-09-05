@@ -5,41 +5,55 @@
         Reward earned <Tooltip :width="20" :height="20" />
       </div>
 
-      <RowSkeleton v-if="isMimSavingRateInfoLoading" />
-      <div class="token-values" v-else>
+      <div class="token-values">
         <div
           class="token-value-wrap"
           v-for="(reward, index) in rewards"
           :key="index"
         >
-          <span class="divide-slash" v-if="index > 0">\ </span>
-
-          <BaseTokenIcon :icon="reward.icon" :name="reward.name" size="20px" />
-          {{ reward.total }}
+          <div class="token-info">
+            <BaseTokenIcon
+              :icon="reward.icon"
+              :name="reward.name"
+              size="20px"
+            />
+            {{ reward.name }}
+          </div>
+          <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+          <span class="value" v-else>
+            {{ reward.total }}
+          </span>
         </div>
       </div>
     </div>
 
     <div class="rewards-fraction">
       <div class="title">
-        Vesting <Tooltip :width="20" :height="20" />
+        Pending <Tooltip :width="20" :height="20" />
         <span class="claim-timing">
           Will become claimable on
           <span class="time"> {{ unlockTime.formatted }} UTC</span>
         </span>
       </div>
 
-      <RowSkeleton v-if="isMimSavingRateInfoLoading" />
-      <div class="token-values" v-else>
+      <div class="token-values">
         <div
           class="token-value-wrap"
           v-for="(reward, index) in rewards"
           :key="index"
         >
-          <span class="divide-slash" v-if="index > 0">\ </span>
-
-          <BaseTokenIcon :icon="reward.icon" :name="reward.name" size="20px" />
-          {{ reward.vesting }}
+          <div class="token-info">
+            <BaseTokenIcon
+              :icon="reward.icon"
+              :name="reward.name"
+              size="20px"
+            />
+            {{ reward.name }}
+          </div>
+          <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+          <span class="value" v-else>
+            {{ reward.vesting }}
+          </span>
         </div>
       </div>
     </div>
@@ -49,17 +63,24 @@
         Ready to claim <Tooltip :width="20" :height="20" />
       </div>
 
-      <RowSkeleton v-if="isMimSavingRateInfoLoading" />
-      <div class="token-values" v-else>
+      <div class="token-values">
         <div
           class="token-value-wrap"
           v-for="(reward, index) in rewards"
           :key="index"
         >
-          <span class="divide-slash" v-if="index > 0">\ </span>
-
-          <BaseTokenIcon :icon="reward.icon" :name="reward.name" size="20px" />
-          {{ reward.claimable }}
+          <div class="token-info">
+            <BaseTokenIcon
+              :icon="reward.icon"
+              :name="reward.name"
+              size="20px"
+            />
+            {{ reward.name }}
+          </div>
+          <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+          <span class="value" v-else>
+            {{ reward.claimable }}
+          </span>
         </div>
       </div>
     </div>
@@ -187,42 +208,34 @@ export default {
 .rewards-wrap {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 24px;
   width: 100%;
-  padding: 12px 16px 12px 12px;
-  border-radius: 10px;
-  border: 1px solid rgba(180, 180, 180, 0.08);
-  background: linear-gradient(
-    146deg,
-    rgba(0, 10, 35, 0.07) 0%,
-    rgba(0, 80, 156, 0.07) 101.49%
-  );
-  box-shadow: 0px 4px 33px 0px rgba(0, 0, 0, 0.06);
 }
 
 .rewards-fraction {
+  @include block-wrap;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 8px;
   width: 100%;
-  font-size: 14px;
-  font-weight: 400;
+  font-size: 18px;
+  font-weight: 500;
   font-style: normal;
 }
 
 .title {
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
   gap: 4px;
-  width: 150px;
   line-height: normal;
 }
 
 .claim-timing {
-  font-size: 12px;
+  font-size: 14px;
   line-height: normal;
   color: #878b93;
+  margin-left: auto;
 }
 
 .time {
@@ -231,14 +244,19 @@ export default {
 
 .token-values {
   display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.token-value-wrap,
+.token-info {
+  display: flex;
   align-items: center;
   gap: 6px;
 }
 
 .token-value-wrap {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  justify-content: space-between;
 }
 
 .token-icon {
@@ -250,12 +268,8 @@ export default {
 }
 
 @media (max-width: 500px) {
-  .rewards-fraction {
-    flex-direction: column;
-  }
-
-  .title {
-    width: auto;
+  .rewards-wrap {
+    gap: 16px;
   }
 }
 </style>

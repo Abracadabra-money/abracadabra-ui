@@ -1,15 +1,13 @@
 <template>
   <div class="msr-view">
     <div class="msr-head">
-      <h3 class="title">
-        MIM Saving Rate
-        <ActionsTabs
-          :items="actions"
-          :name="activeAction"
-          activeColor="white"
-          @select="selectAction"
-        />
-      </h3>
+      <h3 class="title">MIM Saving Rate</h3>
+      <ActionsTabs
+        :items="actions"
+        :name="activeAction"
+        activeColor="white"
+        @select="selectAction"
+      />
       <p class="subtitle">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
         tempor
@@ -123,7 +121,7 @@ export default {
   position: relative;
   display: grid;
   grid-template-areas:
-    "title total"
+    "head total"
     "action action";
   grid-template-columns: auto;
   gap: 32px;
@@ -135,13 +133,17 @@ export default {
 }
 
 .msr-head {
-  grid-area: title;
-  display: flex;
-  flex-direction: column;
+  grid-area: head;
+  display: grid;
+  grid-template-areas:
+    "title switch"
+    "subtitle subtitle";
   gap: 12px;
+  width: 100%;
 }
 
 .title {
+  grid-area: title;
   display: flex;
   align-items: center;
   gap: 24px;
@@ -149,7 +151,13 @@ export default {
   font-weight: 600;
 }
 
+.switch {
+  grid-area: switch;
+  align-self: end;
+}
+
 .subtitle {
+  grid-area: subtitle;
   color: rgba(255, 255, 255, 0.6);
   font-size: 16px;
   font-weight: 400;
@@ -167,9 +175,27 @@ export default {
 @media (max-width: 1000px) {
   .msr-view {
     grid-template-areas:
-      "title"
+      "head"
       "action"
       "total";
+    gap: 16px;
+  }
+
+  .msr-head {
+    grid-template-areas:
+      "title"
+      "subtitle"
+      "switch";
+  }
+}
+
+@media (max-width: 500px) {
+  .title {
+    font-size: 24px;
+  }
+
+  .subtitle{
+    font-size: 14px;
   }
 }
 </style>
