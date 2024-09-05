@@ -35,30 +35,21 @@ const ethereumPools: Array<PoolConfig> = [
       decimals: 18,
       isPopular: true,
     },
-    // stakeContract: {
-    //   address: "0xc30911b52b5752447aB08615973e434c801CD652",
-    //   abi: MultiRewardsAbi,
-    // },
-    // rewardTokens: [
-    //   {
-    //     name: "SPELL",
-    //     icon: useImage(`assets/images/tokens/SPELL_2.png`),
-    //     decimals: 18,
-    //     contract: {
-    //       address: "0x3E6648C5a70A150A88bCE65F4aD4d506Fe15d2AF",
-    //       abi: erc20Abi,
-    //     },
-    //   },
-    //   {
-    //     name: "ARB",
-    //     icon: useImage(`assets/images/tokens/ARB.png`),
-    //     decimals: 18,
-    //     contract: {
-    //       address: "0x912CE59144191C1204E64559FE8253a0e49E6548",
-    //       abi: erc20Abi,
-    //     },
-    //   },
-    // ],
+    stakeContract: {
+      address: "0xaFe0BB622D83fDBF86686E097AeC9a4D9F2c47db",
+      abi: MultiRewardsAbi,
+    },
+    rewardTokens: [
+      // {
+      //   name: "bSPELL",
+      //   icon: useImage(`assets/images/tokens/SPELL_2.png`),
+      //   decimals: 18,
+      //   contract: {
+      //     address: "0x34D239C8672B814D8F31F1a3e7e72702b6516D28",
+      //     abi: erc20Abi,
+      //   },
+      // },
+    ],
     settings: {
       isNew: true,
       isDeprecated: false,

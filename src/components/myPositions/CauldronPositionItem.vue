@@ -2,7 +2,9 @@
   <div
     :class="[
       'position',
-      isDeprecated ? 'deprecated' : cauldron.alternativeData.positionHealth.status,
+      isDeprecated
+        ? 'deprecated'
+        : cauldron.alternativeData.positionHealth.status,
     ]"
   >
     <div class="status-flag" v-if="isDeprecated">Deprecated</div>
@@ -16,7 +18,7 @@
           :chainId="cauldron.config.chainId"
         />
         <div class="token-info">
-          <span class="token-name">{{ collateralSymbol }}</span>
+          <span class="token-name">{{ cauldron.config.name }}</span>
           <span class="apr" v-if="cauldron.apr">
             <Tooltip
               tooltip="Annualised Percentage Return Range given by the collateral."
@@ -64,7 +66,9 @@
       </ul>
       <HealthProgress
         :positionHealth="
-          formatPercent(100 - Number(cauldron.alternativeData.positionHealth.percent) / 100)
+          formatPercent(
+            100 - Number(cauldron.alternativeData.positionHealth.percent) / 100
+          )
         "
         :positionRisk="cauldron.alternativeData.positionHealth.status"
         :key="`${cauldron.config.id} - ${cauldron.config.chainId}`"

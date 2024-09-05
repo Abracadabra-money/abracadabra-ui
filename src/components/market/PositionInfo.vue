@@ -189,7 +189,7 @@ export default {
   max-width: 410px;
   padding: 24px;
   width: 100%;
-  max-height: 577px;
+  // max-height: 577px;
   display: flex;
   gap: 16px;
   flex-direction: column;
