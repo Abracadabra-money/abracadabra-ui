@@ -114,5 +114,8 @@ export const stakeListConfig: StakeListItemConfig[] = [
                 icon: useImage("assets/images/tokens/ARB.png")
             }
         ],
+        settings: {
+            hasLock: true,
+        }
     }
 ]

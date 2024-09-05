@@ -4,6 +4,8 @@
     :style="{ backgroundImage: backgroundStyle }"
     :to="goToStake(stakeItem.routerLinkName)"
   >
+    <ConditionalTags :lock="hasLock" />
+
     <h3 class="title">{{ stakeItem.name }}</h3>
 
     <div class="apr-wrap">
@@ -78,6 +80,10 @@ export default {
       url(${this.stakeItem.backgroundImage})
       `;
     },
+
+    hasLock() {
+      return this.stakeItem.settings?.hasLock;
+    },
   },
 
   methods: {
@@ -100,6 +106,9 @@ export default {
   },
 
   components: {
+    ConditionalTags: defineAsyncComponent(
+      () => import("@/components/stake/stakeList/ConditionalTags.vue")
+    ),
     BaseTokenIcon: defineAsyncComponent(
       () => import("@/components/base/BaseTokenIcon.vue")
     ),
