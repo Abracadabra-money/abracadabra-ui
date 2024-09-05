@@ -1,8 +1,8 @@
 import { useImage } from "@/helpers/useImage";
-import type { StakeListItem } from "@/types/stake/stakeList";
+import type { StakeListItemConfig } from "@/types/stake/stakeList";
 
 
-export const stakeListConfig: StakeListItem[] = [
+export const stakeListConfig: StakeListItemConfig[] = [
     {
         name: 'Magic GLP',
         description: 'Stake your SPELL into mSPELL! No impermanent loss, no loss of governance rights. Protocol Fee 1% ',
@@ -23,7 +23,6 @@ export const stakeListConfig: StakeListItem[] = [
             symbol: 'GLP',
             icon: useImage("assets/images/tokens/GLP.png")
         }],
-        fetchAPR: () => ''
     },
     {
         name: 'mSpell',
@@ -45,7 +44,6 @@ export const stakeListConfig: StakeListItem[] = [
             symbol: 'MIM',
             icon: useImage("assets/images/tokens/MIM.png")
         }],
-        fetchAPR: () => ''
     },
     {
         name: 'sSpell',
@@ -67,7 +65,6 @@ export const stakeListConfig: StakeListItem[] = [
             symbol: 'SPELL',
             icon: useImage("assets/images/tokens/SPELL.png")
         }],
-        fetchAPR: () => ''
     },
     {
         name: 'Magic APE',
@@ -89,7 +86,6 @@ export const stakeListConfig: StakeListItem[] = [
             symbol: 'APE',
             icon: useImage("assets/images/tokens/APE.png")
         }],
-        fetchAPR: () => ''
     },
     {
         name: 'MIM Saving Rate',
@@ -118,6 +114,5 @@ export const stakeListConfig: StakeListItem[] = [
                 icon: useImage("assets/images/tokens/ARB.png")
             }
         ],
-        fetchAPR: () => ''
     }
 ]

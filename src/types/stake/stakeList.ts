@@ -1,4 +1,4 @@
-export type StakeListItem = {
+export type StakeListItemConfig = {
     name: string;
     description: string;
     backgroundImage: string;
@@ -6,10 +6,13 @@ export type StakeListItem = {
     mainToken?: TokenInfo;
     stakeToken: TokenInfo;
     rewardTokens: TokenInfo[],
-    fetchAPR: () => string;
     settings?: {
         hasLock?: boolean;
     };
+}
+
+export type StakeListItem = StakeListItemConfig & {
+    fetchAPR: () => Promise<number | string>;
 }
 
 type TokenInfo = {

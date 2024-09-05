@@ -12,28 +12,18 @@
 
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
-import { stakeListConfig } from "@/configs/stake/stakeListConfig";
 import type { StakeListItem } from "@/types/stake/stakeList";
+import { getStakeList } from "@/helpers/stake/stakeList/getStakeList";
 
 export default {
   data() {
     return {
-      stakeList: stakeListConfig as StakeListItem[],
-      poolsLoading: true,
-      updateInterval: null as NodeJS.Timeout | null,
+      stakeList: [] as StakeListItem[],
     };
   },
 
   async created() {
-    // this.stakeList = [];
-    // this.poolsLoading = false;
-    // this.updateInterval = setInterval(async () => {
-    //   this.stakeList = [];
-    // }, 60000);
-  },
-
-  beforeUnmount() {
-    clearInterval(Number(this.updateInterval));
+    this.stakeList = getStakeList();
   },
 
   components: {

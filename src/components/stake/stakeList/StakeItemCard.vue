@@ -2,11 +2,15 @@
   <router-link
     class="stake-item-link"
     :style="{ backgroundImage: backgroundStyle }"
-    to=""
+    :to="goToStake(stakeItem.routerLinkName)"
   >
     <h3 class="title">{{ stakeItem.name }}</h3>
 
-    <div class="apr-wrap">APR <span class="apr-value">0.0%</span></div>
+    <div class="apr-wrap">
+      APR
+      <RowSkeleton v-if="isAPRFetching" />
+      <span class="apr-value" v-else>{{ formatPercent(apr) }}</span>
+    </div>
 
     <div class="tokens-wrap stake">
       Stake <BaseTokenIcon :icon="stakeToken.icon" :name="stakeToken.name" />
@@ -37,10 +41,8 @@
 
 <script lang="ts">
 import type { RouterLinkParams } from "@/types/global";
-import { getChainIcon } from "@/helpers/chains/getChainIcon";
 import { formatPercent } from "@/helpers/filters";
 import type { StakeListItem } from "@/types/stake/stakeList";
-import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 import { defineAsyncComponent } from "vue";
 
 export default {
@@ -52,7 +54,10 @@ export default {
   },
 
   data() {
-    return {};
+    return {
+      apr: 0,
+      isAPRFetching: false,
+    };
   },
 
   computed: {
@@ -76,14 +81,30 @@ export default {
   },
 
   methods: {
-    // goToStake(stakeItem: StakeListItem): RouterLinkParams {
-    //   return { name: stakeItem.routerLinkName };
-    // },
+    formatPercent,
+    //todo change when msr merged
+    goToStake(routerLinkName: string): RouterLinkParams {
+      return {
+        name: routerLinkName === "MSR" ? "StakeList" : routerLinkName,
+      };
+    },
+    async fetchAPR() {
+      this.isAPRFetching = true;
+      this.apr = Number(await this.stakeItem.fetchAPR());
+      this.isAPRFetching = false;
+    },
+  },
+
+  async mounted() {
+    await this.fetchAPR();
   },
 
   components: {
     BaseTokenIcon: defineAsyncComponent(
       () => import("@/components/base/BaseTokenIcon.vue")
+    ),
+    RowSkeleton: defineAsyncComponent(
+      () => import("@/components/ui/skeletons/RowSkeleton.vue")
     ),
   },
 };
@@ -105,6 +126,12 @@ export default {
   backdrop-filter: blur(12.5px);
   color: white;
   text-decoration: none;
+  transition: all 0.3s ease-in-out;
+}
+
+.stake-item-link:hover {
+  transform: scale(1.01);
+  z-index: 1;
 }
 
 .title {
@@ -181,10 +208,14 @@ export default {
   margin: 16px 0 0 0;
 }
 
+.row-skeleton {
+  height: 24px !important;
+}
+
 @media (max-width: 500px) {
-    .stake-item-link {
-      justify-content: center;
-  background-size: 150%;
-    }
+  .stake-item-link {
+    justify-content: center;
+    background-size: 150%;
   }
+}
 </style>
