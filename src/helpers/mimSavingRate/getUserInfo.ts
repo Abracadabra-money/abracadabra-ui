@@ -24,6 +24,7 @@ export type UserInfo = {
   earned: {
     token0: bigint;
     token1: bigint;
+    token2: bigint;
   };
   locked: bigint;
   unlocked: bigint;
@@ -33,6 +34,7 @@ export type UserInfo = {
   rewards: {
     token0: bigint;
     token1: bigint;
+    token2: bigint;
   };
   // rewardData: {
   //   token0: RewardData;
@@ -42,6 +44,7 @@ export type UserInfo = {
   userRewardPerTokenPaid: {
     token0: bigint;
     token1: bigint;
+    token2: bigint;
   };
 };
 
@@ -73,13 +76,13 @@ const emptyState = {
     locked: 0n,
     unlocked: 0n,
   },
-  earned: { token0: 0n, token1: 0n },
+  earned: { token0: 0n, token1: 0n, token2: 0n },
   locked: 0n,
   unlocked: 0n,
   userLocks: [],
   lastLockIndex: 0n,
   userLocksLength: 0n,
-  rewards: { token0: 0n, token1: 0n },
+  rewards: { token0: 0n, token1: 0n, token2: 0n },
   // rewardData: {
   //   token0: {
   //     exists: true,
@@ -100,7 +103,7 @@ const emptyState = {
     items: [],
     unlockTime: 0n,
   },
-  userRewardPerTokenPaid: { token0: 0n, token1: 0n },
+  userRewardPerTokenPaid: { token0: 0n, token1: 0n, token2: 0n },
 };
 
 export const getUserInfo = async (
@@ -114,24 +117,28 @@ export const getUserInfo = async (
 
   const rewardToken0Address = rewardTokens[0].contract.address;
   const rewardToken1Address = rewardTokens[1].contract.address;
+  const rewardToken2Address = rewardTokens[2].contract.address;
 
   const [
     totalBalance,
     balances,
     earnedToken0,
     earnedToken1,
+    earnedToken2,
     lastLockIndex,
     locked,
     // rewardDataToken0,
     // rewardDataToken1,
     rewardsToken0,
     rewardsToken1,
+    rewardsToken2,
     unlocked,
     userLocks,
     userLocksLength,
     userRewardLock,
     userRewardPerToken0Paid,
     userRewardPerToken1Paid,
+    userRewardPerToken2Paid,
     stakeTokenBalance,
     stakeTokenApprovedAmount,
   ]: any = await publicClient.multicall({
@@ -155,6 +162,11 @@ export const getUserInfo = async (
         ...contract,
         functionName: "earned",
         args: [account, rewardToken1Address],
+      },
+      {
+        ...contract,
+        functionName: "earned",
+        args: [account, rewardToken2Address],
       },
       {
         ...contract,
@@ -188,6 +200,11 @@ export const getUserInfo = async (
       },
       {
         ...contract,
+        functionName: "rewards",
+        args: [account, rewardToken2Address],
+      },
+      {
+        ...contract,
         functionName: "unlocked",
         args: [account],
       },
@@ -217,6 +234,11 @@ export const getUserInfo = async (
         args: [account, rewardToken1Address],
       },
       {
+        ...contract,
+        functionName: "userRewardPerTokenPaid",
+        args: [account, rewardToken2Address],
+      },
+      {
         ...stakingTokenContract,
         functionName: "balanceOf",
         args: [account],
@@ -236,13 +258,13 @@ export const getUserInfo = async (
     },
     totalBalance: totalBalance.result,
     balances: balances.result,
-    earned: { token0: earnedToken0.result, token1: earnedToken1.result },
+    earned: { token0: earnedToken0.result, token1: earnedToken1.result, token2: earnedToken2.result },
     locked: locked.result,
     unlocked: unlocked.result,
     userLocks: userLocks.result,
     lastLockIndex: lastLockIndex.result,
     userLocksLength: userLocksLength.result,
-    rewards: { token0: rewardsToken0.result, token1: rewardsToken1.result },
+    rewards: { token0: rewardsToken0.result, token1: rewardsToken1.result, token2: rewardsToken2.result },
     // rewardData: {
     //   token0: rewardDataToken0.result,
     //   token1: rewardDataToken1.result,
@@ -251,6 +273,7 @@ export const getUserInfo = async (
     userRewardPerTokenPaid: {
       token0: userRewardPerToken0Paid.result,
       token1: userRewardPerToken1Paid.result,
+      token2: userRewardPerToken2Paid.result,
     },
   };
 };

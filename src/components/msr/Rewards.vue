@@ -115,22 +115,13 @@ export default {
   computed: {
     rewards(): TokenRewards[] {
       if (!this.mimSavingRateInfo)
-        return [
-          {
-            name: "",
-            icon: "",
-            total: "0.0",
-            claimable: "0.0",
-            vesting: "0.0",
-          },
-          {
-            name: "",
-            icon: "",
-            total: "0.0",
-            claimable: "0.0",
-            vesting: "0.0",
-          },
-        ];
+        return Array(3).fill({
+          name: "",
+          icon: "",
+          total: "0.0",
+          claimable: "0.0",
+          vesting: "0.0",
+        });
 
       return this.mimSavingRateInfo.rewardTokens.map(
         (_: any, index: number) => {

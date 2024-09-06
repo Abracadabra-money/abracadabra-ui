@@ -38,6 +38,7 @@ export const emptyMimSavingRateInfo = {
     earned: {
       token0: 0n,
       token1: 0n,
+      token2: 0n
     },
     locked: 0n,
     unlocked: 0n,
@@ -47,6 +48,7 @@ export const emptyMimSavingRateInfo = {
     rewards: {
       token0: 0n,
       token1: 0n,
+      token2: 0n
     },
     userRewardLock: {
       items: [],
@@ -55,6 +57,7 @@ export const emptyMimSavingRateInfo = {
     userRewardPerTokenPaid: {
       token0: 0n,
       token1: 0n,
+      token2: 0n
     }
   },
   paused: false,

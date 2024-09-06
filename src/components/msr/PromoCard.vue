@@ -59,13 +59,6 @@ export default {
     boostedApr() {
       return this.defaultApr * 3;
     },
-
-    isStake() {
-      return true;
-      if (this.isMimSavingRateInfoLoading) return false;
-      const { unlocked } = this.mimSavingRateInfo!.userInfo.balances;
-      return unlocked > 0n;
-    },
   },
 
   methods: {
@@ -144,7 +137,6 @@ export default {
 
 .promo-text {
   width: 266px;
-  padding-left: 24px;
   font-size: 16px;
   font-weight: 500;
   line-height: 30px;

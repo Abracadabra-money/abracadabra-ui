@@ -17,7 +17,12 @@
 
       <p class="efficiency-description">{{ efficiencyDescription }}</p>
 
-      <BaseButton @click="$emit('chooseLockAction')">Go to Lock</BaseButton>
+      <BaseButton
+        @click="actionHandler"
+        :disabled="actionValidationData.isDisabled"
+      >
+        {{ actionValidationData.btnText }}
+      </BaseButton>
     </div>
   </div>
 </template>
@@ -26,9 +31,17 @@
 import { defineAsyncComponent, type PropType } from "vue";
 import { formatUnits } from "viem";
 import type { MimSavingRateInfo } from "@/helpers/mimSavingRate/getMimSavingRateInfo";
+import { validateAction } from "@/helpers/mimSavingRate/validators";
+import actions from "@/helpers/mimSavingRate/actions";
+import { mapActions, mapGetters, mapMutations } from "vuex";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import notification from "@/helpers/notification/notification";
+import { approveTokenViem } from "@/helpers/approval";
+import { ARBITRUM_CHAIN_ID } from "@/constants/global";
+import moment from "moment";
 
 export default {
-  emits: ["chooseLockAction"],
+  emits: ["updateMimSavingRateInfo"],
 
   props: {
     mimSavingRateInfo: {
@@ -38,7 +51,20 @@ export default {
     isMimSavingRateInfoLoading: { type: Boolean },
   },
 
+  data() {
+    return {
+      actionConfig: {
+        stakeAmount: this.mimSavingRateInfo?.userInfo?.unlocked || 0n,
+        //todo: temporary untill understand how it should work properly
+        lockingDeadline: moment().unix() + Number(300n),
+      },
+      isActionProcessing: false,
+    };
+  },
+
   computed: {
+    ...mapGetters({ account: "getAccount", chainId: "getChainId" }),
+
     efficiencyDescription() {
       return "Lock your Staked MIM for 3 months to get maximum APR Efficiency ";
     },
@@ -76,6 +102,113 @@ export default {
       if (this.isMimSavingRateInfoLoading) return 0;
 
       return (this.userApr * 100) / (this.boostedApr - this.baseApr) || 0;
+    },
+
+    isUnsupportedChain(): boolean {
+      return (
+        this.chainId != (this.mimSavingRateInfo?.chainId || ARBITRUM_CHAIN_ID)
+      );
+    },
+
+    isTokenApproved(): boolean {
+      if (!this.mimSavingRateInfo) return false;
+      const { approvedAmount } =
+        this.mimSavingRateInfo?.userInfo?.stakeToken || 0n;
+
+      return approvedAmount >= this.actionConfig.stakeAmount;
+    },
+
+    actionValidationData() {
+      if (!this.mimSavingRateInfo)
+        return {
+          isAllowed: false,
+          isDisabled: true,
+          btnText: "Lock unavailable",
+        };
+      return validateAction(
+        this.mimSavingRateInfo,
+        "lock",
+        this.chainId,
+        this.actionConfig,
+        this.isActionProcessing
+      );
+    },
+  },
+
+  watch: {
+    mimSavingRateInfo: {
+      handler(value) {
+        this.actionConfig.stakeAmount = value?.userInfo?.unlocked || 0n;
+      },
+      deep: true,
+    },
+  },
+
+  methods: {
+    ...mapActions({ createNotification: "notifications/new" }),
+    ...mapMutations({ deleteNotification: "notifications/delete" }),
+
+    async approveTokenHandler() {
+      if (this.isUnsupportedChain || !this.mimSavingRateInfo) return false;
+      this.isActionProcessing = true;
+      const notificationId = await this.createNotification(
+        notification.approvePending
+      );
+
+      const approve = await approveTokenViem(
+        this.mimSavingRateInfo?.stakingToken.contract,
+        this.mimSavingRateInfo?.lockingMultiRewardsContract.address,
+        this.actionConfig.stakeAmount
+      );
+
+      if (approve) {
+        this.$emit("updateMimSavingRateInfo");
+        await this.deleteNotification(notificationId);
+        await this.createNotification(notification.success);
+      }
+      {
+        await this.deleteNotification(notificationId);
+        await this.createNotification(notification.approveError);
+      }
+      this.isActionProcessing = false;
+    },
+
+    async actionHandler() {
+      if (this.actionValidationData.isDisabled) return false;
+
+      if (!this.account && !this.isUnsupportedChain) {
+        // @ts-ignore
+        return this.$openWeb3modal();
+      }
+
+      if (this.isUnsupportedChain) {
+        switchNetwork(this.mimSavingRateInfo?.chainId || 1);
+        return false;
+      }
+
+      if (!this.isTokenApproved) {
+        await this.approveTokenHandler();
+        return false;
+      }
+      this.isActionProcessing = true;
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
+
+      const { error }: any = await actions.lock(
+        this.mimSavingRateInfo!.lockingMultiRewardsContract,
+        this.actionConfig
+      );
+
+      await this.deleteNotification(notificationId);
+
+      if (error) {
+        await this.createNotification(error);
+      } else {
+        this.$emit("updateMimSavingRateInfo");
+        await this.createNotification(notification.success);
+      }
+      this.isActionProcessing = false;
     },
   },
 

@@ -10,10 +10,10 @@
       </div>
 
       <h2 class="action-title">
-        {{ titleText }} MIM
+        {{ activeTab }} MIM
         <Tabs
           class="tabs"
-          :name="activeTab"
+          :name="activeTabName"
           :items="tabItems"
           @select="changeTab"
         />
@@ -26,14 +26,13 @@
         :icon="mimSavingRateInfo?.stakingToken?.icon || mimIcon"
         :max="maxInputValue"
         :disabled="isMimSavingRateInfoLoading || !mimSavingRateInfo"
-        :primaryMax="!isStakeAction || (isStakeAction && isLock)"
-        :tokenPrice="1"
-        @updateInputValue="onUpdateStakeValue"
+        :primaryMax="activeTab === 'unstake'"
+        @updateInputValue="onUpdateActionValue"
       />
 
-      <div class="lock-toggle-wrap" v-if="activeTab == 'stake'">
+      <div class="lock-toggle-wrap" v-if="isStakeAction || isLockAction">
         <Toggle
-          :selected="isLock"
+          :selected="isLockAction"
           text="Lock for 3 months to get higher APR"
           @updateToggle="toggleLock"
         />
@@ -44,10 +43,11 @@
         primary
         @click="actionHandler"
         :disabled="actionValidationData.isDisabled"
-        >{{ actionValidationData.btnText }}
+      >
+        {{ actionValidationData.btnText }}
       </BaseButton>
 
-      <div class="description-wrap">
+      <div class="description-wrap" v-if="isLockAction">
         <p class="description">
           The locked amount will be assigned to the current epoch, with each
           epoch starting every Thursday at 00:00 UTC.
@@ -103,7 +103,7 @@ import type { MimSavingRateInfo } from "@/helpers/mimSavingRate/getMimSavingRate
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 import { formatTimestampToUnix } from "@/helpers/time";
 
-type ActiveTab = "stake" | "unstake";
+type ActiveTab = "stake" | "unstake" | "lock";
 type TabItems = string[];
 type InputValue = string | bigint;
 export type ActionConfig = {
@@ -132,12 +132,11 @@ export default {
       actionConfig: {
         stakeAmount: 0n,
         withdrawAmount: 0n,
-        lockAmount: this.mimSavingRateInfo?.userInfo?.unlocked || 0n,
+        lockAmount: 0n,
         //todo: temporary untill understand how it should work properly
         lockingDeadline: moment().unix() + Number(300n),
       } as ActionConfig,
-      isLock: false,
-
+      isActionProcessing: false,
       mimIcon,
     };
   },
@@ -155,8 +154,8 @@ export default {
       return this.activeTab === "stake";
     },
 
-    titleText(): string {
-      return this.isStakeAction ? "Stake" : "Unstake";
+    isLockAction(): boolean {
+      return this.activeTab === "lock";
     },
 
     isTokenApproved(): boolean {
@@ -166,8 +165,19 @@ export default {
       return approvedAmount >= this.actionConfig.stakeAmount;
     },
 
+    activeTabName() {
+      return this.isStakeAction || this.isLockAction ? "stake" : "unstake";
+    },
+
     actionMethodName() {
-      return this.isStakeAction ? (this.isLock ? "lock" : "stake") : "withdraw";
+      switch (this.activeTab) {
+        case "unstake":
+          return "withdraw";
+        case "lock":
+          return "stakeLocked";
+        default:
+          return "stake";
+      }
     },
 
     maxInputValue(): bigint {
@@ -175,7 +185,7 @@ export default {
       const { balance } = this.mimSavingRateInfo?.userInfo?.stakeToken || 0n;
       const { unlocked } = this.mimSavingRateInfo?.userInfo || 0n;
 
-      return this.isStakeAction && !this.isLock ? balance : unlocked;
+      return this.isStakeAction || this.isLockAction ? balance : unlocked;
     },
 
     actionValidationData() {
@@ -187,10 +197,10 @@ export default {
         };
       return validateAction(
         this.mimSavingRateInfo,
-        this.activeTab,
+        this.isLockAction ? "stakeAndLock" : this.activeTab,
         this.chainId,
         this.actionConfig,
-        this.isLock
+        this.isActionProcessing
       );
     },
   },
@@ -226,10 +236,11 @@ export default {
     },
 
     toggleLock() {
-      this.isLock = !this.isLock;
+      const tabToChange = this.isStakeAction ? "lock" : "stake";
+      this.changeTab(tabToChange);
     },
 
-    onUpdateStakeValue(value: bigint) {
+    onUpdateActionValue(value: bigint) {
       this.inputValue = !value
         ? ""
         : formatUnits(
@@ -237,16 +248,19 @@ export default {
             this.mimSavingRateInfo?.stakingToken.decimals || 18
           );
 
-      if (this.isStakeAction) {
-        this.actionConfig.stakeAmount = value;
-      } else {
-        this.actionConfig.withdrawAmount = value;
+      switch (this.activeTab) {
+        case "unstake":
+          this.actionConfig.withdrawAmount = value;
+          break;
+        default:
+          this.actionConfig.stakeAmount = value;
+          break;
       }
     },
 
     async approveTokenHandler() {
       if (this.isUnsupportedChain || !this.mimSavingRateInfo) return false;
-
+      this.isActionProcessing = true;
       const notificationId = await this.createNotification(
         notification.approvePending
       );
@@ -257,13 +271,15 @@ export default {
         this.actionConfig.stakeAmount
       );
 
-      console.log({ approve });
-
-      if (approve) this.$emit("updateMimSavingRateInfo");
-
-      await this.deleteNotification(notificationId);
-      if (!approve) await this.createNotification(notification.approveError);
-      return false;
+      if (approve) {
+        this.$emit("updateMimSavingRateInfo");
+        await this.deleteNotification(notificationId);
+        await this.createNotification(notification.success);
+      } else {
+        await this.deleteNotification(notificationId);
+        await this.createNotification(notification.approveError);
+      }
+      this.isActionProcessing = false;
     },
 
     async actionHandler() {
@@ -283,7 +299,7 @@ export default {
         await this.approveTokenHandler();
         return false;
       }
-
+      this.isActionProcessing = true;
       const notificationId = await this.createNotification(
         notification.pending
       );
@@ -302,6 +318,7 @@ export default {
         this.resetAmounts();
         await this.createNotification(notification.success);
       }
+      this.isActionProcessing = false;
     },
   },
 
@@ -372,6 +389,7 @@ export default {
   align-items: center;
   font-size: 24px;
   font-weight: 500;
+  text-transform: capitalize;
 }
 
 .default-button {
@@ -465,7 +483,7 @@ export default {
   height: 26px !important;
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 1100px) {
   .action-wrap {
     display: flex;
     flex-direction: column;

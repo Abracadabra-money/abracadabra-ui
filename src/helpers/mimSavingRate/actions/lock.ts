@@ -5,7 +5,6 @@ import {
 } from "@/helpers/walletClienHelper";
 import type { ContractInfo } from "@/types/global";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import type { ActionConfig } from "@/components/msr/actions/stake/Stake.vue";
 
 export const lock = async (
   contract: ContractInfo,

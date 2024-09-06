@@ -74,20 +74,28 @@ const NO_CONTRACT_WARNING = {
   btnText: WARNINGS_BTN_TEXT[WARNING_TYPES.AMOUNT],
 };
 
+const PROCESSING_WARNING = {
+  isAllowed: false,
+  isDisabled: true,
+  btnText: 'Processing...',
+};
+
 export const validateAction = (
   contractInfo: any,
   actionType: ActionType,
   chainId: number,
   actionConfig: any,
-  isLock: boolean
+  isActionProcessing: boolean = false
 ) => {
+  if (isActionProcessing) return PROCESSING_WARNING;
+
   if (!contractInfo) return NO_CONTRACT_WARNING;
 
   if (contractInfo.chainId !== chainId) return CHAIN_WARNING;
 
   if (!getAccountHelper().isConnected) return CONNECTION_WARNING;
 
-  if (isLock) return validateLock(contractInfo, actionConfig.lockAmount);
+  if (actionType === 'lock') return validateLock(contractInfo, actionConfig.lockAmount);
 
   const validationErrors: any = checkForErrors(
     contractInfo,

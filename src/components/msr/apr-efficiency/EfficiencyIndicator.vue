@@ -157,4 +157,11 @@ export default {
   height: 28px !important;
   padding: 15px 0 !important;
 }
+
+@media (max-width: 500px) {
+  .edge-percents {
+  max-width: 250px;
+    margin-top: 16px;
+  }
+}
 </style>

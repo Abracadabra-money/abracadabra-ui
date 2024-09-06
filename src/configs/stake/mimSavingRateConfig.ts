@@ -35,7 +35,7 @@ export const mimSavingRateConfig: MimSavingRateConfig[] = [
   {
     chainId: 42161,
     lockingMultiRewardsContract: {
-      address: "0x98164deD88e2a4862BdE8E7D4B831a6e3BE02D0A",
+      address: "0x7D594cBa55D6359bd02403Fb9ADd3569D5F03DC7",
       abi: lockingMultiRewardsAbi,
     },
     stakingToken: {
@@ -64,6 +64,15 @@ export const mimSavingRateConfig: MimSavingRateConfig[] = [
       contract: {
         address: "0x3E6648C5a70A150A88bCE65F4aD4d506Fe15d2AF",
         abi: tokensAbi.SPELL,
+      },
+    },
+    {
+      name: "MIM",
+      icon: useImage(`assets/images/tokens/MIM.png`),
+      decimals: 18,
+      contract: {
+        address: "0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A",
+        abi: tokensAbi.MIM,
       },
     },
   ]

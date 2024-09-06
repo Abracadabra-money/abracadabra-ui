@@ -12,12 +12,14 @@
       />
 
       <template v-if="!showDepositedTooltip">
-        <h4 class="item-title">Deposited</h4>
+        <div class="deposit">
+          <h4 class="item-title">Deposited</h4>
 
-        <RowSkeleton v-if="isMimSavingRateInfoLoading" />
-        <div class="token-amount" v-else>
-          <BaseTokenIcon :icon="mimIcon" name="MIM" size="32px" />
-          {{ formatTokenBalance(deposited) }}
+          <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+          <div class="token-amount" v-else>
+            <BaseTokenIcon :icon="mimIcon" name="MIM" size="32px" />
+            {{ formatTokenBalance(deposited) }}
+          </div>
         </div>
       </template>
       <template v-else>
@@ -197,6 +199,13 @@ export default {
   align-items: center;
   gap: 4px;
   font-weight: 500;
+}
+
+.deposit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
 }
 
 .deposit-compound {

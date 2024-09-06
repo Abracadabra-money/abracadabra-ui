@@ -45,7 +45,8 @@ export default {
     return {
       actions: ["Stake", "Claim"],
       mimSavingRateInfo: emptyMimSavingRateInfo as MimSavingRateInfo,
-      isMimSavingRateInfoLoading: true,
+      isMimSavingRateInfoLoading: false,
+      updateInterval: null as null | NodeJS.Timeout,
     };
   },
 
@@ -93,6 +94,7 @@ export default {
         this.account,
         publicClient
       );
+      console.log(this.mimSavingRateInfo);
 
       this.isMimSavingRateInfoLoading = false;
     },
@@ -100,6 +102,13 @@ export default {
 
   async created() {
     await this.createMimSavingRateInfo();
+    this.updateInterval = setInterval(async () => {
+      await this.createMimSavingRateInfo();
+    }, 60000);
+  },
+
+  beforeUnmount() {
+    if (this.updateInterval) clearInterval(this.updateInterval);
   },
 
   components: {
@@ -123,12 +132,13 @@ export default {
   grid-template-areas:
     "head total"
     "action action";
+  grid-template-rows: min-content;
   grid-template-columns: auto;
   gap: 32px;
   min-height: 100vh;
   max-width: 1310px;
   width: 100%;
-  padding: 128px 15px;
+  padding: 128px 15px 100px 15px;
   margin: auto;
 }
 
@@ -138,7 +148,10 @@ export default {
   grid-template-areas:
     "title switch"
     "subtitle subtitle";
+  grid-template-columns: 270px auto;
+  align-self: start !important;
   gap: 12px;
+  min-width: 614px;
   width: 100%;
 }
 
@@ -153,7 +166,6 @@ export default {
 
 .switch {
   grid-area: switch;
-  align-self: end;
 }
 
 .subtitle {
@@ -172,7 +184,7 @@ export default {
   grid-area: action;
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 1100px) {
   .msr-view {
     grid-template-areas:
       "head"
@@ -186,6 +198,8 @@ export default {
       "title"
       "subtitle"
       "switch";
+    grid-template-columns: auto;
+    min-width: auto;
   }
 }
 
@@ -194,7 +208,7 @@ export default {
     font-size: 24px;
   }
 
-  .subtitle{
+  .subtitle {
     font-size: 14px;
   }
 }

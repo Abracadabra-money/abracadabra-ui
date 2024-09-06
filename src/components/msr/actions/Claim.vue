@@ -20,7 +20,7 @@
       <APREfficiency
         :mimSavingRateInfo="mimSavingRateInfo"
         :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
-        @chooseLockAction="$emit('chooseLockAction')"
+        @updateMimSavingRateInfo="$emit('updateMimSavingRateInfo')"
       />
 
       <Rewards
@@ -255,7 +255,7 @@ export default {
   margin-top: 0 !important;
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 1100px) {
   .action-wrap {
     display: flex;
     flex-direction: column-reverse;
