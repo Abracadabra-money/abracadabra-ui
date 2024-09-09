@@ -60,6 +60,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/views/stake/Spell.vue"),
   },
   {
+    path: "/bspell",
+    name: "BSpell",
+    component: () => import("@/views/stake/BSpell.vue"),
+  },
+  {
     path: "/magicGLP",
     name: "magicGLP",
     component: () => import("@/views/stake/MGLP.vue"),

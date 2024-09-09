@@ -52,6 +52,7 @@ import ARB from "@/abis/tokensAbi/ARB";
 import yvUSDT from "@/abis/tokensAbi/yvUSDT";
 import yvUSDC from "@/abis/tokensAbi/yvUSDC";
 import USDT from "@/abis/tokensAbi/USDT";
+import bSPELL from "@/abis/tokensAbi/bSPELL";
 
 export default {
   ALCX,
@@ -108,4 +109,5 @@ export default {
   yvUSDT,
   yvUSDC,
   USDT,
+  bSPELL,
 };
