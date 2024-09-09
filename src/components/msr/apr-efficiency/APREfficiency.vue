@@ -101,7 +101,10 @@ export default {
     aprEfficiency() {
       if (this.isMimSavingRateInfoLoading) return 0;
 
-      return (this.userApr * 100) / (this.boostedApr - this.baseApr) || 0;
+      return (
+        ((this.userApr - this.baseApr) * 100) /
+          (this.boostedApr - this.baseApr) || 0
+      );
     },
 
     isUnsupportedChain(): boolean {

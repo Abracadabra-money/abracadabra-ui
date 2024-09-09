@@ -253,6 +253,7 @@ export default {
           this.actionConfig.withdrawAmount = value;
           break;
         default:
+          this.actionConfig.lockAmount = value;
           this.actionConfig.stakeAmount = value;
           break;
       }
