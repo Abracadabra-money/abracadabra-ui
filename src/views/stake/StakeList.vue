@@ -7,6 +7,7 @@
         :key="index"
       />
       <MSRItemCard />
+      <BSpellItemCard />
     </div>
   </div>
 </template>
@@ -33,6 +34,10 @@ export default {
     ),
     MSRItemCard: defineAsyncComponent(
       () => import("@/components/stake/stakeList/uniqueCards/MSRItemCard.vue")
+    ),
+    BSpellItemCard: defineAsyncComponent(
+      () =>
+        import("@/components/stake/stakeList/uniqueCards/BSpellItemCard.vue")
     ),
   },
 };

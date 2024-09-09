@@ -2,34 +2,42 @@
   <router-link
     class="stake-item-link"
     :style="{ backgroundImage: backgroundStyle }"
-    :to="goToStake(stakeItem)"
+    :to="{ name: 'BSpell' }"
   >
     <h3 class="title">{{ stakeItem.name }}</h3>
 
-    <div class="apr-wrap">
-      APR
-      <RowSkeleton v-if="isAPRFetching" />
-      <span class="apr-value" v-else>{{ formatPercent(apr) }}</span>
-    </div>
-
     <div class="tokens-wrap stake">
-      Stake <BaseTokenIcon :icon="stakeToken.icon" :name="stakeToken.name" />
+      Vest <BaseTokenIcon :icon="stakeToken.icon" :name="stakeToken.name" />
       {{ stakeToken.symbol }}
       <span class="main-token-info" v-if="mainToken">
         Into <BaseTokenIcon :icon="mainToken.icon" :name="mainToken.name" />
       </span>
     </div>
 
-    <div class="tokens-wrap reward">
-      Reward
-      <div class="reward-tokens">
-        <BaseTokenIcon
-          :icon="icon"
-          :name="name"
-          :key="name"
-          size="24px"
-          v-for="{ icon, name } in rewardTokens"
-        />
+    <p class="vesting-wrap">
+      Vesting time: <span class="vesting-time">3 months</span>
+    </p>
+
+    <div class="ratio-wrap">
+      Ratio:
+      <div class="tokens-ratio">
+        <span class="token-ratio">
+          1
+          <BaseTokenIcon
+            :icon="stakeToken.icon"
+            :name="stakeToken.name"
+            size="24px"
+          />
+        </span>
+        =
+        <span class="token-ratio">
+          1
+          <BaseTokenIcon
+            :icon="mainToken.icon"
+            :name="mainToken.name"
+            size="24px"
+          />
+        </span>
       </div>
     </div>
 
@@ -41,19 +49,32 @@
 
 <script lang="ts">
 import { formatPercent } from "@/helpers/filters";
+import { useImage } from "@/helpers/useImage";
 import type { StakeListItem } from "@/types/stake/stakeList";
 import { defineAsyncComponent } from "vue";
 
 export default {
-  props: {
-    stakeItem: {
-      type: Object as () => StakeListItem,
-      required: true,
-    },
-  },
-
   data() {
     return {
+      stakeItem: {
+        name: "bSpell",
+        description:
+          "Stake your SPELL into mSPELL! No impermanent loss, no loss of governance rights. Protocol Fee 1% ",
+        backgroundImage: useImage(
+          "assets/images/stake/stake-list/background-images/bspell.png"
+        ),
+        routerLinkName: "BSpell",
+        mainToken: {
+          name: "Spell",
+          symbol: "Spell",
+          icon: useImage("assets/images/tokens/SPELL.png"),
+        },
+        stakeToken: {
+          name: "bSpell",
+          symbol: "bSpell",
+          icon: useImage("assets/images/tokens/bSPELL.png"),
+        },
+      },
       apr: 0,
       isAPRFetching: false,
     };
@@ -68,18 +89,10 @@ export default {
       return this.stakeItem.stakeToken;
     },
 
-    rewardTokens() {
-      return this.stakeItem.rewardTokens;
-    },
-
     backgroundStyle() {
       return `
       url(${this.stakeItem.backgroundImage})
       `;
-    },
-
-    hasLock() {
-      return this.stakeItem.settings?.hasLock;
     },
   },
 
@@ -93,7 +106,7 @@ export default {
     },
     async fetchAPR() {
       this.isAPRFetching = true;
-      this.apr = Number(await this.stakeItem.fetchAPR());
+      this.apr = 0;
       this.isAPRFetching = false;
     },
   },
@@ -106,9 +119,6 @@ export default {
     BaseTokenIcon: defineAsyncComponent(
       () => import("@/components/base/BaseTokenIcon.vue")
     ),
-    RowSkeleton: defineAsyncComponent(
-      () => import("@/components/ui/skeletons/RowSkeleton.vue")
-    ),
   },
 };
 </script>
@@ -117,6 +127,7 @@ export default {
 .stake-item-link {
   display: flex;
   flex-direction: column;
+  gap: 16px;
   height: 280px;
   max-width: 411px;
   padding: 16px;
@@ -140,19 +151,9 @@ export default {
 .title {
   font-size: 24px;
   font-weight: 500;
-  margin: 0 0 8px 0;
 }
 
-.apr-wrap {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 16px;
-  font-weight: 500;
-  margin: 0 0 12px 0;
-}
-
-.apr-value {
+.vesting-time {
   text-shadow: 0px 0px 16px #ab5de8;
   font-size: 16px;
   font-weight: 600;
@@ -183,32 +184,36 @@ export default {
 .tokens-wrap.stake {
   font-size: 20px;
   font-weight: 400;
-  margin: 0 0 6px -16px;
+  margin: 0 0 0 -16px;
 }
 
-.tokens-wrap.reward {
+.vesting-wrap,
+.ratio-wrap {
   font-size: 16px;
-  font-weight: 400;
+  font-weight: 500;
 }
 
-.reward-tokens {
+.ratio-wrap {
   display: flex;
   align-items: center;
+  gap: 8px;
+}
+
+.tokens-ratio,
+.token-ratio {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .token-icon {
   margin-right: 0 !important;
 }
 
-.reward-tokens .token-icon:not(:first-of-type) {
-  margin: 0 0 0 -4px;
-}
-
 .description {
   color: rgba(255, 255, 255, 0.6);
   font-size: 14px;
   font-weight: 400;
-  margin: 16px 0 0 0;
 }
 
 .row-skeleton {

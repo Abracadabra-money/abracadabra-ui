@@ -20,7 +20,7 @@
 <script lang="ts">
 import { defineAsyncComponent, type PropType } from "vue";
 import { formatPercent } from "@/helpers/filters";
-import type { MSRActionName } from "@/views/MimSavingRate.vue";
+import type { MSRActionName } from "@/views/stake/MSR.vue";
 import type { MimSavingRateInfo } from "@/helpers/mimSavingRate/getMimSavingRateInfo";
 export default {
   emits: ["chooseLockAction", "updateMimSavingRateInfo"],
@@ -39,8 +39,6 @@ export default {
       switch (this.activeAction) {
         case "Stake":
           return baseApr;
-        case "Lock":
-          return baseApr * 3;
         default:
           return "";
       }

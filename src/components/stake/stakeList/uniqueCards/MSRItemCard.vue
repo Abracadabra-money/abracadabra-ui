@@ -4,8 +4,6 @@
     :style="{ backgroundImage: backgroundStyle }"
     :to="{ name: 'MSR' }"
   >
-    <ConditionalTags />
-
     <h3 class="title">{{ stakeItem.name }}</h3>
 
     <div class="tokens-wrap stake">
@@ -147,9 +145,6 @@ export default {
   },
 
   components: {
-    ConditionalTags: defineAsyncComponent(
-      () => import("@/components/stake/stakeList/ConditionalTags.vue")
-    ),
     BaseTokenIcon: defineAsyncComponent(
       () => import("@/components/base/BaseTokenIcon.vue")
     ),
