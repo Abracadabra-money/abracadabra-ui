@@ -15,7 +15,9 @@
         <div class="deposit">
           <h4 class="item-title">Deposited</h4>
 
-          <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+          <RowSkeleton
+            v-if="isMimSavingRateInfoLoading && !isMimSavingRateInfo"
+          />
           <div class="token-amount" v-else>
             <BaseTokenIcon :icon="mimIcon" name="MIM" size="32px" />
             {{ formatTokenBalance(deposited) }}
@@ -27,7 +29,7 @@
           <div class="compound-part">
             <h4 class="item-title">Staked</h4>
 
-            <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+            <RowSkeleton v-if="isMimSavingRateInfoLoading && !isMimSavingRateInfo" />
             <div class="token-amount" v-else>
               <BaseTokenIcon :icon="mimIcon" name="MIM" size="13.75px" />
               {{ formatTokenBalance(unlockedAmount) }}
@@ -37,7 +39,7 @@
           <div class="compound-part">
             <h4 class="item-title">Locked</h4>
 
-            <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+            <RowSkeleton v-if="isMimSavingRateInfoLoading && !isMimSavingRateInfo" />
             <div class="token-amount" v-else>
               <BaseTokenIcon :icon="mimIcon" name="MIM" size="13.75px" />
               {{ formatTokenBalance(lockedAmount) }}
@@ -55,7 +57,7 @@
         <Tooltip fill="#99A0B2" tooltip="Rewards" :width="20" :height="20" />
       </h4>
 
-      <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+      <RowSkeleton v-if="isMimSavingRateInfoLoading && !isMimSavingRateInfo" />
       <div class="reward-tokens" v-else>
         <div
           class="reward-token"
@@ -82,6 +84,7 @@ export default {
     rewardTokens: { type: Object },
     depositedToken: { type: Object },
     isMimSavingRateInfoLoading: { type: Boolean },
+    isMimSavingRateInfo: { type: Boolean, default: false },
   },
 
   data() {

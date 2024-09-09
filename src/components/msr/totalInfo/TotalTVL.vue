@@ -4,7 +4,7 @@
       <h4 class="tvl-card-title">Mim Saving Rate TVL</h4>
       <div class="tvl-card-value">
         <BaseTokenIcon :icon="icon" size="24px" />
-        <RowSkeleton class="total-skeleton" v-if="isMimSavingRateInfoLoading" />
+        <RowSkeleton class="total-skeleton" v-if="isMimSavingRateInfoLoading && !mimSavingRateInfo" />
         <span class="total-tvl-value" v-else>
           {{ formatLargeSum(totalTvl) }}
         </span>
@@ -18,7 +18,7 @@
         Staked
         <RowSkeleton
           class="action-skeleton"
-          v-if="isMimSavingRateInfoLoading"
+          v-if="isMimSavingRateInfoLoading && !mimSavingRateInfo"
         />
         <span class="action-tvl-value" v-else>
           {{ formatLargeSum(stakedTvl) }}
@@ -28,7 +28,7 @@
         Locked
         <RowSkeleton
           class="action-skeleton"
-          v-if="isMimSavingRateInfoLoading"
+          v-if="isMimSavingRateInfoLoading && !mimSavingRateInfo"
         />
         <span class="action-tvl-value" v-else>
           {{ formatLargeSum(lockedTvl) }}

@@ -34,7 +34,6 @@ import { mapGetters } from "vuex";
 import {
   getMimSavingRateInfo,
   type MimSavingRateInfo,
-  emptyMimSavingRateInfo,
 } from "@/helpers/mimSavingRate/getMimSavingRateInfo";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 
@@ -44,7 +43,7 @@ export default {
   data() {
     return {
       actions: ["Stake", "Claim"],
-      mimSavingRateInfo: emptyMimSavingRateInfo as MimSavingRateInfo,
+      mimSavingRateInfo: null as MimSavingRateInfo | null,
       isMimSavingRateInfoLoading: false,
       updateInterval: null as null | NodeJS.Timeout,
     };

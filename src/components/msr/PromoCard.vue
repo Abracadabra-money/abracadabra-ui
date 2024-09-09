@@ -13,7 +13,7 @@
 
     <div class="apr-wrap">
       <h4 class="apr-title">APR Range</h4>
-      <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+      <RowSkeleton v-if="isMimSavingRateInfoLoading && !mimSavingRateInfo" />
       <div class="apr-range" v-else>
         <div class="apr">
           <span class="apr-value">{{ formatPercent(defaultApr) }}</span>

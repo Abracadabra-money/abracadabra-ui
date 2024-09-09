@@ -3,7 +3,7 @@
     <div class="anim" ref="anim"></div>
     <div class="efficiency-info">
       <p class="title">Your APR</p>
-      <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+      <RowSkeleton v-if="isMimSavingRateInfoLoading && !isMimSavingRateInfo" />
       <p class="percent" v-else>{{ formatPercent(userApr) }}</p>
     </div>
     <div class="edge-percents">
@@ -27,6 +27,7 @@ export default {
     baseApr: { type: [Number, String], default: 0 },
     boostedApr: { type: [Number, String], default: 0 },
     isMimSavingRateInfoLoading: { type: Boolean },
+    isMimSavingRateInfo: { type: Boolean, default: false },
     isDeposit: { type: Boolean },
   },
 
@@ -160,7 +161,7 @@ export default {
 
 @media (max-width: 500px) {
   .edge-percents {
-  max-width: 250px;
+    max-width: 250px;
     margin-top: 16px;
   }
 }

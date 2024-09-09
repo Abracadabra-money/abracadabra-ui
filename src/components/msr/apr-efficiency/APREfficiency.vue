@@ -7,6 +7,7 @@
       :boostedApr="boostedApr"
       :isDeposit="isDeposit"
       :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
+      :isMimSavingRateInfo="!!mimSavingRateInfo"
     />
 
     <div class="efficiency-info">
@@ -36,7 +37,6 @@ import actions from "@/helpers/mimSavingRate/actions";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
-import { approveTokenViem } from "@/helpers/approval";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 import moment from "moment";
 
@@ -46,7 +46,6 @@ export default {
   props: {
     mimSavingRateInfo: {
       type: Object as PropType<MimSavingRateInfo | null>,
-      required: true,
     },
     isMimSavingRateInfoLoading: { type: Boolean },
   },

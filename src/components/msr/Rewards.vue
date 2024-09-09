@@ -19,7 +19,9 @@
             />
             {{ reward.name }}
           </div>
-          <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+          <RowSkeleton
+            v-if="isMimSavingRateInfoLoading && !mimSavingRateInfo"
+          />
           <span class="value" v-else>
             {{ reward.total }}
           </span>
@@ -50,7 +52,9 @@
             />
             {{ reward.name }}
           </div>
-          <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+          <RowSkeleton
+            v-if="isMimSavingRateInfoLoading && !mimSavingRateInfo"
+          />
           <span class="value" v-else>
             {{ reward.vesting }}
           </span>
@@ -77,7 +81,9 @@
             />
             {{ reward.name }}
           </div>
-          <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+          <RowSkeleton
+            v-if="isMimSavingRateInfoLoading && !mimSavingRateInfo"
+          />
           <span class="value" v-else>
             {{ reward.claimable }}
           </span>
@@ -106,7 +112,6 @@ export default {
   props: {
     mimSavingRateInfo: {
       type: Object as PropType<MimSavingRateInfo | null>,
-      required: true,
     },
     isUserRewardLockExpired: { type: Boolean },
     isMimSavingRateInfoLoading: { type: Boolean },

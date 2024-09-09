@@ -3,7 +3,7 @@
     <p class="total-locked">
       Locked Balance
 
-      <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+      <RowSkeleton v-if="isMimSavingRateInfoLoading && !mimSavingRateInfo" />
       <span class="token-amount" v-else>
         <BaseTokenIcon :icon="mimIcon" name="MIM" size="24px" />
         {{ totalLocked }}
@@ -46,7 +46,6 @@ export default {
   props: {
     mimSavingRateInfo: {
       type: Object as PropType<MimSavingRateInfo | null>,
-      required: true,
     },
     isMimSavingRateInfoLoading: { type: Boolean },
   },

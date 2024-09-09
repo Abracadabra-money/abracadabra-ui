@@ -4,7 +4,7 @@
 
     <span class="title">Epoch’s total rewards</span>
 
-    <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+    <RowSkeleton v-if="isMimSavingRateInfoLoading && !mimSavingRateInfo" />
     <div class="reward-tokens" v-else>
       <div
         class="token-info"

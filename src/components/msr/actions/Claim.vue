@@ -15,6 +15,7 @@
         :rewardTokens="rewardTokens"
         :depositedToken="mimSavingRateInfo?.stakingToken"
         :isMimSavingRateInfoLoading="isMimSavingRateInfoLoading"
+        :isMimSavingRateInfo="!!mimSavingRateInfo"
       />
 
       <APREfficiency
@@ -67,7 +68,6 @@ export default {
   props: {
     mimSavingRateInfo: {
       type: Object as PropType<MimSavingRateInfo | null>,
-      required: true,
     },
     isMimSavingRateInfoLoading: { type: Boolean },
   },
@@ -86,7 +86,7 @@ export default {
       if (
         this.isEarned &&
         this.isUserRewardLockAmount &&
-        this.isUserRewardLockExpired
+        !this.isUserRewardLockExpired
       )
         return "Starts Pending and Claim rewards";
 

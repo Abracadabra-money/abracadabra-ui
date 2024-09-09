@@ -3,7 +3,7 @@
     <div class="tag total">
       <img class="mim-icon" src="@/assets/images/market/m-icon.svg" />
       <span class="title">Total {{ totalDepositedInfo.title }}</span>
-      <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+      <RowSkeleton v-if="isMimSavingRateInfoLoading && !mimSavingRateInfo" />
       <span class="value" v-else>
         <BaseTokenIcon
           :icon="mimSavingRateInfo?.stakingToken.icon"
@@ -17,7 +17,7 @@
     <div class="tag apr">
       <img class="mim-icon" src="@/assets/images/market/m-icon.svg" />
       <span class="title">APR</span>
-      <RowSkeleton v-if="isMimSavingRateInfoLoading" />
+      <RowSkeleton v-if="isMimSavingRateInfoLoading && !mimSavingRateInfo" />
       <span class="value" v-else>{{
         formatPercent(totalDepositedInfo.apr)
       }}</span>

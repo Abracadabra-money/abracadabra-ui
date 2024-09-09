@@ -29,7 +29,6 @@ export default {
     activeAction: { type: String as PropType<MSRActionName> },
     mimSavingRateInfo: {
       type: Object as PropType<MimSavingRateInfo | null>,
-      required: true,
     },
     isMimSavingRateInfoLoading: { type: Boolean },
   },

@@ -44,7 +44,6 @@ export default {
   props: {
     mimSavingRateInfo: {
       type: Object as PropType<MimSavingRateInfo | null>,
-      required: true,
     },
     isMimSavingRateInfoLoading: { type: Boolean },
   },
