@@ -33,6 +33,7 @@
           v-for="cauldron in sortedCauldrons"
           :key="`${cauldron.config.id} - ${cauldron.config.chainId}`"
           :cauldron="cauldron"
+          :userElixirInfo="userElixirInfo"
         />
       </div>
 
@@ -74,6 +75,7 @@ import {
 import type { Address } from "viem";
 import type { UserTotalAssets } from "@/helpers/cauldron/types";
 import type { SortOrder } from "@/types/common";
+import axios from "axios";
 
 export type PositionsSortKey =
   | "positionHealth"
@@ -98,6 +100,7 @@ export default {
       sortKey: "mimBorrowed" as PositionsSortKey,
       sortOrder: "up" as SortOrder,
       isFiltersPopupOpened: false,
+      userElixirInfo: null as any,
     };
   },
 
@@ -137,7 +140,17 @@ export default {
     },
 
     totalAssetsData() {
+      const userElixirPotions = !this.userElixirInfo?.data?.totals?.users[
+        this.account
+      ]
+        ? 0
+        : this.userElixirInfo.data.totals.users[this.account].total;
+
       return [
+        {
+          title: " Elixir Potions Earned",
+          value: formatTokenBalance(userElixirPotions),
+        },
         {
           title: "Collateral Deposit",
           value: formatUSD(this.totalAssets?.collateralDepositedInUsd || 0),
@@ -169,6 +182,7 @@ export default {
         this.cauldrons = [];
         this.totalAssets = null;
       } else {
+        await this.getElixirInfo();
         this.checkLocalData();
         await this.createOpenPositions();
       }
@@ -326,9 +340,23 @@ export default {
         this.totalAssets = this.userTotalAssets.data;
       }
     },
+
+    async getElixirInfo() {
+      try {
+        this.userElixirInfo = await axios.get(
+          `https://api.0xdreamy.dev/functions/v1/elixir-potions/users?addresses=${this.account}`
+        );
+      } catch (error) {
+        this.userElixirInfo = null;
+      }
+    },
   },
 
   async created() {
+    if (this.account) {
+      await this.getElixirInfo();
+    }
+
     this.positionsIsLoading = true;
     this.checkLocalData();
     await this.createOpenPositions();

@@ -41,7 +41,12 @@
     </div>
 
     <div class="position-info">
-      <ul class="position-indicators">
+      <ul
+        :class="[
+          'position-indicators',
+          { 'elixir-potions': isElixirPotions.isShow },
+        ]"
+      >
         <PositionIndicator
           tooltip="Current dollar value of the Collateral Deposited."
           :value="collateralPrice"
@@ -62,6 +67,15 @@
           :value="leftToDrop"
         >
           Required Drop in Price
+        </PositionIndicator>
+
+        <PositionIndicator
+          v-if="isElixirPotions.isShow"
+          tooltip=""
+          :value="isElixirPotions.value"
+          tokenFormat
+        >
+          Elixir Potions earned
         </PositionIndicator>
       </ul>
       <HealthProgress
@@ -96,6 +110,7 @@ import type { AssetInfo } from "@/components/myPositions/PositionAssets.vue";
 export default {
   props: {
     cauldron: { type: Object as PropType<UserOpenPosition>, required: true },
+    userElixirInfo: { type: Object as any },
   },
 
   data() {
@@ -107,7 +122,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters({ chainId: "getChainId" }),
+    ...mapGetters({ chainId: "getChainId", account: "getAccount" }),
 
     collateralSymbol() {
       return (
@@ -181,6 +196,36 @@ export default {
     tokenChainIconSize() {
       if (this.windowWidth < 600) return "50px";
       return "54px";
+    },
+
+    isElixirPotions() {
+      if (!this.userElixirInfo?.data?.totals?.users[this.account])
+        return {
+          isShow: false,
+          value: 0,
+        };
+
+      const cauldronAddress = Object.keys(
+        this.userElixirInfo.data.totals.users[this.account].cauldrons
+      ).find(
+        (cauldronAddress: string) =>
+          cauldronAddress.toLocaleLowerCase() ===
+          this.cauldron.config.contract.address.toLocaleLowerCase()
+      );
+
+      if (!cauldronAddress)
+        return {
+          isShow: false,
+          value: 0,
+        };
+
+      return {
+        isShow: true,
+        value:
+          this.userElixirInfo.data.totals.users[this.account].cauldrons[
+            cauldronAddress
+          ],
+      };
     },
   },
 
@@ -329,6 +374,10 @@ export default {
   justify-content: end;
   gap: 14px;
   width: 100%;
+}
+
+.elixir-potions {
+  gap: 6px;
 }
 
 .safe {
