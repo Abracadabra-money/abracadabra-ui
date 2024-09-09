@@ -29,6 +29,7 @@ export const stakeListConfig: StakeListItemConfig[] = [
         description: 'Stake your SPELL into mSPELL! No impermanent loss, no loss of governance rights. Protocol Fee 1% ',
         backgroundImage: useImage("assets/images/stake/stake-list/background-images/mspell.png"),
         routerLinkName: 'StakeSpell',
+        routerQuery: { token: 'mSpell' },
         mainToken: {
             name: 'magic SPELL',
             symbol: 'mSPELL',
@@ -48,8 +49,9 @@ export const stakeListConfig: StakeListItemConfig[] = [
     {
         name: 'sSpell',
         description: 'Stake your SPELL into mSPELL! No impermanent loss, no loss of governance rights. Protocol Fee 1% ',
-        backgroundImage: useImage("assets/images/stake/stake-list/background-images/mspell.png"),
+        backgroundImage: useImage("assets/images/stake/stake-list/background-images/sspell.png"),
         routerLinkName: 'StakeSpell',
+        routerQuery: { token: 'sSpell' },
         mainToken: {
             name: 'sSPELL',
             symbol: 'sSPELL',

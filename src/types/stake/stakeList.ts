@@ -3,6 +3,7 @@ export type StakeListItemConfig = {
     description: string;
     backgroundImage: string;
     routerLinkName: string;
+    routerQuery?:any;
     mainToken?: TokenInfo;
     stakeToken: TokenInfo;
     rewardTokens: TokenInfo[],

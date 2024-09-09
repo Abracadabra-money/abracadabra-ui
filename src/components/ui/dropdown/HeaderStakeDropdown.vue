@@ -15,14 +15,39 @@
     </div>
 
     <div class="list" v-if="showDropdownList">
-      <router-link class="list-link" :to="{ name: 'StakeSpell' }">
+      <router-link
+        class="list-link"
+        :to="{ name: 'StakeSpell', query: { token: 'mSpell' } }"
+      >
         <div class="link-title">
           <span class="stake-token">
             <img
               class="link-icon"
               src="@/assets/images/stake/tokens/Spell.png"
             />
-            Spell
+            mSpell
+          </span>
+          <span class="apr" v-if="spellApr"
+            >APR: {{ formatPercent(spellApr) }}</span
+          >
+          <div class="loader-wrap" v-else>
+            <BaseLoader type="loader" />
+          </div>
+        </div>
+        <p class="link-description">Stake Spell</p>
+      </router-link>
+
+      <router-link
+        class="list-link"
+        :to="{ name: 'StakeSpell', query: { token: 'sSpell' } }"
+      >
+        <div class="link-title">
+          <span class="stake-token">
+            <img
+              class="link-icon"
+              src="@/assets/images/stake/tokens/Spell.png"
+            />
+            sSpell
           </span>
           <span class="apr" v-if="spellApr"
             >APR: {{ formatPercent(spellApr) }}</span

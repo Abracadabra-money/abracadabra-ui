@@ -2,7 +2,7 @@
   <router-link
     class="stake-item-link"
     :style="{ backgroundImage: backgroundStyle }"
-    :to="goToStake(stakeItem.routerLinkName)"
+    :to="goToStake(stakeItem)"
   >
     <ConditionalTags :lock="hasLock" />
 
@@ -42,7 +42,6 @@
 </template>
 
 <script lang="ts">
-import type { RouterLinkParams } from "@/types/global";
 import { formatPercent } from "@/helpers/filters";
 import type { StakeListItem } from "@/types/stake/stakeList";
 import { defineAsyncComponent } from "vue";
@@ -89,9 +88,10 @@ export default {
   methods: {
     formatPercent,
     //todo change when msr merged
-    goToStake(routerLinkName: string): RouterLinkParams {
+    goToStake({ routerLinkName, routerQuery }: StakeListItem) {
       return {
         name: routerLinkName === "MSR" ? "StakeList" : routerLinkName,
+        query: routerQuery,
       };
     },
     async fetchAPR() {
