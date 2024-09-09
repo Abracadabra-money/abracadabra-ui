@@ -157,7 +157,7 @@ const validateLock = (contractInfo: any, lockAmount: bigint) => {
     btnText = WARNINGS_BTN_TEXT[WARNING_TYPES.LOCK_MIN_AMOUNT];
   }
 
-  if (lockAmount == 0n) btnText = WARNINGS_BTN_TEXT[WARNING_TYPES.AMOUNT];
+  if (lockAmount == 0n) btnText = WARNINGS_BTN_TEXT[WARNING_TYPES.STAKE_BALANCE];
 
   return {
     isAllowed,

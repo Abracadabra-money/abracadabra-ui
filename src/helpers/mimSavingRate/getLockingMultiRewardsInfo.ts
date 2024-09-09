@@ -31,6 +31,7 @@ export const getLockingMultiRewardsInfo = async (
 ): Promise<LockingMultiRewardsInfo> => {
   const rewardToken0Address = rewardTokens[0].contract.address;
   const rewardToken1Address = rewardTokens[1].contract.address;
+  const rewardToken2Address = rewardTokens[2].contract.address;
 
   const [
     epoch,
@@ -51,6 +52,8 @@ export const getLockingMultiRewardsInfo = async (
     rewardsForDurationToken0,
     rewardPerToken1,
     rewardsForDurationToken1,
+    rewardPerToken2,
+    rewardsForDurationToken2,
   ]: any = await publicClient.multicall({
     contracts: [
       {
@@ -143,6 +146,16 @@ export const getLockingMultiRewardsInfo = async (
         functionName: "rewardsForDuration",
         args: [rewardToken1Address],
       },
+      {
+        ...contract,
+        functionName: "rewardPerToken",
+        args: [rewardToken2Address],
+      },
+      {
+        ...contract,
+        functionName: "rewardsForDuration",
+        args: [rewardToken2Address],
+      },
     ],
   });
 
@@ -168,6 +181,10 @@ export const getLockingMultiRewardsInfo = async (
       {
         totalReward: rewardPerToken1.result,
         rewardsForDuration: rewardsForDurationToken1.result,
+      },
+      {
+        totalReward: rewardPerToken2.result,
+        rewardsForDuration: rewardsForDurationToken2.result,
       }
     ],
     rewardsDuration: Number(rewardsDuration.result),

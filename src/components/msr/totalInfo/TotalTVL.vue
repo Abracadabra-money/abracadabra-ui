@@ -53,10 +53,10 @@ export default {
 
   computed: {
     totalTvl() {
-      return formatUnits(
-        this.mimSavingRateInfo?.totalSupply || 0n,
-        this.decimals
-      );
+      const staked = this.mimSavingRateInfo?.unlockedSupply || 0n;
+      const locked = this.mimSavingRateInfo?.lockedSupply || 0n;
+      const total = staked + locked;
+      return formatUnits(total, this.decimals);
     },
 
     stakedTvl() {

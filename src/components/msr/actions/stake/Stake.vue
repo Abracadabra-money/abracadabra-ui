@@ -205,13 +205,6 @@ export default {
     },
   },
 
-  watch: {
-    mimSavingRateInfo() {
-      this.actionConfig.lockAmount =
-        this.mimSavingRateInfo?.userInfo.unlocked || 0n;
-    },
-  },
-
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
@@ -225,7 +218,7 @@ export default {
       this.actionConfig = {
         stakeAmount: 0n,
         withdrawAmount: 0n,
-        lockAmount: this.mimSavingRateInfo?.userInfo.unlocked || 0n,
+        lockAmount: 0n,
         lockingDeadline: moment().unix() + Number(300n),
       };
     },

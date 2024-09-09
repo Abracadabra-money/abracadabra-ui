@@ -94,7 +94,6 @@ export default {
         this.account,
         publicClient
       );
-      console.log(this.mimSavingRateInfo);
 
       this.isMimSavingRateInfoLoading = false;
     },

@@ -54,7 +54,7 @@ export default {
   data() {
     return {
       actionConfig: {
-        stakeAmount: this.mimSavingRateInfo?.userInfo?.unlocked || 0n,
+        lockAmount: this.mimSavingRateInfo?.userInfo?.unlocked || 0n,
         //todo: temporary untill understand how it should work properly
         lockingDeadline: moment().unix() + Number(300n),
       },
@@ -118,7 +118,7 @@ export default {
       const { approvedAmount } =
         this.mimSavingRateInfo?.userInfo?.stakeToken || 0n;
 
-      return approvedAmount >= this.actionConfig.stakeAmount;
+      return approvedAmount >= this.actionConfig.lockAmount;
     },
 
     actionValidationData() {
@@ -141,7 +141,7 @@ export default {
   watch: {
     mimSavingRateInfo: {
       handler(value) {
-        this.actionConfig.stakeAmount = value?.userInfo?.unlocked || 0n;
+        this.actionConfig.lockAmount = value?.userInfo?.unlocked || 0n;
       },
       deep: true,
     },
@@ -150,31 +150,6 @@ export default {
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
-
-    async approveTokenHandler() {
-      if (this.isUnsupportedChain || !this.mimSavingRateInfo) return false;
-      this.isActionProcessing = true;
-      const notificationId = await this.createNotification(
-        notification.approvePending
-      );
-
-      const approve = await approveTokenViem(
-        this.mimSavingRateInfo?.stakingToken.contract,
-        this.mimSavingRateInfo?.lockingMultiRewardsContract.address,
-        this.actionConfig.stakeAmount
-      );
-
-      if (approve) {
-        this.$emit("updateMimSavingRateInfo");
-        await this.deleteNotification(notificationId);
-        await this.createNotification(notification.success);
-      }
-      {
-        await this.deleteNotification(notificationId);
-        await this.createNotification(notification.approveError);
-      }
-      this.isActionProcessing = false;
-    },
 
     async actionHandler() {
       if (this.actionValidationData.isDisabled) return false;
@@ -189,10 +164,6 @@ export default {
         return false;
       }
 
-      if (!this.isTokenApproved) {
-        await this.approveTokenHandler();
-        return false;
-      }
       this.isActionProcessing = true;
       const notificationId = await this.createNotification(
         notification.pending
