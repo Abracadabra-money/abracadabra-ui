@@ -9,7 +9,7 @@ export default [
     stateMutability: "nonpayable",
     type: "constructor",
   },
-  { inputs: [], name: "NotAllowedOperator", type: "error" },
+  { inputs: [], name: "Unauthorized", type: "error" },
   {
     anonymous: false,
     inputs: [
@@ -180,7 +180,7 @@ export default [
   {
     inputs: [
       { internalType: "address", name: "operator", type: "address" },
-      { internalType: "bool", name: "status", type: "bool" },
+      { internalType: "bool", name: "enable", type: "bool" },
     ],
     name: "setOperator",
     outputs: [],

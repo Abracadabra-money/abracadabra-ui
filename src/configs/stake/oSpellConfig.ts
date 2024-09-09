@@ -12,7 +12,7 @@ export type SpellLockConfig = {
       abi: any;
     };
   };
-  oSpell: {
+  bSpell: {
     name: string;
     decimals: number;
     icon: string;
@@ -27,11 +27,11 @@ export type SpellLockConfig = {
   };
 };
 
-type OSpellLockConfig = {
+type BSpellLockConfig = {
   [key: number]: SpellLockConfig;
 };
 
-export const oSpellLockConfig: OSpellLockConfig = {
+export const bSpellLockConfig: BSpellLockConfig = {
   42161: {
     spell: {
       name: "SPELL",
@@ -42,18 +42,18 @@ export const oSpellLockConfig: OSpellLockConfig = {
         abi: tokensAbi.SPELL,
       },
     },
-    oSpell: {
-      name: "OSPELL",
+    bSpell: {
+      name: "bSPELL",
       decimals: 18,
-      icon: useImage("assets/images/tokens/SPELL.png"),
+      icon: useImage("assets/images/tokens/bSPELL.png"),
       contract: {
-        // address: "0xBe714699689EBf7aE3a1bA58bE5fF2a59c33051A", //prod
+        // address: "0xf2C62492f398c22d8330122386288C6090376F60", //prod
         address: "0x22135c40370926ed6e80371444e200f6f171cd27",
-        abi: tokensAbi.OSPELL,
+        abi: tokensAbi.bSPELL,
       },
     },
     tokenBank: {
-      // address: "0x6c1a332f1f5ae20cf9ebbcc3c7a6917d52b7af96", //prod
+      // address: "0x7E80586eCcA8CEb537e830F9ADd60F1816cafe21", //prod
       address: "0xa9f3a1595a383e98acba98ddd7ff3654bc7f091c",
       abi: tokenBankAbi,
     },

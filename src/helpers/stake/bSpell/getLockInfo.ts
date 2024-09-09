@@ -1,7 +1,7 @@
 import type { Address } from "viem";
 import { MAINNET_CHAIN_ID } from "@/constants/global";
 import { getCoinsPrices } from "@/helpers/prices/defiLlama";
-import { oSpellLockConfig } from "@/configs/stake/oSpellConfig";
+import { bSpellLockConfig } from "@/configs/stake/oSpellConfig";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { MAINNET_SPELL_ADDRESS } from "@/constants/tokensAddress";
 import type { SpellLockConfig } from "@/configs/stake/oSpellConfig";
@@ -22,7 +22,7 @@ export type SpellLockInfo = {
     };
     price: number;
   };
-  oSpell: {
+  bSpell: {
     name: string;
     decimals: number;
     icon: string;
@@ -49,7 +49,7 @@ export const getLockInfo = async (
   account: Address,
   chainId: number
 ): Promise<SpellLockInfo> => {
-  const config = oSpellLockConfig[chainId as keyof typeof oSpellLockConfig];
+  const config = bSpellLockConfig[chainId as keyof typeof bSpellLockConfig];
 
   const spellPrice = await getCoinsPrices(MAINNET_CHAIN_ID, [
     MAINNET_SPELL_ADDRESS,
@@ -60,20 +60,20 @@ export const getLockInfo = async (
   const publicClient = getPublicClient(chainId);
 
   const [
-    oSpellBalance,
-    oSpellApprovedAmount,
+    bSpellBalance,
+    bSpellApprovedAmount,
     balances,
     userLocks,
     lockDuration,
   ] = await publicClient.multicall({
     contracts: [
       {
-        ...config.oSpell.contract,
+        ...config.bSpell.contract,
         functionName: "balanceOf",
         args: [account],
       },
       {
-        ...config.oSpell.contract,
+        ...config.bSpell.contract,
         functionName: "allowance",
         args: [account, config.tokenBank.address],
       },
@@ -100,10 +100,10 @@ export const getLockInfo = async (
       ...config.spell,
       price: spellPrice[0].price || 0,
     },
-    oSpell: {
-      ...config.oSpell,
-      balance: oSpellBalance.result as bigint,
-      approvedAmount: oSpellApprovedAmount.result as bigint,
+    bSpell: {
+      ...config.bSpell,
+      balance: bSpellBalance.result as bigint,
+      approvedAmount: bSpellApprovedAmount.result as bigint,
     },
     tokenBank: {
       ...config.tokenBank,
@@ -123,8 +123,8 @@ const getEmptyState = (config: SpellLockConfig, spellPrice: Price[]) => {
       ...config.spell,
       price: spellPrice[0].price || 0,
     },
-    oSpell: {
-      ...config.oSpell,
+    bSpell: {
+      ...config.bSpell,
       balance: 0n,
       approvedAmount: 0n,
     },

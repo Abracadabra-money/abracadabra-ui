@@ -4,7 +4,7 @@
       <div class="actions-block">
         <div class="actions-head">
           <div class="title-wrap">
-            <h3 class="title">oSpell</h3>
+            <h3 class="title">bSpell</h3>
             <a
               class="docs-link"
               href="#"
@@ -42,9 +42,9 @@
 
           <BaseTokenInput
             :value="inputValue"
-            :icon="stakeData?.oSpell?.icon"
-            :name="stakeData?.oSpell?.name"
-            :max="stakeData?.oSpell?.balance"
+            :icon="stakeData?.bSpell?.icon"
+            :name="stakeData?.bSpell?.name"
+            :max="stakeData?.bSpell?.balance"
             :tokenPrice="stakeData?.spell?.price"
             @updateInputValue="updateMainValue"
           />
@@ -221,12 +221,12 @@ import { defineAsyncComponent } from "vue";
 import { approveTokenViem } from "@/helpers/approval";
 import { formatTokenBalance } from "@/helpers/filters";
 import { mapGetters, mapActions, mapMutations } from "vuex";
-import { claim } from "@/helpers/stake/oSpell/actions/claim";
+import { claim } from "@/helpers/stake/bSpell/actions/claim";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
-import { deposit } from "@/helpers/stake/oSpell/actions/deposit";
-import { getLockInfo } from "@/helpers/stake/oSpell/getLockInfo";
-import type { SpellLockInfo } from "@/helpers/stake/oSpell/getLockInfo";
+import { deposit } from "@/helpers/stake/bSpell/actions/deposit";
+import { getLockInfo } from "@/helpers/stake/bSpell/getLockInfo";
+import type { SpellLockInfo } from "@/helpers/stake/bSpell/getLockInfo";
 
 type UserLock = {
   amount: bigint;
@@ -281,7 +281,7 @@ export default {
     },
 
     isInsufficientBalance() {
-      return this.inputAmount > this.stakeData?.oSpell?.balance;
+      return this.inputAmount > this.stakeData?.bSpell?.balance;
     },
 
     isActionDisabled() {
@@ -295,7 +295,7 @@ export default {
       if (!this.inputAmount) return true;
       if (!this.account) return true;
       if (!this.isUnsupportedChain) return true;
-      return this.stakeData.oSpell?.approvedAmount >= this.inputAmount;
+      return this.stakeData.bSpell?.approvedAmount >= this.inputAmount;
     },
 
     actionButtonText() {
@@ -365,7 +365,7 @@ export default {
       );
 
       const approve = await approveTokenViem(
-        this.stakeData.oSpell.contract,
+        this.stakeData.bSpell.contract,
         this.stakeData.tokenBank.address
       );
 
@@ -474,6 +474,7 @@ export default {
       () => import("@/components/stake/spell/SpellSpecialInfoBlock.vue")
     ),
     Timer: defineAsyncComponent(
+      // @ts-ignore
       () => import("@/components/stake/earnPoints/Timer.vue")
     ),
   },
