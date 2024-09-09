@@ -89,35 +89,4 @@ export const stakeListConfig: StakeListItemConfig[] = [
             icon: useImage("assets/images/tokens/APE.png")
         }],
     },
-    {
-        name: 'MIM Saving Rate',
-        description: 'Stake your SPELL into mSPELL! No impermanent loss, no loss of governance rights. Protocol Fee 1% ',
-        backgroundImage: useImage("assets/images/stake/stake-list/background-images/mim-saving-rate.png"),
-        routerLinkName: 'MSR',
-        stakeToken: {
-            name: 'Magic Internet Money',
-            symbol: 'MIM',
-            icon: useImage("assets/images/tokens/MIM.png")
-        },
-        rewardTokens: [
-            {
-                name: 'Magic Internet Money',
-                symbol: 'MIM',
-                icon: useImage("assets/images/tokens/MIM.png")
-            },
-            {
-                name: 'Spell',
-                symbol: 'SPELL',
-                icon: useImage("assets/images/tokens/SPELL.png")
-            },
-            {
-                name: 'Arbitrum',
-                symbol: 'ARB',
-                icon: useImage("assets/images/tokens/ARB.png")
-            }
-        ],
-        settings: {
-            hasLock: true,
-        }
-    }
 ]

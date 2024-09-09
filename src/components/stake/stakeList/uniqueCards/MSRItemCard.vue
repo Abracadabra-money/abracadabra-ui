@@ -2,23 +2,28 @@
   <router-link
     class="stake-item-link"
     :style="{ backgroundImage: backgroundStyle }"
-    :to="goToStake(stakeItem)"
+    :to="{ name: 'MSR' }"
   >
-    <ConditionalTags :lock="hasLock" />
+    <ConditionalTags />
 
     <h3 class="title">{{ stakeItem.name }}</h3>
 
-    <div class="apr-wrap">
-      APR
-      <RowSkeleton v-if="isAPRFetching" />
-      <span class="apr-value" v-else>{{ formatPercent(apr) }}</span>
-    </div>
-
     <div class="tokens-wrap stake">
-      Stake <BaseTokenIcon :icon="stakeToken.icon" :name="stakeToken.name" />
-      {{ stakeToken.symbol }}
-      <span class="main-token-info" v-if="mainToken">
-        Into <BaseTokenIcon :icon="mainToken.icon" :name="mainToken.name" />
+      <span class="token-info">
+        <span class="action-name">Lock</span>
+        <BaseTokenIcon :icon="stakeToken.icon" :name="stakeToken.name" />
+        <RowSkeleton v-if="isAPRFetching" />
+        <span class="apr" v-else>
+          {{ formatPercent(boostedApr) }}
+        </span>
+      </span>
+      <span class="token-info">
+        <span class="action-name">Stake</span>
+        <BaseTokenIcon :icon="stakeToken.icon" :name="stakeToken.name" />
+        <RowSkeleton v-if="isAPRFetching" />
+        <span class="apr" v-else>
+          {{ formatPercent(baseApr) }}
+        </span>
       </span>
     </div>
 
@@ -42,29 +47,63 @@
 </template>
 
 <script lang="ts">
-import { formatPercent } from "@/helpers/filters";
-import type { StakeListItem } from "@/types/stake/stakeList";
 import { defineAsyncComponent } from "vue";
+import { formatPercent } from "@/helpers/filters";
+import { useImage } from "@/helpers/useImage";
+import {
+  getMimSavingRateInfo,
+  type MimSavingRateInfo,
+} from "@/helpers/mimSavingRate/getMimSavingRateInfo";
+import { ARBITRUM_CHAIN_ID } from "@/constants/global";
+import { mapGetters } from "vuex";
 
 export default {
-  props: {
-    stakeItem: {
-      type: Object as () => StakeListItem,
-      required: true,
-    },
-  },
-
   data() {
     return {
-      apr: 0,
+      stakeItem: {
+        name: "MIM Saving Rate",
+        description:
+          "Stake your SPELL into mSPELL! No impermanent loss, no loss of governance rights. Protocol Fee 1% ",
+        backgroundImage: useImage(
+          "assets/images/stake/stake-list/background-images/mim-saving-rate.png"
+        ),
+        routerLinkName: "MSR",
+        stakeToken: {
+          name: "Magic Internet Money",
+          symbol: "MIM",
+          icon: useImage("assets/images/tokens/MIM.png"),
+        },
+        rewardTokens: [
+          {
+            name: "Magic Internet Money",
+            symbol: "MIM",
+            icon: useImage("assets/images/tokens/MIM.png"),
+          },
+          {
+            name: "Spell",
+            symbol: "SPELL",
+            icon: useImage("assets/images/tokens/SPELL.png"),
+          },
+          {
+            name: "Arbitrum",
+            symbol: "ARB",
+            icon: useImage("assets/images/tokens/ARB.png"),
+          },
+        ],
+        settings: {
+          hasLock: true,
+        },
+      },
+      mimSavingRateInfo: null as MimSavingRateInfo | null,
       isAPRFetching: false,
     };
   },
 
   computed: {
-    mainToken() {
-      return this.stakeItem.mainToken;
-    },
+    ...mapGetters({
+      account: "getAccount",
+      getChainById: "getChainById",
+    }),
 
     stakeToken() {
       return this.stakeItem.stakeToken;
@@ -83,19 +122,22 @@ export default {
     hasLock() {
       return this.stakeItem.settings?.hasLock;
     },
+
+    baseApr() {
+      return this.mimSavingRateInfo?.baseApr || 0;
+    },
+
+    boostedApr() {
+      return this.baseApr * 3;
+    },
   },
 
   methods: {
     formatPercent,
-    goToStake({ routerLinkName, routerQuery }: StakeListItem) {
-      return {
-        name: routerLinkName,
-        query: routerQuery,
-      };
-    },
     async fetchAPR() {
       this.isAPRFetching = true;
-      this.apr = Number(await this.stakeItem.fetchAPR());
+      const publicClient = this.getChainById(ARBITRUM_CHAIN_ID).publicClient;
+      this.mimSavingRateInfo = await getMimSavingRateInfo(null, publicClient);
       this.isAPRFetching = false;
     },
   },
@@ -179,16 +221,22 @@ export default {
   backdrop-filter: blur(15.649999618530273px);
 }
 
-.main-token-info {
+.tokens-wrap.stake {
+  flex-direction: column;
+  align-items: flex-start;
+  font-size: 20px;
+  font-weight: 400;
+  margin: 0 0 6px -16px;
+}
+
+.token-info {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.tokens-wrap.stake {
-  font-size: 20px;
-  font-weight: 400;
-  margin: 0 0 6px -16px;
+.action-name {
+  width: 56px;
 }
 
 .tokens-wrap.reward {

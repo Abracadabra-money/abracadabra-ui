@@ -80,7 +80,7 @@ export const emptyMimSavingRateInfo = {
 
 
 export const getMimSavingRateInfo = async (
-  account: Address,
+  account: Address | null,
   publicClient: PublicClient,
   chainId = ARBITRUM_CHAIN_ID
 ): Promise<MimSavingRateInfo> => {

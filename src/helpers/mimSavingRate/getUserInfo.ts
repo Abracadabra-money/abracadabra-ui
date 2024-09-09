@@ -108,7 +108,7 @@ const emptyState = {
 
 export const getUserInfo = async (
   publicClient: PublicClient,
-  account: Address,
+  account: Address | null,
   contract: ContractInfo,
   rewardTokens: RewardTokenConfig[],
   stakingTokenContract: ContractInfo
