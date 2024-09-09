@@ -141,10 +141,11 @@ export default {
 
     totalAssetsData() {
       const userElixirPotions = !this.userElixirInfo?.data?.totals?.users[
-        this.account
+        this.account.toLowerCase()
       ]
         ? 0
-        : this.userElixirInfo.data.totals.users[this.account].total;
+        : this.userElixirInfo.data.totals.users[this.account.toLowerCase()]
+            .total;
 
       return [
         {

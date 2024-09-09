@@ -199,14 +199,15 @@ export default {
     },
 
     isElixirPotions() {
-      if (!this.userElixirInfo?.data?.totals?.users[this.account])
+      if (!this.userElixirInfo?.data?.totals?.users[this.account.toLowerCase()])
         return {
           isShow: false,
           value: 0,
         };
 
       const cauldronAddress = Object.keys(
-        this.userElixirInfo.data.totals.users[this.account].cauldrons
+        this.userElixirInfo.data.totals.users[this.account.toLowerCase()]
+          .cauldrons
       ).find(
         (cauldronAddress: string) =>
           cauldronAddress.toLocaleLowerCase() ===
@@ -222,9 +223,8 @@ export default {
       return {
         isShow: true,
         value:
-          this.userElixirInfo.data.totals.users[this.account].cauldrons[
-            cauldronAddress
-          ],
+          this.userElixirInfo.data.totals.users[this.account.toLowerCase()]
+            .cauldrons[cauldronAddress],
       };
     },
   },
