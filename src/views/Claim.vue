@@ -130,9 +130,9 @@
         </div>
       </template>
       <div class="btn-wrap">
-        <BaseButton primary @click="actionHandler" :disabled="disabledBtn">{{
-          btnText
-        }}</BaseButton>
+        <BaseButton primary @click="actionHandler" :disabled="disabledBtn">
+          {{ btnText }}
+        </BaseButton>
       </div>
     </div>
 

@@ -237,6 +237,16 @@ export default {
   }
 }
 
+//check/remove when final design will
+.msr {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 22px;
+  cursor: pointer;
+}
+//
+
 @media (max-width: 600px) {
   .logo-wrap {
     margin-right: 0;

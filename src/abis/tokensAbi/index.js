@@ -48,6 +48,7 @@ import sKLP from "@/abis/tokensAbi/sKLP";
 import GM from "@/abis/tokensAbi/GM";
 import mimUsdtCurveLp from "@/abis/tokensAbi/mimUsdtCurveLp";
 import TetherUSDtLP from "@/abis/tokensAbi/TetherUSDtLP";
+import ARB from "@/abis/tokensAbi/ARB";
 import yvUSDT from "@/abis/tokensAbi/yvUSDT";
 import yvUSDC from "@/abis/tokensAbi/yvUSDC";
 import USDT from "@/abis/tokensAbi/USDT";
@@ -103,6 +104,7 @@ export default {
   GM,
   mimUsdtCurveLp,
   TetherUSDtLP,
+  ARB,
   yvUSDT,
   yvUSDC,
   USDT,
