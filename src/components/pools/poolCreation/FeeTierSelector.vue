@@ -76,7 +76,7 @@ export default {
 
   watch: {
     poolType() {
-      this.currentOptionIndex = 0;
+      this.selectOption(0);
     },
   },
 

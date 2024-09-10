@@ -28,3 +28,9 @@ export enum EmptyStateTypes {
   PoolType = 'poolType',
   Pair = 'pair'
 }
+
+export const graphAPIs = {
+  1: 'https://api.studio.thegraph.com/query/59137/mimswap-mainnet/version/latest',
+  42161: 'https://api.studio.thegraph.com/query/59137/mimswap-arbitrum/version/latest',
+  81457: 'https://api.studio.thegraph.com/query/59137/mimswap-blast/version/latest'
+}
