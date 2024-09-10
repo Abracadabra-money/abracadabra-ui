@@ -66,6 +66,7 @@ import {
 import { mapGetters, mapMutations } from "vuex";
 import { APR_KEY } from "@/constants/global";
 import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
+// @ts-ignore
 import { isApyCalcExist, fetchTokenApy } from "@/helpers/collateralsApy";
 import { getUsersTotalAssets } from "@/helpers/cauldron/position/getUsersTotalAssets";
 import {
@@ -76,7 +77,7 @@ import type { Address } from "viem";
 import type { UserTotalAssets } from "@/helpers/cauldron/types";
 import type { SortOrder } from "@/types/common";
 import axios from "axios";
-
+import { ELIXIR_POTIONS_URL } from "@/constants/global";
 export type PositionsSortKey =
   | "positionHealth"
   | "collateralDepositedUsd"
@@ -140,12 +141,9 @@ export default {
     },
 
     totalAssetsData() {
-      const userElixirPotions = !this.userElixirInfo?.data?.totals?.users[
-        this.account.toLowerCase()
-      ]
+      const userElixirPotions = !this.userElixirInfo
         ? 0
-        : this.userElixirInfo.data.totals.users[this.account.toLowerCase()]
-            .total;
+        : this.userElixirInfo[this.account.toLowerCase()].total;
 
       return [
         {
@@ -182,6 +180,7 @@ export default {
       if (!this.account) {
         this.cauldrons = [];
         this.totalAssets = null;
+        this.userElixirInfo = null;
       } else {
         await this.getElixirInfo();
         this.checkLocalData();
@@ -344,11 +343,22 @@ export default {
 
     async getElixirInfo() {
       try {
-        this.userElixirInfo = await axios.get(
-          `https://api.0xdreamy.dev/functions/v1/elixir-potions/users?addresses=${this.account}`
+        const { data } = await axios.get(
+          `${ELIXIR_POTIONS_URL}?addresses=${this.account}`
         );
+
+        const { users } = data.totals;
+
+        if (!Object.keys(users).length) {
+          this.userElixirInfo = null;
+        } else {
+          this.userElixirInfo = users;
+        }
+
+        return;
       } catch (error) {
         this.userElixirInfo = null;
+        return;
       }
     },
   },
