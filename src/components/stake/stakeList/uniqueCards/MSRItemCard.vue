@@ -231,7 +231,7 @@ export default {
 }
 
 .action-name {
-  width: 56px;
+  min-width: 56px;
 }
 
 .tokens-wrap.reward {
@@ -261,6 +261,7 @@ export default {
 
 .row-skeleton {
   height: 24px !important;
+  min-width: 40px;
 }
 
 @media (max-width: 500px) {

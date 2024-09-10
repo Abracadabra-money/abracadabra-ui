@@ -1,7 +1,9 @@
 <template>
   <HeaderLink to="Cauldrons">Cauldrons</HeaderLink>
 
-  <HeaderStakeDropdown />
+  <HeaderLink to="StakeList">Stake</HeaderLink>
+
+  <!-- <HeaderStakeDropdown /> -->
 
   <HeaderMoreDropdown />
 
@@ -19,9 +21,9 @@ export default {
     HeaderMoreDropdown: defineAsyncComponent(() =>
       import("@/components/ui/dropdown/HeaderMoreDropdown.vue")
     ),
-    HeaderStakeDropdown: defineAsyncComponent(() =>
-      import("@/components/ui/dropdown/HeaderStakeDropdown.vue")
-    ),
+    // HeaderStakeDropdown: defineAsyncComponent(() =>
+    //   import("@/components/ui/dropdown/HeaderStakeDropdown.vue")
+    // ),
   },
 };
 </script>

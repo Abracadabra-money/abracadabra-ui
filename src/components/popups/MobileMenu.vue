@@ -38,11 +38,11 @@
       </div>
     </div>
 
-    <HeaderStakeMobilePopup
+    <!-- <HeaderStakeMobilePopup
       v-if="showStake"
       @closePopup="closeInnerPopup"
       @closeMobileMenu="closePopup"
-    />
+    /> -->
   </div>
 </template>
 
@@ -58,7 +58,7 @@ export default {
 
   data() {
     return {
-      showStake: false,
+      // showStake: false,
       isClassicHeader: true,
       alternativeHeader: ["MimSwap", "Pools", "Pool", "PotionPoints"],
     };
@@ -116,9 +116,9 @@ export default {
       import("@/components/ui/icons/Mirror.vue")
     ),
     V2: defineAsyncComponent(() => import("@/components/ui/icons/V2.vue")),
-    HeaderStakeMobilePopup: defineAsyncComponent(() =>
-      import("@/components/popups/HeaderStakeMobilePopup.vue")
-    ),
+    // HeaderStakeMobilePopup: defineAsyncComponent(() =>
+    //   import("@/components/popups/HeaderStakeMobilePopup.vue")
+    // ),
   },
 };
 </script>
