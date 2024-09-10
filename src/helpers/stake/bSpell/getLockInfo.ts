@@ -1,10 +1,10 @@
 import type { Address } from "viem";
 import { MAINNET_CHAIN_ID } from "@/constants/global";
 import { getCoinsPrices } from "@/helpers/prices/defiLlama";
-import { bSpellLockConfig } from "@/configs/stake/oSpellConfig";
+import { bSpellLockConfig } from "@/configs/stake/bSpellConfig";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { MAINNET_SPELL_ADDRESS } from "@/constants/tokensAddress";
-import type { SpellLockConfig } from "@/configs/stake/oSpellConfig";
+import type { SpellLockConfig } from "@/configs/stake/bSpellConfig";
 
 type Price = {
   address: Address;
