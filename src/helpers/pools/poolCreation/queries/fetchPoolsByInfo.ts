@@ -50,12 +50,11 @@ export const fetchPoolsByInfo = async (chainId: number, { baseToken, quoteToken 
 }`;
 
         const { data } = await axios.post(subgraphUrl, { query });
-
         const pools = data.data.pairs;
-
         return pools;
     } catch (error) {
         console.log("fetchPoolsByInfo err:", error);
+        return []
     }
 };
 
