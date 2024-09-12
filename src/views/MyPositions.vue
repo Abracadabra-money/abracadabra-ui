@@ -33,6 +33,7 @@
           v-for="cauldron in sortedCauldrons"
           :key="`${cauldron.config.id} - ${cauldron.config.chainId}`"
           :cauldron="cauldron"
+          :userElixirInfo="userElixirInfo"
         />
       </div>
 
@@ -65,6 +66,7 @@ import {
 import { mapGetters, mapMutations } from "vuex";
 import { APR_KEY } from "@/constants/global";
 import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
+// @ts-ignore
 import { isApyCalcExist, fetchTokenApy } from "@/helpers/collateralsApy";
 import { getUsersTotalAssets } from "@/helpers/cauldron/position/getUsersTotalAssets";
 import {
@@ -74,7 +76,8 @@ import {
 import type { Address } from "viem";
 import type { UserTotalAssets } from "@/helpers/cauldron/types";
 import type { SortOrder } from "@/types/common";
-
+import axios from "axios";
+import { ELIXIR_POTIONS_URL } from "@/constants/global";
 export type PositionsSortKey =
   | "positionHealth"
   | "collateralDepositedUsd"
@@ -98,6 +101,7 @@ export default {
       sortKey: "mimBorrowed" as PositionsSortKey,
       sortOrder: "up" as SortOrder,
       isFiltersPopupOpened: false,
+      userElixirInfo: null as any,
     };
   },
 
@@ -137,7 +141,15 @@ export default {
     },
 
     totalAssetsData() {
+      const userElixirPotions = !this.userElixirInfo
+        ? 0
+        : this.userElixirInfo[this.account.toLowerCase()].total;
+
       return [
+        {
+          title: " Elixir Potions Earned",
+          value: formatTokenBalance(userElixirPotions),
+        },
         {
           title: "Collateral Deposit",
           value: formatUSD(this.totalAssets?.collateralDepositedInUsd || 0),
@@ -168,7 +180,9 @@ export default {
       if (!this.account) {
         this.cauldrons = [];
         this.totalAssets = null;
+        this.userElixirInfo = null;
       } else {
+        await this.getElixirInfo();
         this.checkLocalData();
         await this.createOpenPositions();
       }
@@ -326,9 +340,34 @@ export default {
         this.totalAssets = this.userTotalAssets.data;
       }
     },
+
+    async getElixirInfo() {
+      try {
+        const { data } = await axios.get(
+          `${ELIXIR_POTIONS_URL}?addresses=${this.account}`
+        );
+
+        const { users } = data.totals;
+
+        if (!Object.keys(users).length) {
+          this.userElixirInfo = null;
+        } else {
+          this.userElixirInfo = users;
+        }
+
+        return;
+      } catch (error) {
+        this.userElixirInfo = null;
+        return;
+      }
+    },
   },
 
   async created() {
+    if (this.account) {
+      await this.getElixirInfo();
+    }
+
     this.positionsIsLoading = true;
     this.checkLocalData();
     await this.createOpenPositions();
