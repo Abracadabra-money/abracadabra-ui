@@ -9,7 +9,7 @@
 
     <div class="reward-cards">
       <div
-        :class="['reward-card', { mim: index }]"
+        :class="['reward-card', { elixir: index === 0 }, { mim: index === 2 }]"
         v-for="(data, index) in totalAssetsData"
         :key="data.title"
       >
@@ -149,6 +149,15 @@ export default {
     url("../../assets/images/myPositions/reward-mim-background.png");
   background-repeat: no-repeat;
   background-position: 20% 30%;
+}
+
+.elixir {
+  border: 1px solid transparent;
+  border-radius: 16px;
+  background: linear-gradient(to right, #14182a, #14182a),
+    linear-gradient(90deg, #8c4fd5 0%, #ff43c3 50%, #ffda80 100%);
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
 }
 
 @media screen and (max-width: 1050px) {
