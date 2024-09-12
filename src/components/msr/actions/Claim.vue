@@ -103,13 +103,10 @@ export default {
     },
 
     isButtonDisabled() {
-      if (
-        !this.account ||
-        this.isUnsupportedChain ||
-        !this.mimSavingRateInfo ||
-        this.isMimSavingRateInfoLoading
-      )
-        return false;
+      if (!this.account || this.isUnsupportedChain) return false;
+
+      if (!this.mimSavingRateInfo || this.isMimSavingRateInfoLoading)
+        return true;
 
       return (
         (!this.isEarned && !this.isUserRewardLockAmount) ||
