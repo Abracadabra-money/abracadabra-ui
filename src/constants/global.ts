@@ -31,3 +31,5 @@ export const GNOSIS_SAFE_ADDRESS = "0xDF2C270f610Dc35d8fFDA5B453E74db5471E126B";
 
 export const APR_KEY = "abracadabraCauldronsApr";
 export const ETHER_DECIMALS = 18;
+export const ELIXIR_POTIONS_URL =
+  "https://api.0xdreamy.dev/functions/v1/elixir-potions/users";
