@@ -82,8 +82,8 @@ export default {
       searchValue: "",
       showMyPositions: false,
       showActiveCauldrons: true,
-      sortKey: "",
-      sortOrder: false,
+      sortKey: "TVL",
+      sortOrder: true,
       selectedChains: [],
       isFiltersPopupOpened: false,
     };
@@ -109,13 +109,8 @@ export default {
 
       const filteredByPositions = this.filterPositions(filteredByDepreciate);
 
-      const sortedByNew = this.sortByNew(filteredByPositions);
-
-      // TODO
-      const sortedByTesting = this.sortByTesting(filteredByPositions);
-
       const filteredByValue = this.filterBySearchValue(
-        sortedByTesting,
+        filteredByPositions,
         this.searchValue
       );
 
@@ -125,7 +120,11 @@ export default {
         this.sortOrder
       );
 
-      return sortedByChain;
+      // const sortedByTesting = this.sortByTesting(sortedByChain);
+
+      const sortedByNew =
+        this.sortOrder === true ? this.sortByNew(sortedByChain) : sortedByChain;
+      return sortedByNew;
     },
 
     activeChains() {
@@ -166,8 +165,13 @@ export default {
     },
 
     updateSortKeys(key, order) {
-      this.sortKey = key;
-      this.sortOrder = order;
+      if (!order) {
+        this.sortKey = "TVL";
+        this.sortOrder = true;
+      } else {
+        this.sortKey = key;
+        this.sortOrder = order;
+      }
     },
 
     updateSearch(value) {
