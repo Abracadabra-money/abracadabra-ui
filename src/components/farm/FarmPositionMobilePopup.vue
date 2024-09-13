@@ -1,91 +1,106 @@
 <template>
-  <div class="backdrop" @click.self="closePopup" ref="backdrop">
-    <div class="farm-position-wrap" ref="popup">
-      <div class="farm-position">
-        <div class="deposited">
-          <h4 class="subtitle">
-            Deposited
-            <img
-              class="close"
-              src="@/assets/images/close-icon.png"
-              alt="Close popup"
-              @click="closePopup"
-            />
-          </h4>
+  <Transition
+    @before-enter="setFade"
+    @enter="fadeIn"
+    @leave="fadeOut"
+    :css="false"
+  >
+    <div class="backdrop" @click.self="closePopup" v-if="isOpened">
+      <Transition
+        @before-enter="setRoll"
+        @enter="rollDown"
+        @leave="rollUp"
+        :css="false"
+        appear
+      >
+        <div class="farm-position-wrap" v-if="isOpened">
+          <div class="farm-position">
+            <div class="deposited">
+              <h4 class="subtitle">
+                Deposited
+                <img
+                  class="close"
+                  src="@/assets/images/close-icon.png"
+                  alt="Close popup"
+                  @click="closePopup"
+                />
+              </h4>
 
-          <div class="deposited-token">
-            <span class="token-name">
-              <BaseTokenIcon
-                :icon="selectedFarm.icon"
-                :name="selectedFarm.stakingToken.name"
-                size="44px"
-              />
-              {{ selectedFarm.stakingToken.name }}</span
-            >
-            <div class="token-amount">
-              <span class="value">{{ depositedTokenInfo.earned }}</span>
-              <span class="usd">{{ depositedTokenInfo.usd }}</span>
+              <div class="deposited-token">
+                <span class="token-name">
+                  <BaseTokenIcon
+                    :icon="selectedFarm.icon"
+                    :name="selectedFarm.stakingToken.name"
+                    size="44px"
+                  />
+                  {{ selectedFarm.stakingToken.name }}</span
+                >
+                <div class="token-amount">
+                  <span class="value">{{ depositedTokenInfo.earned }}</span>
+                  <span class="usd">{{ depositedTokenInfo.usd }}</span>
+                </div>
+              </div>
+
+              <ul class="deposited-token-parts token-list">
+                <li
+                  class="deposited-token-part list-item"
+                  v-for="(token, index) in tokensList"
+                  :key="index"
+                >
+                  <span class="token-name">
+                    <BaseTokenIcon
+                      :icon="token.icon"
+                      :name="token.name"
+                      size="28px"
+                    />
+                    {{ token.name }}</span
+                  >
+                  <div class="token-amount">
+                    <span class="value">{{ token.amount }}</span>
+                    <span class="usd">{{ token.amountUsd }}</span>
+                  </div>
+                </li>
+              </ul>
             </div>
+
+            <div class="reward">
+              <h4 class="subtitle">Reward</h4>
+
+              <ul class="reward-tokens token-list">
+                <li
+                  class="reward-token list-item"
+                  v-for="(token, index) in rewardTokensInfo"
+                  :key="index"
+                >
+                  <span class="token-name">
+                    <BaseTokenIcon
+                      :name="token.name"
+                      :icon="token.icon"
+                      size="28px"
+                    />
+                    {{ token.name }}</span
+                  >
+                  <div class="token-amount">
+                    <span class="value">{{ token.earned }}</span>
+                    <span class="usd">{{ token.usd }}</span>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            <BaseButton
+              class="harvest-button"
+              primary
+              @click="harvest"
+              :disabled="disableEarnedButton"
+            >
+              {{ earnButtonText }}
+            </BaseButton>
           </div>
-
-          <ul class="deposited-token-parts token-list">
-            <li
-              class="deposited-token-part list-item"
-              v-for="(token, index) in tokensList"
-              :key="index"
-            >
-              <span class="token-name">
-                <BaseTokenIcon
-                  :icon="token.icon"
-                  :name="token.name"
-                  size="28px"
-                />
-                {{ token.name }}</span
-              >
-              <div class="token-amount">
-                <span class="value">{{ token.amount }}</span>
-                <span class="usd">{{ token.amountUsd }}</span>
-              </div>
-            </li>
-          </ul>
         </div>
-
-        <div class="reward">
-          <h4 class="subtitle">Reward</h4>
-
-          <ul class="reward-tokens token-list">
-            <li
-              class="reward-token list-item"
-              v-for="(token, index) in rewardTokensInfo"
-              :key="index"
-            >
-              <span class="token-name">
-                <BaseTokenIcon
-                  :name="token.name"
-                  :icon="token.icon"
-                  size="28px"
-                />
-                {{ token.name }}</span
-              >
-              <div class="token-amount">
-                <span class="value">{{ token.earned }}</span>
-                <span class="usd">{{ token.usd }}</span>
-              </div>
-            </li>
-          </ul>
-        </div>
-
-        <BaseButton
-          class="harvest-button"
-          primary
-          @click="harvest"
-          :disabled="disableEarnedButton"
-        >
-          {{ earnButtonText }}
-        </BaseButton>
-      </div>
+      </Transition>
     </div>
-  </div>
+  </Transition>
 </template>
 
 <script lang="ts">
@@ -99,12 +114,8 @@ import spellIcon from "@/assets/images/tokens/SPELL.png";
 import { getChainConfig } from "@/helpers/chains/getChainsInfo";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 import type { FarmItem, RewardTokenInfo } from "@/configs/farms/types";
-import {
-  backdropFadeIn,
-  backdropFadeOut,
-  popupFadeInSlideUp,
-  popupFadeOutSlideDown,
-} from "@/helpers/animations/popup";
+import { setFade, fadeIn, fadeOut } from "@/helpers/animations/simple/fade";
+import { setRoll, rollDown, rollUp } from "@/helpers/animations/simple/roll";
 
 export default {
   props: {
@@ -210,13 +221,19 @@ export default {
     isOpened: {
       handler(value) {
         document.documentElement.style.overflow = "hidden";
-        if (value) this.openingAnimation();
       },
       immediate: true,
     },
   },
 
   methods: {
+    setFade,
+    fadeIn,
+    fadeOut,
+    setRoll,
+    rollDown,
+    rollUp,
+
     formatUSD,
     formatTokenBalance,
 
@@ -257,27 +274,10 @@ export default {
       this.isActionProcessing = false;
     },
 
-    openingAnimation() {
-      if (this.$refs.backdrop) backdropFadeIn(this.$refs.backdrop);
-      if (this.$refs.popup) popupFadeInSlideUp(this.$refs.popup);
-    },
-
-    closingAnimation() {
-      if (this.$refs.backdrop) backdropFadeOut(this.$refs.backdrop);
-      if (this.$refs.popup) popupFadeOutSlideDown(this.$refs.popup);
-    },
-
     closePopup() {
-      this.closingAnimation();
-      setTimeout(() => {
-        document.documentElement.style.overflow = "auto";
-        this.$emit("closePopup");
-      }, 150);
+      document.documentElement.style.overflow = "auto";
+      this.$emit("closePopup");
     },
-  },
-
-  mounted() {
-    this.openingAnimation();
   },
 
   components: {

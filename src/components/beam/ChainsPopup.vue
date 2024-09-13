@@ -1,5 +1,5 @@
 <template>
-  <div class="popup" v-if="isOpen" @click="closePopup" ref="popup">
+  <div class="popup" @click="closePopup">
     <h3 class="title">
       Select {{ popupTitle }} chain
       <img
@@ -35,15 +35,9 @@
 <script lang="ts">
 import type { PropType } from "vue";
 import type { BeamInfo, BeamConfig } from "@/helpers/beam/types";
-import { popupFadeIn, popupFadeOut } from "@/helpers/animations/popup";
-import gsap from "gsap";
 
 export default {
   props: {
-    isOpen: {
-      type: Boolean,
-      default: false,
-    },
     popupType: {
       type: String as PropType<"from" | "to">,
     },
@@ -88,21 +82,8 @@ export default {
     },
 
     closePopup() {
-      this.closingAnimation();
-      setTimeout(() => this.$emit("closePopup"), 150);
+      this.$emit("closePopup");
     },
-
-    openingAnimation() {
-      popupFadeIn(this.$refs.popup as gsap.TweenTarget);
-    },
-
-    closingAnimation() {
-      popupFadeOut(this.$refs.popup as gsap.TweenTarget);
-    },
-  },
-
-  mounted() {
-    this.openingAnimation();
   },
 };
 </script>

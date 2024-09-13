@@ -1,5 +1,5 @@
 <template>
-  <div class="settings-popup" ref="popup">
+  <div class="settings-popup">
     <div>
       <div class="title-wrap">
         <p class="title">Gas on Destination Chain</p>
@@ -79,7 +79,6 @@ import type { BeamInfo, BeamConfig } from "@/helpers/beam/types";
 import type { PropType } from "vue";
 import { chainsConfigs } from "@/helpers/chains/configs";
 import { mapGetters } from "vuex";
-import { popupFadeIn, popupFadeOut } from "@/helpers/animations/popup";
 
 export default {
   emits: ["onUpdateAmount", "closeSettings"],
@@ -256,21 +255,8 @@ export default {
     },
 
     closePopup() {
-      this.closingAnimation();
-      setTimeout(() => this.$emit("closeSettings"), 150);
+      this.$emit("closeSettings");
     },
-
-    openingAnimation() {
-      popupFadeIn(this.$refs.popup as gsap.TweenTarget);
-    },
-
-    closingAnimation() {
-      popupFadeOut(this.$refs.popup as gsap.TweenTarget);
-    },
-  },
-
-  mounted() {
-    this.openingAnimation();
   },
 
   components: {

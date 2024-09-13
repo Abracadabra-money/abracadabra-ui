@@ -14,80 +14,87 @@
       />
     </div>
 
-    <div class="list" v-show="showDropdownList" ref="dropdownList">
-      <router-link class="list-link" :to="{ name: 'MarketsFarm' }">
-        <div class="link-title">
-          <img
-            class="link-icon"
-            src="@/assets/images/header/dropdown/more/farms-icon.svg"
-          />
-          Farms
-        </div>
-        <p class="link-description">Farming Opportunities</p>
-      </router-link>
+    <Transition
+      @before-enter="setRoll"
+      @enter="rollDown"
+      @leave="rollUp"
+      :css="false"
+    >
+      <div class="list" v-if="showDropdownList" ref="dropdownList">
+        <router-link class="list-link" :to="{ name: 'MarketsFarm' }">
+          <div class="link-title">
+            <img
+              class="link-icon"
+              src="@/assets/images/header/dropdown/more/farms-icon.svg"
+            />
+            Farms
+          </div>
+          <p class="link-description">Farming Opportunities</p>
+        </router-link>
 
-      <router-link class="list-link" :to="{ name: 'Beam' }">
-        <div class="link-title">
-          <img
-            class="link-icon"
-            src="@/assets/images/header/dropdown/more/beam-icon.svg"
-          />
-          Beam
-        </div>
-        <p class="link-description">Move your MIM across networks</p>
-      </router-link>
+        <router-link class="list-link" :to="{ name: 'Beam' }">
+          <div class="link-title">
+            <img
+              class="link-icon"
+              src="@/assets/images/header/dropdown/more/beam-icon.svg"
+            />
+            Beam
+          </div>
+          <p class="link-description">Move your MIM across networks</p>
+        </router-link>
 
-      <a
-        href="https://curve.fi/#/ethereum/pools/mim/swap"
-        class="list-link"
-        target="_blank"
-        ><div class="link-title">
-          <img
-            class="link-icon"
-            src="@/assets/images/header/dropdown/more/swap-icon.svg"
-          />
-          Swap
-        </div>
-        <p class="link-description">Swap assets</p></a
-      >
+        <a
+          href="https://curve.fi/#/ethereum/pools/mim/swap"
+          class="list-link"
+          target="_blank"
+          ><div class="link-title">
+            <img
+              class="link-icon"
+              src="@/assets/images/header/dropdown/more/swap-icon.svg"
+            />
+            Swap
+          </div>
+          <p class="link-description">Swap assets</p></a
+        >
 
-      <a
-        href="https://analytics.abracadabra.money"
-        class="list-link"
-        target="_blank"
-        ><div class="link-title">
-          <img
-            class="link-icon"
-            src="@/assets/images/header/dropdown/more/bars-icon.svg"
-          />
-          Analytics
-        </div>
-        <p class="link-description">Explore analytics</p></a
-      >
+        <a
+          href="https://analytics.abracadabra.money"
+          class="list-link"
+          target="_blank"
+          ><div class="link-title">
+            <img
+              class="link-icon"
+              src="@/assets/images/header/dropdown/more/bars-icon.svg"
+            />
+            Analytics
+          </div>
+          <p class="link-description">Explore analytics</p></a
+        >
 
-      <a
-        href="https://docs.abracadabra.money/learn/"
-        class="list-link"
-        target="_blank"
-        ><div class="link-title">
-          <img
-            class="link-icon"
-            src="@/assets/images/header/dropdown/more/docs-icon.svg"
-          />
-          Documentation
-        </div>
-        <p class="link-description">Explore docs</p></a
-      >
+        <a
+          href="https://docs.abracadabra.money/learn/"
+          class="list-link"
+          target="_blank"
+          ><div class="link-title">
+            <img
+              class="link-icon"
+              src="@/assets/images/header/dropdown/more/docs-icon.svg"
+            />
+            Documentation
+          </div>
+          <p class="link-description">Explore docs</p></a
+        >
 
-      <div class="social-media">
-        <Lens class="media-link" />
-        <GitHub class="media-link" />
-        <Discord class="media-link" />
-        <Twitter class="media-link" />
-        <Mirror class="media-link" />
-        <V2 class="media-link" />
+        <div class="social-media">
+          <Lens class="media-link" />
+          <GitHub class="media-link" />
+          <Discord class="media-link" />
+          <Twitter class="media-link" />
+          <Mirror class="media-link" />
+          <V2 class="media-link" />
+        </div>
       </div>
-    </div>
+    </Transition>
   </div>
 </template>
 
@@ -98,10 +105,7 @@ import GitHub from "@/components/ui/icons/GitHub.vue";
 import Twitter from "@/components/ui/icons/Twitter.vue";
 import Discord from "@/components/ui/icons/Discord.vue";
 import V2 from "@/components/ui/icons/V2.vue";
-import {
-  dropdownRollDown,
-  dropdownRollUp,
-} from "@/helpers/animations/dropdown";
+import { setRoll, rollDown, rollUp } from "@/helpers/animations/simple/roll";
 
 export default {
   data() {
@@ -111,26 +115,16 @@ export default {
   },
 
   methods: {
+    setRoll,
+    rollDown,
+    rollUp,
+
     toggleDropdown() {
-      if (this.showDropdownList) {
-        this.closeDropdown();
-      } else {
-        this.showDropdownList = true;
-        this.openingAnimation();
-      }
+      this.showDropdownList = !this.showDropdownList;
     },
 
     closeDropdown() {
-      this.closingAnimation();
-      setTimeout(() => (this.showDropdownList = false), 300);
-    },
-
-    openingAnimation() {
-      dropdownRollDown(this.$refs.dropdownList);
-    },
-
-    closingAnimation() {
-      dropdownRollUp(this.$refs.dropdownList);
+      this.showDropdownList = false;
     },
   },
 

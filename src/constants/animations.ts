@@ -1,0 +1,1 @@
+export const NORMAL_DURATION = 0.225;

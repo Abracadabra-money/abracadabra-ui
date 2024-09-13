@@ -14,7 +14,7 @@
     <LiquidityLaunchEventBanner />
     <MlpMigrationBanner />
     <router-view v-slot="{ Component }">
-      <Transition name="fade" mode="out-in" appear>
+      <Transition name="fade" mode="out-in">
         <component :is="Component" />
       </Transition>
     </router-view>
@@ -132,20 +132,12 @@ export default {
 
 <style lang="scss" src="@/assets/styles/main.scss">
 .fade-enter-active,
-.fade-leave-active,
-.fade-appear-active {
-  transition: opacity 0.3s ease;
+.fade-leave-active {
+  transition: opacity 0.3s ease-out;
 }
 
-.fade-enter,
-.fade-leave-to,
-.fade-appear {
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
-}
-
-.fade-enter-to,
-.fade-leave-from,
-.fade-appear-to {
-  opacity: 1;
 }
 </style>

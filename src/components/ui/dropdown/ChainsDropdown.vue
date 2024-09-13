@@ -42,54 +42,61 @@
       </svg>
     </button>
 
-    <div class="dropdown-list" ref="dropdownList" v-show="showDropdownList">
-      <div class="select-all">
-        <h6 class="list-title">Select all</h6>
-        <Toggle
-          :selected="allSelected"
-          @updateToggle="$emit('selectAllChains')"
-        />
-      </div>
-
-      <div
-        class="list-item"
-        v-for="chainId in orderedActiveChains"
-        :key="chainId"
-      >
-        <div class="chain-info">
-          <img class="chain-icon" :src="getChainIcon(+chainId)" alt="" />
-          <span class="chain-name">{{ getChainName(+chainId) }}</span>
+    <Transition
+      @before-enter="setRoll"
+      @enter="rollDown"
+      @leave="rollUp"
+      :css="false"
+    >
+      <div class="dropdown-list" ref="dropdownList" v-if="showDropdownList">
+        <div class="select-all">
+          <h6 class="list-title">Select all</h6>
+          <Toggle
+            :selected="allSelected"
+            @updateToggle="$emit('selectAllChains')"
+          />
         </div>
 
         <div
-          :class="[
-            'checkbox',
-            {
-              active: selectedChains.includes(+chainId) && !allSelected,
-            },
-          ]"
-          @click="updateSelectedChain(+chainId)"
+          class="list-item"
+          v-for="chainId in orderedActiveChains"
+          :key="chainId"
         >
-          <svg
-            class="checked"
-            v-show="selectedChains.includes(+chainId) && !allSelected"
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 20 20"
-            fill="none"
+          <div class="chain-info">
+            <img class="chain-icon" :src="getChainIcon(+chainId)" alt="" />
+            <span class="chain-name">{{ getChainName(+chainId) }}</span>
+          </div>
+
+          <div
+            :class="[
+              'checkbox',
+              {
+                active: selectedChains.includes(+chainId) && !allSelected,
+              },
+            ]"
+            @click="updateSelectedChain(+chainId)"
           >
-            <path
-              d="M15.5 5.5L8.83333 12.5L5.5 9"
-              stroke="#7088CC"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
+            <svg
+              class="checked"
+              v-show="selectedChains.includes(+chainId) && !allSelected"
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+            >
+              <path
+                d="M15.5 5.5L8.83333 12.5L5.5 9"
+                stroke="#7088CC"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </div>
         </div>
       </div>
-    </div>
+    </Transition>
   </div>
 </template>
 
@@ -97,11 +104,7 @@
 import { defineAsyncComponent, type PropType } from "vue";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 import { getChainConfig } from "@/helpers/chains/getChainsInfo";
-import gsap from "gsap";
-import {
-  dropdownRollDown,
-  dropdownRollUp,
-} from "@/helpers/animations/dropdown";
+import { setRoll, rollDown, rollUp } from "@/helpers/animations/simple/roll";
 
 export default {
   props: {
@@ -152,10 +155,6 @@ export default {
   },
 
   watch: {
-    showDropdownList(value) {
-      if (value) this.openingAnimation();
-    },
-
     allSelected(isAllSelected: boolean) {
       if (isAllSelected && this.$refs.dropdownList)
         (this.$refs.dropdownList as HTMLDivElement).scrollTo({
@@ -166,6 +165,10 @@ export default {
   },
 
   methods: {
+    setRoll,
+    rollDown,
+    rollUp,
+
     getChainIcon,
     getChainName(chainId: number) {
       const chain = getChainConfig(chainId);
@@ -174,28 +177,15 @@ export default {
 
     toggleDropdown() {
       if (!this.activeChains.length) return false;
-      if (this.showDropdownList) {
-        this.closeDropdown();
-      } else {
-        this.showDropdownList = true;
-      }
+      this.showDropdownList = !this.showDropdownList;
     },
 
     closeDropdown() {
-      this.closingAnimation();
-      setTimeout(() => (this.showDropdownList = false), 300);
+      this.showDropdownList = false;
     },
 
     updateSelectedChain(chainId: number) {
       this.$emit("updateSelectedChain", chainId);
-    },
-
-    openingAnimation() {
-      dropdownRollDown(this.$refs.dropdownList as gsap.TweenTarget);
-    },
-
-    closingAnimation() {
-      dropdownRollUp(this.$refs.dropdownList as gsap.TweenTarget);
     },
   },
 

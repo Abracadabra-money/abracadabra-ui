@@ -4,64 +4,71 @@
       <SetingIcon />
     </button>
 
-    <div class="settings-popup" v-show="showPopup" ref="popup">
-      <h3 class="title">Transaction Setting</h3>
+    <Transition
+      @before-enter="setScale"
+      @enter="scaleIn"
+      @leave="scaleOut"
+      :css="false"
+    >
+      <div class="settings-popup" v-if="showPopup">
+        <h3 class="title">Transaction Setting</h3>
 
-      <div>
-        <h4 class="subtitle">
-          Slippage tolerance
+        <div>
+          <h4 class="subtitle">
+            Slippage tolerance
 
-          <TooltipIcon
-            :width="20"
-            :height="20"
-            fill="#878B93"
-            tooltip="Your transaction will revert if the price changes unfavorably by more than this percentage."
-          />
-        </h4>
+            <TooltipIcon
+              :width="20"
+              :height="20"
+              fill="#878B93"
+              tooltip="Your transaction will revert if the price changes unfavorably by more than this percentage."
+            />
+          </h4>
 
-        <div class="row">
+          <div class="row">
+            <input
+              class="input"
+              v-model="slippageValue"
+              min="0"
+              max="100"
+              step="0.1"
+              type="text"
+              placeholder="1 - 100"
+            />
+
+            <button
+              :class="['auto-button', { active: isActiveAutoButton }]"
+              @click="getDefaultSlippage"
+            >
+              Auto
+            </button>
+          </div>
+        </div>
+
+        <div v-if="!pool">
+          <h4 class="subtitle">
+            Swap deadline
+
+            <TooltipIcon
+              :width="20"
+              :height="20"
+              fill="#878B93"
+              tooltip="Your transaction will revert if it is pending for more than this period of time."
+            />
+          </h4>
+
           <input
-            class="input"
-            v-model="slippageValue"
+            class="input deadline-input"
+            v-model="deadlineValue"
             min="0"
             max="100"
-            step="0.1"
+            step="1"
             type="text"
-            placeholder="1 - 100"
+            placeholder="3 min"
           />
-
-          <button
-            :class="['auto-button', { active: isActiveAutoButton }]"
-            @click="getDefaultSlippage"
-          >
-            Auto
-          </button>
         </div>
       </div>
-
-      <div v-if="!pool">
-        <h4 class="subtitle">
-          Swap deadline
-
-          <TooltipIcon
-            :width="20"
-            :height="20"
-            fill="#878B93"
-            tooltip="Your transaction will revert if it is pending for more than this period of time."
-          />
-        </h4>
-
-        <input
-          class="input deadline-input"
-          v-model="deadlineValue"
-          min="0"
-          max="100"
-          step="1"
-          type="text"
-          placeholder="3 min"
-        />
-      </div>
-    </div>
+    </Transition>
   </div>
 </template>
 
@@ -70,8 +77,7 @@ import { formatUnits, parseUnits } from "viem";
 import { formatToFixed } from "@/helpers/filters";
 import { defineAsyncComponent, type PropType } from "vue";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
-import gsap from "gsap";
-import { popupFadeIn, popupFadeOut } from "@/helpers/animations/popup";
+import { setScale, scaleIn, scaleOut } from "@/helpers/animations/simple/scale";
 
 export default {
   props: {
@@ -140,6 +146,10 @@ export default {
   },
 
   methods: {
+    setScale,
+    scaleIn,
+    scaleOut,
+
     getDefaultSlippage(): void {
       this.slippageValue = this.getFormattedAmount(this.defaultSlippage);
     },
@@ -150,25 +160,11 @@ export default {
     },
 
     togglePopup() {
-      if (this.showPopup) {
-        this.closePopup();
-      } else {
-        this.showPopup = true;
-        this.openingAnimation();
-      }
+      this.showPopup = !this.showPopup;
     },
 
     closePopup() {
-      this.closingAnimation();
-      setTimeout(() => (this.showPopup = false), 150);
-    },
-
-    openingAnimation() {
-      popupFadeIn(this.$refs.popup as gsap.TweenTarget);
-    },
-
-    closingAnimation() {
-      popupFadeOut(this.$refs.popup as gsap.TweenTarget);
+      this.showPopup = false;
     },
   },
 

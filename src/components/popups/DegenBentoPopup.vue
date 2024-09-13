@@ -1,6 +1,6 @@
 <template>
-  <div class="backdrop" @click.self="closePopup" ref="backdrop">
-    <div :class="['box-popup', isBento ? 'bento-bg' : 'degen-bg']" ref="popup">
+  <div class="backdrop" @click.self="closePopup">
+    <div :class="['box-popup', isBento ? 'bento-bg' : 'degen-bg']">
       <div class="box-header">
         <p class="title">
           <img class="bento-img" :src="boxIcon" alt="Box" />
@@ -58,13 +58,6 @@ import { trimZeroDecimals } from "@/helpers/numbers";
 import { formatUnits, parseUnits } from "viem";
 import type { BentoBoxData } from "@/helpers/bentoBox/types";
 import type { PropType } from "vue";
-import gsap from "gsap";
-import {
-  backdropFadeIn,
-  popupFadeIn,
-  backdropFadeOut,
-  popupFadeOut,
-} from "@/helpers/animations/popup";
 
 export default {
   props: {
@@ -74,6 +67,7 @@ export default {
     },
     isBento: { type: Boolean, default: false },
     isDeposit: { type: Boolean, default: false },
+    isOpened: { type: Boolean, default: false },
   },
 
   data() {
@@ -208,24 +202,9 @@ export default {
       this.inputAmount = value;
     },
 
-    openingAnimation() {
-      backdropFadeIn(this.$refs.backdrop as gsap.TweenTarget);
-      popupFadeIn(this.$refs.popup as gsap.TweenTarget);
-    },
-
-    closingAnimation() {
-      backdropFadeOut(this.$refs.backdrop as gsap.TweenTarget);
-      popupFadeOut(this.$refs.popup as gsap.TweenTarget);
-    },
-
     closePopup() {
-      this.closingAnimation();
-      setTimeout(() => this.$emit("close"), 150);
+      this.$emit("close");
     },
-  },
-
-  mounted() {
-    this.openingAnimation();
   },
 
   components: { BaseTokenInput, BaseButton },

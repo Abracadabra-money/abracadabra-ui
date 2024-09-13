@@ -8,36 +8,43 @@
       @click="togglePopup"
     />
 
-    <div class="slippage-popup" v-show="showPopup" ref="popup">
-      <div class="title-wrap">
-        <h3>Slippage settings</h3>
+    <Transition
+      @before-enter="setScale"
+      @enter="scaleIn"
+      @leave="scaleOut"
+      :css="false"
+    >
+      <div class="slippage-popup" v-if="showPopup" ref="popup">
+        <div class="title-wrap">
+          <h3>Slippage settings</h3>
 
-        <TooltipIcon
-          :width="24"
-          :height="24"
-          tooltip="Transaction will revert if the leveraged amount changes by this percent."
-        />
+          <TooltipIcon
+            :width="24"
+            :height="24"
+            tooltip="Transaction will revert if the leveraged amount changes by this percent."
+          />
+        </div>
+
+        <div class="row">
+          <input
+            class="input"
+            v-model="inputValue"
+            min="0"
+            max="100"
+            step="1"
+            type="text"
+            placeholder="1 - 100"
+          />
+
+          <button
+            :class="['auto-button', { active: isActiveAutoButton }]"
+            @click="getDefaultSlippage"
+          >
+            Auto
+          </button>
+        </div>
       </div>
-
-      <div class="row">
-        <input
-          class="input"
-          v-model="inputValue"
-          min="0"
-          max="100"
-          step="1"
-          type="text"
-          placeholder="1 - 100"
-        />
-
-        <button
-          :class="['auto-button', { active: isActiveAutoButton }]"
-          @click="getDefaultSlippage"
-        >
-          Auto
-        </button>
-      </div>
-    </div>
+    </Transition>
   </div>
 </template>
 <script lang="ts">
@@ -45,8 +52,7 @@ import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { formatToFixed } from "@/helpers/filters";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
-import gsap from "gsap";
-import { popupFadeIn, popupFadeOut } from "@/helpers/animations/popup";
+import { setScale, scaleIn, scaleOut } from "@/helpers/animations/simple/scale";
 
 export default {
   props: {
@@ -88,6 +94,10 @@ export default {
   },
 
   methods: {
+    setScale,
+    scaleIn,
+    scaleOut,
+
     getDefaultSlippage() {
       this.inputValue = this.getFormattedAmount(this.defaultAmount);
     },
@@ -98,25 +108,11 @@ export default {
     },
 
     togglePopup() {
-      if (this.showPopup) {
-        this.closePopup();
-      } else {
-        this.showPopup = true;
-        this.openingAnimation();
-      }
+      this.showPopup = !this.showPopup;
     },
 
     closePopup() {
-      this.closingAnimation();
-      setTimeout(() => (this.showPopup = false), 150);
-    },
-
-    openingAnimation() {
-      popupFadeIn(this.$refs.popup as gsap.TweenTarget);
-    },
-
-    closingAnimation() {
-      popupFadeOut(this.$refs.popup as gsap.TweenTarget);
+      this.showPopup = false;
     },
   },
 

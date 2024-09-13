@@ -23,12 +23,19 @@
       :isBento="true"
     />
 
-    <DegenBentoPopup
-      v-if="popupData.opened && currentChainBentoData"
-      :infoObject="currentChainBentoData"
-      :isBento="popupData.isBento"
-      @close="popupData.opened = false"
-    />
+    <Transition
+      @before-enter="setFade"
+      @enter="fadeIn"
+      @leave="fadeOut"
+      :css="false"
+    >
+      <DegenBentoPopup
+        v-if="popupData.opened && currentChainBentoData"
+        :infoObject="currentChainBentoData"
+        :isBento="popupData.isBento"
+        @close="popupData.opened = false"
+      />
+    </Transition>
   </div>
 </template>
 
@@ -40,6 +47,7 @@ import BentoBoxItem from "@/components/myPositions/BentoBoxItem.vue";
 import DegenBentoPopup from "@/components/popups/DegenBentoPopup.vue";
 import { createBentoBoxDatas } from "@/helpers/bentoBox/createBentoBoxData";
 import type { BentoBoxData } from "@/helpers/bentoBox/types";
+import { setFade, fadeIn, fadeOut } from "@/helpers/animations/simple/fade";
 
 const initialPopupData: PopupData = {
   opened: false,
@@ -75,7 +83,7 @@ export default {
       bentoBoxData: "getBentoBoxData",
     }),
 
-    activeChains(){
+    activeChains() {
       let bento: BentoBoxData[] = [];
       let degen: BentoBoxData[] = [];
 
@@ -142,6 +150,10 @@ export default {
     ...mapMutations({
       setBentoBoxData: "setBentoBoxData",
     }),
+
+    setFade,
+    fadeIn,
+    fadeOut,
 
     chooseActiveBentoChain(chainId: number) {
       this.activeBentoChain = chainId;

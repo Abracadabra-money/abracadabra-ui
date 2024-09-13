@@ -20,94 +20,108 @@
           />
         </div>
       </div>
+      <Transition
+        @before-enter="setScale"
+        @enter="scaleIn"
+        @leave="scaleOut"
+        :css="false"
+      >
+        <div
+          class="beam-actions"
+          v-if="!isOpenNetworkPopup && !isSettingsOpened"
+        >
+          <ChainsWrap
+            :fromChain="fromChain"
+            :toChain="toChain"
+            @onChainSelectClick="openNetworkPopup"
+            @switchChains="switchChains"
+          />
 
-      <div class="beam-actions" v-if="!isOpenNetworkPopup && !isSettingsOpened">
-        <ChainsWrap
-          :fromChain="fromChain"
-          :toChain="toChain"
-          @onChainSelectClick="openNetworkPopup"
-          @switchChains="switchChains"
-        />
+          <div class="inputs-wrap" v-if="tokenConfig">
+            <div>
+              <h4 class="input-label">MIM to Beam</h4>
+              <BaseTokenInput
+                class="beam-input"
+                :decimals="tokenConfig.decimals"
+                :max="maxMimAmount"
+                :value="inputValue"
+                :name="tokenConfig.symbol"
+                :icon="tokenConfig.image"
+                @updateInputValue="updateMainValue"
+                :error="amountError"
+              />
+            </div>
 
-        <div class="inputs-wrap" v-if="tokenConfig">
-          <div>
-            <h4 class="input-label">MIM to Beam</h4>
-            <BaseTokenInput
-              class="beam-input"
-              :decimals="tokenConfig.decimals"
-              :max="maxMimAmount"
-              :value="inputValue"
-              :name="tokenConfig.symbol"
-              :icon="tokenConfig.image"
-              @updateInputValue="updateMainValue"
-              :error="amountError"
+            <InputAddress
+              v-if="isShowDstAddress"
+              @update-input="updateDestinationAddress"
+              @error-input="errorDestinationAddress"
             />
           </div>
 
-          <InputAddress
-            v-if="isShowDstAddress"
-            @update-input="updateDestinationAddress"
-            @error-input="errorDestinationAddress"
+          <ExpectedBlock
+            v-if="beamInfoObject"
+            :beamInfoObject="beamInfoObject"
+            :dstChainConfig="toChain"
+            :gasFee="estimateSendFee"
+            :dstNativeTokenAmount="dstTokenAmount"
+            :isLoading="isUpdateFeesData"
           />
+
+          <div class="wrap-btn">
+            <BaseButton
+              :primary="true"
+              :disabled="actionState.disable"
+              @click="actionHandler"
+              >{{ actionState.text }}</BaseButton
+            >
+          </div>
+
+          <p class="caption">
+            <span class="caption-text">Powered By</span
+            ><img
+              class="caption-icon"
+              src="@/assets/images/beam/layer-zero.svg"
+              alt=""
+            />
+          </p>
         </div>
 
-        <ExpectedBlock
-          v-if="beamInfoObject"
+        <ChainsPopup
+          v-else-if="isOpenNetworkPopup"
+          :popupType="popupType"
           :beamInfoObject="beamInfoObject"
-          :dstChainConfig="toChain"
-          :gasFee="estimateSendFee"
-          :dstNativeTokenAmount="dstTokenAmount"
-          :isLoading="isUpdateFeesData"
+          :selectedFromChain="fromChain"
+          :selectedToChain="toChain"
+          @closePopup="closeNetworkPopup"
+          @changeChain="changeChain"
         />
 
-        <div class="wrap-btn">
-          <BaseButton
-            :primary="true"
-            :disabled="actionState.disable"
-            @click="actionHandler"
-            >{{ actionState.text }}</BaseButton
-          >
-        </div>
-
-        <p class="caption">
-          <span class="caption-text">Powered By</span
-          ><img
-            class="caption-icon"
-            src="@/assets/images/beam/layer-zero.svg"
-            alt=""
-          />
-        </p>
-      </div>
-
-      <ChainsPopup
-        v-if="isOpenNetworkPopup"
-        :isOpen="isOpenNetworkPopup"
-        :popupType="popupType"
-        :beamInfoObject="beamInfoObject"
-        :selectedFromChain="fromChain"
-        :selectedToChain="toChain"
-        @closePopup="closeNetworkPopup"
-        @changeChain="changeChain"
-      />
-
-      <SettingsPopup
-        v-if="isSettingsOpened && toChain"
-        :beamInfoObject="beamInfoObject"
-        :dstChainInfo="toChain"
-        :dstNativeTokenAmount="dstTokenAmount"
-        :mimAmount="inputAmount"
-        @onUpdateAmount="updateDstNativeTokenAmount"
-        @closeSettings="isSettingsOpened = false"
-        ref="settingsPopup"
-      />
+        <SettingsPopup
+          v-else-if="isSettingsOpened && toChain"
+          :beamInfoObject="beamInfoObject"
+          :dstChainInfo="toChain"
+          :dstNativeTokenAmount="dstTokenAmount"
+          :mimAmount="inputAmount"
+          @onUpdateAmount="updateDstNativeTokenAmount"
+          @closeSettings="isSettingsOpened = false"
+        />
+      </Transition>
     </div>
     <!-- todo: test -->
-    <SuccessPopup
-      v-if="isOpenSuccessPopup && beamInfoObject"
-      :beamInfoObject="beamInfoObject"
-      :successData="successData"
-      @close-popup="isOpenSuccessPopup = false"
-    />
+    <Transition
+      @before-enter="setFade"
+      @enter="fadeIn"
+      @leave="fadeOut"
+      :css="false"
+    >
+      <SuccessPopup
+        v-if="isOpenSuccessPopup && beamInfoObject"
+        :beamInfoObject="beamInfoObject"
+        :successData="successData"
+        @close-popup="isOpenSuccessPopup = false"
+      />
+    </Transition>
   </div>
 </template>
 
@@ -132,6 +146,8 @@ import type {
   DestinationChainInfo,
 } from "@/helpers/beam/types";
 import type { ContractInfo } from "@/types/global";
+import { setScale, scaleIn, scaleOut } from "@/helpers/animations/simple/scale";
+import { setFade, fadeIn, fadeOut } from "@/helpers/animations/simple/fade";
 
 export default {
   data() {
@@ -314,6 +330,13 @@ export default {
       updateNotification: "notifications/updateTitle",
     }),
 
+    setScale,
+    scaleIn,
+    scaleOut,
+    setFade,
+    fadeIn,
+    fadeOut,
+
     checkChainsCompability(fromChain: number, toChain: number) {
       if (!this.fromChain || !this.toChain) return false;
 
@@ -334,11 +357,7 @@ export default {
     },
 
     toggleSettings() {
-      if (this.isSettingsOpened) {
-        (this.$refs.settingsPopup as DefineComponent).closePopup();
-      } else {
-        this.isSettingsOpened = true;
-      }
+      this.isSettingsOpened = !this.isSettingsOpened;
     },
 
     openNetworkPopup(type: "from" | "to") {

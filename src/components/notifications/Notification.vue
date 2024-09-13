@@ -1,9 +1,5 @@
 <template>
-  <div
-    class="notification"
-    :class="['notification-' + notification.type]"
-    ref="notification"
-  >
+  <div class="notification" :class="['notification-' + notification.type]">
     <button
       class="close-button"
       @click="closeNotification"
@@ -27,11 +23,6 @@
 import moment from "moment";
 import { useImage } from "@/helpers/useImage";
 import { mapMutations } from "vuex";
-import gsap from "gsap";
-import {
-  notificationSlideIn,
-  notificationFadeOutSlideOut,
-} from "@/helpers/animations/notification";
 
 export default {
   props: {
@@ -77,18 +68,7 @@ export default {
     },
 
     closeNotification() {
-      setTimeout(() => {
-        this.deleteNotification(this.notification.id);
-      }, 150);
-      this.closingAnimation();
-    },
-
-    openingAnimation() {
-      notificationSlideIn(this.$refs.notification as gsap.TweenTarget);
-    },
-
-    closingAnimation() {
-      notificationFadeOutSlideOut(this.$refs.notification as gsap.TweenTarget);
+      this.deleteNotification(this.notification.id);
     },
   },
 
@@ -102,10 +82,6 @@ export default {
         this.closeNotification();
       }, 15000);
     }
-  },
-
-  mounted() {
-    this.openingAnimation();
   },
 
   beforeUnmount() {

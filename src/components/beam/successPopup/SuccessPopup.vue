@@ -1,6 +1,6 @@
 <template>
-  <div class="backdrop" @click.self="closePopup" ref="backdrop">
-    <div class="wrapper" ref="popup">
+  <div class="backdrop" @click.self="closePopup">
+    <div class="wrapper">
       <h1 class="title">
         Transaction overview
         <img
@@ -32,12 +32,6 @@ import BeamInfo from "@/components/beam/successPopup/BeamInfo.vue";
 import TransactionProgressBlock from "@/components/beam/successPopup/TransactionProgressBlock.vue";
 import { waitForMessageReceived } from "@layerzerolabs/scan-client";
 import { chainsConfigs } from "@/helpers/chains/configs";
-import {
-  backdropFadeIn,
-  backdropFadeOut,
-  popupFadeIn,
-  popupFadeOut,
-} from "@/helpers/animations/popup";
 
 export default {
   props: {
@@ -99,26 +93,12 @@ export default {
       this.lzTxInfo = messageResult;
     },
 
-    openingAnimation() {
-      backdropFadeIn(this.$refs.backdrop);
-      popupFadeIn(this.$refs.popup);
-    },
-
-    closingAnimation() {
-      backdropFadeOut(this.$refs.backdrop);
-      popupFadeOut(this.$refs.popup);
-    },
-
     closePopup() {
-      this.closingAnimation();
-      setTimeout(() => this.$emit("close-popup"), 150);
+      this.$emit("close-popup");
     },
   },
   created() {
     this.waitForTransaction();
-  },
-  mounted() {
-    this.openingAnimation();
   },
   components: {
     BeamProcess,

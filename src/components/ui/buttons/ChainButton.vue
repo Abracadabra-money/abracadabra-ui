@@ -7,13 +7,12 @@
     <img class="chain-icon" v-if="!!chainIcon" :src="chainIcon" />
   </div>
 
-  <NetworkPopup
-    v-if="isOpenNetworkPopup"
-    :activeChain="chainId"
-    :networksArr="networksArr"
-    :isOpen="isOpenNetworkPopup"
-    @closePopup="isOpenNetworkPopup = false"
-  />
+    <NetworkPopup
+      :activeChain="chainId"
+      :networksArr="networksArr"
+      :isOpen="isOpenNetworkPopup"
+      @closePopup="isOpenNetworkPopup = false"
+    />
 </template>
 
 <script lang="ts">
@@ -53,7 +52,7 @@ export default {
   components: {
     NetworkPopup: defineAsyncComponent(
       () => import("@/components/popups/NetworkPopup.vue")
-    ),
+    )
   },
 };
 </script>
