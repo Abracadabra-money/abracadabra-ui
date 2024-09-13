@@ -78,6 +78,8 @@ import type { UserTotalAssets } from "@/helpers/cauldron/types";
 import type { SortOrder } from "@/types/common";
 import axios from "axios";
 import { ELIXIR_POTIONS_URL } from "@/constants/global";
+import { LS_ELIXIR_RARE_KEY } from "@/helpers/dataStore";
+
 export type PositionsSortKey =
   | "positionHealth"
   | "collateralDepositedUsd"
@@ -102,6 +104,7 @@ export default {
       sortOrder: "up" as SortOrder,
       isFiltersPopupOpened: false,
       userElixirInfo: null as any,
+      elixirRate: 0,
     };
   },
 
@@ -149,6 +152,7 @@ export default {
         {
           title: " Elixir Potions Earned",
           value: formatTokenBalance(userElixirPotions),
+          rate: formatToFixed(this.elixirRate, 3),
         },
         {
           title: "Collateral Deposit",
@@ -202,7 +206,7 @@ export default {
     sortByKey(cauldrons: UserOpenPosition[], key: PositionsSortKey) {
       if (this.sortOrder === null || this.cauldrons.length < 2)
         return this.cauldrons;
-      const sortedByKey = cauldrons.sort((a, b) => {
+      const sortedByKey = [...cauldrons].sort((a, b) => {
         const prev = (key === "positionHealth" ? a[key].percent : a[key]) || 0;
         const cur = (key === "positionHealth" ? b[key].percent : b[key]) || 0;
 
@@ -343,9 +347,17 @@ export default {
 
     async getElixirInfo() {
       try {
+        this.checkLocalElixirRate();
+
         const { data } = await axios.get(
           `${ELIXIR_POTIONS_URL}?addresses=${this.account}`
         );
+
+        this.elixirRate =
+          data.weeks.filter(({ preliminary }: any) => !preliminary).at(-1)
+            .rate || 0;
+
+        localStorage.setItem(LS_ELIXIR_RARE_KEY, this.elixirRate.toString());
 
         const { users } = data.totals;
 
@@ -361,11 +373,40 @@ export default {
         return;
       }
     },
+
+    async getElixirRate() {
+      try {
+        this.checkLocalElixirRate();
+
+        const { data } = await axios.get(`${ELIXIR_POTIONS_URL}`);
+
+        this.elixirRate =
+          data.weeks.filter(({ preliminary }: any) => !preliminary).at(-1)
+            .rate || 0;
+
+        localStorage.setItem(LS_ELIXIR_RARE_KEY, this.elixirRate.toString());
+
+        return;
+      } catch (error) {
+        this.elixirRate = 0;
+        return;
+      }
+    },
+
+    checkLocalElixirRate() {
+      const lsElixirRate = localStorage.getItem(LS_ELIXIR_RARE_KEY);
+
+      if (lsElixirRate) {
+        this.elixirRate = Number(lsElixirRate);
+      }
+    },
   },
 
   async created() {
     if (this.account) {
       await this.getElixirInfo();
+    } else {
+      await this.getElixirRate();
     }
 
     this.positionsIsLoading = true;
