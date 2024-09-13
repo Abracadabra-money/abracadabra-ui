@@ -102,6 +102,7 @@ export default {
       sortOrder: "up" as SortOrder,
       isFiltersPopupOpened: false,
       userElixirInfo: null as any,
+      elixirRate: 0,
     };
   },
 
@@ -149,6 +150,7 @@ export default {
         {
           title: " Elixir Potions Earned",
           value: formatTokenBalance(userElixirPotions),
+          rate: formatToFixed(this.elixirRate, 3),
         },
         {
           title: "Collateral Deposit",
@@ -346,6 +348,10 @@ export default {
         const { data } = await axios.get(
           `${ELIXIR_POTIONS_URL}?addresses=${this.account}`
         );
+
+        this.elixirRate =
+          data.weeks.filter(({ preliminary }: any) => !preliminary).at(-1)
+            .rate || 0;
 
         const { users } = data.totals;
 
