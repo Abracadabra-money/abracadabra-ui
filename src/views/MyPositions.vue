@@ -202,7 +202,7 @@ export default {
     sortByKey(cauldrons: UserOpenPosition[], key: PositionsSortKey) {
       if (this.sortOrder === null || this.cauldrons.length < 2)
         return this.cauldrons;
-      const sortedByKey = cauldrons.sort((a, b) => {
+      const sortedByKey = [...cauldrons].sort((a, b) => {
         const prev = (key === "positionHealth" ? a[key].percent : a[key]) || 0;
         const cur = (key === "positionHealth" ? b[key].percent : b[key]) || 0;
 
