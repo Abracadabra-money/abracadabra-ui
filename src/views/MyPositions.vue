@@ -79,6 +79,7 @@ import type { SortOrder } from "@/types/common";
 import axios from "axios";
 import { ELIXIR_POTIONS_URL } from "@/constants/global";
 import { LS_ELIXIR_RARE_KEY } from "@/helpers/dataStore";
+
 export type PositionsSortKey =
   | "positionHealth"
   | "collateralDepositedUsd"
