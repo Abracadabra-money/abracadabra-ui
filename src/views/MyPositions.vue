@@ -78,6 +78,7 @@ import type { UserTotalAssets } from "@/helpers/cauldron/types";
 import type { SortOrder } from "@/types/common";
 import axios from "axios";
 import { ELIXIR_POTIONS_URL } from "@/constants/global";
+import { LS_ELIXIR_RARE_KEY } from "@/helpers/dataStore";
 export type PositionsSortKey =
   | "positionHealth"
   | "collateralDepositedUsd"
@@ -345,6 +346,8 @@ export default {
 
     async getElixirInfo() {
       try {
+        this.checkLocalElixirRate();
+
         const { data } = await axios.get(
           `${ELIXIR_POTIONS_URL}?addresses=${this.account}`
         );
@@ -352,6 +355,8 @@ export default {
         this.elixirRate =
           data.weeks.filter(({ preliminary }: any) => !preliminary).at(-1)
             .rate || 0;
+
+        localStorage.setItem(LS_ELIXIR_RARE_KEY, this.elixirRate.toString());
 
         const { users } = data.totals;
 
@@ -367,11 +372,40 @@ export default {
         return;
       }
     },
+
+    async getElixirRate() {
+      try {
+        this.checkLocalElixirRate();
+
+        const { data } = await axios.get(`${ELIXIR_POTIONS_URL}`);
+
+        this.elixirRate =
+          data.weeks.filter(({ preliminary }: any) => !preliminary).at(-1)
+            .rate || 0;
+
+        localStorage.setItem(LS_ELIXIR_RARE_KEY, this.elixirRate.toString());
+
+        return;
+      } catch (error) {
+        this.elixirRate = 0;
+        return;
+      }
+    },
+
+    checkLocalElixirRate() {
+      const lsElixirRate = localStorage.getItem(LS_ELIXIR_RARE_KEY);
+
+      if (lsElixirRate) {
+        this.elixirRate = Number(lsElixirRate);
+      }
+    },
   },
 
   async created() {
     if (this.account) {
       await this.getElixirInfo();
+    } else {
+      await this.getElixirRate();
     }
 
     this.positionsIsLoading = true;
