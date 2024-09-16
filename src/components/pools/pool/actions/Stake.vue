@@ -12,16 +12,15 @@
       />
     </div>
 
-    <RewardsCard
-      :pool="pool"
-    />
+    <RewardsCard :pool="pool" v-if="!isElixir" />
+    <ElixirPotions v-else />
 
-    <RewardsList
+    <!-- <RewardsList
       v-if="isBlastLockLogic"
       :rewards="rewardsPerHour"
       :inputAmount="inputAmount"
       :isRewardsCalculating="isRewardsCalculating"
-    />
+    /> -->
 
     <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
       {{ buttonText }}
@@ -121,6 +120,10 @@ export default {
 
     isProperNetwork() {
       return this.chainId == this.pool.chainId;
+    },
+
+    isElixir() {
+      return this.pool.config.id === 1 && this.pool.config.chainId === 1;
     },
   },
 
@@ -323,11 +326,14 @@ export default {
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")
     ),
-    RewardsList: defineAsyncComponent(() =>
-      import("@/components/pools/pool/RewardsList.vue")
-    ),
+    // RewardsList: defineAsyncComponent(() =>
+    //   import("@/components/pools/pool/RewardsList.vue")
+    // ),
     RewardsCard: defineAsyncComponent(() =>
       import("@/components/pools/pool/RewardsCard.vue")
+    ),
+    ElixirPotions: defineAsyncComponent(() =>
+      import("@/components/pools/pool/ElixirPotions.vue")
     ),
   },
 };

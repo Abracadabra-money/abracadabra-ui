@@ -10,6 +10,7 @@ export const LS_MAGIC_GLP_STAKE_KEY = "abracadabraMagicGlpStakeData";
 export const LS_MAGIC_GLP_STAKE_CHART_KEY = "abracadabraMagicGlpChartData";
 export const LS_MAGIC_APE_STAKE_KEY = "abracadabraMagicApeStakeData";
 export const LS_MAGIC_APE_STAKE_CHART_KEY = "abracadabraMagicApeChartData";
+export const LS_ELIXIR_RARE_KEY = "abracadabraElixirRate";
 
 export const bigintStringify = (payload: any) =>
   JSON.stringify(payload, (key, value) =>
@@ -58,7 +59,7 @@ export const getAndParseCaldronsList = () => {
     const data = cauldronsList.map((item: any) =>
       jsonBigIntTransform(jsonBigNumberTransform(item))
     );
-    
+
     return { data, isCreated: true };
   } catch (error) {
     console.log("getAndParseCaldronsList -> error", error);

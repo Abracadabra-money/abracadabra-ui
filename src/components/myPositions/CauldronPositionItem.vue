@@ -2,7 +2,9 @@
   <div
     :class="[
       'position',
-      isDeprecated ? 'deprecated' : cauldron.alternativeData.positionHealth.status,
+      isDeprecated
+        ? 'deprecated'
+        : cauldron.alternativeData.positionHealth.status,
     ]"
   >
     <div class="status-flag" v-if="isDeprecated">Deprecated</div>
@@ -16,7 +18,7 @@
           :chainId="cauldron.config.chainId"
         />
         <div class="token-info">
-          <span class="token-name">{{ collateralSymbol }}</span>
+          <span class="token-name">{{ cauldron.config.name }}</span>
           <span class="apr" v-if="cauldron.apr">
             <Tooltip
               tooltip="Annualised Percentage Return Range given by the collateral."
@@ -39,7 +41,12 @@
     </div>
 
     <div class="position-info">
-      <ul class="position-indicators">
+      <ul
+        :class="[
+          'position-indicators',
+          { 'elixir-potions': isElixirPotions.isShow },
+        ]"
+      >
         <PositionIndicator
           tooltip="Current dollar value of the Collateral Deposited."
           :value="collateralPrice"
@@ -61,10 +68,21 @@
         >
           Required Drop in Price
         </PositionIndicator>
+
+        <PositionIndicator
+          v-if="isElixirPotions.isShow"
+          tooltip=""
+          :value="isElixirPotions.value"
+          tokenFormat
+        >
+          Elixir Potions earned
+        </PositionIndicator>
       </ul>
       <HealthProgress
         :positionHealth="
-          formatPercent(100 - Number(cauldron.alternativeData.positionHealth.percent) / 100)
+          formatPercent(
+            100 - Number(cauldron.alternativeData.positionHealth.percent) / 100
+          )
         "
         :positionRisk="cauldron.alternativeData.positionHealth.status"
         :key="`${cauldron.config.id} - ${cauldron.config.chainId}`"
@@ -76,22 +94,27 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent, type PropType } from "vue";
 import {
   formatUSD,
   formatTokenBalance,
   formatPercent,
 } from "@/helpers/filters";
-import { mapGetters } from "vuex";
 import { ethers } from "ethers";
-//@ts-ignore
+import { mapGetters } from "vuex";
 import mimIcon from "@/assets/images/tokens/MIM.png";
-import type { UserOpenPosition } from "@/helpers/cauldron/position/getUserOpenPositions";
+import { defineAsyncComponent, type PropType } from "vue";
 import type { AssetInfo } from "@/components/myPositions/PositionAssets.vue";
+import type { UserOpenPosition } from "@/helpers/cauldron/position/getUserOpenPositions";
+
+type ElixirInfo = Record<
+  string,
+  { cauldrons: Record<string, number>; total: number }
+>;
 
 export default {
   props: {
     cauldron: { type: Object as PropType<UserOpenPosition>, required: true },
+    userElixirInfo: { type: Object as PropType<ElixirInfo> | null },
   },
 
   data() {
@@ -103,7 +126,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters({ chainId: "getChainId" }),
+    ...mapGetters({ chainId: "getChainId", account: "getAccount" }),
 
     collateralSymbol() {
       return (
@@ -178,6 +201,30 @@ export default {
       if (this.windowWidth < 600) return "50px";
       return "54px";
     },
+
+    isElixirPotions() {
+      const account = this.account?.toLowerCase();
+      const cauldronConfigAddress =
+        this.cauldron?.config?.contract?.address?.toLocaleLowerCase();
+
+      if (!this.userElixirInfo || !account || !cauldronConfigAddress) {
+        return { isShow: false, value: 0 };
+      }
+
+      const cauldrons = this.userElixirInfo[account]?.cauldrons;
+      const cauldronAddress = Object.keys(cauldrons || {}).find(
+        (address) => address.toLocaleLowerCase() === cauldronConfigAddress
+      );
+
+      if (!cauldronAddress) {
+        return { isShow: false, value: 0 };
+      }
+
+      return {
+        isShow: true,
+        value: cauldrons[cauldronAddress],
+      };
+    },
   },
 
   methods: {
@@ -222,6 +269,7 @@ export default {
       () => import("@/components/ui/icons/Tooltip.vue")
     ),
     TokenChainIcon: defineAsyncComponent(
+      // @ts-ignore
       () => import("@/components/ui/icons/TokenChainIcon.vue")
     ),
     OrderButton: defineAsyncComponent(
@@ -317,6 +365,7 @@ export default {
   display: flex;
   gap: 24px;
   margin-bottom: 15px;
+  min-height: 114px;
 }
 
 .position-indicators {
@@ -325,6 +374,10 @@ export default {
   justify-content: end;
   gap: 14px;
   width: 100%;
+}
+
+.elixir-potions {
+  gap: 6px;
 }
 
 .safe {
@@ -357,6 +410,7 @@ export default {
 @media screen and (max-width: 700px) {
   .position-info {
     flex-direction: column-reverse;
+    min-height: 250px;
   }
 
   .token-name {

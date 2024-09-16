@@ -1,6 +1,6 @@
 import type { ActionConfig } from "@/helpers/pools/swap/getSwapInfo";
 import { validateConnection } from "@/helpers/validators/validateConnection";
-const SUPPORTED_CHAINS = [42161, 2222, 81457];
+const SUPPORTED_CHAINS = [1, 42161, 2222, 81457]; //TODO: Import from config
 
 export const validationActions = (
   actionConfig: ActionConfig,

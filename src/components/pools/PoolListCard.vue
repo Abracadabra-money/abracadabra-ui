@@ -82,33 +82,52 @@
       </div>
     </div>
 
-    <div class="line"></div>
+    <template v-if="isShowRewardBlock">
+      <div class="line"></div>
 
-    <div class="rewards-wrap">
-      <div class="pool-rewards" v-if="isPoolHasReward">
-        Staking rewards
+      <div class="rewards-wrap">
+        <div class="pool-rewards" v-if="isPoolHasReward">
+          Staking rewards
 
-        <img
-          class="reward-icons"
-          v-for="(rewardInfo, index) in poolRewards"
-          :key="index"
-          :src="rewardInfo.icon"
-          alt=""
-        />
+          <img
+            class="reward-icons"
+            v-for="(rewardInfo, index) in poolRewards"
+            :key="index"
+            :src="rewardInfo.icon"
+            alt=""
+          />
+        </div>
+
+        <div class="pool-rewards" v-else-if="hasPotionReward">
+          Staking rewards
+
+          <img
+            class="reward-icons"
+            src="@/assets/images/points-dashboard/potion.png"
+            alt=""
+          />
+        </div>
+
+        <div class="pool-apr" v-if="isShowPoolApr">APR {{ poolApr }}</div>
       </div>
+    </template>
 
-      <div class="pool-rewards" v-else-if="hasPotionReward">
-        Staking rewards
+    <template v-if="isElixir">
+      <div class="line"></div>
+      <div class="rewards-wrap">
+        <div class="pool-rewards">
+          Staking rewards
 
-        <img
-          class="reward-icons"
-          src="@/assets/images/points-dashboard/potion.png"
-          alt=""
-        />
+          <img
+            class="reward-icons"
+            src="@/assets/images/pools/elixir-icon.svg"
+            alt=""
+          />
+        </div>
+
+        <div class="pool-multiplier">5x Multiplier</div>
       </div>
-
-      <div class="pool-apr" v-if="isShowPoolApr">APR {{ poolApr }}</div>
-    </div>
+    </template>
   </div>
 </template>
 
@@ -132,6 +151,10 @@ export default {
   computed: {
     isPoolHasReward() {
       return this.pool.config.stakeContract ?? false;
+    },
+
+    isShowRewardBlock() {
+      return this.poolApr !== "0.0%";
     },
 
     poolRewards() {
@@ -197,6 +220,10 @@ export default {
 
     totalSupplyUsd() {
       return this.pool?.price ? this.totalSupply * this.pool.price : 0;
+    },
+
+    isElixir() {
+      return this.pool.config.id === 1 && this.pool.config.chainId === 1;
     },
   },
 
@@ -376,6 +403,12 @@ export default {
 
 .reward-icons:not(:first-child) {
   margin-left: -8px;
+}
+
+.pool-multiplier {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 135%;
 }
 
 @media screen and (max-width: 650px) {
