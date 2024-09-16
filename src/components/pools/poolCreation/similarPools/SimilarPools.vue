@@ -17,10 +17,13 @@
 import { defineAsyncComponent, type PropType } from "vue";
 import poolsConfig from "@/configs/pools/pools";
 import { getLpInfo } from "@/helpers/pools/swap/magicLp";
+import { createSimilarPoolsInfo } from "@/helpers/pools/poolCreation/createSimilarPoolsInfo";
 import type { MagicLPInfo } from "@/helpers/pools/swap/types";
 import type { PoolCreationTokenInfo } from "@/configs/pools/poolCreation/types";
 import type { ActionConfig } from "@/helpers/pools/poolCreation/actions/createPool";
 import type { PoolConfig } from "@/configs/pools/types";
+import { ARBITRUM_CHAIN_ID } from "@/constants/global";
+import { debounce } from "lodash";
 
 export default {
   props: {
@@ -36,6 +39,7 @@ export default {
       type: Object as PropType<ActionConfig>,
       required: true,
     },
+    chainId: { type: Number, default: ARBITRUM_CHAIN_ID },
   },
 
   data() {
@@ -45,14 +49,24 @@ export default {
   },
 
   watch: {
-    async tokens() {
-      const { K, lpFeeRate } = this.actionConfig;
-      if (this.tokensSelected && K > 0n && lpFeeRate > 0n)
-        await this.getSimilarPools();
+    actionConfig: {
+      async handler() {
+        const { K, lpFeeRate } = this.actionConfig;
+        if (this.tokensSelected && K > 0n && lpFeeRate > 0n)
+          await this.createSimilarPoolsInfo();
+      },
+      deep: true,
     },
   },
 
   methods: {
+    createSimilarPoolsInfo: debounce(async function (this: any) {
+      this.similarPools = await createSimilarPoolsInfo(
+        this.actionConfig,
+        this.chainId
+      );
+    }, 500),
+
     async getSimilarPools() {
       const similarPoolsConfigs = poolsConfig.filter((config) =>
         this.checkPoolSimilarity(config)

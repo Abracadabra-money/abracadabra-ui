@@ -59,6 +59,7 @@
           :tokens="{ baseToken, quoteToken }"
           :tokensSelected="tokensSelected"
           :actionConfig="actionConfig"
+          :chainId="chainId"
         />
       </div>
     </div>

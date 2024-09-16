@@ -5,12 +5,12 @@ import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import BlastMagicLPAbi from "@/abis/BlastMagicLpAbi";
 
 export const createSimilarPoolsInfo = async (actionConfig: ActionConfig, chainId: number) => {
-    console.log("getSimilarPools");
     const similarPoolsSubgraph = await fetchPoolsByInfo(
         chainId,
         actionConfig
     );
 
+    console.log("getSimilarPools", similarPoolsSubgraph);
     if (!similarPoolsSubgraph) return [];
 
     return (await Promise.all(similarPoolsSubgraph.map(async (info: any) => {

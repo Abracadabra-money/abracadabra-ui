@@ -9,7 +9,7 @@
         <TokenChainIcon
           :icon="pool.icon"
           :name="pool.name"
-          :chainId="pool.config.chainId"
+          :chainId="pool.chainId"
           size="32px"
         />
         <span class="token-name">{{ pool.name }}</span>
@@ -50,14 +50,14 @@ import { formatUnits } from "viem";
 export default {
   props: {
     pool: {
-      type: Object as PropType<MagicLPInfo>,
+      type: Object as any,
       required: true,
     },
   },
 
   computed: {
     feeTier() {
-      return formatPercent(formatUnits(this.pool.lpFeeRate, FEE_TIER_DECIMALS));
+      return formatPercent(formatUnits(this.pool.initialParameters.lpFeeRate, FEE_TIER_DECIMALS));
     },
 
     tvl() {
@@ -66,7 +66,7 @@ export default {
     },
 
     goToPage() {
-      const { id, chainId } = this.pool.config;
+      const { id, chainId } = this.pool;
 
       return {
         name: "Pool",
@@ -75,7 +75,7 @@ export default {
     },
 
     poolStatus() {
-      return this.pool.config.initialParameters.K === STANDARD_K_VALUE
+      return this.pool.initialParameters.K === STANDARD_K_VALUE
         ? PoolTypes.Standard
         : PoolTypes.Pegged;
     },
