@@ -21,6 +21,11 @@ const endpoints = {
   43114: "https://avalanche.api.0x.org",
 };
 
+const headers0x = {
+  "0x-api-key": import.meta.env.VITE_APP_0X_API_KEY,
+  "0x-version": "v2",
+};
+
 export const swap0xRequest = async (
   chainId,
   buyToken,
@@ -61,9 +66,7 @@ export const swap0xRequest = async (
 
     const response = await http.get(`${endpoint}/swap/v1/quote`, {
       params: params,
-      headers: {
-        "0x-api-key": import.meta.env.VITE_APP_0X_API_KEY,
-      },
+      headers: headers0x,
     });
 
     const { data, buyAmount, sellAmount, estimatedGas, price } = response.data;
@@ -139,9 +142,7 @@ export const swap0xRequestV2 = async (
       `https://api.0x.org/swap/allowance-holder/quote`,
       {
         params: params,
-        headers: {
-          "0x-api-key": import.meta.env.VITE_APP_0X_API_KEY,
-        },
+        headers: headers0x,
       }
     );
 
