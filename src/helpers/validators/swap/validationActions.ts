@@ -1,16 +1,24 @@
 import type { ActionConfig } from "@/helpers/pools/swap/getSwapInfo";
 import { validateConnection } from "@/helpers/validators/validateConnection";
+import type { Address } from "viem";
 const SUPPORTED_CHAINS = [1, 42161, 2222, 81457]; //TODO: Import from config
 
 export const validationActions = (
   actionConfig: ActionConfig,
   selectedNetwork: number,
   chainId: number,
+  account: Address,
   isApproving: boolean
 ) => {
   const { fromToken, toToken, fromInputValue, toInputValue } = actionConfig;
 
-  const connectedError = validateConnection();
+  const connectedError = account
+    ? { btnText: false, isAllowed: true }
+    : {
+        btnText: "Connect Wallet",
+        isAllowed: true,
+        method: "connectWallet",
+      };
   if (connectedError.btnText) return connectedError;
 
   const chainError = validateChain(selectedNetwork, chainId);

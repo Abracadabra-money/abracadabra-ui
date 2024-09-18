@@ -5,6 +5,7 @@ import { expandDecimals } from "../gm/fee/expandDecials";
 import { getMaxToBorrow, getMaxCollateralToRemove } from "./utils";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
 import { getAccountHelper } from "@/helpers/walletClienHelper";
+import type { Address } from "viem";
 
 export const WARNING_TYPES = {
   DEPOSIT_ALLOWANCE: 0,
@@ -58,7 +59,8 @@ export const validateCookByAction = (
   cauldron: CauldronInfo,
   actionConfig: ActionConfig,
   action: "borrow" | "repay",
-  chainId: number
+  chainId: number,
+  account: Address
 ) => {
   const cookType = getCookTypeByAction(actionConfig, action);
 
@@ -66,7 +68,9 @@ export const validateCookByAction = (
 
   let validationErrors: any = [];
 
-  validationErrors = validateConnection(validationErrors);
+  if (!account) {
+    validationErrors.push(WARNING_TYPES.CONNECTION);
+  }
   validationErrors = validateChain(validationErrors, cauldron, chainId);
 
   validationErrors = validatePosition(

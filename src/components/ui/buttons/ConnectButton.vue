@@ -2,6 +2,7 @@
   <button
     class="connect-btn"
     :class="{ connected: !!account }"
+    :disabled="isWalletCheckInProcess"
     @click="walletBtnHandler"
   >
     <div class="account-image-wrap" v-if="walletBtnIcon">
@@ -30,11 +31,20 @@ export default {
     ...mapGetters({
       chainId: "getChainId",
       account: "getAccount",
+      isWalletCheckInProcess: "getIsWalletCheckInProcess",
       ensName: "getEnsName",
     }),
 
     walletBtnText() {
-      if (this.account) {
+      console.log(
+        "isWalletCheckInProcess",
+        this.isWalletCheckInProcess,
+        this.account
+      );
+
+      if (this.isWalletCheckInProcess) {
+        return "Checking...";
+      } else if (this.account) {
         if (this.ensName) return this.ensName;
         return `${this.account.slice(0, 6)}...${this.account.slice(-6)}`;
       } else {

@@ -38,12 +38,16 @@
       </div>
 
       <div class="loader-wrap" v-if="positionsIsLoading || showEmptyBlock">
-        <BaseLoader v-if="positionsIsLoading" large text="Loading Positions" />
+        <BaseLoader
+          v-if="positionsIsLoading || isWalletCheckInProcess"
+          large
+          text="Loading Positions"
+        />
         <BaseSearchEmpty
           v-if="showEmptyBlock && account"
           text="There are no Positions"
         />
-        <ConnectWalletBlock v-if="!account" />
+        <ConnectWalletBlock v-if="!account && !isWalletCheckInProcess" />
       </div>
     </div>
 
@@ -111,6 +115,7 @@ export default {
   computed: {
     ...mapGetters({
       account: "getAccount",
+      isWalletCheckInProcess: "getIsWalletCheckInProcess",
       chainId: "getChainId",
       provider: "getProvider",
       signer: "getSigner",

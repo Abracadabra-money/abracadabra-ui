@@ -1,6 +1,6 @@
 <template>
   <AppHeader />
-  <div class="router-wrap" :style="pageBackground" v-if="checkInProcess">
+  <div class="router-wrap" :style="pageBackground">
     <img
       class="mim-top-bg"
       src="@/assets/images/main-mim-top-bg.png"
@@ -58,7 +58,6 @@ export default {
 
   computed: {
     ...mapGetters({
-      checkInProcess: "getWalletIsConnected",
       signer: "getSigner",
     }),
 
