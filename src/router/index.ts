@@ -85,11 +85,6 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/views/Claim.vue"),
   },
   {
-    path: "/blast",
-    name: "Blast",
-    component: () => import("@/views/stake/Blast.vue"),
-  },
-  {
     path: "/pools",
     name: "Pools",
     component: () => import("@/views/Pools.vue"),
@@ -105,16 +100,6 @@ const routes: Array<RouteRecordRaw> = [
     path: "/mim-swap",
     name: "MimSwap",
     component: () => import("@/views/MimSwap.vue"),
-  },
-  {
-    path: "/points-dashboard",
-    name: "PointsDashboard",
-    component: () => import("@/views/PointsDashboard.vue"),
-  },
-  {
-    path: "/blast-onboarding",
-    name: "BlastOnboarding",
-    component: () => import("@/views/BlastOnboarding.vue"),
   },
   {
     path: "/potion-points",
