@@ -6,6 +6,8 @@ import {
   LS_USER_POSITION_KEY,
   getAndParseFarmsList,
   LS_FARMS_LIST_KEY,
+  getAndParsePoolsList,
+  LS_POOLS_LIST_KEY,
   getAndParseBentoBoxData,
   LS_BENTOBOX_DATA_KEY,
   getAndParseSpellStakeData,
@@ -25,6 +27,7 @@ export default {
     cauldronsList: getAndParseCaldronsList(),
     userPositions: getAndParseUserPositions(),
     farmList: getAndParseFarmsList(),
+    poolsList: getAndParsePoolsList(),
     bentoBoxData: getAndParseBentoBoxData(),
     userTotalAssets: {
       data: {},
@@ -51,6 +54,11 @@ export default {
       state.farmList.isCreated = true;
       state.farmList.data = payload;
       localStorage.setItem(LS_FARMS_LIST_KEY, bigintStringify(payload));
+    },
+    setPoolsList(state, payload) {
+      state.poolsList.isCreated = true;
+      state.poolsList.data = payload;
+      localStorage.setItem(LS_POOLS_LIST_KEY, bigintStringify(payload));
     },
     setBentoBoxData(state, payload) {
       state.bentoBoxData.isCreated = true;
@@ -101,6 +109,7 @@ export default {
     getCauldronsList: (state) => state.cauldronsList,
     getUserPositions: (state) => state.userPositions,
     getFarmList: (state) => state.farmList,
+    getPoolsList: (state) => state.poolsList,
     getBentoBoxData: (state) => state.bentoBoxData,
     getUserTotalAssets: (state) => state.userTotalAssets,
     getSpellStakeData: (state) => state.spellStakeData,
