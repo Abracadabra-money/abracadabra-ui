@@ -117,6 +117,8 @@ export default {
     },
 
     isButtonDisabled() {
+      if (!this.account) return true;
+
       return (
         (!this.isValid || !!this.error || this.isActionProcessing) &&
         this.isProperNetwork &&
@@ -165,7 +167,6 @@ export default {
     },
 
     buttonText() {
-      if (!this.isProperNetwork) return "Switch network";
       if (!this.account) return "Connect wallet";
       if (this.error) return this.error;
       if (this.baseInputValue == "" || this.quoteInputValue == "")
