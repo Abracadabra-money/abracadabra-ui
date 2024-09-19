@@ -8,7 +8,7 @@
       </span>
     </div>
 
-    <div class="row" v-if="type !== 'klp'">
+    <div class="row">
       <span class="title">APR</span>
       <span class="value" v-if="apr">{{ apr }}%</span>
       <div class="loader-wrap" v-else>
@@ -126,12 +126,6 @@ export default {
       this.apr = await getMagicApeApy(this.selectedNetwork);
     },
 
-    fetchKlpApy() {
-      return 0;
-      // const { data } = await axios.get(`${ANALYTICS_URK}/kinetix/info`);
-      // this.apr = +formatToFixed(data.apr, 2);
-    },
-
     async fetchApr() {
       switch (this.type) {
         case "glp":
@@ -139,9 +133,6 @@ export default {
           break;
         case "ape":
           await this.fetchApeApy();
-          break;
-        case "klp":
-          await this.fetchKlpApy();
           break;
         default:
           break;

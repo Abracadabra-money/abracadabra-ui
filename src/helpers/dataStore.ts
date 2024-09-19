@@ -6,7 +6,6 @@ export const LS_CAULDRONS_LIST_KEY = "abracadabraCauldronsList";
 export const LS_BENTOBOX_DATA_KEY = "abracadabraBentoBoxData";
 export const LS_POOLS_LIST_KEY = "abracadabraPoolsList";
 export const LS_SPELL_STAKE_KEY = "abracadabraSpellStakeData";
-export const LS_MAGIC_KLP_STAKE_KEY = "abracadabraMagicKlpStakeData";
 export const LS_MAGIC_GLP_STAKE_KEY = "abracadabraMagicGlpStakeData";
 export const LS_MAGIC_GLP_STAKE_CHART_KEY = "abracadabraMagicGlpChartData";
 export const LS_MAGIC_APE_STAKE_KEY = "abracadabraMagicApeStakeData";
@@ -139,26 +138,6 @@ export const getAndParseSpellStakeData = () => {
   const data = spellStakeData.map((item: any) => jsonBigIntTransform(item));
 
   return { data, isCreated: true };
-};
-
-export const getAndParseMagicKlpStakeData = () => {
-  const lsMagicKlpStakeData = localStorage.getItem(LS_MAGIC_KLP_STAKE_KEY);
-
-  if (!lsMagicKlpStakeData) {
-    return {
-      data: [],
-      isCreated: false,
-      chartData: null,
-    };
-  }
-
-  const magicKlpStakeData = JSON.parse(lsMagicKlpStakeData);
-  const data = magicKlpStakeData.map((item: any) => jsonBigIntTransform(item));
-
-  return {
-    data,
-    isCreated: true,
-  };
 };
 
 export const getAndParseMagicGlpStakeData = () => {
