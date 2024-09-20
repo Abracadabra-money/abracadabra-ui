@@ -14,8 +14,6 @@
       </div>
 
       <div class="primary-block">
-        <!-- <BlastButton isMobile /> -->
-
         <SwapMobileButton
           :isClassicHeader="isClassicHeader"
           @change-view="isClassicHeader = !isClassicHeader"
@@ -90,9 +88,6 @@ export default {
     ConnectButton: defineAsyncComponent(() =>
       import("@/components/ui/buttons/ConnectButton.vue")
     ),
-    // BlastButton: defineAsyncComponent(() =>
-    //   import("@/components/ui/buttons/BlastButton.vue")
-    // ),
     SwapMobileButton: defineAsyncComponent(() =>
       import("@/components/ui/buttons/SwapMobileButton.vue")
     ),

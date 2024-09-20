@@ -43,8 +43,6 @@ import magicApe from "@/abis/tokensAbi/magicApe";
 import yvCurveMIMf from "@/abis/tokensAbi/yvCurveMIMf";
 import StargateUSDT from "@/abis/tokensAbi/StargateUSDT";
 import crv3crypto from "@/abis/tokensAbi/crv3crypto";
-import mKLP from "@/abis/tokensAbi/mKLP";
-import sKLP from "@/abis/tokensAbi/sKLP";
 import GM from "@/abis/tokensAbi/GM";
 import mimUsdtCurveLp from "@/abis/tokensAbi/mimUsdtCurveLp";
 import TetherUSDtLP from "@/abis/tokensAbi/TetherUSDtLP";
@@ -98,8 +96,6 @@ export default {
   yvCurveMIMf,
   StargateUSDT,
   crv3crypto,
-  mKLP,
-  sKLP,
   GM,
   mimUsdtCurveLp,
   TetherUSDtLP,
