@@ -1,7 +1,5 @@
 <template>
   <div class="locked">
-    <FounderBoostCard :lpToken="lpToken" :rewardsList="rewardsList" />
-
     <ul class="locks-list">
       <UserLock
         :pool="pool"
@@ -10,8 +8,6 @@
         :key="index"
       />
     </ul>
-
-    <BaseButton primary @click="goToDashboard()">See dashbord</BaseButton>
   </div>
 </template>
 
@@ -21,12 +17,10 @@ import { mapGetters } from "vuex";
 import { formatUnits } from "viem";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 import { getUserLocks } from "@/helpers/pools/getPoolInfo";
-import { useImage } from "@/helpers/useImage";
 
 export default {
   props: {
     pool: { type: Object },
-    userPointsStatistics: { type: Object },
   },
 
   data() {
@@ -55,30 +49,6 @@ export default {
         ),
       };
     },
-
-    rewardsList() {
-      return [
-        {
-          title: "Points",
-          icon: useImage("assets/images/points-dashboard/blast.png"),
-          value: formatTokenBalance(
-            this.userPointsStatistics?.liquidityPoints?.founder?.finalized || 0
-          ),
-        },
-        {
-          title: "Gold",
-          icon: useImage("assets/images/points-dashboard/gold-points.svg"),
-          value: formatTokenBalance(
-            this.userPointsStatistics?.developerPoints?.founder?.finalized || 0
-          ),
-        },
-        {
-          title: "Potion",
-          icon: useImage("assets/images/points-dashboard/potion.png"),
-          value: "0.0",
-        },
-      ];
-    },
   },
 
   methods: {
@@ -86,12 +56,6 @@ export default {
 
     formatTokenBalance(value, decimals) {
       return formatTokenBalance(formatUnits(value, decimals));
-    },
-
-    goToDashboard() {
-      this.$router.push({
-        name: "PointsDashboard",
-      });
     },
   },
 
@@ -104,12 +68,6 @@ export default {
   },
 
   components: {
-    BaseButton: defineAsyncComponent(() =>
-      import("@/components/base/BaseButton.vue")
-    ),
-    FounderBoostCard: defineAsyncComponent(() =>
-      import("@/components/pools/pool/position/cards/FounderBoostCard.vue")
-    ),
     UserLock: defineAsyncComponent(() =>
       import("@/components/pools/pool/position/UserLock.vue")
     ),

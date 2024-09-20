@@ -12,8 +12,6 @@ import {
   LS_BENTOBOX_DATA_KEY,
   getAndParseSpellStakeData,
   LS_SPELL_STAKE_KEY,
-  getAndParseMagicKlpStakeData,
-  LS_MAGIC_KLP_STAKE_KEY,
   getAndParseMagicGlpStakeData,
   LS_MAGIC_GLP_STAKE_KEY,
   LS_MAGIC_GLP_STAKE_CHART_KEY,
@@ -34,7 +32,6 @@ export default {
       isCreated: false,
     },
     spellStakeData: getAndParseSpellStakeData(),
-    magicKlpStakeData: getAndParseMagicKlpStakeData(),
     magicGlpStakeData: getAndParseMagicGlpStakeData(),
     magicApeStakeData: getAndParseMagicApeStakeData(),
   },
@@ -74,11 +71,6 @@ export default {
       state.spellStakeData.data = payload;
       localStorage.setItem(LS_SPELL_STAKE_KEY, bigintStringify(payload));
     },
-    setMagicKlpStakeData(state, payload) {
-      state.magicKlpStakeData.isCreated = true;
-      state.magicKlpStakeData.data = payload;
-      localStorage.setItem(LS_MAGIC_KLP_STAKE_KEY, bigintStringify(payload));
-    },
     setMagicGlpStakeData(state, payload) {
       state.magicGlpStakeData.isCreated = true;
       state.magicGlpStakeData.data = payload;
@@ -113,7 +105,6 @@ export default {
     getBentoBoxData: (state) => state.bentoBoxData,
     getUserTotalAssets: (state) => state.userTotalAssets,
     getSpellStakeData: (state) => state.spellStakeData,
-    getMagicKlpStakeData: (state) => state.magicKlpStakeData,
     getMagicGlpStakeData: (state) => state.magicGlpStakeData,
     getMagicApeStakeData: (state) => state.magicApeStakeData,
   },

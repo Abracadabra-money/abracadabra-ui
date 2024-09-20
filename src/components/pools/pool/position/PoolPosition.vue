@@ -25,7 +25,6 @@
 
       <Deposited
         :pool="pool"
-        :pointsStatistics="pointsStatistics"
         @updatePoolInfo="$emit('updateInfo')"
         v-show="activeTab === 'deposited'"
       />
@@ -34,14 +33,12 @@
         <Staked
           :pool="pool"
           @updatePoolInfo="$emit('updateInfo')"
-          :userPointsStatistics="pointsStatistics.user"
           v-show="activeTab === 'staked'"
         />
 
         <Locked
           v-if="hasLockLogic"
           :pool="pool"
-          :userPointsStatistics="pointsStatistics.user"
           v-show="activeTab === 'locked'"
         />
       </template>
@@ -55,7 +52,6 @@ import { defineAsyncComponent } from "vue";
 export default {
   props: {
     pool: { type: Object },
-    pointsStatistics: { type: Object },
     isMyPositionPopupOpened: { type: Boolean, default: false },
   },
 
