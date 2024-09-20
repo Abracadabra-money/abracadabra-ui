@@ -1,8 +1,8 @@
 <template>
-  <div class="pool-creation-info">
-    <template v-if="tokensSelected && poolType">
+  <div :class="['pool-creation-info', { 'mobile-mode': mobileMode }]">
+    <template v-if="poolType">
       <div class="pool-creation-info-header">
-        <div class="chosen-creation-type">
+        <div class="chosen-creation-type" v-if="!mobileMode">
           <h3 class="creation-type-title">{{ poolType }} Pool Type</h3>
           <p class="creation-type-description">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
@@ -29,10 +29,10 @@
         </div>
       </div>
 
-      <SlippageChart :kValue="kValue" />
+      <SlippageChart :kValue="kValue" v-if="showChart" />
     </template>
 
-    <div class="empty-creation-info" v-if="!tokensSelected || !poolType">
+    <div class="empty-creation-info" v-if="showEmptyCreationInfo">
       <EmptyState :type="EmptyStateTypes.Pair">
         <div class="empty-state-content">
           <span class="empty-state-main-text">
@@ -81,6 +81,7 @@ export default {
     tokensSelected: Boolean,
     poolType: { type: String as PropType<PoolTypes | null> },
     kValue: BigInt as Prop<bigint>,
+    mobileMode: Boolean,
   },
 
   data() {
@@ -88,6 +89,14 @@ export default {
   },
 
   computed: {
+    showEmptyCreationInfo() {
+      return (!this.tokensSelected || !this.poolType) && !this.mobileMode;
+    },
+
+    showChart() {
+      return !this.showEmptyCreationInfo && !this.mobileMode;
+    },
+
     formattedKValue() {
       return formatUnits(this.kValue || 0n, K_VALUE_DECIMALS);
     },
@@ -119,6 +128,14 @@ export default {
   gap: 20px;
   display: flex;
   flex-direction: column;
+}
+
+.pool-creation-info.mobile-mode {
+  padding: 0;
+  border: none;
+  background: none;
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 .pool-creation-info-header {

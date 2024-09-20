@@ -1,15 +1,16 @@
 <template>
   <div class="pool-creation-view">
     <div class="pool-creation-wrap">
-      <div class="actions-block">
-        <h3 class="pool-creation-title">Pool Creation</h3>
-
+      <h3 class="pool-creation-title">
+        Pool Creation
         <AvailableNetworksBlock
           :selectedNetwork="selectedNetwork"
           :availableNetworks="availableNetworks"
           @changeNetwork="changeNetwork"
         />
+      </h3>
 
+      <div class="actions-block" v-show="showSecondStep">
         <div class="action-form">
           <TokensSelector
             :baseToken="baseToken"
@@ -38,13 +39,14 @@
             primary
             :disabled="!validationData.isAllowed"
             @click="actionHandler"
+            v-if="!mobileMode"
           >
             {{ validationData.btnText }}
           </BaseButton>
         </div>
       </div>
 
-      <div class="pool-creation-info-wrap">
+      <div class="pool-creation-info-wrap" v-show="showFirstStep">
         <CreationTypeTabs
           :poolType="poolType"
           @selectPoolType="selectPoolType"
@@ -53,6 +55,7 @@
           :tokensSelected="tokensSelected"
           :poolType="poolType"
           :kValue="actionConfig.K"
+          :mobileMode="mobileMode"
           @openSlippagePopup="isSlippagePopupOpened = true"
         />
         <SimilarPools
@@ -60,7 +63,32 @@
           :tokensSelected="tokensSelected"
           :actionConfig="actionConfig"
           :chainId="chainId"
+          v-if="!mobileMode"
         />
+      </div>
+
+      <div class="steps-navigation-wrap" v-if="mobileMode">
+        <BaseButton
+          class="first-step"
+          v-show="showFirstStep"
+          primary
+          :disabled="!poolType"
+          @click="currentMobileTab = 1"
+        >
+          Next
+        </BaseButton>
+
+        <div class="second-step" v-show="showSecondStep">
+          <BaseButton @click="currentMobileTab = 0">Back</BaseButton>
+
+          <BaseButton
+            primary
+            :disabled="!validationData.isAllowed"
+            @click="actionHandler"
+          >
+            {{ validationData.btnText }}
+          </BaseButton>
+        </div>
       </div>
     </div>
 
@@ -180,6 +208,8 @@ export default {
       isAutoPricingWarnPopupOpened: false,
       isActionProcessing: false,
       updateInterval: null as NodeJS.Timeout | null,
+      currentMobileTab: 0,
+      mobileMode: false,
     };
   },
 
@@ -193,6 +223,16 @@ export default {
         this.baseToken.config.name != emptyTokenName &&
         this.quoteToken.config.name != emptyTokenName
       );
+    },
+
+    showFirstStep() {
+      if (!this.mobileMode) return true;
+      return this.currentMobileTab === 0;
+    },
+
+    showSecondStep() {
+      if (!this.mobileMode) return true;
+      return this.currentMobileTab === 1;
     },
 
     validationData() {
@@ -415,6 +455,11 @@ export default {
       this.selectedNetwork = network;
     },
 
+    getWindowSize() {
+      if (window.innerWidth <= 1024) this.mobileMode = true;
+      else this.mobileMode = false;
+    },
+
     async approveTokenHandler(contract: ContractInfo, valueToApprove: bigint) {
       this.isActionProcessing = true;
 
@@ -514,6 +559,8 @@ export default {
 
   async created() {
     await this.createTokenList();
+    this.getWindowSize();
+    window.addEventListener("resize", this.getWindowSize, false);
     this.actionConfig.to = this.account || "0x";
 
     this.updateInterval = setInterval(async () => {
@@ -523,6 +570,7 @@ export default {
 
   beforeUnmount() {
     if (this.updateInterval) clearInterval(this.updateInterval);
+    window.removeEventListener("resize", this.getWindowSize);
   },
 
   components: {
@@ -587,21 +635,31 @@ export default {
 
 .pool-creation-wrap {
   position: relative;
-  max-width: 1311px;
-  width: 100%;
-  padding: 124px 15px 90px;
   display: grid;
+  grid-template-rows: auto 1fr;
   grid-template-columns: 520px 1fr;
-  grid-gap: 24px;
+  grid-template-areas:
+    "title info"
+    "action info";
+  gap: 24px;
+  max-width: 1311px;
+  padding: 124px 15px 90px;
   margin: 0 auto;
 }
 
 .pool-creation-title {
+  grid-area: title;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  height: min-content;
   font-size: 32px;
   font-weight: 600;
 }
 
 .actions-block {
+  grid-area: action;
   gap: 20px;
   display: flex;
   flex-direction: column;
@@ -623,6 +681,7 @@ export default {
 }
 
 .pool-creation-info-wrap {
+  grid-area: info;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -633,20 +692,34 @@ export default {
   font-weight: 500;
 }
 
-@media screen and (max-width: 1200px) {
+.second-step {
+  display: flex;
+  justify-content: space-between;
+}
+
+.second-step .default-button,
+.first-step {
+  border-radius: 10px !important;
+}
+
+.second-step .default-button {
+width: fit-content;
+}
+
+@media (max-width: 1200px) {
   .pool-creation-wrap {
     grid-template-columns: 400px 1fr;
   }
 }
 
-@media screen and (max-width: 1024px) {
+@media (max-width: 1024px) {
   .pool-creation-wrap {
-    grid-template-columns: 100%;
-    grid-template-rows: auto;
+    display: flex;
+    flex-direction: column;
   }
 }
 
-@media screen and (max-width: 600px) {
+@media (max-width: 600px) {
   .action-form {
     padding: 16px;
   }
