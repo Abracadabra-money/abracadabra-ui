@@ -1,8 +1,10 @@
 <template>
   <div class="pools-list-wrap">
-    <div class="pools-list">
-      <PoolListCard v-for="(pool, index) in pools" :key="index" :pool="pool" />
-    </div>
+    <PoolsTable
+      :pools="pools"
+      :poolsLoading="poolsLoading"
+      :tableKeys="tableKeys"
+    />
 
     <div class="loader-wrap">
       <BaseLoader v-if="poolsLoading" medium text="Loading pools" />
@@ -20,9 +22,35 @@ export default {
     pools: { type: Array as PropType<MagicLPInfo[]>, required: true },
   },
 
+  data() {
+    return {
+      tableKeys: [
+        {
+          tableKey: "Pool name",
+        },
+        {
+          tableKey: "TVL",
+          tooltip: "Total Value Locked.",
+        },
+        {
+          tableKey: "Fee Tier",
+          tooltip: "Fee Tier.",
+        },
+        {
+          tableKey: "Pool type",
+          tooltip: "Pool type.",
+        },
+        {
+          tableKey: "Staking APR",
+          tooltip: "Staking APR.",
+        },
+      ],
+    };
+  },
+
   components: {
-    PoolListCard: defineAsyncComponent(
-      () => import("@/components/pools/PoolListCard.vue")
+    PoolsTable: defineAsyncComponent(
+      () => import("@/components/pools/table/PoolsTable.vue")
     ),
     BaseLoader: defineAsyncComponent(
       () => import("@/components/base/BaseLoader.vue")

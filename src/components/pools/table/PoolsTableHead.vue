@@ -76,6 +76,7 @@ export default {
   padding: 0 32px;
   margin-bottom: 12px;
   display: flex;
+  justify-content: space-between;
   align-items: center;
   gap: 32px;
   min-width: 1155px;
@@ -83,7 +84,7 @@ export default {
 
 .table-item {
   width: 100%;
-  max-width: 140px;
+  max-width: 190px;
   display: flex;
   gap: 4px;
   align-items: center;

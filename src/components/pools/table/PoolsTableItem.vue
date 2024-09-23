@@ -13,35 +13,32 @@
       </div>
     </div>
 
-    <div class="column">${{ formatLargeSum(pool.statisticsData.tvl) }}</div>
+    <div class="column">${{ tvl }}</div>
 
-    <div class="column">${{ formatLargeSum(pool.statisticsData.dayFees) }}</div>
+    <div class="column">{{ feeTier }}</div>
 
-    <div class="column">
-      ${{ formatLargeSum(pool.statisticsData.dayVolume) }}
-    </div>
+    <div class="column pool-type">{{ poolType }}</div>
 
-    <div class="column">
-      ${{ formatLargeSum(pool.statisticsData.weekFees) }}
-    </div>
-
-    <div class="column">
-      ${{ formatLargeSum(pool.statisticsData.weekVolume) }}
-    </div>
-
-    <div class="column apr">{{ pool.statisticsData.apr }} %</div>
+    <div class="column apr">{{ poolApr }} %</div>
   </router-link>
 </template>
 
 <script lang="ts">
 import { formatUnits } from "viem";
-import { formatLargeSum } from "@/helpers/filters";
+import { formatLargeSum, formatPercent } from "@/helpers/filters";
 import { BERA_BARTIO_CHAIN_ID } from "@/constants/global";
+import type { MagicLPInfo } from "@/helpers/pools/swap/types";
+import type { PropType } from "vue";
+import {
+  FEE_TIER_DECIMALS,
+  PoolTypes,
+  STANDARD_K_VALUE,
+} from "@/constants/pools/poolCreation";
 
 export default {
   props: {
     pool: {
-      type: Object,
+      type: Object as PropType<MagicLPInfo>,
       required: true,
     },
   },
@@ -53,6 +50,30 @@ export default {
   },
 
   computed: {
+    tvl() {
+      return formatLargeSum(formatUnits(this.pool.totalSupply, this.decimals));
+    },
+
+    feeTier() {
+      return formatPercent(
+        formatUnits(this.pool.initialParameters.lpFeeRate, FEE_TIER_DECIMALS)
+      );
+    },
+
+    poolType() {
+      return this.pool.initialParameters.K === STANDARD_K_VALUE
+        ? PoolTypes.Standard
+        : PoolTypes.Pegged;
+    },
+
+    poolApr() {
+      return formatPercent(this.pool.poolAPR?.totalApr || 0);
+    },
+
+    decimals() {
+      return this.pool.decimals;
+    },
+
     isOpenPosition() {
       return this.pool.userInfo.balance > 0n;
     },
@@ -75,15 +96,8 @@ export default {
     },
   },
 
-  methods: {
-    formatUnits(value: bigint) {
-      return formatUnits(value, 18); // Notice decimals
-    },
+  methods: {},
 
-    formatLargeSum(value: bigint) {
-      return formatLargeSum(formatUnits(value, 0));
-    },
-  },
 };
 </script>
 
@@ -190,6 +204,10 @@ export default {
   top: -5px;
   right: -10px;
   border: 1px solid #0d1427;
+}
+
+.pool-type {
+  text-transform: capitalize;
 }
 
 .apr {
