@@ -6,12 +6,12 @@ import {
   LS_USER_POSITION_KEY,
   getAndParseFarmsList,
   LS_FARMS_LIST_KEY,
+  getAndParsePoolsList,
+  LS_POOLS_LIST_KEY,
   getAndParseBentoBoxData,
   LS_BENTOBOX_DATA_KEY,
   getAndParseSpellStakeData,
   LS_SPELL_STAKE_KEY,
-  getAndParseMagicKlpStakeData,
-  LS_MAGIC_KLP_STAKE_KEY,
   getAndParseMagicGlpStakeData,
   LS_MAGIC_GLP_STAKE_KEY,
   LS_MAGIC_GLP_STAKE_CHART_KEY,
@@ -27,13 +27,13 @@ export default {
     cauldronsList: getAndParseCaldronsList(),
     userPositions: getAndParseUserPositions(),
     farmList: getAndParseFarmsList(),
+    poolsList: getAndParsePoolsList(),
     bentoBoxData: getAndParseBentoBoxData(),
     userTotalAssets: {
       data: {},
       isCreated: false,
     },
     spellStakeData: getAndParseSpellStakeData(),
-    magicKlpStakeData: getAndParseMagicKlpStakeData(),
     magicGlpStakeData: getAndParseMagicGlpStakeData(),
     magicApeStakeData: getAndParseMagicApeStakeData(),
     poolCreationCustomTokens: getAndParsePoolCreationCustomTokens(),
@@ -55,6 +55,11 @@ export default {
       state.farmList.data = payload;
       localStorage.setItem(LS_FARMS_LIST_KEY, bigintStringify(payload));
     },
+    setPoolsList(state, payload) {
+      state.poolsList.isCreated = true;
+      state.poolsList.data = payload;
+      localStorage.setItem(LS_POOLS_LIST_KEY, bigintStringify(payload));
+    },
     setBentoBoxData(state, payload) {
       state.bentoBoxData.isCreated = true;
       state.bentoBoxData.data = payload;
@@ -68,11 +73,6 @@ export default {
       state.spellStakeData.isCreated = true;
       state.spellStakeData.data = payload;
       localStorage.setItem(LS_SPELL_STAKE_KEY, bigintStringify(payload));
-    },
-    setMagicKlpStakeData(state, payload) {
-      state.magicKlpStakeData.isCreated = true;
-      state.magicKlpStakeData.data = payload;
-      localStorage.setItem(LS_MAGIC_KLP_STAKE_KEY, bigintStringify(payload));
     },
     setMagicGlpStakeData(state, payload) {
       state.magicGlpStakeData.isCreated = true;
@@ -111,10 +111,10 @@ export default {
     getCauldronsList: (state) => state.cauldronsList,
     getUserPositions: (state) => state.userPositions,
     getFarmList: (state) => state.farmList,
+    getPoolsList: (state) => state.poolsList,
     getBentoBoxData: (state) => state.bentoBoxData,
     getUserTotalAssets: (state) => state.userTotalAssets,
     getSpellStakeData: (state) => state.spellStakeData,
-    getMagicKlpStakeData: (state) => state.magicKlpStakeData,
     getMagicGlpStakeData: (state) => state.magicGlpStakeData,
     getMagicApeStakeData: (state) => state.magicApeStakeData,
     getPoolCreationCustomTokens: (state) => state.poolCreationCustomTokens,

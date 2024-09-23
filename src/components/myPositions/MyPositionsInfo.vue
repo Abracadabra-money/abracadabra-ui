@@ -9,13 +9,15 @@
 
     <div class="reward-cards">
       <div
-        :class="['reward-card', { mim: index }]"
+        :class="['reward-card', { elixir: index === 0 }, { mim: index === 2 }]"
         v-for="(data, index) in totalAssetsData"
         :key="data.title"
       >
         <h4 class="reward-title">Total {{ data.title }}</h4>
         <div class="reward-values">
-          <div class="token-amount">
+          <div
+            :class="['token-amount', { 'elixir-token-amount': index === 0 }]"
+          >
             <img
               class="token-icon"
               src="@/assets/images/tokens/MIM.png"
@@ -24,6 +26,11 @@
             />
             {{ data.value }}
           </div>
+        </div>
+        <div class="reward-weekly" v-if="data?.rate">
+          1 sdeUSD earns
+          <span class="reward-weekly-value">{{ data.rate }}</span> Potions
+          weekly
         </div>
       </div>
     </div>
@@ -36,6 +43,7 @@ import type { PropType } from "vue";
 export type TotalAssetsData = {
   title: string;
   value: string | number;
+  rate?: string;
 };
 
 export default {
@@ -127,6 +135,17 @@ export default {
   font-weight: 500;
 }
 
+.elixir-token-amount {
+  background: -webkit-linear-gradient(
+    180deg,
+    #ffe47c 0%,
+    #ff43c3 53.78%,
+    #8150d6 102.24%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 .token-icon {
   width: 32px;
   height: 32px;
@@ -151,6 +170,26 @@ export default {
   background-position: 20% 30%;
 }
 
+.elixir {
+  border: 1px solid transparent;
+  border-radius: 16px;
+  background: linear-gradient(to right, #14182a, #14182a),
+    linear-gradient(90deg, #8c4fd5 0%, #ff43c3 50%, #ffda80 100%);
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+}
+
+.reward-weekly {
+  font-size: 12px;
+  line-height: 18px;
+  color: #99a0b2;
+}
+
+.reward-weekly-value {
+  font-weight: 500;
+  color: #fff;
+}
+
 @media screen and (max-width: 1050px) {
   .myPositions-info {
     flex-direction: column;
@@ -166,7 +205,6 @@ export default {
 @media screen and (max-width: 620px) {
   .reward-card {
     width: 100%;
-    height: 73px;
   }
 
   .title {

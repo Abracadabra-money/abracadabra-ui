@@ -33,6 +33,7 @@
           v-for="cauldron in sortedCauldrons"
           :key="`${cauldron.config.id} - ${cauldron.config.chainId}`"
           :cauldron="cauldron"
+          :userElixirInfo="userElixirInfo"
         />
       </div>
 
@@ -65,6 +66,7 @@ import {
 import { mapGetters, mapMutations } from "vuex";
 import { APR_KEY } from "@/constants/global";
 import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
+// @ts-ignore
 import { isApyCalcExist, fetchTokenApy } from "@/helpers/collateralsApy";
 import { getUsersTotalAssets } from "@/helpers/cauldron/position/getUsersTotalAssets";
 import {
@@ -74,6 +76,9 @@ import {
 import type { Address } from "viem";
 import type { UserTotalAssets } from "@/helpers/cauldron/types";
 import type { SortOrder } from "@/types/common";
+import axios from "axios";
+import { ELIXIR_POTIONS_URL } from "@/constants/global";
+import { LS_ELIXIR_RARE_KEY } from "@/helpers/dataStore";
 
 export type PositionsSortKey =
   | "positionHealth"
@@ -98,6 +103,8 @@ export default {
       sortKey: "mimBorrowed" as PositionsSortKey,
       sortOrder: "up" as SortOrder,
       isFiltersPopupOpened: false,
+      userElixirInfo: null as any,
+      elixirRate: 0,
     };
   },
 
@@ -137,7 +144,16 @@ export default {
     },
 
     totalAssetsData() {
+      const userElixirPotions = !this.userElixirInfo
+        ? 0
+        : this.userElixirInfo[this.account.toLowerCase()].total;
+
       return [
+        {
+          title: " Elixir Potions Earned",
+          value: formatTokenBalance(userElixirPotions),
+          rate: formatToFixed(this.elixirRate, 3),
+        },
         {
           title: "Collateral Deposit",
           value: formatUSD(this.totalAssets?.collateralDepositedInUsd || 0),
@@ -168,7 +184,9 @@ export default {
       if (!this.account) {
         this.cauldrons = [];
         this.totalAssets = null;
+        this.userElixirInfo = null;
       } else {
+        await this.getElixirInfo();
         this.checkLocalData();
         await this.createOpenPositions();
       }
@@ -188,7 +206,7 @@ export default {
     sortByKey(cauldrons: UserOpenPosition[], key: PositionsSortKey) {
       if (this.sortOrder === null || this.cauldrons.length < 2)
         return this.cauldrons;
-      const sortedByKey = cauldrons.sort((a, b) => {
+      const sortedByKey = [...cauldrons].sort((a, b) => {
         const prev = (key === "positionHealth" ? a[key].percent : a[key]) || 0;
         const cur = (key === "positionHealth" ? b[key].percent : b[key]) || 0;
 
@@ -326,9 +344,71 @@ export default {
         this.totalAssets = this.userTotalAssets.data;
       }
     },
+
+    async getElixirInfo() {
+      try {
+        this.checkLocalElixirRate();
+
+        const { data } = await axios.get(
+          `${ELIXIR_POTIONS_URL}?addresses=${this.account}`
+        );
+
+        this.elixirRate =
+          data.weeks.filter(({ preliminary }: any) => !preliminary).at(-1)
+            .rate || 0;
+
+        localStorage.setItem(LS_ELIXIR_RARE_KEY, this.elixirRate.toString());
+
+        const { users } = data.totals;
+
+        if (!Object.keys(users).length) {
+          this.userElixirInfo = null;
+        } else {
+          this.userElixirInfo = users;
+        }
+
+        return;
+      } catch (error) {
+        this.userElixirInfo = null;
+        return;
+      }
+    },
+
+    async getElixirRate() {
+      try {
+        this.checkLocalElixirRate();
+
+        const { data } = await axios.get(`${ELIXIR_POTIONS_URL}`);
+
+        this.elixirRate =
+          data.weeks.filter(({ preliminary }: any) => !preliminary).at(-1)
+            .rate || 0;
+
+        localStorage.setItem(LS_ELIXIR_RARE_KEY, this.elixirRate.toString());
+
+        return;
+      } catch (error) {
+        this.elixirRate = 0;
+        return;
+      }
+    },
+
+    checkLocalElixirRate() {
+      const lsElixirRate = localStorage.getItem(LS_ELIXIR_RARE_KEY);
+
+      if (lsElixirRate) {
+        this.elixirRate = Number(lsElixirRate);
+      }
+    },
   },
 
   async created() {
+    if (this.account) {
+      await this.getElixirInfo();
+    } else {
+      await this.getElixirRate();
+    }
+
     this.positionsIsLoading = true;
     this.checkLocalData();
     await this.createOpenPositions();

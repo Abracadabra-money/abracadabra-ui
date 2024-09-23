@@ -85,6 +85,12 @@ export default {
     },
   },
 
+  data() {
+    return {
+      elixirPotions: [43, 44],
+    };
+  },
+
   computed: {
     isOpenPosition(): boolean {
       const { collateralInfo, borrowInfo } =
@@ -110,7 +116,7 @@ export default {
     isMultiplierLabel() {
       return (
         this.cauldron.config.chainId === MAINNET_CHAIN_ID &&
-        this.cauldron.config.id === 43
+        this.elixirPotions.includes(this.cauldron.config.id)
       );
     },
   },

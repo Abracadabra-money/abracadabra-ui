@@ -12,14 +12,8 @@
       />
     </div>
 
-    <RewardsCard :pool="pool" />
-
-    <!-- <RewardsList
-      v-if="isBlastLockLogic"
-      :rewards="rewardsPerHour"
-      :inputAmount="inputAmount"
-      :isRewardsCalculating="isRewardsCalculating"
-    /> -->
+    <RewardsCard :pool="pool" v-if="!isElixir" />
+    <ElixirPotions v-else />
 
     <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
       {{ buttonText }}
@@ -33,8 +27,6 @@ import {
   simulateContractHelper,
   waitForTransactionReceiptHelper,
 } from "@/helpers/walletClienHelper";
-import debounce from "lodash.debounce";
-import { getRewardsPerHour } from "@/helpers/pools/getRewardsPerHour";
 import moment from "moment";
 import { formatUnits } from "viem";
 import { defineAsyncComponent } from "vue";
@@ -49,7 +41,6 @@ import { notificationErrorMsg } from "@/helpers/notification/notificationError.j
 export default {
   props: {
     pool: { type: Object },
-    pointsStatistics: { type: Object },
     slippage: { type: BigInt, default: 100n },
     deadline: { type: BigInt, default: 100n },
     isLock: { type: Boolean },
@@ -63,10 +54,6 @@ export default {
       inputValue: "",
       isActionProcessing: false,
       isRewardsCalculating: false,
-      rewardsPerHour: {
-        pointsReward: 0,
-        goldReward: 0,
-      },
     };
   },
 
@@ -76,12 +63,12 @@ export default {
       account: "getAccount",
     }),
 
-    isBlastLockLogic() {
+    isLockLogic() {
       return !!this.pool.lockInfo;
     },
 
     isAllowed() {
-      if (this.isBlastLockLogic)
+      if (this.isLockLogic)
         return this.pool.lockInfo.allowance >= this.inputAmount;
       return this.pool.stakeInfo.allowance >= this.inputAmount;
     },
@@ -120,12 +107,14 @@ export default {
     isProperNetwork() {
       return this.chainId == this.pool.chainId;
     },
+
+    isElixir() {
+      return this.pool.config.id === 1 && this.pool.config.chainId === 1;
+    },
   },
 
   watch: {
     async inputAmount(value) {
-      if (this.isBlastLockLogic) this.fetchBlastRewards();
-
       if (value == 0) {
         this.inputValue = "";
         return false;
@@ -149,24 +138,6 @@ export default {
       this.inputAmount = 0n;
     },
 
-    fetchBlastRewards() {
-      this.isRewardsCalculating = true;
-      this.getRewardsPerHour();
-    },
-
-    getRewardsPerHour: debounce(async function getRewards() {
-      const deposit =
-        Number(formatUnits(this.inputAmount, this.pool.decimals)) *
-          this.pool.price || 1000;
-
-      this.rewardsPerHour = await getRewardsPerHour(
-        this.pool,
-        this.pointsStatistics.global,
-        deposit
-      );
-      this.isRewardsCalculating = false;
-    }, 500),
-
     async approveHandler() {
       this.isActionProcessing = true;
 
@@ -174,7 +145,7 @@ export default {
         notification.approvePending
       );
 
-      const contract = this.isBlastLockLogic
+      const contract = this.isLockLogic
         ? this.pool.lockContract
         : this.pool.stakeContract;
 
@@ -208,7 +179,7 @@ export default {
         notification.pending
       );
 
-      const contract = this.isBlastLockLogic
+      const contract = this.isLockLogic
         ? this.pool.lockContract
         : this.pool.stakeContract;
 
@@ -310,10 +281,6 @@ export default {
     },
   },
 
-  async created() {
-    if (this.isBlastLockLogic) this.fetchBlastRewards();
-  },
-
   components: {
     BaseTokenInput: defineAsyncComponent(() =>
       import("@/components/base/BaseTokenInput.vue")
@@ -321,11 +288,11 @@ export default {
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")
     ),
-    // RewardsList: defineAsyncComponent(() =>
-    //   import("@/components/pools/pool/RewardsList.vue")
-    // ),
     RewardsCard: defineAsyncComponent(() =>
       import("@/components/pools/pool/RewardsCard.vue")
+    ),
+    ElixirPotions: defineAsyncComponent(() =>
+      import("@/components/pools/pool/ElixirPotions.vue")
     ),
   },
 };

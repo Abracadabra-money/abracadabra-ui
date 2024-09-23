@@ -10,7 +10,10 @@ import type {
   PositionHealthStatus,
   UserPositions,
 } from "@/helpers/cauldron/types";
-import { getAlternativeLiquidationPrice, getLiquidationPrice } from "@/helpers/cauldron/utils";
+import {
+  getAlternativeLiquidationPrice,
+  getLiquidationPrice,
+} from "@/helpers/cauldron/utils";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { getLensAddress } from "@/helpers/cauldron/getLensAddress";
 import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
@@ -49,7 +52,7 @@ export const getUserPositions = async (
   account: string | undefined,
   chainId: number
 ): Promise<Array<UserPositions>> => {
-  if (!account) configs.map(() => emptyPosition);
+  if (!account) return configs.map(() => emptyPosition);
 
   const lensAddress = getLensAddress(chainId);
   const publicClient = getPublicClient(chainId);
@@ -95,8 +98,6 @@ export const getUserPositions = async (
 
   return configs.map((config: any, index: number) => {
     if (!userPositions) return emptyPosition;
-    const userPosition = userPositions[index * 4]?.result;
-    if (!userPosition) return emptyPosition;
 
     const decimals = config.collateralInfo.decimals;
     const mcr = config.mcr;
@@ -104,6 +105,16 @@ export const getUserPositions = async (
     const userCollateralShare: bigint = userPositions[index * 4 + 2].result;
     const collaterallInOrder = collaterallInOrders[index];
     const userBorrowPart: bigint = userPositions[index * 4 + 3].result;
+
+    // EDGE CASE: if cauldron is empty
+    const userPosition = userPositions[index * 4].error
+      ? {
+          borrowValue: 0n,
+          collateral: {
+            amount: userCollateralShare,
+          },
+        }
+      : userPositions[index * 4].result;
 
     const collateralPrice =
       1 / Number(formatUnits(oracleExchangeRate, decimals));
@@ -120,14 +131,13 @@ export const getUserPositions = async (
         )
       )
     );
-    const bigintLiquidationPrice =
-      getAlternativeLiquidationPrice(
-        userPosition.borrowValue,
-        userPosition.collateral.amount +
+    const bigintLiquidationPrice = getAlternativeLiquidationPrice(
+      userPosition.borrowValue,
+      userPosition.collateral.amount +
         BigInt(collaterallInOrders[index].amount),
-        mcr,
-        decimals
-      );
+      mcr,
+      decimals
+    );
 
     const leftToDrop = collateralPrice - liquidationPrice;
 
@@ -142,7 +152,7 @@ export const getUserPositions = async (
     const alternativePositionHealth = getAlternativePositionHealth(
       bigintLiquidationPrice,
       oracleExchangeRate,
-      decimals,
+      decimals
     );
 
     const userCollateralAmount = BigNumber.from(
@@ -191,7 +201,7 @@ export const getUserPositions = async (
         },
         liquidationPrice: bigintLiquidationPrice,
         oracleRate: oracleExchangeRate,
-        positionHealth: alternativePositionHealth
+        positionHealth: alternativePositionHealth,
       },
     };
   });

@@ -4,36 +4,6 @@
 
     <RewardsWrap :pool="pool" />
 
-    <template v-if="rewardsList">
-      <!-- <div class="rewards-wrap">
-        <h4 class="title">
-          Staking rewards earned
-          <Tooltip
-            tooltip="Total earned from Staked LPs position for each reward"
-            :width="20"
-            :height="20"
-          />
-        </h4>
-
-        <ul class="rewards-list">
-          <li
-            class="list-item"
-            v-for="(reward, index) in rewardsList"
-            :key="index"
-          >
-            <span class="item-title">
-              <img :src="reward.icon" class="reward-icon" />
-              {{ reward.title }}
-            </span>
-
-            <span class="item-value">{{ reward.value }}</span>
-          </li>
-        </ul>
-      </div> -->
-
-      <BaseButton primary @click="goToDashboard()">See dashborad</BaseButton>
-    </template>
-
     <BaseButton
       v-if="hasStakeLogic"
       primary
@@ -46,26 +16,24 @@
 </template>
 
 <script>
-import { mapActions, mapGetters, mapMutations } from "vuex";
-import { switchNetwork } from "@/helpers/chains/switchNetwork";
-import { defineAsyncComponent } from "vue";
-import { formatUnits } from "viem";
-import { formatUSD, formatTokenBalance } from "@/helpers/filters";
-import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
-import { useImage } from "@/helpers/useImage";
-
-import notification from "@/helpers/notification/notification";
-import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import {
   writeContractHelper,
   simulateContractHelper,
   waitForTransactionReceiptHelper,
 } from "@/helpers/walletClienHelper";
+import { formatUnits } from "viem";
+import { defineAsyncComponent } from "vue";
+import { mapActions, mapGetters, mapMutations } from "vuex";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import notification from "@/helpers/notification/notification";
+import { formatUSD, formatTokenBalance } from "@/helpers/filters";
+import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
+
 export default {
   emits: ["updatePoolInfo"],
   props: {
     pool: { type: Object },
-    userPointsStatistics: { type: Object },
   },
 
   data() {
@@ -165,32 +133,6 @@ export default {
 
       return tokensList.length ? tokensList : false;
     },
-
-    rewardsList() {
-      if (!this.userPointsStatistics) return false;
-
-      return [
-        {
-          title: "Points",
-          icon: useImage("assets/images/points-dashboard/blast.png"),
-          value: formatTokenBalance(
-            this.userPointsStatistics?.liquidityPoints?.lp?.finalized || 0
-          ),
-        },
-        {
-          title: "Gold",
-          icon: useImage("assets/images/points-dashboard/gold-points.svg"),
-          value: formatTokenBalance(
-            this.userPointsStatistics?.developerPoints?.lp?.finalized || 0
-          ),
-        },
-        {
-          title: "Potion",
-          icon: useImage("assets/images/points-dashboard/potion.png"),
-          value: "0.0",
-        },
-      ];
-    },
   },
 
   methods: {
@@ -201,12 +143,6 @@ export default {
 
     formatTokenBalance(value, decimals) {
       return formatTokenBalance(formatUnits(value, decimals));
-    },
-
-    goToDashboard() {
-      this.$router.push({
-        name: "PointsDashboard",
-      });
     },
 
     async actionHandler() {
@@ -265,9 +201,6 @@ export default {
     RewardsWrap: defineAsyncComponent(() =>
       import("@/components/pools/pool/position/RewardsWrap.vue")
     ),
-    // Tooltip: defineAsyncComponent(() =>
-    //   import("@/components/ui/icons/Tooltip.vue")
-    // ),
   },
 };
 </script>
