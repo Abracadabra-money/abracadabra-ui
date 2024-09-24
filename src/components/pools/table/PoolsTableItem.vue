@@ -19,7 +19,7 @@
 
     <div class="column pool-type">{{ poolType }}</div>
 
-    <div class="column apr">{{ poolApr }} %</div>
+    <div class="column apr">{{ poolApr }}</div>
   </router-link>
 </template>
 
@@ -98,6 +98,9 @@ export default {
 
   methods: {},
 
+  // created() {
+  //   console.log(this.pool);
+  // },
 };
 </script>
 

@@ -85,7 +85,6 @@ export default {
 
 @media screen and (max-width: 650px) {
   .pools-list-wrap {
-    height: 500px;
     overflow: auto;
   }
 }
