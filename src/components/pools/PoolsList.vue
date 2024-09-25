@@ -1,7 +1,11 @@
 <template>
   <div class="pools-list-wrap">
     <div class="pools-list">
-      <PoolListCard v-for="(pool, index) in pools" :key="index" :pool="pool" />
+      <PoolListCard
+        v-for="(pool, index) in poolsList"
+        :key="index"
+        :pool="pool"
+      />
     </div>
 
     <div class="loader-wrap">
@@ -13,11 +17,24 @@
 <script lang="ts">
 import { defineAsyncComponent, type PropType } from "vue";
 import type { MagicLPInfo } from "@/helpers/pools/swap/types";
+import { formatUnits } from "viem";
 
 export default {
   props: {
     poolsLoading: { type: Boolean },
     pools: { type: Array as PropType<MagicLPInfo[]>, required: true },
+  },
+
+  computed: {
+    poolsList() {
+      return [...this.pools].sort((a, b) => {
+        const aTotalSupply = Number(formatUnits(a.totalSupply, a.decimals));
+        const bTotalSupply = Number(formatUnits(b.totalSupply, b.decimals));
+        const aTotalSupplyUsd = a?.price ? aTotalSupply * a.price : 0;
+        const bTotalSupplyUsd = b?.price ? bTotalSupply * b.price : 0;
+        return bTotalSupplyUsd - aTotalSupplyUsd;
+      });
+    },
   },
 
   components: {

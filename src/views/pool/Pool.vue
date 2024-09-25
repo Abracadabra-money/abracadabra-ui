@@ -31,6 +31,7 @@
 import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
 import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
+import { getPoolConfig } from "@/helpers/pools/getPoolConfigs";
 import { getPoolTvlPieChartOption } from "@/helpers/pools/charts/getPoolTvlPieChartOption";
 
 export default {
@@ -45,6 +46,7 @@ export default {
       isMyPositionPopupOpened: false,
       poolsTimer: null,
       chartOption: null,
+      poolConfig: null,
     };
   },
 
@@ -89,13 +91,15 @@ export default {
     async getPoolInfo() {
       this.pool = await getPoolInfo(
         Number(this.poolChainId),
-        Number(this.id),
+        this.poolConfig,
         this.account
       );
     },
   },
 
   async created() {
+    this.poolConfig = await getPoolConfig(Number(this.poolChainId), this.id);
+
     await this.getPoolInfo();
 
     this.chartOption = this.showTvlChart

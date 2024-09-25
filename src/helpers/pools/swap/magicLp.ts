@@ -1,27 +1,29 @@
+import type {
+  MagicLPInfo,
+  MagicLPInfoUserInfo,
+} from "@/helpers/pools/swap/types";
+import { formatUnits } from "viem";
 import type { Address } from "viem";
-import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 //@ts-ignore
 import BlastMagicLPAbi from "@/abis/BlastMagicLpAbi";
-import type { MagicLPInfo, MagicLPInfoUserInfo } from "./types";
-import PMMPricing from "./libs/PMMPricing";
-import DecimalMath from "./libs/DecimalMath";
-import { getSwapRouterByChain } from "@/configs/pools/routers";
-import poolsConfig from "@/configs/pools/pools";
 import type { PoolConfig } from "@/configs/pools/types";
-
-import { formatUnits } from "viem";
+import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
 import { getCoinsPrices } from "@/helpers/prices/defiLlama";
-import { getPoolInfo } from "../getPoolInfo";
+import PMMPricing from "@/helpers/pools/swap/libs/PMMPricing";
+import { getSwapRouterByChain } from "@/configs/pools/routers";
+import DecimalMath from "@/helpers/pools/swap/libs/DecimalMath";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 
 export const getAllPoolsByChain = async (
   chainId: number,
+  poolsConfig: PoolConfig[],
   account?: Address
 ): Promise<any> => {
   const pools = await Promise.all(
     poolsConfig
-      .filter((config) => config.chainId === chainId)
-      .map(async (config) => {
-        return getPoolInfo(chainId, config.id, account);
+      .filter((config: PoolConfig) => config.chainId === chainId)
+      .map(async (config: PoolConfig) => {
+        return getPoolInfo(chainId, config, account);
       })
   );
 

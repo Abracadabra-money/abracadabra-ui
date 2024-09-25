@@ -1,7 +1,7 @@
 import type { ContractInfo } from "@/types/global";
 
 export type PoolConfig = {
-  id: number;
+  id: string;
   chainId: number;
   name: string;
   icon: string;
@@ -13,7 +13,7 @@ export type PoolConfig = {
   stakeContract?: ContractInfo;
   rewardTokens?: TokenConfig[];
   settings: PoolSettings;
-  initialParameters: InitialParameters
+  initialParameters: InitialParameters;
 };
 
 // TODO: may be changed in future
@@ -24,12 +24,11 @@ type PoolSettings = {
   isPointsLogic?: boolean;
 };
 
-
 type InitialParameters = {
-  I: bigint,
-  K: bigint,
-  lpFeeRate: bigint
-}
+  I: bigint;
+  K: bigint;
+  lpFeeRate: bigint;
+};
 
 export type TokenConfig = {
   name: string;

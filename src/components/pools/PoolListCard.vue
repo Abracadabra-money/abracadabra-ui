@@ -15,7 +15,7 @@
 
       <router-link
         class="pool-link"
-        :to="`/pool/${pool.config.id}/${pool.config.chainId}`"
+        :to="`/pool/${pool.config.chainId}/${pool.config.id}`"
       >
         <svg
           class="arrow"

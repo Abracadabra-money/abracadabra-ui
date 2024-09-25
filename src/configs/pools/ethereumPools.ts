@@ -6,7 +6,7 @@ import MultiRewardsAbi from "@/abis/MultiRewards";
 
 const ethereumPools: Array<PoolConfig> = [
   {
-    id: 1,
+    id: "0x95b485615c193cf75582b70ABdB08bc7172a80fe",
     chainId: 1,
     name: "MIM / deUSD",
     icon: useImage(`assets/images/tokens/MIM-deUSD.png`),
@@ -58,8 +58,8 @@ const ethereumPools: Array<PoolConfig> = [
     initialParameters: {
       I: 1000000000000000000n,
       K: 250000000000000n,
-      lpFeeRate: 500000000000000n
-    }
+      lpFeeRate: 500000000000000n,
+    },
   },
 ];
 

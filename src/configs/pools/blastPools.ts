@@ -7,7 +7,7 @@ import BlastLockingMultiRewardsAbi from "@/abis/BlastLockingMultiRewards";
 
 const blastPools: Array<PoolConfig> = [
   {
-    id: 1,
+    id: "0x163B234120aaE59b46b228d8D88f5Bc02e9baeEa",
     chainId: 81457,
     name: "MIM / USDB",
     icon: useImage(`assets/images/tokens/MIM-USDB.png`),
@@ -49,8 +49,8 @@ const blastPools: Array<PoolConfig> = [
     initialParameters: {
       I: 1000000000000000000n,
       K: 250000000000000n,
-      lpFeeRate: 500000000000000n
-    }
+      lpFeeRate: 500000000000000n,
+    },
   },
 ];
 

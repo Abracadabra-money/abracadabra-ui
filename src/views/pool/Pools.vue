@@ -9,16 +9,18 @@
 </template>
 
 <script lang="ts">
-import { mapGetters, mapMutations } from "vuex";
 import { defineAsyncComponent } from "vue";
+import { mapGetters, mapMutations } from "vuex";
+import { PoolConfig } from "@/configs/pools/types";
 import { getPoolsList } from "@/helpers/pools/getPoolsList";
-// import type { MagicLPInfo } from "@/helpers/pools/swap/types";
+import { getPoolConfigs } from "@/helpers/pools/getPoolConfigs";
 
 export default {
   data() {
     return {
       pools: [] as any[],
       poolsLoading: true,
+      poolConfigs: [] as PoolConfig[],
       updateInterval: null as NodeJS.Timeout | null,
     };
   },
@@ -43,7 +45,7 @@ export default {
     },
 
     async createPoolsInfo(): Promise<void> {
-      this.pools = await getPoolsList(this.account);
+      this.pools = await getPoolsList(this.account, this.poolConfigs);
       this.poolsLoading = false;
 
       this.setPoolsList(this.pools);
@@ -51,11 +53,12 @@ export default {
   },
 
   async created() {
+    this.poolConfigs = await getPoolConfigs();
     this.checkLocalData();
     await this.createPoolsInfo();
 
     this.updateInterval = setInterval(async () => {
-      this.pools = await getPoolsList(this.account);
+      this.pools = await getPoolsList(this.account, this.poolConfigs);
     }, 60000);
   },
 

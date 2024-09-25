@@ -6,7 +6,7 @@ import type { PoolConfig } from "@/configs/pools/types";
 
 const kavaPools: Array<PoolConfig> = [
   {
-    id: 1,
+    id: "0x10C9FCDa1655b7A55250AdCEe06f0B6e83F473c1",
     chainId: 2222,
     name: "MIM / USDT",
     icon: useImage(`assets/images/tokens/MIM-USDT.png`),
@@ -59,8 +59,8 @@ const kavaPools: Array<PoolConfig> = [
     initialParameters: {
       I: 1000000000000000000n,
       K: 250000000000000n,
-      lpFeeRate: 500000000000000n
-    }
+      lpFeeRate: 500000000000000n,
+    },
   },
 ];
 

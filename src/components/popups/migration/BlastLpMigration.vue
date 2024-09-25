@@ -53,11 +53,15 @@
 </template>
 
 <script lang="ts">
+// @ts-ignore
 import store from "@/store";
 import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
+// @ts-ignore
 import tokensAbi from "@/abis/tokensAbi/index";
+import type { PoolConfig } from "@/configs/pools/types";
 import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
+import { getPoolConfig } from "@/helpers/pools/getPoolConfigs";
 import { ARB_USDT_ADDRESS } from "@/constants/blastLpMigration";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { ARB_BRIDGE_ADDRESS } from "@/constants/blastLpMigration";
@@ -65,7 +69,7 @@ import { getUserInfo } from "@/helpers/blastLpMigration/getUserInfo";
 import type { UserInfo } from "@/helpers/blastLpMigration/getUserInfo";
 import { ARBITRUM_CHAIN_ID, BLAST_CHAIN_ID } from "@/constants/global";
 
-const MIM_USDB_POOL_ID = 1;
+const MIM_USDB_POOL_ID = "0x163B234120aaE59b46b228d8D88f5Bc02e9baeEa";
 
 export default {
   data() {
@@ -80,6 +84,7 @@ export default {
         lzTxInfo: null,
         amounts: null,
       },
+      poolConfig: null as PoolConfig | null,
     };
   },
 
@@ -106,6 +111,18 @@ export default {
     },
   },
 
+  watch: {
+    async poolConfig() {
+      if (!this.poolConfig) return;
+
+      this.poolData = await getPoolInfo(
+        BLAST_CHAIN_ID,
+        this.poolConfig,
+        this.account
+      );
+    },
+  },
+
   methods: {
     closePopup() {
       store.commit("closePopups");
@@ -120,9 +137,10 @@ export default {
 
       this.userData = await getUserInfo(this.account);
 
+      if (!this.poolConfig) return;
       this.poolData = await getPoolInfo(
         BLAST_CHAIN_ID,
-        MIM_USDB_POOL_ID,
+        this.poolConfig,
         this.account
       );
     },
@@ -152,6 +170,11 @@ export default {
   },
 
   async created() {
+    this.poolConfig = await getPoolConfig(
+      Number(BLAST_CHAIN_ID),
+      MIM_USDB_POOL_ID
+    );
+
     await this.createInfo();
     await this.checkUsdtAmount();
 
