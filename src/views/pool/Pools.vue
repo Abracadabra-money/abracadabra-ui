@@ -23,7 +23,7 @@
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
 import { mapGetters, mapMutations } from "vuex";
-import { PoolConfig } from "@/configs/pools/types";
+import type { PoolConfig } from "@/configs/pools/types";
 import { getPoolsList } from "@/helpers/pools/getPoolsList";
 import { getPoolConfigs } from "@/helpers/pools/getPoolConfigs";
 
