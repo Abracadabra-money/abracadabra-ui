@@ -4,6 +4,8 @@
       :pools="pools"
       :poolsLoading="poolsLoading"
       :tableKeys="tableKeys"
+      ref="poolsTable"
+      @openMobileFiltersPopup="$emit('openMobileFiltersPopup')"
     />
 
     <div class="loader-wrap">
@@ -20,32 +22,16 @@ export default {
   props: {
     poolsLoading: { type: Boolean },
     pools: { type: Array as PropType<MagicLPInfo[]>, required: true },
+    tableKeys: {
+      type: Array,
+      required: true,
+    },
   },
 
-  data() {
-    return {
-      tableKeys: [
-        {
-          tableKey: "Pool name",
-        },
-        {
-          tableKey: "TVL",
-          tooltip: "Total Value Locked.",
-        },
-        {
-          tableKey: "Fee Tier",
-          tooltip: "Fee Tier.",
-        },
-        {
-          tableKey: "Pool type",
-          tooltip: "Pool type.",
-        },
-        {
-          tableKey: "Staking APR",
-          tooltip: "Staking APR.",
-        },
-      ],
-    };
+  methods: {
+    updateSortKeys(key: any, order: any): void {
+      (this.$refs.poolsTable as any).updateSortKeys(key, order);
+    },
   },
 
   components: {
@@ -56,6 +42,8 @@ export default {
       () => import("@/components/base/BaseLoader.vue")
     ),
   },
+
+  expose: ["updateSortKeys"],
 };
 </script>
 

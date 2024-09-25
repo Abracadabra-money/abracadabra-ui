@@ -5,12 +5,7 @@
   >
     <div class="label">{{ poolLabel }}</div>
     <div class="column">
-      <div class="pool-info">
-        <div class="icons-wrap">
-          <img class="pool-icon" :src="pool.icon" />
-        </div>
-        {{ pool.name }}
-      </div>
+      <TokenPair :pool="pool" chainIcon />
     </div>
 
     <div class="column">${{ tvl }}</div>
@@ -28,7 +23,7 @@ import { formatUnits } from "viem";
 import { formatLargeSum, formatPercent } from "@/helpers/filters";
 import { BERA_BARTIO_CHAIN_ID } from "@/constants/global";
 import type { MagicLPInfo } from "@/helpers/pools/swap/types";
-import type { PropType } from "vue";
+import { defineAsyncComponent, type PropType } from "vue";
 import {
   FEE_TIER_DECIMALS,
   PoolTypes,
@@ -96,11 +91,11 @@ export default {
     },
   },
 
-  methods: {},
-
-  // created() {
-  //   console.log(this.pool);
-  // },
+  components: {
+    TokenPair: defineAsyncComponent(
+      () => import("@/components/pools/pool/TokenPair.vue")
+    ),
+  },
 };
 </script>
 
@@ -177,36 +172,14 @@ export default {
 }
 
 .column {
-  max-width: 140px;
+  max-width: 180px;
   width: 100%;
   text-align: center;
 }
 
-.pool-info {
-  width: 160px;
-  display: flex;
-  gap: 20px;
-  align-items: center;
-}
-
-.icons-wrap {
-  position: relative;
-  width: 44px;
-}
-
-.pool-icon {
-  width: 44px;
-  height: 44px;
-}
-
-.chain-icon {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  position: absolute;
-  top: -5px;
-  right: -10px;
-  border: 1px solid #0d1427;
+.token-pair::v-deep(.name) {
+  font-size: 16px !important;
+  font-weight: 400 !important;
 }
 
 .pool-type {

@@ -6,16 +6,11 @@
     <div class="label">{{ poolLabel }}</div>
 
     <div class="row">
-      <div class="pool-info">
-        <div class="icons-wrap">
-          <img class="pool-icon" :src="pool.icon" alt="" />
-        </div>
-        {{ pool.name }}
-      </div>
+      <TokenPair :pool="pool" chainIcon />
       <div>
         <h3 class="title">APR</h3>
         <div class="value apr">
-          ${{ formatLargeSum(pool.statisticsData.tvl) }}
+          {{ poolApr }}
         </div>
       </div>
     </div>
@@ -23,34 +18,20 @@
     <div class="row">
       <div>
         <h3 class="title">TVL</h3>
-        <div class="value">${{ formatLargeSum(pool.statisticsData.tvl) }}</div>
+        <div class="value">${{ tvl }}</div>
       </div>
 
       <div>
-        <h3 class="title">Fees 1d</h3>
+        <h3 class="title">Fees tier</h3>
         <div class="value">
-          ${{ formatLargeSum(pool.statisticsData.dayFees) }}
+          {{ feeTier }}
         </div>
       </div>
 
       <div>
-        <h3 class="title">Volume 1d</h3>
+        <h3 class="title">Pool type</h3>
         <div class="value">
-          ${{ formatLargeSum(pool.statisticsData.dayVolume) }}
-        </div>
-      </div>
-
-      <div>
-        <h3 class="title">Fees 7d</h3>
-        <div class="value">
-          ${{ formatLargeSum(pool.statisticsData.weekFees) }}
-        </div>
-      </div>
-
-      <div>
-        <h3 class="title">Volume 7d</h3>
-        <div class="value">
-          ${{ formatLargeSum(pool.statisticsData.weekVolume) }}
+          {{ poolType }}
         </div>
       </div>
     </div>
@@ -59,8 +40,14 @@
 
 <script lang="ts">
 import { formatUnits } from "viem";
-import { formatLargeSum } from "@/helpers/filters";
+import { formatLargeSum, formatPercent } from "@/helpers/filters";
 import { BERA_BARTIO_CHAIN_ID } from "@/constants/global";
+import {
+  FEE_TIER_DECIMALS,
+  STANDARD_K_VALUE,
+  PoolTypes,
+} from "@/constants/pools/poolCreation";
+import { defineAsyncComponent } from "vue";
 
 export default {
   props: {
@@ -77,6 +64,30 @@ export default {
   },
 
   computed: {
+    tvl() {
+      return formatLargeSum(formatUnits(this.pool.totalSupply, this.decimals));
+    },
+
+    feeTier() {
+      return formatPercent(
+        formatUnits(this.pool.initialParameters.lpFeeRate, FEE_TIER_DECIMALS)
+      );
+    },
+
+    poolType() {
+      return this.pool.initialParameters.K === STANDARD_K_VALUE
+        ? PoolTypes.Standard
+        : PoolTypes.Pegged;
+    },
+
+    poolApr() {
+      return formatPercent(this.pool.poolAPR?.totalApr || 0);
+    },
+
+    decimals() {
+      return this.pool.decimals;
+    },
+
     isOpenPosition() {
       return this.pool.userInfo.balance > 0n;
     },
@@ -107,6 +118,12 @@ export default {
     formatLargeSum(value: bigint) {
       return formatLargeSum(formatUnits(value, 0));
     },
+  },
+
+  components: {
+    TokenPair: defineAsyncComponent(
+      () => import("@/components/pools/pool/TokenPair.vue")
+    ),
   },
 };
 </script>
@@ -233,5 +250,6 @@ export default {
 .value {
   font-size: 14px;
   font-weight: 400;
+  text-transform: capitalize;
 }
 </style>

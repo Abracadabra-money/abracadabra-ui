@@ -2,11 +2,11 @@
   <ul class="pool-table-head">
     <li
       :class="['table-item', { 'pair-name': tableKey == 'Token pair' }]"
-      v-for="{ tableKey, tooltip } in tableKeys"
+      v-for="{ tableKey, tooltip, isSortingCriterion } in tableKeys"
       :key="tableKey"
     >
       <Arrows
-        v-if="tableKey != 'Token pair'"
+        v-if="isSortingCriterion"
         :sortOrder="getSortOrder(tableKey)"
         @click.stop="updateSort(tableKey)"
       />
@@ -47,7 +47,7 @@ export default {
       if (key === this.sortKey) {
         if (!this.sortOrder) this.sortOrder = "up";
         else if (this.sortOrder === "up") this.sortOrder = "down";
-        else if (this.sortOrder === "down") this.sortOrder = false;
+        else if (this.sortOrder === "down") this.sortOrder = null;
       } else {
         this.sortKey = key;
         this.sortOrder = "up";

@@ -164,8 +164,10 @@ export default {
 
       const filteredByPoolType = this.filterByPoolType(filteredByValue);
 
+      const filteredByFeeTier = this.filterByFeeTier(filteredByPoolType);
+
       const sortedByChain = this.sortByKey(
-        filteredByPoolType,
+        filteredByFeeTier,
         this.sortKey,
         this.sortOrder
       );
@@ -310,6 +312,18 @@ export default {
         default:
           return [];
       }
+    },
+
+    filterByFeeTier(pools: MagicLPInfo[]) {
+      return pools.filter(({ initialParameters }) =>
+        this.selectedFeeTiers.some(
+          (feeTier: string) =>
+            feeTier ===
+            formatPercent(
+              formatUnits(initialParameters.lpFeeRate, FEE_TIER_DECIMALS)
+            )
+        )
+      );
     },
 
     sortByNew(pools: MagicLPInfo[]) {
