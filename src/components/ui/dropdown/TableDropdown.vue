@@ -26,7 +26,7 @@
       </svg>
     </button>
 
-    <div class="dropdown-list" ref="dropdownList" v-if="showDropdownList">
+    <div class="dropdown-list" ref="dropdownList" v-show="showDropdownList">
       <div class="select-all">
         <h6 class="list-title">Select all</h6>
         <Toggle :selected="allSelected" @updateToggle="selectAllOptions" />
@@ -68,6 +68,7 @@
 </template>
 
 <script lang="ts">
+import { adjustDropdownPosition } from "@/helpers/ui/adjustDropdownPosition";
 import { defineAsyncComponent, type PropType } from "vue";
 
 export default {
@@ -109,6 +110,8 @@ export default {
     toogleDropdown() {
       if (!this.options.length) return false;
       this.showDropdownList = !this.showDropdownList;
+
+      adjustDropdownPosition(this.$refs.dropdownList as HTMLElement);
     },
 
     closeDropdown() {
@@ -245,12 +248,5 @@ export default {
 
 .checked {
   max-width: 18px;
-}
-
-@media screen and (max-width: 600px) {
-  .dropdown-list {
-    left: inherit;
-    right: 0;
-  }
 }
 </style>
