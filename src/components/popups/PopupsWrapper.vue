@@ -5,10 +5,8 @@
       <CrvStakePopup v-if="popupActiveType === '3crv'" />
 
       <SucessPopup v-if="popupActiveType === 'success'" />
-      <ClaimPopup v-if="popupActiveType === 'claim'" />
       <RouteOptimisationPopup v-if="popupActiveType === 'mglp-route'" />
       <ApprovalsPopup v-if="popupActiveType === 'approvals'" />
-      <BlastLpMigration v-if="popupActiveType === 'mlp-migration'" />
     </div>
   </div>
 </template>
@@ -33,17 +31,11 @@ export default {
     SucessPopup: defineAsyncComponent(() =>
       import("@/components/popups/SuccessPopup.vue")
     ),
-    ClaimPopup: defineAsyncComponent(() =>
-      import("@/components/popups/ClaimPopup.vue")
-    ),
     RouteOptimisationPopup: defineAsyncComponent(() =>
       import("@/components/popups/RouteOptimisationPopup.vue")
     ),
     ApprovalsPopup: defineAsyncComponent(() =>
       import("@/components/popups/ApprovalsPopup.vue")
-    ),
-    BlastLpMigration: defineAsyncComponent(() =>
-      import("@/components/popups/migration/BlastLpMigration.vue")
     ),
   },
 };

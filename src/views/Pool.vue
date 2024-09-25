@@ -7,19 +7,17 @@
     <div class="pool">
       <PoolActionBlock
         :pool="pool"
-        :pointsStatistics="pointsStatistics"
         :isUserPositionOpen="isUserPositionOpen"
         @getPoolInfo="getPoolInfo"
         @openPositionPopup="isMyPositionPopupOpened = true"
       />
 
-      <PoolComposition :pool="this.pool" />
+      <PoolComposition :pool="pool" />
     </div>
 
     <div class="pool-position-wrap">
       <PoolPosition
         :pool="pool"
-        :pointsStatistics="pointsStatistics"
         :isMyPositionPopupOpened="isMyPositionPopupOpened"
         @closePopup="isMyPositionPopupOpened = false"
         @updateInfo="getPoolInfo"
@@ -34,10 +32,6 @@ import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
 import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
 import { getPoolTvlPieChartOption } from "@/helpers/pools/charts/getPoolTvlPieChartOption";
-import {
-  fetchUserPointsStatistics,
-  fetchPointsStatistics,
-} from "@/helpers/blast/stake/points";
 
 export default {
   props: {
@@ -48,11 +42,6 @@ export default {
   data() {
     return {
       pool: null,
-      pointsStatistics: {
-        user: null,
-        global: null,
-      },
-      userPointsStatistics: null,
       isMyPositionPopupOpened: false,
       poolsTimer: null,
       chartOption: null,
@@ -76,9 +65,7 @@ export default {
       const hasUnlocked = this.pool?.lockInfo?.balances.unlocked > 0n;
       const hasStaked = this.pool?.stakeInfo?.balance > 0n;
 
-      return (
-        this.account && (hasLp || hasLocked || hasUnlocked || hasStaked)
-      );
+      return this.account && (hasLp || hasLocked || hasUnlocked || hasStaked);
     },
   },
 
@@ -87,7 +74,6 @@ export default {
       immediate: true,
       async handler() {
         await this.getPoolInfo();
-        await this.getPointsStatistics();
       },
     },
 
@@ -107,23 +93,10 @@ export default {
         this.account
       );
     },
-
-    async getPointsStatistics() {
-      const { isPointsLogic } = this.pool?.settings || {};
-
-      if (!isPointsLogic) return;
-
-      [this.pointsStatistics.global, this.pointsStatistics.user] =
-        await Promise.all([
-          fetchPointsStatistics(),
-          fetchUserPointsStatistics(this.account),
-        ]);
-    },
   },
 
   async created() {
     await this.getPoolInfo();
-    await this.getPointsStatistics();
 
     this.chartOption = this.showTvlChart
       ? await getPoolTvlPieChartOption(this.pool)

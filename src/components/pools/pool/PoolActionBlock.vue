@@ -44,7 +44,6 @@
 
     <DepositStakeWrap
       :pool="pool"
-      :pointsStatistics="pointsStatistics"
       :slippage="slippage"
       :deadline="deadline"
       @updatePoolInfo="$emit('getPoolInfo')"
@@ -65,7 +64,6 @@ export const actionStatus = {
 export default {
   props: {
     pool: { type: Object },
-    pointsStatistics: { type: Object },
     isUserPositionOpen: { type: Boolean, default: false },
   },
 

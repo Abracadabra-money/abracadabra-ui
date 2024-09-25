@@ -11,13 +11,11 @@
       src="@/assets/images/main-mim-bottom-bg.png"
       alt="Mim"
     />
-    <LiquidityLaunchEventBanner />
     <MlpMigrationBanner />
     <router-view />
   </div>
   <NotificationContainer />
   <PopupsWrapper />
-  <Banner />
   <SkullBanner />
   <OldAllowanceBanner />
   <TenderlyMod />
@@ -60,13 +58,6 @@ export default {
     ...mapGetters({
       signer: "getSigner",
     }),
-
-    pageBackground() {
-      if (this.$route.name === "BlastOnboarding") {
-        return "background:#14182C";
-      }
-      return "";
-    },
   },
 
   async beforeCreate() {
@@ -105,7 +96,6 @@ export default {
     PopupsWrapper: defineAsyncComponent(() =>
       import("@/components/popups/PopupsWrapper.vue")
     ),
-    Banner: defineAsyncComponent(() => import("@/components/ui/Banner.vue")),
     MlpMigrationBanner: defineAsyncComponent(() =>
       import("@/components/ui/MlpMigrationBanner.vue")
     ),
@@ -117,9 +107,6 @@ export default {
     ),
     TenderlyMod: defineAsyncComponent(() =>
       import("@/components/tenderly/TenderlyMod.vue")
-    ),
-    LiquidityLaunchEventBanner: defineAsyncComponent(() =>
-      import("@/components/blastOnboarding/LiquidityLaunchEventBanner.vue")
     ),
   },
 };
