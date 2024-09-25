@@ -12,6 +12,7 @@
   />
 
   <NetworkPopup
+    v-if="isOpenNetworkPopup"
     :activeChain="chainId"
     :networksArr="networksArr"
     :isOpen="isOpenNetworkPopup"

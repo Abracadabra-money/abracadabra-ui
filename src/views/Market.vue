@@ -1,70 +1,72 @@
 <template>
-  <div class="market-view">
-    <template v-if="cauldron">
-      <MarketHead :cauldron="cauldron" v-if="cauldron" />
+  <div>
+    <div class="market-view">
+      <template v-if="cauldron">
+        <MarketHead :cauldron="cauldron" v-if="cauldron" />
 
-      <div class="top-row">
-        <template v-if="!hideActions">
-          <Tabs :name="activeTab" :items="tabItems" @select="changeTab" />
-        </template>
+        <div class="top-row">
+          <template v-if="!hideActions">
+            <Tabs :name="activeTab" :items="tabItems" @select="changeTab" />
+          </template>
 
-        <template v-if="!hidePositions">
-          <PositionHealth v-if="isOpenPosition" :cauldron="cauldron" />
-        </template>
-      </div>
-
-      <div class="market-info">
-        <div class="form-wrap" v-show="!hideActions">
-          <BorrowForm
-            v-if="isBorrowTab"
-            :cauldron="cauldron"
-            :actionConfig="actionConfig"
-            @updateMarket="createCauldronInfo"
-            @updateToggle="onUpdateToggle"
-            @updateAmounts="onUpdateAmounts"
-            @clearData="resetAmounts"
-          />
-
-          <RepayForm
-            v-if="isRepayTab"
-            :cauldron="cauldron"
-            :actionConfig="actionConfig"
-            @updateToggle="onUpdateToggle"
-            @updateAmounts="onUpdateAmounts"
-            @updateMarket="createCauldronInfo"
-            @clearData="resetAmounts"
-          />
+          <template v-if="!hidePositions">
+            <PositionHealth v-if="isOpenPosition" :cauldron="cauldron" />
+          </template>
         </div>
 
-        <template v-if="!hidePositions">
-          <PositionInfo
-            :cauldron="cauldron"
-            :actionType="activeTab"
-            :actionConfig="actionConfig"
-          />
-        </template>
+        <div class="market-info">
+          <div class="form-wrap" v-show="!hideActions">
+            <BorrowForm
+              v-if="isBorrowTab"
+              :cauldron="cauldron"
+              :actionConfig="actionConfig"
+              @updateMarket="createCauldronInfo"
+              @updateToggle="onUpdateToggle"
+              @updateAmounts="onUpdateAmounts"
+              @clearData="resetAmounts"
+            />
 
-        <template v-if="!hideCauldronInfo">
-          <CauldronInfo :cauldron="cauldron" />
-        </template>
+            <RepayForm
+              v-if="isRepayTab"
+              :cauldron="cauldron"
+              :actionConfig="actionConfig"
+              @updateToggle="onUpdateToggle"
+              @updateAmounts="onUpdateAmounts"
+              @updateMarket="createCauldronInfo"
+              @clearData="resetAmounts"
+            />
+          </div>
+
+          <template v-if="!hidePositions">
+            <PositionInfo
+              :cauldron="cauldron"
+              :actionType="activeTab"
+              :actionConfig="actionConfig"
+            />
+          </template>
+
+          <template v-if="!hideCauldronInfo">
+            <CauldronInfo :cauldron="cauldron" />
+          </template>
+        </div>
+      </template>
+
+      <div class="loader-wrap" v-else>
+        <BaseLoader large text="Loading market" />
       </div>
-    </template>
-
-    <div class="loader-wrap" v-else>
-      <BaseLoader large text="Loading market" />
     </div>
-  </div>
 
-  <div class="mobile-navigation" v-if="cauldron">
-    <div
-      class="nav-item"
-      v-for="tab in mobileTabs"
-      :key="`mobileTab=${tab.id}`"
-      :class="{ active: tab.id === currentMobileTab }"
-      @click="currentMobileTab = tab.id"
-    >
-      <img :class="{ mini: tab.id !== 0 }" :src="tab.icon" alt="" />
-      <p>{{ tab.text }}</p>
+    <div class="mobile-navigation" v-if="cauldron">
+      <div
+        class="nav-item"
+        v-for="tab in mobileTabs"
+        :key="`mobileTab=${tab.id}`"
+        :class="{ active: tab.id === currentMobileTab }"
+        @click="currentMobileTab = tab.id"
+      >
+        <img :class="{ mini: tab.id !== 0 }" :src="tab.icon" alt="" />
+        <p>{{ tab.text }}</p>
+      </div>
     </div>
   </div>
 </template>

@@ -12,7 +12,11 @@
       alt="Mim"
     />
     <MlpMigrationBanner />
-    <router-view />
+    <router-view v-slot="{ Component }">
+      <Transition name="fade" mode="out-in">
+        <component :is="Component" />
+      </Transition>
+    </router-view>
   </div>
   <NotificationContainer />
   <PopupsWrapper />
@@ -113,4 +117,14 @@ export default {
 };
 </script>
 
-<style lang="scss" src="@/assets/styles/main.scss"></style>
+<style lang="scss" src="@/assets/styles/main.scss">
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease-out;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

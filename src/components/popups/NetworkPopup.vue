@@ -1,40 +1,61 @@
 <template>
-  <div class="popup-wrap" @click.self="closePopup" v-if="isOpen">
-    <div class="popup">
-      <h3 class="title">
-        Select Chain
-        <img
-          class="popup-close"
-          @click="closePopup"
-          src="@/assets/images/cross.svg"
-          alt="Close popup"
-        />
-      </h3>
-      <div class="content-wrap">
-        <div
-          class="select-item"
-          v-for="(network, inx) in networksArr"
-          :key="inx"
-          @click="switchHandler(network.chainId)"
-        >
-          <div class="description">
-            <div class="chain-icon-wrap">
-              <img
-                class="current-chain-marker"
-                src="@/assets/images/beam/current-chain-marker.png"
-                v-if="network.chainId == activeChain"
-              />
-              <img class="chain-icon" :src="network.networkIcon" alt="Icon" />
+  <Transition
+    @before-enter="setFade"
+    @enter="fadeIn"
+    @leave="fadeOut"
+    :css="false"
+  >
+    <div class="popup-wrap" @click.self="closePopup" v-if="isOpen">
+      <Transition
+        @before-enter="setScale"
+        @enter="scaleIn"
+        @leave="scaleOut"
+        :css="false"
+        appear
+      >
+        <div class="popup" v-if="isOpen">
+          <h3 class="title">
+            Select Chain
+            <img
+              class="popup-close"
+              @click="closePopup"
+              src="@/assets/images/cross.svg"
+              alt="Close popup"
+            />
+          </h3>
+          <div class="content-wrap">
+            <div
+              class="select-item"
+              v-for="(network, inx) in networksArr"
+              :key="inx"
+              @click="switchHandler(network.chainId)"
+            >
+              <div class="description">
+                <div class="chain-icon-wrap">
+                  <img
+                    class="current-chain-marker"
+                    src="@/assets/images/beam/current-chain-marker.png"
+                    v-if="network.chainId == activeChain"
+                  />
+                  <img
+                    class="chain-icon"
+                    :src="network.networkIcon"
+                    alt="Icon"
+                  />
+                </div>
+                <p class="chain-title">{{ network.chainName }}</p>
+              </div>
             </div>
-            <p class="chain-title">{{ network.chainName }}</p>
           </div>
         </div>
-      </div>
+      </Transition>
     </div>
-  </div>
+  </Transition>
 </template>
 
 <script>
+import { setFade, fadeIn, fadeOut } from "@/helpers/animations/simple/fade";
+import { setScale, scaleIn, scaleOut } from "@/helpers/animations/simple/scale";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 
 export default {
@@ -58,6 +79,13 @@ export default {
   },
 
   methods: {
+    setFade,
+    fadeIn,
+    fadeOut,
+    setScale,
+    scaleIn,
+    scaleOut,
+
     closePopup() {
       this.$emit("closePopup");
     },

@@ -5,39 +5,46 @@
       :width="26"
       :height="26"
       padding="4px"
-      @click="() => (showPopup = !showPopup)"
+      @click="togglePopup"
     />
 
-    <div class="slippage-popup" v-if="showPopup">
-      <div class="title-wrap">
-        <h3>Slippage settings</h3>
+    <Transition
+      @before-enter="setScale"
+      @enter="scaleIn"
+      @leave="scaleOut"
+      :css="false"
+    >
+      <div class="slippage-popup" v-if="showPopup" ref="popup">
+        <div class="title-wrap">
+          <h3>Slippage settings</h3>
 
-        <TooltipIcon
-          :width="24"
-          :height="24"
-          tooltip="Transaction will revert if the leveraged amount changes by this percent."
-        />
+          <TooltipIcon
+            :width="24"
+            :height="24"
+            tooltip="Transaction will revert if the leveraged amount changes by this percent."
+          />
+        </div>
+
+        <div class="row">
+          <input
+            class="input"
+            v-model="inputValue"
+            min="0"
+            max="100"
+            step="1"
+            type="text"
+            placeholder="1 - 100"
+          />
+
+          <button
+            :class="['auto-button', { active: isActiveAutoButton }]"
+            @click="getDefaultSlippage"
+          >
+            Auto
+          </button>
+        </div>
       </div>
-
-      <div class="row">
-        <input
-          class="input"
-          v-model="inputValue"
-          min="0"
-          max="100"
-          step="1"
-          type="text"
-          placeholder="1 - 100"
-        />
-
-        <button
-          :class="['auto-button', { active: isActiveAutoButton }]"
-          @click="getDefaultSlippage"
-        >
-          Auto
-        </button>
-      </div>
-    </div>
+    </Transition>
   </div>
 </template>
 <script lang="ts">
@@ -45,6 +52,7 @@ import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { formatToFixed } from "@/helpers/filters";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
+import { setScale, scaleIn, scaleOut } from "@/helpers/animations/simple/scale";
 
 export default {
   props: {
@@ -86,6 +94,10 @@ export default {
   },
 
   methods: {
+    setScale,
+    scaleIn,
+    scaleOut,
+
     getDefaultSlippage() {
       this.inputValue = this.getFormattedAmount(this.defaultAmount);
     },
@@ -93,6 +105,10 @@ export default {
     getFormattedAmount(amount: BigNumber) {
       const parsedAmount = utils.formatUnits(amount, PERCENT_PRESITION);
       return Number(formatToFixed(parsedAmount, PERCENT_PRESITION));
+    },
+
+    togglePopup() {
+      this.showPopup = !this.showPopup;
     },
 
     closePopup() {

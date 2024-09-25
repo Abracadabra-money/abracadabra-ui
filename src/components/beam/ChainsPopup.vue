@@ -1,5 +1,5 @@
 <template>
-  <div class="popup" v-if="isOpen" @click="closePopup">
+  <div class="popup" @click="closePopup">
     <h3 class="title">
       Select {{ popupTitle }} chain
       <img
@@ -35,12 +35,9 @@
 <script lang="ts">
 import type { PropType } from "vue";
 import type { BeamInfo, BeamConfig } from "@/helpers/beam/types";
+
 export default {
   props: {
-    isOpen: {
-      type: Boolean,
-      default: false,
-    },
     popupType: {
       type: String as PropType<"from" | "to">,
     },
@@ -70,22 +67,22 @@ export default {
       }
     },
     activeChainId() {
-      if(this.popupType == "from") {
+      if (this.popupType == "from") {
         return this.selectedFromChain?.chainId;
       } else {
         return this.selectedToChain?.chainId;
       }
-    }
+    },
   },
 
   methods: {
-    closePopup() {
-      this.$emit("closePopup");
-    },
-
     onChainClick(chainId: number) {
       this.$emit("changeChain", chainId, this.popupType);
       this.closePopup();
+    },
+
+    closePopup() {
+      this.$emit("closePopup");
     },
   },
 };
