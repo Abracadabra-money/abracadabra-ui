@@ -3,8 +3,20 @@
     <div class="pools-container">
       <PoolsInfo :pools="pools" />
 
-      <PoolsList :pools="pools" :poolsLoading="poolsLoading" />
+      <PoolsList
+        :pools="pools"
+        :tableKeys="tableKeys"
+        :poolsLoading="poolsLoading"
+        @openMobileFiltersPopup="isFiltersPopupOpened = true"
+        ref="poolsList"
+      />
     </div>
+    <FiltersPopup
+      v-if="isFiltersPopupOpened"
+      :sortersData="tableKeys"
+      @updateSortKey="updateSortKey"
+      @close="isFiltersPopupOpened = false"
+    />
   </div>
 </template>
 
@@ -21,6 +33,31 @@ export default {
       pools: [] as any[],
       poolsLoading: true,
       poolConfigs: [] as PoolConfig[],
+      tableKeys: [
+        {
+          tableKey: "Pool name",
+        },
+        {
+          tableKey: "TVL",
+          tooltip: "Total Value Locked.",
+          isSortingCriterion: true,
+        },
+        {
+          tableKey: "Fee Tier",
+          tooltip: "Fee Tier.",
+          isSortingCriterion: true,
+        },
+        {
+          tableKey: "Pool type",
+          tooltip: "Pool type.",
+        },
+        {
+          tableKey: "Staking APR",
+          tooltip: "Staking APR.",
+          isSortingCriterion: true,
+        },
+      ],
+      isFiltersPopupOpened: false,
       updateInterval: null as NodeJS.Timeout | null,
     };
   },
@@ -50,6 +87,10 @@ export default {
 
       this.setPoolsList(this.pools);
     },
+
+    updateSortKey(key: any, order: any): void {
+      (this.$refs.poolsList as any).updateSortKeys(key, order);
+    },
   },
 
   async created() {
@@ -72,6 +113,9 @@ export default {
     ),
     PoolsList: defineAsyncComponent(
       () => import("@/components/pools/PoolsList.vue")
+    ),
+    FiltersPopup: defineAsyncComponent(
+      () => import("@/components/myPositions/FiltersPopup.vue")
     ),
   },
 };

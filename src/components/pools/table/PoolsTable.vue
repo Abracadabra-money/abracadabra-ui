@@ -2,16 +2,49 @@
   <div class="pools-table-wrap">
     <div class="additional-logic">
       <div class="toggles-wrap">
-        <Tabs :name="activeTab" :items="tabItems" @select="changeTab" />
+        <Toggle
+          text="My pools"
+          :selected="showMyPools"
+          @updateToggle="updateToggleMyPools"
+        />
+
+        <Toggle
+          text="Rewards available"
+          :selected="showAvailableRewardsPools"
+          @updateToggle="updateAvailableRewardsPools"
+        />
       </div>
 
-      <ChainsDropdown
-        class="chains-dropdown"
-        :activeChains="activeChains"
-        :selectedChains="selectedChains"
-        @updateSelectedChain="updateSelectedChain"
-        @selectAllChains="selectAllChains"
-      />
+      <div class="dropdowns-wrap">
+        <TableDropdown
+          title="Pool type"
+          :options="poolTypesOptions"
+          :selectedOptions="selectedPoolTypes"
+          @updateSelectedOption="
+            (poolType) => updateSelectedOptions(selectedPoolTypes, poolType)
+          "
+          @selectAllOptions="
+            selectAllOptions(poolTypesOptions, selectedPoolTypes)
+          "
+        />
+
+        <TableDropdown
+          title="Fee tier"
+          :options="feeTierOptions"
+          :selectedOptions="selectedFeeTiers"
+          @updateSelectedOption="
+            (feeTier) => updateSelectedOptions(selectedFeeTiers, feeTier)
+          "
+          @selectAllOptions="selectAllOptions(feeTierOptions, selectedFeeTiers)"
+        />
+
+        <ChainsDropdown
+          :activeChains="activeChains"
+          :selectedChains="selectedChains"
+          @updateSelectedChain="updateSelectedChain"
+          @selectAllChains="selectAllChains"
+        />
+      </div>
 
       <button class="filters" @click="$emit('openMobileFiltersPopup')">
         <img class="filters-icon" src="@/assets/images/filters.png" />
@@ -31,6 +64,7 @@
             :pool="pool"
           />
         </div>
+
         <div class="card-wrapper">
           <PoolCardItem
             v-for="(pool, index) in poolsToRender"
@@ -46,6 +80,7 @@
             text="There are no pools"
           />
         </div>
+
         <div class="btn-wrap" v-if="showDeprecatedButton">
           <button class="deprecated-btn" @click="updateToggleActivepools">
             {{ deprecatedButtonText }}
@@ -56,14 +91,25 @@
   </div>
 </template>
 
-<script>
-import { defineAsyncComponent } from "vue";
-import { ARBITRUM_CHAIN_ID } from "@/constants/global.ts";
+<script lang="ts">
+import { defineAsyncComponent, type PropType } from "vue";
+import { ARBITRUM_CHAIN_ID } from "@/constants/global";
+import {
+  FEE_TIER_DECIMALS,
+  PoolTypes,
+  STANDARD_K_VALUE,
+} from "@/constants/pools/poolCreation";
+import { formatPercent } from "@/helpers/filters";
+import type { MagicLPInfo } from "@/helpers/pools/swap/types";
+import { formatUnits } from "viem";
+import type { SortOrder } from "@/types/common";
+
+const poolTypesArray = [PoolTypes.Standard, PoolTypes.Pegged];
 
 export default {
   props: {
     pools: {
-      type: Array,
+      type: Array as PropType<MagicLPInfo[]>,
       required: true,
     },
     poolsLoading: { type: Boolean },
@@ -75,13 +121,16 @@ export default {
 
   data() {
     return {
-      activeTab: "All pools",
-      tabItems: ["All pools", "My pools", "MIM pools"],
       searchValue: "",
       showActivePools: true,
+      showMyPools: false,
+      showAvailableRewardsPools: false,
       sortKey: "",
-      sortOrder: false,
-      selectedChains: [],
+      sortOrder: "up" as SortOrder,
+      selectedChains: [] as number[],
+      poolTypesOptions: [...poolTypesArray],
+      selectedPoolTypes: [...poolTypesArray],
+      selectedFeeTiers: [] as string[],
       isFiltersPopupOpened: false,
     };
   },
@@ -92,11 +141,7 @@ export default {
     },
 
     showEmptyBlock() {
-      return (
-        !this.poolsLoading &&
-        !this.poolsToRender.length &&
-        this.searchValue.length
-      );
+      return !this.poolsLoading && !this.poolsToRender.length;
     },
 
     poolsToRender() {
@@ -104,21 +149,25 @@ export default {
         this.pools,
         this.selectedChains
       );
+
       const filteredByDepreciate = this.filterByActivepools(filteredByChain);
 
-      const filteredByTab = this.filterByTab(filteredByDepreciate);
+      const filteredByPositions = this.filterPositions(filteredByDepreciate);
 
-      const sortedByNew = this.sortByNew(filteredByTab);
-
-      // TODO
-      const sortedByTesting = this.sortByTesting(filteredByTab);
+      const filteredByAvailableRewards =
+        this.filterByAvailableRewards(filteredByPositions);
 
       const filteredByValue = this.filterBySearchValue(
-        sortedByTesting,
+        filteredByAvailableRewards,
         this.searchValue
       );
+
+      const filteredByPoolType = this.filterByPoolType(filteredByValue);
+
+      const filteredByFeeTier = this.filterByFeeTier(filteredByPoolType);
+
       const sortedByChain = this.sortByKey(
-        filteredByValue,
+        filteredByFeeTier,
         this.sortKey,
         this.sortOrder
       );
@@ -130,8 +179,15 @@ export default {
       return this.getActiveChain();
     },
 
+    feeTierOptions() {
+      return this.getFeeTierOptions();
+    },
+
     showDeprecatedButton() {
-      return this.poolsToRender.length;
+      const hasDeprecatedPool = this.poolsToRender.some(
+        (pool: MagicLPInfo) => pool.settings.isDeprecated
+      );
+      return this.poolsToRender.length && hasDeprecatedPool;
     },
 
     deprecatedButtonText() {
@@ -151,12 +207,20 @@ export default {
       this.showActivePools = !this.showActivePools;
     },
 
-    updateSortKeys(key, order) {
+    updateToggleMyPools() {
+      this.showMyPools = !this.showMyPools;
+    },
+
+    updateAvailableRewardsPools() {
+      this.showAvailableRewardsPools = !this.showAvailableRewardsPools;
+    },
+
+    updateSortKeys(key: string, order: SortOrder) {
       this.sortKey = key;
       this.sortOrder = order;
     },
 
-    updateSearch(value) {
+    updateSearch(value: string) {
       this.searchValue = value.toLowerCase();
     },
 
@@ -165,7 +229,7 @@ export default {
       else this.selectedChains = [...this.activeChains];
     },
 
-    updateSelectedChain(chainId) {
+    updateSelectedChain(chainId: number) {
       if (this.allChainsSelected) this.selectAllChains();
 
       const index = this.selectedChains.indexOf(chainId);
@@ -173,14 +237,29 @@ export default {
       else this.selectedChains.splice(index, 1);
     },
 
-    filterByChain(pools, selectedChains) {
+    selectAllOptions(allOptions: string[], selectedOptions: string[]) {
+      if (allOptions.length === selectedOptions.length)
+        selectedOptions.splice(0);
+      else {
+        selectedOptions.splice(0);
+        selectedOptions.push(...allOptions);
+      }
+    },
+
+    updateSelectedOptions(selectedOptions: string[], newOption: string) {
+      const index = selectedOptions.indexOf(newOption);
+      if (index === -1) selectedOptions.push(newOption);
+      else selectedOptions.splice(index, 1);
+    },
+
+    filterByChain(pools: MagicLPInfo[], selectedChains: number[]) {
       if (this.allChainsSelected) return pools;
       return pools.filter((pool) => {
         return selectedChains.includes(pool.chainId);
       });
     },
 
-    filterByActivepools(pools) {
+    filterByActivepools(pools: MagicLPInfo[]) {
       if (this.showActivePools) {
         return pools.filter((pool) => {
           return !pool.settings.isDeprecated;
@@ -194,58 +273,69 @@ export default {
           return +settingsA?.isDeprecated - +settingsB?.isDeprecated;
         }
 
-        return a;
+        return 1;
       });
     },
 
-    filterByTab(pools) {
-      if (this.activeTab == "My pools") return this.filterPositions(pools);
-      if (this.activeTab == "MIM pools") return this.filterIsMim(pools);
+    filterPositions(pools: MagicLPInfo[]) {
+      if (this.showMyPools)
+        return pools.filter(({ userInfo }) => userInfo.balance > 0n);
       return pools;
     },
 
-    filterIsMim(pools) {
-      return pools.filter((config) => config.settings.isMim);
+    filterByAvailableRewards(pools: MagicLPInfo[]) {
+      if (this.showAvailableRewardsPools)
+        return pools.filter(
+          ({ rewardTokens }) => (rewardTokens || []).length > 0
+        );
+      return pools;
     },
 
-    filterPositions(pools) {
-      return pools.filter(({ userInfo }) => {
-        return userInfo.balance > 0n;
-      });
-    },
-
-    filterBySearchValue(pools, value) {
+    filterBySearchValue(pools: MagicLPInfo[], value: string) {
       return pools.filter(
         (config) => config.name.toLowerCase().indexOf(value) !== -1
       );
     },
 
-    sortByNew(pools) {
+    filterByPoolType(pools: MagicLPInfo[]) {
+      if (this.selectedPoolTypes.length === 2) return pools;
+
+      switch (this.selectedPoolTypes[0]) {
+        case PoolTypes.Standard:
+          return pools.filter(
+            ({ initialParameters }) => initialParameters.K === STANDARD_K_VALUE
+          );
+        case PoolTypes.Pegged:
+          return pools.filter(
+            ({ initialParameters }) => initialParameters.K !== STANDARD_K_VALUE
+          );
+        default:
+          return [];
+      }
+    },
+
+    filterByFeeTier(pools: MagicLPInfo[]) {
+      return pools.filter(({ initialParameters }) =>
+        this.selectedFeeTiers.some(
+          (feeTier: string) =>
+            feeTier ===
+            formatPercent(
+              formatUnits(initialParameters.lpFeeRate, FEE_TIER_DECIMALS)
+            )
+        )
+      );
+    },
+
+    sortByNew(pools: MagicLPInfo[]) {
       return pools.sort((a, b) => {
         const isNewA = +!!a?.config?.settings?.isNew;
         const isNewB = +!!b?.config?.settings?.isNew;
         if (isNewA || isNewB) return isNewB - isNewA;
-        return a;
+        return 1;
       });
     },
 
-    sortByTesting(pools) {
-      return pools.sort((a, b) => {
-        const isNewA = +!!a?.settings?.isNew;
-        const isTestingA = +!!a?.settings?.isTesting;
-
-        const isNewB = +!!b?.settings?.isNew;
-        const isTestingB = +!!b?.settings?.isTesting;
-
-        if (isTestingB && isNewA) {
-          return -1;
-        }
-
-        return 0;
-      });
-    },
-
-    sortByKey(pools, key, sortOrder) {
+    sortByKey(pools: MagicLPInfo[], key: string, sortOrder: SortOrder) {
       if (!key || !sortOrder) return pools;
       return pools.sort((poolA, poolB) => {
         const a = this.getSortKey(poolA, key);
@@ -256,53 +346,72 @@ export default {
       });
     },
 
-    getSortKey(pool, key) {
-      if (key === "TVL") return pool.mainParams.tvl;
-      if (key === "Fees 1d") return pool.mainParams.dayFees;
-      if (key === "Volume 1d") return pool.mainParams.dayVolume;
-      if (key === "Fees 7d") return pool.mainParams.weekFees;
-      if (key === "Volume 7d") return pool.mainParams.weekFees;
-      if (key === "APR") return pool.mainParams.apr;
+    getSortKey(pool: MagicLPInfo, key: string) {
+      switch (key) {
+        case "Fee Tier":
+          return pool.initialParameters.lpFeeRate;
+        case "Staking APR":
+          return pool.poolAPR?.totalApr || 0;
+        default:
+          return pool.totalSupply;
+      }
     },
 
     getActiveChain() {
       return this.pools
-        .reduce((acc, config) => {
-          if (!acc.includes(config.chainId)) acc.push(config.chainId);
+        .reduce((acc: number[], pool: MagicLPInfo) => {
+          if (!acc.includes(pool.chainId)) acc.push(pool.chainId);
           return acc;
-        }, [])
-        .sort((a, b) => {
+        }, [] as number[])
+        .sort((a: number, b: number) => {
           return a >= ARBITRUM_CHAIN_ID || b <= ARBITRUM_CHAIN_ID ? -1 : 1;
         });
     },
 
-    changeTab(action) {
-      this.activeTab = action;
+    getFeeTierOptions() {
+      const feeTierOptions =
+        this.pools
+          .reduce((acc, { initialParameters }) => {
+            if (!acc.includes(initialParameters.lpFeeRate))
+              acc.push(initialParameters.lpFeeRate);
+            return acc;
+          }, [] as bigint[])
+          .sort()
+          .map((feeTier: bigint) =>
+            formatPercent(formatUnits(feeTier, FEE_TIER_DECIMALS))
+          ) || ([] as string[]);
+
+      this.selectedFeeTiers = [...feeTierOptions];
+
+      return [...feeTierOptions];
     },
   },
 
   components: {
-    Tabs: defineAsyncComponent(() => import("@/components/ui/Tabs.vue")),
-    ChainsDropdown: defineAsyncComponent(() =>
-      import("@/components/ui/dropdown/ChainsDropdown.vue")
+    Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
+    TableDropdown: defineAsyncComponent(
+      () => import("@/components/ui/dropdown/TableDropdown.vue")
     ),
-    InputSearch: defineAsyncComponent(() =>
-      import("@/components/ui/inputs/InputSearch.vue")
+    ChainsDropdown: defineAsyncComponent(
+      () => import("@/components/ui/dropdown/ChainsDropdown.vue")
     ),
-    PoolsTableHead: defineAsyncComponent(() =>
-      import("@/components/pools/table/PoolsTableHead.vue")
+    InputSearch: defineAsyncComponent(
+      () => import("@/components/ui/inputs/InputSearch.vue")
     ),
-    PoolsTableItem: defineAsyncComponent(() =>
-      import("@/components/pools/table/PoolsTableItem.vue")
+    PoolsTableHead: defineAsyncComponent(
+      () => import("@/components/pools/table/PoolsTableHead.vue")
     ),
-    PoolCardItem: defineAsyncComponent(() =>
-      import("@/components/pools/table/PoolCardItem.vue")
+    PoolsTableItem: defineAsyncComponent(
+      () => import("@/components/pools/table/PoolsTableItem.vue")
     ),
-    BaseLoader: defineAsyncComponent(() =>
-      import("@/components/base/BaseLoader.vue")
+    PoolCardItem: defineAsyncComponent(
+      () => import("@/components/pools/table/PoolCardItem.vue")
     ),
-    BaseSearchEmpty: defineAsyncComponent(() =>
-      import("@/components/base/BaseSearchEmpty.vue")
+    BaseLoader: defineAsyncComponent(
+      () => import("@/components/base/BaseLoader.vue")
+    ),
+    BaseSearchEmpty: defineAsyncComponent(
+      () => import("@/components/base/BaseSearchEmpty.vue")
     ),
   },
 
@@ -354,7 +463,11 @@ export default {
   position: relative;
 }
 
-.chains-dropdown {
+.dropdowns-wrap {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
   margin-left: auto;
 }
 
@@ -472,7 +585,7 @@ export default {
     width: 100%;
   }
 
-  .chains-dropdown {
+  .dropdowns-wrap {
     order: 2;
     margin-left: 0;
   }

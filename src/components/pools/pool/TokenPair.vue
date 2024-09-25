@@ -13,6 +13,12 @@
         :name="quoteTokenConfig.name"
         size="46px"
       />
+      <img
+        class="chain-icon"
+        :src="getChainIcon(pool.chainId)"
+        alt="Chain icon"
+        v-if="chainIcon"
+      />
     </div>
 
     <div class="pair-info">
@@ -25,10 +31,12 @@
 
 <script>
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
+import { getChainIcon } from "@/helpers/chains/getChainIcon";
 
 export default {
   props: {
     pool: { type: Object },
+    chainIcon: Boolean,
   },
 
   computed: {
@@ -41,7 +49,7 @@ export default {
     },
   },
 
-  methods: {},
+  methods: { getChainIcon },
 
   components: { BaseTokenIcon },
 };
@@ -54,6 +62,7 @@ export default {
 }
 
 .token-icons {
+  position: relative;
   display: flex;
   align-items: center;
 }
@@ -68,6 +77,16 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: start;
+}
+
+.chain-icon {
+  position: absolute;
+  top: -5px;
+  right: 5px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid #0d1427;
 }
 
 .title {

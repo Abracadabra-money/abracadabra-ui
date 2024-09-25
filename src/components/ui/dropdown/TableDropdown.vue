@@ -1,23 +1,7 @@
 <template>
   <div class="dropdown" v-click-outside="closeDropdown">
     <button class="dropdown-btn" @click="toogleDropdown">
-      Chains
-      <div
-        :class="[
-          'selected-chains',
-          { 'chains-list': selectedChains.length > 3 },
-        ]"
-        :style="chainsStyle"
-      >
-        <img
-          class="selected-chain-icon"
-          v-for="id in chains"
-          :key="id"
-          :src="getChainIcon(id)"
-        />
-        <div class="count">{{ selectedChains.length - 3 }}+</div>
-      </div>
-
+      {{ title }}
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"
@@ -45,34 +29,24 @@
     <div class="dropdown-list" ref="dropdownList" v-show="showDropdownList">
       <div class="select-all">
         <h6 class="list-title">Select all</h6>
-        <Toggle
-          :selected="allSelected"
-          @updateToggle="$emit('selectAllChains')"
-        />
+        <Toggle :selected="allSelected" @updateToggle="selectAllOptions" />
       </div>
 
-      <div
-        class="list-item"
-        v-for="chainId in orderedActiveChains"
-        :key="chainId"
-      >
-        <div class="chain-info">
-          <img class="chain-icon" :src="getChainIcon(+chainId)" alt="" />
-          <span class="chain-name">{{ getChainName(+chainId) }}</span>
-        </div>
+      <div class="list-item" v-for="(option, index) in options" :key="index">
+        <span class="option">{{ option }}</span>
 
         <div
           :class="[
             'checkbox',
             {
-              active: selectedChains.includes(+chainId) && !allSelected,
+              active: selectedOptions.includes(option),
             },
           ]"
-          @click="updateSelectedChain(+chainId)"
+          @click="updateSelectedOption(option)"
         >
           <svg
             class="checked"
-            v-show="selectedChains.includes(+chainId) && !allSelected"
+            v-show="selectedOptions.includes(option)"
             xmlns="http://www.w3.org/2000/svg"
             width="20"
             height="20"
@@ -94,56 +68,31 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent, type PropType } from "vue";
-import { getChainIcon } from "@/helpers/chains/getChainIcon";
-import { getChainConfig } from "@/helpers/chains/getChainsInfo";
 import { adjustDropdownPosition } from "@/helpers/ui/adjustDropdownPosition";
+import { defineAsyncComponent, type PropType } from "vue";
 
 export default {
   props: {
-    activeChains: {
-      type: Array as PropType<number[]>,
+    title: String,
+    options: {
+      type: Array as PropType<string[]>,
       default: () => [],
     },
-    selectedChains: {
-      type: Array as PropType<number[]>,
+    selectedOptions: {
+      type: Array as PropType<string[]>,
       default: () => [],
     },
   },
 
   data() {
     return {
-      chainsOrder: [1, 42161, 2222, 43114, 10, 250, 56],
       showDropdownList: false,
     };
   },
 
   computed: {
     allSelected() {
-      return this.selectedChains.length === this.orderedActiveChains.length;
-    },
-
-    chains() {
-      if (!this.selectedChains.length) return [];
-      else return [...this.selectedChains].splice(0, 3) || [];
-    },
-
-    orderedActiveChains() {
-      const orderedActiveChains = this.chainsOrder.filter((orderId) =>
-        this.activeChains.find((chain) => chain == orderId)
-      );
-
-      this.activeChains.forEach((chain) => {
-        if (!this.chainsOrder.find((chainId) => chainId == chain))
-          orderedActiveChains.push(chain);
-      });
-
-      return orderedActiveChains;
-    },
-
-    chainsStyle() {
-      if (!this.chains.length) return "";
-      return `width: ${20 + 10 * (this.chains.length - 1)}px`;
+      return this.options.length === this.selectedOptions.length;
     },
   },
 
@@ -158,15 +107,10 @@ export default {
   },
 
   methods: {
-    getChainIcon,
-    getChainName(chainId: number) {
-      const chain = getChainConfig(chainId);
-      return chain?.chainName;
-    },
-
     toogleDropdown() {
-      if (!this.activeChains.length) return false;
+      if (!this.options.length) return false;
       this.showDropdownList = !this.showDropdownList;
+
       adjustDropdownPosition(this.$refs.dropdownList as HTMLElement);
     },
 
@@ -174,8 +118,12 @@ export default {
       this.showDropdownList = false;
     },
 
-    updateSelectedChain(chainId: number) {
-      this.$emit("updateSelectedChain", chainId);
+    updateSelectedOption(option: string) {
+      this.$emit("updateSelectedOption", option);
+    },
+
+    selectAllOptions() {
+      this.$emit("selectAllOptions");
     },
   },
 
@@ -219,51 +167,6 @@ export default {
   position: relative;
   transition: all 0.2s ease-in-out;
   margin-left: 4px;
-}
-
-.selected-chain-icon {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-}
-
-.selected-chain-icon:nth-child(2) {
-  position: absolute;
-  left: 25%;
-}
-.selected-chain-icon:nth-child(3) {
-  position: absolute;
-  left: 50%;
-}
-
-.count {
-  width: 20px;
-  height: 20px;
-  border-radius: 50px;
-  border: 1px solid #878b93;
-  background: #0e172a;
-  display: none;
-  justify-content: center;
-  align-items: center;
-}
-
-.chains-list {
-  width: 20px;
-  .selected-chain-icon:nth-child(3) {
-    display: none;
-  }
-
-  .count {
-    position: absolute;
-    left: 50%;
-    display: flex;
-    font-size: 10px;
-    font-weight: 500;
-  }
-}
-
-path {
-  transition: all 0.2s ease-in;
 }
 
 .arrow {
@@ -324,8 +227,9 @@ path {
   border-radius: 50%;
 }
 
-.chain-name {
+.option {
   color: #878b93;
+  text-transform: capitalize;
 }
 
 .checkbox {
@@ -344,12 +248,5 @@ path {
 
 .checked {
   max-width: 18px;
-}
-
-@media screen and (max-width: 600px) {
-  .dropdown-list {
-    left: inherit;
-    right: 0;
-  }
 }
 </style>
