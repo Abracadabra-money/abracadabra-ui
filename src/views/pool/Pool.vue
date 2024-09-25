@@ -1,7 +1,8 @@
 <template>
   <div class="pool-view" v-if="pool">
     <div class="chart-wrap">
-      <PieChart :option="chartOption" v-if="chartOption && showTvlChart" />
+      <h5 class="chart-title">Pool composition</h5>
+      <PieChart :option="chartOption" title="Pool composition" />
     </div>
 
     <div class="pool">
@@ -11,8 +12,6 @@
         @getPoolInfo="getPoolInfo"
         @openPositionPopup="isMyPositionPopupOpened = true"
       />
-
-      <PoolComposition :pool="pool" />
     </div>
 
     <div class="pool-position-wrap">
@@ -57,10 +56,6 @@ export default {
       signer: "getSigner",
     }),
 
-    showTvlChart() {
-      return !!this.pool.lockInfo;
-    },
-
     isUserPositionOpen() {
       const hasLp = this.pool?.userInfo?.balance > 0n;
       const hasLocked = this.pool?.lockInfo?.balances.locked > 0n;
@@ -101,10 +96,9 @@ export default {
     this.poolConfig = await getPoolConfig(Number(this.poolChainId), this.id);
 
     await this.getPoolInfo();
+    console.log(this.pool);
 
-    this.chartOption = this.showTvlChart
-      ? await getPoolTvlPieChartOption(this.pool)
-      : null;
+    this.chartOption = await getPoolTvlPieChartOption(this.pool);
 
     this.poolsTimer = setInterval(async () => {
       await this.getPoolInfo();
@@ -118,9 +112,6 @@ export default {
   components: {
     PoolActionBlock: defineAsyncComponent(() =>
       import("@/components/pools/pool/PoolActionBlock.vue")
-    ),
-    PoolComposition: defineAsyncComponent(() =>
-      import("@/components/pools/pool/PoolComposition.vue")
     ),
     PoolPosition: defineAsyncComponent(() =>
       import("@/components/pools/pool/position/PoolPosition.vue")
@@ -148,20 +139,16 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  width: 533px;
   padding: 0 20px;
-  width: 583px;
 }
 
 .chart-wrap {
-  margin-top: 129px;
-  min-width: 302px;
-}
-
-.chart {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
+  gap: 12px;
   padding: 24px;
+  min-width: 302px;
   border-radius: 16px;
   border: 1px solid #00296b;
   background: linear-gradient(
@@ -171,6 +158,12 @@ export default {
   );
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
   backdrop-filter: blur(12.5px);
+}
+
+.chart-title {
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 500;
 }
 
 .pool-position-wrap {
@@ -186,13 +179,12 @@ export default {
 
   .pool {
     position: static;
+    padding: 0;
   }
 
   .chart-wrap {
-    padding: 0 20px;
-    margin-top: 0;
     width: 100%;
-    max-width: 583px;
+    max-width: 543px;
   }
 
   .chart {
@@ -202,12 +194,12 @@ export default {
 }
 
 @media (max-width: 600px) {
-  .pool-wrap {
-    padding: 30px;
+  .pool-view {
+    padding: 120px 15px 40px 15px;
   }
 
   .pool {
-    padding: 0 15px;
+    padding: 0;
     width: 100% !important;
   }
 }

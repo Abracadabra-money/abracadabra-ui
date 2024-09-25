@@ -1,37 +1,37 @@
 <template>
   <div class="pool-action-block-wrap">
     <div class="pool-header">
-      <div class="title-settings">
-        <h3 class="title">MIM Pool</h3>
+      <TokenPair class="token-pair" :pool="pool" />
 
-        <SwapSettingsPopup
-          :slippage="20n"
-          :defaultSlippage="20n"
-          :deadline="100n"
-          pool
-          @updateSlippageValue="updateSlippageValue"
-          @updateDeadlineValue="updateDeadlineValue"
-        />
+      <div class="initial-parameters">
+        <ParameterChip>{{ feeTier }}</ParameterChip>
+        <ParameterChip>{{ poolType }}</ParameterChip>
       </div>
 
-      <div class="pool-management">
-        <TokenPair class="token-pair" :pool="pool" />
+      <SwapSettingsPopup
+        :slippage="20n"
+        :defaultSlippage="20n"
+        :deadline="100n"
+        pool
+        @updateSlippageValue="updateSlippageValue"
+        @updateDeadlineValue="updateDeadlineValue"
+      />
 
+      <!-- 
         <Tabs
           class="tabs"
           :name="activeTab"
           :items="tabItems"
           @select="selectTab"
-        />
+        /> -->
 
-        <button
-          class="my-position-button"
-          @click="$emit('openPositionPopup')"
-          v-if="isUserPositionOpen"
-        >
-          My position
-        </button>
-      </div>
+      <button
+        class="my-position-button"
+        @click="$emit('openPositionPopup')"
+        v-if="isUserPositionOpen"
+      >
+        My position
+      </button>
     </div>
 
     <RemoveUnstakeWrap
@@ -54,6 +54,13 @@
 
 <script>
 import { defineAsyncComponent } from "vue";
+import { formatUnits } from "viem";
+import { formatPercent } from "@/helpers/filters";
+import {
+  FEE_TIER_DECIMALS,
+  PoolTypes,
+  STANDARD_K_VALUE,
+} from "@/constants/pools/poolCreation";
 
 export const actionStatus = {
   SUCCESS: "success",
@@ -83,6 +90,18 @@ export default {
     isRemove() {
       return this.activeTab === "remove";
     },
+
+    feeTier() {
+      return formatPercent(
+        formatUnits(this.pool.initialParameters.lpFeeRate, FEE_TIER_DECIMALS)
+      );
+    },
+
+    poolType() {
+      return this.pool.initialParameters.K === STANDARD_K_VALUE
+        ? PoolTypes.Standard
+        : PoolTypes.Pegged;
+    },
   },
 
   methods: {
@@ -100,7 +119,7 @@ export default {
   },
 
   components: {
-    Tabs: defineAsyncComponent(() => import("@/components/ui/Tabs.vue")),
+    // Tabs: defineAsyncComponent(() => import("@/components/ui/Tabs.vue")),
     TokenPair: defineAsyncComponent(() =>
       import("@/components/pools/pool/TokenPair.vue")
     ),
@@ -113,6 +132,9 @@ export default {
     RemoveUnstakeWrap: defineAsyncComponent(() =>
       import("@/components/pools/pool/RemoveUnstakeWrap.vue")
     ),
+    ParameterChip: defineAsyncComponent(() =>
+      import("@/components/pools/pool/ParameterChip.vue")
+    ),
   },
 };
 </script>
@@ -120,39 +142,20 @@ export default {
 <style lang="scss" scoped>
 .pool-header {
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
   align-items: center;
   gap: 12px;
-  min-height: 66px;
   width: 100%;
   margin-bottom: 16px;
 }
 
-.link-button {
-  width: auto !important;
-  margin-right: auto;
-}
-
-.title-settings {
+.initial-parameters {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   gap: 12px;
-  width: 100%;
 }
 
-.title-settings .title {
-  color: #fff;
-  font-size: 32px;
-  font-weight: 600;
-}
-
-.pool-management {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
+.settings-wrap {
+  margin-left: auto;
 }
 
 .my-position-button {

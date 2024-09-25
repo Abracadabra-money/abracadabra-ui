@@ -3,18 +3,18 @@
     <div class="pools-container">
       <PoolsInfo :pools="pools" />
 
-      <PoolsList
+      <PoolsTable
         :pools="pools"
-        :tableKeys="tableKeys"
         :poolsLoading="poolsLoading"
+        :tableKeys="tableKeys"
+        ref="poolsTable"
         @openMobileFiltersPopup="isFiltersPopupOpened = true"
-        ref="poolsList"
       />
     </div>
     <FiltersPopup
       v-if="isFiltersPopupOpened"
       :sortersData="tableKeys"
-      @updateSortKey="updateSortKey"
+      @updateSortKey="updateSortKeys"
       @close="isFiltersPopupOpened = false"
     />
   </div>
@@ -88,8 +88,8 @@ export default {
       this.setPoolsList(this.pools);
     },
 
-    updateSortKey(key: any, order: any): void {
-      (this.$refs.poolsList as any).updateSortKeys(key, order);
+    updateSortKeys(key: any, order: any): void {
+      (this.$refs.poolsTable as any).updateSortKeys(key, order);
     },
   },
 
@@ -111,8 +111,8 @@ export default {
     PoolsInfo: defineAsyncComponent(
       () => import("@/components/pools/PoolsInfo.vue")
     ),
-    PoolsList: defineAsyncComponent(
-      () => import("@/components/pools/PoolsList.vue")
+    PoolsTable: defineAsyncComponent(
+      () => import("@/components/pools/table/PoolsTable.vue")
     ),
     FiltersPopup: defineAsyncComponent(
       () => import("@/components/myPositions/FiltersPopup.vue")
