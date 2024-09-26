@@ -17,10 +17,11 @@
     <div class="pool-position-wrap">
       <PoolPosition
         :pool="pool"
+        :isUserPositionOpen="isUserPositionOpen"
         :isMyPositionPopupOpened="isMyPositionPopupOpened"
         @closePopup="isMyPositionPopupOpened = false"
         @updateInfo="getPoolInfo"
-        v-if="isUserPositionOpen && pool"
+        v-if="account"
       />
     </div>
   </div>
@@ -58,11 +59,7 @@ export default {
 
     isUserPositionOpen() {
       const hasLp = this.pool?.userInfo?.balance > 0n;
-      const hasLocked = this.pool?.lockInfo?.balances.locked > 0n;
-      const hasUnlocked = this.pool?.lockInfo?.balances.unlocked > 0n;
-      const hasStaked = this.pool?.stakeInfo?.balance > 0n;
-
-      return this.account && (hasLp || hasLocked || hasUnlocked || hasStaked);
+      return this.account && hasLp;
     },
   },
 

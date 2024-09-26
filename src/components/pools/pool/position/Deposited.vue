@@ -1,6 +1,14 @@
 <template>
   <div class="deposited">
-    <PoolCompoundCard :lpToken="lpToken" :tokensList="tokensList" />
+    <div class="card-wrap">
+      <PoolCompoundCard
+        :lpToken="lpToken"
+        :tokensList="tokensList"
+        v-if="isUserPositionOpen"
+      />
+
+      <p class="no-position" v-else>Open position will appear here</p>
+    </div>
 
     <RewardsCard :isPosition="true" :pool="pool" />
 
@@ -34,6 +42,7 @@ import { notificationErrorMsg } from "@/helpers/notification/notificationError.j
 export default {
   props: {
     pool: { type: Object },
+    isUserPositionOpen: { type: Boolean, default: false },
   },
 
   data() {
@@ -295,56 +304,19 @@ export default {
   gap: 16px;
 }
 
-.title {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 18px;
+.card-wrap {
+  padding: 20px 12px;
+  border-radius: 16px;
+  border: 1px solid #2d4a96;
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+}
+
+.no-position {
+  padding: 20px 80px;
+  text-align: center;
+  font-size: 14px;
   font-weight: 500;
-}
-
-.rewards-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  margin-bottom: 31px;
-}
-
-.rewards-list {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  list-style: none;
-}
-
-.list-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.item-title {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.reward-icon {
-  width: 24px;
-}
-
-.item-value {
-  font-size: 16px;
-  font-weight: 400;
-}
-
-.row-skeleton {
-  height: 13px !important;
-  background-image: linear-gradient(
-    90deg,
-    rgb(23, 30, 59) 0px,
-    rgb(36, 43, 67) 60px,
-    rgb(23, 30, 59) 120px
-  ) !important;
+  line-height: normal;
 }
 </style>

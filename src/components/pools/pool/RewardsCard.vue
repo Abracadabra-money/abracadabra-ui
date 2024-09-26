@@ -5,7 +5,14 @@
     v-if="isPoolHasReward && poolRewards"
   >
     <div class="row">
-      <p class="title">Staking Rewards</p>
+      <p class="title">
+        <img
+          src="@/assets/images/pools/pool/staking-apr-image.svg"
+          class="staking-apr-image"
+        />
+        Staking APR
+      </p>
+
       <div class="reward-items">
         <img
           :src="reward.token.icon"
@@ -14,7 +21,7 @@
           v-for="(reward, index) in poolRewards"
           :key="index"
         />
-        <!-- <p class="reward-name">{{ reward.token.name }}</p> -->
+        <p class="apr">{{ apr }}</p>
       </div>
     </div>
     <ElixirReward v-if="isElixir" />
@@ -22,10 +29,11 @@
     <div class="row apr-item" v-else>
       <div class="title-wrap">
         <p class="title">APR</p>
+        <Tooltip :width="18" :height="18" fill="#ffffff" :tooltip="''" />
       </div>
+
       <div class="value-wrap">
         <template v-if="poolRewards && poolRewards.length > 1">
-          <Tooltip :width="18" :height="18" fill="#ffffff" :tooltip="''" />
           <div class="apr-info">
             <div
               class="apr-item"
@@ -36,19 +44,15 @@
               <p class="name">{{ item.token.name }}:</p>
               <p class="apr">{{ Number(item.apr).toFixed(2) }}%</p>
             </div>
-            <!-- <div class="apr-item total-item">
-            <p class="name">Total:</p>
-            <p class="apr">{{ Number(pool.poolAPR.totalApr).toFixed(2) }} %</p>
-          </div> -->
           </div>
         </template>
-        <p class="value">{{ Number(pool.poolAPR.totalApr).toFixed(2) }}%</p>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
+import { formatPercent } from "@/helpers/filters";
 import { defineAsyncComponent } from "vue";
 
 export default {
@@ -72,6 +76,10 @@ export default {
 
     isElixir() {
       return this.pool.config.id === 1 && this.pool.config.chainId === 1;
+    },
+
+    apr() {
+      return formatPercent(this.pool.poolAPR.totalApr);
     },
   },
   components: {
@@ -175,6 +183,7 @@ export default {
 
     .title-wrap {
       display: flex;
+      justify-content: space-between;
       align-items: center;
       gap: 3px;
     }
@@ -193,6 +202,9 @@ export default {
   }
 
   .title {
+    display: flex;
+    align-items: center;
+    gap: 4px;
     font-size: 16px;
     font-weight: 500;
     color: #fff;
@@ -218,5 +230,9 @@ export default {
       font-size: 18px;
     }
   }
+}
+
+.apr {
+  text-shadow: 0px 0px 16px #ab5de8;
 }
 </style>

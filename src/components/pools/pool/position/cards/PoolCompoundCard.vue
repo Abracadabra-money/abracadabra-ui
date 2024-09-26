@@ -49,9 +49,6 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 15px 20px;
-  border-radius: 16px;
-  background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
 }
 
 .lp-token {
