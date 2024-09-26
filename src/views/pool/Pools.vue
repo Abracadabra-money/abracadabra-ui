@@ -94,8 +94,8 @@ export default {
   },
 
   async created() {
-    this.poolConfigs = await getPoolConfigs();
     this.checkLocalData();
+    this.poolConfigs = await getPoolConfigs();
     await this.createPoolsInfo();
 
     this.updateInterval = setInterval(async () => {
