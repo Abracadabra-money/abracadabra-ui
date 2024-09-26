@@ -74,12 +74,12 @@ export default {
       }));
     },
 
-    isElixir() {
-      return this.pool.config.id === 1 && this.pool.config.chainId === 1;
-    },
-
     apr() {
       return formatPercent(this.pool.poolAPR.totalApr);
+    },
+
+    isElixir() {
+      return this.pool.config.id === 1 && this.pool.config.chainId === 1;
     },
   },
   components: {

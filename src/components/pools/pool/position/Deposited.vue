@@ -10,34 +10,39 @@
       <p class="no-position" v-else>Open position will appear here</p>
     </div>
 
-    <RewardsCard :isPosition="true" :pool="pool" />
+    <div class="staking-apr">
+      <p class="title">
+        <img
+          src="@/assets/images/pools/pool/staking-apr-image.svg"
+          class="staking-apr-image"
+        />
+        Staking APR
+      </p>
 
-    <BaseButton
-      v-if="hasLockLogic || hasStakeLogic"
-      primary
-      @click="actionHandler"
-      :disabled="isButtonDisabled"
-    >
-      {{ buttonText }}
-    </BaseButton>
+      <div class="reward-items">
+        <img
+          :src="reward.token.icon"
+          alt=""
+          class="reward-icon"
+          v-for="(reward, index) in poolRewards"
+          :key="index"
+        />
+        <p class="apr">{{ apr }}</p>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import {
-  writeContractHelper,
-  simulateContractHelper,
-  waitForTransactionReceiptHelper,
-} from "@/helpers/walletClienHelper";
 import { formatUnits } from "viem";
 import { defineAsyncComponent } from "vue";
-import { approveTokenViem } from "@/helpers/approval";
-import { mapActions, mapGetters, mapMutations } from "vuex";
-import notification from "@/helpers/notification/notification";
-import { switchNetwork } from "@/helpers/chains/switchNetwork";
-import { formatUSD, formatTokenBalance } from "@/helpers/filters";
+import { mapGetters } from "vuex";
+import {
+  formatUSD,
+  formatTokenBalance,
+  formatPercent,
+} from "@/helpers/filters";
 import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
-import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 
 export default {
   props: {
@@ -57,44 +62,20 @@ export default {
       chainId: "getChainId",
     }),
 
-    hasLockLogic() {
-      return !!this.pool.lockInfo;
-    },
-    hasStakeLogic() {
-      return !!this.pool.stakeInfo;
-    },
-    isAllowed() {
-      if (!this.hasLockLogic && !this.hasStakeLogic) return false;
-
-      if (this.hasLockLogic)
-        return this.pool.lockInfo.allowance >= this.pool.userInfo.balance;
-      return this.pool.stakeInfo.allowance >= this.pool.userInfo.balance;
+    isPoolHasReward() {
+      return !!this.pool.config.rewardTokens?.length;
     },
 
-    isValid() {
-      return !!this.pool.userInfo.balance;
+    poolRewards() {
+      if (!this.isPoolHasReward) return;
+      return this.pool.config.rewardTokens.map((token, index) => ({
+        token,
+        apr: this.pool.poolAPR?.tokensApr[index].apr ?? 0,
+      }));
     },
 
-    buttonText() {
-      if (!this.isProperNetwork) return "Switch network";
-      if (!this.account) return "Connect wallet";
-
-      if (this.isActionProcessing) return "Processing...";
-      if (!this.isAllowed) return "Approve for Staking";
-
-      return "Stake all";
-    },
-
-    isProperNetwork() {
-      return this.chainId == this.pool.chainId;
-    },
-
-    isButtonDisabled() {
-      return (
-        (!this.isValid || this.isActionProcessing) &&
-        this.isProperNetwork &&
-        !!this.account
-      );
+    apr() {
+      return formatPercent(this.pool.poolAPR.totalApr);
     },
 
     lpToken() {
@@ -154,102 +135,7 @@ export default {
   },
 
   methods: {
-    ...mapActions({ createNotification: "notifications/new" }),
-    ...mapMutations({ deleteNotification: "notifications/delete" }),
-
     formatUSD,
-
-    async approveHandler() {
-      this.isActionProcessing = true;
-
-      const notificationId = await this.createNotification(
-        notification.approvePending
-      );
-
-      const contract = this.hasLockLogic
-        ? this.pool.lockContract
-        : this.pool.stakeContract;
-
-      try {
-        await approveTokenViem(
-          this.pool.contract,
-          contract.address,
-          this.pool.userInfo.balance
-        );
-        await this.$emit("updatePoolInfo");
-
-        await this.deleteNotification(notificationId);
-      } catch (error) {
-        console.log("approve err:", error);
-
-        const errorNotification = {
-          msg: await notificationErrorMsg(error),
-          type: "error",
-        };
-
-        await this.deleteNotification(notificationId);
-        await this.createNotification(errorNotification);
-      }
-      this.isActionProcessing = false;
-    },
-
-    async stakeHandler() {
-      this.isActionProcessing = true;
-
-      const notificationId = await this.createNotification(
-        notification.pending
-      );
-
-      const contract = this.hasLockLogic
-        ? this.pool.lockContract
-        : this.pool.stakeContract;
-
-      try {
-        const { request } = await simulateContractHelper({
-          address: contract.address,
-          abi: contract.abi,
-          functionName: "stake",
-          args: [this.pool.userInfo.balance],
-        });
-
-        const hash = await writeContractHelper(request);
-
-        const { result, error } = await waitForTransactionReceiptHelper({
-          hash,
-        });
-
-        await this.$emit("updatePoolInfo");
-
-        await this.deleteNotification(notificationId);
-        await this.createNotification(notification.success);
-      } catch (error) {
-        console.log("stake lp err:", error);
-
-        const errorNotification = {
-          msg: await notificationErrorMsg(error),
-          type: "error",
-        };
-
-        await this.deleteNotification(notificationId);
-        await this.createNotification(errorNotification);
-      }
-      this.isActionProcessing = false;
-    },
-
-    async actionHandler() {
-      if (this.isButtonDisabled) return false;
-      if (!this.isProperNetwork) return switchNetwork(this.pool.chainId);
-      if (!this.account) {
-        // @ts-ignore
-        return this.$openWeb3modal();
-      }
-
-      if (!this.isAllowed) return await this.approveHandler();
-
-      await this.stakeHandler();
-
-      await this.$emit("updatePoolInfo");
-    },
 
     formatTokenBalance(value, decimals) {
       return formatTokenBalance(formatUnits(value, decimals));
@@ -257,14 +143,8 @@ export default {
   },
 
   components: {
-    BaseButton: defineAsyncComponent(() =>
-      import("@/components/base/BaseButton.vue")
-    ),
     PoolCompoundCard: defineAsyncComponent(() =>
       import("@/components/pools/pool/position/cards/PoolCompoundCard.vue")
-    ),
-    RewardsCard: defineAsyncComponent(() =>
-      import("@/components/pools/pool/RewardsCard.vue")
     ),
   },
 };
@@ -318,5 +198,48 @@ export default {
   font-size: 14px;
   font-weight: 500;
   line-height: normal;
+}
+
+.staking-apr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #fff;
+}
+
+.reward-items {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.reward-icon {
+  border-radius: 8px;
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.reward-icon:not(:first-child) {
+  margin-left: -12px;
+}
+
+.reward-name {
+  font-size: 18px;
+}
+
+.apr {
+  font-size: 23px;
+  font-weight: 600;
+  text-shadow: 0px 0px 16px #ab5de8;
 }
 </style>
