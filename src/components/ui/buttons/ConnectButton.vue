@@ -36,12 +36,6 @@ export default {
     }),
 
     walletBtnText() {
-      console.log(
-        "isWalletCheckInProcess",
-        this.isWalletCheckInProcess,
-        this.account
-      );
-
       if (this.isWalletCheckInProcess) {
         return "Checking...";
       } else if (this.account) {

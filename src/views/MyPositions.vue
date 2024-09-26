@@ -37,17 +37,13 @@
         />
       </div>
 
-      <div class="loader-wrap" v-if="positionsIsLoading || showEmptyBlock">
-        <BaseLoader
-          v-if="positionsIsLoading || isWalletCheckInProcess"
-          large
-          text="Loading Positions"
-        />
-        <BaseSearchEmpty
-          v-if="showEmptyBlock && account"
-          text="There are no Positions"
-        />
-        <ConnectWalletBlock v-if="!account && !isWalletCheckInProcess" />
+      <div
+        class="loader-wrap"
+        v-if="showConnectionBlock || showEmptyBlock || showLoader"
+      >
+        <ConnectWalletBlock v-if="showConnectionBlock" />
+        <BaseLoader v-if="showLoader" large text="Loading Positions" />
+        <BaseSearchEmpty v-if="showEmptyBlock" text="There are no Positions" />
       </div>
     </div>
 
@@ -127,8 +123,18 @@ export default {
       return this.selectedChains.length === this.activeChains.length;
     },
 
+    showConnectionBlock() {
+      return !this.account;
+    },
+
+    showLoader() {
+      return (
+        this.account && (this.positionsIsLoading || this.isWalletCheckInProcess)
+      );
+    },
+
     showEmptyBlock() {
-      return !this.positionsIsLoading && !this.sortedCauldrons.length;
+      return !this.showConnectionBlock && !this.showLoader;
     },
 
     sortedCauldrons() {
@@ -191,9 +197,11 @@ export default {
         this.totalAssets = null;
         this.userElixirInfo = null;
       } else {
+        this.positionsIsLoading = true;
         await this.getElixirInfo();
         this.checkLocalData();
         await this.createOpenPositions();
+        this.positionsIsLoading = false;
       }
     },
 
