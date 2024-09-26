@@ -1,6 +1,8 @@
 <template>
   <div class="pool-action-block-wrap">
     <div class="pool-header">
+      <h2 class="title">Pool</h2>
+
       <TokenPair class="token-pair" :pool="pool" />
 
       <div class="initial-parameters">
@@ -8,22 +10,24 @@
         <ParameterChip>{{ poolType }}</ParameterChip>
       </div>
 
-      <SwapSettingsPopup
-        :slippage="20n"
-        :defaultSlippage="20n"
-        :deadline="100n"
-        pool
-        @updateSlippageValue="updateSlippageValue"
-        @updateDeadlineValue="updateDeadlineValue"
-      />
+      <div class="header-buttons-wrap">
+        <button
+          class="my-position-button"
+          @click="$emit('openPositionPopup')"
+          v-if="isUserPositionOpen"
+        >
+          My position
+        </button>
 
-      <button
-        class="my-position-button"
-        @click="$emit('openPositionPopup')"
-        v-if="isUserPositionOpen"
-      >
-        My position
-      </button>
+        <SwapSettingsPopup
+          :slippage="20n"
+          :defaultSlippage="20n"
+          :deadline="100n"
+          pool
+          @updateSlippageValue="updateSlippageValue"
+          @updateDeadlineValue="updateDeadlineValue"
+        />
+      </div>
     </div>
 
     <div class="pool-action">
@@ -106,7 +110,7 @@ export default {
 
     toggleSettings() {
       return {
-        text: this.isRemove ? "Single side" : "Balanced",
+        text: this.isRemove ? "Single side" : "Balance",
         selectedCondition: this.isRemove ? this.isSingleSide : this.isBalanced,
       };
     },
@@ -167,21 +171,32 @@ export default {
 
 <style lang="scss" scoped>
 .pool-header {
-  display: flex;
+  display: grid;
+  grid-template-columns: max-content 1fr min-content;
   align-items: center;
   gap: 12px;
   width: 100%;
   margin-bottom: 16px;
 }
 
+.title {
+  display: none;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 600;
+}
+
 .initial-parameters {
   display: flex;
   align-items: center;
   gap: 12px;
+  width: fit-content;
 }
 
-.settings-wrap {
-  margin-left: auto;
+.header-buttons-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .my-position-button {
@@ -218,30 +233,72 @@ export default {
 }
 
 @media (max-width: 1400px) {
-  .pool-management {
-    width: 100%;
-    flex-wrap: wrap;
-    gap: 16px;
+  .pool-header {
+    grid-template-areas:
+      "title buttons buttons"
+      "tokens tokens parameters";
+    grid-template-columns: auto;
+  }
+
+  .title {
+    display: block;
+    grid-area: title;
+  }
+
+  .header-buttons-wrap {
+    justify-content: flex-end;
+    grid-area: buttons;
   }
 
   .token-pair {
-    order: 1;
+    grid-area: tokens;
+    min-width: max-content;
   }
 
-  .tabs {
-    order: 3;
-    margin-right: auto;
+  .initial-parameters {
+    justify-self: flex-end;
+    grid-area: parameters;
   }
 
   .my-position-button {
     display: block;
-    order: 2;
   }
 }
 
 @media (max-width: 600px) {
+  .pool-action {
+    gap: 20px;
+    padding: 16px;
+  }
+  .pool-action::v-deep(.pool-action-block) {
+    gap: 20px;
+  }
+
   .my-position-button {
     font-size: 14px;
+  }
+
+  .token-pair::v-deep(.name) {
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 22px;
+  }
+
+  .token-pair::v-deep(.token-icon.base) {
+    height: 30px !important;
+    width: 30px !important;
+  }
+
+  .token-pair::v-deep(.token-icon.quote) {
+    height: 34px !important;
+    width: 34px !important;
+    margin-left: -18px;
+    border-radius: 12px !important;
+  }
+
+  .settings-wrap::v-deep(.settings-button) {
+    width: 44px;
+    height: 44px;
   }
 }
 
