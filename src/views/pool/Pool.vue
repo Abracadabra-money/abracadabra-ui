@@ -9,7 +9,7 @@
       <PoolActionBlock
         :pool="pool"
         :isUserPositionOpen="isUserPositionOpen"
-        @getPoolInfo="getPoolInfo"
+        @updatePoolInfo="getPoolInfo"
         @openPositionPopup="isMyPositionPopupOpened = true"
       />
     </div>

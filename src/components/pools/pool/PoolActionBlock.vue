@@ -17,14 +17,6 @@
         @updateDeadlineValue="updateDeadlineValue"
       />
 
-      <!-- 
-        <Tabs
-          class="tabs"
-          :name="activeTab"
-          :items="tabItems"
-          @select="selectTab"
-        /> -->
-
       <button
         class="my-position-button"
         @click="$emit('openPositionPopup')"
@@ -34,21 +26,40 @@
       </button>
     </div>
 
-    <RemoveUnstakeWrap
-      :pool="pool"
-      :slippage="slippage"
-      :deadline="deadline"
-      @updatePoolInfo="$emit('getPoolInfo')"
-      v-show="isRemove"
-    />
+    <div class="pool-action">
+      <div class="condition-management-wrap">
+        <Tabs
+          class="tabs"
+          :name="activeTab"
+          :items="tabItems"
+          @select="selectTab"
+        />
 
-    <DepositStakeWrap
-      :pool="pool"
-      :slippage="slippage"
-      :deadline="deadline"
-      @updatePoolInfo="$emit('getPoolInfo')"
-      v-show="!isRemove"
-    />
+        <Toggle
+          :text="toggleSettings.text"
+          :selected="toggleSettings.selectedCondition"
+          @updateToggle="toggleCondition"
+        />
+      </div>
+
+      <Deposit
+        :pool="pool"
+        :slippage="slippage"
+        :deadline="deadline"
+        :isBalanced="toggleSettings.selectedCondition"
+        @updatePoolInfo="$emit('updatePoolInfo')"
+        v-show="!isRemove"
+      />
+
+      <Remove
+        :pool="pool"
+        :slippage="slippage"
+        :deadline="deadline"
+        :isSingleSide="toggleSettings.selectedCondition"
+        @updatePoolInfo="$emit('updatePoolInfo')"
+        v-show="isRemove"
+      />
+    </div>
   </div>
 </template>
 
@@ -74,7 +85,7 @@ export default {
     isUserPositionOpen: { type: Boolean, default: false },
   },
 
-  emits: ["getPoolInfo", "openPositionPopup"],
+  emits: ["updatePoolInfo", "openPositionPopup"],
 
   data() {
     return {
@@ -83,12 +94,21 @@ export default {
       tabItems: ["deposit", "remove"],
       slippage: 20n,
       deadline: 100n,
+      isBalanced: false,
+      isSingleSide: false,
     };
   },
 
   computed: {
     isRemove() {
       return this.activeTab === "remove";
+    },
+
+    toggleSettings() {
+      return {
+        text: this.isRemove ? "Single side" : "Balanced",
+        selectedCondition: this.isRemove ? this.isSingleSide : this.isBalanced,
+      };
     },
 
     feeTier() {
@@ -109,6 +129,11 @@ export default {
       this.activeTab = action;
     },
 
+    toggleCondition() {
+      if (this.isRemove) this.isSingleSide = !this.isSingleSide;
+      else this.isBalanced = !this.isBalanced;
+    },
+
     updateSlippageValue(value) {
       this.slippage = value;
     },
@@ -119,21 +144,22 @@ export default {
   },
 
   components: {
-    // Tabs: defineAsyncComponent(() => import("@/components/ui/Tabs.vue")),
+    Tabs: defineAsyncComponent(() => import("@/components/ui/Tabs.vue")),
+    Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
     TokenPair: defineAsyncComponent(() =>
       import("@/components/pools/pool/TokenPair.vue")
     ),
     SwapSettingsPopup: defineAsyncComponent(() =>
       import("@/components/popups/swap/SwapSettingsPopup.vue")
     ),
-    DepositStakeWrap: defineAsyncComponent(() =>
-      import("@/components/pools/pool/DepositStakeWrap.vue")
-    ),
-    RemoveUnstakeWrap: defineAsyncComponent(() =>
-      import("@/components/pools/pool/RemoveUnstakeWrap.vue")
-    ),
     ParameterChip: defineAsyncComponent(() =>
       import("@/components/pools/pool/ParameterChip.vue")
+    ),
+    Remove: defineAsyncComponent(() =>
+      import("@/components/pools/pool/actions/Remove.vue")
+    ),
+    Deposit: defineAsyncComponent(() =>
+      import("@/components/pools/pool/actions/deposit/Deposit.vue")
     ),
   },
 };
@@ -175,6 +201,20 @@ export default {
 
 .my-position-button:hover {
   opacity: 0.7;
+}
+
+.pool-action {
+  @include block-wrap;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.condition-management-wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
 }
 
 @media (max-width: 1400px) {
