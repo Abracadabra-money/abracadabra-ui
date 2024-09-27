@@ -93,7 +93,6 @@ export default {
     this.poolConfig = await getPoolConfig(Number(this.poolChainId), this.id);
 
     await this.getPoolInfo();
-    console.log(this.pool);
 
     this.chartOption = await getPoolTvlPieChartOption(this.pool);
 

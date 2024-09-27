@@ -10,7 +10,7 @@
       <p class="no-position" v-else>Open position will appear here</p>
     </div>
 
-    <div class="staking-apr">
+    <div class="staking-apr" v-if="isPoolHasReward">
       <p class="title">
         <img
           src="@/assets/images/pools/pool/staking-apr-image.svg"
@@ -75,6 +75,7 @@ export default {
     },
 
     apr() {
+      if (!this.pool?.poolAPR) return "0.0%";
       return formatPercent(this.pool.poolAPR.totalApr);
     },
 

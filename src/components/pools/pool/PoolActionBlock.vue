@@ -14,7 +14,7 @@
         <button
           class="my-position-button"
           @click="$emit('openPositionPopup')"
-          v-if="isUserPositionOpen"
+          v-if="account"
         >
           My position
         </button>
@@ -69,6 +69,7 @@
 
 <script>
 import { defineAsyncComponent } from "vue";
+import { mapGetters } from "vuex";
 import { formatUnits } from "viem";
 import { formatPercent } from "@/helpers/filters";
 import {
@@ -104,6 +105,10 @@ export default {
   },
 
   computed: {
+    ...mapGetters({
+      account: "getAccount",
+    }),
+
     isRemove() {
       return this.activeTab === "remove";
     },

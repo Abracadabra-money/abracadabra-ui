@@ -141,11 +141,15 @@ export default {
     bottom: 0;
     display: none;
     width: 100%;
-    padding: 16px 20px;
-    gap: 16px;
-    border-radius: 20px 20px 0 0;
-    border: 1px solid #342866;
-    background: #101622;
+    padding: 20px 16px 60px 16px;
+    border-radius: 20px 20px 0px 0px;
+    border: 1px solid #00296b;
+    background: linear-gradient(
+        90deg,
+        rgba(45, 74, 150, 0.24) 0%,
+        rgba(116, 92, 210, 0.24) 100%
+      ),
+      #0e172b;
     box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
     backdrop-filter: blur(20px);
   }
