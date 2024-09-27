@@ -14,7 +14,18 @@
 
     <div class="column pool-type">{{ poolType }}</div>
 
-    <div class="column apr">{{ poolApr }}</div>
+    <div class="column apr">
+      <div class="token-icons">
+        <BaseTokenIcon
+          v-for="(token, index) in rewardTokens"
+          :icon="token.icon"
+          :name="token.name"
+          :size="index === 0 ? '20px' : '24px'"
+          :key="index"
+        />
+      </div>
+      {{ poolApr }}
+    </div>
   </router-link>
 </template>
 
@@ -45,6 +56,10 @@ export default {
   },
 
   computed: {
+    rewardTokens() {
+      return this.pool.config.rewardTokens;
+    },
+
     tvl() {
       return formatLargeSum(formatUnits(this.pool.totalSupply, this.decimals));
     },
@@ -62,6 +77,7 @@ export default {
     },
 
     poolApr() {
+      if (!this.pool.poolAPR) return "";
       return formatPercent(this.pool.poolAPR?.totalApr || 0);
     },
 
@@ -92,6 +108,9 @@ export default {
   },
 
   components: {
+    BaseTokenIcon: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenIcon.vue")
+    ),
     TokenPair: defineAsyncComponent(
       () => import("@/components/pools/pool/TokenPair.vue")
     ),
@@ -186,7 +205,26 @@ export default {
   text-transform: capitalize;
 }
 
+.token-icons {
+  display: flex;
+  align-items: center;
+}
+
+.token-icon:not(:first-child) {
+  margin-left: -6px;
+  border: 2px solid #0a1021;
+  border-radius: 8px;
+}
+
+.token-icon {
+  margin-right: 0 !important;
+}
+
 .apr {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
   text-shadow: 0px 0px 16px #ab5de8;
   font-weight: 600;
   line-height: 150%;
