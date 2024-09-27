@@ -97,14 +97,13 @@ import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 import {
   FEE_TIER_DECIMALS,
   PoolTypes,
+  poolTypesArray,
   STANDARD_K_VALUE,
 } from "@/constants/pools/poolCreation";
 import { formatPercent } from "@/helpers/filters";
 import type { MagicLPInfo } from "@/helpers/pools/swap/types";
 import { formatUnits } from "viem";
-import type { SortOrder } from "@/types/common";
-
-const poolTypesArray = [PoolTypes.Standard, PoolTypes.Pegged];
+import type { SortOrder } from "@/types/sorting";
 
 export default {
   props: {
@@ -385,6 +384,20 @@ export default {
 
       return [...feeTierOptions];
     },
+
+    updatePoolTypeFilter(option: string) {
+      if (this.selectedPoolTypes.length === this.poolTypesOptions.length)
+        this.selectedPoolTypes = [];
+
+      this.updateSelectedOptions(this.selectedPoolTypes, option);
+    },
+
+    updateFeeTierFilter(option: string) {
+      if (this.selectedFeeTiers.length === this.feeTierOptions.length)
+        this.selectedFeeTiers = [];
+
+      this.updateSelectedOptions(this.selectedFeeTiers, option);
+    },
   },
 
   components: {
@@ -419,7 +432,12 @@ export default {
     this.selectedChains = this.getActiveChain();
   },
 
-  expose: ["updateSortKeys"],
+  expose: [
+    "updateSortKeys",
+    "getFeeTierOptions",
+    "updatePoolTypeFilter",
+    "updateFeeTierFilter",
+  ],
 };
 </script>
 

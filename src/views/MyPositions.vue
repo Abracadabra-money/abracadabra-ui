@@ -75,22 +75,11 @@ import {
 } from "@/helpers/cauldron/position/getUserOpenPositions";
 import type { Address } from "viem";
 import type { UserTotalAssets } from "@/helpers/cauldron/types";
-import type { SortOrder } from "@/types/common";
+import type { PositionsSortKey, SorterData, SortOrder } from "@/types/sorting";
 import axios from "axios";
 import { ELIXIR_POTIONS_URL } from "@/constants/global";
 import { LS_ELIXIR_RARE_KEY } from "@/helpers/dataStore";
 
-export type PositionsSortKey =
-  | "positionHealth"
-  | "collateralDepositedUsd"
-  | "mimBorrowed"
-  | "apr";
-export type SorterData = {
-  tableKey: PositionsSortKey | string;
-  text?: string;
-  tooltip?: string;
-  isSortingCriterion?: boolean;
-};
 export type LocalAPRData = {
   chainId: number;
   apr: number;

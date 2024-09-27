@@ -14,6 +14,7 @@
     <FiltersPopup
       v-if="isFiltersPopupOpened"
       :sortersData="tableKeys"
+      :filtersData="filtersData"
       @updateSortKey="updateSortKeys"
       @close="isFiltersPopupOpened = false"
     />
@@ -26,6 +27,8 @@ import { mapGetters, mapMutations } from "vuex";
 import type { PoolConfig } from "@/configs/pools/types";
 import { getPoolsList } from "@/helpers/pools/getPoolsList";
 import { getPoolConfigs } from "@/helpers/pools/getPoolConfigs";
+import type { FilterData } from "@/types/sorting";
+import { poolTypesArray } from "@/constants/pools/poolCreation";
 
 export default {
   data() {
@@ -67,6 +70,23 @@ export default {
       account: "getAccount",
       localPoolsList: "getPoolsList",
     }),
+
+    filtersData(): FilterData[] {
+      return [
+        {
+          filterKey: "poolType",
+          text: "Pool type",
+          options: [...poolTypesArray],
+          emitter: this.updatePoolTypeFilter,
+        },
+        {
+          filterKey: "feeTier",
+          text: "Fee tier",
+          options: this.getFeeTierOptions(),
+          emitter: this.updateFeeTierFilter,
+        },
+      ];
+    },
   },
 
   methods: {
@@ -88,8 +108,20 @@ export default {
       this.setPoolsList(this.pools);
     },
 
-    updateSortKeys(key: any, order: any): void {
+    updateSortKeys(key: any, order: any) {
       (this.$refs.poolsTable as any).updateSortKeys(key, order);
+    },
+
+    updatePoolTypeFilter(option: string) {
+      (this.$refs.poolsTable as any).updatePoolTypeFilter(option);
+    },
+
+    updateFeeTierFilter(option: string) {
+      (this.$refs.poolsTable as any).updateFeeTierFilter(option);
+    },
+
+    getFeeTierOptions() {
+      return (this.$refs.poolsTable as any).getFeeTierOptions();
     },
   },
 

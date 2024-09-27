@@ -103,7 +103,9 @@ const arbitrumPools: Array<PoolConfig> = [
     initialParameters: {
       I: 1000000n,
       K: 250000000000000n,
-      lpFeeRate: 500000000000000n,
+      //test
+      // lpFeeRate: 500000000000000n,
+      lpFeeRate: 234500000000000000n,
     },
   },
   {
