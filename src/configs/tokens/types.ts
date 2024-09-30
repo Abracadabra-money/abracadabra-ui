@@ -1,4 +1,4 @@
-import type { ContractInfo } from "@/types/global";
+import type { Contract } from "@/configs/blast/types";
 
 export type MimInfo = {
   name: string;
@@ -6,4 +6,4 @@ export type MimInfo = {
   chainId: number;
   decimals: number;
   image: string;
-} & ContractInfo;
+} & Contract;

@@ -1,2 +1,2 @@
-export const BlastLockingMultiRewards =
-  "0xF1eD28fa139f2dF5CF3ed140aa9F803C79554519";
+export const BlastLockingMultiRewards = "0xF1eD28fa139f2dF5CF3ed140aa9F803C79554519"
+export const MagicLPPriceAddress = "0xd5448076C44847212c3dAaCd789ad077153AEe16"

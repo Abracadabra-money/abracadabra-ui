@@ -1,4 +1,4 @@
-import type { ContractInfo } from "@/types/global";
+import type { Contract } from "@/configs/blast/types";
 
 export type PoolConfig = {
   id: number;
@@ -6,11 +6,11 @@ export type PoolConfig = {
   name: string;
   icon: string;
   decimals: number;
-  contract: ContractInfo;
+  contract: Contract;
   baseToken: TokenConfig;
   quoteToken: TokenConfig;
-  lockContract?: ContractInfo;
-  stakeContract?: ContractInfo;
+  lockContract?: Contract;
+  stakeContract?: Contract;
   rewardTokens?: TokenConfig[];
   settings: PoolSettings;
 };
@@ -27,6 +27,6 @@ export type TokenConfig = {
   name: string;
   icon: string;
   decimals: number;
-  contract: ContractInfo;
+  contract: Contract;
   isPopular?: boolean;
 };
