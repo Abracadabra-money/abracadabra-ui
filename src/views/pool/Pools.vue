@@ -112,12 +112,12 @@ export default {
       (this.$refs.poolsTable as any).updateSortKeys(key, order);
     },
 
-    updatePoolTypeFilter(option: string) {
-      (this.$refs.poolsTable as any).updatePoolTypeFilter(option);
+    updatePoolTypeFilter(options: string[]) {
+      (this.$refs.poolsTable as any).updatePoolTypeFilter(options);
     },
 
-    updateFeeTierFilter(option: string) {
-      (this.$refs.poolsTable as any).updateFeeTierFilter(option);
+    updateFeeTierFilter(options: string[]) {
+      (this.$refs.poolsTable as any).updateFeeTierFilter(options);
     },
 
     getFeeTierOptions() {

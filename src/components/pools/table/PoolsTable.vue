@@ -385,18 +385,18 @@ export default {
       return [...feeTierOptions];
     },
 
-    updatePoolTypeFilter(option: string) {
-      if (this.selectedPoolTypes.length === this.poolTypesOptions.length)
-        this.selectedPoolTypes = [];
-
-      this.updateSelectedOptions(this.selectedPoolTypes, option);
+    updatePoolTypeFilter(options: string[]) {
+      const updatedSelectedOptions = options.length
+        ? [...options]
+        : [...this.poolTypesOptions];
+      this.selectedPoolTypes = updatedSelectedOptions as PoolTypes[];
     },
 
-    updateFeeTierFilter(option: string) {
-      if (this.selectedFeeTiers.length === this.feeTierOptions.length)
-        this.selectedFeeTiers = [];
-
-      this.updateSelectedOptions(this.selectedFeeTiers, option);
+    updateFeeTierFilter(options: string[]) {
+      const updatedSelectedOptions = options.length
+        ? [...options]
+        : [...this.feeTierOptions];
+      this.selectedFeeTiers = updatedSelectedOptions;
     },
   },
 

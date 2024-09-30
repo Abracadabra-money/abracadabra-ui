@@ -16,6 +16,6 @@ export type PositionsSortKey =
 export type FilterData = {
   filterKey: string;
   text?: string;
-  emitter: (option: string) => void;
+  emitter: (options: string[]) => void;
   options: string[];
 };

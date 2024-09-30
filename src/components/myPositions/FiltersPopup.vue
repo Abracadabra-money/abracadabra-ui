@@ -24,7 +24,10 @@
               @click="pickOption(filter.filterKey, option)"
             >
               <RadioButton
-                :active="filtersOptionsPicked[filter.filterKey][option]"
+                :active="
+                  filtersOptionsPickedByKey[filter.filterKey].options[index]
+                    .value
+                "
               />
               {{ option }}
             </div>
@@ -89,6 +92,11 @@ type PickedSorter = {
   order: SortOrder;
 };
 
+type PickedFilterOption = {
+  name: string;
+  value: boolean;
+};
+
 export default {
   props: {
     filtersData: { type: Array as PropType<FilterData[]> },
@@ -98,13 +106,13 @@ export default {
   data() {
     return {
       picked: null as PickedSorter | null,
-      filtersOptionsPicked: {} as any,
+      filtersOptionsPickedByKey: {} as any,
     };
   },
 
   computed: {
     isDisabled() {
-      return !this.picked;
+      return !this.picked && !this.filtersData;
     },
   },
 
@@ -117,25 +125,40 @@ export default {
     },
 
     pickOption(filterKey: string, option: string) {
-      this.filtersOptionsPicked[filterKey][option] =
-        !this.filtersOptionsPicked[filterKey][option];
+      let valueToSet = false;
+      const optionIndex = this.filtersOptionsPickedByKey[
+        filterKey
+      ].options.findIndex((element: PickedFilterOption) => {
+        valueToSet = !element.value;
+        return element.name === option;
+      });
 
-      this.filtersData
-        ?.find((filter) => filter.filterKey === filterKey)
-        ?.emitter(option);
-      console.log(
-        { filterKey, option },
-        this.filtersOptionsPicked[filterKey][option]
-      );
+      this.filtersOptionsPickedByKey[filterKey].options[optionIndex].value =
+        valueToSet;
+    },
+
+    applyPickedFilterOptions() {
+      const filterKeys = Object.keys(this.filtersOptionsPickedByKey);
+      filterKeys.forEach((key: string) => {
+        const emitter = this.filtersOptionsPickedByKey[key].emitter;
+        const optionsToEmit = this.filtersOptionsPickedByKey[key].options
+          .filter((option: PickedFilterOption) => option.value)
+          .map((option: PickedFilterOption) => option.name);
+
+        emitter(optionsToEmit);
+      });
     },
 
     applyFilter() {
-      if (!this.picked) return false;
-      this.$emit(
-        "updateSortKey",
-        this.picked?.sorter.tableKey,
-        this.picked?.order
-      );
+      if (this.picked)
+        this.$emit(
+          "updateSortKey",
+          this.picked?.sorter.tableKey,
+          this.picked?.order
+        );
+
+      if (this.filtersData) this.applyPickedFilterOptions();
+
       this.closePopup();
     },
 
@@ -145,10 +168,13 @@ export default {
   },
 
   created() {
-    (this.filtersData || []).forEach(({ filterKey, options }) => {
-      this.filtersOptionsPicked[filterKey] = {};
+    (this.filtersData || []).forEach(({ filterKey, options, emitter }) => {
+      this.filtersOptionsPickedByKey[filterKey] = { emitter, options: [] };
       options.forEach((option: string) => {
-        this.filtersOptionsPicked[filterKey][option] = false;
+        this.filtersOptionsPickedByKey[filterKey].options.push({
+          name: option,
+          picked: false,
+        });
       });
     });
   },
@@ -165,6 +191,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@include scrollbar;
+
 .filters-popup {
   position: fixed;
   top: 0;
@@ -210,7 +238,6 @@ export default {
   flex-direction: column;
   gap: 24px;
   width: 100%;
-  overflow: auto;
 }
 
 .sorter,
