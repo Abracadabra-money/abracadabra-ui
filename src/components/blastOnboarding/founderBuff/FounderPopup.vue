@@ -284,9 +284,6 @@ export default {
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")
     ),
-    FounderCheckBox: defineAsyncComponent(() =>
-      import("@/components/blastOnboarding/founderBuff/FounderCheckBox.vue")
-    ),
   },
 };
 </script>

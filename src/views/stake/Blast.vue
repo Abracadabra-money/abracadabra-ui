@@ -17,9 +17,9 @@
               Head to MIMSwap to participate in Phase 3!
             </h4>
           </div>
-          <router-link class="launch-link" :to="{ name: 'BlastOnboarding' }">
+          <div class="launch-link">
             Launch
-          </router-link>
+          </div>
         </div>
 
         <ActionBlock
@@ -59,6 +59,10 @@ import { mapGetters, mapActions, mapMutations } from "vuex";
 import { getStakeInfo } from "@/helpers/blast/stake/getStakeInfo";
 import moment from "moment";
 
+import notification from "@/helpers/notification/notification";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
+import { claim } from "@/helpers/blast/stake/actions/claim";
+
 export default {
   data() {
     return {
@@ -94,6 +98,33 @@ export default {
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
+
+    async claimHandler(lock = false) {
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
+
+      const { contract } = this.stakeInfo.data.config;
+
+      console.log(contract);
+
+      const { error } = await claim(contract, lock);
+
+      this.deleteNotification(notificationId);
+
+      if (error) {
+        const errorNotification = {
+          msg: notificationErrorMsg({ message: error.msg }),
+          type: "error",
+        };
+
+        this.deleteNotification(notificationId);
+        await this.createNotification(errorNotification);
+      } else {
+        await this.createNotification(notification.success);
+        this.$router.push({ name: "PointsDashboard" });
+      }
+    },
 
     changeActionTab(action: string) {
       this.actionActiveTab = action;
