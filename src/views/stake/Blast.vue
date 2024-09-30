@@ -62,6 +62,8 @@ import moment from "moment";
 import notification from "@/helpers/notification/notification";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { claim } from "@/helpers/blast/stake/actions/claim";
+import { formatTokenBalance, formatUSD } from "@/helpers/filters";
+import { formatUnits } from "viem";
 
 export default {
   data() {
@@ -93,11 +95,38 @@ export default {
       if (!this.mobileMode) return true;
       return this.currentMobileTab == 1;
     },
+
+    tokensInfo() {
+      return this.stakeInfo.tokensInfo.map((token) => {
+        return {
+          name: token.config.name,
+          icon: token.config.icon,
+          amount: this.formatTokenBalance(
+            token.userInfo.balances.locked,
+            token.config.decimals
+          ),
+          amountUsd: formatUSD(
+            this.formatTokenBalance(
+              token.userInfo.balances.locked,
+              token.config.decimals
+            ) * token.config.price
+          ),
+        };
+      });
+    },
   },
 
   methods: {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
+
+    formatTokenBalance(value) {
+      return formatTokenBalance(formatUnits(value, 18));
+    },
+
+    formatAmount(value) {
+      return formatTokenBalance(value);
+    },
 
     async claimHandler(lock = false) {
       const notificationId = await this.createNotification(
