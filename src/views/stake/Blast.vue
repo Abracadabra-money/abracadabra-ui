@@ -26,7 +26,6 @@
           class="action"
           :stakeInfo="stakeInfo"
           :actionActiveTab="actionActiveTab"
-          :userPointsEarned="userPointsEarned"
           :mobileMode="mobileMode"
           @updateStakeInfo="createStakeInfo"
           v-if="isActionTab"
@@ -36,7 +35,6 @@
       <StakeInfo
         class="info"
         :stakeInfo="stakeInfo"
-        :pointsStatistics="pointsStatistics"
         :mobileMode="mobileMode"
         :timeInfo="timeInfo"
         v-if="isInfoTab"
@@ -50,10 +48,6 @@
 </template>
 
 <script lang="ts">
-import {
-  fetchPointsStatistics,
-  fetchUserPointsStatistics,
-} from "@/helpers/blast/stake/points";
 import { defineAsyncComponent } from "vue";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { getStakeInfo } from "@/helpers/blast/stake/getStakeInfo";
@@ -70,8 +64,6 @@ export default {
     return {
       stakeInfo: null as any,
       updateInterval: null as any,
-      userPointsEarned: null as any,
-      pointsStatistics: null as any,
       actionActiveTab: "Withdraw",
       currentMobileTab: 0,
       mobileMode: false,
@@ -164,10 +156,8 @@ export default {
     },
 
     async createStakeInfo() {
-      [this.stakeInfo, this.userPointsEarned, this.pointsStatistics] = await Promise.all([
-        getStakeInfo(this.account),
-        fetchUserPointsStatistics(this.account),
-        fetchPointsStatistics(),
+      [this.stakeInfo] = await Promise.all([
+        getStakeInfo(this.account)
       ]);
     },
 

@@ -22,7 +22,7 @@
     <div class="total">
       <h3 class="title">Total Points Distributed</h3>
       <div class="value">
-        {{ formatAmount(pointsStatistics?.liquidityPoints?.total?.finalized ?? 0) }}
+        {{ 0 }}
       </div>
 
       <div class="line"></div>
@@ -34,10 +34,12 @@
         </div>
         <div class="pending-info">
           <span>To be distributed</span>
-          <span class="pending-value roboto"> {{ totalPending }}</span>
+          <span class="pending-value roboto"> {{ 0 }}</span>
         </div>
       </div>
+
     </div>
+
   </div>
 </template>
 
@@ -52,10 +54,6 @@ import usdbIcon from "@/assets/images/tokens/USDB.png";
 export default {
   props: {
     stakeInfo: {
-      type: Object,
-      required: true,
-    },
-    pointsStatistics: {
       type: Object,
       required: true,
     },
@@ -79,12 +77,7 @@ export default {
     },
 
     totalPending() {
-      const totalPending = this.pointsStatistics?.liquidityPoints?.total?.pending ?? 0;
-      const percentagePassed = this.timeInfo?.percentagePassed || 0;
-
-      const updatedTotalPending = totalPending * (percentagePassed / 100);
-      const parsedValue = parseFloat(updatedTotalPending.toFixed(0));
-      return this.formatAmount(parsedValue);
+      return this.formatAmount(0);
     },
 
     totalMimDeposited() {

@@ -17,7 +17,6 @@
 
     <Totals
       :stakeInfo="stakeInfo"
-      :pointsStatistics="pointsStatistics"
       :timeInfo="timeInfo"
     />
 
@@ -63,10 +62,6 @@ import PointsInfo from "@/components/stake/earnPoints/PointsInfo.vue";
 export default {
   props: {
     stakeInfo: {
-      type: Object,
-      required: true,
-    },
-    pointsStatistics: {
       type: Object,
       required: true,
     },

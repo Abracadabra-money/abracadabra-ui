@@ -68,13 +68,13 @@
             <div class="lock-info-row">
               <span class="lock-info-title">Points</span>
               <span class="lock-info-value">{{
-                formatTokenBalance(userPointsEarned?.liquidityPoints?.total?.finalized ?? 0)
+                formatTokenBalance(0)
               }}</span>
             </div>
 
             <div class="lock-info-row" v-if="account">
               <span class="lock-info-title"
-                >Earning <span class="gold">{{ userTotalPending }}</span> Points
+                >Earning <span class="gold">{{ 0 }}</span> Points
                 per hour</span
               >
             </div>
@@ -164,9 +164,6 @@ export default {
       type: Object,
       required: true,
     },
-    userPointsEarned: {
-      type: Object,
-    },
     mobileMode: {
       type: Boolean,
       default: false,
@@ -198,7 +195,7 @@ export default {
     }),
 
     userTotalPending() {
-      const totalPending = this.userPointsEarned?.liquidityPoints?.total?.pending ?? 0;
+      const totalPending = 0;
       return formatTokenBalance(totalPending);
     },
 
