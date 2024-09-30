@@ -121,17 +121,6 @@
         </div>
       </div>
     </div>
-
-    <LocalPopupWrap
-      :isOpened="isWithdrawPopup"
-      :isFarm="true"
-      @closePopup="isWithdrawPopup = false"
-    >
-      <WithdrawLockPopup
-        @withdrawLocked="withdrawLocked"
-        :tokenInfo="fromToken"
-      />
-    </LocalPopupWrap>
   </div>
 </template>
 
@@ -430,7 +419,7 @@ export default {
       }
 
       if (this.isWithdrawLock) {
-        this.isWithdrawPopup = true;
+        this.withdrawLocked();
         return false;
       }
 
@@ -549,14 +538,6 @@ export default {
     ),
     LiquidityInfo: defineAsyncComponent(
       () => import("@/components/stake/earnPoints/LiquidityInfo.vue")
-    ),
-    LocalPopupWrap: defineAsyncComponent(
-      // @ts-ignore
-      () => import("@/components/popups/LocalPopupWrap.vue")
-    ),
-    WithdrawLockPopup: defineAsyncComponent(
-      // @ts-ignore
-      () => import("@/components/popups/WithdrawLockPopup.vue")
     ),
   },
 };
