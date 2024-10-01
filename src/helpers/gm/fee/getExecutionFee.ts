@@ -32,5 +32,10 @@ export const getExecutionFee = async (
 
   const feeTokenAmount = adjustedGasLimit.mul(gasPrice);
 
-  return feeTokenAmount;
+  // NOTICE: To be sure that the fee is enough to cover the gas cost
+  const defaultBufferBps = 5000;
+  const BASIS_POINTS_DIVISOR = 10000;
+  const buffer = feeTokenAmount.mul(defaultBufferBps).div(BASIS_POINTS_DIVISOR); // 50%
+
+  return feeTokenAmount.add(buffer);
 };

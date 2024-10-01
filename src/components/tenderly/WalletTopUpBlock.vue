@@ -69,10 +69,12 @@
 import { providers } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
+import mimConfigs from "@/configs/tokens/mim";
+import poolConfigs from "@/configs/pools/pools";
 import cauldronsConfig from "@/configs/cauldrons";
 import { mapGetters, mapActions, mapMutations } from "vuex";
-import { tokenTransfer } from "@/helpers/tenderly/tokenTransfer";
 import notification from "@/helpers/notification/notification";
+import { tokenTransfer } from "@/helpers/tenderly/tokenTransfer";
 import { getTotalAmountByHolders } from "@/helpers/tenderly/getTotalAmountByHolders";
 
 export default {
@@ -111,17 +113,74 @@ export default {
     },
 
     tokenList() {
+      const tokenList = [];
+
+      const mimConfig = mimConfigs.find(
+        (config) => config.chainId === +this.chainId
+      );
+
+      if (mimConfig) {
+        const mim = tokenList.find(
+          (token) => token?.address === mimConfig.address
+        );
+
+        if (!mim)
+          tokenList.push({
+            name: mimConfig.name,
+            icon: mimConfig.image,
+            address: mimConfig.address,
+          });
+      }
+
       const filteredCauldron = cauldronsConfig.filter(
         (config) => config.chainId === +this.chainId
       );
 
-      return filteredCauldron.map((config) => {
-        return {
-          name: config.collateralInfo.name,
-          icon: config.icon,
-          address: config.collateralInfo.address,
-        };
+      filteredCauldron.map((config) => {
+        const token = tokenList.find(
+          (token) => token?.address === config.collateralInfo.address
+        );
+
+        if (!token) {
+          tokenList.push({
+            name: config.collateralInfo.name,
+            icon: config.icon,
+            address: config.collateralInfo.address,
+          });
+        }
       });
+
+      const filteredPools = poolConfigs.filter(
+        (config) => config.chainId === +this.chainId
+      );
+
+      filteredPools.map((pool) => {
+        const baseToken = tokenList.find(
+          (token) => token?.address === pool.baseToken.contract.address
+        );
+
+        if (!baseToken) {
+          tokenList.push({
+            name: pool.baseToken.name,
+            icon: pool.baseToken.icon,
+            address: pool.baseToken.contract.address,
+          });
+        }
+
+        const quoteToken = tokenList.find(
+          (token) => token?.address === pool.quoteToken.contract.address
+        );
+
+        if (!quoteToken) {
+          tokenList.push({
+            name: pool.quoteToken.name,
+            icon: pool.quoteToken.icon,
+            address: pool.quoteToken.contract.address,
+          });
+        }
+      });
+
+      return tokenList;
     },
   },
 

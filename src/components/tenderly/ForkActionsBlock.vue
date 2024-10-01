@@ -12,10 +12,17 @@
         @click="$emit('changeTab', 'GasTopUpBlock')"
         >Gas Top Up</BaseButton
       >
+    </div>
+    <div class="btn-wrap">
       <BaseButton
         :primary="primaryTab === 'CauldronTopUpBlock'"
         @click="$emit('changeTab', 'CauldronTopUpBlock')"
         >Cauldron Top Up</BaseButton
+      >
+      <BaseButton
+        :primary="primaryTab === 'AddLiquidityBlock'"
+        @click="$emit('changeTab', 'AddLiquidityBlock')"
+        >Add Liquidity</BaseButton
       >
     </div>
   </div>

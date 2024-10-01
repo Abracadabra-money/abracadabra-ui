@@ -70,37 +70,12 @@
         </div>
         <p class="link-description">Stake APE</p>
       </router-link>
-
-      <!-- <router-link
-        class="list-link"
-        :to="{ name: 'magicKLP' }"
-        @click="$emit('closeMobileMenu')"
-      >
-        <div class="link-title">
-          <span class="stake-token">
-            <img class="link-icon" src="@/assets/images/stake/tokens/KLP.png" />
-            KLP
-          </span> -->
-      <!-- <span class="apr" v-if="klpApr"
-            >APR: {{ formatPercent(klpApr) }}</span
-          >
-          <div class="loader-wrap" v-else>
-            <BaseLoader type="loader" />
-          </div> -->
-      <!-- </div>
-        <p class="link-description">Stake KLP</p>
-      </router-link> -->
     </div>
   </div>
 </template>
 
 <script>
-import {
-  ANALYTICS_URK,
-  ARBITRUM_CHAIN_ID,
-  MAINNET_CHAIN_ID,
-} from "@/constants/global";
-import axios from "axios";
+import { ARBITRUM_CHAIN_ID, MAINNET_CHAIN_ID } from "@/constants/global";
 import { mapGetters } from "vuex";
 import { formatPercent } from "@/helpers/filters";
 import BaseLoader from "@/components/base/BaseLoader.vue";
@@ -116,7 +91,6 @@ export default {
       spellApr: null,
       glpApr: null,
       apeApr: null,
-      klpApr: null,
       mimApr: null,
     };
   },
@@ -142,11 +116,6 @@ export default {
       this.apeApr = await getMagicApeApy(MAINNET_CHAIN_ID);
     },
 
-    async getKlpApr() {
-      const { data } = await axios.get(`${ANALYTICS_URK}/kinetix/info`);
-      this.klpApr = data.apr;
-    },
-
     async getMimApr() {
       const publicClient = this.getChainById(ARBITRUM_CHAIN_ID).publicClient;
       const config = mimSavingRateConfig.find(
@@ -165,7 +134,6 @@ export default {
     this.getSpellApr();
     this.getGlpApr();
     this.getApeApr();
-    // await this.getKlpApr();
     this.getMimApr();
   },
 

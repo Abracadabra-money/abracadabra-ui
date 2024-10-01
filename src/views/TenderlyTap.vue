@@ -69,6 +69,9 @@ export default {
     CauldronTopUpBlock: defineAsyncComponent(() =>
       import("@/components/tenderly/CauldronTopUpBlock.vue")
     ),
+    AddLiquidityBlock: defineAsyncComponent(() =>
+      import("@/components/tenderly/AddLiquidityBlock.vue")
+    ),
     ForksInfoBlock: defineAsyncComponent(() =>
       import("@/components/tenderly/ForksInfoBlock.vue")
     ),

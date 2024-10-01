@@ -80,7 +80,7 @@ export default {
 
   computed: {
     endDateTimestamp(): number {
-      return 1726146000;
+      return 1726581600;
     },
 
     currentTimeUnix(): number {
