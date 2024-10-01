@@ -25,8 +25,8 @@ export const getPoolTvlPieChartOption = async (pool: any) => {
         color: "white",
       },
       textAlign: "center",
-      x: "47.5%",
-      y: "35%",
+      x: "48%",
+      y: "36%",
     },
 
     series: [
@@ -99,8 +99,8 @@ const getTvlByToken = async (pool: any) => {
   const baseTokenAmount = pool.vaultReserve[0];
   const quoteTokenAmount = pool.vaultReserve[1];
 
-  const baseTokenValue = Number(formatUnits(baseTokenAmount, baseTokenDecimals));
-  const quoteTokenValue = Number(formatUnits(quoteTokenAmount, quoteTokenDecimals));
+  const baseTokenValue = Number(formatUnits(baseTokenAmount, baseTokenDecimals)) * pool.baseTokenPrice;
+  const quoteTokenValue = Number(formatUnits(quoteTokenAmount, quoteTokenDecimals)) * pool.quoteTokenPrice;
 
   return {
     base: baseTokenValue,
