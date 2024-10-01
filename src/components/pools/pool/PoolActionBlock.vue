@@ -3,7 +3,7 @@
     <div class="pool-header">
       <h2 class="title">Pool</h2>
 
-      <TokenPair class="token-pair" :pool="pool" />
+      <TokenPair class="token-pair" chainIcon :pool="pool" />
 
       <div class="initial-parameters">
         <ParameterChip>{{ feeTier }}</ParameterChip>

@@ -63,7 +63,11 @@ export default {
     },
 
     tvl() {
-      return formatLargeSum(formatUnits(this.pool.totalSupply, this.decimals));
+      const formattedTotalSupply = Number(
+        formatUnits(this.pool.totalSupply, this.decimals)
+      );
+      const tvlInUsd = formattedTotalSupply * (this.pool.price || 1);
+      return formatLargeSum(tvlInUsd);
     },
 
     feeTier() {
@@ -203,6 +207,10 @@ export default {
   max-width: 180px;
   width: 100%;
   text-align: center;
+}
+
+.token-pair {
+  gap: 4px;
 }
 
 .token-pair::v-deep(.name) {

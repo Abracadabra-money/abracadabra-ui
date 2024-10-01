@@ -136,10 +136,13 @@ const createPoolConfig = async (pool: any, chainId: number) => {
     chainId,
     quoteTokenSymbol
   );
+
+  const formattedLpName = lpName.split(' ').pop().replace('/', ' / ')
+
   return {
     id: pool.id,
     chainId: chainId,
-    name: lpName,
+    name: formattedLpName,
     icon: useImage(`assets/images/tokens/MIM-deUSD.png`),
     decimals: lpDecimals,
     contract: {
