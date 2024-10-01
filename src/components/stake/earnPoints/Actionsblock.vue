@@ -1,11 +1,5 @@
 <template>
   <div class="action-block">
-    <LiquidityInfo
-      class="liquidity-info"
-      :stakeInfo="stakeInfo"
-      v-if="mobileMode"
-    />
-
     <div class="action-wrap">
       <div class="deposit-wrap">
         <div class="row">
@@ -42,21 +36,6 @@
           @updateInputValue="updateMainValue"
         />
 
-        <div class="action-info">
-          <div class="info-row">
-            <span>Points per day</span>
-            <span>Initializing</span>
-          </div>
-          <div class="info-row">
-            <span>Multiplier</span>
-            <span class="multiplier-value">{{ multiplier }}X</span>
-          </div>
-          <!-- <div class="info-row" v-if="isLock && isStakeAction">
-            <span>Locking for</span>
-            <span> <Timer small /></span>
-          </div> -->
-        </div>
-
         <BaseButton primary :disabled="isActionDisabled" @click="actionHandler"
           >{{ actionButtonText }}
         </BaseButton>
@@ -65,17 +44,12 @@
       <div class="lock-wrap">
         <div class="lock-inner">
           <div class="lock-info">
-            <div class="lock-info-row">
-              <span class="lock-info-title">Points</span>
-              <span class="lock-info-value">{{
-                formatTokenBalance(0)
-              }}</span>
-            </div>
 
-            <div class="lock-info-row" v-if="account">
-              <span class="lock-info-title"
-                >Earning <span class="gold">{{ 0 }}</span> Points
-                per hour</span
+            <div class="lock-info-row">
+              <span class="lock-info-title">You Deposited</span>
+              <span class="lock-info-value">
+                <img class="lock-token-icon" :src="fromToken.icon" alt="" />
+                {{ formatAmount(fromToken.unlockAmount) }}</span
               >
             </div>
 
@@ -88,28 +62,6 @@
             </div>
 
             <div class="line"></div>
-
-            <div class="deposit-info">
-              <div class="lock-info-row">
-                <span class="lock-info-title">You deposited</span>
-
-                <span class="lock-info-value">
-                  <img class="lock-token-icon" :src="fromToken.icon" alt="" />
-                  {{ formatAmount(fromToken.unlockAmount) }}
-                </span>
-              </div>
-
-              <div class="lock-info-row">
-                <span class="lock-info-subtitle">
-                  Lock your {{ activeToken }} and earn more Points
-                </span>
-
-                <span class="lock-info-step">
-                  {{ dafaultBoost }}x
-                  <img src="@/assets/images/arrow-right.svg" alt="" /> 20x
-                </span>
-              </div>
-            </div>
 
             <BaseButton
               primary
@@ -535,9 +487,6 @@ export default {
     ),
     BaseButton: defineAsyncComponent(
       () => import("@/components/base/BaseButton.vue")
-    ),
-    LiquidityInfo: defineAsyncComponent(
-      () => import("@/components/stake/earnPoints/LiquidityInfo.vue")
     ),
   },
 };

@@ -1,7 +1,7 @@
 <template>
   <div class="stake-view">
-    <div class="stake-wrap" v-if="stakeInfo">
-      <div class="actions-wrap">
+
+    <div class="actions-wrap" v-if="stakeInfo">
         <BlastHead
           class="head"
           :mobileMode="mobileMode"
@@ -10,36 +10,16 @@
           @changeCurrentMobileTab="changeCurrentMobileTab"
         />
 
-        <div class="launch-wrap" v-if="currentMobileTab === 0">
-          <div>
-            <h3 class="launch-title">The LLE Event has concluded!</h3>
-            <h4 class="launch-subtitle">
-              Head to MIMSwap to participate in Phase 3!
-            </h4>
-          </div>
-          <div class="launch-link">
-            Launch
-          </div>
-        </div>
-
         <ActionBlock
           class="action"
           :stakeInfo="stakeInfo"
           :actionActiveTab="actionActiveTab"
           :mobileMode="mobileMode"
           @updateStakeInfo="createStakeInfo"
-          v-if="isActionTab"
         />
-      </div>
 
-      <StakeInfo
-        class="info"
-        :stakeInfo="stakeInfo"
-        :mobileMode="mobileMode"
-        :timeInfo="timeInfo"
-        v-if="isInfoTab"
-      />
-    </div>
+        <ClaimBox v-if="stakeInfo" :stakeInfo="stakeInfo" />
+      </div>
 
     <div class="loader-wrap" v-else>
       <BaseLoader large text="Loading stake" />
@@ -53,12 +33,6 @@ import { defineAsyncComponent } from "vue";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { getStakeInfo } from "@/helpers/blast/stake/getStakeInfo";
 import moment from "moment";
-
-import notification from "@/helpers/notification/notification";
-import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import { claim } from "@/helpers/blast/stake/actions/claim";
-import { formatTokenBalance, formatUSD } from "@/helpers/filters";
-import { formatUnits } from "viem";
 
 export default {
   data() {
@@ -78,171 +52,50 @@ export default {
 
   computed: {
     ...mapGetters({ account: "getAccount" }),
-
-    isActionTab() {
-      if (!this.mobileMode) return true;
-      return this.currentMobileTab == 0;
-    },
-
-    isInfoTab() {
-      if (!this.mobileMode) return true;
-      return this.currentMobileTab == 1;
-    },
-
-    tokensInfo() {
-      return this.stakeInfo.tokensInfo.map((token) => {
-        return {
-          name: token.config.name,
-          icon: token.config.icon,
-          amount: this.formatTokenBalance(
-            token.userInfo.balances.locked,
-            token.config.decimals
-          ),
-          amountUsd: formatUSD(
-            this.formatTokenBalance(
-              token.userInfo.balances.locked,
-              token.config.decimals
-            ) * token.config.price
-          ),
-        };
-      });
-    },
   },
 
   methods: {
-    ...mapActions({ createNotification: "notifications/new" }),
-    ...mapMutations({ deleteNotification: "notifications/delete" }),
-
-    formatTokenBalance(value, decimals = 18) {
-      return formatTokenBalance(formatUnits(value, decimals));
-    },
-
-    formatAmount(value) {
-      return formatTokenBalance(value);
-    },
-
-    async claimHandler(lock = false) {
-      const notificationId = await this.createNotification(
-        notification.pending
-      );
-
-      const { contract } = this.stakeInfo.data.config;
-
-      console.log(contract);
-
-      const { error } = await claim(contract, lock);
-
-      this.deleteNotification(notificationId);
-
-      if (error) {
-        const errorNotification = {
-          msg: notificationErrorMsg({ message: error.msg }),
-          type: "error",
-        };
-
-        this.deleteNotification(notificationId);
-        await this.createNotification(errorNotification);
-      } else {
-        await this.createNotification(notification.success);
-        this.$router.push({ name: "PointsDashboard" });
-      }
-    },
-
     changeActionTab(action: string) {
       this.actionActiveTab = action;
     },
 
-    changeCurrentMobileTab(newTabIndex: number) {
-      this.currentMobileTab = newTabIndex;
-    },
-
     async createStakeInfo() {
-      [this.stakeInfo] = await Promise.all([
-        getStakeInfo(this.account)
-      ]);
-    },
-
-    getWindowSize() {
-      if (window.innerWidth <= 600) this.mobileMode = true;
-      else {
-        this.mobileMode = false;
-        this.currentMobileTab = 0;
-      }
-    },
-
-    updateTimeInfo() {
-      const now = moment().utc();
-
-      let duration;
-
-      const nextHour = moment.utc().startOf("hour").add(1, "hours"); // next hour
-      duration = moment.duration(nextHour.diff(now));
-
-      if (duration.asSeconds() <= 0) {
-        clearInterval(this.timerInterval);
-        this.timerInterval = ["00m", "00s"];
-        return;
-      }
-
-      const minutes = Math.max(duration.minutes(), 0);
-      const seconds = Math.max(duration.seconds(), 0);
-
-      const timerValues = [
-        `${minutes.toString().padStart(2, "0")}m`,
-        `${seconds.toString().padStart(2, "0")}s`,
-      ];
-
-      const secondsPassed = now.seconds() + now.minutes() * 60;
-      const percentagePassedInSeconds = (secondsPassed / 3600) * 100;
-
-      const timerInfo = {
-        percentagePassed: percentagePassedInSeconds,
-        timerValues,
-      };
-
-      this.timeInfo = timerInfo;
+      [this.stakeInfo] = await Promise.all([getStakeInfo(this.account)]);
     },
 
     stopIntervals() {
       clearInterval(this.updateInterval);
-      clearInterval(this.timerInterval);
     },
 
     createIntervals() {
       this.updateInterval = setInterval(async () => {
         await this.createStakeInfo();
       }, 60000);
-
-      this.timerInterval = setInterval(this.updateTimeInfo, 1000);
     },
   },
 
   async created() {
     await this.createStakeInfo();
 
-    this.getWindowSize();
-    window.addEventListener("resize", this.getWindowSize, false);
-
     this.createIntervals();
   },
 
   beforeUnmount() {
     this.stopIntervals();
-    window.removeEventListener("resize", this.getWindowSize);
   },
 
   components: {
     ActionBlock: defineAsyncComponent(
       () => import("@/components/stake/earnPoints/Actionsblock.vue")
     ),
-    StakeInfo: defineAsyncComponent(
-      () => import("@/components/stake/earnPoints/StakeInfo.vue")
-    ),
     BaseLoader: defineAsyncComponent(
       () => import("@/components/base/BaseLoader.vue")
     ),
     BlastHead: defineAsyncComponent(
       () => import("@/components/stake/earnPoints/BlastHead.vue")
+    ),
+    ClaimBox: defineAsyncComponent(
+      () => import("@/components/stake/earnPoints/ClaimBox.vue")
     ),
   },
 };
@@ -257,7 +110,7 @@ export default {
   position: relative;
   max-width: 1310px;
   width: 100%;
-  padding: 124px 15px 90px;
+  padding: 40px 15px 90px;
   display: grid;
   grid-template-columns: 520px 1fr;
   grid-template-areas: "head info" "action info";
@@ -269,6 +122,9 @@ export default {
   gap: 32px;
   display: flex;
   flex-direction: column;
+  max-width: 520px;
+  margin: 0 auto;
+  padding-top: 150px;
 }
 
 .head {
