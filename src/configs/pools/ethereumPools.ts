@@ -56,6 +56,43 @@ const ethereumPools: Array<PoolConfig> = [
       isMim: true,
     },
   },
+  {
+    id: 2,
+    chainId: 1,
+    name: "MIM / USD0",
+    icon: useImage(`assets/images/tokens/MIM-deUSD.png`),
+    decimals: 18,
+    contract: {
+      address: "0x6f9F9ea9c06c7D928a2fFbbCc5542b18188488E9",
+      abi: BlastMagicLpAbi,
+    },
+    baseToken: {
+      name: "MIM",
+      icon: useImage(`assets/images/tokens/MIM.png`),
+      decimals: 18,
+      contract: {
+        address: "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
+        abi: erc20Abi,
+      },
+      isPopular: true,
+    },
+    quoteToken: {
+      name: "USD0",
+      icon: useImage(`assets/images/tokens/USD0.png`),
+      contract: {
+        address: "0x73A15FeD60Bf67631dC6cd7Bc5B6e8da8190aCF5",
+        abi: erc20Abi,
+      },
+      decimals: 18,
+      isPopular: false,
+    },
+    rewardTokens: [],
+    settings: {
+      isNew: true,
+      isDeprecated: false,
+      isMim: true,
+    },
+  },
 ];
 
 export default ethereumPools;
