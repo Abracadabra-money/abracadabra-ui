@@ -102,16 +102,6 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/views/MimSwap.vue"),
   },
   {
-    path: "/points-dashboard",
-    name: "PointsDashboard",
-    component: () => import("@/views/PointsDashboard.vue"),
-  },
-  {
-    path: "/blast-onboarding",
-    name: "BlastOnboarding",
-    component: () => import("@/views/BlastOnboarding.vue"),
-  },
-  {
     path: "/potion-points",
     name: "PotionPoints",
     component: () => import("@/views/PotionPoints.vue"),

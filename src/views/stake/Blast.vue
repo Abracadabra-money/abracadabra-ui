@@ -48,6 +48,7 @@
 </template>
 
 <script lang="ts">
+//@ts-nocheck
 import { defineAsyncComponent } from "vue";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { getStakeInfo } from "@/helpers/blast/stake/getStakeInfo";
@@ -112,8 +113,8 @@ export default {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
-    formatTokenBalance(value) {
-      return formatTokenBalance(formatUnits(value, 18));
+    formatTokenBalance(value, decimals = 18) {
+      return formatTokenBalance(formatUnits(value, decimals));
     },
 
     formatAmount(value) {
