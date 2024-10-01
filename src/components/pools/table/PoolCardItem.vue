@@ -7,7 +7,8 @@
 
     <div class="row">
       <TokenPair :pool="pool" chainIcon />
-      <div>
+      <ElixirPotionMultiplier v-if="isMultiplierLabel" />
+      <div v-else>
         <h3 class="title">APR</h3>
         <div class="value apr">
           {{ poolApr }}
@@ -99,6 +100,10 @@ export default {
       return "";
     },
 
+    isMultiplierLabel() {
+      return this.pool.config.settings.isElixirPotions;
+    },
+
     goToPage() {
       return {
         name: "Pool",
@@ -123,6 +128,9 @@ export default {
   components: {
     TokenPair: defineAsyncComponent(
       () => import("@/components/pools/pool/TokenPair.vue")
+    ),
+    ElixirPotionMultiplier: defineAsyncComponent(
+      () => import("@/components/ui/info/ElixirPotionMultiplier.vue")
     ),
   },
 };
@@ -205,7 +213,6 @@ export default {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  flex-wrap: wrap;
 }
 
 .pool-info {

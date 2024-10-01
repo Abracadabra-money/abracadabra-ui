@@ -10,7 +10,7 @@ export enum RState {
   ONE,
   ABOVE_ONE,
   BELOW_ONE,
-};
+}
 
 export type PMMState = {
   i: bigint;
@@ -47,7 +47,6 @@ export type MagicLPInfo = {
   };
   lpFeeRate: bigint;
   userInfo: MagicLPInfoUserInfo;
-  statisticsData: any; // NOTICE: will update when we have the data
   poolAPR?: any;
   price?: number;
 } & PoolConfig;

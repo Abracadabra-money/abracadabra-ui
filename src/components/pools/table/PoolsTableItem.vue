@@ -14,7 +14,9 @@
 
     <div class="column pool-type">{{ poolType }}</div>
 
-    <div class="column apr">
+    <ElixirPotionMultiplier class="column" v-if="isMultiplierLabel" />
+
+    <div class="column apr" v-else>
       <div class="token-icons">
         <BaseTokenIcon
           v-for="(token, index) in rewardTokens"
@@ -96,6 +98,10 @@ export default {
       return "";
     },
 
+    isMultiplierLabel() {
+      return this.pool.config.settings.isElixirPotions;
+    },
+
     goToPage() {
       return {
         name: "Pool",
@@ -113,6 +119,9 @@ export default {
     ),
     TokenPair: defineAsyncComponent(
       () => import("@/components/pools/pool/TokenPair.vue")
+    ),
+    ElixirPotionMultiplier: defineAsyncComponent(
+      () => import("@/components/ui/info/ElixirPotionMultiplier.vue")
     ),
   },
 };

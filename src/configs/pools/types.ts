@@ -22,6 +22,7 @@ type PoolSettings = {
   isDeprecated: boolean;
   isMim: boolean;
   isPointsLogic?: boolean;
+  isElixirPotions?: boolean;
 };
 
 type InitialParameters = {

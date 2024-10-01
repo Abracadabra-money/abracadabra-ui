@@ -54,6 +54,7 @@ const ethereumPools: Array<PoolConfig> = [
       isNew: true,
       isDeprecated: false,
       isMim: true,
+      isElixirPotions: true,
     },
     initialParameters: {
       I: 1000000000000000000n,
