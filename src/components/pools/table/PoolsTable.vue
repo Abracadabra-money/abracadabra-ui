@@ -126,7 +126,7 @@ export default {
       showActivePools: true,
       showMyPools: false,
       showAvailableRewardsPools: false,
-      sortKey: "",
+      sortKey: "TVL",
       sortOrder: "up" as SortOrder,
       selectedChains: [] as number[],
       poolTypesOptions: [...poolTypesArray],

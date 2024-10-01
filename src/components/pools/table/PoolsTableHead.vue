@@ -37,8 +37,8 @@ export default {
 
   data() {
     return {
-      sortKey: "",
-      sortOrder: true,
+      sortKey: "TVL",
+      sortOrder: "up",
     };
   },
 

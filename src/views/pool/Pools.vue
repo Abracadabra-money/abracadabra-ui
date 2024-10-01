@@ -48,7 +48,6 @@ export default {
         {
           tableKey: "Fee Tier",
           tooltip: "Fee Tier.",
-          isSortingCriterion: true,
         },
         {
           tableKey: "Pool type",
