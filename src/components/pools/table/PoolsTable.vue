@@ -17,6 +17,7 @@
 
       <div class="dropdowns-wrap">
         <TableDropdown
+          class="pool-type-dropdown"
           title="Pool type"
           :options="poolTypesOptions"
           :selectedOptions="selectedPoolTypes"
@@ -29,6 +30,7 @@
         />
 
         <TableDropdown
+          class="fee-tier-dropdown"
           title="Fee tier"
           :options="feeTierOptions"
           :selectedOptions="selectedFeeTiers"
@@ -606,6 +608,11 @@ export default {
   .dropdowns-wrap {
     order: 2;
     margin-left: 0;
+  }
+
+  .pool-type-dropdown,
+  .fee-tier-dropdown {
+    display: none;
   }
 
   .pools-table-wrap {

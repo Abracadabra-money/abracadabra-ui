@@ -245,6 +245,7 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  text-transform: capitalize;
 }
 
 .options {
