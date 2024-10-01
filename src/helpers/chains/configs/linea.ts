@@ -5,6 +5,8 @@ import { initPublicClient } from "@/helpers/chains/initPublicClient";
 import { initStaticJsonRpcProvider } from "@/helpers/chains/initStaticJsonRpcProvider";
 
 const rpcList = filterRpcUrls(linea, [
+  "https://linea-rpc.publicnode.com",
+  "https://rpc.linea.build",
   "https://linea.decubate.com",
   "https://linea.drpc.org",
   "https://1rpc.io/linea",
