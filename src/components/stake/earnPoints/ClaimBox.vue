@@ -1,18 +1,22 @@
 <template>
   <div class="claim-wrap">
-    <div>
+    <!-- <div>
       <h3 class="launch-title">Locked Tokens</h3>
       <h4 class="launch-subtitle">
         {{ parseLockedBalancesInfo }}
       </h4>
-    </div>
-    <div
+    </div> -->
+    <!-- <div
       class="launch-link"
       @click="claimHandler"
-      :class="{ disabled: isUserHasLockedTokens }"
+      :class="{ disabled: !isUserHasLockedTokens }"
     >
       Claim
-    </div>
+    </div> -->
+
+    <BaseButton primary :disabled="!isUserHasLockedTokens" @click="claimHandler"
+          >Claim
+        </BaseButton>
   </div>
 </template>
 
@@ -24,6 +28,8 @@ import { claim } from "@/helpers/blast/stake/actions/claim";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import { formatUnits } from "viem";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
+import { defineAsyncComponent } from "vue";
+
 
 export default {
   props: {
@@ -36,6 +42,13 @@ export default {
     return {
       claimable: 0n,
     };
+  },
+  watch: {
+    async account() {
+      this.checkClaimableAmount().then((claimable) => {
+        this.claimable = claimable;
+      });
+    },
   },
   computed: {
     ...mapGetters({ account: "getAccount", chainId: "getChainId" }),
@@ -147,25 +160,30 @@ export default {
       this.claimable = claimable;
     });
   },
+  components: {
+    BaseButton: defineAsyncComponent(
+      () => import("@/components/base/BaseButton.vue")
+    ),
+  }
 };
 </script>
 
 <style lang="scss" scoped>
 .claim-wrap {
   width: 100%;
-  padding: 24px 16px;
-  border-radius: 16px;
-  border: 1px solid #00296b;
-  background: linear-gradient(
-    146deg,
-    rgba(0, 10, 35, 0.07) 0%,
-    rgba(0, 80, 156, 0.07) 101.49%
-  );
-  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
-  backdrop-filter: blur(12.5px);
-  gap: 12px;
-  display: flex;
-  flex-direction: column;
+  // padding: 24px 16px;
+  // border-radius: 16px;
+  // border: 1px solid #00296b;
+  // background: linear-gradient(
+  //   146deg,
+  //   rgba(0, 10, 35, 0.07) 0%,
+  //   rgba(0, 80, 156, 0.07) 101.49%
+  // );
+  // box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  // backdrop-filter: blur(12.5px);
+  // gap: 12px;
+  // display: flex;
+  // flex-direction: column;
 
   .launch-title {
     font-size: 18px;

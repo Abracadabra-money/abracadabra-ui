@@ -9,20 +9,6 @@
             :items="tokensList"
             @select="changeActiveToken"
           />
-
-          <Toggle
-            v-if="isStakeAction"
-            text="Lock & Boost"
-            :selected="isLock"
-            @updateToggle="changeLockToggle"
-          />
-
-          <!-- <Toggle
-            v-if="!isStakeAction"
-            text="Withdraw Locked"
-            :selected="isWithdrawLock"
-            @updateToggle="changeIsWithdrawLock"
-          /> -->
         </div>
 
         <BaseTokenInput
@@ -46,29 +32,29 @@
           <div class="lock-info">
 
             <div class="lock-info-row">
-              <span class="lock-info-title">You Deposited</span>
+              <span class="lock-info-title">Your Deposited</span>
               <span class="lock-info-value">
-                <img class="lock-token-icon" :src="fromToken.icon" alt="" />
-                {{ formatAmount(fromToken.unlockAmount) }}</span
+                <img class="lock-token-icon" :src="token0.icon" alt="" />
+                {{ formatAmount(token0.unlockAmount) }}
+                <img class="lock-token-icon" :src="token1.icon" alt="" />
+                {{ formatAmount(token1.unlockAmount) }}
+                </span
               >
             </div>
 
             <div class="lock-info-row">
-              <span class="lock-info-title">You Locked</span>
+              <span class="lock-info-title">Your Locked</span>
               <span class="lock-info-value">
-                <img class="lock-token-icon" :src="fromToken.icon" alt="" />
-                {{ formatAmount(fromToken.lockedAmount) }}</span
+                <img class="lock-token-icon" :src="token0.icon" alt="" />
+                {{ formatAmount(token0.lockedAmount) }}
+                <img class="lock-token-icon" :src="token1.icon" alt="" />
+                {{ formatAmount(token1.lockedAmount) }}</span
               >
             </div>
 
             <div class="line"></div>
 
-            <BaseButton
-              primary
-              :disabled="true"
-              @click="lockHandler"
-              >Lock</BaseButton
-            >
+            <ClaimBox v-if="stakeInfo" :stakeInfo="stakeInfo" />
           </div>
         </div>
       </div>
@@ -261,32 +247,6 @@ export default {
     fromToken() {
       return this.activeToken === "USDb" ? this.token0 : this.token1;
     },
-
-    lockButtonText() {
-      if (!this.account && this.isUnsupportedChain) return "Connect wallet";
-      if (!this.isUnsupportedChain) return "Switch Network";
-      if (!this.fromToken.unlockAmount) return "Nothing to do";
-      return "Lock";
-    },
-
-    multiplier() {
-      if (this.isLock) return this.lockBoost;
-
-      if (this.fromToken.userBorrowPart && this.isActiveMimToken) {
-        return this.cauldronBoost;
-      }
-
-      if (this.isActiveMimToken) {
-        return this.mimBoost;
-      }
-
-      return this.USDbBoost;
-    },
-
-    dafaultBoost() {
-      if (this.isActiveMimToken) return this.mimBoost;
-      return this.USDbBoost;
-    },
   },
 
   watch: {
@@ -310,18 +270,6 @@ export default {
       this.activeToken = token;
       this.inputValue = "";
       this.isWithdrawLock = false;
-    },
-
-    changeLockToggle() {
-      this.isLock = !this.isLock;
-    },
-
-    changeIsWithdrawLock() {
-      this.isWithdrawLock = !this.isWithdrawLock;
-      this.inputValue = formatUnits(
-        this.fromToken.lockedAmount,
-        this.fromToken.decimals
-      );
     },
 
     updateMainValue(amount: bigint) {
@@ -405,45 +353,6 @@ export default {
       }
     },
 
-    async lockHandler() {
-      if (this.isLockDisabled) return false;
-
-      if (!this.account && this.isUnsupportedChain) {
-        // @ts-ignore
-        return this.$openWeb3modal();
-      }
-
-      if (!this.isUnsupportedChain) {
-        switchNetwork(BLAST_CHAIN_ID);
-        return false;
-      }
-
-      if (!this.isTokenApproved) {
-        await this.approveTokenHandler();
-        return false;
-      }
-
-      const notificationId = await this.createNotification(
-        notification.pending
-      );
-
-      const { error }: any = await lock(
-        this.stakeInfo.config.contract,
-        this.fromToken.contract.address,
-        this.fromToken.unlockAmount
-      );
-
-      if (error) {
-        await this.deleteNotification(notificationId);
-        await this.createNotification(error);
-      } else {
-        await this.$emit("updateStakeInfo");
-        this.inputValue = "";
-        await this.deleteNotification(notificationId);
-        await this.createNotification(notification.success);
-      }
-    },
-
     async withdrawLocked() {
       this.isWithdrawPopup = false;
       const notificationId = await this.createNotification(
@@ -487,6 +396,9 @@ export default {
     ),
     BaseButton: defineAsyncComponent(
       () => import("@/components/base/BaseButton.vue")
+    ),
+    ClaimBox: defineAsyncComponent(
+      () => import("@/components/stake/earnPoints/ClaimBox.vue")
     ),
   },
 };
@@ -596,6 +508,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 3px 0;
 }
 
 .lock-info-title {
@@ -608,7 +521,7 @@ export default {
   gap: 4px;
   display: flex;
   align-items: center;
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 500;
   line-height: normal;
 }
@@ -620,8 +533,9 @@ export default {
 }
 
 .lock-token-icon {
-  width: 32px;
-  height: 32px;
+  width: 25px;
+  height: 25px;
+  margin-left: 5px;
 }
 
 .line {

@@ -17,8 +17,6 @@
           :mobileMode="mobileMode"
           @updateStakeInfo="createStakeInfo"
         />
-
-        <ClaimBox v-if="stakeInfo" :stakeInfo="stakeInfo" />
       </div>
 
     <div class="loader-wrap" v-else>
@@ -93,9 +91,6 @@ export default {
     ),
     BlastHead: defineAsyncComponent(
       () => import("@/components/stake/earnPoints/BlastHead.vue")
-    ),
-    ClaimBox: defineAsyncComponent(
-      () => import("@/components/stake/earnPoints/ClaimBox.vue")
     ),
   },
 };
