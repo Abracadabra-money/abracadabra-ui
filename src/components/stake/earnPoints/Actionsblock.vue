@@ -67,7 +67,6 @@ import { formatUnits, parseUnits } from "viem";
 import { defineAsyncComponent } from "vue";
 import { approveTokenViem } from "@/helpers/approval";
 import { formatTokenBalance } from "@/helpers/filters";
-import { lock } from "@/helpers/blast/stake/actions/lock";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { tokensChainLink } from "@/configs/chainLink/config";
 import notification from "@/helpers/notification/notification";
