@@ -2,6 +2,22 @@
   <div class="deposited">
     <PoolCompoundCard :lpToken="lpToken" :tokensList="tokensList" />
 
+    <div class="pills-rewards" v-if="isPillsPotions">
+      <p class="pills-title">Earning Rewards</p>
+      <div class="pills-row">
+        <span class="pills-icon-wrap">
+          <img
+            class="pills-icon"
+            src="@/assets/images/pools/pills-potions.png"
+            alt=""
+          />
+          Pills Potion
+        </span>
+
+        <span>1x Multiplier </span>
+      </div>
+    </div>
+
     <RewardsCard :isPosition="true" :pool="pool" />
 
     <BaseButton
@@ -141,6 +157,10 @@ export default {
       ].filter((e) => e.name && e.amount);
 
       return tokensList.length ? tokensList : false;
+    },
+
+    isPillsPotions() {
+      return this.pool.config.id === 2 && this.pool.config.chainId === 1;
     },
   },
 
@@ -346,5 +366,42 @@ export default {
     rgb(36, 43, 67) 60px,
     rgb(23, 30, 59) 120px
   ) !important;
+}
+
+.pills-rewards {
+  gap: 8px;
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+}
+
+.pills-title {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: normal;
+}
+
+.pills-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(270deg, #915eff -3.8%, #d040c6 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+  font-weight: 500;
+  line-height: normal;
+}
+
+.pills-icon-wrap {
+  gap: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.pills-icon {
+  width: 24px;
+  height: 24px;
 }
 </style>
