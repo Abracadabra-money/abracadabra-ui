@@ -5,7 +5,7 @@
 
       <a
         class="potion-link"
-        href="http://"
+        href="https://usual.money/"
         target="_blank"
         rel="noopener noreferrer"
       >
