@@ -5,7 +5,6 @@
 
       <div class="label-text">
         <h3 class="title">BUILD ON BLAST</h3>
-        <p class="subtitle">to earn points</p>
       </div>
     </div>
 
@@ -124,7 +123,7 @@ export default {
 
 .title {
   color: #000;
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 600;
   line-height: 30px;
 }
