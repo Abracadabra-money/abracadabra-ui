@@ -30,7 +30,6 @@
       <div class="lock-wrap">
         <div class="lock-inner">
           <div class="lock-info">
-
             <div class="lock-info-row">
               <span class="lock-info-title">Your Deposited</span>
               <span class="lock-info-value">
@@ -38,8 +37,7 @@
                 {{ formatAmount(token0.unlockAmount) }}
                 <img class="lock-token-icon" :src="token1.icon" alt="" />
                 {{ formatAmount(token1.unlockAmount) }}
-                </span
-              >
+              </span>
             </div>
 
             <div class="lock-info-row">
@@ -71,7 +69,6 @@ import { mapGetters, mapActions, mapMutations } from "vuex";
 import { tokensChainLink } from "@/configs/chainLink/config";
 import notification from "@/helpers/notification/notification";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
-import { deposit } from "@/helpers/blast/stake/actions/deposit";
 import { withdraw } from "@/helpers/blast/stake/actions/withdraw";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 import { withdrawLocked } from "@/helpers/blast/stake/actions/withdrawLocked";
@@ -138,13 +135,6 @@ export default {
       return this.chainId === BLAST_CHAIN_ID;
     },
 
-    isTokenApproved() {
-      if (!this.account) return true;
-      if (!this.isStakeAction) return true;
-      if (!this.isUnsupportedChain) return true;
-      return this.fromToken.approvedAmount >= this.inputAmount;
-    },
-
     isInsufficientBalance() {
       return this.inputAmount > this.fromToken.balance;
     },
@@ -153,11 +143,6 @@ export default {
       if (!this.account) return false;
       if (!this.isUnsupportedChain) return false;
       if (!this.inputAmount) return true;
-
-      if (this.actionActiveTab === "Stake") {
-        if (this.isMaxCaps) return true;
-        return this.isInsufficientBalance;
-      }
 
       if (this.isWithdrawLock) {
         return this.inputAmount !== this.fromToken.lockedAmount;
@@ -170,31 +155,7 @@ export default {
       if (!this.account && this.isUnsupportedChain) return "Connect wallet";
       if (!this.isUnsupportedChain) return "Switch Network";
 
-      if (this.actionActiveTab === "Stake") {
-        if (this.isMaxCaps) return "Max cap limit";
-        if (this.isInsufficientBalance) return "Insufficient balance";
-        if (!this.isTokenApproved) return "Approve";
-        if (this.isLock) return "Deposit And Lock";
-
-        return "Deposit";
-      }
-
       return "Withdraw";
-    },
-
-    isLockDisabled() {
-      if (!this.account) return false;
-      if (!this.isUnsupportedChain) return false;
-      return !this.fromToken.unlockAmount;
-    },
-
-    isMaxCaps() {
-      const { caps, total } = this.fromToken;
-      return caps < total + this.inputAmount;
-    },
-
-    isActiveMimToken() {
-      return this.activeToken === "MIM";
     },
 
     token0() {
@@ -312,11 +273,6 @@ export default {
         return false;
       }
 
-      if (!this.isTokenApproved) {
-        await this.approveTokenHandler();
-        return false;
-      }
-
       if (this.isWithdrawLock) {
         this.withdrawLocked();
         return false;
@@ -327,19 +283,11 @@ export default {
       );
 
       // TODO
-      const { error }: any =
-        this.actionActiveTab === "Stake"
-          ? await deposit(
-              this.stakeInfo.config.contract,
-              this.fromToken.contract.address,
-              this.inputAmount,
-              this.isLock
-            )
-          : await withdraw(
-              this.stakeInfo.config.contract,
-              this.fromToken.contract.address,
-              this.inputAmount
-            );
+      const { error }: any = await withdraw(
+        this.stakeInfo.config.contract,
+        this.fromToken.contract.address,
+        this.inputAmount
+      );
 
       if (error) {
         await this.deleteNotification(notificationId);
