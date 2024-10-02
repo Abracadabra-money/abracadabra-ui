@@ -1,7 +1,7 @@
 <template>
   <div class="pool-view" v-if="pool">
     <div class="chart-wrap">
-      <h5 class="chart-title">Pool composition</h5>
+      <h5 class="chart-title">Stake composition</h5>
       <PieChart :option="chartOption" title="Pool composition" />
     </div>
 
@@ -9,6 +9,7 @@
       <PoolActionBlock
         :pool="pool"
         :isUserPositionOpen="isUserPositionOpen"
+        isFarm
         @updatePoolInfo="getPoolInfo"
         @openPositionPopup="isMyPositionPopupOpened = true"
       />
@@ -21,6 +22,7 @@
         :isMyPositionPopupOpened="isMyPositionPopupOpened"
         @closePopup="isMyPositionPopupOpened = false"
         @updateInfo="getPoolInfo"
+        isFarm
         v-if="account"
       />
     </div>
@@ -32,12 +34,12 @@ import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
 import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
 import { getPoolConfig } from "@/helpers/pools/getPoolConfigs";
-import { getPoolTvlPieChartOption } from "@/helpers/pools/charts/getPoolTvlPieChartOption";
+import { getPoolStakeTvlPieChartOption } from "@/helpers/pools/charts/getPoolStakeTvlPieChartOption";
 
 export default {
   props: {
-    id: { type: String, required: true },
-    poolChainId: { type: String, required: true },
+    id: { type: String },
+    poolChainId: { type: String },
   },
 
   data() {
@@ -58,8 +60,8 @@ export default {
     }),
 
     isUserPositionOpen() {
-      const hasLp = this.pool?.userInfo?.balance > 0n;
-      return this.account && hasLp;
+      const hasStakedLp = this.pool?.stakeInfo?.balance > 0n;
+      return this.account && hasStakedLp;
     },
   },
 
@@ -94,7 +96,7 @@ export default {
 
     await this.getPoolInfo();
 
-    this.chartOption = await getPoolTvlPieChartOption(this.pool);
+    this.chartOption = await getPoolStakeTvlPieChartOption(this.pool);
 
     this.poolsTimer = setInterval(async () => {
       await this.getPoolInfo();

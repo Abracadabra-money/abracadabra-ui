@@ -122,6 +122,16 @@ export const getLpInfo = async (
     ],
   });
 
+  let stakedTotalSupply;
+  if (lp.stakeContract?.address) {
+    stakedTotalSupply = await publicClient.readContract({
+      address: lp.stakeContract.address,
+      abi: lp.stakeContract.abi as any,
+      functionName: "totalSupply",
+      args: [],
+    })
+  }
+
   const userInfo = await getUserLpInfo(
     lp.contract.address,
     getSwapRouterByChain(chainId),
@@ -163,6 +173,7 @@ export const getLpInfo = async (
       quoteBalance: quoteBalance.result,
     },
     userInfo,
+    stakedTotalSupply
   };
 };
 

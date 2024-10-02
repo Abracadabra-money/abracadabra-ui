@@ -58,7 +58,13 @@ export default {
       unreadNotificationCount: 0,
       unreadNotificationCountChecker: null,
       isSignedUp: false,
-      alternativeHeader: ["MimSwap", "Pools", "Pool", "PotionPoints"],
+      alternativeHeader: [
+        "MimSwap",
+        "Pools",
+        "Pool",
+        "PoolFarm",
+        "PotionPoints",
+      ],
       exception: ["Blast", "PointsDashboard"],
       isClassicHeader: true,
     };

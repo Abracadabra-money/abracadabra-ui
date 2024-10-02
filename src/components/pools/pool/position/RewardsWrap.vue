@@ -1,7 +1,7 @@
 <template>
   <div class="token-rewards-wrap" v-if="tokenRewards">
     <div class="title-wrap">
-      <h4 class="title">Rewards Earned</h4>
+      <h4 class="title">{{ titleText }}</h4>
 
       <div class="apr-wrap" v-if="!isElixir">
         <template v-if="poolRewards && poolRewards.length > 1">
@@ -16,16 +16,16 @@
               <p class="name">{{ item.token.name }}:</p>
               <p class="apr">{{ Number(item.apr).toFixed(2) }}%</p>
             </div>
-            <div class="apr-item total-item">
+            <!-- <div class="apr-item total-item">
               <p class="name">Total:</p>
               <p class="apr">
                 {{ Number(pool.poolAPR.totalApr).toFixed(2) }} %
               </p>
-            </div>
+            </div> -->
           </div>
         </template>
 
-        <p class="title">APR</p>
+        <p class="apr">APR {{ Number(pool.poolAPR.totalApr).toFixed(2) }} %</p>
       </div>
     </div>
     <ElixirReward v-if="isElixir" />
@@ -47,7 +47,6 @@
 </template>
 
 <script>
-import { useImage } from "@/helpers/useImage";
 import { formatUnits } from "viem";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 import { getCoinsPrices } from "@/helpers/prices/defiLlama/index.ts";
@@ -87,7 +86,11 @@ export default {
     },
 
     isElixir() {
-      return this.pool.config.id === 1 && this.pool.config.chainId === 1;
+      return this.pool.config.settings.isElixirPotions;
+    },
+
+    titleText() {
+      return this.isElixir ? "Staking Rewards" : "Rewards Earned";
     },
   },
   methods: {
@@ -238,5 +241,12 @@ export default {
     font-weight: 400;
     line-height: 1;
   }
+}
+
+.apr {
+  color: #fff;
+  text-shadow: 0px 0px 16px #ab5de8;
+  font-size: 16px;
+  font-weight: 600;
 }
 </style>

@@ -43,7 +43,6 @@ export default {
     pool: { type: Object },
     slippage: { type: BigInt, default: 100n },
     deadline: { type: BigInt, default: 100n },
-    isLock: { type: Boolean },
   },
 
   emits: ["updatePoolInfo"],
@@ -93,7 +92,7 @@ export default {
       if (this.isActionProcessing) return "Processing...";
       if (!this.isAllowed) return "Approve";
 
-      return this.isLock ? "Stake & lock" : "Stake";
+      return "Stake";
     },
 
     isButtonDisabled() {
@@ -109,7 +108,10 @@ export default {
     },
 
     isElixir() {
-      return this.pool.config.id === 1 && this.pool.config.chainId === 1;
+      return (
+        this.pool.config.id === "0x95b485615c193cf75582b70ABdB08bc7172a80fe" &&
+        this.pool.config.chainId === 1
+      );
     },
   },
 
@@ -267,11 +269,7 @@ export default {
 
       if (!this.isAllowed) return await this.approveHandler();
 
-      if (this.isLock) {
-        await this.stakeLockedHandler();
-      } else {
-        await this.stakeHandler();
-      }
+      await this.stakeHandler();
 
       await this.$emit("updatePoolInfo");
     },

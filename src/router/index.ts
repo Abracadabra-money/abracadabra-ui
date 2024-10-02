@@ -7,6 +7,8 @@ function removeQueryParams(
   from: RouteLocationNormalized,
   next: NavigationGuardNext
 ) {
+  console.log(to);
+
   if (Object.keys(to.query).length)
     next({ path: to.path, query: {}, hash: to.hash });
   else next();
@@ -85,11 +87,16 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/views/pool/Pools.vue"),
   },
   {
-    path: "/pool/:poolChainId?/:id?",
+    path: "/pool/:poolChainId/:id",
     name: "Pool",
     component: () => import("@/views/pool/Pool.vue"),
     props: true,
-    beforeEnter: [removeQueryParams],
+  },
+  {
+    path: "/pool-farm/:poolChainId/:id",
+    name: "PoolFarm",
+    component: () => import("@/views/pool/PoolFarm.vue"),
+    props: true,
   },
   {
     path: "/pool-creation",

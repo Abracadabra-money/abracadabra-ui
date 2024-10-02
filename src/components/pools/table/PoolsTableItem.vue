@@ -2,6 +2,7 @@
   <router-link
     :class="['pools-table-link', poolLabel, { open: isOpenPosition }]"
     :to="goToPage"
+    exact
   >
     <div class="label">{{ poolLabel }}</div>
     <div class="column">
@@ -110,8 +111,8 @@ export default {
       return {
         name: "Pool",
         params: {
-          id: this.pool.id,
           poolChainId: this.pool.chainId,
+          id: this.pool.id,
         },
       };
     },

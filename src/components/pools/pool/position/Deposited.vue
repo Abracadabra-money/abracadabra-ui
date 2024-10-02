@@ -1,5 +1,7 @@
 <template>
   <div class="deposited">
+    <p class="position-title">Your Magic LP</p>
+
     <div class="card-wrap">
       <PoolCompoundCard
         :lpToken="lpToken"
@@ -7,7 +9,7 @@
         v-if="isUserPositionOpen"
       />
 
-      <p class="no-position" v-else>Open position will appear here</p>
+      <NoPositionCard v-else />
     </div>
 
     <div class="staking-apr" v-if="isPoolHasReward">
@@ -30,6 +32,15 @@
         <p class="apr">{{ apr }}</p>
       </div>
     </div>
+
+    <div class="staking-rewards" v-if="isPoolHasRewardPoints">
+      <p class="title">Staking Rewards</p>
+      <ElixirReward />
+    </div>
+
+    <BaseButton primary v-if="hasFarm" @click="goToFarm">
+      Go to Farm
+    </BaseButton>
   </div>
 </template>
 
@@ -64,6 +75,11 @@ export default {
 
     isPoolHasReward() {
       return !!this.pool.config.rewardTokens?.length;
+    },
+
+    isPoolHasRewardPoints() {
+      const { isElixirPotions } = this.pool.config.settings;
+      return isElixirPotions;
     },
 
     poolRewards() {
@@ -133,6 +149,10 @@ export default {
 
       return tokensList.length ? tokensList : false;
     },
+
+    hasFarm() {
+      return !!this.pool.stakeContract;
+    },
   },
 
   methods: {
@@ -141,17 +161,39 @@ export default {
     formatTokenBalance(value, decimals) {
       return formatTokenBalance(formatUnits(value, decimals));
     },
+
+    goToFarm() {
+      this.$router.push({
+        name: "PoolFarm",
+        params: { poolChainId: this.pool.chainId, id: this.pool.id },
+      });
+    },
   },
 
   components: {
+    BaseButton: defineAsyncComponent(() =>
+      import("@/components/base/BaseButton.vue")
+    ),
     PoolCompoundCard: defineAsyncComponent(() =>
       import("@/components/pools/pool/position/cards/PoolCompoundCard.vue")
+    ),
+    NoPositionCard: defineAsyncComponent(() =>
+      import("@/components/pools/pool/position/cards/NoPositionCard.vue")
+    ),
+    ElixirReward: defineAsyncComponent(() =>
+      import("@/components/pools/pool/ElixirReward.vue")
     ),
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.position-title {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 22px;
+}
+
 .reward-wrap {
   display: flex;
   align-items: center;
@@ -193,19 +235,17 @@ export default {
   box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
 }
 
-.no-position {
-  padding: 20px 80px;
-  text-align: center;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: normal;
-}
-
 .staking-apr {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
+}
+
+.staking-rewards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .title {

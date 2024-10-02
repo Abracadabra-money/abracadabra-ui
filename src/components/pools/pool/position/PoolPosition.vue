@@ -12,12 +12,18 @@
     />
 
     <div class="pool-position">
-      <p class="position-title">Your Magic LP</p>
+      <Staked
+        :pool="pool"
+        :isUserPositionOpen="isUserPositionOpen"
+        @updatePoolInfo="$emit('updateInfo')"
+        v-if="isFarm"
+      />
 
       <Deposited
         :pool="pool"
         :isUserPositionOpen="isUserPositionOpen"
         @updatePoolInfo="$emit('updateInfo')"
+        v-else
       />
     </div>
   </div>
@@ -31,21 +37,27 @@ export default {
     pool: { type: Object },
     isUserPositionOpen: { type: Boolean, default: false },
     isMyPositionPopupOpened: { type: Boolean, default: false },
+    isFarm: Boolean,
   },
 
   emits: ["closePopup", "updateInfo"],
 
   data() {
-    return {
-      activeTab: "deposited",
-    };
+    return {};
   },
 
-  computed: {},
+  computed: {
+    hasFarm() {
+      return !!this.pool.stakeContract;
+    },
+  },
 
   methods: {
-    selectTab(action) {
-      this.activeTab = action;
+    goToFarm() {
+      this.$router.push({
+        name: "PoolFarm",
+        params: { poolChainId: this.pool.chainId, id: this.pool.id },
+      });
     },
 
     closePopup() {
@@ -57,17 +69,14 @@ export default {
     Deposited: defineAsyncComponent(() =>
       import("@/components/pools/pool/position/Deposited.vue")
     ),
+    Staked: defineAsyncComponent(() =>
+      import("@/components/pools/pool/position/Staked.vue")
+    ),
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.position-title {
-  font-size: 18px;
-  font-weight: 500;
-  line-height: 22px;
-}
-
 .pool-position-wrap {
   display: flex;
   flex-direction: column;

@@ -3,7 +3,7 @@
     <div class="pool-header">
       <h2 class="title">Pool</h2>
 
-      <TokenPair class="token-pair" chainIcon :pool="pool" />
+      <TokenPair class="token-pair" chainIcon :pool="pool" :iconSize="50"/>
 
       <div class="initial-parameters">
         <ParameterChip>{{ feeTier }}</ParameterChip>
@@ -43,26 +43,46 @@
           :text="toggleSettings.text"
           :selected="toggleSettings.selectedCondition"
           @updateToggle="toggleCondition"
+          v-if="!isFarm"
         />
       </div>
 
-      <Deposit
-        :pool="pool"
-        :slippage="slippage"
-        :deadline="deadline"
-        :isBalanced="toggleSettings.selectedCondition"
-        @updatePoolInfo="$emit('updatePoolInfo')"
-        v-show="!isRemove"
-      />
+      <template v-if="isFarm">
+        <Stake
+          :pool="pool"
+          :slippage="slippage"
+          :deadline="deadline"
+          @updatePoolInfo="$emit('updatePoolInfo')"
+          v-show="activeTab === 'stake'"
+        />
+        <Unstake
+          :pool="pool"
+          :slippage="slippage"
+          :deadline="deadline"
+          @updatePoolInfo="$emit('updatePoolInfo')"
+          v-show="activeTab === 'unstake'"
+        />
+      </template>
 
-      <Remove
-        :pool="pool"
-        :slippage="slippage"
-        :deadline="deadline"
-        :isSingleSide="toggleSettings.selectedCondition"
-        @updatePoolInfo="$emit('updatePoolInfo')"
-        v-show="isRemove"
-      />
+      <template v-else>
+        <Deposit
+          :pool="pool"
+          :slippage="slippage"
+          :deadline="deadline"
+          :isBalanced="toggleSettings.selectedCondition"
+          @updatePoolInfo="$emit('updatePoolInfo')"
+          v-show="activeTab === 'deposit'"
+        />
+
+        <Remove
+          :pool="pool"
+          :slippage="slippage"
+          :deadline="deadline"
+          :isSingleSide="toggleSettings.selectedCondition"
+          @updatePoolInfo="$emit('updatePoolInfo')"
+          v-show="activeTab === 'remove'"
+        />
+      </template>
     </div>
   </div>
 </template>
@@ -84,10 +104,14 @@ export const actionStatus = {
   WAITING: "waiting",
 };
 
+const depositTabItems = ["deposit", "remove"];
+const stakeTabItems = ["stake", "unstake"];
+
 export default {
   props: {
     pool: { type: Object },
     isUserPositionOpen: { type: Boolean, default: false },
+    isFarm: { type: Boolean, default: false },
   },
 
   emits: ["updatePoolInfo", "openPositionPopup"],
@@ -95,8 +119,8 @@ export default {
   data() {
     return {
       isMyPositionPopupOpened: false,
-      activeTab: "deposit",
-      tabItems: ["deposit", "remove"],
+      activeTab: depositTabItems[0],
+      tabItems: [...depositTabItems],
       slippage: 20n,
       deadline: 100n,
       isBalanced: false,
@@ -130,6 +154,18 @@ export default {
       return this.pool.initialParameters.K === STANDARD_K_VALUE
         ? PoolTypes.Standard
         : PoolTypes.Pegged;
+    },
+  },
+
+  watch: {
+    isFarm: {
+      handler(value) {
+        if (value) {
+          this.activeTab = stakeTabItems[0];
+          this.tabItems = [...stakeTabItems];
+        }
+      },
+      immediate: true,
     },
   },
 
@@ -169,6 +205,12 @@ export default {
     ),
     Deposit: defineAsyncComponent(() =>
       import("@/components/pools/pool/actions/deposit/Deposit.vue")
+    ),
+    Stake: defineAsyncComponent(() =>
+      import("@/components/pools/pool/actions/Stake.vue")
+    ),
+    Unstake: defineAsyncComponent(() =>
+      import("@/components/pools/pool/actions/Unstake.vue")
     ),
   },
 };

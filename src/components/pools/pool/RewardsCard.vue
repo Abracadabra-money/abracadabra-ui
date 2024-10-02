@@ -5,13 +5,7 @@
     v-if="isPoolHasReward && poolRewards"
   >
     <div class="row">
-      <p class="title">
-        <img
-          src="@/assets/images/pools/pool/staking-apr-image.svg"
-          class="staking-apr-image"
-        />
-        Staking APR
-      </p>
+      <p class="title">Staking Rewards</p>
 
       <div class="reward-items">
         <img
@@ -21,32 +15,16 @@
           v-for="(reward, index) in poolRewards"
           :key="index"
         />
-        <p class="apr">{{ apr }}</p>
       </div>
     </div>
+
     <ElixirReward v-if="isElixir" />
-
     <div class="row apr-item" v-else>
-      <div class="title-wrap">
-        <p class="title">APR</p>
-        <Tooltip :width="18" :height="18" fill="#ffffff" :tooltip="''" />
-      </div>
-
-      <div class="value-wrap">
-        <template v-if="poolRewards && poolRewards.length > 1">
-          <div class="apr-info">
-            <div
-              class="apr-item"
-              v-for="item in poolRewards"
-              :key="item.token.address"
-            >
-              <img :src="item.token.icon" alt="" class="token-icon" />
-              <p class="name">{{ item.token.name }}:</p>
-              <p class="apr">{{ Number(item.apr).toFixed(2) }}%</p>
-            </div>
-          </div>
-        </template>
-      </div>
+      <p class="title">APR</p>
+      <p class="apr">
+        <Tooltip tooltip="APR" :width="20" :height="20" />
+        {{ apr }}
+      </p>
     </div>
   </div>
 </template>
@@ -217,13 +195,17 @@ export default {
 
     .reward-icon {
       border-radius: 8px;
-      width: 28px;
-      height: 28px;
+      width: 24px;
+      height: 24px;
       object-fit: contain;
     }
 
     .reward-icon:not(:first-child) {
+      width: 28px;
+      height: 28px;
       margin-left: -12px;
+      border-radius: 10px;
+      border: 2px solid #0d1527;
     }
 
     .reward-name {
@@ -233,6 +215,11 @@ export default {
 }
 
 .apr {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 18px;
+  font-weight: 600;
   text-shadow: 0px 0px 16px #ab5de8;
 }
 </style>

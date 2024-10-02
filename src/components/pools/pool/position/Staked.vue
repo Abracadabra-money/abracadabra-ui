@@ -1,11 +1,21 @@
 <template>
   <div class="staked">
-    <PoolCompoundCard :lpToken="lpToken" :tokensList="tokensList" />
+    <p class="position-title">Your Staked Magic LP</p>
 
-    <RewardsWrap :pool="pool" />
+    <div class="card-wrap">
+      <PoolCompoundCard
+        :lpToken="lpToken"
+        :tokensList="tokensList"
+        v-if="isUserPositionOpen"
+      />
+
+      <NoPositionCard v-else />
+    </div>
+
+    <RewardsWrap :pool="pool" v-if="isUserPositionOpen" />
 
     <BaseButton
-      v-if="hasStakeLogic"
+      v-if="hasStakeLogic && isUserPositionOpen && !isElixir"
       primary
       @click="actionHandler"
       :disabled="isButtonDisabled"
@@ -34,6 +44,7 @@ export default {
   emits: ["updatePoolInfo"],
   props: {
     pool: { type: Object },
+    isUserPositionOpen: { type: Boolean },
   },
 
   data() {
@@ -52,6 +63,9 @@ export default {
     },
     hasStakeLogic() {
       return !!this.pool.stakeInfo;
+    },
+    isElixir() {
+      return this.pool.config.settings.isElixirPotions;
     },
     stakedBalance() {
       if (this.hasLockLogic) return this.pool.lockInfo.balances.unlocked;
@@ -170,7 +184,7 @@ export default {
 
         const hash = await writeContractHelper(request);
 
-        const { result, error } = await waitForTransactionReceiptHelper({
+        await waitForTransactionReceiptHelper({
           hash,
         });
 
@@ -198,6 +212,9 @@ export default {
     PoolCompoundCard: defineAsyncComponent(() =>
       import("@/components/pools/pool/position/cards/PoolCompoundCard.vue")
     ),
+    NoPositionCard: defineAsyncComponent(() =>
+      import("@/components/pools/pool/position/cards/NoPositionCard.vue")
+    ),
     RewardsWrap: defineAsyncComponent(() =>
       import("@/components/pools/pool/position/RewardsWrap.vue")
     ),
@@ -212,12 +229,26 @@ export default {
   gap: 16px;
 }
 
+.position-title {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 22px;
+}
+
 .title {
   display: flex;
   align-items: center;
   gap: 4px;
   font-size: 18px;
   font-weight: 500;
+}
+
+.card-wrap {
+  padding: 20px 12px;
+  border-radius: 16px;
+  border: 1px solid #2d4a96;
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
 }
 
 .rewards-wrap {
