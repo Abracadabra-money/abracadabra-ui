@@ -15,8 +15,8 @@
     </div> -->
 
     <BaseButton primary :disabled="!isUserHasLockedTokens" @click="claimHandler"
-          >Claim
-        </BaseButton>
+      >Claim
+    </BaseButton>
   </div>
 </template>
 
@@ -29,7 +29,6 @@ import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import { formatUnits } from "viem";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { defineAsyncComponent } from "vue";
-
 
 export default {
   props: {
@@ -106,29 +105,24 @@ export default {
       const notificationId = await this.createNotification(
         notification.pending
       );
+      try {
+        const lock = false;
 
-      const lock = false;
+        const { contract } = this.stakeInfo.config;
 
-      console.log(this.stakeInfo);
+        await claim(contract, lock);
 
-      const { contract } = this.stakeInfo.config;
+        this.deleteNotification(notificationId);
 
-      console.log({ contract, lock });
-
-      const { error } = await claim(contract, lock);
-
-      this.deleteNotification(notificationId);
-
-      if (error) {
+        await this.createNotification(notification.success);
+      } catch (error) {
         const errorNotification = {
-          msg: notificationErrorMsg({ message: error.msg }),
+          msg: notificationErrorMsg(error),
           type: "error",
         };
 
         this.deleteNotification(notificationId);
         await this.createNotification(errorNotification);
-      } else {
-        await this.createNotification(notification.success);
       }
     },
 
@@ -161,10 +155,10 @@ export default {
     });
   },
   components: {
-    BaseButton: defineAsyncComponent(
-      () => import("@/components/base/BaseButton.vue")
+    BaseButton: defineAsyncComponent(() =>
+      import("@/components/base/BaseButton.vue")
     ),
-  }
+  },
 };
 </script>
 
