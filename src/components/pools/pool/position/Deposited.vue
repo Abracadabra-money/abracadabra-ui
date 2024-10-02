@@ -11,7 +11,7 @@
             src="@/assets/images/pools/pills-potions.png"
             alt=""
           />
-          Pills Potion
+          Pills
         </span>
 
         <span>1x Multiplier </span>

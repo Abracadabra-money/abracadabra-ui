@@ -1,7 +1,7 @@
 <template>
   <div class="pills-potions" v-if="isPillsPotions">
     <div class="row">
-      Earning Pills Potions
+      Earning Pills
 
       <a
         class="potion-link"
