@@ -1774,6 +1774,65 @@ const config: Array<CauldronConfig> = [
       abi: ERC4626LiqSwapper,
     },
   },
+  {
+    icon: useImage(`assets/images/base_token_icon.png`),
+    name: "USD0++",
+    chainId: 1,
+    id: 45,
+    liquidationFee: 7.5,
+    mcr: 86,
+    borrowFee: 0.5,
+    version: 4,
+    cauldronSettings: {
+      isNew: true,
+      isSwappersActive: true,
+      is0xSwap: true, // NOTICE: here the ODOS Api is used and not 0x 
+      isDegenBox: true,
+      strategyLink: false,
+      isDepreciated: false,
+      acceptUseDefaultBalance: false,
+      healthMultiplier: 1,
+      hasAccountBorrowLimit: false,
+      hasWithdrawableLimit: false,
+      localBorrowAmountLimit: false,
+      hasCrvClaimLogic: false,
+      isUSD0: true,
+    },
+    contract: {
+      name: "CauldronV4",
+      address: "0x970a5F4228b4b61915a93636949D9067747BccfA",
+      abi: poolsAbi.CauldronV4,
+    },
+    collateralInfo: {
+      name: "MagicUSD0++",
+      decimals: 18,
+      address: "0xdB36f69B88Ec1388dBFAc90132CD396FD4749963",
+      abi: tokensAbi.MagicUSD0pp,
+    },
+    mimInfo,
+    wrapInfo: {
+      isHiddenWrap: true,
+      useUnwrappedByDefault: true,
+      unwrappedToken: {
+        name: "USD0++",
+        icon: useImage(`assets/images/base_token_icon.png`),
+        address: "0x35D8949372D46B7a3D5A56006AE77B215fc69bC0",
+        abi: tokensAbi.USD0pp,
+      },
+      wrapper: {
+        address: "0xB0DeB95556a5E17a3d99a8995Ba06D8A75727AF1",
+        abi: degenBoxERC4626Wrapper,
+      },
+    },
+    leverageInfo: {
+      address: "0xC47C19A7d951b23A25FD06596494c2AD82F4a56c",
+      abi: ERC4626LevSwapper,
+    },
+    deleverageInfo: {
+      address: "0xB9516c6C702c4434F6cf08f124ef0478754f7B3d",
+      abi: ERC4626LiqSwapper,
+    },
+  },
 ];
 
 export default config;
