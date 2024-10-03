@@ -1,13 +1,10 @@
 <template>
   <div class="pools-info">
     <div>
-      <h3 class="title">MIM Pools</h3>
-      <h4 class="subtitle">
-        Explore our curated list of MIMSwap pairs. Become a liquidity provider
-        and earn fees along with additional rewards
-      </h4>
+      <h3 class="title">{{ text.title }}</h3>
+      <h4 class="subtitle">{{ text.description }}</h4>
     </div>
-
+    <!-- 
     <div class="cards-wrap">
       <div class="tvl-card">
         <div>
@@ -29,15 +26,15 @@
         </div>
       </div>
 
-      <!-- <div class="kava-card">
+      <div class="kava-card">
         <h4 class="kava-card-title">To be distributed</h4>
         <div class="kava-card-value">
           <img class="kava-icon" src="@/assets/images/tokens/KAVA.png" alt="" />
 
           {{ formatTokenBalance(toBeDistributed) }}
         </div>
-      </div> -->
-    </div>
+      </div>
+    </div> -->
   </div>
 </template>
 
@@ -91,6 +88,7 @@ const abi = [
 export default {
   props: {
     pools: { type: Array as PropType<MagicLPInfo[]>, required: true },
+    isFarms: Boolean,
   },
 
   data() {
@@ -100,6 +98,14 @@ export default {
   },
 
   computed: {
+    text() {
+      return {
+        title: this.isFarms ? "Farms" : "Pools",
+        description: `Explore our curated list of MIMSwap pairs. Become a liquidity
+        provider and earn fees along with additional rewards`,
+      };
+    },
+
     totalTvl() {
       return this.tvlByChains.reduce(
         (acc: any, chainInfo: any) => acc + chainInfo.tvl,

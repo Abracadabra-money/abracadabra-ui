@@ -47,13 +47,21 @@ export type MagicLPInfo = {
   };
   lpFeeRate: bigint;
   userInfo: MagicLPInfoUserInfo;
+  stakeInfo?: MagicLpStakeInfo;
   poolAPR?: any;
   price?: number;
-  stakedTotalSupply?: number
+  stakedTotalSupply?: bigint
 } & PoolConfig;
 
 export type MagicLPInfoUserInfo = {
   allowance: bigint;
   balance: bigint;
   userFeeRate: UserFeeRate;
+};
+
+export type MagicLpStakeInfo = {
+  balance: bigint;
+  allowance: bigint;
+  earned: bigint;
+  earnedInfo: any[];
 };

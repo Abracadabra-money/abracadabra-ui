@@ -1,15 +1,25 @@
 <template>
   <div class="elixir-reward">
-    <span class="text">
-      <img src="@/assets/images/pools/elixir-icon.svg" alt="" />
-      Elixir Potion</span
-    >
-    <span>5x Multiplier </span>
+    <p class="title">
+      <img src="@/assets/images/pools/elixir-icon.svg" />
+      <span
+        :class="['title-text', { 'gradient-text': isGradient }]"
+        v-if="isTitleText"
+      >
+        Elixir Potion
+      </span>
+    </p>
+    <span :class="{ 'gradient-text': isGradient }">5x Multiplier</span>
   </div>
 </template>
 
 <script>
-export default {};
+export default {
+  props: {
+    isGradient: Boolean,
+    isTitleText: Boolean,
+  },
+};
 </script>
 
 <style lang="scss" scoped>
@@ -17,10 +27,20 @@ export default {};
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
   text-align: center;
   font-style: normal;
   font-weight: 500;
   line-height: normal;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.gradient-text {
   background: -webkit-linear-gradient(
     271.25deg,
     #ffe47c -2.69%,
@@ -31,9 +51,10 @@ export default {};
   -webkit-text-fill-color: transparent;
 }
 
-.text {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+@media (max-width: 600px) {
+  .elixir-reward {
+    font-size: 14px;
+    font-weight: 500;
+  }
 }
 </style>

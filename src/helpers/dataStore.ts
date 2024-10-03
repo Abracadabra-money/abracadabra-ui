@@ -5,6 +5,7 @@ export const LS_USER_POSITION_KEY = "abracadabraUserPositions";
 export const LS_CAULDRONS_LIST_KEY = "abracadabraCauldronsList";
 export const LS_BENTOBOX_DATA_KEY = "abracadabraBentoBoxData";
 export const LS_POOLS_LIST_KEY = "abracadabraPoolsList";
+export const LS_POOL_FARMS_LIST_KEY = "abracadabraPoolFarmsList";
 export const LS_SPELL_STAKE_KEY = "abracadabraSpellStakeData";
 export const LS_MAGIC_GLP_STAKE_KEY = "abracadabraMagicGlpStakeData";
 export const LS_MAGIC_GLP_STAKE_CHART_KEY = "abracadabraMagicGlpChartData";
@@ -110,6 +111,26 @@ export const getAndParsePoolsList = () => {
     return { data, isCreated: true };
   } catch (error) {
     console.log("getAndParsePoolsList -> error", error);
+    return { data: [], isCreated: false };
+  }
+};
+
+export const getAndParsePoolFarmsList = () => {
+  try {
+    const lsPoolFarmsList = localStorage.getItem(LS_POOL_FARMS_LIST_KEY);
+
+    if (!lsPoolFarmsList) {
+      return { data: [], isCreated: false };
+    }
+
+    const poolFarmsList = JSON.parse(lsPoolFarmsList);
+    const data = poolFarmsList.map((item: any) =>
+      jsonBigIntTransform(jsonBigNumberTransform(item))
+    );
+
+    return { data, isCreated: true };
+  } catch (error) {
+    console.log("getAndParsePoolFarmsList -> error", error);
     return { data: [], isCreated: false };
   }
 };

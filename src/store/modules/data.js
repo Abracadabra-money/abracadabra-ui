@@ -8,6 +8,8 @@ import {
   LS_FARMS_LIST_KEY,
   getAndParsePoolsList,
   LS_POOLS_LIST_KEY,
+  getAndParsePoolFarmsList,
+  LS_POOL_FARMS_LIST_KEY,
   getAndParseBentoBoxData,
   LS_BENTOBOX_DATA_KEY,
   getAndParseSpellStakeData,
@@ -28,6 +30,7 @@ export default {
     userPositions: getAndParseUserPositions(),
     farmList: getAndParseFarmsList(),
     poolsList: getAndParsePoolsList(),
+    poolFarmsList: getAndParsePoolFarmsList(),
     bentoBoxData: getAndParseBentoBoxData(),
     userTotalAssets: {
       data: {},
@@ -59,6 +62,11 @@ export default {
       state.poolsList.isCreated = true;
       state.poolsList.data = payload;
       localStorage.setItem(LS_POOLS_LIST_KEY, bigintStringify(payload));
+    },
+    setPoolFarmsList(state, payload) {
+      state.poolFarmsList.isCreated = true;
+      state.poolFarmsList.data = payload;
+      localStorage.setItem(LS_POOL_FARMS_LIST_KEY, bigintStringify(payload));
     },
     setBentoBoxData(state, payload) {
       state.bentoBoxData.isCreated = true;
@@ -112,6 +120,7 @@ export default {
     getUserPositions: (state) => state.userPositions,
     getFarmList: (state) => state.farmList,
     getPoolsList: (state) => state.poolsList,
+    getPoolFarmsList: (state) => state.poolFarmsList,
     getBentoBoxData: (state) => state.bentoBoxData,
     getUserTotalAssets: (state) => state.userTotalAssets,
     getSpellStakeData: (state) => state.spellStakeData,

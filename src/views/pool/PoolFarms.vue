@@ -1,20 +1,19 @@
 <template>
   <div class="pools-page" v-if="pools">
     <div class="pools-container">
-      <PoolsInfo :pools="pools" />
+      <PoolsInfo :pools="pools" isFarms />
 
-      <PoolsTable
+      <PoolFarmsTable
         :pools="pools"
         :poolsLoading="poolsLoading"
         :tableKeys="tableKeys"
-        ref="poolsTable"
+        ref="poolFarmsTable"
         @openMobileFiltersPopup="isFiltersPopupOpened = true"
       />
     </div>
     <FiltersPopup
       v-if="isFiltersPopupOpened"
       :sortersData="tableKeys"
-      :filtersData="filtersData"
       @updateSortKey="updateSortKeys"
       @close="isFiltersPopupOpened = false"
     />
@@ -27,8 +26,6 @@ import { mapGetters, mapMutations } from "vuex";
 import type { PoolConfig } from "@/configs/pools/types";
 import { getPoolsList } from "@/helpers/pools/getPoolsList";
 import { getPoolConfigs } from "@/helpers/pools/getPoolConfigs";
-import type { FilterData } from "@/types/sorting";
-import { poolTypesArray } from "@/constants/pools/poolCreation";
 
 export default {
   data() {
@@ -41,21 +38,22 @@ export default {
           tableKey: "Pool name",
         },
         {
-          tableKey: "TVL",
-          tooltip: "Total Value Locked.",
+          tableKey: "Staked TVL",
+          tooltip: "Staked Total Value Locked.",
           isSortingCriterion: true,
         },
         {
-          tableKey: "Fee Tier",
-          tooltip: "Fee Tier.",
+          tableKey: "To be distributed",
+          tooltip: "To be distributed.",
+          isSortingCriterion: true,
         },
         {
-          tableKey: "Pool type",
-          tooltip: "Pool type.",
+          tableKey: "Rewards",
+          tooltip: "Rewards.",
         },
         {
-          tableKey: "Staking APR",
-          tooltip: "Staking APR.",
+          tableKey: "APR",
+          tooltip: "APR.",
           isSortingCriterion: true,
         },
       ],
@@ -67,30 +65,17 @@ export default {
   computed: {
     ...mapGetters({
       account: "getAccount",
-      localPoolsList: "getPoolsList",
+      localPoolsList: "getPoolFarmsList",
     }),
 
-    filtersData(): FilterData[] {
-      return [
-        {
-          filterKey: "poolType",
-          text: "Pool type",
-          options: [...poolTypesArray],
-          emitter: this.updatePoolTypeFilter,
-        },
-        {
-          filterKey: "feeTier",
-          text: "Fee tier",
-          options: this.getFeeTierOptions(),
-          emitter: this.updateFeeTierFilter,
-        },
-      ];
+    poolFarmsConfigs() {
+      return this.poolConfigs.filter(({ stakeContract }) => stakeContract);
     },
   },
 
   methods: {
     ...mapMutations({
-      setPoolsList: "setPoolsList",
+      setPoolFarmsList: "setPoolFarmsList",
     }),
 
     checkLocalData(): void {
@@ -101,26 +86,14 @@ export default {
     },
 
     async createPoolsInfo(): Promise<void> {
-      this.pools = await getPoolsList(this.account, this.poolConfigs);
+      this.pools = await getPoolsList(this.account, this.poolFarmsConfigs);
       this.poolsLoading = false;
 
-      this.setPoolsList(this.pools);
+      this.setPoolFarmsList(this.pools);
     },
 
     updateSortKeys(key: any, order: any) {
-      (this.$refs.poolsTable as any).updateSortKeys(key, order);
-    },
-
-    updatePoolTypeFilter(options: string[]) {
-      (this.$refs.poolsTable as any).updatePoolTypeFilter(options);
-    },
-
-    updateFeeTierFilter(options: string[]) {
-      (this.$refs.poolsTable as any).updateFeeTierFilter(options);
-    },
-
-    getFeeTierOptions() {
-      return (this.$refs.poolsTable as any).getFeeTierOptions();
+      (this.$refs.poolFarmsTable as any).updateSortKeys(key, order);
     },
   },
 
@@ -130,7 +103,7 @@ export default {
     await this.createPoolsInfo();
 
     this.updateInterval = setInterval(async () => {
-      this.pools = await getPoolsList(this.account, this.poolConfigs);
+      this.pools = await getPoolsList(this.account, this.poolFarmsConfigs);
     }, 60000);
   },
 
@@ -142,8 +115,8 @@ export default {
     PoolsInfo: defineAsyncComponent(
       () => import("@/components/pools/PoolsInfo.vue")
     ),
-    PoolsTable: defineAsyncComponent(
-      () => import("@/components/pools/table/pools/PoolsTable.vue")
+    PoolFarmsTable: defineAsyncComponent(
+      () => import("@/components/pools/table/poolFarms/PoolFarmsTable.vue")
     ),
     FiltersPopup: defineAsyncComponent(
       () => import("@/components/myPositions/FiltersPopup.vue")

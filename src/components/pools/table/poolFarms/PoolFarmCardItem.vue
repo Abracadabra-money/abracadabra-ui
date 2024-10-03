@@ -7,8 +7,7 @@
 
     <div class="row">
       <TokenPair :pool="pool" chainIcon />
-      <ElixirPotionMultiplier v-if="isMultiplierLabel" />
-      <div v-else>
+      <div v-if="!isMultiplierLabel">
         <h3 class="title">APR</h3>
         <div class="value apr">
           {{ poolApr }}
@@ -23,16 +22,22 @@
       </div>
 
       <div>
-        <h3 class="title">Fees tier</h3>
+        <h3 class="title">To be distributed</h3>
         <div class="value">
-          {{ feeTier }}
+          {{ toBeDistributed }}
         </div>
       </div>
 
       <div>
-        <h3 class="title">Pool type</h3>
-        <div class="value">
-          {{ poolType }}
+        <ElixirReward v-if="isMultiplierLabel" />
+        <div class="token-icons" v-else>
+          <BaseTokenIcon
+            v-for="(token, index) in rewardTokens"
+            :icon="token.icon"
+            :name="token.name"
+            :size="index === 0 ? '20px' : '24px'"
+            :key="index"
+          />
         </div>
       </div>
     </div>
@@ -43,11 +48,6 @@
 import { formatUnits } from "viem";
 import { formatLargeSum, formatPercent } from "@/helpers/filters";
 import { BERA_BARTIO_CHAIN_ID } from "@/constants/global";
-import {
-  FEE_TIER_DECIMALS,
-  STANDARD_K_VALUE,
-  PoolTypes,
-} from "@/constants/pools/poolCreation";
 import { defineAsyncComponent } from "vue";
 
 export default {
@@ -58,30 +58,23 @@ export default {
     },
   },
 
-  data() {
-    return {
-      collateralApy: "-",
-    };
-  },
-
   computed: {
-    tvl() {
-      return formatLargeSum(formatUnits(this.pool.totalSupply, this.decimals));
+    rewardTokens() {
+      return this.pool.config.rewardTokens;
     },
 
-    feeTier() {
-      return formatPercent(
-        formatUnits(this.pool.initialParameters.lpFeeRate, FEE_TIER_DECIMALS)
+    tvl() {
+      return formatLargeSum(
+        formatUnits(this.pool.stakedTotalSupply, this.decimals)
       );
     },
 
-    poolType() {
-      return this.pool.initialParameters.K === STANDARD_K_VALUE
-        ? PoolTypes.Standard
-        : PoolTypes.Pegged;
+    toBeDistributed() {
+      return "todo";
     },
 
     poolApr() {
+      if (!this.pool.poolAPR || this.isMultiplierLabel) return "";
       return formatPercent(this.pool.poolAPR?.totalApr || 0);
     },
 
@@ -90,7 +83,7 @@ export default {
     },
 
     isOpenPosition() {
-      return this.pool.userInfo.balance > 0n;
+      return this.pool.stakeInfo?.balance > 0n;
     },
 
     poolLabel() {
@@ -106,7 +99,7 @@ export default {
 
     goToPage() {
       return {
-        name: "Pool",
+        name: "PoolFarm",
         params: {
           id: this.pool.id,
           poolChainId: this.pool.chainId,
@@ -115,22 +108,15 @@ export default {
     },
   },
 
-  methods: {
-    formatUnits(value: bigint) {
-      return formatUnits(value, 18); // Notice decimals
-    },
-
-    formatLargeSum(value: bigint) {
-      return formatLargeSum(formatUnits(value, 0));
-    },
-  },
-
   components: {
     TokenPair: defineAsyncComponent(
       () => import("@/components/pools/pool/TokenPair.vue")
     ),
-    ElixirPotionMultiplier: defineAsyncComponent(
-      () => import("@/components/ui/info/ElixirPotionMultiplier.vue")
+    BaseTokenIcon: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenIcon.vue")
+    ),
+    ElixirReward: defineAsyncComponent(
+      () => import("@/components/pools/pool/ElixirReward.vue")
     ),
   },
 };
@@ -241,13 +227,6 @@ export default {
   border: 1px solid #0d1427;
 }
 
-.apr {
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 150%;
-  text-shadow: 0px 0px 16px #ab5de8;
-}
-
 .title {
   color: #99a0b2;
   font-size: 14px;
@@ -258,5 +237,31 @@ export default {
   font-size: 14px;
   font-weight: 400;
   text-transform: capitalize;
+}
+
+.token-icons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.token-icon:not(:first-child) {
+  margin-left: -6px;
+  border: 2px solid #0a1021;
+  border-radius: 8px;
+}
+
+.token-icon {
+  margin-right: 0 !important;
+}
+
+.apr {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  text-shadow: 0px 0px 16px #ab5de8;
+  font-weight: 600;
+  line-height: 150%;
 }
 </style>

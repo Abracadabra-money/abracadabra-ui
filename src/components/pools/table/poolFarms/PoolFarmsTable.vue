@@ -3,43 +3,13 @@
     <div class="additional-logic">
       <div class="toggles-wrap">
         <Toggle
-          text="My pools"
-          :selected="showMyPools"
-          @updateToggle="updateToggleMyPools"
-        />
-
-        <Toggle
-          text="Rewards available"
-          :selected="showAvailableRewardsPools"
-          @updateToggle="updateAvailableRewardsPools"
+          text="My stakes"
+          :selected="showMyStakes"
+          @updateToggle="updateToggleMyStakes"
         />
       </div>
 
       <div class="dropdowns-wrap">
-        <TableDropdown
-          class="pool-type-dropdown"
-          title="Pool type"
-          :options="poolTypesOptions"
-          :selectedOptions="selectedPoolTypes"
-          @updateSelectedOption="
-            (poolType) => updateSelectedOptions(selectedPoolTypes, poolType)
-          "
-          @selectAllOptions="
-            selectAllOptions(poolTypesOptions, selectedPoolTypes)
-          "
-        />
-
-        <TableDropdown
-          class="fee-tier-dropdown"
-          title="Fee tier"
-          :options="feeTierOptions"
-          :selectedOptions="selectedFeeTiers"
-          @updateSelectedOption="
-            (feeTier) => updateSelectedOptions(selectedFeeTiers, feeTier)
-          "
-          @selectAllOptions="selectAllOptions(feeTierOptions, selectedFeeTiers)"
-        />
-
         <ChainsDropdown
           :activeChains="activeChains"
           :selectedChains="selectedChains"
@@ -76,10 +46,10 @@
         </div>
 
         <div class="loader-wrap">
-          <BaseLoader v-if="poolsLoading" medium text="Loading pools" />
+          <BaseLoader v-if="poolsLoading" medium text="Loading farms" />
           <BaseSearchEmpty
             v-if="showEmptyBlock && !poolsLoading"
-            text="There are no pools"
+            text="There are no farms"
           />
         </div>
 
@@ -98,8 +68,6 @@ import { defineAsyncComponent, type PropType } from "vue";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 import {
   FEE_TIER_DECIMALS,
-  PoolTypes,
-  poolTypesArray,
   STANDARD_K_VALUE,
 } from "@/constants/pools/poolCreation";
 import { formatPercent } from "@/helpers/filters";
@@ -110,7 +78,7 @@ import type { SortOrder } from "@/types/sorting";
 export default {
   props: {
     pools: {
-      type: Array as PropType<MagicLPInfo[]>,
+      type: Array as PropType<(MagicLPInfo & { stakeInfo: any })[]>,
       required: true,
     },
     poolsLoading: { type: Boolean },
@@ -124,14 +92,10 @@ export default {
     return {
       searchValue: "",
       showActivePools: true,
-      showMyPools: false,
-      showAvailableRewardsPools: false,
+      showMyStakes: false,
       sortKey: "TVL",
       sortOrder: "up" as SortOrder,
       selectedChains: [] as number[],
-      poolTypesOptions: [...poolTypesArray],
-      selectedPoolTypes: [...poolTypesArray],
-      selectedFeeTiers: [] as string[],
       isFiltersPopupOpened: false,
     };
   },
@@ -155,20 +119,13 @@ export default {
 
       const filteredByPositions = this.filterPositions(filteredByDepreciate);
 
-      const filteredByAvailableRewards =
-        this.filterByAvailableRewards(filteredByPositions);
-
       const filteredByValue = this.filterBySearchValue(
-        filteredByAvailableRewards,
+        filteredByPositions,
         this.searchValue
       );
 
-      const filteredByPoolType = this.filterByPoolType(filteredByValue);
-
-      const filteredByFeeTier = this.filterByFeeTier(filteredByPoolType);
-
       const sortedByChain = this.sortByKey(
-        filteredByFeeTier,
+        filteredByValue,
         this.sortKey,
         this.sortOrder
       );
@@ -178,10 +135,6 @@ export default {
 
     activeChains() {
       return this.getActiveChain();
-    },
-
-    feeTierOptions() {
-      return this.getFeeTierOptions();
     },
 
     showDeprecatedButton() {
@@ -208,12 +161,8 @@ export default {
       this.showActivePools = !this.showActivePools;
     },
 
-    updateToggleMyPools() {
-      this.showMyPools = !this.showMyPools;
-    },
-
-    updateAvailableRewardsPools() {
-      this.showAvailableRewardsPools = !this.showAvailableRewardsPools;
+    updateToggleMyStakes() {
+      this.showMyStakes = !this.showMyStakes;
     },
 
     updateSortKeys(key: string, order: SortOrder) {
@@ -236,21 +185,6 @@ export default {
       const index = this.selectedChains.indexOf(chainId);
       if (index === -1) this.selectedChains.push(chainId);
       else this.selectedChains.splice(index, 1);
-    },
-
-    selectAllOptions(allOptions: string[], selectedOptions: string[]) {
-      if (allOptions.length === selectedOptions.length)
-        selectedOptions.splice(0);
-      else {
-        selectedOptions.splice(0);
-        selectedOptions.push(...allOptions);
-      }
-    },
-
-    updateSelectedOptions(selectedOptions: string[], newOption: string) {
-      const index = selectedOptions.indexOf(newOption);
-      if (index === -1) selectedOptions.push(newOption);
-      else selectedOptions.splice(index, 1);
     },
 
     filterByChain(pools: MagicLPInfo[], selectedChains: number[]) {
@@ -279,51 +213,14 @@ export default {
     },
 
     filterPositions(pools: MagicLPInfo[]) {
-      if (this.showMyPools)
-        return pools.filter(({ userInfo }) => userInfo.balance > 0n);
-      return pools;
-    },
-
-    filterByAvailableRewards(pools: MagicLPInfo[]) {
-      if (this.showAvailableRewardsPools)
-        return pools.filter(
-          ({ rewardTokens }) => (rewardTokens || []).length > 0
-        );
+      if (this.showMyStakes)
+        return pools.filter(({ stakeInfo }) => (stakeInfo?.balance || 0n) > 0n);
       return pools;
     },
 
     filterBySearchValue(pools: MagicLPInfo[], value: string) {
       return pools.filter(
         (config) => config.name.toLowerCase().indexOf(value) !== -1
-      );
-    },
-
-    filterByPoolType(pools: MagicLPInfo[]) {
-      if (this.selectedPoolTypes.length === 2) return pools;
-
-      switch (this.selectedPoolTypes[0]) {
-        case PoolTypes.Standard:
-          return pools.filter(
-            ({ initialParameters }) => initialParameters.K === STANDARD_K_VALUE
-          );
-        case PoolTypes.Pegged:
-          return pools.filter(
-            ({ initialParameters }) => initialParameters.K !== STANDARD_K_VALUE
-          );
-        default:
-          return [];
-      }
-    },
-
-    filterByFeeTier(pools: MagicLPInfo[]) {
-      return pools.filter(({ initialParameters }) =>
-        this.selectedFeeTiers.some(
-          (feeTier: string) =>
-            feeTier ===
-            formatPercent(
-              formatUnits(initialParameters.lpFeeRate, FEE_TIER_DECIMALS)
-            )
-        )
       );
     },
 
@@ -349,12 +246,12 @@ export default {
 
     getSortKey(pool: MagicLPInfo, key: string) {
       switch (key) {
-        case "Fee Tier":
+        case "To be distributed":
           return pool.initialParameters.lpFeeRate;
-        case "Staking APR":
+        case "APR":
           return pool.poolAPR?.totalApr || 0;
         default:
-          return pool.totalSupply;
+          return pool.stakedTotalSupply;
       }
     },
 
@@ -368,45 +265,10 @@ export default {
           return a >= ARBITRUM_CHAIN_ID || b <= ARBITRUM_CHAIN_ID ? -1 : 1;
         });
     },
-
-    getFeeTierOptions() {
-      const feeTierOptions =
-        this.pools
-          .reduce((acc, { initialParameters }) => {
-            if (!acc.includes(initialParameters.lpFeeRate))
-              acc.push(initialParameters.lpFeeRate);
-            return acc;
-          }, [] as bigint[])
-          .sort()
-          .map((feeTier: bigint) =>
-            formatPercent(formatUnits(feeTier, FEE_TIER_DECIMALS))
-          ) || ([] as string[]);
-
-      this.selectedFeeTiers = [...feeTierOptions];
-
-      return [...feeTierOptions];
-    },
-
-    updatePoolTypeFilter(options: string[]) {
-      const updatedSelectedOptions = options.length
-        ? [...options]
-        : [...this.poolTypesOptions];
-      this.selectedPoolTypes = updatedSelectedOptions as PoolTypes[];
-    },
-
-    updateFeeTierFilter(options: string[]) {
-      const updatedSelectedOptions = options.length
-        ? [...options]
-        : [...this.feeTierOptions];
-      this.selectedFeeTiers = updatedSelectedOptions;
-    },
   },
 
   components: {
     Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
-    TableDropdown: defineAsyncComponent(
-      () => import("@/components/ui/dropdown/TableDropdown.vue")
-    ),
     ChainsDropdown: defineAsyncComponent(
       () => import("@/components/ui/dropdown/ChainsDropdown.vue")
     ),
@@ -414,13 +276,13 @@ export default {
       () => import("@/components/ui/inputs/InputSearch.vue")
     ),
     PoolsTableHead: defineAsyncComponent(
-      () => import("@/components/pools/table/PoolsTableHead.vue")
+      () => import("@/components/pools/table/poolFarms/PoolFarmsTableHead.vue")
     ),
     PoolsTableItem: defineAsyncComponent(
-      () => import("@/components/pools/table/PoolsTableItem.vue")
+      () => import("@/components/pools/table/poolFarms/PoolFarmsTableItem.vue")
     ),
     PoolCardItem: defineAsyncComponent(
-      () => import("@/components/pools/table/PoolCardItem.vue")
+      () => import("@/components/pools/table/poolFarms/PoolFarmCardItem.vue")
     ),
     BaseLoader: defineAsyncComponent(
       () => import("@/components/base/BaseLoader.vue")

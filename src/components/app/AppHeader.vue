@@ -61,6 +61,7 @@ export default {
       alternativeHeader: [
         "MimSwap",
         "Pools",
+        "PoolFarms",
         "Pool",
         "PoolFarm",
         "PotionPoints",

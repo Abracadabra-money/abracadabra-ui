@@ -28,7 +28,7 @@
         <p class="apr">APR {{ Number(pool.poolAPR.totalApr).toFixed(2) }} %</p>
       </div>
     </div>
-    <ElixirReward v-if="isElixir" />
+    <ElixirReward isGradient isTitleText v-if="isElixir" />
 
     <ul class="rewards-list" v-if="tokenRewards && !isElixir">
       <li class="list-item" v-for="(item, index) in tokenRewards" :key="index">

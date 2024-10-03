@@ -18,7 +18,7 @@
       </div>
     </div>
 
-    <ElixirReward v-if="isElixir" />
+    <ElixirReward isGradient isTitleText v-if="isElixir" />
     <div class="row apr-item" v-else>
       <p class="title">APR</p>
       <p class="apr">
