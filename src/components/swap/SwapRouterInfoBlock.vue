@@ -16,7 +16,7 @@
 
       <img class="token-icon" :src="fromTokenIcon" alt="" />
 
-      <div class="route-item" v-for="route in routesInfo" :key="route.address">
+      <div class="route-item" v-for="(route, idx) in routesInfo" :key="idx">
         <img class="token-icon" :src="route.icon" alt="" />
         <span class="route-value">{{ route.percent }}</span>
       </div>

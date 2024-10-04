@@ -15,13 +15,13 @@ import { tokenConfigs } from "@/configs/pools/tokenConfigs";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 
 const poolChains = [MAINNET_CHAIN_ID, ARBITRUM_CHAIN_ID, BLAST_CHAIN_ID];
-// const blackListedPools = [
-// "0x5895bff185127a01a333cbea8e53dcf172c13f35",
-// "0x61679bdd546d5c80350dd9f9f56312f2585be9a9",
-// "0xa311a0bfb5789ebdc2171fd707494e8ad7fac59c",
-// "0xd9f58d32d3f89b56112269718317db94c27d34c4",
-// "0xca3e789bcabaccb5606f06e246bcc53927befe00",
-// ];
+const blackListedPools = [
+  "0x5895bff185127a01a333cbea8e53dcf172c13f35",
+  "0x61679bdd546d5c80350dd9f9f56312f2585be9a9",
+  "0xa311a0bfb5789ebdc2171fd707494e8ad7fac59c",
+  "0xd9f58d32d3f89b56112269718317db94c27d34c4",
+  "0xca3e789bcabaccb5606f06e246bcc53927befe00",
+];
 
 const getGraphQuery = (poolId: string) => {
   const query = poolId ? `pair(id: "${poolId}")` : `pairs(first: 1000)`;
@@ -137,7 +137,7 @@ const createPoolConfig = async (pool: any, chainId: number) => {
     quoteTokenSymbol
   );
 
-  const formattedLpName = lpName.split(' ').pop().replace('/', ' / ')
+  const formattedLpName = lpName.split(" ").pop().replace("/", " / ");
 
   return {
     id: pool.id,
@@ -186,13 +186,13 @@ export const getPoolConfigs = async () => {
       const pools = await fetchPools(chainId);
 
       if (pools) {
-        // const filterPools = pools.pairs.filter(
-        //   (pool: any) =>
-        //     blackListedPools.includes(pool.id.toLocaleLowerCase()) === false
-        // );
+        const filterPools = pools.pairs.filter(
+          (pool: any) =>
+            blackListedPools.includes(pool.id.toLocaleLowerCase()) === false
+        );
 
         return Promise.all(
-          pools.pairs.map((pool: any) => processPool(pool, chainId))
+          filterPools.map((pool: any) => processPool(pool, chainId))
         );
       }
     })

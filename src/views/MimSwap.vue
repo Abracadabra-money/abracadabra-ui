@@ -100,7 +100,6 @@
 
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
-import poolsConfig from "@/configs/pools/pools";
 import { formatUnits, type Address } from "viem";
 import type { ContractInfo } from "@/types/global";
 import { approveTokenViem } from "@/helpers/approval";
@@ -130,6 +129,7 @@ import {
   type TokenPrice,
 } from "@/helpers/prices/defiLlama";
 import { validationActions } from "@/helpers/validators/swap/validationActions";
+import { getPoolConfigs } from "@/helpers/pools/getPoolConfigs";
 
 const emptyTokenInfo: TokenInfo = {
   config: {
@@ -182,6 +182,7 @@ export default {
       ], // TODO: get from configs
       isApproving: false,
       nativeTokenPrice: [] as { chainId: number; price: number }[],
+      poolConfigs: [] as PoolConfig[],
     };
   },
 
@@ -322,13 +323,18 @@ export default {
     },
 
     filterTokensList() {
-      if (this.isMIMToken && this.tokensList.length > 2) {
-        return this.tokensList.filter(
-          (token: TokenInfo) => token.config.name === "MIM"
-        ) as TokenInfo[];
-      }
-
-      return this.tokensList as TokenInfo[];
+      return this.tokensList.filter(
+        (token: TokenInfo, index: number, self: TokenInfo[]) => {
+          return (
+            index ===
+            self.findIndex(
+              (t) =>
+                t.config.contract.address.toLowerCase() ===
+                token.config.contract.address.toLowerCase()
+            )
+          );
+        }
+      );
     },
   },
 
@@ -517,7 +523,7 @@ export default {
     },
 
     async createSwapInfo() {
-      const filteredPoolsConfig = poolsConfig.filter(
+      const filteredPoolsConfig = this.poolConfigs.filter(
         ({ chainId }) => chainId === this.selectedNetwork
       );
 
@@ -539,6 +545,7 @@ export default {
 
       this.poolsList = await getAllPoolsByChain(
         this.selectedNetwork,
+        this.poolConfigs,
         this.account
       );
     },
@@ -556,6 +563,7 @@ export default {
         (token: TokenInfo) => token.config.name === "MIM"
       );
     },
+
     checkAndSetSelectedChain() {
       if (this.availableNetworks.includes(this.chainId)) {
         this.selectedNetwork = this.chainId;
@@ -564,6 +572,7 @@ export default {
   },
 
   async created() {
+    this.poolConfigs = await getPoolConfigs();
     this.nativeTokenPrice = await getNativeTokensPrice(this.availableNetworks);
     this.checkAndSetSelectedChain();
     await this.createSwapInfo();
