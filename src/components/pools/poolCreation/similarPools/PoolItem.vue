@@ -1,8 +1,19 @@
 <template>
-  <router-link :to="goToPage" :class="['pool-item']">
-    <div class="status-flag">
+  <div
+    @click="goToPool(!mobileMode)"
+    :class="['pool-item', { identical: isIdentical, mobile: mobileMode }]"
+  >
+    <div :class="['status-flag', { identical: isIdentical }]">
       <span class="status-flag-text">{{ poolStatus }}</span>
     </div>
+
+    <BaseButton
+      class="view-link-button"
+      @click="goToPool(mobileMode)"
+      v-if="mobileMode"
+    >
+      View
+    </BaseButton>
 
     <div class="item-header">
       <div class="token-info">
@@ -33,31 +44,40 @@
         <p class="tag-value">{{ tvl }}</p>
       </li>
     </ul>
-  </router-link>
+  </div>
 </template>
 
 <script lang="ts">
 import { defineAsyncComponent, type PropType } from "vue";
+import { formatUnits } from "viem";
 import { formatUSD, formatPercent } from "@/helpers/filters";
-import type { MagicLPInfo } from "@/helpers/pools/swap/types";
 import {
   FEE_TIER_DECIMALS,
   PoolTypes,
   STANDARD_K_VALUE,
 } from "@/constants/pools/poolCreation";
-import { formatUnits } from "viem";
+import { checkIdentity } from "@/helpers/pools/poolCreation/createSimilarPoolsInfo";
+import type { ActionConfig } from "@/helpers/pools/poolCreation/actions/createPool";
+import type { MagicLPInfo } from "@/helpers/pools/swap/types";
 
 export default {
   props: {
     pool: {
-      type: Object as any,
+      type: Object as PropType<MagicLPInfo>,
       required: true,
     },
+    actionConfig: {
+      type: Object as PropType<ActionConfig>,
+      required: true,
+    },
+    mobileMode: Boolean,
   },
 
   computed: {
     feeTier() {
-      return formatPercent(formatUnits(this.pool.initialParameters.lpFeeRate, FEE_TIER_DECIMALS));
+      return formatPercent(
+        formatUnits(this.pool.initialParameters.lpFeeRate, FEE_TIER_DECIMALS)
+      );
     },
 
     tvl() {
@@ -65,23 +85,35 @@ export default {
       return formatUSD(formatUnits(totalSupply, decimals));
     },
 
-    goToPage() {
-      const { id, chainId } = this.pool;
-
-      return {
-        name: "Pool",
-        params: { id, poolChainId: chainId },
-      };
-    },
-
     poolStatus() {
+      if (this.isIdentical) return "Identical";
       return this.pool.initialParameters.K === STANDARD_K_VALUE
         ? PoolTypes.Standard
         : PoolTypes.Pegged;
     },
+
+    isIdentical() {
+      //todo consider I factor
+      return checkIdentity(this.pool, this.actionConfig);
+    },
+  },
+
+  methods: {
+    goToPool(enabled: boolean) {
+      if (!enabled) return false;
+      const { id, chainId } = this.pool;
+
+      this.$router.push({
+        name: "Pool",
+        params: { id, poolChainId: chainId },
+      });
+    },
   },
 
   components: {
+    BaseButton: defineAsyncComponent(
+      () => import("@/components/base/BaseButton.vue")
+    ),
     Tooltip: defineAsyncComponent(
       () => import("@/components/ui/icons/Tooltip.vue")
     ),
@@ -112,12 +144,26 @@ export default {
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.06);
   backdrop-filter: blur(12.5px);
   transition: all 0.5s ease-in-out;
+  cursor: pointer;
 }
 
-.pool-item:hover {
+.pool-item:not(.mobile):hover {
   transform: scale(1.01);
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.16);
   z-index: 1;
+}
+
+.pool-item.identical {
+  border: 1px solid #c39818;
+}
+
+.pool-item.mobile {
+  width: 100%;
+  cursor: auto;
+}
+
+.pool-item.identical.mobile {
+  box-shadow: 0px 0px 32px 0px rgba(255, 255, 255, 0.12);
 }
 
 .item-header {
@@ -173,11 +219,22 @@ export default {
   background: linear-gradient(0deg, #2d4a96 0%, #5b7cd1 100%);
 }
 
+.status-flag.identical {
+  background: linear-gradient(180deg, #b28541 0%, #c39818 100%);
+}
+
 .status-flag-text {
   text-align: center;
   color: #fff;
   font-size: 10px;
   font-weight: 500;
   text-transform: capitalize;
+}
+
+.view-link-button {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  width: fit-content;
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div :class="['pool-creation-info', { 'mobile-mode': mobileMode }]">
     <template v-if="poolType">
-      <div class="pool-creation-info-header">
+      <div class="pool-creation-info-header" v-if="showCreationInfoHeader">
         <div class="chosen-creation-type" v-if="!mobileMode">
           <h3 class="creation-type-title">{{ poolType }} Pool Type</h3>
           <p class="creation-type-description">
@@ -29,7 +29,7 @@
         </div>
       </div>
 
-      <SlippageChart :kValue="kValue" v-if="showChart" />
+      <img class="chart" :src="chartImagePath" v-if="chartImagePath" />
     </template>
 
     <div class="empty-creation-info" v-if="showEmptyCreationInfo">
@@ -75,6 +75,7 @@ import {
   K_VALUE_DECIMALS,
   EmptyStateTypes,
 } from "@/constants/pools/poolCreation";
+import { useImage } from "@/helpers/useImage";
 
 export default {
   props: {
@@ -93,8 +94,17 @@ export default {
       return (!this.tokensSelected || !this.poolType) && !this.mobileMode;
     },
 
-    showChart() {
-      return !this.showEmptyCreationInfo && !this.mobileMode;
+    showCreationInfoHeader() {
+      return this.mobileMode
+        ? this.poolType
+        : this.poolType && this.tokensSelected;
+    },
+
+    chartImagePath() {
+      if (this.showEmptyCreationInfo || this.mobileMode) return "";
+      return useImage(
+        `assets/images/pools/pool-creation/chart/${this.poolType}-pool-chart.svg`
+      );
     },
 
     formattedKValue() {

@@ -35,14 +35,21 @@
             @selectFeeTier="selectFeeTier"
           />
 
-          <BaseButton
-            primary
-            :disabled="!validationData.isAllowed"
-            @click="actionHandler"
-            v-if="!mobileMode"
-          >
-            {{ validationData.btnText }}
-          </BaseButton>
+          <div class="error-button-wrap">
+            <Error v-if="identicalPoolExists && !mobileMode">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+              eiusmod tempor
+            </Error>
+
+            <BaseButton
+              primary
+              :disabled="!validationData.isAllowed"
+              @click="actionHandler"
+              v-if="!mobileMode"
+            >
+              {{ validationData.btnText }}
+            </BaseButton>
+          </div>
         </div>
       </div>
 
@@ -59,10 +66,8 @@
           @openSlippagePopup="isSlippagePopupOpened = true"
         />
         <SimilarPools
-          :tokens="{ baseToken, quoteToken }"
-          :tokensSelected="tokensSelected"
+          :similarPools="similarPools"
           :actionConfig="actionConfig"
-          :chainId="chainId"
           v-if="!mobileMode"
         />
       </div>
@@ -97,6 +102,14 @@
       @selectKValue="selectKValue"
       @close="isSlippagePopupOpened = !isSlippagePopupOpened"
       v-if="isSlippagePopupOpened"
+    />
+
+    <SimilarPoolsPopup
+      v-if="mobileMode && isSimilarPoolsPopupOpened"
+      :similarPools="similarPools"
+      :actionConfig="actionConfig"
+      @createPool="createPoolHandler"
+      @close="isSimilarPoolsPopupOpened = false"
     />
 
     <LocalPopupWrap
@@ -162,6 +175,11 @@ import {
   RATE_PRECISION,
 } from "@/constants/pools/poolCreation";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
+import {
+  createSimilarPoolsInfo,
+  checkIdentity,
+} from "@/helpers/pools/poolCreation/createSimilarPoolsInfo";
+import { debounce } from "lodash";
 
 const emptyPoolCreationTokenInfo: PoolCreationTokenInfo = {
   config: {
@@ -200,12 +218,14 @@ export default {
         protocolOwnedPool: false,
       } as ActionConfig,
       IforCalc: 0n,
+      similarPools: [],
       selectedNetwork: ARBITRUM_CHAIN_ID,
       availableNetworks,
       isAutoPricingEnabled: false,
       isTokensPopupOpened: false,
       isSlippagePopupOpened: false,
       isAutoPricingWarnPopupOpened: false,
+      isSimilarPoolsPopupOpened: false,
       isActionProcessing: false,
       updateInterval: null as NodeJS.Timeout | null,
       currentMobileTab: 0,
@@ -243,7 +263,9 @@ export default {
         this.poolType,
         this.chainId,
         this.account,
-        this.isActionProcessing
+        this.isActionProcessing,
+        this.identicalPoolExists,
+        this.mobileMode
       );
     },
 
@@ -256,15 +278,24 @@ export default {
         18 + this.quoteToken.config.decimals - this.baseToken.config.decimals
       );
     },
+
+    identicalPoolExists() {
+      return !!this.similarPools.find((pool) =>
+        checkIdentity(pool, this.actionConfig)
+      );
+    },
   },
 
   watch: {
-    //for tests. remove before live : todo
     actionConfig: {
-      handler() {},
+      async handler() {
+        const { K, lpFeeRate } = this.actionConfig;
+        if (this.tokensSelected && K > 0n && lpFeeRate > 0n)
+          await this.createSimilarPoolsInfo();
+      },
       deep: true,
     },
-    //
+
     baseToken: {
       handler(newValue: PoolCreationTokenInfo) {
         this.actionConfig.baseToken = newValue.config.address;
@@ -545,6 +576,11 @@ export default {
           );
           break;
         default:
+          if (!this.mobileMode && this.identicalPoolExists) break;
+          if (this.similarPools.length > 0 && this.mobileMode) {
+            this.isSimilarPoolsPopupOpened = true;
+            break;
+          }
           await this.createPoolHandler();
           break;
       }
@@ -555,6 +591,15 @@ export default {
     async createTokenList() {
       this.tokenList = await getTokenList(this.selectedNetwork, this.account);
     },
+
+    createSimilarPoolsInfo: debounce(async function (this: any) {
+      this.isActionProcessing = true;
+      this.similarPools = await createSimilarPoolsInfo(
+        this.actionConfig,
+        this.account
+      );
+      this.isActionProcessing = false;
+    }, 500),
   },
 
   async created() {
@@ -605,6 +650,10 @@ export default {
           "@/components/pools/poolCreation/popups/SlippageCoefficientPopup.vue"
         )
     ),
+    SimilarPoolsPopup: defineAsyncComponent(
+      () =>
+        import("@/components/pools/poolCreation/popups/SimilarPoolsPopup.vue")
+    ),
     LocalPopupWrap: defineAsyncComponent(
       // @ts-ignore
       () => import("@/components/popups/LocalPopupWrap.vue")
@@ -624,6 +673,7 @@ export default {
     AvailableNetworksBlock: defineAsyncComponent(
       () => import("@/components/stake/AvailableNetworksBlock.vue")
     ),
+    Error: defineAsyncComponent(() => import("@/components/ui/info/Error.vue")),
   },
 };
 </script>
@@ -680,6 +730,12 @@ export default {
   font-weight: 500;
 }
 
+.error-button-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
 .pool-creation-info-wrap {
   grid-area: info;
   display: flex;
@@ -703,7 +759,7 @@ export default {
 }
 
 .second-step .default-button {
-width: fit-content;
+  width: fit-content;
 }
 
 @media (max-width: 1200px) {

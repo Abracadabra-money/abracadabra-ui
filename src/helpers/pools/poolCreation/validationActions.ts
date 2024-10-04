@@ -16,7 +16,9 @@ export const validationActions = (
   poolType: PoolTypes | null,
   chainId: number,
   account: Address | null,
-  isActionProcessing: boolean
+  isActionProcessing: boolean,
+  identicalPoolExists: boolean,
+  mobileMode: boolean
 ): ValidationData => {
   const { baseInAmount, quoteInAmount, lpFeeRate, I, K } = actionConfig;
 
@@ -45,6 +47,8 @@ export const validationActions = (
   if (!I) return { btnText: "Select Price", isAllowed: false };
 
   if (!K) return { btnText: "Select K", isAllowed: false };
+
+  if (identicalPoolExists && !mobileMode) return { btnText: 'Identical', isAllowed: false }
 
   if (!baseInAmount || !quoteInAmount)
     return { btnText: "Enter amount", isAllowed: false };
@@ -80,7 +84,7 @@ export const validationActions = (
 
 const validateChain = (
   connectedChainId: number,
-  btnText = "Switch network"
+  btnText = "Switch chain"
 ) => {
   if (!SUPPORTED_CHAINS.includes(connectedChainId))
     return {

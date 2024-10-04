@@ -1,47 +1,28 @@
 import type { ActionConfig } from "@/helpers/pools/poolCreation/actions/createPool";
-import { fetchPoolsByInfo } from "./queries/fetchPoolsByInfo";
-import pools from "@/configs/pools/pools";
-import { getPublicClient } from "@/helpers/chains/getChainsInfo";
-import BlastMagicLPAbi from "@/abis/BlastMagicLpAbi";
+import type { Address } from "viem";
+import type { MagicLPInfo } from "@/helpers/pools/swap/types";
+import { getPoolsList } from "@/helpers/pools/getPoolsList";
+import { getPoolConfigs } from "@/helpers/pools/getPoolConfigs";
+export const createSimilarPoolsInfo = async (actionConfig: ActionConfig, account: Address) => {
+    const similarConfigs = (await getPoolConfigs()).filter(({ baseToken, quoteToken }) =>
+        baseToken.contract.address === actionConfig.baseToken &&
+        quoteToken.contract.address === actionConfig.quoteToken);
 
-export const createSimilarPoolsInfo = async (actionConfig: ActionConfig, chainId: number) => {
-    const similarPoolsSubgraph = await fetchPoolsByInfo(
-        chainId,
-        actionConfig
-    );
+    const similarPools = await getPoolsList(account, similarConfigs)
 
-    console.log("getSimilarPools", similarPoolsSubgraph);
-    if (!similarPoolsSubgraph) return [];
-
-    return (await Promise.all(similarPoolsSubgraph.map(async (info: any) => {
-        return await getSimilarPoolItemInfo(info)
-    }))).filter(poolItem => poolItem)
+    return similarPools.sort((poolA: MagicLPInfo, poolB: MagicLPInfo) => {
+        const a = poolA.totalSupply;
+        const b = poolB.totalSupply;
+        return a > b ? 1 : -1
+    })
 }
 
 
-const getSimilarPoolItemInfo = async (subgraphInfo: any) => {
-    const poolAddress = subgraphInfo.id;
-    const { i, k, lpFeeRate } = subgraphInfo;
-
-    const similarPoolConfig = pools.find(({ contract }) => contract.address === poolAddress);
-
-    if (!similarPoolConfig) return false;
-
-    const publicClient = getPublicClient(similarPoolConfig.chainId);
-
-    const totalSupply = await publicClient.readContract({
-        address: poolAddress,
-        abi: BlastMagicLPAbi as any,
-        functionName: "totalSupply",
-        args: [],
-    });
-
-    return {
-        ...similarPoolConfig, initialParameters: {
-            I: BigInt(i),
-            K: BigInt(k),
-            lpFeeRate: BigInt(lpFeeRate)
-        },
-        totalSupply
-    }
+export const checkIdentity = (pool: MagicLPInfo, actionConfig: ActionConfig) => {
+    const {
+        K: poolK,
+        lpFeeRate: poolFeeRate,
+    } = pool.initialParameters;
+    const { K, lpFeeRate } = actionConfig;
+    return K === poolK && lpFeeRate === poolFeeRate;
 }

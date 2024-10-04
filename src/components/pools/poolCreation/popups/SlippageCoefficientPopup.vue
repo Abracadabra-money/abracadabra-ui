@@ -308,4 +308,14 @@ export default {
   font-size: 14px;
   font-weight: 400;
 }
+
+@media (max-width: 600px) {
+  .slippage-coefficient-popup {
+    width: 100%;
+    height: 100%;
+    margin-top: 0;
+    padding: 20px 16px;
+    border-radius: 0;
+  }
+}
 </style>
