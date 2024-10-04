@@ -34,6 +34,8 @@
       />
     </div>
 
+    <PillsPotions :pool="pool" />
+
     <PreviewAddLiquidity
       :pool="pool"
       :slippage="slippage"
@@ -390,6 +392,9 @@ export default {
     ),
     PreviewAddLiquidityPopup: defineAsyncComponent(() =>
       import("@/components/pools/pool/popups/PreviewAddLiquidityPopup.vue")
+    ),
+    PillsPotions: defineAsyncComponent(() =>
+      import("@/components/pools/pool/PillsPotions.vue")
     ),
   },
 };
