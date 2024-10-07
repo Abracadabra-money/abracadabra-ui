@@ -173,6 +173,18 @@ const sellQuoteTokensForTokensPayload = (
   };
 };
 
+function encodeDirections(directionsArray: number[]): number {
+  let encodedDirections = 0;
+
+  // Ітеруємо масив і використовуємо побітовий зсув для кодування
+  for (let i = 0; i < directionsArray.length; i++) {
+    // Зсуваємо біт на відповідну позицію і додаємо до результату
+    encodedDirections |= directionsArray[i] << i;
+  }
+
+  return encodedDirections;
+}
+
 const swapTokensForTokensPayload = (
   routes: RouteInfo[],
   actionConfig: ActionConfig,
@@ -182,12 +194,13 @@ const swapTokensForTokensPayload = (
   const path: Address[] = routes.map((route) => route.lpInfo.contract.address);
   const outputAmount = routes[routes.length - 1].outputAmount;
   const deadline = moment().unix() + Number(actionConfig.deadline);
+  const directionsArray = routes.map((route) => (route.fromBase ? 0 : 1));
 
   return {
     to: account,
     amountIn: fromInputValue,
     path,
-    directions: 0n,
+    directions: encodeDirections(directionsArray),
     minimumOut: outputAmount,
     deadline: deadline,
   };
