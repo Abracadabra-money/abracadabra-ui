@@ -48,7 +48,11 @@ export const validationActions = (
 
   if (!K) return { btnText: "Select K", isAllowed: false };
 
-  if (identicalPoolExists && !mobileMode) return { btnText: 'Identical', isAllowed: false }
+  if (identicalPoolExists && !mobileMode) return {
+    btnText: 'Go To Identical',
+    isAllowed: true,
+    method: "goToIdenticalPool",
+  }
 
   if (!baseInAmount || !quoteInAmount)
     return { btnText: "Enter amount", isAllowed: false };

@@ -36,7 +36,7 @@
           />
 
           <div class="error-button-wrap">
-            <Error v-if="identicalPoolExists && !mobileMode">
+            <Error v-if="!!identicalPool && !mobileMode">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
               eiusmod tempor
             </Error>
@@ -108,6 +108,8 @@
       v-if="mobileMode && isSimilarPoolsPopupOpened"
       :similarPools="similarPools"
       :actionConfig="actionConfig"
+      :identicalPool="identicalPool"
+      @goToIdenticalPool="goToIdenticalPool"
       @createPool="createPoolHandler"
       @close="isSimilarPoolsPopupOpened = false"
     />
@@ -264,7 +266,7 @@ export default {
         this.chainId,
         this.account,
         this.isActionProcessing,
-        this.identicalPoolExists,
+        !!this.identicalPool,
         this.mobileMode
       );
     },
@@ -279,8 +281,8 @@ export default {
       );
     },
 
-    identicalPoolExists() {
-      return !!this.similarPools.find((pool) =>
+    identicalPool() {
+      return this.similarPools.find((pool) =>
         checkIdentity(pool, this.actionConfig)
       );
     },
@@ -486,6 +488,15 @@ export default {
       this.selectedNetwork = network;
     },
 
+    goToIdenticalPool() {
+      if (!this.identicalPool) return;
+      const { chainId: poolChainId, id } = this.identicalPool;
+      this.$router.push({
+        name: "Pool",
+        params: { poolChainId, id },
+      });
+    },
+
     getWindowSize() {
       if (window.innerWidth <= 1024) this.mobileMode = true;
       else this.mobileMode = false;
@@ -575,8 +586,11 @@ export default {
             this.actionConfig.quoteInAmount
           );
           break;
+        case "goToIdenticalPool":
+          this.goToIdenticalPool();
+          break;
         default:
-          if (!this.mobileMode && this.identicalPoolExists) break;
+          if (!this.mobileMode && !!this.identicalPool) break;
           if (this.similarPools.length > 0 && this.mobileMode) {
             this.isSimilarPoolsPopupOpened = true;
             break;

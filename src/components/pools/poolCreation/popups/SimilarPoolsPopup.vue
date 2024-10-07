@@ -44,8 +44,8 @@
         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
         tempor
       </Error>
-      <BaseButton :disabled="!!identicalPool" primary @click="createPool">
-        Create
+      <BaseButton primary @click="actionHandler">
+        {{ buttonText }}
       </BaseButton>
     </div>
   </div>
@@ -67,30 +67,31 @@ export default {
       type: Object as PropType<ActionConfig>,
       required: true,
     },
-  },
-
-  data() {
-    return {};
+    identicalPool: {
+      type: Object as PropType<MagicLPInfo> | null,
+      default: null,
+    },
   },
 
   computed: {
-    identicalPool() {
-      return this.similarPools.find((pool) =>
-        checkIdentity(pool, this.actionConfig)
-      );
-    },
-
     similarPoolsToRender() {
       return this.similarPools.filter(
         (pool) => !checkIdentity(pool, this.actionConfig)
       );
     },
+
+    buttonText() {
+      return this.identicalPool ? "Go To Identical" : "Create";
+    },
   },
 
   methods: {
-    createPool() {
-      if (this.identicalPool) return false;
-      this.$emit("createPool");
+    actionHandler() {
+      if (this.identicalPool) {
+        this.$emit("goToIdenticalPool");
+      } else {
+        this.$emit("createPool");
+      }
       this.closePopup();
     },
 

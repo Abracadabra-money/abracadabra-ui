@@ -35,12 +35,9 @@
     <div class="empty-creation-info" v-if="showEmptyCreationInfo">
       <EmptyState :type="EmptyStateTypes.Pair">
         <div class="empty-state-content">
-          <span class="empty-state-main-text">
+          <span :class="['empty-state-main-text', { checked: tokensSelected }]">
             Select Tokens
-            <img
-              :class="['check-icon', { unchecked: !tokensSelected }]"
-              src="@/assets/images/pools/pool-creation/round-check-icon.svg"
-            />
+            <RoundCheckMarkIcon :checked="tokensSelected" />
           </span>
           <p class="empty-state-description">
             Select tokens you would like to create Pool with to enable price
@@ -51,12 +48,9 @@
 
       <EmptyState>
         <div class="empty-state-content">
-          <span class="empty-state-main-text">
+          <span :class="['empty-state-main-text', { checked: !!poolType }]">
             Select Pool Type
-            <img
-              :class="['check-icon', { unchecked: !poolType }]"
-              src="@/assets/images/pools/pool-creation/round-check-icon.svg"
-            />
+            <RoundCheckMarkIcon :checked="!!poolType" />
           </span>
           <p class="empty-state-description">
             Select Pool Type for your Pool to enable ‘’K’’ and Fee Tier settigns
@@ -122,11 +116,11 @@ export default {
     Tooltip: defineAsyncComponent(
       () => import("@/components/ui/icons/Tooltip.vue")
     ),
-    SlippageChart: defineAsyncComponent(
-      () => import("@/components/pools/poolCreation/charts/SlippageChart.vue")
-    ),
     EmptyState: defineAsyncComponent(
       () => import("@/components/pools/poolCreation/PoolCreationEmptyState.vue")
+    ),
+    RoundCheckMarkIcon: defineAsyncComponent(
+      () => import("@/components/ui/icons/RoundCheckMarkIcon.vue")
     ),
   },
 };
@@ -224,6 +218,10 @@ export default {
   text-align: left;
 }
 
+.checked {
+  color: $success;
+}
+
 .empty-state-description {
   color: #878b93;
   font-size: 16px;
@@ -238,10 +236,6 @@ export default {
     rgba(255, 255, 255, 0.2) 50%,
     rgba(255, 255, 255, 0) 100%
   );
-}
-
-.unchecked {
-  opacity: 0.3;
 }
 
 @media (max-width: 1300px) {

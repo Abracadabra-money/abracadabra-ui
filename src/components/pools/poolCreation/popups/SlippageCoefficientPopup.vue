@@ -19,9 +19,9 @@
       <ul class="slippage-coefficient-options">
         <li
           :class="['slippage-coefficient-option', type]"
-          v-for="({ value, type, description }, index) in slippageCoefficients"
+          v-for="{ value, type, description, index } in slippageCoefficients"
           :key="index"
-          @click="selectOption(value)"
+          @click="selectOption(value, index)"
         >
           <div class="status-flag" v-if="type != 'default'">
             <span class="status-text"> Safe </span>
@@ -33,7 +33,7 @@
             {{ description }}
           </p>
           <RadioButton
-            :active="checkActiveOption(value) && !isCustomCoefficient"
+            :active="checkActiveOption(index) && !isCustomCoefficient"
           />
         </li>
 
@@ -50,6 +50,10 @@
           <RadioButton :active="isCustomCoefficient" />
         </li>
       </ul>
+
+      <BaseButton primary :disabled="!!error" @click="selectKvalue"
+        >Select</BaseButton
+      >
     </div>
   </div>
 </template>
@@ -69,6 +73,7 @@ export default {
       currentCoefficientIndex: 0,
       isCustomCoefficient: false,
       customCoefficient: "",
+      coefficientToEmit: this.kValue || 0n,
     };
   },
 
@@ -79,16 +84,19 @@ export default {
           value: this.parseCoefficientToBigint("0.0001"),
           description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
           type: "safe",
+          index: 0,
         },
         {
           value: this.parseCoefficientToBigint("0.00025"),
           description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
           type: "default",
+          index: 1,
         },
         {
           value: this.parseCoefficientToBigint("0.002"),
           description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
           type: "default",
+          index: 2,
         },
       ];
     },
@@ -109,7 +117,7 @@ export default {
       if (!this.isCustomCoefficient) return;
 
       if (!value) {
-        this.$emit("selectKValue", 0n);
+        this.customCoefficient = "";
         return;
       }
 
@@ -118,15 +126,20 @@ export default {
         return false;
       }
 
-      this.$emit("selectKValue", this.parseCoefficientToBigint(value));
+      this.coefficientToEmit = this.parseCoefficientToBigint(value);
     },
 
     kValue: {
       handler(kValue) {
-        if (
-          !this.slippageCoefficients.some(({ value }) => value == this.kValue)
-        )
+        const chosenOption = this.slippageCoefficients.find(
+          ({ value }) => value == this.kValue
+        );
+
+        if (!chosenOption) {
           this.isCustomCoefficient = true;
+        } else {
+          this.currentCoefficientIndex = chosenOption.index;
+        }
 
         this.customCoefficient = this.isCustomCoefficient
           ? this.formatKValue(kValue || 0n)
@@ -137,19 +150,20 @@ export default {
   },
 
   methods: {
-    checkActiveOption(value: bigint) {
-      return this.kValue == value;
+    checkActiveOption(optionIndex: number) {
+      return this.currentCoefficientIndex == optionIndex;
     },
 
-    selectOption(value: bigint) {
+    selectOption(value: bigint, optionIndex: number) {
       this.isCustomCoefficient = false;
-      this.$emit("selectKValue", value);
+      this.currentCoefficientIndex = optionIndex;
+      this.coefficientToEmit = value;
     },
 
     selectCustom() {
       if (this.isCustomCoefficient) return;
       this.isCustomCoefficient = true;
-      this.$emit("selectKValue", 0n);
+      this.coefficientToEmit = 0n;
     },
 
     formatKValue(KValue: bigint | null) {
@@ -158,15 +172,23 @@ export default {
     },
 
     closePopup() {
-      if (!this.error) this.$emit("close");
+      this.$emit("close");
     },
 
     parseCoefficientToBigint(coefficient: string | number) {
       return parseUnits(coefficient.toString(), K_VALUE_DECIMALS);
     },
+
+    selectKvalue() {
+      this.$emit("selectKValue", this.coefficientToEmit);
+      this.closePopup();
+    },
   },
 
   components: {
+    BaseButton: defineAsyncComponent(
+      () => import("@/components/base/BaseButton.vue")
+    ),
     RadioButton: defineAsyncComponent(
       () => import("@/components/ui/buttons/RadioButton.vue")
     ),
