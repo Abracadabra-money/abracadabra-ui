@@ -32,7 +32,7 @@ export const formatLargeSum = (value: string | number): string => {
   const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
 
   // Round the value to the nearest integer
-  let roundedValue = roundToNearestTenIfBigger(Math.round(Number(value)));
+  let roundedValue = roundToNearestTenIfBigger(value);
 
   const item = lookup.reverse().find((item) => roundedValue >= item.value);
 
