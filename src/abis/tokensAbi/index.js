@@ -49,6 +49,8 @@ import TetherUSDtLP from "@/abis/tokensAbi/TetherUSDtLP";
 import yvUSDT from "@/abis/tokensAbi/yvUSDT";
 import yvUSDC from "@/abis/tokensAbi/yvUSDC";
 import USDT from "@/abis/tokensAbi/USDT";
+import MagicUSD0pp from "@/abis/tokensAbi/MagicUSD0pp";
+import USD0pp from "@/abis/tokensAbi/USD0pp";
 
 export default {
   ALCX,
@@ -102,4 +104,6 @@ export default {
   yvUSDT,
   yvUSDC,
   USDT,
+  MagicUSD0pp,
+  USD0pp
 };

@@ -37,6 +37,11 @@
       <div class="multiplier-value">5x - 29.5x</div>
     </div>
 
+    <div class="column multiplier" v-else-if="isPillsPoints">
+      <div class="multiplier-title">Pills Multiplier</div>
+      <div class="multiplier-value">1x - 6.3x</div>
+    </div>
+
     <div class="column apr" v-else>
       {{ loopApr }}
     </div>
@@ -69,6 +74,7 @@ export default {
   data() {
     return {
       elixirPotions: [43, 44],
+      pillsPoints: [45],
     };
   },
 
@@ -98,6 +104,12 @@ export default {
       return (
         this.cauldron.config.chainId === MAINNET_CHAIN_ID &&
         this.elixirPotions.includes(this.cauldron.config.id)
+      );
+    },
+    isPillsPoints() {
+      return (
+        this.cauldron.config.chainId === MAINNET_CHAIN_ID &&
+        this.pillsPoints.includes(this.cauldron.config.id)
       );
     },
   },
