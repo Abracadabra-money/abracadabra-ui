@@ -24,7 +24,10 @@
               alt="MIM"
               v-if="index"
             />
-            {{ data.value }}
+            <VueDynamicFont
+              :class="[{ 'elixir-token-amount': index === 0 }]"
+              :content="data.value"
+            />
           </div>
         </div>
         <div class="reward-weekly" v-if="data?.rate">
@@ -39,6 +42,7 @@
 
 <script lang="ts">
 import type { PropType } from "vue";
+import { defineAsyncComponent } from "vue";
 
 export type TotalAssetsData = {
   title: string;
@@ -52,6 +56,12 @@ export default {
       type: Array as PropType<TotalAssetsData[]>,
       required: true,
     },
+  },
+
+  components: {
+    VueDynamicFont: defineAsyncComponent(
+      () => import("@/components/ui/VueDynamicFont.vue")
+    ),
   },
 };
 </script>
@@ -133,6 +143,7 @@ export default {
   color: #fff;
   font-size: 28px;
   font-weight: 500;
+  max-width: 214px;
 }
 
 .elixir-token-amount {
