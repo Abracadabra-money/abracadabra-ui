@@ -1,5 +1,7 @@
 import { utils } from "ethers";
 import { fetchLev0xData, fetchLev0xDataV2 } from "./fetchLev0xData";
+import { fetchLevOdosData } from "./fetchLevOdosData";
+
 import getVelodrome0xData from "./getVelodrome0xData";
 
 const apeAddress = "0x4d224452801ACEd8B2F0aebE155379bb5D594381";
@@ -16,6 +18,7 @@ const getLev0xData = async (cauldronObject, amount, slipage) => {
     isCvxTricrypto,
     isCvx3pool,
     iStdeUSD,
+    isUSD0,
   } = cauldronObject.config.cauldronSettings;
 
   if (isVelodrome) return getVelodrome0xData();
@@ -62,6 +65,20 @@ const getLev0xData = async (cauldronObject, amount, slipage) => {
     return utils.defaultAbiCoder.encode(
       ["address", "uint256", "bytes"],
       [usdtAddress, tokenIndex, swapResponseData]
+    );
+  }
+
+  if (isUSD0) {
+    const responceData = await fetchLevOdosData(
+      cauldronObject,
+      amount,
+      slipage,
+      cauldronObject.config.wrapInfo.unwrappedToken.address
+    );
+
+    return utils.defaultAbiCoder.encode(
+      ["address", "bytes"],
+      [responceData.to, responceData.data]
     );
   }
 

@@ -22,7 +22,7 @@
               class="token-icon"
               src="@/assets/images/tokens/MIM.png"
               alt="MIM"
-              v-if="index"
+              v-if="index === 2"
             />
             {{ data.value }}
           </div>
