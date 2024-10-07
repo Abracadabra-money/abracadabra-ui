@@ -187,7 +187,7 @@ const swapTokensForTokensPayload = (
     to: account,
     amountIn: fromInputValue,
     path,
-    directions: 0n,
+    directions: 1n,
     minimumOut: outputAmount,
     deadline: deadline,
   };
