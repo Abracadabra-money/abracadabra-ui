@@ -1775,7 +1775,7 @@ const config: Array<CauldronConfig> = [
     },
   },
   {
-    icon: useImage(`assets/images/base_token_icon.png`),
+    icon: useImage(`assets/images/tokens/USD0pp.png`),
     name: "USD0++",
     chainId: 1,
     id: 45,
@@ -1800,13 +1800,13 @@ const config: Array<CauldronConfig> = [
     },
     contract: {
       name: "CauldronV4",
-      address: "0x970a5F4228b4b61915a93636949D9067747BccfA",
+      address: "0xE8ed7455fa1b2a3D8959cD2D59c7f136a45BF341",
       abi: poolsAbi.CauldronV4,
     },
     collateralInfo: {
-      name: "MagicUSD0++",
+      name: "USD0++",
       decimals: 18,
-      address: "0xdB36f69B88Ec1388dBFAc90132CD396FD4749963",
+      address: "0x73075fD1522893D9dC922991542f98F08F2c1C99",
       abi: tokensAbi.MagicUSD0pp,
     },
     mimInfo,
@@ -1815,21 +1815,21 @@ const config: Array<CauldronConfig> = [
       useUnwrappedByDefault: true,
       unwrappedToken: {
         name: "USD0++",
-        icon: useImage(`assets/images/base_token_icon.png`),
+        icon: useImage(`assets/images/tokens/USD0pp.png`),
         address: "0x35D8949372D46B7a3D5A56006AE77B215fc69bC0",
         abi: tokensAbi.USD0pp,
       },
       wrapper: {
-        address: "0xB0DeB95556a5E17a3d99a8995Ba06D8A75727AF1",
+        address: "0x36c19d20e2eDD3FB761530485Fdca0A7F15F3e56",
         abi: degenBoxERC4626Wrapper,
       },
     },
     leverageInfo: {
-      address: "0xC47C19A7d951b23A25FD06596494c2AD82F4a56c",
+      address: "0xd22B279C9f5556CebF42fbfbf4159Ba2aE984Add",
       abi: ERC4626LevSwapper,
     },
     deleverageInfo: {
-      address: "0xB9516c6C702c4434F6cf08f124ef0478754f7B3d",
+      address: "0x144d5bdFf8239Ce5F514f1a944588df783384E9F",
       abi: ERC4626LiqSwapper,
     },
   },
