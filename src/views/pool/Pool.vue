@@ -135,7 +135,7 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  width: 533px;
+  width: 573px;
   padding: 0 20px;
 }
 
@@ -180,7 +180,7 @@ export default {
 
   .chart-wrap {
     width: 100%;
-    max-width: 543px;
+    max-width: 573px;
   }
 
   .chart {
