@@ -11,7 +11,7 @@
       The best route for chosen tokens will appear here
     </h5>
 
-    <div class="router" v-else>
+    <div class="router" v-else-if="routesInfo?.length <= 4">
       <div class="dashed"></div>
 
       <img class="token-icon" :src="fromTokenIcon" alt="" />
@@ -24,6 +24,21 @@
       <img class="token-icon" :src="toTokenIcon" alt="" />
     </div>
 
+    <div v-else>
+      <div
+        class="router"
+        v-for="(routes, index) in chunkedRoutesInfo"
+        :key="index"
+      >
+        <div class="dashed"></div>
+
+        <div class="route-item" v-for="(route, idx) in routes" :key="idx">
+          <img class="token-icon" :src="route.icon" alt="" />
+          <span class="route-value">{{ route.percent }}</span>
+        </div>
+      </div>
+    </div>
+
     <p class="text">
       This route optimizes your total output by considering split routes,
       multiple hops, and the gas cost of each step.
@@ -32,9 +47,12 @@
 </template>
 
 <script lang="ts">
+import {
+  getRoutesInfo,
+  getChunkedRoutesInfo,
+} from "@/helpers/pools/swap/getRoutesInfo";
 import type { TokenInfo } from "@/helpers/pools/swap/tokens";
 import type { RouteInfo } from "@/helpers/pools/swap/getSwapInfo";
-import { getRoutesInfo } from "@/helpers/pools/swap/getRoutesInfo";
 
 export default {
   props: {
@@ -47,6 +65,10 @@ export default {
   computed: {
     routesInfo() {
       return getRoutesInfo(this.tokensList, this.routes);
+    },
+
+    chunkedRoutesInfo() {
+      return getChunkedRoutesInfo(this.routes);
     },
   },
 };

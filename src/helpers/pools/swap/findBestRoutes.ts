@@ -18,6 +18,7 @@ type Swaps = {
 type QueueElement = {
   token: Address;
   swaps: Swaps[];
+  currentAmount: bigint;
 };
 
 type PriorityQueueItem = {
@@ -90,13 +91,24 @@ const fetchOutputAmount = async (
   }
 };
 
+// Функція для розрахунку кількості токенів з урахуванням прослизання
+const calculateSlippage = (
+  balanceIn: bigint, // Баланс токену, який ми обмінюємо
+  balanceOut: bigint, // Баланс токену, який ми хочемо отримати
+  amountIn: bigint // Сума обміну
+): bigint => {
+  const k = balanceIn * balanceOut; // Постійна величина добутку
+  const newBalanceIn = balanceIn + amountIn; // Новий баланс після додавання суми
+  const newBalanceOut = k / newBalanceIn; // Новий баланс токену, який отримуємо
+  return balanceOut - newBalanceOut; // Отримана кількість токенів з урахуванням впливу
+};
+
 export const findBestSwapPath = (
   pairs: MagicLPInfo[],
   fromToken: Address,
-  toToken: Address
+  toToken: Address,
+  amountToSwap: bigint // Обсяг токенів, які ми хочемо обміняти
 ) => {
-  // Створюємо граф у вигляді словника, де ключ - токен,
-  // а значення - список сусідніх токенів з вагою ребра та id пари
   const graph: Graph = {};
   const visited = new Set();
   const bestCosts = { [fromToken]: 0 };
@@ -113,38 +125,71 @@ export const findBestSwapPath = (
     graph[quoteToken].push({ token: baseToken, weight, pair: id });
   });
 
-  // Використовуємо алгоритм Дейкстри для пошуку найкращого шляху
   const pq = new PriorityQueue();
-  pq.enqueue({ token: fromToken, swaps: [] }, 0);
+  pq.enqueue({ token: fromToken, swaps: [], currentAmount: amountToSwap }, 0);
 
   while (!pq.isEmpty()) {
     const dequeuedItem = pq.dequeue();
     if (!dequeuedItem) continue;
 
     const {
-      element: { token: currentToken, swaps },
+      element: { token: currentToken, swaps, currentAmount },
       priority: currentCost,
     } = dequeuedItem;
 
-    // Якщо досягли цільового токену, повертаємо масив з об'єктами
     if (currentToken === toToken) return swaps;
 
     if (visited.has(currentToken)) continue;
     visited.add(currentToken);
 
-    // Додаємо сусідні токени у чергу для подальшого пошуку
     const neighbors = graph[currentToken] || [];
     neighbors.forEach(({ token: neighbor, weight, pair }) => {
+      const poolInfo = pairs.find(
+        (pool) => pool.id.toLowerCase() === pair.toLowerCase()
+      );
+
+      if (!poolInfo) return;
+
+      // Перевірка балансу токенів
+      const baseBalance = poolInfo.balances.baseBalance;
+      const quoteBalance = poolInfo.balances.quoteBalance;
+      const { baseToken, quoteToken } = poolInfo;
+
+      let sufficientLiquidity = false;
+      let newAmountToSwap = currentAmount;
+
+      if (currentToken.toLowerCase() === baseToken.toLowerCase()) {
+        if (baseBalance >= currentAmount) {
+          sufficientLiquidity = true;
+        } else {
+          newAmountToSwap = calculateSlippage(
+            baseBalance,
+            quoteBalance,
+            currentAmount
+          );
+        }
+      } else if (currentToken.toLowerCase() === quoteToken.toLowerCase()) {
+        if (quoteBalance >= currentAmount) {
+          sufficientLiquidity = true;
+        } else {
+          newAmountToSwap = calculateSlippage(
+            quoteBalance,
+            baseBalance,
+            currentAmount
+          );
+        }
+      }
+
       const newCost = currentCost + weight;
-      if (!(neighbor in bestCosts) || newCost < bestCosts[neighbor]) {
-        bestCosts[neighbor] = newCost;
 
-        const poolInfo = pairs.find(
-          (pool) => pool.id.toLowerCase() === pair.toLowerCase()
-        );
+      // Вплив прослизання на пріоритет (зміна кількості токенів)
+      // Якщо кількість токенів після прослизання значно менша, це збільшує вартість шляху
+      const slippageImpact =
+        Number(currentAmount - newAmountToSwap) / Number(currentAmount);
+      const adjustedCost = newCost + slippageImpact; // Чим більше прослизання, тим більша вартість
 
-        if (!poolInfo) return;
-        const { baseToken }: MagicLPInfo = poolInfo;
+      if (!(neighbor in bestCosts) || adjustedCost < bestCosts[neighbor]) {
+        bestCosts[neighbor] = adjustedCost;
 
         const newSwap = {
           pair: pair,
@@ -156,9 +201,10 @@ export const findBestSwapPath = (
         pq.enqueue(
           {
             token: neighbor,
-            swaps: [...swaps, newSwap], // Додаємо новий swap до списку
+            swaps: [...swaps, newSwap],
+            currentAmount: newAmountToSwap, // Оновлюємо кількість токенів після обміну з урахуванням прослизання
           },
-          newCost
+          adjustedCost // Враховуємо новий пріоритет з урахуванням прослизання
         );
       }
     });
@@ -176,7 +222,8 @@ export const findBestRoutes = async (
     const bestSwapPath = findBestSwapPath(
       pools,
       fromToken.config.contract.address,
-      toToken.config.contract.address
+      toToken.config.contract.address,
+      fromInputValue
     );
 
     if (!bestSwapPath || bestSwapPath.length === 0) return null;
