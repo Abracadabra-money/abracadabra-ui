@@ -35,7 +35,7 @@
 
     <div class="staking-rewards" v-if="isPoolHasRewardPoints">
       <p class="title">Staking Rewards</p>
-      <ElixirReward isGradient isTitleText/>
+      <ElixirReward isGradient isTitleText />
     </div>
 
     <BaseButton primary v-if="hasFarm" @click="goToFarm">

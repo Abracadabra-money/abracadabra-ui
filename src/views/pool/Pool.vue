@@ -1,29 +1,32 @@
 <template>
-  <div class="pool-view" v-if="pool">
-    <div class="chart-wrap">
-      <h5 class="chart-title">Pool composition</h5>
-      <PieChart :option="chartOption" title="Pool composition" />
-    </div>
+  <div class="pool-view-wrap">
+    <div class="pool-view" v-if="pool">
+      <div class="chart-wrap">
+        <h5 class="chart-title">Pool composition</h5>
+        <PieChart :option="chartOption" title="Pool composition" />
+      </div>
 
-    <div class="pool">
-      <PoolActionBlock
-        :pool="pool"
-        :isUserPositionOpen="isUserPositionOpen"
-        @updatePoolInfo="getPoolInfo"
-        @openPositionPopup="isMyPositionPopupOpened = true"
-      />
-    </div>
+      <div class="pool">
+        <PoolActionBlock
+          :pool="pool"
+          :isUserPositionOpen="isUserPositionOpen"
+          @updatePoolInfo="getPoolInfo"
+          @openPositionPopup="isMyPositionPopupOpened = true"
+        />
+      </div>
 
-    <div class="pool-position-wrap">
-      <PoolPosition
-        :pool="pool"
-        :isUserPositionOpen="isUserPositionOpen"
-        :isMyPositionPopupOpened="isMyPositionPopupOpened"
-        @closePopup="isMyPositionPopupOpened = false"
-        @updateInfo="getPoolInfo"
-        v-if="account"
-      />
+      <div class="pool-position-wrap">
+        <PoolPosition
+          :pool="pool"
+          :isUserPositionOpen="isUserPositionOpen"
+          :isMyPositionPopupOpened="isMyPositionPopupOpened"
+          @closePopup="isMyPositionPopupOpened = false"
+          @updateInfo="getPoolInfo"
+          v-if="account"
+        />
+      </div>
     </div>
+    <BaseLoader v-else large text="Loading Pool" />
   </div>
 </template>
 
@@ -115,11 +118,21 @@ export default {
     PieChart: defineAsyncComponent(() =>
       import("@/components/pools/pool/charts/PieChart.vue")
     ),
+    BaseLoader: defineAsyncComponent(() =>
+      import("@/components/base/BaseLoader.vue")
+    ),
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.pool-view-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
 .pool-view {
   display: flex;
   justify-content: center;

@@ -155,6 +155,7 @@ export default {
 
 .pool-item.identical {
   border: 1px solid #c39818;
+  background: rgba(195, 152, 24, 0.1);
 }
 
 .pool-item.mobile {

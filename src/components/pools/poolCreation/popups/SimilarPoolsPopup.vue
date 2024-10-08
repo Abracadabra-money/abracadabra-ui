@@ -40,10 +40,10 @@
     </div>
 
     <div class="error-button-wrap">
-      <Error v-if="identicalPool">
+      <Warning v-if="identicalPool">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
         tempor
-      </Error>
+      </Warning>
       <BaseButton primary @click="actionHandler">
         {{ buttonText }}
       </BaseButton>
@@ -107,7 +107,9 @@ export default {
     BaseButton: defineAsyncComponent(
       () => import("@/components/base/BaseButton.vue")
     ),
-    Error: defineAsyncComponent(() => import("@/components/ui/info/Error.vue")),
+    Warning: defineAsyncComponent(
+      () => import("@/components/ui/info/Warning.vue")
+    ),
   },
 };
 </script>

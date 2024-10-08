@@ -36,10 +36,10 @@
           />
 
           <div class="error-button-wrap">
-            <Error v-if="!!identicalPool && !mobileMode">
+            <Warning v-if="!!identicalPool && !mobileMode">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
               eiusmod tempor
-            </Error>
+            </Warning>
 
             <BaseButton
               primary
@@ -687,7 +687,9 @@ export default {
     AvailableNetworksBlock: defineAsyncComponent(
       () => import("@/components/stake/AvailableNetworksBlock.vue")
     ),
-    Error: defineAsyncComponent(() => import("@/components/ui/info/Error.vue")),
+    Warning: defineAsyncComponent(
+      () => import("@/components/ui/info/Warning.vue")
+    ),
   },
 };
 </script>
@@ -714,9 +716,9 @@ export default {
 .pool-creation-title {
   grid-area: title;
   display: flex;
-  justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
+  gap: 12px;
   height: min-content;
   font-size: 32px;
   font-weight: 600;

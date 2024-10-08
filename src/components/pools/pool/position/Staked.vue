@@ -6,16 +6,16 @@
       <PoolCompoundCard
         :lpToken="lpToken"
         :tokensList="tokensList"
-        v-if="isUserPositionOpen"
+        v-if="isUserPositionOpen || earnedBalance"
       />
 
       <NoPositionCard v-else />
     </div>
 
-    <RewardsWrap :pool="pool" v-if="isUserPositionOpen" />
+    <RewardsWrap :pool="pool" v-if="earnedBalance" />
 
     <BaseButton
-      v-if="hasStakeLogic && isUserPositionOpen && !isElixir"
+      v-if="hasStakeLogic && (isUserPositionOpen || earnedBalance) && !isElixir"
       primary
       @click="actionHandler"
       :disabled="isButtonDisabled"

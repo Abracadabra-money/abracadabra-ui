@@ -1,31 +1,34 @@
 <template>
-  <div class="pool-view" v-if="pool">
-    <div class="chart-wrap">
-      <h5 class="chart-title">Stake composition</h5>
-      <PieChart :option="chartOption" title="Pool composition" />
-    </div>
+  <div class="pool-view-wrap">
+    <div class="pool-view" v-if="pool">
+      <div class="chart-wrap">
+        <h5 class="chart-title">Stake composition</h5>
+        <PieChart :option="chartOption" title="Pool composition" />
+      </div>
 
-    <div class="pool">
-      <PoolActionBlock
-        :pool="pool"
-        :isUserPositionOpen="isUserPositionOpen"
-        isFarm
-        @updatePoolInfo="getPoolInfo"
-        @openPositionPopup="isMyPositionPopupOpened = true"
-      />
-    </div>
+      <div class="pool">
+        <PoolActionBlock
+          :pool="pool"
+          :isUserPositionOpen="isUserPositionOpen"
+          isFarm
+          @updatePoolInfo="getPoolInfo"
+          @openPositionPopup="isMyPositionPopupOpened = true"
+        />
+      </div>
 
-    <div class="pool-position-wrap">
-      <PoolPosition
-        :pool="pool"
-        :isUserPositionOpen="isUserPositionOpen"
-        :isMyPositionPopupOpened="isMyPositionPopupOpened"
-        @closePopup="isMyPositionPopupOpened = false"
-        @updateInfo="getPoolInfo"
-        isFarm
-        v-if="account"
-      />
+      <div class="pool-position-wrap">
+        <PoolPosition
+          :pool="pool"
+          :isUserPositionOpen="isUserPositionOpen"
+          :isMyPositionPopupOpened="isMyPositionPopupOpened"
+          @closePopup="isMyPositionPopupOpened = false"
+          @updateInfo="getPoolInfo"
+          isFarm
+          v-if="account"
+        />
+      </div>
     </div>
+    <BaseLoader v-else large text="Loading Farm" />
   </div>
 </template>
 
@@ -60,6 +63,8 @@ export default {
     }),
 
     isUserPositionOpen() {
+      console.log(this.pool);
+
       const hasStakedLp = this.pool?.stakeInfo?.balance > 0n;
       return this.account && hasStakedLp;
     },
@@ -117,11 +122,21 @@ export default {
     PieChart: defineAsyncComponent(() =>
       import("@/components/pools/pool/charts/PieChart.vue")
     ),
+    BaseLoader: defineAsyncComponent(() =>
+      import("@/components/base/BaseLoader.vue")
+    ),
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.pool-view-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
 .pool-view {
   display: flex;
   justify-content: center;
@@ -137,7 +152,7 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  width: 533px;
+  width: 573px;
   padding: 0 20px;
 }
 
@@ -182,7 +197,7 @@ export default {
 
   .chart-wrap {
     width: 100%;
-    max-width: 543px;
+    max-width: 573px;
   }
 
   .chart {
