@@ -28,6 +28,7 @@
           :toToken="actionConfig.toToken"
           :toTokenAmount="actionConfig.toInputValue"
           :differencePrice="differencePrice"
+          :isLoading="isLoading"
           @onToogleTokens="toogleTokens"
           @openTokensPopup="openTokensPopup"
           @updateFromInputValue="updateFromValue"
@@ -58,7 +59,9 @@
 
         <BaseButton
           :primary="!isWarningBtn"
-          :disabled="!actionValidationData.isAllowed || isFetchSwapInfo"
+          :disabled="
+            !actionValidationData.isAllowed || isFetchSwapInfo || isLoading
+          "
           :warning="isWarningBtn"
           @click="actionHandler"
           :loading="isApproving"
@@ -183,6 +186,7 @@ export default {
       isApproving: false,
       nativeTokenPrice: [] as { chainId: number; price: number }[],
       poolConfigs: [] as PoolConfig[],
+      isLoading: false,
     };
   },
 
@@ -344,9 +348,11 @@ export default {
     },
 
     async selectedNetwork() {
+      this.isLoading = true;
       this.resetActionCaonfig();
       await this.createSwapInfo();
       this.selectBaseTokens();
+      this.isLoading = false;
     },
 
     account() {
@@ -572,11 +578,13 @@ export default {
   },
 
   async created() {
+    this.isLoading = true;
     this.poolConfigs = await getPoolConfigs();
     this.nativeTokenPrice = await getNativeTokensPrice(this.availableNetworks);
     this.checkAndSetSelectedChain();
     await this.createSwapInfo();
     this.selectBaseTokens();
+    this.isLoading = false;
 
     this.updateInterval = setInterval(async () => {
       await this.createSwapInfo();
