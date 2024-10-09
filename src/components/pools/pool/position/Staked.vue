@@ -6,16 +6,20 @@
       <PoolCompoundCard
         :lpToken="lpToken"
         :tokensList="tokensList"
-        v-if="isUserPositionOpen || earnedBalance"
+        v-if="isUserPositionOpen"
       />
 
       <NoPositionCard v-else />
     </div>
 
-    <RewardsWrap :pool="pool" v-if="earnedBalance" />
+    <RewardsWrap :pool="pool" v-if="earnedBalance || rewardPointsType" />
 
     <BaseButton
-      v-if="hasStakeLogic && (isUserPositionOpen || earnedBalance) && !isElixir"
+      v-if="
+        hasStakeLogic &&
+        (isUserPositionOpen || earnedBalance) &&
+        !rewardPointsType
+      "
       primary
       @click="actionHandler"
       :disabled="isButtonDisabled"
@@ -39,6 +43,7 @@ import notification from "@/helpers/notification/notification";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
+import { RewardPointsTypes } from "@/configs/pools/types";
 
 export default {
   emits: ["updatePoolInfo"],
@@ -64,8 +69,8 @@ export default {
     hasStakeLogic() {
       return !!this.pool.stakeInfo;
     },
-    isElixir() {
-      return this.pool.config.settings.isElixirPotions;
+    rewardPointsType() {
+      return this.pool.config.settings.rewardPointsType;
     },
     stakedBalance() {
       if (this.hasLockLogic) return this.pool.lockInfo.balances.unlocked;

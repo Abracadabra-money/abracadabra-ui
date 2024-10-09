@@ -3,34 +3,40 @@
     <div class="title-wrap">
       <h4 class="title">{{ titleText }}</h4>
 
-      <div class="apr-wrap" v-if="!isElixir">
-        <template v-if="poolRewards && poolRewards.length > 1">
-          <Tooltip :width="18" :height="18" fill="#ffffff" :tooltip="''" />
-          <div class="apr-info">
-            <div
-              class="apr-item"
-              v-for="item in poolRewards"
-              :key="item.token.address"
-            >
-              <img :src="item.token.icon" alt="" class="token-icon" />
-              <p class="name">{{ item.token.name }}:</p>
-              <p class="apr">{{ Number(item.apr).toFixed(2) }}%</p>
-            </div>
-            <!-- <div class="apr-item total-item">
+      <div class="apr-wrap" v-if="!rewardPointsType">
+        <Tooltip :width="18" :height="18" fill="#ffffff" :tooltip="''" />
+
+        <div class="apr-info" v-if="poolRewards && poolRewards.length > 1">
+          <div
+            class="apr-item"
+            v-for="item in poolRewards"
+            :key="item.token.address"
+          >
+            <img :src="item.token.icon" alt="" class="token-icon" />
+            <p class="name">{{ item.token.name }}:</p>
+            <p class="apr">{{ Number(item.apr).toFixed(2) }}%</p>
+          </div>
+          <!-- <div class="apr-item total-item">
               <p class="name">Total:</p>
               <p class="apr">
                 {{ Number(pool.poolAPR.totalApr).toFixed(2) }} %
               </p>
             </div> -->
-          </div>
-        </template>
+        </div>
 
         <p class="apr">APR {{ Number(pool.poolAPR.totalApr).toFixed(2) }} %</p>
       </div>
     </div>
-    <ElixirReward isGradient isTitleText v-if="isElixir" />
 
-    <ul class="rewards-list" v-if="tokenRewards && !isElixir">
+    <RewardPointsTagWrap
+      icon
+      name
+      multiplier
+      :rewardPointsType="rewardPointsType"
+      v-if="rewardPointsType"
+    />
+
+    <ul class="rewards-list" v-if="tokenRewards && !rewardPointsType">
       <li class="list-item" v-for="(item, index) in tokenRewards" :key="index">
         <span class="item-title">
           <img :src="item.token.icon" class="reward-icon" />
@@ -85,12 +91,12 @@ export default {
       return rewards;
     },
 
-    isElixir() {
-      return this.pool.config.settings.isElixirPotions;
+    rewardPointsType() {
+      return this.pool.config.settings.rewardPointsType;
     },
 
     titleText() {
-      return this.isElixir ? "Staking Rewards" : "Rewards Earned";
+      return this.rewardPointsType ? "Staking Rewards" : "Rewards Earned";
     },
   },
   methods: {
@@ -118,8 +124,8 @@ export default {
     Tooltip: defineAsyncComponent(() =>
       import("@/components/ui/icons/Tooltip.vue")
     ),
-    ElixirReward: defineAsyncComponent(() =>
-      import("@/components/pools/pool/ElixirReward.vue")
+    RewardPointsTagWrap: defineAsyncComponent(() =>
+      import("@/components/pools/rewardPoints/RewardPointsTagWrap.vue")
     ),
   },
 };
@@ -208,8 +214,8 @@ export default {
 
 .list-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 4px;
 }
 
 .item-title {

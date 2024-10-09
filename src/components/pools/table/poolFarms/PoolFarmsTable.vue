@@ -246,7 +246,7 @@ export default {
 
     getSortKey(pool: MagicLPInfo, key: string) {
       switch (key) {
-        case "To be distributed":
+        case "TBD":
           return pool.initialParameters.lpFeeRate;
         case "APR":
           return pool.poolAPR?.totalApr || 0;

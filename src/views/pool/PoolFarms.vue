@@ -43,7 +43,7 @@ export default {
           isSortingCriterion: true,
         },
         {
-          tableKey: "To be distributed",
+          tableKey: "TBD",
           tooltip: "To be distributed.",
           isSortingCriterion: true,
         },

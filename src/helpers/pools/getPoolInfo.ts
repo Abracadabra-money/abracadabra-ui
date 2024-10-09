@@ -162,7 +162,7 @@ export const getStakeInfo = async (
 
   const earnedBalances = await publicClient.multicall({
     contracts: [
-      ...config.rewardTokens.map((token: any) => ({
+      ...(config.rewardTokens || []).map((token: any) => ({
         address: config.stakeContract.address,
         abi: config.stakeContract.abi,
         functionName: "earned",
@@ -171,11 +171,13 @@ export const getStakeInfo = async (
     ],
   });
 
-  const earnedInfo = config.rewardTokens.map((token: any, index: number) => ({
-    token,
-    earned: earnedBalances[index].result,
-    ...tokensApr[index],
-  }));
+  const earnedInfo = (config.rewardTokens || []).map(
+    (token: any, index: number) => ({
+      token,
+      earned: earnedBalances[index].result,
+      ...tokensApr[index],
+    })
+  );
 
   return {
     balance: balance.result,

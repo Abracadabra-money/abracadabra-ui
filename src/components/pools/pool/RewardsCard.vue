@@ -65,7 +65,7 @@ export default {
       () => import("@/components/ui/icons/Tooltip.vue")
     ),
     ElixirReward: defineAsyncComponent(
-      () => import("@/components/pools/pool/ElixirReward.vue")
+      () => import("@/components/pools/rewardPoints/elixir/ElixirRewardTag.vue")
     ),
   },
 };

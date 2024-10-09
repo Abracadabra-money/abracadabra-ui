@@ -28,7 +28,13 @@ import type { PoolConfig } from "@/configs/pools/types";
 import { getPoolsList } from "@/helpers/pools/getPoolsList";
 import { getPoolConfigs } from "@/helpers/pools/getPoolConfigs";
 import type { FilterData } from "@/types/sorting";
-import { poolTypesArray } from "@/constants/pools/poolCreation";
+import {
+  FEE_TIER_DECIMALS,
+  feeTiersArray,
+  poolTypesArray,
+} from "@/constants/pools/poolCreation";
+import { formatUnits } from "viem";
+import { formatPercent } from "@/helpers/filters";
 
 export default {
   data() {
@@ -81,7 +87,9 @@ export default {
         {
           filterKey: "feeTier",
           text: "Fee tier",
-          options: this.getFeeTierOptions(),
+          options: feeTiersArray.map((feeTier) =>
+            formatPercent(formatUnits(feeTier, FEE_TIER_DECIMALS))
+          ),
           emitter: this.updateFeeTierFilter,
         },
       ];
@@ -117,10 +125,6 @@ export default {
 
     updateFeeTierFilter(options: string[]) {
       (this.$refs.poolsTable as any).updateFeeTierFilter(options);
-    },
-
-    getFeeTierOptions() {
-      return (this.$refs.poolsTable as any).getFeeTierOptions();
     },
   },
 

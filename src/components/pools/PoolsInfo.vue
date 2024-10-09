@@ -111,7 +111,10 @@ export default {
     text() {
       return {
         title: this.isFarms ? "Farms" : "Pools",
-        description: `Explore our curated list of MIMSwap pairs. Become a liquidity
+        description: this.isFarms
+          ? `Stake your Magic LP tokens in the Farm to start earning 
+          additional rewards`
+          : `Explore our curated list of MIMSwap pairs. Become a liquidity
         provider and earn fees along with additional rewards`,
       };
     },

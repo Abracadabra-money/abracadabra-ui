@@ -9,7 +9,7 @@ import erc20Abi from "@/abis/farm/erc20Abi";
 import { useImage } from "@/helpers/useImage";
 import BlastMagicLpAbi from "@/abis/BlastMagicLpAbi";
 import localPoolConfigs from "@/configs/pools/pools";
-import type { PoolConfig } from "@/configs/pools/types";
+import { RewardPointsTypes, type PoolConfig } from "@/configs/pools/types";
 import { graphAPIs } from "@/constants/pools/poolCreation";
 import { tokenConfigs } from "@/configs/pools/tokenConfigs";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
@@ -139,6 +139,10 @@ const createPoolConfig = async (pool: any, chainId: number) => {
 
   const formattedLpName = lpName.split(" ").pop().replace("/", " / ");
 
+  let rewardPointsType;
+  if (pool.id === "0x6f9f9ea9c06c7d928a2ffbbcc5542b18188488e9")
+    rewardPointsType = RewardPointsTypes.Pills;
+
   return {
     id: pool.id,
     chainId: chainId,
@@ -171,6 +175,7 @@ const createPoolConfig = async (pool: any, chainId: number) => {
       isNew: false,
       isDeprecated: false,
       isMim: false,
+      rewardPointsType,
     },
     initialParameters: {
       I: pool.i,

@@ -26,6 +26,12 @@ export enum PoolTypes {
 
 export const poolTypesArray = [PoolTypes.Standard, PoolTypes.Pegged];
 
+export const feeTiersArray = [
+  300000000000000n,
+  400000000000000n,
+  500000000000000n,
+];
+
 export enum EmptyStateTypes {
   PoolType = "poolType",
   Pair = "pair",

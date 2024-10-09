@@ -22,7 +22,7 @@ type PoolSettings = {
   isDeprecated: boolean;
   isMim: boolean;
   isPointsLogic?: boolean;
-  isElixirPotions?: boolean;
+  rewardPointsType?: RewardPointsTypes;
 };
 
 type InitialParameters = {
@@ -38,3 +38,8 @@ export type TokenConfig = {
   contract: ContractInfo;
   isPopular?: boolean;
 };
+
+export enum RewardPointsTypes {
+  Elixir = "elixir",
+  Pills = "piils",
+}

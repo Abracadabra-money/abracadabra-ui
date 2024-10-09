@@ -1,7 +1,7 @@
 import erc20Abi from "@/abis/farm/erc20Abi";
 import { useImage } from "@/helpers/useImage";
 import BlastMagicLpAbi from "@/abis/BlastMagicLP";
-import type { PoolConfig } from "@/configs/pools/types";
+import { RewardPointsTypes, type PoolConfig } from "@/configs/pools/types";
 import MultiRewardsAbi from "@/abis/MultiRewards";
 
 const ethereumPools: Array<PoolConfig> = [
@@ -39,22 +39,11 @@ const ethereumPools: Array<PoolConfig> = [
       address: "0xaFe0BB622D83fDBF86686E097AeC9a4D9F2c47db",
       abi: MultiRewardsAbi,
     },
-    rewardTokens: [
-      // {
-      //   name: "bSPELL",
-      //   icon: useImage(`assets/images/tokens/SPELL_2.png`),
-      //   decimals: 18,
-      //   contract: {
-      //     address: "0x34D239C8672B814D8F31F1a3e7e72702b6516D28",
-      //     abi: erc20Abi,
-      //   },
-      // },
-    ],
     settings: {
       isNew: true,
       isDeprecated: false,
       isMim: true,
-      isElixirPotions: true,
+      rewardPointsType: RewardPointsTypes.Elixir,
     },
     initialParameters: {
       I: 1000000000000000000n,

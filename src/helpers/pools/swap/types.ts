@@ -50,7 +50,7 @@ export type MagicLPInfo = {
   stakeInfo?: MagicLpStakeInfo;
   poolAPR?: any;
   price?: number;
-  stakedTotalSupply?: bigint
+  stakedTotalSupply?: bigint;
 } & PoolConfig;
 
 export type MagicLPInfoUserInfo = {

@@ -98,6 +98,7 @@ import { defineAsyncComponent, type PropType } from "vue";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 import {
   FEE_TIER_DECIMALS,
+  feeTiersArray,
   PoolTypes,
   poolTypesArray,
   STANDARD_K_VALUE,
@@ -106,6 +107,10 @@ import { formatPercent } from "@/helpers/filters";
 import type { MagicLPInfo } from "@/helpers/pools/swap/types";
 import { formatUnits } from "viem";
 import type { SortOrder } from "@/types/sorting";
+
+const formattedFeeTiersArray = feeTiersArray.map((feeTier) =>
+  formatPercent(formatUnits(feeTier, FEE_TIER_DECIMALS))
+);
 
 export default {
   props: {
@@ -131,7 +136,8 @@ export default {
       selectedChains: [] as number[],
       poolTypesOptions: [...poolTypesArray],
       selectedPoolTypes: [...poolTypesArray],
-      selectedFeeTiers: [] as string[],
+      feeTierOptions: [...formattedFeeTiersArray],
+      selectedFeeTiers: [...formattedFeeTiersArray],
       isFiltersPopupOpened: false,
     };
   },
@@ -178,10 +184,6 @@ export default {
 
     activeChains() {
       return this.getActiveChain();
-    },
-
-    feeTierOptions() {
-      return this.getFeeTierOptions();
     },
 
     showDeprecatedButton() {
@@ -432,12 +434,7 @@ export default {
     this.selectedChains = this.getActiveChain();
   },
 
-  expose: [
-    "updateSortKeys",
-    "getFeeTierOptions",
-    "updatePoolTypeFilter",
-    "updateFeeTierFilter",
-  ],
+  expose: ["updateSortKeys", "updatePoolTypeFilter", "updateFeeTierFilter"],
 };
 </script>
 

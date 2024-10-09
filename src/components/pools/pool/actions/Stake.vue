@@ -12,8 +12,8 @@
       />
     </div>
 
-    <RewardsCard :pool="pool" v-if="!isElixir" />
-    <ElixirPotions v-else />
+    <RewardsCard :pool="pool" v-if="!rewardPointsType" />
+    <RewardPointsBannerWrap :rewardPointsType="rewardPointsType" v-else />
 
     <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
       {{ buttonText }}
@@ -107,11 +107,8 @@ export default {
       return this.chainId == this.pool.chainId;
     },
 
-    isElixir() {
-      return (
-        this.pool.config.id === "0x95b485615c193cf75582b70ABdB08bc7172a80fe" &&
-        this.pool.config.chainId === 1
-      );
+    rewardPointsType() {
+      return this.pool.config.settings.rewardPointsType;
     },
   },
 
@@ -289,8 +286,8 @@ export default {
     RewardsCard: defineAsyncComponent(() =>
       import("@/components/pools/pool/RewardsCard.vue")
     ),
-    ElixirPotions: defineAsyncComponent(() =>
-      import("@/components/pools/pool/ElixirPotions.vue")
+    RewardPointsBannerWrap: defineAsyncComponent(() =>
+      import("@/components/pools/rewardPoints/RewardPointsBannerWrap.vue")
     ),
   },
 };

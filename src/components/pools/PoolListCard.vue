@@ -120,7 +120,7 @@
 
           <img
             class="reward-icons"
-            src="@/assets/images/pools/elixir-icon.svg"
+            src="@/assets/images/pools/rewards/elixir-icon.svg"
             alt=""
           />
         </div>

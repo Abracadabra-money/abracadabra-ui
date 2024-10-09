@@ -1,9 +1,9 @@
 <template>
   <div class="pool-action-block-wrap">
     <div class="pool-header">
-      <h2 class="title">Pool</h2>
+      <h2 class="title">{{ titleText }}</h2>
 
-      <TokenPair class="token-pair" chainIcon :pool="pool" :iconSize="50"/>
+      <TokenPair class="token-pair" chainIcon :pool="pool" :iconSize="50" />
 
       <div class="initial-parameters">
         <ParameterChip>{{ feeTier }}</ParameterChip>
@@ -133,6 +133,10 @@ export default {
       account: "getAccount",
     }),
 
+    titleText() {
+      return this.isFarm ? "Farm" : "Pool";
+    },
+
     isRemove() {
       return this.activeTab === "remove";
     },
@@ -220,6 +224,7 @@ export default {
 .pool-header {
   display: grid;
   grid-template-columns: max-content 1fr min-content;
+  grid-template-rows: auto auto;
   align-items: center;
   gap: 12px;
   width: 100%;

@@ -7,7 +7,13 @@
 
     <div class="row">
       <TokenPair :pool="pool" chainIcon />
-      <ElixirReward v-if="isMultiplierLabel" />
+      <RewardPointsTagWrap
+        :rewardPointsType="multiplierLabel"
+        icon
+        multiplier
+        card
+        v-if="multiplierLabel"
+      />
       <div v-else class="apr">
         <div class="token-icons">
           <BaseTokenIcon
@@ -104,8 +110,8 @@ export default {
       return "";
     },
 
-    isMultiplierLabel() {
-      return this.pool.config.settings.isElixirPotions;
+    multiplierLabel() {
+      return this.pool.config.settings.rewardPointsType;
     },
 
     goToPage() {
@@ -126,8 +132,8 @@ export default {
     BaseTokenIcon: defineAsyncComponent(
       () => import("@/components/base/BaseTokenIcon.vue")
     ),
-    ElixirReward: defineAsyncComponent(
-      () => import("@/components/pools/pool/ElixirReward.vue")
+    RewardPointsTagWrap: defineAsyncComponent(
+      () => import("@/components/pools/rewardPoints/RewardPointsTagWrap.vue")
     ),
   },
 };

@@ -16,7 +16,12 @@
     <div class="column pool-type">{{ poolType }}</div>
 
     <div class="column apr">
-      <ElixirReward v-if="isMultiplierLabel" />
+      <RewardPointsTagWrap
+        :rewardPointsType="multiplierLabel"
+        icon
+        multiplier
+        v-if="multiplierLabel"
+      />
       <div class="token-icons" v-else>
         <BaseTokenIcon
           v-for="(token, index) in rewardTokens"
@@ -26,7 +31,7 @@
           :key="index"
         />
       </div>
-      <span class="apr" v-if="!isMultiplierLabel"> {{ poolApr }}</span>
+      <span class="apr-value" v-if="!multiplierLabel"> {{ poolApr }}</span>
     </div>
   </router-link>
 </template>
@@ -49,12 +54,6 @@ export default {
       type: Object as PropType<MagicLPInfo>,
       required: true,
     },
-  },
-
-  data() {
-    return {
-      collateralApy: "-",
-    };
   },
 
   computed: {
@@ -102,8 +101,8 @@ export default {
       return "";
     },
 
-    isMultiplierLabel() {
-      return this.pool.config.settings.isElixirPotions;
+    multiplierLabel() {
+      return this.pool.config.settings.rewardPointsType;
     },
 
     goToPage() {
@@ -124,8 +123,8 @@ export default {
     TokenPair: defineAsyncComponent(
       () => import("@/components/pools/pool/TokenPair.vue")
     ),
-    ElixirReward: defineAsyncComponent(
-      () => import("@/components/pools/pool/ElixirReward.vue")
+    RewardPointsTagWrap: defineAsyncComponent(
+      () => import("@/components/pools/rewardPoints/RewardPointsTagWrap.vue")
     ),
   },
 };
@@ -242,6 +241,9 @@ export default {
   justify-content: center;
   align-items: center;
   gap: 8px;
+}
+
+.apr-value {
   text-shadow: 0px 0px 16px #ab5de8;
   font-weight: 600;
   line-height: 150%;

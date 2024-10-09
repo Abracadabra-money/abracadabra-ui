@@ -63,8 +63,6 @@ export default {
     }),
 
     isUserPositionOpen() {
-      console.log(this.pool);
-
       const hasStakedLp = this.pool?.stakeInfo?.balance > 0n;
       return this.account && hasStakedLp;
     },

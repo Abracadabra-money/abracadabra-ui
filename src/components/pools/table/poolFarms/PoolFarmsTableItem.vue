@@ -14,7 +14,12 @@
     <div class="column">{{ toBeDistributed }}</div>
 
     <div class="column">
-      <ElixirReward v-if="isMultiplierLabel" />
+      <RewardPointsTagWrap
+        :rewardPointsType="rewardPointsType"
+        icon
+        name
+        v-if="rewardPointsType"
+      />
       <div class="token-icons" v-else>
         <BaseTokenIcon
           v-for="(token, index) in rewardTokens"
@@ -27,7 +32,12 @@
     </div>
 
     <div class="column apr">
-      {{ poolApr }}
+      <RewardPointsTagWrap
+        :rewardPointsType="rewardPointsType"
+        multiplier
+        v-if="rewardPointsType"
+      />
+      <span class="apr-value" v-else>{{ poolApr }}</span>
     </div>
   </router-link>
 </template>
@@ -66,7 +76,7 @@ export default {
     },
 
     poolApr() {
-      if (!this.pool.poolAPR || this.isMultiplierLabel) return "";
+      if (!this.pool.poolAPR || this.rewardPointsType) return "";
       return formatPercent(this.pool.poolAPR.totalApr || 0);
     },
 
@@ -85,8 +95,8 @@ export default {
       return "";
     },
 
-    isMultiplierLabel() {
-      return this.pool.config.settings.isElixirPotions;
+    rewardPointsType() {
+      return this.pool.config.settings.rewardPointsType;
     },
 
     goToPage() {
@@ -107,8 +117,8 @@ export default {
     TokenPair: defineAsyncComponent(
       () => import("@/components/pools/pool/TokenPair.vue")
     ),
-    ElixirReward: defineAsyncComponent(
-      () => import("@/components/pools/pool/ElixirReward.vue")
+    RewardPointsTagWrap: defineAsyncComponent(
+      () => import("@/components/pools/rewardPoints/RewardPointsTagWrap.vue")
     ),
   },
 };
@@ -226,12 +236,16 @@ export default {
   justify-content: center;
   align-items: center;
   gap: 8px;
+}
+
+.apr-value {
   text-shadow: 0px 0px 16px #ab5de8;
   font-weight: 600;
   line-height: 150%;
 }
 
-.elixir-reward {
+.reward-points-wrap {
+  display: flex;
   justify-content: center !important;
 }
 

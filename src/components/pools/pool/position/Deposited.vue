@@ -33,9 +33,14 @@
       </div>
     </div>
 
-    <div class="staking-rewards" v-if="isPoolHasRewardPoints">
+    <div class="staking-rewards" v-if="rewardPointsType">
       <p class="title">Staking Rewards</p>
-      <ElixirReward isGradient isTitleText />
+      <RewardPointsTagWrap
+        :rewardPointsType="rewardPointsType"
+        icon
+        name
+        multiplier
+      />
     </div>
 
     <BaseButton primary v-if="hasFarm" @click="goToFarm">
@@ -54,6 +59,7 @@ import {
   formatPercent,
 } from "@/helpers/filters";
 import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
+import { RewardPointsTypes } from "@/configs/pools/types";
 
 export default {
   props: {
@@ -77,9 +83,8 @@ export default {
       return !!this.pool.config.rewardTokens?.length;
     },
 
-    isPoolHasRewardPoints() {
-      const { isElixirPotions } = this.pool.config.settings;
-      return isElixirPotions;
+    rewardPointsType() {
+      return this.pool.config.settings.rewardPointsType;
     },
 
     poolRewards() {
@@ -180,8 +185,8 @@ export default {
     NoPositionCard: defineAsyncComponent(() =>
       import("@/components/pools/pool/position/cards/NoPositionCard.vue")
     ),
-    ElixirReward: defineAsyncComponent(() =>
-      import("@/components/pools/pool/ElixirReward.vue")
+    RewardPointsTagWrap: defineAsyncComponent(() =>
+      import("@/components/pools/rewardPoints/RewardPointsTagWrap.vue")
     ),
   },
 };

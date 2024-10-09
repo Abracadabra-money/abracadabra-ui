@@ -5,40 +5,57 @@
   >
     <div class="label">{{ poolLabel }}</div>
 
-    <div class="row">
-      <TokenPair :pool="pool" chainIcon />
-      <div v-if="!isMultiplierLabel">
+    <TokenPair :pool="pool" chainIcon />
+
+    <div class="rewards">
+      <h3 class="title">Rewards</h3>
+
+      <RewardPointsTagWrap
+        :rewardPointsType="rewardPointsType"
+        icon
+        name
+        v-if="rewardPointsType"
+      />
+
+      <div class="token-icons" v-else>
+        <BaseTokenIcon
+          v-for="(token, index) in rewardTokens"
+          :icon="token.icon"
+          :name="token.name"
+          :size="index === 0 ? '20px' : '24px'"
+          :key="index"
+        />
+      </div>
+    </div>
+
+    <div class="indicator">
+      <h3 class="title">TVL</h3>
+      <div class="value">${{ tvl }}</div>
+    </div>
+
+    <div class="indicator">
+      <h3 class="title">TBD</h3>
+      <div class="value">
+        {{ toBeDistributed }}
+      </div>
+    </div>
+
+    <div class="indicator">
+      <div v-if="!rewardPointsType">
         <h3 class="title">APR</h3>
         <div class="value apr">
           {{ poolApr }}
         </div>
       </div>
-    </div>
 
-    <div class="row">
-      <div>
-        <h3 class="title">TVL</h3>
-        <div class="value">${{ tvl }}</div>
-      </div>
-
-      <div>
-        <h3 class="title">To be distributed</h3>
-        <div class="value">
-          {{ toBeDistributed }}
-        </div>
-      </div>
-
-      <div>
-        <ElixirReward v-if="isMultiplierLabel" />
-        <div class="token-icons" v-else>
-          <BaseTokenIcon
-            v-for="(token, index) in rewardTokens"
-            :icon="token.icon"
-            :name="token.name"
-            :size="index === 0 ? '20px' : '24px'"
-            :key="index"
-          />
-        </div>
+      <div v-else>
+        <h3 class="title">Multiplier</h3>
+        <RewardPointsTagWrap
+          class="value"
+          :rewardPointsType="rewardPointsType"
+          multiplier
+          card
+        />
       </div>
     </div>
   </router-link>
@@ -74,7 +91,7 @@ export default {
     },
 
     poolApr() {
-      if (!this.pool.poolAPR || this.isMultiplierLabel) return "";
+      if (!this.pool.poolAPR || this.rewardPointsType) return "";
       return formatPercent(this.pool.poolAPR?.totalApr || 0);
     },
 
@@ -93,8 +110,8 @@ export default {
       return "";
     },
 
-    isMultiplierLabel() {
-      return this.pool.config.settings.isElixirPotions;
+    rewardPointsType() {
+      return this.pool.config.settings.rewardPointsType;
     },
 
     goToPage() {
@@ -115,8 +132,8 @@ export default {
     BaseTokenIcon: defineAsyncComponent(
       () => import("@/components/base/BaseTokenIcon.vue")
     ),
-    ElixirReward: defineAsyncComponent(
-      () => import("@/components/pools/pool/ElixirReward.vue")
+    RewardPointsTagWrap: defineAsyncComponent(
+      () => import("@/components/pools/rewardPoints/RewardPointsTagWrap.vue")
     ),
   },
 };
@@ -124,14 +141,16 @@ export default {
 
 <style lang="scss" scoped>
 .pool-table-link {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: auto auto;
+
   border-radius: 16px;
   border: 1px solid rgba(180, 180, 180, 0.08);
   background: rgba(8, 14, 31, 0.6);
   color: #fff;
   padding: 25px 12px 20px;
   gap: 12px;
-  display: flex;
-  flex-direction: column;
   position: relative;
   overflow: hidden;
   transition: all 0.2s ease-in-out;
@@ -239,9 +258,25 @@ export default {
   text-transform: capitalize;
 }
 
+.indicator {
+  grid-column: span 1;
+}
+
+.rewards {
+  grid-column: 3 / 4;
+}
+
+.reward-points-wrap::v-deep(.multiplier-text) {
+  display: none;
+}
+
+.token-pair {
+  grid-column: span 2;
+  gap: 8px !important;
+}
+
 .token-icons {
   display: flex;
-  justify-content: center;
   align-items: center;
 }
 
@@ -257,7 +292,6 @@ export default {
 
 .apr {
   display: flex;
-  justify-content: center;
   align-items: center;
   gap: 8px;
   text-shadow: 0px 0px 16px #ab5de8;
