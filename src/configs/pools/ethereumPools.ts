@@ -52,7 +52,7 @@ const ethereumPools: Array<PoolConfig> = [
     },
   },
   {
-    id: 2,
+    id: "0x6f9F9ea9c06c7D928a2fFbbCc5542b18188488E9",
     chainId: 1,
     name: "MIM / USD0",
     icon: useImage(`assets/images/tokens/MIM-USD0.png`),
@@ -86,6 +86,12 @@ const ethereumPools: Array<PoolConfig> = [
       isNew: true,
       isDeprecated: false,
       isMim: true,
+      rewardPointsType: RewardPointsTypes.Pills,
+    },
+    initialParameters: {
+      I: 1000000000000000000n,
+      K: 250000000000000n,
+      lpFeeRate: 500000000000000n,
     },
   },
 ];
