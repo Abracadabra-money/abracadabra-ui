@@ -2,7 +2,7 @@
   <div :class="['elixir-reward', { card }]">
     <p class="title">
       <img src="@/assets/images/pools/rewards/elixir-icon.svg" v-if="icon" />
-      <span class="title-text" v-if="name">Potion </span>
+      <span class="title-text" v-if="name">Potions</span>
       <span class="multiplier-value" v-if="multiplier && card">5x</span>
     </p>
     <span class="multiplier-text" v-if="multiplier && card">Multiplier</span>
