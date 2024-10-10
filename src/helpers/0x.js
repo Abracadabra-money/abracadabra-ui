@@ -21,6 +21,8 @@ const endpoints = {
   43114: "https://avalanche.api.0x.org",
 };
 
+const SWAP_PROXY_ENDPOINT = "https://api.mimswap.io/functions/v1/zeroex/swap/allowance-holder/quote";
+
 export const swap0xRequest = async (
   chainId,
   buyToken,
@@ -136,12 +138,12 @@ export const swap0xRequestV2 = async (
     }
 
     const response = await http.get(
-      `https://api.0x.org/swap/allowance-holder/quote`,
+      SWAP_PROXY_ENDPOINT,
       {
         params: params,
         headers: {
-          "0x-api-key": import.meta.env.VITE_APP_0X_API_KEY,
-          "0x-version": "v2",
+          // "0x-api-key": import.meta.env.VITE_APP_0X_API_KEY,
+          // "0x-version": "v2",
         },
       }
     );
