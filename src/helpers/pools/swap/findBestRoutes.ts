@@ -271,7 +271,7 @@ export const findBestRoutes = async (
 
       route.push({
         inputToken: fromToken,
-        outputToken: toToken,
+        outputToken: toToken as Address,
         inputAmount: fromInputValue,
         outputAmount: receiveAmount,
         outputAmountWithoutFee: receiveAmountWithoutFee,

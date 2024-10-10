@@ -55,7 +55,7 @@ import type { PoolConfig } from "@/configs/pools/types";
 import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 // @ts-ignore
-import { getPoolConfigs } from "@/helpers/pools/getPoolConfigs";
+import { getPoolConfigsByChains } from "@/helpers/pools/getPoolConfigs";
 import notification from "@/helpers/notification/notification";
 // @ts-ignore
 import BlastMIMSwapRouterAbi from "@/abis/BlastMIMSwapRouter.js";
@@ -471,7 +471,7 @@ export default {
   },
 
   async created() {
-    this.poolConfigs = await getPoolConfigs();
+    this.poolConfigs = await getPoolConfigsByChains();
   },
 
   components: {

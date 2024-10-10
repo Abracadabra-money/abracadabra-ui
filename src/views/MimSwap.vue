@@ -132,7 +132,7 @@ import {
   type TokenPrice,
 } from "@/helpers/prices/defiLlama";
 import { validationActions } from "@/helpers/validators/swap/validationActions";
-import { getPoolConfigs } from "@/helpers/pools/getPoolConfigs";
+import { getPoolConfigsByChains } from "@/helpers/pools/getPoolConfigs";
 
 const emptyTokenInfo: TokenInfo = {
   config: {
@@ -579,7 +579,7 @@ export default {
 
   async created() {
     this.isLoading = true;
-    this.poolConfigs = await getPoolConfigs();
+    this.poolConfigs = await getPoolConfigsByChains();
     this.nativeTokenPrice = await getNativeTokensPrice(this.availableNetworks);
     this.checkAndSetSelectedChain();
     await this.createSwapInfo();

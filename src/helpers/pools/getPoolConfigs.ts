@@ -1,6 +1,7 @@
 import {
   ARBITRUM_CHAIN_ID,
   BLAST_CHAIN_ID,
+  KAVA_CHAIN_ID,
   MAINNET_CHAIN_ID,
 } from "@/constants/global";
 import axios from "axios";
@@ -9,12 +10,18 @@ import erc20Abi from "@/abis/farm/erc20Abi";
 import { useImage } from "@/helpers/useImage";
 import BlastMagicLpAbi from "@/abis/BlastMagicLpAbi";
 import localPoolConfigs from "@/configs/pools/pools";
-import { RewardPointsTypes, type PoolConfig } from "@/configs/pools/types";
 import { graphAPIs } from "@/constants/pools/poolCreation";
 import { tokenConfigs } from "@/configs/pools/tokenConfigs";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
+import { RewardPointsTypes, type PoolConfig } from "@/configs/pools/types";
 
-const poolChains = [MAINNET_CHAIN_ID, ARBITRUM_CHAIN_ID, BLAST_CHAIN_ID];
+const poolChains = [
+  MAINNET_CHAIN_ID,
+  KAVA_CHAIN_ID,
+  ARBITRUM_CHAIN_ID,
+  BLAST_CHAIN_ID,
+];
+
 const blackListedPools = [
   "0x5895bff185127a01a333cbea8e53dcf172c13f35",
   "0x61679bdd546d5c80350dd9f9f56312f2585be9a9",
@@ -23,7 +30,7 @@ const blackListedPools = [
   "0xca3e789bcabaccb5606f06e246bcc53927befe00",
 ];
 
-const getGraphQuery = (poolId: string) => {
+const createPairsRequest = (poolId: string) => {
   const query = poolId ? `pair(id: "${poolId}")` : `pairs(first: 1000)`;
 
   return `
@@ -43,14 +50,55 @@ const getGraphQuery = (poolId: string) => {
         }`;
 };
 
+const checkLocalPairsByChain = (chainId: number) => {
+  const filteredLocalConfigs = localPoolConfigs.filter(
+    (config) => config.chainId === chainId
+  );
+  const pairs = filteredLocalConfigs.map((config) => {
+    return {
+      id: config.id,
+      i: config.initialParameters.I,
+      k: config.initialParameters.K,
+      lpFeeRate: config.initialParameters.lpFeeRate,
+      baseToken: { id: config.baseToken.contract.address },
+      quoteToken: { id: config.quoteToken.contract.address },
+    };
+  });
+
+  return { pairs };
+};
+
+const checkLocalPairById = (chainId: number, poolId = "") => {
+  const pair = localPoolConfigs.find(
+    (config) => config.id === poolId && config.chainId === chainId
+  );
+
+  if (!pair) return null;
+
+  return {
+    pair: {
+      id: pair.id,
+      i: pair.initialParameters.I,
+      k: pair.initialParameters.K,
+      lpFeeRate: pair.initialParameters.lpFeeRate,
+      baseToken: { id: pair.baseToken.contract.address },
+      quoteToken: { id: pair.quoteToken.contract.address },
+    },
+  };
+};
+
 const fetchPools = async (chainId: number, poolId = "") => {
   const subgraphUrl = graphAPIs[chainId as keyof typeof graphAPIs];
-  const query = getGraphQuery(poolId);
+  if (!subgraphUrl && !poolId) return checkLocalPairsByChain(chainId);
+  else if (!subgraphUrl && poolId) return checkLocalPairById(chainId, poolId);
+
+  const query = createPairsRequest(poolId);
   const { data } = await axios.post(subgraphUrl, { query });
+
   return data.data;
 };
 
-const processPool = async (pool: any, chainId: number) => {
+const findOrCreatePoolConfig = async (pool: any, chainId: number) => {
   const localConfig = localPoolConfigs.find(
     (localPool) =>
       localPool.contract.address.toLocaleLowerCase() ===
@@ -185,19 +233,25 @@ const createPoolConfig = async (pool: any, chainId: number) => {
   };
 };
 
-export const getPoolConfigs = async () => {
+const filterBlacklistPools = (pools: any) => {
+  return pools.pairs.filter(
+    (pool: any) =>
+      blackListedPools.includes(pool.id.toLocaleLowerCase()) === false
+  );
+};
+
+export const getPoolConfigsByChains = async (chainsArr: number[] = []) => {
+  const iteratedChains = chainsArr.length ? chainsArr : poolChains;
+
   const result = await Promise.allSettled(
-    poolChains.flatMap(async (chainId) => {
+    iteratedChains.flatMap(async (chainId) => {
       const pools = await fetchPools(chainId);
 
       if (pools) {
-        const filterPools = pools.pairs.filter(
-          (pool: any) =>
-            blackListedPools.includes(pool.id.toLocaleLowerCase()) === false
-        );
+        const filterPools = filterBlacklistPools(pools);
 
         return Promise.all(
-          filterPools.map((pool: any) => processPool(pool, chainId))
+          filterPools.map((pool: any) => findOrCreatePoolConfig(pool, chainId))
         );
       }
     })
@@ -224,5 +278,5 @@ export const getPoolConfig = async (
     return null;
   }
 
-  return await processPool(poolConfig.pair, chainId);
+  return await findOrCreatePoolConfig(poolConfig.pair, chainId);
 };
