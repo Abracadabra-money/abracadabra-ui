@@ -288,7 +288,10 @@ export default {
 
     filterByAvailableRewards(pools: MagicLPInfo[]) {
       if (this.showAvailableRewardsPools)
-        return pools.filter(({ rewardTokens }) => rewardTokens);
+        return pools.filter(
+          ({ rewardTokens, config }) =>
+            rewardTokens || config.settings.rewardPointsType
+        );
       return pools;
     },
 

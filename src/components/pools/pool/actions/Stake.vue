@@ -12,7 +12,7 @@
       />
     </div>
 
-    <RewardsCard :pool="pool" v-if="!rewardPointsType" />
+    <StakingAprWrap :pool="pool" v-if="!rewardPointsType" />
     <RewardPointsBannerWrap :rewardPointsType="rewardPointsType" v-else />
 
     <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
@@ -283,8 +283,8 @@ export default {
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")
     ),
-    RewardsCard: defineAsyncComponent(() =>
-      import("@/components/pools/pool/RewardsCard.vue")
+    StakingAprWrap: defineAsyncComponent(() =>
+      import("@/components/pools/pool/position/StakingAprWrap.vue")
     ),
     RewardPointsBannerWrap: defineAsyncComponent(() =>
       import("@/components/pools/rewardPoints/RewardPointsBannerWrap.vue")
@@ -310,25 +310,7 @@ export default {
   width: 100%;
 }
 
-.plus-icon {
-  position: absolute;
-  top: calc(50% - 28px);
-  left: calc(50% - 28px);
-  width: 46px;
-  height: 46px;
-}
-
-.info-blocks {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  gap: 24px;
-}
-
-.info-block {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+.staking-apr {
   padding: 12px;
   border-radius: 12px;
   border: 1px solid rgba(180, 180, 180, 0.08);
@@ -338,46 +320,5 @@ export default {
     rgba(0, 80, 156, 0.07) 101.49%
   );
   box-shadow: 0px 4px 33px 0px rgba(0, 0, 0, 0.06);
-}
-
-.tag {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  color: #878b93;
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.token-amount {
-  display: flex;
-  flex-direction: column;
-  align-items: end;
-}
-
-.value {
-  color: #fff;
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.value,
-.title {
-  display: flex;
-  align-items: center;
-}
-
-.apr {
-  color: #fff;
-  text-shadow: 0px 0px 16px #ab5de8;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.usd-equivalent {
-  color: #575c62;
-  font-size: 16px;
-  font-weight: 400;
 }
 </style>

@@ -59,7 +59,6 @@ import {
   formatPercent,
 } from "@/helpers/filters";
 import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
-import { RewardPointsTypes } from "@/configs/pools/types";
 
 export default {
   props: {
