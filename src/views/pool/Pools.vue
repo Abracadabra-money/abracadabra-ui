@@ -26,7 +26,7 @@ import { defineAsyncComponent } from "vue";
 import { mapGetters, mapMutations } from "vuex";
 import type { PoolConfig } from "@/configs/pools/types";
 import { getPoolsList } from "@/helpers/pools/getPoolsList";
-import { getPoolConfigs } from "@/helpers/pools/getPoolConfigs";
+import { getPoolConfigsByChains } from "@/helpers/pools/getPoolConfigs";
 import type { FilterData } from "@/types/sorting";
 import {
   FEE_TIER_DECIMALS,
@@ -130,7 +130,7 @@ export default {
 
   async created() {
     this.checkLocalData();
-    this.poolConfigs = await getPoolConfigs();
+    this.poolConfigs = await getPoolConfigsByChains();
     await this.createPoolsInfo();
 
     this.updateInterval = setInterval(async () => {

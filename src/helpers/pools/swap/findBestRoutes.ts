@@ -6,17 +6,17 @@ import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { querySellBase, querySellQuote } from "@/helpers/pools/swap/magicLp";
 import type { ActionConfig, RouteInfo } from "@/helpers/pools/swap/getSwapInfo";
 
-type Graph = Record<string, { token: Address; weight: number; pair: string }[]>;
+type Graph = Record<string, { token: string; weight: number; pair: string }[]>;
 
 type Swaps = {
   pair: string;
-  fromToken: Address;
-  toToken: Address;
+  fromToken: string;
+  toToken: string;
   fromBase: boolean;
 };
 
 type QueueElement = {
-  token: Address;
+  token: string;
   swaps: Swaps[];
   currentAmount: bigint;
 };
@@ -111,25 +111,41 @@ export const findBestSwapPath = (
 ) => {
   const graph: Graph = {};
   const visited = new Set();
-  const bestCosts = { [fromToken]: 0 };
+  const bestCosts = { [fromToken.toLowerCase()]: 0 };
 
   // Заповнюємо граф
   pairs.forEach(({ baseToken, quoteToken, lpFeeRate, totalSupply, id }) => {
     const fees = Number(formatUnits(lpFeeRate, 18)); // Комісія
     const tvl = Number(formatUnits(totalSupply, 18)); // Ліквідність
     const weight = fees * (1 / tvl); // Вага ребра враховує комісію і ліквідність
+    const baseTokenAddress = baseToken.toLowerCase();
+    const quoteTokenAddress = quoteToken.toLowerCase();
 
-    if (!graph[baseToken as keyof typeof graph]) graph[baseToken] = [];
-    if (!graph[quoteToken as keyof typeof graph]) graph[quoteToken] = [];
-    graph[baseToken].push({ token: quoteToken, weight, pair: id });
-    graph[quoteToken].push({ token: baseToken, weight, pair: id });
+    if (!graph[baseTokenAddress as keyof typeof graph])
+      graph[baseTokenAddress] = [];
+    if (!graph[quoteTokenAddress as keyof typeof graph])
+      graph[quoteTokenAddress] = [];
+    graph[baseTokenAddress].push({
+      token: quoteTokenAddress,
+      weight,
+      pair: id,
+    });
+    graph[quoteTokenAddress].push({
+      token: baseTokenAddress,
+      weight,
+      pair: id,
+    });
   });
 
   const pq = new PriorityQueue();
-  pq.enqueue({ token: fromToken, swaps: [], currentAmount: amountToSwap }, 0);
+  pq.enqueue(
+    { token: fromToken.toLowerCase(), swaps: [], currentAmount: amountToSwap },
+    0
+  );
 
   while (!pq.isEmpty()) {
     const dequeuedItem = pq.dequeue();
+
     if (!dequeuedItem) continue;
 
     const {
@@ -137,12 +153,12 @@ export const findBestSwapPath = (
       priority: currentCost,
     } = dequeuedItem;
 
-    if (currentToken === toToken) return swaps;
+    if (currentToken.toLowerCase() === toToken.toLowerCase()) return swaps;
 
-    if (visited.has(currentToken)) continue;
-    visited.add(currentToken);
+    if (visited.has(currentToken.toLowerCase())) continue;
+    visited.add(currentToken.toLowerCase());
 
-    const neighbors = graph[currentToken] || [];
+    const neighbors = graph[currentToken.toLowerCase()] || [];
     neighbors.forEach(({ token: neighbor, weight, pair }) => {
       const poolInfo = pairs.find(
         (pool) => pool.id.toLowerCase() === pair.toLowerCase()
@@ -255,7 +271,7 @@ export const findBestRoutes = async (
 
       route.push({
         inputToken: fromToken,
-        outputToken: toToken,
+        outputToken: toToken as Address,
         inputAmount: fromInputValue,
         outputAmount: receiveAmount,
         outputAmountWithoutFee: receiveAmountWithoutFee,

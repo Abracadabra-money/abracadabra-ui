@@ -128,6 +128,23 @@
         <div class="pool-multiplier">5x Multiplier</div>
       </div>
     </template>
+
+    <template v-if="isPillsPotions">
+      <div class="line"></div>
+      <div class="rewards-wrap">
+        <div class="pool-rewards">
+          Rewards
+
+          <img
+            class="reward-icons"
+            src="@/assets/images/pools/pills-potions.png"
+            alt=""
+          />
+        </div>
+
+        <div class="pool-multiplier">1x Multiplier</div>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -224,6 +241,10 @@ export default {
 
     isElixir() {
       return this.pool.config.id === 1 && this.pool.config.chainId === 1;
+    },
+
+    isPillsPotions() {
+      return this.pool.config.id === 2 && this.pool.config.chainId === 1;
     },
   },
 

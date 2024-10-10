@@ -8,6 +8,6 @@ export const RPC_BASE = "https://mainnet.base.org";
 export const RPC_ARB = "https://arb1.arbitrum.io/rpc";
 export const RPC_AVAX = "https://avalanche.drpc.org";
 export const RPC_KAVA = "https://evm.kava.io";
-export const PRC_LINEA = "https://rpc.linea.build";
+export const PRC_LINEA = "https://linea-rpc.publicnode.com";
 export const RPC_BERA_BARTIO = "https://bartio.rpc.berachain.com/";
 export const RPC_BLAST = "https://rpc.blast.io";

@@ -11,7 +11,7 @@
     @updateInputValue="onUpdateWithdrawValue"
   />
 
-  <div class="expected-amount" v-if="withdrawUnwrapToken">
+  <div class="expected-amount" v-if="withdrawUnwrapToken && !isHiddenWrap">
     <span> Expected</span>
     <span
       >{{ expectedTokenAmount }}
@@ -61,6 +61,10 @@ export default {
       account: "getAccount",
       chainId: "getChainId",
     }),
+
+    isHiddenWrap() {
+      return this.cauldron.config.wrapInfo?.isHiddenWrap
+    },
 
     expectedTokenAmount() {
       const price = 100000;
