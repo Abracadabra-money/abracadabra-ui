@@ -112,7 +112,12 @@ export default {
     },
 
     autoTokenRate() {
-      if (this.isPriceSelectorDisabled || !this.isAutoPricingEnabled) return 0n;
+      if (
+        this.isPriceSelectorDisabled ||
+        !this.isAutoPricingEnabled ||
+        !this.isAutoPricingPossible
+      )
+        return 0n;
       const basePriceBigInt = parseUnits(
         this.baseToken.price.toString(),
         RATE_DECIMALS
@@ -130,11 +135,15 @@ export default {
     },
 
     isAutoPricingPossible() {
-      return this.baseToken.price && this.quoteToken.price;
+      return !!this.baseToken.price && !!this.quoteToken.price;
     },
   },
 
   watch: {
+    isAutoPricingPossible() {
+      this.resetInput();
+    },
+
     isAutoPricingEnabled: {
       immediate: true,
       handler() {
@@ -144,8 +153,13 @@ export default {
       },
     },
 
-    isPriceSelectorDisabled(value: boolean) {
-      if (!value && this.isAutoPricingPossible) this.$emit("toggleAutopricing");
+    isPriceSelectorDisabled(isDisabled: boolean) {
+      if (
+        !isDisabled &&
+        this.isAutoPricingPossible &&
+        !this.isAutoPricingEnabled
+      )
+        this.$emit("toggleAutopricing");
     },
 
     inputAmount(amount: bigint) {
@@ -198,6 +212,12 @@ export default {
         this.inputAmount = amount;
         this.inputValue = trimZeroDecimals(formatUnits(amount, RATE_DECIMALS));
       }
+    },
+
+    resetInput() {
+      this.inputValue = "";
+      this.inputAmount = 0n;
+      this.$emit("updateTokensRate", 0n);
     },
   },
 

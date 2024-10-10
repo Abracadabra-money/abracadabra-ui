@@ -3,6 +3,7 @@
     <h4 class="action-title">Select tokens</h4>
 
     <div class="inputs-wrap">
+      <BaseTokenInputSkeleton v-if="isLoading" />
       <BaseTokenInput
         :name="baseToken.config.symbol"
         :icon="baseToken.config.icon"
@@ -14,6 +15,7 @@
         :isGradientSelector="!checkIsTokenSelected(baseToken)"
         @onSelectClick="$emit('openTokensPopup', TokenTypes.Base)"
         @updateInputValue="updateBaseTokenInputAmount"
+        v-else
       />
 
       <IconButton
@@ -26,6 +28,7 @@
         borderRadius="16px"
       />
 
+      <BaseTokenInputSkeleton v-if="isLoading" />
       <BaseTokenInput
         :name="quoteToken.config.symbol"
         :icon="quoteToken.config.icon"
@@ -37,6 +40,7 @@
         :isGradientSelector="!checkIsTokenSelected(quoteToken)"
         @onSelectClick="$emit('openTokensPopup', TokenTypes.Quote)"
         @updateInputValue="updateQuoteTokenInputAmount"
+        v-else
       />
     </div>
   </div>
@@ -61,6 +65,7 @@ export default {
     },
     baseTokenAmount: BigInt as Prop<bigint>,
     quoteTokenAmount: BigInt as Prop<bigint>,
+    isLoading: Boolean,
   },
 
   data() {
@@ -126,6 +131,9 @@ export default {
     ),
     IconButton: defineAsyncComponent(
       () => import("@/components/ui/buttons/IconButton.vue")
+    ),
+    BaseTokenInputSkeleton: defineAsyncComponent(
+      () => import("@/components/ui/skeletons/BaseTokenInputSkeleton.vue")
     ),
   },
 };

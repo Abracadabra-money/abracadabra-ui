@@ -18,6 +18,7 @@
             :baseTokenAmount="actionConfig.baseInAmount"
             :quoteTokenAmount="actionConfig.quoteInAmount"
             :isAutoPricingEnabled="isAutoPricingEnabled"
+            :isLoading="isLoading"
             @updateTokenInputAmount="updateTokenInputAmount"
             @openTokensPopup="openTokensPopup"
           />
@@ -229,6 +230,7 @@ export default {
       isAutoPricingWarnPopupOpened: false,
       isSimilarPoolsPopupOpened: false,
       isActionProcessing: false,
+      isLoading: false,
       updateInterval: null as NodeJS.Timeout | null,
       currentMobileTab: 0,
       mobileMode: false,
@@ -315,7 +317,21 @@ export default {
     },
 
     async selectedNetwork() {
+      this.isLoading = true;
       await this.createTokenList();
+      this.baseToken =
+        this.tokenList.find(
+          (token: PoolCreationTokenInfo) =>
+            token.config.symbol === this.baseToken.config.symbol
+        ) || emptyPoolCreationTokenInfo;
+
+      this.quoteToken =
+        this.tokenList.find(
+          (token: PoolCreationTokenInfo) =>
+            token.config.symbol === this.quoteToken.config.symbol
+        ) || emptyPoolCreationTokenInfo;
+
+      this.isLoading = false;
     },
 
     IValueDecimals(newDecimals: number, oldDecimals: number) {
