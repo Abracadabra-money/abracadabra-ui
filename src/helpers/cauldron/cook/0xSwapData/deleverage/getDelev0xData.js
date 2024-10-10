@@ -7,8 +7,14 @@ import fetchDelevYvWeth0xData from "./fetchDelevYvWeth0xData";
 import fetchCvx3pool0xData from "./fetchCvx3pool";
 import fetchCvxTricrypto0xData from "./fetchCvxTricrypto0xData";
 import getDeUsd0xData from "./fetchDeUSD0xData";
+import fetchUSD0ppOdosData from "./fetchUSD0ppOdosData";
 
-const getDelev0xData = async (cauldronObject, collateralAmount, slipage, to) => {
+const getDelev0xData = async (
+  cauldronObject,
+  collateralAmount,
+  slipage,
+  to
+) => {
   const {
     isMagicGLP,
     isVelodrome,
@@ -18,6 +24,7 @@ const getDelev0xData = async (cauldronObject, collateralAmount, slipage, to) => 
     isCvxTricrypto,
     isCvx3pool,
     iStdeUSD,
+    isUSD0,
   } = cauldronObject.config.cauldronSettings;
 
   if (isVelodrome) return getDelevVelodrome0xData();
@@ -63,6 +70,10 @@ const getDelev0xData = async (cauldronObject, collateralAmount, slipage, to) => 
 
   if (iStdeUSD)
     return await getDeUsd0xData(cauldronObject, collateralAmount, slipage);
+
+  if (isUSD0) {
+    return await fetchUSD0ppOdosData(cauldronObject, collateralAmount, slipage);
+  }
 
   return await fetchDelevDefault0xData(
     cauldronObject,

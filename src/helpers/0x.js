@@ -141,6 +141,7 @@ export const swap0xRequestV2 = async (
         params: params,
         headers: {
           "0x-api-key": import.meta.env.VITE_APP_0X_API_KEY,
+          // "0x-version": "v2",
         },
       }
     );

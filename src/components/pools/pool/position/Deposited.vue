@@ -288,4 +288,41 @@ export default {
   font-weight: 600;
   text-shadow: 0px 0px 16px #ab5de8;
 }
+
+.pills-rewards {
+  gap: 8px;
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+}
+
+.pills-title {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: normal;
+}
+
+.pills-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(270deg, #915eff -3.8%, #d040c6 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+  font-weight: 500;
+  line-height: normal;
+}
+
+.pills-icon-wrap {
+  gap: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.pills-icon {
+  width: 24px;
+  height: 24px;
+}
 </style>
