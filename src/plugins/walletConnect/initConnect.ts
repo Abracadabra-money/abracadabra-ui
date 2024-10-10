@@ -10,19 +10,33 @@ import { getAccount } from "@wagmi/core";
 import type { Config } from "@wagmi/core";
 import { watchAccount, watchChainId } from "@wagmi/core";
 import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
+import store from "@/store";
 
 export const initWalletConect = async (wagmiConfig: Config) => {
+  const account = getAccount(wagmiConfig).address;
+
+  if (!account) {
+    await initWithoutConnect(wagmiConfig);
+  } else {
+    await initConnect(wagmiConfig);
+  }
+
   watchAccount(wagmiConfig, {
-    onChange({ isConnected, isConnecting }) {
+    async onChange({ isConnected, isConnecting }) {
+      store.commit("setIsWalletCheckInProcess", true);
+
       if (!isConnected && !isConnecting) {
-        initWithoutConnect(wagmiConfig);
+        await initWithoutConnect(wagmiConfig);
       }
 
       if (isConnected && !isConnecting) {
-        initConnect(wagmiConfig);
+        await initConnect(wagmiConfig);
       }
+
+      store.commit("setIsWalletCheckInProcess", false);
     },
   });
+  store.commit("setIsWalletCheckInProcess", false);
 };
 
 const initConnect = async (wagmiConfig: Config) => {

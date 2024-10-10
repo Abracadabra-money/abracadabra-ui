@@ -46,7 +46,8 @@ export default {
         this.cauldron,
         this.actionConfig,
         this.action,
-        this.chainId
+        this.chainId,
+        this.account
       );
     },
     useNoDeleverageConfirmationPopup() {
@@ -219,11 +220,7 @@ export default {
       this.isOpenGMPopup = true;
       this.$emit("clearData");
     },
-    async gmDeleverageHandler(
-      cookPayload,
-      cauldronObject,
-      notificationId
-    ) {
+    async gmDeleverageHandler(cookPayload, cauldronObject, notificationId) {
       const { cauldron } = cauldronObject.contracts;
       const cauldronActiveOrder = await cauldron.orders(cookPayload.to);
 

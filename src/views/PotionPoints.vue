@@ -196,6 +196,8 @@ export default {
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
     async fetchUserInfo() {
+      if (!this.account) return;
+
       this.fetching = true;
       const publicClient = getPublicClient(ARBITRUM_CHAIN_ID);
 
