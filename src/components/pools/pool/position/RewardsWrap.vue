@@ -38,10 +38,7 @@
 
     <ul class="rewards-list" v-if="tokenRewards && !rewardPointsType">
       <li class="list-item" v-for="(item, index) in tokenRewards" :key="index">
-        <span class="item-title">
-          <img :src="item.token.icon" class="reward-icon" />
-          {{ item.token.name }}
-        </span>
+        <img :src="item.token.icon" class="reward-icon" />
 
         <div class="values-wrap">
           <p class="item-value">{{ item.value }}</p>
@@ -218,12 +215,6 @@ export default {
   gap: 4px;
 }
 
-.item-title {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
 .reward-icon {
   width: 32px;
   height: 32px;
@@ -233,7 +224,7 @@ export default {
 .values-wrap {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: flex-start;
 
   .item-value {
     font-size: 16px;
