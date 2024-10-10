@@ -34,6 +34,8 @@
       />
     </div>
 
+    <PillsPotions :pool="pool" />
+
     <div class="info-blocks">
       <div class="info-block lp">
         <div class="tag">
@@ -433,6 +435,9 @@ export default {
     ),
     PreviewAddLiquidityPopup: defineAsyncComponent(() =>
       import("@/components/pools/pool/popups/PreviewAddLiquidityPopup.vue")
+    ),
+    PillsPotions: defineAsyncComponent(() =>
+      import("@/components/pools/pool/PillsPotions.vue")
     ),
     // CurrentPrice: defineAsyncComponent(() =>
     //   import("@/components/pools/CurrentPrice.vue")

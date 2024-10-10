@@ -34,8 +34,9 @@ type CauldronSettings = {
   isCvx3pool?: boolean;
   isMagicGLP?: boolean;
   iStdeUSD?: boolean;
-isNoDeleverage?: boolean;
+  isNoDeleverage?: boolean;
   hasElixirPotions?: boolean;
+  isUSD0?: boolean;
 };
 
 type MimInfo = {
