@@ -21,7 +21,7 @@ const endpoints = {
   43114: "https://avalanche.api.0x.org",
 };
 
-const SWAP_PROXY_ENDPOINT = "https://api.mimswap.io/functions/v1/zeroex/swap/allowance-holder/quote";
+const SWAP_PROXY_ENDPOINT = "https://api.0xdreamy.dev/functions/v1/zeroex/swap/allowance-holder/quote";
 
 export const swap0xRequest = async (
   chainId,
