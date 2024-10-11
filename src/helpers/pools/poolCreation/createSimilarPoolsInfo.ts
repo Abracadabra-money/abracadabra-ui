@@ -2,16 +2,20 @@ import type { ActionConfig } from "@/helpers/pools/poolCreation/actions/createPo
 import type { Address } from "viem";
 import type { MagicLPInfo } from "@/helpers/pools/swap/types";
 import { getPoolsList } from "@/helpers/pools/getPoolsList";
-import { getPoolConfigsByChains } from "@/helpers/pools/getPoolConfigs";
+import { getPoolConfigsByChains } from "@/helpers/pools/configs/getOrCreatePairsConfigs";
 export const createSimilarPoolsInfo = async (
   actionConfig: ActionConfig,
   account: Address
 ) => {
-  const similarConfigs = (await getPoolConfigsByChains()).filter(
-    ({ baseToken, quoteToken }) =>
-      baseToken.contract.address === actionConfig.baseToken &&
-      quoteToken.contract.address === actionConfig.quoteToken
-  );
+  const similarConfigs = (await getPoolConfigsByChains())
+    .filter(
+      (config): config is NonNullable<typeof config> => config !== undefined
+    )
+    .filter(
+      ({ baseToken, quoteToken }) =>
+        baseToken.contract.address === actionConfig.baseToken &&
+        quoteToken.contract.address === actionConfig.quoteToken
+    );
 
   const similarPools = await getPoolsList(account, similarConfigs);
 

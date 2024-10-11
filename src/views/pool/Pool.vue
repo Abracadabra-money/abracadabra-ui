@@ -34,7 +34,7 @@
 import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
 import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
-import { getPoolConfig } from "@/helpers/pools/getPoolConfigs";
+import { getPoolConfig } from "@/helpers/pools/configs/getOrCreatePairsConfigs";
 import { getPoolTvlPieChartOption } from "@/helpers/pools/charts/getPoolTvlPieChartOption";
 
 export default {

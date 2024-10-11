@@ -34,7 +34,7 @@ import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
 import type { PoolConfig } from "@/configs/pools/types";
 import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
-import { getPoolConfig } from "@/helpers/pools/getPoolConfigs";
+import { getPoolConfig } from "@/helpers/pools/configs/getOrCreatePairsConfigs";
 import { formatPercent, formatLargeSum } from "@/helpers/filters";
 
 const POOL_CHAIN_ID = 42161;

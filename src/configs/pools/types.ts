@@ -2,6 +2,7 @@ import type { ContractInfo } from "@/types/global";
 
 export type PoolConfig = {
   id: string;
+  isAdditionalConfig?: boolean;
   chainId: number;
   name: string;
   icon: string;
@@ -14,6 +15,20 @@ export type PoolConfig = {
   rewardTokens?: TokenConfig[];
   settings: PoolSettings;
   initialParameters: InitialParameters;
+};
+
+export type AdditionalPoolConfig = {
+  id: string;
+  chainId: number;
+  isAdditionalConfig: boolean;
+  rewardTokens?: TokenConfig[];
+  settings?: {
+    isNew: boolean;
+    isDeprecated: boolean;
+    isMim: boolean;
+    rewardPointsType?: RewardPointsTypes;
+  };
+  stakeContract?: ContractInfo;
 };
 
 // TODO: may be changed in future

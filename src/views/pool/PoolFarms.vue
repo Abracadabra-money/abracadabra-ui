@@ -25,7 +25,7 @@ import { defineAsyncComponent } from "vue";
 import { mapGetters, mapMutations } from "vuex";
 import type { PoolConfig } from "@/configs/pools/types";
 import { getPoolsList } from "@/helpers/pools/getPoolsList";
-import { getPoolConfigsByChains } from "@/helpers/pools/getPoolConfigs";
+import { getPoolConfigsByChains } from "@/helpers/pools/configs/getOrCreatePairsConfigs";
 
 export default {
   data() {
