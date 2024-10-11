@@ -276,6 +276,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 4px;
   text-shadow: 0px 0px 16px #ab5de8;
   font-weight: 600;
   line-height: 150%;
