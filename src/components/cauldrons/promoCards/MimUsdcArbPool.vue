@@ -54,11 +54,11 @@ export default {
       return [
         {
           name: "SPELL",
-          icon: useImage("assets/images/tokens/SPELL.png"),
+          icon: useImage("assets/images/tokens/SPELL_2.png"),
         },
         {
           name: "ARB",
-          icon: useImage("assets/images/tokens/AETH.png"),
+          icon: useImage("assets/images/tokens/ARB.png"),
         },
       ];
     },
