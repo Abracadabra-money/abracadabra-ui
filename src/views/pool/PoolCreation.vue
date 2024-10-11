@@ -317,6 +317,7 @@ export default {
     },
 
     async selectedNetwork() {
+      this.similarPools = [];
       this.isLoading = true;
       await this.createTokenList();
       this.baseToken =
@@ -623,6 +624,7 @@ export default {
     },
 
     createSimilarPoolsInfo: debounce(async function (this: any) {
+      if (!this.tokensSelected) return;
       this.isActionProcessing = true;
       this.similarPools = await createSimilarPoolsInfo(
         this.actionConfig,
