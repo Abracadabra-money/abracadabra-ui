@@ -52,7 +52,7 @@ export const getPoolConfigsByChains = async (chainsArr: number[] = []) => {
         return response.value;
       }
     })
-    .filter((item) => item)
+    .filter((item): item is PoolConfig[] => item !== undefined)
     .flat();
 };
 

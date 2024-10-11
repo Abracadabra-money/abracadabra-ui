@@ -2,9 +2,9 @@ import erc20Abi from "@/abis/farm/erc20Abi";
 import { useImage } from "@/helpers/useImage";
 import BlastMagicLpAbi from "@/abis/BlastMagicLP";
 import MultiRewardsAbi from "@/abis/MultiRewards";
-import type { PoolConfig } from "@/configs/pools/types";
+import type { PoolConfig, AdditionalPoolConfig } from "@/configs/pools/types";
 
-const kavaPools: Array<PoolConfig> = [
+const kavaPools: Array<PoolConfig | AdditionalPoolConfig> = [
   {
     id: "0x10C9FCDa1655b7A55250AdCEe06f0B6e83F473c1",
     chainId: 2222,

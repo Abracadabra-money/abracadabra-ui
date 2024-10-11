@@ -1,11 +1,10 @@
 import erc20Abi from "@/abis/farm/erc20Abi";
 import { useImage } from "@/helpers/useImage";
 import BlastMagicLpAbi from "@/abis/BlastMagicLP";
-import type { PoolConfig } from "@/configs/pools/types";
-
 import BlastLockingMultiRewardsAbi from "@/abis/BlastLockingMultiRewards";
+import type { PoolConfig, AdditionalPoolConfig } from "@/configs/pools/types";
 
-const blastPools: Array<PoolConfig> = [
+const blastPools: Array<PoolConfig | AdditionalPoolConfig> = [
   {
     id: "0x163B234120aaE59b46b228d8D88f5Bc02e9baeEa",
     chainId: 81457,

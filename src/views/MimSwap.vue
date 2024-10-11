@@ -132,7 +132,7 @@ import {
   type TokenPrice,
 } from "@/helpers/prices/defiLlama";
 import { validationActions } from "@/helpers/validators/swap/validationActions";
-import { getPoolConfigsByChains } from "@/helpers/pools/getPoolConfigs";
+import { getPoolConfigsByChains } from "@/helpers/pools/configs/getOrCreatePairsConfigs";
 
 const emptyTokenInfo: TokenInfo = {
   config: {
