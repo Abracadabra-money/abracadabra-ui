@@ -7,6 +7,17 @@
       @updateAmount="onUpdateInputAmount"
     />
 
+    <BaseTokenInput
+      :value="inputAmount"
+      :name="cauldron.config.mimInfo.name"
+      :icon="cauldron.config.mimInfo.icon"
+      :decimals="cauldron.config.mimInfo.decimals"
+      :max="maxToRepay"
+      isBigNumber
+      primaryMax
+      @updateInputValue="onUpdateInputAmount"
+    />
+
     <div class="dynamic-wrap" v-if="showDynamicBlock">
       <DynamicFee
         v-if="!hideDynamicFee"
@@ -30,6 +41,7 @@
 import { mapGetters } from "vuex";
 import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
+import { trimZeroDecimals } from "@/helpers/numbers";
 
 import {
   getLiquidationPrice,
@@ -71,6 +83,18 @@ export default {
       account: "getAccount",
       chainId: "getChainId",
     }),
+
+    inputAmount() {
+      const repayAmount = this.deleverageAmounts.amountToMin
+        ? this.deleverageAmounts.amountToMin
+        : BigNumber.from(0);
+      if (repayAmount.eq(BigNumber.from(0))) {
+        return "";
+      }
+      return trimZeroDecimals(
+        utils.formatUnits(repayAmount, this.cauldron.config.mimInfo.decimals)
+      );
+    },
 
     showDynamicBlock() {
       return (
@@ -167,6 +191,9 @@ export default {
     AmountRange: defineAsyncComponent(
       () => import("@/components/ui/range/AmountRange.vue")
     ),
+    BaseTokenInput: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenInput.vue")
+    ),
     DynamicFee: defineAsyncComponent(
       () => import("@/components/market/DynamicFee.vue")
     ),
@@ -186,6 +213,7 @@ export default {
     rgba(45, 74, 150, 0.12) 0%,
     rgba(116, 92, 210, 0.12) 100%
   );
+  margin-top: 12px;
   padding: 5px 12px;
 }
 </style>

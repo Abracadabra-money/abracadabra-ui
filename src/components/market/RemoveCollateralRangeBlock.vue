@@ -23,6 +23,17 @@
       @updateAmount="onUpdateWithdrawValue"
     />
 
+    <BaseTokenInput
+      :value="inputAmount"
+      :name="cauldron.config.name"
+      :icon="cauldron.config.icon"
+      :decimals="cauldron.config.collateralInfo.decimals"
+      :max="maxToRemove"
+      isBigNumber
+      primaryMax
+      @updateInputValue="onUpdateWithdrawValue"
+    />
+
     <div class="expected-amount" v-if="isWrapAllowed && withdrawUnwrapToken">
       <span> Expected</span>
       <span>
@@ -46,6 +57,7 @@ import { defineAsyncComponent } from "vue";
 import { formatToFixed } from "@/helpers/filters";
 import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
 import { formatUnits } from "viem";
+import { trimZeroDecimals } from "@/helpers/numbers";
 
 export default {
   props: {
@@ -68,6 +80,7 @@ export default {
     },
     withdrawAmount: {
       type: BigNumber,
+      default: BigNumber.from(0),
     },
   },
 
@@ -87,6 +100,18 @@ export default {
       chainId: "getChainId",
     }),
 
+    inputAmount() {
+      if (this.withdrawAmount.eq(BigNumber.from(0))) {
+        return "";
+      }
+      return trimZeroDecimals(
+        utils.formatUnits(
+          this.withdrawAmount,
+          this.cauldron.config.collateralInfo.decimals
+        )
+      );
+    },
+
     collateraDecimals() {
       return this.cauldron?.config?.collateralInfo?.decimals || 18;
     },
@@ -101,7 +126,12 @@ export default {
       const mcr = expandDecimals(this.cauldron.config.mcr, PERCENT_PRESITION);
 
       // after swap
-      const expectedCollateralAmount = userCollateralAmount.sub(amountFrom);
+      let expectedCollateralAmount = userCollateralAmount
+        .sub(amountFrom)
+        .lt(BigNumber.from(0))
+        ? BigNumber.from(0)
+        : userCollateralAmount.sub(amountFrom);
+
       const maxToRemove = getMaxCollateralToRemove(
         expectedCollateralAmount,
         this.expectedBorrowAmount,
@@ -178,7 +208,7 @@ export default {
     expectedTokenAmount() {
       return formatToFixed(
         this.inputValue *
-          +utils.formatUnits(this.cauldron.additionalInfo.tokensRate),
+          Number(utils.formatUnits(this.cauldron.additionalInfo.tokensRate)),
         this.rangePrecision
       );
     },
@@ -192,15 +222,6 @@ export default {
   },
 
   watch: {
-    inputAmpunt(value) {
-      if (value.eq(0)) {
-        this.inputValue = 0;
-        return false;
-      }
-
-      this.inputValue = Number(utils.formatUnits(value));
-    },
-
     useDeleverage() {
       this.inputValue = 0;
     },
@@ -215,9 +236,9 @@ export default {
       this.$emit("updateWithdrawAmount", BigNumber.from(0));
     },
 
-    onUpdateWithdrawValue(value: BigNumber | null) {
+    onUpdateWithdrawValue(value: BigNumber) {
       if (value === null) return this.setEmptyState();
-      this.inputValue = +utils.formatUnits(value);
+      this.inputValue = Number(utils.formatUnits(value));
       this.$emit("updateWithdrawAmount", value);
     },
 
@@ -235,6 +256,9 @@ export default {
     Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
     AmountRange: defineAsyncComponent(
       () => import("@/components/ui/range/AmountRange.vue")
+    ),
+    BaseTokenInput: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenInput.vue")
     ),
   },
 };
