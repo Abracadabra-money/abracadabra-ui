@@ -39,6 +39,7 @@
             :fromToken="actionConfig?.fromToken"
             :toToken="actionConfig?.toToken"
             :currentPriceInfo="currentPriceInfo"
+            :isLoading="isLoading"
           />
         </div>
 
@@ -48,6 +49,7 @@
           :priceImpact="priceImpactPair"
           :selectedNetwork="selectedNetwork"
           :nativeTokenPrice="nativeTokenPrice"
+          :isLoading="isLoading"
         />
 
         <SwapRouterInfoBlock
@@ -102,35 +104,34 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent } from "vue";
-import { formatUnits, type Address } from "viem";
-import type { ContractInfo } from "@/types/global";
-import { approveTokenViem } from "@/helpers/approval";
-import type { PoolConfig } from "@/configs/pools/types";
-import { mapActions, mapGetters, mapMutations } from "vuex";
-import {
-  getSwapInfo,
-  getSwapInfoEmptyState,
-  type ActionConfig,
-  type RouteInfo,
-} from "@/helpers/pools/swap/getSwapInfo";
-import { switchNetwork } from "@/helpers/chains/switchNetwork";
-import notification from "@/helpers/notification/notification";
-import { getAllUniqueTokens } from "@/helpers/pools/swap/tokens";
-import { getTokenListByPools } from "@/helpers/pools/swap/tokens";
-import { getAllPoolsByChain } from "@/helpers/pools/swap/magicLp";
 import {
   KAVA_CHAIN_ID,
   BLAST_CHAIN_ID,
   ARBITRUM_CHAIN_ID,
   MAINNET_CHAIN_ID,
 } from "@/constants/global";
-import type { TokenInfo } from "@/helpers/pools/swap/tokens";
+import {
+  getSwapInfo,
+  getSwapInfoEmptyState,
+} from "@/helpers/pools/swap/getSwapInfo";
 import {
   getCoinsPrices,
   getNativeTokensPrice,
-  type TokenPrice,
 } from "@/helpers/prices/defiLlama";
+import { defineAsyncComponent } from "vue";
+import type { ContractInfo } from "@/types/global";
+import { approveTokenViem } from "@/helpers/approval";
+import type { PoolConfig } from "@/configs/pools/types";
+import { mapActions, mapGetters, mapMutations } from "vuex";
+import { formatUnits, parseUnits, type Address } from "viem";
+import type { TokenInfo } from "@/helpers/pools/swap/tokens";
+import type { TokenPrice } from "@/helpers/prices/defiLlama";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import notification from "@/helpers/notification/notification";
+import { getAllUniqueTokens } from "@/helpers/pools/swap/tokens";
+import { getTokenListByPools } from "@/helpers/pools/swap/tokens";
+import { getAllPoolsByChain } from "@/helpers/pools/swap/magicLp";
+import type { ActionConfig, RouteInfo } from "@/helpers/pools/swap/getSwapInfo";
 import { validationActions } from "@/helpers/validators/swap/validationActions";
 import { getPoolConfigsByChains } from "@/helpers/pools/configs/getOrCreatePairsConfigs";
 
@@ -165,6 +166,7 @@ export default {
         toInputValue: 0n,
         slippage: 20n,
         deadline: 500n,
+        fromInputAmount: "0",
       } as ActionConfig,
       updateInterval: null as any,
       isFetchSwapInfo: false,
@@ -359,28 +361,59 @@ export default {
       this.createSwapInfo();
     },
 
-    poolsList: {
-      async handler() {
-        this.actionConfig.fromToken =
-          this.tokensList.find(
-            (token: TokenInfo) =>
-              token.config.name === this.actionConfig.fromToken.config.name
-          ) || this.actionConfig.fromToken;
-      },
-      deep: true,
-    },
-
     actionConfig: {
       async handler(value: ActionConfig) {
+        const actionConfig = value;
+
+        const { decimals } = this.actionConfig.fromToken.config;
+        const { fromInputAmount } = this.actionConfig;
+        const amount = parseUnits(fromInputAmount || "0", decimals);
+
+        actionConfig.fromInputValue = amount;
+
         //@ts-ignore
         this.swapInfo = await getSwapInfo(
           this.poolsList,
-          value,
+          actionConfig,
           this.selectedNetwork,
           this.account
         );
 
         this.actionConfig.toInputValue = this.swapInfo.outputAmount;
+      },
+      deep: true,
+    },
+
+    "actionConfig.fromToken": {
+      async handler() {
+        this.isLoading = true;
+        // @ts-ignore
+        this.swapInfo = await getSwapInfo(
+          this.poolsList,
+          this.actionConfig,
+          this.selectedNetwork,
+          this.account
+        );
+
+        this.actionConfig.toInputValue = this.swapInfo.outputAmount;
+        this.isLoading = false;
+      },
+      deep: true,
+    },
+
+    "actionConfig.toToken": {
+      async handler() {
+        this.isLoading = true;
+        // @ts-ignore
+        this.swapInfo = await getSwapInfo(
+          this.poolsList,
+          this.actionConfig,
+          this.selectedNetwork,
+          this.account
+        );
+
+        this.actionConfig.toInputValue = this.swapInfo.outputAmount;
+        this.isLoading = false;
       },
       deep: true,
     },
@@ -395,7 +428,9 @@ export default {
       this.createNotification(notification.success);
     },
 
-    updateFromValue(value: bigint) {
+    updateFromValue(value: bigint, fromInputAmount: string) {
+      this.actionConfig.fromInputAmount = fromInputAmount;
+
       if (value === null) {
         this.actionConfig.fromInputValue = 0n;
         this.actionConfig.toInputValue = 0n;
@@ -424,7 +459,10 @@ export default {
         }
       }
 
-      this.updateFromValue(this.actionConfig.fromInputValue);
+      this.updateFromValue(
+        this.actionConfig.fromInputValue,
+        this.actionConfig.fromInputAmount || "0"
+      );
 
       this.isTokensPopupOpened = false;
     },
@@ -442,6 +480,7 @@ export default {
       this.actionConfig.toInputValue = 0n;
       this.actionConfig.slippage = 20n;
       this.actionConfig.deadline = 500n;
+      this.actionConfig.fromInputAmount = "";
     },
 
     openTokensPopup(type: string) {
@@ -466,7 +505,10 @@ export default {
       this.actionConfig.fromToken = toToken;
       this.actionConfig.toToken = fromToken;
 
-      this.updateFromValue(this.actionConfig.fromInputValue);
+      this.updateFromValue(
+        this.actionConfig.fromInputValue,
+        this.actionConfig.fromInputAmount || "0"
+      );
     },
 
     async getTokensPrices(poolsConfig: PoolConfig[]) {

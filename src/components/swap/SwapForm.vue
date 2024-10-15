@@ -84,13 +84,14 @@ export default {
         this.fromInputValue = trimZeroDecimals(formatUnits(value, decimals));
       }
 
-      this.$emit("updateFromInputValue", value);
+      this.$emit("updateFromInputValue", value, this.fromInputValue);
     },
 
     onToogleTokens() {
       this.$emit(
         "updateFromInputValue",
-        parseUnits(this.fromInputValue, this.toToken!.config.decimals)
+        parseUnits(this.fromInputValue, this.toToken!.config.decimals),
+        this.fromInputValue
       );
 
       this.$emit("onToogleTokens");

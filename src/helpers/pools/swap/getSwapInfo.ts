@@ -13,6 +13,7 @@ export type ActionConfig = {
   toInputValue: bigint;
   slippage: bigint;
   deadline: bigint;
+  fromInputAmount?: string;
 };
 
 export type RouteInfo = {
