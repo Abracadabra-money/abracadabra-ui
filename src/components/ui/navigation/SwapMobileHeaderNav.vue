@@ -17,7 +17,7 @@
 
       <li @click="$emit('close-popup')">
         <MobileHeaderLink to="PoolFarms">
-          <img src="@/assets/images/header/dropdown/more/farms-icon.svg" />
+          <img src="@/assets/images/header/dropdown/more/pool-farms-icon.svg" />
           Farms
         </MobileHeaderLink>
       </li>
