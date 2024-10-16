@@ -13,16 +13,6 @@
 
     <h4 class="subtitle">Choose the amount of collateral you want to remove</h4>
 
-    <AmountRange
-      :amount="withdrawAmount"
-      :maxAmount="maxToRemove"
-      :risk="positionHealth"
-      :rangePrecision="rangePrecision"
-      :decimals="collateraDecimals"
-      isPotion
-      @updateAmount="onUpdateWithdrawValue"
-    />
-
     <BaseTokenInput
       :value="inputAmount"
       :name="cauldron.config.name"
@@ -32,6 +22,17 @@
       isBigNumber
       primaryMax
       @updateInputValue="onUpdateWithdrawValue"
+    />
+
+    <AmountRange
+      class="range"
+      :amount="withdrawAmount"
+      :maxAmount="maxToRemove"
+      :risk="positionHealth"
+      :rangePrecision="rangePrecision"
+      :decimals="collateraDecimals"
+      isPotion
+      @updateAmount="onUpdateWithdrawValue"
     />
 
     <div class="expected-amount" v-if="isWrapAllowed && withdrawUnwrapToken">
@@ -305,5 +306,9 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.range {
+  margin-top: 20px;
 }
 </style>

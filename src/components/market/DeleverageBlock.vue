@@ -1,12 +1,5 @@
 <template>
   <div>
-    <AmountRange
-      :amount="deleverageAmounts.amountToMin"
-      :maxAmount="maxToRepay"
-      :risk="positionHealth"
-      @updateAmount="onUpdateInputAmount"
-    />
-
     <BaseTokenInput
       :value="inputAmount"
       :name="cauldron.config.mimInfo.name"
@@ -188,9 +181,6 @@ export default {
   },
 
   components: {
-    AmountRange: defineAsyncComponent(
-      () => import("@/components/ui/range/AmountRange.vue")
-    ),
     BaseTokenInput: defineAsyncComponent(
       () => import("@/components/base/BaseTokenInput.vue")
     ),
