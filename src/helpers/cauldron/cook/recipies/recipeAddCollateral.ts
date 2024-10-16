@@ -4,16 +4,22 @@ import {
 } from "@/helpers/cauldron/cook/degenBoxHelper/actionHandlers.js";
 import { actions } from "@/helpers/cauldron/cook/actions";
 
+import type { CookData } from "@/helpers/cauldron/cook/cooks/types";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
+import type { Address } from "viem";
+import type { BigNumber } from "ethers";
+
 const recipeAddCollatral = async (
-  cookData: any,
-  cauldronObject: any,
-  token: string,
+  cookData: CookData,
+  cauldronObject: CauldronInfo,
+  token: Address,
   isWrap: boolean,
-  to: string,
-  amount: any,
-  collateralValue: any
-): Promise<any> => {
-  const { unwrappedToken, wrapper, cauldron } = cauldronObject.contracts;
+  to: Address,
+  amount: BigNumber,
+  collateralValue: BigNumber
+): Promise<CookData> => {
+  //@ts-ignore
+  const { unwrappedToken, wrapper, cauldron } = cauldronObject.contracts!;
 
   if (isWrap) {
     cookData = await bentoDepositEncodeHandler(
@@ -23,6 +29,7 @@ const recipeAddCollatral = async (
       to,
       amount,
       "0",
+      //@ts-ignore
       collateralValue,
       false,
       false,
@@ -46,7 +53,7 @@ const recipeAddCollatral = async (
       amount
     );
 
-    const data = swapStaticTx.data.substring(0, 74);
+    const data = swapStaticTx!.data!.substring(0, 74);
 
     cookData = await actions.call(
       cookData,
@@ -64,6 +71,7 @@ const recipeAddCollatral = async (
       cauldron.address,
       amount,
       "0",
+      //@ts-ignore
       collateralValue,
       false,
       false,
