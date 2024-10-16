@@ -4,7 +4,11 @@
       :class="['progress-track', { potion: isPotion }]"
       :style="{ background: gradientRangeTrack }"
     >
-      <span class="progress-value" :style="progressValuePosition">
+      <span
+        class="progress-value"
+        :style="progressValuePosition"
+        v-if="!isAmountExceedMax"
+      >
         {{ inputValue }}
       </span>
 
@@ -47,6 +51,7 @@ export default {
         medium: { start: "#A78300", end: "#FED84F" },
         high: { start: "#4F1717", end: "#8C4040" },
         default: { start: "#0C0F1C", end: "#212555" },
+        disabled: { start: "#727375", end: "#323639" },
       },
 
       // NOTICE: tumbler icon
@@ -68,10 +73,11 @@ export default {
     },
 
     gradientRangeTrack() {
+      const color = this.isAmountExceedMax ? "disabled" : this.risk;
       return `linear-gradient(
               90deg,
-              ${this.colors[this.risk].start} 0%,
-              ${this.colors[this.risk].end} ${this.gradientPercent}%,
+             ${this.colors[color].start} 0%,
+              ${this.colors[color].end} ${this.gradientPercent}%,
               #0C0F1C ${this.gradientPercent}%,
               #212555 100%
             )
@@ -94,14 +100,15 @@ export default {
     },
 
     tumbPosition() {
-      return `${this.gradientPercent}%`;
+      return `${this.gradientPercent <= 100 ? this.gradientPercent : 100}%`;
+    },
+
+    isAmountExceedMax() {
+      return this.amount.gt(this.maxAmount);
     },
   },
 
   watch: {
-    maxAmount(value: BigNumber) {
-      if (value.lt(this.amount)) this.$emit("updateAmount", value);
-    },
     amount(value: BigNumber) {
       this.inputValue = this.getFormattedAmount(value);
     },
@@ -116,16 +123,12 @@ export default {
       return formatToFixed(amount, decimals); //cut string
     },
     updateRange(event: any) {
-      const value = event.target.value;
-
       const parsedValue = utils.parseUnits(
         String(event.target.value),
         this.decimals
       );
 
-      const amount = value >= this.max ? this.maxAmount : parsedValue;
-
-      this.$emit("updateAmount", amount);
+      this.$emit("updateAmount", parsedValue);
     },
   },
 };
