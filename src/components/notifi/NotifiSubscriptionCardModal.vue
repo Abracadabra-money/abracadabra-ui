@@ -91,13 +91,13 @@ export default {
   justify-content: center;
   transform: translateX(-63%) translateY(18%);
   position: absolute;
-  z-index: 1;
+  z-index: 10;
 }
 .notifi-card-overlay {
   width: 100vw;
   height: 100vh;
   background-color: rgba(0, 0, 0, 0);
-  z-index: 1;
+  z-index: 9;
   position: fixed;
   top: 0;
   left: 0;
