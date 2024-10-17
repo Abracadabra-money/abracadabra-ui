@@ -8,15 +8,17 @@
     fill="none"
   >
     <rect x="0.5" y="0.5" width="19" height="19" rx="9.5" :stroke="stroke" />
-    <rect
-      x="3"
-      y="3"
-      width="14"
-      height="14"
-      rx="7"
-      :fill="fill"
-      v-if="active"
-    />
+    <Transition name="dot">
+      <rect
+        x="3"
+        y="3"
+        width="14"
+        height="14"
+        rx="7"
+        :fill="fill"
+        v-if="active"
+      />
+    </Transition>
   </svg>
 </template>
 
@@ -33,5 +35,15 @@ export default {
 <style lang="scss" scoped>
 .radio-button {
   cursor: pointer;
+}
+
+.dot-enter-active,
+.dot-leave-active {
+  transition: opacity 0.3s ease-in;
+}
+
+.dot-enter-from,
+.dot-leave-to {
+  opacity: 0;
 }
 </style>

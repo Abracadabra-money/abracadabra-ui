@@ -12,7 +12,8 @@ export const getPoolApr = async (chainId: number, poolInfo: any) => {
     const stakingTokenPrice = poolInfo.price;
 
     const totalStakedInUSD =
-      Number(formatUnits(poolInfo.totalSupply, 18)) * stakingTokenPrice;
+      Number(formatUnits(poolInfo.stakedTotalSupply, poolInfo.decimals)) *
+      stakingTokenPrice;
 
     let totalAnnualRewardsInUSD = 0;
     const tokensApr = [];
@@ -44,7 +45,7 @@ export const getPoolApr = async (chainId: number, poolInfo: any) => {
       tokensApr.push({
         address: tokenInfo.contract.address,
         apr: tokenApr,
-        price: tokenInfo.price
+        price: tokenInfo.price,
       });
 
       totalAnnualRewardsInUSD += annualReward;

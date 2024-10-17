@@ -1,15 +1,18 @@
-import poolsConfig from "@/configs/pools/pools";
-import { getAllPoolsByChain } from "@/helpers/pools/swap/magicLp";
 import type { Address } from "viem";
+import type { PoolConfig } from "@/configs/pools/types";
+import { getAllPoolsByChain } from "@/helpers/pools/swap/magicLp";
 
-const availableChains = Array.from(
-  new Set(poolsConfig.map((pool) => pool.chainId)).values()
-);
+export const getPoolsList = async (
+  account: Address,
+  poolsConfig: PoolConfig[]
+) => {
+  const availableChains = Array.from(
+    new Set(poolsConfig.map((pool: any) => pool.chainId)).values()
+  );
 
-export const getPoolsList = async (account: Address) => {
   const poolsList = await Promise.all(
     availableChains.map(async (chainId) =>
-      getAllPoolsByChain(chainId, account)
+      getAllPoolsByChain(chainId, poolsConfig, account)
         .then((results) => {
           // Filter out only the successful results
           const successfulResults = results.filter(
@@ -18,7 +21,7 @@ export const getPoolsList = async (account: Address) => {
           return successfulResults;
         })
         .catch((error) => {
-          console.log("something went wrong", error)
+          console.log("something went wrong", error);
           return [];
         })
     )

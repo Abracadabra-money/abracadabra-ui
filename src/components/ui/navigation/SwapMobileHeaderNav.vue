@@ -14,6 +14,13 @@
           Pools
         </MobileHeaderLink>
       </li>
+
+      <li @click="$emit('close-popup')">
+        <MobileHeaderLink to="PoolFarms">
+          <img src="@/assets/images/header/dropdown/more/pool-farms-icon.svg" />
+          Farms
+        </MobileHeaderLink>
+      </li>
       <!-- <li @click="$emit('close-popup')">
         <MobileHeaderLink to="PotionPoints">
           <img src="@/assets/images/potion/potion-icon.png" />

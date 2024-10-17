@@ -30,6 +30,7 @@ use([
 ]);
 const props = defineProps({
   option: Object,
+  title: String,
 });
 
 const option = ref(props.option);

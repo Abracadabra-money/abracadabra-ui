@@ -2,16 +2,21 @@
   <div class="pools-table-wrap">
     <div class="additional-logic">
       <div class="toggles-wrap">
-        <Tabs :name="activeTab" :items="tabItems" @select="changeTab" />
+        <Toggle
+          text="My stakes"
+          :selected="showMyStakes"
+          @updateToggle="updateToggleMyStakes"
+        />
       </div>
 
-      <ChainsDropdown
-        class="chains-dropdown"
-        :activeChains="activeChains"
-        :selectedChains="selectedChains"
-        @updateSelectedChain="updateSelectedChain"
-        @selectAllChains="selectAllChains"
-      />
+      <div class="dropdowns-wrap">
+        <ChainsDropdown
+          :activeChains="activeChains"
+          :selectedChains="selectedChains"
+          @updateSelectedChain="updateSelectedChain"
+          @selectAllChains="selectAllChains"
+        />
+      </div>
 
       <button class="filters" @click="$emit('openMobileFiltersPopup')">
         <img class="filters-icon" src="@/assets/images/filters.png" />
@@ -31,6 +36,7 @@
             :pool="pool"
           />
         </div>
+
         <div class="card-wrapper">
           <PoolCardItem
             v-for="(pool, index) in poolsToRender"
@@ -40,12 +46,13 @@
         </div>
 
         <div class="loader-wrap">
-          <BaseLoader v-if="poolsLoading" medium text="Loading pools" />
+          <BaseLoader v-if="poolsLoading" medium text="Loading farms" />
           <BaseSearchEmpty
             v-if="showEmptyBlock && !poolsLoading"
-            text="There are no pools"
+            text="There are no farms"
           />
         </div>
+
         <div class="btn-wrap" v-if="showDeprecatedButton">
           <button class="deprecated-btn" @click="updateToggleActivepools">
             {{ deprecatedButtonText }}
@@ -56,14 +63,22 @@
   </div>
 </template>
 
-<script>
-import { defineAsyncComponent } from "vue";
-import { ARBITRUM_CHAIN_ID } from "@/constants/global.ts";
+<script lang="ts">
+import { defineAsyncComponent, type PropType } from "vue";
+import { ARBITRUM_CHAIN_ID } from "@/constants/global";
+import {
+  FEE_TIER_DECIMALS,
+  STANDARD_K_VALUE,
+} from "@/constants/pools/poolCreation";
+import { formatPercent } from "@/helpers/filters";
+import type { MagicLPInfo } from "@/helpers/pools/swap/types";
+import { formatUnits } from "viem";
+import type { SortOrder } from "@/types/sorting";
 
 export default {
   props: {
     pools: {
-      type: Array,
+      type: Array as PropType<(MagicLPInfo & { stakeInfo: any })[]>,
       required: true,
     },
     poolsLoading: { type: Boolean },
@@ -75,13 +90,12 @@ export default {
 
   data() {
     return {
-      activeTab: "All pools",
-      tabItems: ["All pools", "My pools", "MIM pools"],
       searchValue: "",
       showActivePools: true,
-      sortKey: "",
-      sortOrder: false,
-      selectedChains: [],
+      showMyStakes: false,
+      sortKey: "TVL",
+      sortOrder: "up" as SortOrder,
+      selectedChains: [] as number[],
       isFiltersPopupOpened: false,
     };
   },
@@ -92,11 +106,7 @@ export default {
     },
 
     showEmptyBlock() {
-      return (
-        !this.poolsLoading &&
-        !this.poolsToRender.length &&
-        this.searchValue.length
-      );
+      return !this.poolsLoading && !this.poolsToRender.length;
     },
 
     poolsToRender() {
@@ -104,19 +114,16 @@ export default {
         this.pools,
         this.selectedChains
       );
+
       const filteredByDepreciate = this.filterByActivepools(filteredByChain);
 
-      const filteredByTab = this.filterByTab(filteredByDepreciate);
-
-      const sortedByNew = this.sortByNew(filteredByTab);
-
-      // TODO
-      const sortedByTesting = this.sortByTesting(filteredByTab);
+      const filteredByPositions = this.filterPositions(filteredByDepreciate);
 
       const filteredByValue = this.filterBySearchValue(
-        sortedByTesting,
+        filteredByPositions,
         this.searchValue
       );
+
       const sortedByChain = this.sortByKey(
         filteredByValue,
         this.sortKey,
@@ -131,7 +138,10 @@ export default {
     },
 
     showDeprecatedButton() {
-      return this.poolsToRender.length;
+      const hasDeprecatedPool = this.poolsToRender.some(
+        (pool: MagicLPInfo) => pool.settings.isDeprecated
+      );
+      return this.poolsToRender.length && hasDeprecatedPool;
     },
 
     deprecatedButtonText() {
@@ -151,12 +161,16 @@ export default {
       this.showActivePools = !this.showActivePools;
     },
 
-    updateSortKeys(key, order) {
+    updateToggleMyStakes() {
+      this.showMyStakes = !this.showMyStakes;
+    },
+
+    updateSortKeys(key: string, order: SortOrder) {
       this.sortKey = key;
       this.sortOrder = order;
     },
 
-    updateSearch(value) {
+    updateSearch(value: string) {
       this.searchValue = value.toLowerCase();
     },
 
@@ -165,7 +179,7 @@ export default {
       else this.selectedChains = [...this.activeChains];
     },
 
-    updateSelectedChain(chainId) {
+    updateSelectedChain(chainId: number) {
       if (this.allChainsSelected) this.selectAllChains();
 
       const index = this.selectedChains.indexOf(chainId);
@@ -173,14 +187,14 @@ export default {
       else this.selectedChains.splice(index, 1);
     },
 
-    filterByChain(pools, selectedChains) {
+    filterByChain(pools: MagicLPInfo[], selectedChains: number[]) {
       if (this.allChainsSelected) return pools;
       return pools.filter((pool) => {
         return selectedChains.includes(pool.chainId);
       });
     },
 
-    filterByActivepools(pools) {
+    filterByActivepools(pools: MagicLPInfo[]) {
       if (this.showActivePools) {
         return pools.filter((pool) => {
           return !pool.settings.isDeprecated;
@@ -194,58 +208,32 @@ export default {
           return +settingsA?.isDeprecated - +settingsB?.isDeprecated;
         }
 
-        return a;
+        return 1;
       });
     },
 
-    filterByTab(pools) {
-      if (this.activeTab == "My pools") return this.filterPositions(pools);
-      if (this.activeTab == "MIM pools") return this.filterIsMim(pools);
+    filterPositions(pools: MagicLPInfo[]) {
+      if (this.showMyStakes)
+        return pools.filter(({ stakeInfo }) => (stakeInfo?.balance || 0n) > 0n);
       return pools;
     },
 
-    filterIsMim(pools) {
-      return pools.filter((config) => config.settings.isMim);
-    },
-
-    filterPositions(pools) {
-      return pools.filter(({ userInfo }) => {
-        return userInfo.balance > 0n;
-      });
-    },
-
-    filterBySearchValue(pools, value) {
+    filterBySearchValue(pools: MagicLPInfo[], value: string) {
       return pools.filter(
         (config) => config.name.toLowerCase().indexOf(value) !== -1
       );
     },
 
-    sortByNew(pools) {
+    sortByNew(pools: MagicLPInfo[]) {
       return pools.sort((a, b) => {
         const isNewA = +!!a?.config?.settings?.isNew;
         const isNewB = +!!b?.config?.settings?.isNew;
         if (isNewA || isNewB) return isNewB - isNewA;
-        return a;
+        return 1;
       });
     },
 
-    sortByTesting(pools) {
-      return pools.sort((a, b) => {
-        const isNewA = +!!a?.settings?.isNew;
-        const isTestingA = +!!a?.settings?.isTesting;
-
-        const isNewB = +!!b?.settings?.isNew;
-        const isTestingB = +!!b?.settings?.isTesting;
-
-        if (isTestingB && isNewA) {
-          return -1;
-        }
-
-        return 0;
-      });
-    },
-
-    sortByKey(pools, key, sortOrder) {
+    sortByKey(pools: MagicLPInfo[], key: string, sortOrder: SortOrder) {
       if (!key || !sortOrder) return pools;
       return pools.sort((poolA, poolB) => {
         const a = this.getSortKey(poolA, key);
@@ -256,53 +244,51 @@ export default {
       });
     },
 
-    getSortKey(pool, key) {
-      if (key === "TVL") return pool.mainParams.tvl;
-      if (key === "Fees 1d") return pool.mainParams.dayFees;
-      if (key === "Volume 1d") return pool.mainParams.dayVolume;
-      if (key === "Fees 7d") return pool.mainParams.weekFees;
-      if (key === "Volume 7d") return pool.mainParams.weekFees;
-      if (key === "APR") return pool.mainParams.apr;
+    getSortKey(pool: MagicLPInfo, key: string) {
+      switch (key) {
+        case "TBD":
+          return pool.initialParameters.lpFeeRate;
+        case "APR":
+          return pool.poolAPR?.totalApr || 0;
+        default:
+          return pool.stakedTotalSupply;
+      }
     },
 
     getActiveChain() {
       return this.pools
-        .reduce((acc, config) => {
-          if (!acc.includes(config.chainId)) acc.push(config.chainId);
+        .reduce((acc: number[], pool: MagicLPInfo) => {
+          if (!acc.includes(pool.chainId)) acc.push(pool.chainId);
           return acc;
-        }, [])
-        .sort((a, b) => {
+        }, [] as number[])
+        .sort((a: number, b: number) => {
           return a >= ARBITRUM_CHAIN_ID || b <= ARBITRUM_CHAIN_ID ? -1 : 1;
         });
-    },
-
-    changeTab(action) {
-      this.activeTab = action;
     },
   },
 
   components: {
-    Tabs: defineAsyncComponent(() => import("@/components/ui/Tabs.vue")),
-    ChainsDropdown: defineAsyncComponent(() =>
-      import("@/components/ui/dropdown/ChainsDropdown.vue")
+    Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
+    ChainsDropdown: defineAsyncComponent(
+      () => import("@/components/ui/dropdown/ChainsDropdown.vue")
     ),
-    InputSearch: defineAsyncComponent(() =>
-      import("@/components/ui/inputs/InputSearch.vue")
+    InputSearch: defineAsyncComponent(
+      () => import("@/components/ui/inputs/InputSearch.vue")
     ),
-    PoolsTableHead: defineAsyncComponent(() =>
-      import("@/components/pools/table/PoolsTableHead.vue")
+    PoolsTableHead: defineAsyncComponent(
+      () => import("@/components/pools/table/poolFarms/PoolFarmsTableHead.vue")
     ),
-    PoolsTableItem: defineAsyncComponent(() =>
-      import("@/components/pools/table/PoolsTableItem.vue")
+    PoolsTableItem: defineAsyncComponent(
+      () => import("@/components/pools/table/poolFarms/PoolFarmsTableItem.vue")
     ),
-    PoolCardItem: defineAsyncComponent(() =>
-      import("@/components/pools/table/PoolCardItem.vue")
+    PoolCardItem: defineAsyncComponent(
+      () => import("@/components/pools/table/poolFarms/PoolFarmCardItem.vue")
     ),
-    BaseLoader: defineAsyncComponent(() =>
-      import("@/components/base/BaseLoader.vue")
+    BaseLoader: defineAsyncComponent(
+      () => import("@/components/base/BaseLoader.vue")
     ),
-    BaseSearchEmpty: defineAsyncComponent(() =>
-      import("@/components/base/BaseSearchEmpty.vue")
+    BaseSearchEmpty: defineAsyncComponent(
+      () => import("@/components/base/BaseSearchEmpty.vue")
     ),
   },
 
@@ -310,7 +296,12 @@ export default {
     this.selectedChains = this.getActiveChain();
   },
 
-  expose: ["updateSortKeys"],
+  expose: [
+    "updateSortKeys",
+    "getFeeTierOptions",
+    "updatePoolTypeFilter",
+    "updateFeeTierFilter",
+  ],
 };
 </script>
 
@@ -354,7 +345,11 @@ export default {
   position: relative;
 }
 
-.chains-dropdown {
+.dropdowns-wrap {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
   margin-left: auto;
 }
 
@@ -472,9 +467,14 @@ export default {
     width: 100%;
   }
 
-  .chains-dropdown {
+  .dropdowns-wrap {
     order: 2;
     margin-left: 0;
+  }
+
+  .pool-type-dropdown,
+  .fee-tier-dropdown {
+    display: none;
   }
 
   .pools-table-wrap {

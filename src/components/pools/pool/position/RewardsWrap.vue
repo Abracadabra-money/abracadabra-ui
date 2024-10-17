@@ -1,41 +1,44 @@
 <template>
   <div class="token-rewards-wrap" v-if="tokenRewards">
     <div class="title-wrap">
-      <h4 class="title">Rewards Earned</h4>
+      <h4 class="title">{{ titleText }}</h4>
 
-      <div class="apr-wrap" v-if="!isElixir">
-        <template v-if="poolRewards && poolRewards.length > 1">
-          <Tooltip :width="18" :height="18" fill="#ffffff" :tooltip="''" />
-          <div class="apr-info">
-            <div
-              class="apr-item"
-              v-for="item in poolRewards"
-              :key="item.token.address"
-            >
-              <img :src="item.token.icon" alt="" class="token-icon" />
-              <p class="name">{{ item.token.name }}:</p>
-              <p class="apr">{{ Number(item.apr).toFixed(2) }}%</p>
-            </div>
-            <div class="apr-item total-item">
+      <div class="apr-wrap" v-if="!rewardPointsType">
+        <Tooltip :width="18" :height="18" fill="#ffffff" :tooltip="''" />
+
+        <div class="apr-info" v-if="poolRewards && poolRewards.length > 1">
+          <div
+            class="apr-item"
+            v-for="item in poolRewards"
+            :key="item.token.address"
+          >
+            <img :src="item.token.icon" alt="" class="token-icon" />
+            <p class="name">{{ item.token.name }}:</p>
+            <p class="apr">{{ Number(item.apr).toFixed(2) }}%</p>
+          </div>
+          <!-- <div class="apr-item total-item">
               <p class="name">Total:</p>
               <p class="apr">
                 {{ Number(pool.poolAPR.totalApr).toFixed(2) }} %
               </p>
-            </div>
-          </div>
-        </template>
+            </div> -->
+        </div>
 
-        <p class="title">APR</p>
+        <p class="apr">APR {{ Number(pool.poolAPR.totalApr).toFixed(2) }} %</p>
       </div>
     </div>
-    <ElixirReward v-if="isElixir" />
 
-    <ul class="rewards-list" v-if="tokenRewards && !isElixir">
+    <RewardPointsTagWrap
+      icon
+      name
+      multiplier
+      :rewardPointsType="rewardPointsType"
+      v-if="rewardPointsType"
+    />
+
+    <ul class="rewards-list" v-if="tokenRewards && !rewardPointsType">
       <li class="list-item" v-for="(item, index) in tokenRewards" :key="index">
-        <span class="item-title">
-          <img :src="item.token.icon" class="reward-icon" />
-          {{ item.token.name }}
-        </span>
+        <img :src="item.token.icon" class="reward-icon" />
 
         <div class="values-wrap">
           <p class="item-value">{{ item.value }}</p>
@@ -47,7 +50,6 @@
 </template>
 
 <script>
-import { useImage } from "@/helpers/useImage";
 import { formatUnits } from "viem";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 import { getCoinsPrices } from "@/helpers/prices/defiLlama/index.ts";
@@ -86,8 +88,12 @@ export default {
       return rewards;
     },
 
-    isElixir() {
-      return this.pool.config.id === 1 && this.pool.config.chainId === 1;
+    rewardPointsType() {
+      return this.pool.config.settings.rewardPointsType;
+    },
+
+    titleText() {
+      return this.rewardPointsType ? "Staking Rewards" : "Rewards Earned";
     },
   },
   methods: {
@@ -115,8 +121,8 @@ export default {
     Tooltip: defineAsyncComponent(() =>
       import("@/components/ui/icons/Tooltip.vue")
     ),
-    ElixirReward: defineAsyncComponent(() =>
-      import("@/components/pools/pool/ElixirReward.vue")
+    RewardPointsTagWrap: defineAsyncComponent(() =>
+      import("@/components/pools/rewardPoints/RewardPointsTagWrap.vue")
     ),
   },
 };
@@ -205,12 +211,6 @@ export default {
 
 .list-item {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.item-title {
-  display: flex;
   align-items: center;
   gap: 4px;
 }
@@ -224,7 +224,7 @@ export default {
 .values-wrap {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: flex-start;
 
   .item-value {
     font-size: 16px;
@@ -238,5 +238,12 @@ export default {
     font-weight: 400;
     line-height: 1;
   }
+}
+
+.apr {
+  color: #fff;
+  text-shadow: 0px 0px 16px #ab5de8;
+  font-size: 16px;
+  font-weight: 600;
 }
 </style>

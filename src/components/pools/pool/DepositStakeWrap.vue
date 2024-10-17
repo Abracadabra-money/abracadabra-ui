@@ -111,10 +111,6 @@ export default {
     Deposit: defineAsyncComponent(() =>
       import("@/components/pools/pool/actions/deposit/Deposit.vue")
     ),
-
-    Stake: defineAsyncComponent(() =>
-      import("@/components/pools/pool/actions/Stake.vue")
-    ),
   },
 };
 </script>

@@ -1,7 +1,8 @@
 import type { ContractInfo } from "@/types/global";
 
 export type PoolConfig = {
-  id: number;
+  id: string;
+  isAdditionalConfig?: boolean;
   chainId: number;
   name: string;
   icon: string;
@@ -13,6 +14,21 @@ export type PoolConfig = {
   stakeContract?: ContractInfo;
   rewardTokens?: TokenConfig[];
   settings: PoolSettings;
+  initialParameters: InitialParameters;
+};
+
+export type AdditionalPoolConfig = {
+  id: string;
+  chainId: number;
+  isAdditionalConfig: boolean;
+  rewardTokens?: TokenConfig[];
+  settings?: {
+    isNew: boolean;
+    isDeprecated: boolean;
+    isMim: boolean;
+    rewardPointsType?: RewardPointsTypes;
+  };
+  stakeContract?: ContractInfo;
 };
 
 // TODO: may be changed in future
@@ -21,6 +37,13 @@ type PoolSettings = {
   isDeprecated: boolean;
   isMim: boolean;
   isPointsLogic?: boolean;
+  rewardPointsType?: RewardPointsTypes;
+};
+
+type InitialParameters = {
+  I: bigint;
+  K: bigint;
+  lpFeeRate: bigint;
 };
 
 export type TokenConfig = {
@@ -30,3 +53,8 @@ export type TokenConfig = {
   contract: ContractInfo;
   isPopular?: boolean;
 };
+
+export enum RewardPointsTypes {
+  Elixir = "elixir",
+  Pills = "pills",
+}

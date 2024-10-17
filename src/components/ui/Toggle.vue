@@ -69,6 +69,7 @@ export default {
 @media screen and (max-width: 600px) {
   .text {
     font-size: 14px;
+    font-weight: 400;
   }
 }
 

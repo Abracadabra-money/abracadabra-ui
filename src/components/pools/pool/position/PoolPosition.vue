@@ -12,36 +12,19 @@
     />
 
     <div class="pool-position">
-      <Tabs
-        :name="activeTab"
-        :items="tabItems"
-        @select="selectTab"
-        v-if="showTabs"
+      <Staked
+        :pool="pool"
+        :isUserPositionOpen="isUserPositionOpen"
+        @updatePoolInfo="$emit('updateInfo')"
+        v-if="isFarm"
       />
-
-      <p class="position-title" v-if="!showTabs && activeTab === 'deposited'">
-        Your Magic LP
-      </p>
 
       <Deposited
         :pool="pool"
+        :isUserPositionOpen="isUserPositionOpen"
         @updatePoolInfo="$emit('updateInfo')"
-        v-show="activeTab === 'deposited'"
+        v-else
       />
-
-      <template v-if="hasLockLogic || hasStakeLogic">
-        <Staked
-          :pool="pool"
-          @updatePoolInfo="$emit('updateInfo')"
-          v-show="activeTab === 'staked'"
-        />
-
-        <Locked
-          v-if="hasLockLogic"
-          :pool="pool"
-          v-show="activeTab === 'locked'"
-        />
-      </template>
     </div>
   </div>
 </template>
@@ -52,35 +35,29 @@ import { defineAsyncComponent } from "vue";
 export default {
   props: {
     pool: { type: Object },
+    isUserPositionOpen: { type: Boolean, default: false },
     isMyPositionPopupOpened: { type: Boolean, default: false },
+    isFarm: Boolean,
   },
 
   emits: ["closePopup", "updateInfo"],
 
   data() {
-    return {
-      activeTab: "deposited",
-    };
+    return {};
   },
 
   computed: {
-    hasLockLogic() {
-      return !!this.pool.lockInfo;
-    },
-    hasStakeLogic() {
-      return !!this.pool.stakeInfo;
-    },
-    tabItems() {
-      return ["deposited", "staked"];
-    },
-    showTabs() {
-      return this.hasLockLogic || this.hasStakeLogic;
+    hasFarm() {
+      return !!this.pool.stakeContract;
     },
   },
 
   methods: {
-    selectTab(action) {
-      this.activeTab = action;
+    goToFarm() {
+      this.$router.push({
+        name: "PoolFarm",
+        params: { poolChainId: this.pool.chainId, id: this.pool.id },
+      });
     },
 
     closePopup() {
@@ -89,35 +66,22 @@ export default {
   },
 
   components: {
-    Tabs: defineAsyncComponent(() =>
-      import("@/components/pools/pool/position/Tabs.vue")
-    ),
     Deposited: defineAsyncComponent(() =>
       import("@/components/pools/pool/position/Deposited.vue")
     ),
     Staked: defineAsyncComponent(() =>
       import("@/components/pools/pool/position/Staked.vue")
     ),
-    Locked: defineAsyncComponent(() =>
-      import("@/components/pools/pool/position/Locked.vue")
-    ),
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.position-title {
-  font-size: 18px;
-  font-weight: 500;
-  line-height: 22px;
-}
-
 .pool-position-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 12px;
-  margin-top: 129px;
   z-index: 3;
 }
 
@@ -129,13 +93,12 @@ export default {
   gap: 16px;
   border-radius: 16px;
   border: 1px solid #00296b;
-
   background: linear-gradient(
-    146deg,
-    rgba(0, 10, 35, 0.07) 0%,
-    rgba(0, 80, 156, 0.07) 101.49%
-  );
-
+      90deg,
+      rgba(45, 74, 150, 0.24) 0%,
+      rgba(116, 92, 210, 0.24) 100%
+    ),
+    #0e172b;
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
   backdrop-filter: blur(12.5px);
 }
@@ -187,11 +150,15 @@ export default {
     bottom: 0;
     display: none;
     width: 100%;
-    padding: 16px 20px;
-    gap: 16px;
-    border-radius: 20px 20px 0 0;
-    border: 1px solid #342866;
-    background: #101622;
+    padding: 20px 16px 60px 16px;
+    border-radius: 20px 20px 0px 0px;
+    border: 1px solid #00296b;
+    background: linear-gradient(
+        90deg,
+        rgba(45, 74, 150, 0.24) 0%,
+        rgba(116, 92, 210, 0.24) 100%
+      ),
+      #0e172b;
     box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
     backdrop-filter: blur(20px);
   }
