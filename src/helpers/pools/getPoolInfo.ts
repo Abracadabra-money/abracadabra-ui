@@ -6,15 +6,17 @@ import type { PairTokensInfo } from "@/helpers/pools/swap/tokens";
 
 import type { MagicLPInfo } from "@/helpers/pools/swap/types";
 import { getPoolTokenInfo } from "@/helpers/pools/swap/tokens";
-import { getCoinsPrices } from "@/helpers/prices/defiLlama/index";
+import type { TokenPrice } from "@/helpers/prices/defiLlama/index";
 import { getSwapRouterByChain } from "@/configs/pools/routers";
 
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { getPoolApr } from "./getPoolAPR";
+import { getPoolTokensPrices } from "@/helpers/pools/getPoolsTokensPrices";
 
 export const getPoolInfo = async (
   poolChainId: number,
   poolId: number,
+  tokensPrices?: TokenPrice[],
   account?: Address
 ) => {
   const poolConfig = poolsConfig.find(
@@ -23,9 +25,22 @@ export const getPoolInfo = async (
 
   if (!poolConfig) return false;
 
-  const getLpInfoResult = await getLpInfo(poolConfig, poolChainId, account);
+  if (!tokensPrices)
+    tokensPrices = await getPoolTokensPrices(poolChainId, poolConfig);
 
-  const tokens = await getTokensInfo(poolChainId, poolConfig, account);
+  const getLpInfoResult = await getLpInfo(
+    poolConfig,
+    poolChainId,
+    tokensPrices,
+    account
+  );
+
+  const tokens = await getTokensInfo(
+    poolChainId,
+    poolConfig,
+    tokensPrices,
+    account
+  );
 
   const lpTokenPrice = getLpTokenPrice(getLpInfoResult, tokens);
 
@@ -40,10 +55,15 @@ export const getPoolInfo = async (
     poolInfo.lockInfo = await getLockInfo(account, poolChainId, poolConfig);
 
   if (poolConfig.stakeContract)
-    poolInfo.poolAPR = await getPoolApr(poolChainId, poolInfo);
+    poolInfo.poolAPR = await getPoolApr(poolChainId, poolInfo, tokensPrices);
 
   if (account && poolConfig.stakeContract)
-    poolInfo.stakeInfo = await getStakeInfo(account, poolChainId, poolConfig, poolInfo.poolAPR.tokensApr!);
+    poolInfo.stakeInfo = await getStakeInfo(
+      account,
+      poolChainId,
+      poolConfig,
+      poolInfo.poolAPR.tokensApr!
+    );
 
   return poolInfo;
 };
@@ -51,17 +71,19 @@ export const getPoolInfo = async (
 const getTokensInfo = async (
   chainId: number,
   poolConfig: PoolConfig,
+  tokensPrices: TokenPrice[],
   account?: Address
 ) => {
-  const tokensPrices = await getCoinsPrices(chainId, [
-    poolConfig.baseToken.contract.address,
-    poolConfig.quoteToken.contract.address,
-  ]);
+  const compoundTokensPrices = tokensPrices.filter(
+    ({ address }) =>
+      address === poolConfig.baseToken.contract.address ||
+      address === poolConfig.quoteToken.contract.address
+  );
 
   const tokens = await getPoolTokenInfo(
     chainId,
     poolConfig,
-    tokensPrices,
+    compoundTokensPrices,
     account
   );
 
@@ -176,16 +198,14 @@ export const getStakeInfo = async (
   const earnedInfo = config.rewardTokens.map((token: any, index: number) => ({
     token,
     earned: earnedBalances[index].result,
-    ...tokensApr[index]
+    ...tokensApr[index],
   }));
-
-  console.log("earnedInfo", earnedInfo)
 
   return {
     balance: balance.result,
     allowance: allowance.result,
     earned: earned.result,
-    earnedInfo
+    earnedInfo,
   };
 };
 
