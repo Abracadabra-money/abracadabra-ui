@@ -65,6 +65,8 @@ export type UserTokensInfo = {
   unwrappedTokenAllowance: BigNumber | null;
 };
 
+
+// TODO: Add Contracts type
 export type CauldronInfo = {
   config: CauldronConfig;
   contracts: Object | null;

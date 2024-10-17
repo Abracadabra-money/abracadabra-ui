@@ -9,11 +9,15 @@ import fetchCvxTricrypto0xData from "./fetchCvxTricrypto0xData";
 import getDeUsd0xData from "./fetchDeUSD0xData";
 import fetchUSD0ppOdosData from "./fetchUSD0ppOdosData";
 
+import type { CauldronInfo } from "@/helpers/cauldron/types.ts";
+import type { BigNumber } from "ethers";
+import type { Address } from "viem";
+
 const getDelev0xData = async (
-  cauldronObject,
-  collateralAmount,
-  slipage,
-  to
+  cauldronObject: CauldronInfo,
+  collateralAmount: BigNumber,
+  slipage: number,
+  to: Address
 ) => {
   const {
     isMagicGLP,

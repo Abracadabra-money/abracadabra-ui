@@ -2,11 +2,15 @@ import { swap0xRequest } from "@/helpers/0x";
 
 const apeAddress = "0x4d224452801ACEd8B2F0aebE155379bb5D594381";
 
+import type { CauldronInfo } from "@/helpers/cauldron/types.ts";
+import type { BigNumber } from "ethers";
+
 const fetchDelevMagicApe0xData = async (
-  cauldronObject,
-  collateralAmount,
-  slipage
+  cauldronObject: CauldronInfo,
+  collateralAmount: BigNumber,
+  slipage: number
 ) => {
+  //@ts-ignore
   const { collateral, liquidationSwapper, mim } = cauldronObject.contracts;
 
   const selToken = apeAddress;
@@ -20,6 +24,8 @@ const fetchDelevMagicApe0xData = async (
     selAmount,
     liquidationSwapper.address
   );
+
+  // @ts-ignore
   return response.data;
 };
 

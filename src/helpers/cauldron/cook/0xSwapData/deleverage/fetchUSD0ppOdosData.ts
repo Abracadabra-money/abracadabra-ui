@@ -1,14 +1,19 @@
 import { swapOdosRequest } from "@/helpers/odos";
 import { utils } from "ethers";
 
+import type { CauldronInfo } from "@/helpers/cauldron/types.ts";
+import type { BigNumber } from "ethers";
+
 const fetchUSD0ppOdosData = async (
-  cauldronObject,
-  collateralAmount,
-  slipage
+  cauldronObject: CauldronInfo,
+  collateralAmount: BigNumber,
+  slipage: number
 ) => {
+
+  //@ts-ignore
   const { collateral, liquidationSwapper, mim } = cauldronObject.contracts;
 
-  const selToken = cauldronObject.config.wrapInfo.unwrappedToken.address;
+  const selToken = cauldronObject.config.wrapInfo!.unwrappedToken.address;
   const selAmount = await collateral.convertToAssets(collateralAmount);
 
   const swapResponse = await swapOdosRequest(
@@ -22,6 +27,7 @@ const fetchUSD0ppOdosData = async (
 
   return utils.defaultAbiCoder.encode(
     ["address", "bytes"],
+    //@ts-ignore
     [swapResponse.to, swapResponse.data]
   );
 };
