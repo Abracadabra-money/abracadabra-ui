@@ -39,6 +39,7 @@ export enum EmptyStateTypes {
 
 export const graphAPIs = {
   1: "https://api.studio.thegraph.com/query/59137/mimswap-mainnet/version/latest",
+  2222: "https://kava.graph.abracadabra.money/subgraphs/name/mimswap",
   42161:
     "https://api.studio.thegraph.com/query/59137/mimswap-arbitrum/version/latest",
   81457:
