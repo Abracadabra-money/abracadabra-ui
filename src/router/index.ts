@@ -50,9 +50,19 @@ const routes: Array<RouteRecordRaw> = [
     redirect: "/beam",
   },
   {
+    path: "/stake-list",
+    name: "StakeList",
+    component: () => import("@/views/stake/StakeList.vue"),
+  },
+  {
     path: "/spell",
     name: "StakeSpell",
     component: () => import("@/views/stake/Spell.vue"),
+  },
+  {
+    path: "/bspell",
+    name: "BSpell",
+    component: () => import("@/views/stake/BSpell.vue"),
   },
   {
     path: "/magicGLP",
@@ -64,6 +74,11 @@ const routes: Array<RouteRecordRaw> = [
     name: "magicAPE",
     component: () => import("@/views/stake/MAPE.vue"),
   },
+  // {
+  //   path: "/magicKLP",
+  //   name: "magicKLP",
+  //   component: () => import("@/views/stake/MKLP.vue"),
+  // },
   {
     path: "/my-positions",
     name: "MyPositions",
