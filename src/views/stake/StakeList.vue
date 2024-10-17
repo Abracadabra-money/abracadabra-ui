@@ -6,7 +6,6 @@
         v-for="(item, index) in stakeList"
         :key="index"
       />
-      <MSRItemCard />
       <BSpellItemCard />
     </div>
   </div>
@@ -31,9 +30,6 @@ export default {
   components: {
     StakeItemCard: defineAsyncComponent(
       () => import("@/components/stake/stakeList/StakeItemCard.vue")
-    ),
-    MSRItemCard: defineAsyncComponent(
-      () => import("@/components/stake/stakeList/uniqueCards/MSRItemCard.vue")
     ),
     BSpellItemCard: defineAsyncComponent(
       () =>

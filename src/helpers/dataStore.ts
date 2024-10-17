@@ -10,7 +10,6 @@ export const LS_MAGIC_GLP_STAKE_KEY = "abracadabraMagicGlpStakeData";
 export const LS_MAGIC_GLP_STAKE_CHART_KEY = "abracadabraMagicGlpChartData";
 export const LS_MAGIC_APE_STAKE_KEY = "abracadabraMagicApeStakeData";
 export const LS_MAGIC_APE_STAKE_CHART_KEY = "abracadabraMagicApeChartData";
-export const LS_MSR_USER_LOCKS_KEY = "abracadabraMSRUserLocks";
 export const LS_ELIXIR_RARE_KEY = "abracadabraElixirRate";
 
 export const bigintStringify = (payload: any) =>
@@ -189,17 +188,4 @@ export const getAndParseMagicApeStakeData = () => {
     chartData,
     isCreated: true,
   };
-};
-
-export const getAndParseUserLocks = () => {
-  const lsUserLocks = localStorage.getItem(LS_MSR_USER_LOCKS_KEY);
-
-  if (!lsUserLocks) {
-    return { data: [], isCreated: false };
-  }
-
-  const userLocks = JSON.parse(lsUserLocks);
-  const data = userLocks.map((item: any) => jsonBigIntTransform(item));
-
-  return { data, isCreated: true };
 };

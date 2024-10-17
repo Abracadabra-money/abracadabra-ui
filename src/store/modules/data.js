@@ -18,8 +18,6 @@ import {
   getAndParseMagicApeStakeData,
   LS_MAGIC_APE_STAKE_KEY,
   LS_MAGIC_APE_STAKE_CHART_KEY,
-  LS_MSR_USER_LOCKS_KEY,
-  getAndParseUserLocks,
 } from "@/helpers/dataStore";
 
 export default {
@@ -36,7 +34,6 @@ export default {
     spellStakeData: getAndParseSpellStakeData(),
     magicGlpStakeData: getAndParseMagicGlpStakeData(),
     magicApeStakeData: getAndParseMagicApeStakeData(),
-    userLocks: getAndParseUserLocks(),
   },
 
   mutations: {
@@ -98,11 +95,6 @@ export default {
         bigintStringify(payload)
       );
     },
-    setUserLocks(state, payload) {
-      state.userLocks.isCreated = true;
-      state.userLocks.data = payload;
-      localStorage.setItem(LS_MSR_USER_LOCKS_KEY, bigintStringify(payload));
-    },
   },
 
   getters: {
@@ -115,6 +107,5 @@ export default {
     getSpellStakeData: (state) => state.spellStakeData,
     getMagicGlpStakeData: (state) => state.magicGlpStakeData,
     getMagicApeStakeData: (state) => state.magicApeStakeData,
-    getUserLocks: (state) => state.userLocks,
   },
 };
