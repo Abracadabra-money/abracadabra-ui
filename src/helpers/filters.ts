@@ -19,7 +19,7 @@ export const formatPercent = (value: string | number) => {
   return `${formatAmount}%`;
 };
 
-export const formatLargeSum = (value: string | number) => {
+export const formatLargeSum = (value: string | number): string => {
   if (isNaN(Number(value)) || Number(value) < 1) return "0";
 
   const lookup = [
@@ -30,14 +30,26 @@ export const formatLargeSum = (value: string | number) => {
     { value: 1e9, symbol: "B" },
   ];
   const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
-  const item = lookup
-    .reverse()
-    .find((item) => parseFloat(String(value)) >= item.value);
+
+  // Round the value to the nearest integer
+  let roundedValue = roundToNearestTenIfBigger(value);
+
+  const item = lookup.reverse().find((item) => roundedValue >= item.value);
 
   if (!item) return "0";
-  return `${(parseFloat(String(value)) / item.value)
-    .toFixed(2)
-    .replace(rx, "$1")}${item.symbol}`;
+  return `${(roundedValue / item.value).toFixed(2).replace(rx, "$1")}${
+    item.symbol
+  }`;
+};
+
+export const roundToNearestTenIfBigger = (value: string | number): number => {
+  const num = Number(value);
+  if (isNaN(num)) return 0;
+
+  if (num <= 10) return num;
+
+  // Round to the nearest multiple of 10
+  return Math.round(num / 10) * 10;
 };
 
 export const formatToFixed = (value: string | number, fixed: number) => {
