@@ -20,7 +20,8 @@ export const formatPercent = (value: string | number) => {
 };
 
 export const formatLargeSum = (value: string | number): string => {
-  if (isNaN(Number(value)) || Number(value) < 1) return "0";
+  if (isNaN(Number(value))) return "0";
+  if (Number(value) < 1) return formatToFixed(value, 2);
 
   const lookup = [
     { value: 0, symbol: "" },

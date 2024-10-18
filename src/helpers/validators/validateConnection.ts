@@ -9,5 +9,5 @@ export const validateConnection = () => {
       isAllowed: true,
       method: "connectWallet",
     };
-  return { btnText: false, isAllowed: true };
+  return { btnText: "", isAllowed: true };
 };

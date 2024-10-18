@@ -58,7 +58,14 @@ export default {
     return {
       showStake: false,
       isClassicHeader: true,
-      alternativeHeader: ["MimSwap", "Pools", "Pool", "PotionPoints"],
+      alternativeHeader: [
+        "MimSwap",
+        "Pools",
+        "PoolFarms",
+        "Pool",
+        "PoolFarm",
+        "PotionPoints",
+      ],
     };
   },
 

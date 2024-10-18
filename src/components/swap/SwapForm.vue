@@ -1,7 +1,7 @@
 <template>
   <div class="inputs-wrap">
     <BaseTokenInput
-      v-if="fromToken"
+      v-if="fromToken && !isLoading"
       :value="fromInputValue"
       :name="fromToken.config.name"
       :icon="fromToken.config.icon"
@@ -13,12 +13,14 @@
       @updateInputValue="updateFromInputValue"
     />
 
+    <BaseTokenInputSkeleton v-else />
+
     <button class="swap-button" @click="onToogleTokens">
       <SwapIcon />
     </button>
 
     <BaseTokenInput
-      v-if="toToken"
+      v-if="toToken && !isLoading"
       :disabled="true"
       :value="toInputValue"
       :name="toToken.config.name"
@@ -30,6 +32,8 @@
       allowSelectToken
       @onSelectClick="$emit('openTokensPopup', 'to')"
     />
+
+    <BaseTokenInputSkeleton v-else />
   </div>
 </template>
 
@@ -47,6 +51,7 @@ export default {
     fromTokenPrice: { type: Number, default: 0 },
     toTokenPrice: { type: Number, default: 0 },
     differencePrice: { type: Number, default: 0 },
+    isLoading: { type: Boolean, default: false },
   },
 
   data() {
@@ -79,13 +84,14 @@ export default {
         this.fromInputValue = trimZeroDecimals(formatUnits(value, decimals));
       }
 
-      this.$emit("updateFromInputValue", value);
+      this.$emit("updateFromInputValue", value, this.fromInputValue);
     },
 
     onToogleTokens() {
       this.$emit(
         "updateFromInputValue",
-        parseUnits(this.fromInputValue, this.toToken!.config.decimals)
+        parseUnits(this.fromInputValue, this.toToken!.config.decimals),
+        this.fromInputValue
       );
 
       this.$emit("onToogleTokens");
@@ -98,6 +104,9 @@ export default {
     ),
     SwapIcon: defineAsyncComponent(
       () => import("@/components/ui/icons/SwapIcon.vue")
+    ),
+    BaseTokenInputSkeleton: defineAsyncComponent(
+      () => import("@/components/ui/skeletons/BaseTokenInputSkeleton.vue")
     ),
   },
 };
