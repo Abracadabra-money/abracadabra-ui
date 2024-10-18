@@ -74,38 +74,42 @@ export default {
     account: {
       immediate: true,
       async handler() {
-        await this.getPoolInfo();
+        await this.getPoolInfoDebounce();
       },
     },
 
     chainId: {
       immediate: true,
       async handler() {
-        await this.getPoolInfo();
+        await this.getPoolInfoDebounce();
       },
     },
   },
 
   methods: {
-    getPoolInfo: debounce(async function () {
+    getPoolInfoDebounce: debounce(async function () {
+      await this.getPoolInfo();
+    }, 500),
+
+    async getPoolInfo() {
       this.pool = await getPoolInfo(
         Number(this.poolChainId),
         Number(this.id),
         undefined,
         this.account
       );
-    }, 500),
+    },
   },
 
   async created() {
-    await this.getPoolInfo();
+    await this.getPoolInfoDebounce();
 
     this.chartOption = this.showTvlChart
       ? await getPoolTvlPieChartOption(this.pool)
       : null;
 
     this.poolsTimer = setInterval(async () => {
-      await this.getPoolInfo();
+      await this.getPoolInfoDebounce();
     }, 60000);
   },
 
