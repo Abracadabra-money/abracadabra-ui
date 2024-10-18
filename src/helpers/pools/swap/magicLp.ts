@@ -10,19 +10,24 @@ import poolsConfig from "@/configs/pools/pools";
 import type { PoolConfig } from "@/configs/pools/types";
 
 import { formatUnits } from "viem";
-import { getCoinsPrices } from "@/helpers/prices/defiLlama";
+import type { TokenPrice } from "@/helpers/prices/defiLlama";
 import { getPoolInfo } from "../getPoolInfo";
+import { getTokenPricesByChain } from "@/helpers/pools/getPoolsTokensPrices";
 
 export const getAllPoolsByChain = async (
   chainId: number,
   account?: Address
 ): Promise<any> => {
+  const poolConfigsOnChain = poolsConfig.filter(
+    (config) => config.chainId === chainId
+  );
+
+  const tokensPrices = await getTokenPricesByChain(poolConfigsOnChain, chainId);
+
   const pools = await Promise.all(
-    poolsConfig
-      .filter((config) => config.chainId === chainId)
-      .map(async (config) => {
-        return getPoolInfo(chainId, config.id, account);
-      })
+    poolConfigsOnChain.map(async (config) => {
+      return getPoolInfo(chainId, config.id, tokensPrices, account);
+    })
   );
 
   return pools;
@@ -31,6 +36,7 @@ export const getAllPoolsByChain = async (
 export const getLpInfo = async (
   lp: PoolConfig,
   chainId: number,
+  tokensPrices: TokenPrice[],
   account?: Address
 ): Promise<MagicLPInfo> => {
   const publicClient = getPublicClient(chainId);
@@ -130,10 +136,15 @@ export const getLpInfo = async (
   // NOTICE: will be updated when we have graph
   const statisticsData = fetchStatisticsData();
 
-  const tokensPrices = await getCoinsPrices(chainId, [
-    lp.baseToken.contract.address,
-    lp.quoteToken.contract.address,
-  ]);
+  const baseTokenPrice =
+    tokensPrices.find(
+      ({ address }) => address === lp.baseToken.contract.address
+    )?.price || 0;
+
+  const quoteTokenPrice =
+    tokensPrices.find(
+      ({ address }) => address === lp.quoteToken.contract.address
+    )?.price || 0;
 
   return {
     ...lp,
@@ -155,9 +166,9 @@ export const getLpInfo = async (
     MAX_K: MAX_K.result,
     PMMState: PMMState.result,
     baseToken: baseToken.result,
-    baseTokenPrice: tokensPrices[0].price,
+    baseTokenPrice,
     quoteToken: quoteToken.result,
-    quoteTokenPrice: tokensPrices[1].price,
+    quoteTokenPrice,
     lpFeeRate: lpFeeRate.result,
     balances: {
       baseBalance: baseBalance.result,
