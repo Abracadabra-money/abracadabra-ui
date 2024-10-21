@@ -75,12 +75,7 @@
 </template>
 
 <script>
-import {
-  ANALYTICS_URK,
-  ARBITRUM_CHAIN_ID,
-  MAINNET_CHAIN_ID,
-} from "@/constants/global";
-import axios from "axios";
+import { ARBITRUM_CHAIN_ID, MAINNET_CHAIN_ID } from "@/constants/global";
 import { mapGetters } from "vuex";
 import { formatPercent } from "@/helpers/filters";
 import BaseLoader from "@/components/base/BaseLoader.vue";
@@ -98,7 +93,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters({ chainId: "getChainId" }),
+    ...mapGetters({ getChainById: "getChainById" }),
   },
 
   methods: {

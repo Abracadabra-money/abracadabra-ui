@@ -1,6 +1,6 @@
 <template>
   <div class="special-info-block">
-    <h3 class="title">Make SPELL work for you</h3>
+    <h3 class="title">{{ title }}</h3>
 
     <div>
       <p class="text" v-for="(info, idx) in specialInfo" :key="idx">
@@ -24,6 +24,10 @@ export default {
   props: {
     specialInfo: {
       type: Array as any,
+    },
+    title: {
+      type: String,
+      default: "Make SPELL work for you",
     },
   },
 };
