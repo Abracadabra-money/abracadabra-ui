@@ -32,6 +32,7 @@ import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
 import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
 import { getPoolTvlPieChartOption } from "@/helpers/pools/charts/getPoolTvlPieChartOption";
+import { debounce } from "lodash";
 
 export default {
   props: {
@@ -56,7 +57,7 @@ export default {
     }),
 
     showTvlChart() {
-      return !!this.pool.lockInfo;
+      return !!this.pool?.lockInfo;
     },
 
     isUserPositionOpen() {
@@ -73,37 +74,42 @@ export default {
     account: {
       immediate: true,
       async handler() {
-        await this.getPoolInfo();
+        await this.getPoolInfoDebounce();
       },
     },
 
     chainId: {
       immediate: true,
       async handler() {
-        await this.getPoolInfo();
+        await this.getPoolInfoDebounce();
       },
     },
   },
 
   methods: {
+    getPoolInfoDebounce: debounce(async function () {
+      await this.getPoolInfo();
+    }, 500),
+
     async getPoolInfo() {
       this.pool = await getPoolInfo(
         Number(this.poolChainId),
         Number(this.id),
+        undefined,
         this.account
       );
     },
   },
 
   async created() {
-    await this.getPoolInfo();
+    await this.getPoolInfoDebounce();
 
     this.chartOption = this.showTvlChart
       ? await getPoolTvlPieChartOption(this.pool)
       : null;
 
     this.poolsTimer = setInterval(async () => {
-      await this.getPoolInfo();
+      await this.getPoolInfoDebounce();
     }, 60000);
   },
 
