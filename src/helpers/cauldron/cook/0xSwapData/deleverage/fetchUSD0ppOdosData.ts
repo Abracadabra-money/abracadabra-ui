@@ -1,7 +1,7 @@
 import { swapOdosRequest } from "@/helpers/odos";
 import { utils } from "ethers";
 
-import type { CauldronInfo } from "@/helpers/cauldron/types.ts";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 import type { BigNumber } from "ethers";
 
 const fetchUSD0ppOdosData = async (

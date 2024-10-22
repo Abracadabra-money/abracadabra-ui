@@ -1,5 +1,5 @@
 import { swapOdosRequest } from "@/helpers/odos";
-import type { CauldronInfo } from "@/helpers/cauldron/types.ts";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 import type { BigNumber } from "ethers";
 import type { Address } from "viem";
 export const fetchLevOdosData = async (

@@ -1,6 +1,6 @@
 import { swap0xRequest } from "@/helpers/0x";
 
-import type { CauldronInfo } from "@/helpers/cauldron/types.ts";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 import type { BigNumber } from "ethers";
 
 const fetchDelevDefault0xData = async (

@@ -21,7 +21,7 @@ const cookAddCollateral = async (
   const { useDegenBoxHelper } = cauldronObject.config.cauldronSettings;
 
   const token = useNativeToken ? defaultTokenAddress : address;
-  const value = useNativeToken ? amount.toString() : 0;
+  const value = useNativeToken ? amount.toString() : "0";
 
   let cookData: CookData = {
     events: [],

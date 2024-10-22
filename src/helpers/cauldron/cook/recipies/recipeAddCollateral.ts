@@ -16,7 +16,7 @@ const recipeAddCollatral = async (
   isWrap: boolean,
   to: Address,
   amount: BigNumber,
-  collateralValue: BigNumber
+  collateralValue: BigNumber | string
 ): Promise<CookData> => {
   //@ts-ignore
   const { unwrappedToken, wrapper, cauldron } = cauldronObject.contracts!;

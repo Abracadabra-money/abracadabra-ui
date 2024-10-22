@@ -9,9 +9,8 @@ const usdtAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
 const wethAddress = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
 const deUSDAddress = "0x15700B564Ca08D9439C58cA5053166E8317aa138";
 
-import type { CauldronInfo } from "@/helpers/cauldron/types.ts";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 import type { BigNumber } from "ethers";
-import type { Address } from "viem";
 
 const getLev0xData = async (
   cauldronObject: CauldronInfo,

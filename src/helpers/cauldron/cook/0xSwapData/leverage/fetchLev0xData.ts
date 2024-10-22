@@ -1,6 +1,6 @@
 import { swap0xRequest, swap0xRequestV2 } from "@/helpers/0x";
 
-import type { CauldronInfo } from "@/helpers/cauldron/types.ts";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 import type { BigNumber } from "ethers";
 import type { Address } from "viem";
 
