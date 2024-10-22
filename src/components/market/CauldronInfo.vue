@@ -70,6 +70,7 @@
     <div class="chart-wrap">
       <MimLeftToBorrow :cauldron="cauldron" />
     </div>
+    <TopupTimer v-if="showTopupTimer" />
   </div>
 </template>
 
@@ -107,6 +108,10 @@ export default {
         data: [{ value: 135.54 }],
       };
     },
+    showTopupTimer() {
+      const { id, chainId } = this.cauldron.config;
+      return chainId === 1 && id === 44;
+    },
   },
 
   async created() {
@@ -120,6 +125,9 @@ export default {
     MimLeftToBorrow: defineAsyncComponent(
       () => import("@/components/market/MimLeftToBorrow.vue")
     ),
+    TopupTimer: defineAsyncComponent(
+      () => import("@/components/ui/TopupTimer.vue")
+    ),
   },
 };
 </script>
@@ -130,7 +138,7 @@ export default {
   padding: 24px;
   flex-direction: column;
   gap: 24px;
-  max-height: 577px;
+  // max-height: 577px;
   border-radius: 16px;
   align-self: stretch;
   border: 1px solid #00296b;

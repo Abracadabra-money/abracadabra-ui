@@ -5,8 +5,8 @@
         <h3 class="title">MIM Pool</h3>
 
         <SwapSettingsPopup
-          :slippage="50n"
-          :defaultSlippage="50n"
+          :slippage="20n"
+          :defaultSlippage="20n"
           :deadline="100n"
           pool
           @updateSlippageValue="updateSlippageValue"
@@ -44,7 +44,6 @@
 
     <DepositStakeWrap
       :pool="pool"
-      :pointsStatistics="pointsStatistics"
       :slippage="slippage"
       :deadline="deadline"
       @updatePoolInfo="$emit('getPoolInfo')"
@@ -65,7 +64,6 @@ export const actionStatus = {
 export default {
   props: {
     pool: { type: Object },
-    pointsStatistics: { type: Object },
     isUserPositionOpen: { type: Boolean, default: false },
   },
 
@@ -76,7 +74,7 @@ export default {
       isMyPositionPopupOpened: false,
       activeTab: "deposit",
       tabItems: ["deposit", "remove"],
-      slippage: 100n,
+      slippage: 20n,
       deadline: 100n,
     };
   },

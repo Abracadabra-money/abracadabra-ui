@@ -19,9 +19,12 @@
         v-if="showTabs"
       />
 
+      <p class="position-title" v-if="!showTabs && activeTab === 'deposited'">
+        Your Magic LP
+      </p>
+
       <Deposited
         :pool="pool"
-        :pointsStatistics="pointsStatistics"
         @updatePoolInfo="$emit('updateInfo')"
         v-show="activeTab === 'deposited'"
       />
@@ -30,14 +33,12 @@
         <Staked
           :pool="pool"
           @updatePoolInfo="$emit('updateInfo')"
-          :userPointsStatistics="pointsStatistics.user"
           v-show="activeTab === 'staked'"
         />
 
         <Locked
           v-if="hasLockLogic"
           :pool="pool"
-          :userPointsStatistics="pointsStatistics.user"
           v-show="activeTab === 'locked'"
         />
       </template>
@@ -51,7 +52,6 @@ import { defineAsyncComponent } from "vue";
 export default {
   props: {
     pool: { type: Object },
-    pointsStatistics: { type: Object },
     isMyPositionPopupOpened: { type: Boolean, default: false },
   },
 
@@ -71,9 +71,7 @@ export default {
       return !!this.pool.stakeInfo;
     },
     tabItems() {
-      return this.hasLockLogic
-        ? ["deposited", "staked", "locked"]
-        : ["deposited", "staked"];
+      return ["deposited", "staked"];
     },
     showTabs() {
       return this.hasLockLogic || this.hasStakeLogic;
@@ -108,6 +106,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.position-title {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 22px;
+}
+
 .pool-position-wrap {
   display: flex;
   flex-direction: column;

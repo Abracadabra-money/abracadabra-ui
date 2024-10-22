@@ -2,14 +2,16 @@
   <li :class="['indicator', positionRisk]">
     <span class="title">
       <slot></slot>
-      <Tooltip :tooltip="tooltip" :fill="tooltipColor" />
+      <Tooltip v-if="tooltip" :tooltip="tooltip" :fill="tooltipColor" />
     </span>
-    <span class="value">{{ formattedValue }}</span>
+    <span :class="['value', { 'text-gradient': tokenFormat }]">{{
+      tokenFormat ? formatedTokenValue : formattedValue
+    }}</span>
   </li>
 </template>
 
 <script lang="ts">
-import { formatUSD } from "@/helpers/filters";
+import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import Tooltip from "@/components/ui/icons/Tooltip.vue";
 
 export default {
@@ -17,11 +19,16 @@ export default {
     value: { type: [Number, String], required: true },
     positionRisk: { type: String, default: "" },
     tooltip: { type: String },
+    tokenFormat: { type: Boolean, default: false },
   },
 
   computed: {
     formattedValue() {
       return formatUSD(this.value);
+    },
+
+    formatedTokenValue() {
+      return formatTokenBalance(this.value);
     },
 
     tooltipColor() {
@@ -71,6 +78,17 @@ export default {
 
 .high {
   color: #8c4040;
+}
+
+.text-gradient {
+  background: linear-gradient(
+    270deg,
+    #ffe47c 0%,
+    #ff43c3 53.78%,
+    #8150d6 102.24%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 @media screen and (max-width: 700px) {

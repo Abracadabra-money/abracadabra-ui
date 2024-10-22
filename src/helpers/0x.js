@@ -21,6 +21,8 @@ const endpoints = {
   43114: "https://avalanche.api.0x.org",
 };
 
+const SWAP_PROXY_ENDPOINT = "https://api.0xdreamy.dev/functions/v1/zeroex/swap/allowance-holder/quote";
+
 export const swap0xRequest = async (
   chainId,
   buyToken,
@@ -76,6 +78,86 @@ export const swap0xRequest = async (
       buyAmount: BigNumber.from(buyAmount),
       sellAmount: BigNumber.from(sellAmount),
       estimatedGas: BigNumber.from(estimatedGas),
+      buyAmountWithSlippage: BigNumber.from(buyAmount)
+        .mul(
+          BigNumber.from(
+            SLIPPAGE_ACCURACY - slippagePercentage * SLIPPAGE_ACCURACY
+          )
+        )
+        .div(BigNumber.from(SLIPPAGE_ACCURACY)),
+      sellAmountWithSlippage: BigNumber.from(sellAmount)
+        .mul(
+          BigNumber.from(
+            SLIPPAGE_ACCURACY - slippagePercentage * SLIPPAGE_ACCURACY
+          )
+        )
+        .div(BigNumber.from(SLIPPAGE_ACCURACY)),
+    };
+  } catch (error) {
+    console.log("swap0xRequest error:", error);
+    return error;
+  }
+};
+
+export const swap0xRequestV2 = async (
+  chainId,
+  buyToken,
+  sellToken,
+  slippage = 0,
+  amountSell = 0,
+  takerAddress,
+  amountBuy = 0
+) => {
+  try {
+    const slippagePercentage = slippage / 100;
+
+    let params;
+
+    if (amountSell > 0) {
+      params = {
+        chainId,
+        buyToken: buyToken,
+        sellToken: sellToken,
+        sellAmount: amountSell.toString(),
+        slippagePercentage,
+        skipValidation: true,
+        taker: takerAddress,
+        enableSlippageProtection: true,
+      };
+    } else {
+      params = {
+        chainId,
+        buyToken: buyToken,
+        sellToken: sellToken,
+        buyAmount: amountBuy.toString(),
+        slippagePercentage,
+        skipValidation: true,
+        taker: takerAddress,
+        enableSlippageProtection: true,
+      };
+    }
+
+    const response = await http.get(
+      SWAP_PROXY_ENDPOINT,
+      {
+        params: params,
+        headers: {
+          // "0x-api-key": import.meta.env.VITE_APP_0X_API_KEY,
+          // "0x-version": "v2",
+        },
+      }
+    );
+
+    const { transaction, buyAmount, sellAmount } = response.data;
+
+    return {
+      response: response.data,
+      data: transaction.data,
+      to: transaction.to,
+      buyToken,
+      sellToken,
+      buyAmount: BigNumber.from(buyAmount),
+      sellAmount: BigNumber.from(sellAmount),
       buyAmountWithSlippage: BigNumber.from(buyAmount)
         .mul(
           BigNumber.from(

@@ -12,6 +12,8 @@
       />
     </div>
 
+    <ElixirPotions v-if="isElixir" />
+
     <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
       {{ buttonText }}
     </BaseButton>
@@ -71,8 +73,7 @@ export default {
     },
 
     error() {
-      if (this.inputAmount > this.maxToWithdraw)
-        return "Insufficient balance";
+      if (this.inputAmount > this.maxToWithdraw) return "Insufficient balance";
 
       return null;
     },
@@ -98,6 +99,10 @@ export default {
 
     isProperNetwork() {
       return this.chainId == this.pool.chainId;
+    },
+
+    isElixir() {
+      return this.pool.config.id === 1 && this.pool.config.chainId === 1;
     },
   },
 
@@ -198,6 +203,9 @@ export default {
     // ),
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")
+    ),
+    ElixirPotions: defineAsyncComponent(() =>
+      import("@/components/pools/pool/ElixirPotions.vue")
     ),
   },
 };

@@ -34,24 +34,22 @@
       />
     </div>
 
+    <PillsPotions :pool="pool" />
+
     <div class="info-blocks">
       <div class="info-block lp">
         <div class="tag">
-          <span class="title">
-            <BaseTokenIcon
-              :name="this.pool.name"
-              :icon="this.pool.icon"
-              size="32px"
-            />
-            {{ this.pool.name }}
-          </span>
+          <div class="pool-info">
+            <BaseTokenIcon :name="pool.name" :icon="pool.icon" size="32px" />
+            <div>
+              <div class="pool-name">{{ pool.name }}</div>
+              <div class="pool-slippage">Slippage included</div>
+            </div>
+          </div>
+
           <div class="token-amount">
-            <span class="value">
-              {{ formattedLpTokenExpected.value }}
-            </span>
-            <span class="usd">
-              {{ formattedLpTokenExpected.usd }}
-            </span>
+            <span class="value"> {{ formattedLpTokenExpected.value }} </span>
+            <span class="usd"> {{ formattedLpTokenExpected.usd }} </span>
           </div>
         </div>
       </div>
@@ -438,6 +436,9 @@ export default {
     PreviewAddLiquidityPopup: defineAsyncComponent(() =>
       import("@/components/pools/pool/popups/PreviewAddLiquidityPopup.vue")
     ),
+    PillsPotions: defineAsyncComponent(() =>
+      import("@/components/pools/pool/PillsPotions.vue")
+    ),
     // CurrentPrice: defineAsyncComponent(() =>
     //   import("@/components/pools/CurrentPrice.vue")
     // ),
@@ -502,6 +503,21 @@ export default {
   font-weight: 500;
 }
 
+.pool-info {
+  display: flex;
+  align-items: center;
+}
+
+.pool-name {
+  color: #fff;
+}
+
+.pool-slippage {
+  color: #878b93;
+  font-size: 14px;
+  font-weight: 500;
+}
+
 .token-amount {
   display: flex;
   flex-direction: column;
@@ -514,8 +530,7 @@ export default {
   font-weight: 500;
 }
 
-.value,
-.title {
+.value {
   display: flex;
   align-items: center;
 }

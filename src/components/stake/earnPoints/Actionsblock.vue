@@ -1,11 +1,5 @@
 <template>
   <div class="action-block">
-    <LiquidityInfo
-      class="liquidity-info"
-      :stakeInfo="stakeInfo"
-      v-if="mobileMode"
-    />
-
     <div class="action-wrap">
       <div class="deposit-wrap">
         <div class="row">
@@ -15,20 +9,6 @@
             :items="tokensList"
             @select="changeActiveToken"
           />
-
-          <Toggle
-            v-if="isStakeAction"
-            text="Lock & Boost"
-            :selected="isLock"
-            @updateToggle="changeLockToggle"
-          />
-
-          <!-- <Toggle
-            v-if="!isStakeAction"
-            text="Withdraw Locked"
-            :selected="isWithdrawLock"
-            @updateToggle="changeIsWithdrawLock"
-          /> -->
         </div>
 
         <BaseTokenInput
@@ -42,21 +22,6 @@
           @updateInputValue="updateMainValue"
         />
 
-        <div class="action-info">
-          <div class="info-row">
-            <span>Points per day</span>
-            <span>Initializing</span>
-          </div>
-          <div class="info-row">
-            <span>Multiplier</span>
-            <span class="multiplier-value">{{ multiplier }}X</span>
-          </div>
-          <!-- <div class="info-row" v-if="isLock && isStakeAction">
-            <span>Locking for</span>
-            <span> <Timer small /></span>
-          </div> -->
-        </div>
-
         <BaseButton primary :disabled="isActionDisabled" @click="actionHandler"
           >{{ actionButtonText }}
         </BaseButton>
@@ -66,72 +31,32 @@
         <div class="lock-inner">
           <div class="lock-info">
             <div class="lock-info-row">
-              <span class="lock-info-title">Points</span>
-              <span class="lock-info-value">{{
-                formatTokenBalance(userPointsEarned?.liquidityPoints?.total?.finalized ?? 0)
-              }}</span>
-            </div>
-
-            <div class="lock-info-row" v-if="account">
-              <span class="lock-info-title"
-                >Earning <span class="gold">{{ userTotalPending }}</span> Points
-                per hour</span
-              >
+              <span class="lock-info-title">Your Deposited</span>
+              <span class="lock-info-value">
+                <img class="lock-token-icon" :src="token0.icon" alt="" />
+                {{ formatAmount(token0.unlockAmount) }}
+                <img class="lock-token-icon" :src="token1.icon" alt="" />
+                {{ formatAmount(token1.unlockAmount) }}
+              </span>
             </div>
 
             <div class="lock-info-row">
-              <span class="lock-info-title">You Locked</span>
+              <span class="lock-info-title">Your Locked</span>
               <span class="lock-info-value">
-                <img class="lock-token-icon" :src="fromToken.icon" alt="" />
-                {{ formatAmount(fromToken.lockedAmount) }}</span
+                <img class="lock-token-icon" :src="token0.icon" alt="" />
+                {{ formatAmount(token0.lockedAmount) }}
+                <img class="lock-token-icon" :src="token1.icon" alt="" />
+                {{ formatAmount(token1.lockedAmount) }}</span
               >
             </div>
 
             <div class="line"></div>
 
-            <div class="deposit-info">
-              <div class="lock-info-row">
-                <span class="lock-info-title">You deposited</span>
-
-                <span class="lock-info-value">
-                  <img class="lock-token-icon" :src="fromToken.icon" alt="" />
-                  {{ formatAmount(fromToken.unlockAmount) }}
-                </span>
-              </div>
-
-              <div class="lock-info-row">
-                <span class="lock-info-subtitle">
-                  Lock your {{ activeToken }} and earn more Points
-                </span>
-
-                <span class="lock-info-step">
-                  {{ dafaultBoost }}x
-                  <img src="@/assets/images/arrow-right.svg" alt="" /> 20x
-                </span>
-              </div>
-            </div>
-
-            <BaseButton
-              primary
-              :disabled="true"
-              @click="lockHandler"
-              >Lock</BaseButton
-            >
+            <ClaimBox v-if="stakeInfo" :stakeInfo="stakeInfo" />
           </div>
         </div>
       </div>
     </div>
-
-    <LocalPopupWrap
-      :isOpened="isWithdrawPopup"
-      :isFarm="true"
-      @closePopup="isWithdrawPopup = false"
-    >
-      <WithdrawLockPopup
-        @withdrawLocked="withdrawLocked"
-        :tokenInfo="fromToken"
-      />
-    </LocalPopupWrap>
   </div>
 </template>
 
@@ -140,12 +65,10 @@ import { formatUnits, parseUnits } from "viem";
 import { defineAsyncComponent } from "vue";
 import { approveTokenViem } from "@/helpers/approval";
 import { formatTokenBalance } from "@/helpers/filters";
-import { lock } from "@/helpers/blast/stake/actions/lock";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { tokensChainLink } from "@/configs/chainLink/config";
 import notification from "@/helpers/notification/notification";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
-import { deposit } from "@/helpers/blast/stake/actions/deposit";
 import { withdraw } from "@/helpers/blast/stake/actions/withdraw";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 import { withdrawLocked } from "@/helpers/blast/stake/actions/withdrawLocked";
@@ -163,9 +86,6 @@ export default {
     stakeInfo: {
       type: Object,
       required: true,
-    },
-    userPointsEarned: {
-      type: Object,
     },
     mobileMode: {
       type: Boolean,
@@ -198,7 +118,7 @@ export default {
     }),
 
     userTotalPending() {
-      const totalPending = this.userPointsEarned?.liquidityPoints?.total?.pending ?? 0;
+      const totalPending = 0;
       return formatTokenBalance(totalPending);
     },
 
@@ -215,13 +135,6 @@ export default {
       return this.chainId === BLAST_CHAIN_ID;
     },
 
-    isTokenApproved() {
-      if (!this.account) return true;
-      if (!this.isStakeAction) return true;
-      if (!this.isUnsupportedChain) return true;
-      return this.fromToken.approvedAmount >= this.inputAmount;
-    },
-
     isInsufficientBalance() {
       return this.inputAmount > this.fromToken.balance;
     },
@@ -230,11 +143,6 @@ export default {
       if (!this.account) return false;
       if (!this.isUnsupportedChain) return false;
       if (!this.inputAmount) return true;
-
-      if (this.actionActiveTab === "Stake") {
-        if (this.isMaxCaps) return true;
-        return this.isInsufficientBalance;
-      }
 
       if (this.isWithdrawLock) {
         return this.inputAmount !== this.fromToken.lockedAmount;
@@ -247,31 +155,7 @@ export default {
       if (!this.account && this.isUnsupportedChain) return "Connect wallet";
       if (!this.isUnsupportedChain) return "Switch Network";
 
-      if (this.actionActiveTab === "Stake") {
-        if (this.isMaxCaps) return "Max cap limit";
-        if (this.isInsufficientBalance) return "Insufficient balance";
-        if (!this.isTokenApproved) return "Approve";
-        if (this.isLock) return "Deposit And Lock";
-
-        return "Deposit";
-      }
-
       return "Withdraw";
-    },
-
-    isLockDisabled() {
-      if (!this.account) return false;
-      if (!this.isUnsupportedChain) return false;
-      return !this.fromToken.unlockAmount;
-    },
-
-    isMaxCaps() {
-      const { caps, total } = this.fromToken;
-      return caps < total + this.inputAmount;
-    },
-
-    isActiveMimToken() {
-      return this.activeToken === "MIM";
     },
 
     token0() {
@@ -323,32 +207,6 @@ export default {
     fromToken() {
       return this.activeToken === "USDb" ? this.token0 : this.token1;
     },
-
-    lockButtonText() {
-      if (!this.account && this.isUnsupportedChain) return "Connect wallet";
-      if (!this.isUnsupportedChain) return "Switch Network";
-      if (!this.fromToken.unlockAmount) return "Nothing to do";
-      return "Lock";
-    },
-
-    multiplier() {
-      if (this.isLock) return this.lockBoost;
-
-      if (this.fromToken.userBorrowPart && this.isActiveMimToken) {
-        return this.cauldronBoost;
-      }
-
-      if (this.isActiveMimToken) {
-        return this.mimBoost;
-      }
-
-      return this.USDbBoost;
-    },
-
-    dafaultBoost() {
-      if (this.isActiveMimToken) return this.mimBoost;
-      return this.USDbBoost;
-    },
   },
 
   watch: {
@@ -372,18 +230,6 @@ export default {
       this.activeToken = token;
       this.inputValue = "";
       this.isWithdrawLock = false;
-    },
-
-    changeLockToggle() {
-      this.isLock = !this.isLock;
-    },
-
-    changeIsWithdrawLock() {
-      this.isWithdrawLock = !this.isWithdrawLock;
-      this.inputValue = formatUnits(
-        this.fromToken.lockedAmount,
-        this.fromToken.decimals
-      );
     },
 
     updateMainValue(amount: bigint) {
@@ -427,13 +273,8 @@ export default {
         return false;
       }
 
-      if (!this.isTokenApproved) {
-        await this.approveTokenHandler();
-        return false;
-      }
-
       if (this.isWithdrawLock) {
-        this.isWithdrawPopup = true;
+        this.withdrawLocked();
         return false;
       }
 
@@ -442,57 +283,10 @@ export default {
       );
 
       // TODO
-      const { error }: any =
-        this.actionActiveTab === "Stake"
-          ? await deposit(
-              this.stakeInfo.config.contract,
-              this.fromToken.contract.address,
-              this.inputAmount,
-              this.isLock
-            )
-          : await withdraw(
-              this.stakeInfo.config.contract,
-              this.fromToken.contract.address,
-              this.inputAmount
-            );
-
-      if (error) {
-        await this.deleteNotification(notificationId);
-        await this.createNotification(error);
-      } else {
-        await this.$emit("updateStakeInfo");
-        this.inputValue = "";
-        await this.deleteNotification(notificationId);
-        await this.createNotification(notification.success);
-      }
-    },
-
-    async lockHandler() {
-      if (this.isLockDisabled) return false;
-
-      if (!this.account && this.isUnsupportedChain) {
-        // @ts-ignore
-        return this.$openWeb3modal();
-      }
-
-      if (!this.isUnsupportedChain) {
-        switchNetwork(BLAST_CHAIN_ID);
-        return false;
-      }
-
-      if (!this.isTokenApproved) {
-        await this.approveTokenHandler();
-        return false;
-      }
-
-      const notificationId = await this.createNotification(
-        notification.pending
-      );
-
-      const { error }: any = await lock(
+      const { error }: any = await withdraw(
         this.stakeInfo.config.contract,
         this.fromToken.contract.address,
-        this.fromToken.unlockAmount
+        this.inputAmount
       );
 
       if (error) {
@@ -550,16 +344,8 @@ export default {
     BaseButton: defineAsyncComponent(
       () => import("@/components/base/BaseButton.vue")
     ),
-    LiquidityInfo: defineAsyncComponent(
-      () => import("@/components/stake/earnPoints/LiquidityInfo.vue")
-    ),
-    LocalPopupWrap: defineAsyncComponent(
-      // @ts-ignore
-      () => import("@/components/popups/LocalPopupWrap.vue")
-    ),
-    WithdrawLockPopup: defineAsyncComponent(
-      // @ts-ignore
-      () => import("@/components/popups/WithdrawLockPopup.vue")
+    ClaimBox: defineAsyncComponent(
+      () => import("@/components/stake/earnPoints/ClaimBox.vue")
     ),
   },
 };
@@ -669,6 +455,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 3px 0;
 }
 
 .lock-info-title {
@@ -681,7 +468,7 @@ export default {
   gap: 4px;
   display: flex;
   align-items: center;
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 500;
   line-height: normal;
 }
@@ -693,8 +480,9 @@ export default {
 }
 
 .lock-token-icon {
-  width: 32px;
-  height: 32px;
+  width: 25px;
+  height: 25px;
+  margin-left: 5px;
 }
 
 .line {

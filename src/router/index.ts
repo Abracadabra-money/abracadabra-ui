@@ -65,11 +65,6 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/views/stake/MAPE.vue"),
   },
   {
-    path: "/magicKLP",
-    name: "magicKLP",
-    component: () => import("@/views/stake/MKLP.vue"),
-  },
-  {
     path: "/my-positions",
     name: "MyPositions",
     component: () => import("@/views/MyPositions.vue"),
@@ -105,16 +100,6 @@ const routes: Array<RouteRecordRaw> = [
     path: "/mim-swap",
     name: "MimSwap",
     component: () => import("@/views/MimSwap.vue"),
-  },
-  {
-    path: "/points-dashboard",
-    name: "PointsDashboard",
-    component: () => import("@/views/PointsDashboard.vue"),
-  },
-  {
-    path: "/blast-onboarding",
-    name: "BlastOnboarding",
-    component: () => import("@/views/BlastOnboarding.vue"),
   },
   {
     path: "/potion-points",

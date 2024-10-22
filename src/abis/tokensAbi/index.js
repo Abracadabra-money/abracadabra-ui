@@ -43,8 +43,6 @@ import magicApe from "@/abis/tokensAbi/magicApe";
 import yvCurveMIMf from "@/abis/tokensAbi/yvCurveMIMf";
 import StargateUSDT from "@/abis/tokensAbi/StargateUSDT";
 import crv3crypto from "@/abis/tokensAbi/crv3crypto";
-import mKLP from "@/abis/tokensAbi/mKLP";
-import sKLP from "@/abis/tokensAbi/sKLP";
 import GM from "@/abis/tokensAbi/GM";
 import mimUsdtCurveLp from "@/abis/tokensAbi/mimUsdtCurveLp";
 import TetherUSDtLP from "@/abis/tokensAbi/TetherUSDtLP";
@@ -52,6 +50,8 @@ import yvUSDT from "@/abis/tokensAbi/yvUSDT";
 import yvUSDC from "@/abis/tokensAbi/yvUSDC";
 import USDT from "@/abis/tokensAbi/USDT";
 import MagicKodiakVault from "@/abis/tokensAbi/MagicKodiakVault";
+import MagicUSD0pp from "@/abis/tokensAbi/MagicUSD0pp";
+import USD0pp from "@/abis/tokensAbi/USD0pp";
 
 export default {
   ALCX,
@@ -99,8 +99,6 @@ export default {
   yvCurveMIMf,
   StargateUSDT,
   crv3crypto,
-  mKLP,
-  sKLP,
   GM,
   mimUsdtCurveLp,
   TetherUSDtLP,
@@ -108,4 +106,6 @@ export default {
   yvUSDC,
   USDT,
   MagicKodiakVault,
+  MagicUSD0pp,
+  USD0pp,
 };

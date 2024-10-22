@@ -63,6 +63,17 @@ export const notificationErrorMsg = (e) => {
     msg = "Looks like you already have existing order";
   }
 
+  if (e?.message === "Not enough liquidity available") {
+    msg = "Not enough liquidity available";
+  }
+
+  if (
+    String(e).indexOf("Error: ErrNothingToClaim()") !== -1
+  ) {
+    console.log(e);
+    msg = "Nothing to claim";
+  }
+
   if (!msg) msg = "Transaction encountered an Error";
 
   return msg;

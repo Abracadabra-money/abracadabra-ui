@@ -17,12 +17,13 @@
         <!-- <p class="reward-name">{{ reward.token.name }}</p> -->
       </div>
     </div>
-    <div class="row apr-item">
+    <ElixirReward v-if="isElixir" />
+
+    <div class="row apr-item" v-else>
       <div class="title-wrap">
         <p class="title">APR</p>
       </div>
       <div class="value-wrap">
-
         <template v-if="poolRewards && poolRewards.length > 1">
           <Tooltip :width="18" :height="18" fill="#ffffff" :tooltip="''" />
           <div class="apr-info">
@@ -68,10 +69,17 @@ export default {
         apr: this.pool.poolAPR?.tokensApr[index].apr ?? 0,
       }));
     },
+
+    isElixir() {
+      return this.pool.config.id === 1 && this.pool.config.chainId === 1;
+    },
   },
   components: {
     Tooltip: defineAsyncComponent(
       () => import("@/components/ui/icons/Tooltip.vue")
+    ),
+    ElixirReward: defineAsyncComponent(
+      () => import("@/components/pools/pool/ElixirReward.vue")
     ),
   },
 };
