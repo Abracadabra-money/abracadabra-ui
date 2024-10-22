@@ -82,7 +82,7 @@
       />
     </LocalPopupWrap>
 
-    <!-- <LocalPopupWrap
+    <LocalPopupWrap
       isFarm
       :isOpened="isConfirmationPopupOpened"
       @closePopup="isConfirmationPopupOpened = false"
@@ -93,8 +93,9 @@
         :priceImpact="priceImpactPair"
         :currentPriceInfo="currentPriceInfo"
         @confirm="closeConfirmationPopup"
+        v-if="isConfirmationPopupOpened"
       />
-    </LocalPopupWrap> -->
+    </LocalPopupWrap>
   </div>
 </template>
 

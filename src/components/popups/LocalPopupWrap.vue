@@ -39,7 +39,11 @@ export default {
     isOpened: {
       handler(value) {
         document.documentElement.style.overflow = value ? "hidden" : "auto";
-        if (value) this.openingAnimation();
+        if (value) {
+          this.openingAnimation();
+        } else if (this.$refs.backdrop && this.$refs.popup) {
+          this.closingAnimation();
+        }
       },
       immediate: true,
     },
