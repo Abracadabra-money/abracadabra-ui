@@ -6,21 +6,18 @@ import {
 import type { ContractInfo } from "@/types/global";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 
+import BlastOnboardProxyAbi from "@/abis/BlastOnboardProxy";
+
 export const claim = async (contract: ContractInfo, lock: boolean) => {
-  try {
-    const { request } = await simulateContractHelper({
-      ...contract,
-      functionName: "claim",
-      args: [lock],
-    });
+  console.log("Claim Handler:", contract, lock);
+  const { request } = await simulateContractHelper({
+    address: contract.address,
+    abi: BlastOnboardProxyAbi,
+    functionName: "claim",
+    args: [lock],
+  });
 
-    const hash = await writeContractHelper(request);
+  const hash = await writeContractHelper(request);
 
-    return await waitForTransactionReceiptHelper({ hash });
-  } catch (error) {
-    console.log("Claim Handler Error:", error);
-    return {
-      error: { type: "error", msg: notificationErrorMsg(error) },
-    };
-  }
+  return await waitForTransactionReceiptHelper({ hash });
 };

@@ -2,34 +2,21 @@
   <div class="deposited">
     <PoolCompoundCard :lpToken="lpToken" :tokensList="tokensList" />
 
-    <!-- <template v-if="pointsStatistics.global">
-      <div class="rewards-wrap">
-        <h4 class="title">
-          Stake your LP tokens
-          <Tooltip
-            tooltip="Your potential hourly rewards are displayed based on staking all of your LP tokens"
-            :width="20"
-            :height="20"
+    <div class="pills-rewards" v-if="isPillsPotions">
+      <p class="pills-title">Earning Rewards</p>
+      <div class="pills-row">
+        <span class="pills-icon-wrap">
+          <img
+            class="pills-icon"
+            src="@/assets/images/pools/pills-potions.png"
+            alt=""
           />
-        </h4>
+          Pills
+        </span>
 
-        <ul class="rewards-list">
-          <li
-            class="list-item"
-            v-for="(reward, index) in rewardsList"
-            :key="index"
-          >
-            <span class="item-title">
-              <img :src="reward.icon" class="reward-icon" />
-              {{ reward.title }}
-            </span>
-
-            <RowSkeleton v-if="isRewardsCalculating" />
-            <span class="item-value" v-else>{{ reward.value }} per hour</span>
-          </li>
-        </ul>
+        <span>1x Multiplier </span>
       </div>
-    </template> -->
+    </div>
 
     <RewardsCard :isPosition="true" :pool="pool" />
 
@@ -45,37 +32,29 @@
 </template>
 
 <script>
-import { defineAsyncComponent } from "vue";
-import { mapActions, mapGetters, mapMutations } from "vuex";
-import { formatUnits } from "viem";
-import { formatUSD, formatTokenBalance } from "@/helpers/filters";
-import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
-import { getRewardsPerHour } from "@/helpers/pools/getRewardsPerHour";
 import {
   writeContractHelper,
   simulateContractHelper,
   waitForTransactionReceiptHelper,
 } from "@/helpers/walletClienHelper";
+import { formatUnits } from "viem";
+import { defineAsyncComponent } from "vue";
 import { approveTokenViem } from "@/helpers/approval";
+import { mapActions, mapGetters, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import { formatUSD, formatTokenBalance } from "@/helpers/filters";
+import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import { useImage } from "@/helpers/useImage";
 
 export default {
   props: {
     pool: { type: Object },
-    pointsStatistics: { type: Object },
   },
 
   data() {
     return {
-      rewardsPerHour: {
-        pointsReward: 0,
-        goldReward: 0,
-      },
       isActionProcessing: false,
-      isRewardsCalculating: false,
     };
   },
 
@@ -180,34 +159,8 @@ export default {
       return tokensList.length ? tokensList : false;
     },
 
-    rewardsList() {
-      return [
-        {
-          title: "Points",
-          icon: useImage("assets/images/points-dashboard/blast.png"),
-          value: formatTokenBalance(this.rewardsPerHour.pointsReward || 0),
-        },
-        {
-          title: "Gold",
-          icon: useImage("assets/images/points-dashboard/gold-points.svg"),
-          value: formatTokenBalance(this.rewardsPerHour.goldReward || 0),
-        },
-        {
-          title: "Potion",
-          icon: useImage("assets/images/points-dashboard/potion.png"),
-          value: "0.0",
-        },
-      ];
-    },
-  },
-
-  watch: {
-    pointsStatistics: {
-      async handler() {
-        this.isRewardsCalculating = true;
-        await this.getRewardsPerHour();
-      },
-      deep: true,
+    isPillsPotions() {
+      return this.pool.config.id === 2 && this.pool.config.chainId === 1;
     },
   },
 
@@ -216,22 +169,6 @@ export default {
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
     formatUSD,
-
-    async getRewardsPerHour() {
-      if (!this.pointsStatistics.global) return;
-
-      const deposit =
-        Number(formatUnits(this.pool.userInfo.balance, this.pool.decimals)) *
-        this.pool.price;
-
-      this.rewardsPerHour = await getRewardsPerHour(
-        this.pool,
-        this.pointsStatistics.global,
-        deposit
-      );
-
-      this.isRewardsCalculating = false;
-    },
 
     async approveHandler() {
       this.isActionProcessing = true;
@@ -330,25 +267,12 @@ export default {
     },
   },
 
-  async created() {
-    if (!this.pointsStatistics.global) return;
-
-    this.isRewardsCalculating = true;
-    await this.getRewardsPerHour();
-  },
-
   components: {
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")
     ),
-    Tooltip: defineAsyncComponent(() =>
-      import("@/components/ui/icons/Tooltip.vue")
-    ),
     PoolCompoundCard: defineAsyncComponent(() =>
       import("@/components/pools/pool/position/cards/PoolCompoundCard.vue")
-    ),
-    RowSkeleton: defineAsyncComponent(() =>
-      import("@/components/ui/skeletons/RowSkeleton.vue")
     ),
     RewardsCard: defineAsyncComponent(() =>
       import("@/components/pools/pool/RewardsCard.vue")
@@ -442,5 +366,42 @@ export default {
     rgb(36, 43, 67) 60px,
     rgb(23, 30, 59) 120px
   ) !important;
+}
+
+.pills-rewards {
+  gap: 8px;
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+}
+
+.pills-title {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: normal;
+}
+
+.pills-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(270deg, #915eff -3.8%, #d040c6 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+  font-weight: 500;
+  line-height: normal;
+}
+
+.pills-icon-wrap {
+  gap: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.pills-icon {
+  width: 24px;
+  height: 24px;
 }
 </style>

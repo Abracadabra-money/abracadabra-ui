@@ -14,12 +14,12 @@
           Pools
         </MobileHeaderLink>
       </li>
-      <li @click="$emit('close-popup')">
+      <!-- <li @click="$emit('close-popup')">
         <MobileHeaderLink to="PotionPoints">
           <img src="@/assets/images/potion/potion-icon.png" />
           Potions
         </MobileHeaderLink>
-      </li>
+      </li> -->
     </ul>
   </nav>
 </template>
@@ -28,15 +28,6 @@
 import { defineAsyncComponent } from "vue";
 
 export default {
-  data() {
-    return {
-      blastMimUsdbPool: {
-        id: 1,
-        poolChainId: 81457,
-      },
-    };
-  },
-
   methods: {
     closePopup() {
       this.$emit("close-popup");
@@ -45,6 +36,7 @@ export default {
 
   components: {
     MobileHeaderLink: defineAsyncComponent(
+      // @ts-ignore
       () => import("@/components/ui/links/MobileHeaderLink.vue")
     ),
   },

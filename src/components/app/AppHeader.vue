@@ -17,8 +17,6 @@
       <div class="line"></div>
 
       <SwapLink :isClassicHeader="isClassicHeader" />
-
-      <!-- <BlastButton /> -->
     </nav>
 
     <div class="user-actions">
@@ -150,9 +148,6 @@ export default {
     SwapLink: defineAsyncComponent(() =>
       import("@/components/ui/links/SwapLink.vue")
     ),
-    // BlastButton: defineAsyncComponent(() =>
-    //   import("@/components/ui/buttons/BlastButton.vue")
-    // ),
     ChainButton: defineAsyncComponent(() =>
       import("@/components/ui/buttons/ChainButton.vue")
     ),

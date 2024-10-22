@@ -16,7 +16,7 @@
         <div class="title-wrap">
           <h3 class="banner-title">sdeUSD V2 Cauldron Top up!</h3>
           <h4 class="subtitle">
-            Additional <span>3,000,000 MIMs</span> will be available for borrow
+            Additional <span>1,000,000 MIMs</span> will be available for borrow
           </h4>
         </div>
         <span class="migrate-btn" @click="toCauldron">
@@ -46,7 +46,7 @@
     <div class="timer-wrap">
       <Timer
         class="timer"
-        :endDateTimestamp="1725458400"
+        :endDateTimestamp="endDateTimestamp"
         small
         isLock
         gap="4px"
@@ -80,7 +80,7 @@ export default {
 
   computed: {
     endDateTimestamp(): number {
-      return 1725458400;
+      return 1726581600;
     },
 
     currentTimeUnix(): number {

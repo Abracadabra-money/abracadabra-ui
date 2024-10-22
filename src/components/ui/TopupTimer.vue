@@ -12,7 +12,7 @@
         background="rgba(0, 10, 35, 0.30)"
       />
     </div>
-    <p class="subtitle">3,000,000 MIMs soon will be available to Borrow</p>
+    <p class="subtitle">1,000,000 MIMs soon will be available to Borrow</p>
   </div>
 </template>
 
@@ -23,7 +23,7 @@ import moment from "moment";
 export default {
   computed: {
     endDateTimestamp(): number {
-      return 1725458400;
+      return 1726581600;
     },
     currentTimeUnix(): number {
       return moment.utc(Date.now()).unix();

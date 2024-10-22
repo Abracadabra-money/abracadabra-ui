@@ -9,7 +9,7 @@
 </template>
 
 <script lang="ts">
-import { mapGetters } from "vuex";
+import { mapGetters, mapMutations } from "vuex";
 import { defineAsyncComponent } from "vue";
 import { getPoolsList } from "@/helpers/pools/getPoolsList";
 // import type { MagicLPInfo } from "@/helpers/pools/swap/types";
@@ -24,13 +24,36 @@ export default {
   },
 
   computed: {
-    ...mapGetters({ account: "getAccount" }),
+    ...mapGetters({
+      account: "getAccount",
+      localPoolsList: "getPoolsList",
+    }),
+  },
+
+  methods: {
+    ...mapMutations({
+      setPoolsList: "setPoolsList",
+    }),
+
+    checkLocalData(): void {
+      if (this.localPoolsList.isCreated) {
+        this.pools = this.localPoolsList.data;
+        this.poolsLoading = false;
+      }
+    },
+
+    async createPoolsInfo(): Promise<void> {
+      this.pools = await getPoolsList(this.account);
+      this.poolsLoading = false;
+
+      this.setPoolsList(this.pools);
+    },
   },
 
   async created() {
-    this.pools = await getPoolsList(this.account);
+    this.checkLocalData();
+    await this.createPoolsInfo();
 
-    this.poolsLoading = false;
     this.updateInterval = setInterval(async () => {
       this.pools = await getPoolsList(this.account);
     }, 60000);
