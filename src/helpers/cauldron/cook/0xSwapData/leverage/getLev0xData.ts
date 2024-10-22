@@ -9,7 +9,15 @@ const usdtAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
 const wethAddress = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
 const deUSDAddress = "0x15700B564Ca08D9439C58cA5053166E8317aa138";
 
-const getLev0xData = async (cauldronObject, amount, slipage) => {
+import type { CauldronInfo } from "@/helpers/cauldron/types.ts";
+import type { BigNumber } from "ethers";
+import type { Address } from "viem";
+
+const getLev0xData = async (
+  cauldronObject: CauldronInfo,
+  amount: BigNumber,
+  slipage: number
+) => {
   const {
     isVelodrome,
     isMagicApe,
@@ -40,6 +48,7 @@ const getLev0xData = async (cauldronObject, amount, slipage) => {
       deUSDAddress
     );
 
+    // @ts-ignore
     const liquidityAvailable = response.response.liquidityAvailable;
 
     if (!liquidityAvailable) {
@@ -48,6 +57,7 @@ const getLev0xData = async (cauldronObject, amount, slipage) => {
 
     return utils.defaultAbiCoder.encode(
       ["address", "bytes"],
+      // @ts-ignore
       [response.to, response.data]
     );
   }
@@ -73,11 +83,12 @@ const getLev0xData = async (cauldronObject, amount, slipage) => {
       cauldronObject,
       amount,
       slipage,
-      cauldronObject.config.wrapInfo.unwrappedToken.address
+      cauldronObject.config.wrapInfo!.unwrappedToken.address
     );
 
     return utils.defaultAbiCoder.encode(
       ["address", "bytes"],
+      // @ts-ignore
       [responceData.to, responceData.data]
     );
   }

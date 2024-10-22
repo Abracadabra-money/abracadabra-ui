@@ -1,6 +1,14 @@
 import { swapOdosRequest } from "@/helpers/odos";
-
-export const fetchLevOdosData = async (cauldronObject, amount, slipage, buyToken) => {
+import type { CauldronInfo } from "@/helpers/cauldron/types.ts";
+import type { BigNumber } from "ethers";
+import type { Address } from "viem";
+export const fetchLevOdosData = async (
+  cauldronObject: CauldronInfo,
+  amount: BigNumber,
+  slipage: number,
+  buyToken: Address
+) => {
+  //@ts-ignore
   const { collateral, mim, leverageSwapper } = cauldronObject.contracts;
 
   const swapResponse = await swapOdosRequest(
@@ -8,12 +16,13 @@ export const fetchLevOdosData = async (cauldronObject, amount, slipage, buyToken
     buyToken ? buyToken : collateral.address,
     mim.address,
     slipage,
+    //@ts-ignore
     amount,
     leverageSwapper.address
   );
 
   console.log(swapResponse);
-  
+
   return swapResponse;
 };
 
