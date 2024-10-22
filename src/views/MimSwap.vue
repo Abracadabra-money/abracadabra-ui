@@ -93,6 +93,7 @@
         :priceImpact="priceImpactPair"
         :currentPriceInfo="currentPriceInfo"
         @confirm="closeConfirmationPopup"
+        v-if="isConfirmationPopupOpened"
       />
     </LocalPopupWrap>
   </div>

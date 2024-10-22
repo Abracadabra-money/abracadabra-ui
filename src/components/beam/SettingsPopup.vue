@@ -6,7 +6,7 @@
         <Tooltip :tooltip="tooltip" />
         <img
           class="popup-close"
-          @click="$emit('closeSettings')"
+          @click="closePopup"
           src="@/assets/images/cross.svg"
           alt="Close popup"
         />
@@ -122,7 +122,7 @@ export default {
     ...mapGetters({
       account: "getAccount",
     }),
-    
+
     dstUpdatedInfo() {
       return this.beamInfoObject.destinationChainsInfo.find(
         (chain) => chain.chainConfig.chainId === this.dstChainInfo.chainId
@@ -133,8 +133,6 @@ export default {
       const chainInfo = chainsConfigs.find(
         (chain) => chain.chainId === this.dstChainInfo.chainId
       );
-
-      console.log("chainInfo", chainInfo);
 
       return {
         icon: chainInfo!.baseTokenIcon,
@@ -147,8 +145,6 @@ export default {
       const chainInfo = chainsConfigs.find(
         (chain) => chain.chainId === this.beamInfoObject.fromChainConfig.chainId
       );
-
-      console.log("chainInfo", chainInfo);
 
       return {
         icon: chainInfo!.baseTokenIcon,
@@ -224,8 +220,6 @@ export default {
         return false;
       }
 
-      console.log("inputValue", value);
-
       this.updateFee();
     },
   },
@@ -233,7 +227,7 @@ export default {
   methods: {
     actionHandler() {
       this.$emit("onUpdateAmount", this.parsedValue);
-      this.$emit("closeSettings");
+      this.closePopup();
     },
 
     updateInputValue(value: any) {
@@ -258,6 +252,10 @@ export default {
         return;
       }
       this.fee = updatedFee;
+    },
+
+    closePopup() {
+      this.$emit("closeSettings");
     },
   },
 

@@ -67,6 +67,7 @@ export default {
     },
     isBento: { type: Boolean, default: false },
     isDeposit: { type: Boolean, default: false },
+    isOpened: { type: Boolean, default: false },
   },
 
   data() {

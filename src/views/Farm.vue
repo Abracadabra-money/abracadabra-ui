@@ -51,10 +51,11 @@
     </div>
 
     <FarmPositionMobilePopup
+      v-if="isUserPositionOpen"
+      :isOpened="isMyPositionPopupOpened"
       :selectedFarm="selectedFarm"
       :isProperNetwork="isProperNetwork"
       @updateFarmData="getSelectedFarm()"
-      v-if="isUserPositionOpen && isMyPositionPopupOpened"
       @closePopup="isMyPositionPopupOpened = false"
     />
 
@@ -377,15 +378,11 @@ export default {
     },
 
     async getSelectedFarm() {
-      console.log("getSelectedFarm");
-
       this.selectedFarm = await createFarmData(
         this.id,
         this.farmChainId,
         this.account
       );
-
-      console.log("getSelectedFarm", this.selectedFarm);
     },
 
     openFarmsPopup() {

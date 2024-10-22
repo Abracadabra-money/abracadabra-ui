@@ -1,11 +1,11 @@
 <template>
-  <div class="backdrop" @click.self="$emit('close-popup')">
+  <div class="backdrop" @click.self="closePopup">
     <div class="wrapper">
       <h1 class="title">
         Transaction overview
         <img
           class="popup-close"
-          @click="$emit('close-popup')"
+          @click="closePopup"
           src="@/assets/images/cross.svg"
           alt="Close popup"
         />
@@ -30,9 +30,7 @@
 import BeamProcess from "@/components/beam/successPopup/BeamProcess.vue";
 import BeamInfo from "@/components/beam/successPopup/BeamInfo.vue";
 import TransactionProgressBlock from "@/components/beam/successPopup/TransactionProgressBlock.vue";
-
 import { waitForMessageReceived } from "@layerzerolabs/scan-client";
-
 import { chainsConfigs } from "@/helpers/chains/configs";
 
 export default {
@@ -93,6 +91,10 @@ export default {
       const messageResult = await waitForMessageReceived(sourceChain, hash);
 
       this.lzTxInfo = messageResult;
+    },
+
+    closePopup() {
+      this.$emit("close-popup");
     },
   },
   created() {

@@ -1,6 +1,6 @@
 <template>
-  <div class="popup-wrap" v-if="isOpened" @click="closePopup">
-    <div :class="['popup', { farmPopup: isFarm }]" @click.stop>
+  <div class="popup-wrap" @click="closePopup" ref="backdrop">
+    <div :class="['popup', { farmPopup: isFarm }]" @click.stop ref="popup">
       <div class="popup-content">
         <button class="close-btn" @click="closePopup">
           <img
@@ -16,6 +16,13 @@
 </template>
 
 <script>
+import {
+  popupFadeIn,
+  popupFadeOut,
+  backdropFadeOut,
+  localPopupWrapFadeIn,
+} from "@/helpers/animations/popup";
+
 export default {
   name: "LocalPopupWrap",
   props: {
@@ -28,14 +35,33 @@ export default {
       default: false,
     },
   },
-  methods: {
-    closePopup() {
-      this.$emit("closePopup");
+  watch: {
+    isOpened: {
+      handler(value) {
+        document.documentElement.style.overflow = value ? "hidden" : "auto";
+        if (value) {
+          this.openingAnimation();
+        } else if (this.$refs.backdrop && this.$refs.popup) {
+          this.closingAnimation();
+        }
+      },
+      immediate: true,
     },
   },
-  watch: {
-    isOpened(value) {
-      document.documentElement.style.overflow = value ? "hidden" : "auto";
+  methods: {
+    openingAnimation() {
+      localPopupWrapFadeIn(this.$refs.backdrop);
+      popupFadeIn(this.$refs.popup);
+    },
+
+    closingAnimation() {
+      backdropFadeOut(this.$refs.backdrop);
+      popupFadeOut(this.$refs.popup);
+    },
+
+    closePopup() {
+      this.closingAnimation();
+      this.$emit("closePopup");
     },
   },
 };
@@ -43,13 +69,13 @@ export default {
 
 <style lang="scss" scoped>
 .popup-wrap {
+  display: none;
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100vh;
   z-index: 300;
-  display: grid;
   align-items: center;
   justify-content: center;
   background: rgba(0, 0, 0, 0.04);

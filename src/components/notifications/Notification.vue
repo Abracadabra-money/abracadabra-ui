@@ -23,6 +23,7 @@
 import moment from "moment";
 import { useImage } from "@/helpers/useImage";
 import { mapMutations } from "vuex";
+
 export default {
   props: {
     notification: {
