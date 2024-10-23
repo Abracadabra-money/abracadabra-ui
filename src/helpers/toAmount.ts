@@ -1,11 +1,11 @@
-import type { BigNumber, Contract } from "ethers";
+import { BigNumber, Contract } from "ethers";
 
 const toAmount = async (
   bentoBox: Contract,
   token: string,
   share: BigNumber,
   roundUp: boolean = false
-): Promise<BigNumber | undefined> => {
+): Promise<BigNumber> => {
   try {
     const total = await bentoBox.totals(token);
 
@@ -20,6 +20,7 @@ const toAmount = async (
     return amount;
   } catch (error) {
     console.log("toAmount error:", error);
+    return BigNumber.from(0);
   }
 };
 

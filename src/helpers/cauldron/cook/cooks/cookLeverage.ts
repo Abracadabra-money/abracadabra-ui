@@ -34,7 +34,7 @@ const cookLeverage = async (
     cauldronObject.config.cauldronSettings;
   const { updatePrice } = cauldronObject.mainParams;
 
-  const value = useNativeToken ? collateralAmount.toString() : 0;
+  const value = useNativeToken ? collateralAmount.toString() : "0";
   const tokenAddr = useNativeToken ? defaultTokenAddress : collateral.address;
 
   let cookData: CookData = {
