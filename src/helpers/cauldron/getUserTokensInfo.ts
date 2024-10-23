@@ -1,7 +1,9 @@
 import { BigNumber } from "ethers";
+import type { Address } from "viem";
 import type { ContractInfo } from "@/types/global";
 import type { UserTokensInfo } from "@/helpers/cauldron/types";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
+import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
 
 const zeroValue = BigNumber.from("0");
 
@@ -17,8 +19,8 @@ const emptyTokensInfo = {
 
 export const getUserTokensInfo = async (
   chainId: number,
-  account: string | undefined,
-  config: any,
+  account: Address | undefined,
+  config: CauldronConfig,
   bentoBoxContract: ContractInfo
 ): Promise<UserTokensInfo> => {
   if (!account) return emptyTokensInfo;
@@ -39,7 +41,7 @@ export const getUserTokensInfo = async (
       args: [account],
     },
     {
-      address: mimInfo.address,
+      address: mimInfo.address as Address,
       abi: mimInfo.abi,
       functionName: "balanceOf",
       args: [account],
@@ -51,7 +53,7 @@ export const getUserTokensInfo = async (
       args: [account, bentoBoxContract.address],
     },
     {
-      address: mimInfo.address,
+      address: mimInfo.address as Address,
       abi: mimInfo.abi,
       functionName: "allowance",
       args: [account, bentoBoxContract.address],
