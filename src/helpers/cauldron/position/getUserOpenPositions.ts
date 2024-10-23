@@ -1,3 +1,4 @@
+import type { Address } from "viem";
 import { defaultRpc } from "@/helpers/chains";
 import cauldronsConfig from "@/configs/cauldrons";
 import { getMainParams } from "@/helpers/cauldron/getMainParams";
@@ -31,7 +32,7 @@ export const getUserOpenPositions = async (
 
       const userPositions = await getUserPositions(
         configs,
-        account,
+        account as Address,
         Number(chainId)
       );
 

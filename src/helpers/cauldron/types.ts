@@ -1,4 +1,4 @@
-import type { BigNumber } from "ethers";
+import type { BigNumber, Contract } from "ethers";
 import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
 
 export type UserBorrowInfo = {
@@ -65,14 +65,23 @@ export type UserTokensInfo = {
   unwrappedTokenAllowance: BigNumber | null;
 };
 
+export type CauldronContracts = {
+  bentoBox: Contract;
+  cauldron: Contract;
+  collateral: Contract;
+  mim: Contract;
+  leverageSwapper: Contract | null;
+  liquidationSwapper: Contract | null;
+  unwrappedToken: Contract | null;
+  wrapper: Contract | null;
+};
 
-// TODO: Add Contracts type
 export type CauldronInfo = {
   config: CauldronConfig;
-  contracts: Object | null;
+  contracts: CauldronContracts;
   mainParams: MainParams;
   userPosition: UserPositions;
-  userTokensInfo: UserTokensInfo | null;
+  userTokensInfo: UserTokensInfo;
   additionalInfo: AdditionalInfo;
 };
 
@@ -131,6 +140,9 @@ export type UserTotalAssets = {
 };
 
 export type PositionHealth = { percent: number; status: PositionHealthStatus };
-export type AlternativePositionHealth = { percent: bigint; status: PositionHealthStatus };
+export type AlternativePositionHealth = {
+  percent: bigint;
+  status: PositionHealthStatus;
+};
 
 export type PositionHealthStatus = "safe" | "medium" | "high";
