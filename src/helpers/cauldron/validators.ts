@@ -4,7 +4,6 @@ import { getExpectedPostition } from "./getExpectedPosition";
 import { expandDecimals } from "../gm/fee/expandDecials";
 import { getMaxToBorrow, getMaxCollateralToRemove } from "./utils";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
-import { getAccountHelper } from "@/helpers/walletClienHelper";
 import type { Address } from "viem";
 
 export const WARNING_TYPES = {
