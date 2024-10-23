@@ -12,13 +12,8 @@ export const validationActions = (
 ) => {
   const { fromToken, toToken, fromInputValue, toInputValue } = actionConfig;
 
-  const connectedError = account
-    ? { btnText: false, isAllowed: true }
-    : {
-        btnText: "Connect Wallet",
-        isAllowed: true,
-        method: "connectWallet",
-      };
+  const connectedError = validateConnection(account);
+
   if (connectedError.btnText) return connectedError;
 
   const chainError = validateChain(selectedNetwork, chainId);

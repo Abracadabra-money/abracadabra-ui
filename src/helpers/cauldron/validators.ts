@@ -68,9 +68,8 @@ export const validateCookByAction = (
 
   let validationErrors: any = [];
 
-  if (!account) {
-    validationErrors.push(WARNING_TYPES.CONNECTION);
-  }
+  validationErrors = validateConnection(account, validationErrors);
+
   validationErrors = validateChain(validationErrors, cauldron, chainId);
 
   validationErrors = validatePosition(
@@ -454,10 +453,8 @@ const validateChain = (
   return validationErrors;
 };
 
-const validateConnection = (validationErrors: any) => {
-  const { isConnected } = getAccountHelper();
-
-  if (!isConnected) validationErrors.push(WARNING_TYPES.CONNECTION);
+const validateConnection = (account: Address, validationErrors: any) => {
+  if (!account) validationErrors.push(WARNING_TYPES.CONNECTION);
 
   return validationErrors;
 };
