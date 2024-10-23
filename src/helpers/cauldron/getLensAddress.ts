@@ -1,4 +1,6 @@
-export const getLensAddress = (chainId: Number): string => {
+import type { Address } from "viem";
+
+export const getLensAddress = (chainId: Number): Address => {
   // check type
   switch (Number(chainId)) {
     case 80084:
