@@ -1,5 +1,7 @@
 import { formatUnits } from "viem";
+import type { Address } from "viem";
 import orderAbi from "@/abis/gm/order";
+import type { PublicClient } from "viem";
 import { BigNumber, utils } from "ethers";
 import lensAbi from "@/abis/marketLens.js";
 import { ZERO_ADDRESS } from "@/constants/gm";
@@ -48,18 +50,18 @@ const emptyPosition: UserPositions = {
 };
 
 export const getUserPositions = async (
-  configs: Array<CauldronConfig | undefined>,
-  account: string | undefined,
+  configs: CauldronConfig[],
+  account: Address | undefined,
   chainId: number
 ): Promise<Array<UserPositions>> => {
   if (!account) return configs.map(() => emptyPosition);
 
-  const lensAddress = getLensAddress(chainId);
-  const publicClient = getPublicClient(chainId);
+  const lensAddress: Address = getLensAddress(chainId);
+  const publicClient: PublicClient = getPublicClient(chainId);
 
   const userPositions: any = await publicClient.multicall({
     contracts: configs
-      .map((config: any) => {
+      .map((config: CauldronConfig) => {
         return [
           {
             address: lensAddress,
@@ -96,7 +98,7 @@ export const getUserPositions = async (
     chainId
   );
 
-  return configs.map((config: any, index: number) => {
+  return configs.map((config: CauldronConfig, index: number) => {
     if (!userPositions) return emptyPosition;
 
     const decimals = config.collateralInfo.decimals;
