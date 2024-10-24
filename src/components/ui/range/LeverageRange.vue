@@ -5,7 +5,7 @@
       :style="{ background: gradientRangeTrack }"
     >
       <span class="progress-value" :style="progressValuePosition">
-        {{ value }}x
+        {{ progressValue }}x
       </span>
 
       <input
@@ -48,6 +48,10 @@ export default {
   },
 
   computed: {
+    progressValue() {
+      return this.value > this.max ? this.max : this.value;
+    },
+
     progressValuePosition() {
       return `left: ${this.gradientPercent}%`;
     },
@@ -68,7 +72,7 @@ export default {
 
       if (this.min > 0) {
         if (this.inputValue === 1) return 0;
-        if (this.inputValue === max) return 100;
+        if (this.inputValue >= max) return 100;
         const percent = Math.floor(
           (100 / (max - this.min)) * (this.inputValue - this.min)
         );
