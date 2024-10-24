@@ -1,13 +1,12 @@
-import { getAccountHelper } from "@/helpers/walletClienHelper";
+import type { Address } from "viem";
 
-export const validateConnection = () => {
-  const { isConnected } = getAccountHelper();
-
-  if (!isConnected)
+export const validateConnection = (account: Address) => {
+  if (!account)
     return {
       btnText: "Connect Wallet",
       isAllowed: true,
       method: "connectWallet",
     };
-  return { btnText: false, isAllowed: true };
+
+  return { btnText: "", isAllowed: true };
 };
