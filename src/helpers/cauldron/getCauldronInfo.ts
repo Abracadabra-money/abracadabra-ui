@@ -1,3 +1,5 @@
+import type { Abi } from "viem";
+import { erc20Abi } from "viem";
 import type { Address } from "viem";
 import bentoBoxAbi from "@/abis/bentoBox";
 import cauldronsConfig from "@/configs/cauldrons";
@@ -11,8 +13,8 @@ import { getAdditionalInfo } from "@/helpers/cauldron/getAdditionalInfo";
 
 const getContractsInfo = async (
   chainId: number,
-  address: Address | string,
-  abi: any
+  address: Address,
+  abi: Abi
 ) => {
   const publicClient = getPublicClient(chainId);
 
@@ -37,12 +39,12 @@ const getContractsInfo = async (
 
   return {
     bentoBoxContract: {
-      address: bentoBoxAddress.result,
-      abi: bentoBoxAbi,
+      address: bentoBoxAddress.result as Address,
+      abi: bentoBoxAbi as Abi,
     },
     masterContract: {
-      address: masterContractAddress.result,
-      abi: null,
+      address: masterContractAddress.result as Address,
+      abi: erc20Abi,
     },
   };
 };

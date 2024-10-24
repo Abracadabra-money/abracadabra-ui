@@ -67,7 +67,11 @@ const cookLeverage = async (
     );
   }
 
-  cookData = await actions.borrow(cookData, mimAmount, leverageSwapper.address);
+  cookData = await actions.borrow(
+    cookData,
+    mimAmount,
+    leverageSwapper!.address
+  );
 
   cookData = await recipeLeverage(
     cookData,

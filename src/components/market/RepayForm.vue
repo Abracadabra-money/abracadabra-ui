@@ -23,7 +23,7 @@
         <Toggle
           v-if="isDeleverageAllowed"
           :selected="actionConfig.useDeleverage"
-          text="Deleverge"
+          text="Deleverage"
           @updateToggle="onToggleDeleverage"
         />
       </div>
