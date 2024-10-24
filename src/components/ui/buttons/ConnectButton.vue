@@ -37,7 +37,7 @@ export default {
 
     walletBtnText() {
       if (this.isWalletCheckInProcess) {
-        return "Checking...";
+        return "Connecting...";
       } else if (this.account) {
         if (this.ensName) return this.ensName;
         return `${this.account.slice(0, 6)}...${this.account.slice(-6)}`;
