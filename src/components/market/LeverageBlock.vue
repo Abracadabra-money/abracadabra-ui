@@ -42,13 +42,16 @@ import {
   applyBorrowFee,
   PERCENT_PRESITION,
 } from "@/helpers/cauldron/utils";
+import {
+  getBorrowAmountByMultiplier,
+  getMaxLeverageMultiplierAlternative,
+  getLeverageMultiplierByBorrowAmount,
+} from "@/helpers/cauldron/getMaxLeverageMultiplier";
 import { mapGetters } from "vuex";
 import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { formatToFixed } from "@/helpers/filters";
 import { trimZeroDecimals } from "@/helpers/numbers";
-import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
-import { getMaxLeverageMultiplierAlternative } from "@/helpers/cauldron/getMaxLeverageMultiplier";
 
 const MIM_DECIMALS = 18;
 
@@ -107,7 +110,11 @@ export default {
         );
       }
 
-      const amount = this.getBorrowAmountByMultiplier(this.multiplier);
+      const amount = getBorrowAmountByMultiplier(
+        this.multiplier,
+        this.cauldron,
+        this.depositCollateralAmount!
+      );
 
       const inputAmount = trimZeroDecimals(
         utils.formatUnits(amount, MIM_DECIMALS)
@@ -118,7 +125,11 @@ export default {
     },
 
     maxToBorrow() {
-      return this.getBorrowAmountByMultiplier(this.maxLeverageMultiplier);
+      return getBorrowAmountByMultiplier(
+        this.maxLeverageMultiplier,
+        this.cauldron,
+        this.depositCollateralAmount!
+      );
     },
 
     expectedCollateralAmount() {
@@ -199,10 +210,14 @@ export default {
       const { oracleExchangeRate } = this.cauldron.mainParams;
 
       if (this.useCustomBorrowValue) {
-        this.multiplier = this.calculateLeverageMultiplier(
+        const multiplier = getLeverageMultiplierByBorrowAmount(
           this.borrowInputValue,
           this.maxToBorrow,
           this.maxLeverageMultiplier
+        );
+
+        this.multiplier = Number(
+          formatToFixed(String(utils.formatUnits(multiplier, MIM_DECIMALS)), 2)
         );
       }
 
@@ -238,44 +253,6 @@ export default {
 
       if (maxMultiplier < this.multiplier) this.multiplier = maxMultiplier;
       this.maxLeverageMultiplier = maxMultiplier;
-    },
-
-    getBorrowAmountByMultiplier(leverageMultiplier: number) {
-      const { userCollateralAmount } =
-        this.cauldron.userPosition.collateralInfo;
-
-      const { oracleExchangeRate } = this.cauldron.mainParams;
-
-      const positionExpectedCollateral = userCollateralAmount.add(
-        this.depositCollateralAmount
-      );
-
-      const multiplier = utils.parseUnits(
-        String(leverageMultiplier),
-        PERCENT_PRESITION
-      );
-
-      const collateralToSwap = positionExpectedCollateral
-        .mul(multiplier)
-        .div(expandDecimals(1, 2))
-        .sub(positionExpectedCollateral);
-
-      return expandDecimals(collateralToSwap, MIM_DECIMALS).div(
-        oracleExchangeRate
-      );
-    },
-
-    calculateLeverageMultiplier(
-      borrowInputValue: BigNumber,
-      maxToBorrow: BigNumber,
-      maxLeverageMultiplier: number
-    ): number {
-      const borrowAmount = +utils.formatUnits(borrowInputValue, MIM_DECIMALS);
-      const maxBorrowAmount = +utils.formatUnits(maxToBorrow, MIM_DECIMALS);
-      const leverageMultiplier = (maxLeverageMultiplier - 1) * 100;
-      const leveragePercentage = maxBorrowAmount / leverageMultiplier;
-      const leverageResult = borrowAmount / leveragePercentage / 100 + 1;
-      return Number(formatToFixed(String(leverageResult), 2));
     },
   },
 

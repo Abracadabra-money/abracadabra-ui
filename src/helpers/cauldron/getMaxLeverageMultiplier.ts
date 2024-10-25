@@ -1,11 +1,13 @@
-import { BigNumber, utils } from "ethers";
-import { expandDecimals } from "../gm/fee/expandDecials";
-
 import {
   getLeverageAmounts,
   getLiquidationPrice,
   PERCENT_PRESITION,
 } from "@/helpers/cauldron/utils";
+import { BigNumber, utils } from "ethers";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
+import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
+
+const MIM_DECIMALS = 18;
 
 export const getMaxLeverageMultiplier = (
   { mainParams, config, userPosition, additionalInfo }: any,
@@ -132,4 +134,58 @@ export const getMaxLeverageMultiplierAlternative = (
   const result = Math.min(multiplier, 50);
 
   return +parseFloat(result.toString()).toFixed(2);
+};
+
+export const getBorrowAmountByMultiplier = (
+  leverageMultiplier: number = 1,
+  cauldron: CauldronInfo,
+  depositCollateralAmount: BigNumber // Additional security amount
+): BigNumber => {
+  if (!cauldron) return BigNumber.from(0);
+
+  const { oracleExchangeRate } = cauldron.mainParams;
+  const { userCollateralAmount } = cauldron.userPosition.collateralInfo;
+
+  // Expected new security amount (current + additional security amount)
+  const positionExpectedCollateral = userCollateralAmount.add(
+    depositCollateralAmount
+  );
+
+  // We convert the multiplier to accuracy (percentage accuracy for leverage)
+  const multiplier = utils.parseUnits(
+    String(leverageMultiplier),
+    PERCENT_PRESITION
+  );
+
+  // We calculate the security required for the loan
+  const collateralToSwap = positionExpectedCollateral
+    .mul(multiplier) // multiply by the leverage factor
+    .div(BigNumber.from(10).pow(2)) // Divide by 100 for proper scaling
+    .sub(positionExpectedCollateral); // We subtract the initial provision
+
+  // We return the borrowed amount, scaled according to the oracle and the correct format
+  return collateralToSwap
+    .mul(BigNumber.from(10).pow(MIM_DECIMALS))
+    .div(oracleExchangeRate);
+};
+
+export const getLeverageMultiplierByBorrowAmount = (
+  borrowInputValue: BigNumber,
+  maxToBorrow: BigNumber,
+  maxLeverageMultiplier: number
+) => {
+  const maxMultiplier = utils.parseUnits(
+    String((maxLeverageMultiplier - 1) * 100),
+    18
+  );
+
+  const leveragePercentage = maxToBorrow
+    .mul(BigNumber.from(10).pow(MIM_DECIMALS))
+    .div(maxMultiplier);
+
+  return borrowInputValue
+    .mul(BigNumber.from(10).pow(MIM_DECIMALS))
+    .div(leveragePercentage)
+    .div(BigNumber.from(10).pow(PERCENT_PRESITION))
+    .add(BigNumber.from(10).pow(MIM_DECIMALS));
 };
