@@ -24,7 +24,7 @@ const fetchDelevYvWethV20xData = async (
     selToken,
     slipage,
     selAmount,
-    liquidationSwapper.address
+    liquidationSwapper!.address
   );
 
   //@ts-ignore

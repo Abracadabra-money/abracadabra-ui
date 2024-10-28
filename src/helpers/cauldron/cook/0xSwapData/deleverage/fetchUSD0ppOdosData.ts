@@ -3,6 +3,7 @@ import { utils } from "ethers";
 
 import type { CauldronInfo } from "@/helpers/cauldron/types";
 import type { BigNumber } from "ethers";
+import type { Address } from "viem";
 
 const fetchUSD0ppOdosData = async (
   cauldronObject: CauldronInfo,
@@ -18,11 +19,11 @@ const fetchUSD0ppOdosData = async (
 
   const swapResponse = await swapOdosRequest(
     cauldronObject.config.chainId,
-    mim.address,
+    mim!.address as Address,
     selToken,
     slipage,
     selAmount,
-    liquidationSwapper.address
+    liquidationSwapper!.address as Address
   );
 
   return utils.defaultAbiCoder.encode(

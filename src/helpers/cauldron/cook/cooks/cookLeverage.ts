@@ -11,6 +11,7 @@ import recipeLeverage from "@/helpers/cauldron/cook/recipies/recipeLeverage";
 
 import type { CookData, PayloadLeverage } from "./types";
 import type { CauldronInfo } from "@/helpers/cauldron/types";
+import type { Address } from "viem";
 
 const defaultTokenAddress = "0x0000000000000000000000000000000000000000";
 
@@ -59,7 +60,7 @@ const cookLeverage = async (
     cookData = await recipeAddCollatral(
       cookData,
       cauldronObject,
-      tokenAddr,
+      tokenAddr as Address,
       useWrapper,
       to,
       collateralAmount,

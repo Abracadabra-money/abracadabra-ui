@@ -22,7 +22,7 @@ const fetchDelevMagicApe0xData = async (
     selToken,
     slipage,
     selAmount,
-    liquidationSwapper.address
+    liquidationSwapper!.address
   );
 
   // @ts-ignore

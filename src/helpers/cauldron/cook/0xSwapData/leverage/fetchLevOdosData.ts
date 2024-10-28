@@ -13,12 +13,12 @@ export const fetchLevOdosData = async (
 
   const swapResponse = await swapOdosRequest(
     cauldronObject.config.chainId,
-    buyToken ? buyToken : collateral.address,
-    mim.address,
+    buyToken ? buyToken : collateral.address as Address,
+    mim.address as Address,
     slipage,
     //@ts-ignore
     amount,
-    leverageSwapper.address
+    leverageSwapper!.address
   );
 
   console.log(swapResponse);

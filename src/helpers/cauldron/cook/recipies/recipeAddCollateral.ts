@@ -25,7 +25,7 @@ const recipeAddCollatral = async (
     cookData = await bentoDepositEncodeHandler(
       cookData,
       cauldronObject,
-      unwrappedToken.address,
+      unwrappedToken!.address,
       to,
       amount,
       "0",
@@ -39,8 +39,8 @@ const recipeAddCollatral = async (
     cookData = await bentoWithdrawEncodeHandler(
       cookData,
       cauldronObject,
-      unwrappedToken.address,
-      wrapper.address,
+      unwrappedToken!.address,
+      wrapper!.address,
       "0",
       "-2",
       false,
@@ -48,7 +48,7 @@ const recipeAddCollatral = async (
       1
     );
 
-    const swapStaticTx = await wrapper.populateTransaction.wrap(
+    const swapStaticTx = await wrapper!.populateTransaction.wrap(
       cauldron.address,
       amount
     );
@@ -57,7 +57,7 @@ const recipeAddCollatral = async (
 
     cookData = await actions.call(
       cookData,
-      wrapper.address,
+      wrapper!.address,
       data,
       true,
       false,

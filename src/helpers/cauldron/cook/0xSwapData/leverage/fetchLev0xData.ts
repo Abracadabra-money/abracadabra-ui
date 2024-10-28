@@ -20,7 +20,7 @@ export const fetchLev0xData = async (
     slipage,
     // @ts-ignore
     amount,
-    leverageSwapper.address
+    leverageSwapper!.address
   );
 
   // @ts-ignore
@@ -43,7 +43,7 @@ export const fetchLev0xDataV2 = async (
     slipage,
     // @ts-ignore
     amount,
-    leverageSwapper.address
+    leverageSwapper!.address
   );
 
   return swapResponse;

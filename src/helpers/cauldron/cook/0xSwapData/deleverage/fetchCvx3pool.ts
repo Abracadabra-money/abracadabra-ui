@@ -27,7 +27,7 @@ const fetchCvx3pool0xData = async (
     selToken,
     slipage,
     selAmount,
-    liquidationSwapper.address
+    liquidationSwapper!.address
   );
 
   const usdtTokenIndex = 2;

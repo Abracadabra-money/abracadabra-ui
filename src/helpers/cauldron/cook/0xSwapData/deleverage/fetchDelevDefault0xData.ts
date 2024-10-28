@@ -21,7 +21,7 @@ const fetchDelevDefault0xData = async (
     slipage,
     // @ts-ignore
     selAmount,
-    liquidationSwapper.address
+    liquidationSwapper!.address
   );
 
   // @ts-ignore

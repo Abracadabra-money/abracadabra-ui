@@ -19,7 +19,7 @@ const getDeUsd0xData = async (
     slipage,
     // @ts-ignore
     collateralAmount,
-    liquidationSwapper.address
+    liquidationSwapper!.address
   );
 
   // @ts-ignore
