@@ -60,6 +60,16 @@ const kavaTokens: Array<PoolCreationTokenConfig> = [
     decimals: 18,
     abi: erc20Abi,
   },
+  {
+    chainId: KAVA_CHAIN_ID,
+    address: "0xaf20f5f19698f1d19351028cd7103b63d30de7d7",
+    name: "Wagmi",
+    symbol: "WAGMI",
+    //todo new token icon
+    icon: useImage("assets/images/base_token_icon.png"),
+    decimals: 18,
+    abi: erc20Abi,
+  },
 ];
 
 export default kavaTokens;
