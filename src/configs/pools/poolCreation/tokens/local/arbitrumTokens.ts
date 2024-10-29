@@ -197,6 +197,7 @@ const arbitrumTokens: Array<PoolCreationTokenConfig> = [
     name: "Graph Token",
     symbol: "GRT",
     address: "0x9623063377AD1B27544C965cCd7342f7EA7e88C7",
+    //todo new token icon
     icon: useImage("assets/images/base_token_icon.png"),
     decimals: 18,
     abi: erc20Abi,
