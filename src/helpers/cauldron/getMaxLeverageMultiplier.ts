@@ -174,6 +174,10 @@ export const getLeverageMultiplierByBorrowAmount = (
   maxToBorrow: BigNumber,
   maxLeverageMultiplier: number
 ) => {
+  if (borrowInputValue.isZero() || maxToBorrow.isZero()) {
+    return utils.parseUnits("1", 18);
+  }
+
   const maxMultiplier = utils.parseUnits(
     String((maxLeverageMultiplier - 1) * 100),
     18

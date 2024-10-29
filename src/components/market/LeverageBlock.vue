@@ -1,14 +1,14 @@
 <template>
   <div class="range-wrap">
     <BaseTokenInput
-      :value="inputAmount"
+      :value="borrowInputAmount"
       :name="cauldron.config.mimInfo.name"
       :icon="cauldron.config.mimInfo.icon"
       :decimals="cauldron.config.mimInfo.decimals"
       :max="maxToBorrow"
       isBigNumber
       primaryMax
-      @updateInputValue="onUpdateInputAmount"
+      @updateInputValue="onUpdateBorrowInputAmount"
     />
 
     <LeverageRange
@@ -52,6 +52,7 @@ import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { formatToFixed } from "@/helpers/filters";
 import { trimZeroDecimals } from "@/helpers/numbers";
+import { applySlippageToMinOut } from "@/helpers/gm/applySlippageToMinOut";
 
 const MIM_DECIMALS = 18;
 
@@ -74,7 +75,7 @@ export default {
     },
   },
 
-  emits: ["updateLeverageAmounts"],
+  emits: ["updateLeverageAmounts", "updateMaxToBorrow"],
 
   data() {
     return {
@@ -93,6 +94,7 @@ export default {
       },
       borrowInputValue: BigNumber.from(0),
       useCustomBorrowValue: false,
+      maxToBorrow: BigNumber.from(0),
     };
   },
 
@@ -102,7 +104,7 @@ export default {
       chainId: "getChainId",
     }),
 
-    inputAmount() {
+    borrowInputAmount() {
       if (this.useCustomBorrowValue) {
         if (this.borrowInputValue.eq(0)) return "";
         return trimZeroDecimals(
@@ -116,20 +118,12 @@ export default {
         this.depositCollateralAmount!
       );
 
-      const inputAmount = trimZeroDecimals(
+      const borrowInputAmount = trimZeroDecimals(
         utils.formatUnits(amount, MIM_DECIMALS)
       );
 
-      if (!Number(inputAmount)) return "";
-      return inputAmount;
-    },
-
-    maxToBorrow() {
-      return getBorrowAmountByMultiplier(
-        this.maxLeverageMultiplier,
-        this.cauldron,
-        this.depositCollateralAmount!
-      );
+      if (!Number(borrowInputAmount)) return "";
+      return borrowInputAmount;
     },
 
     expectedCollateralAmount() {
@@ -182,11 +176,30 @@ export default {
   watch: {
     depositCollateralAmount() {
       this.getMaxLeverageMultiplier();
+      this.getMaxBorrowAmount();
       this.updateLeverageAmounts();
     },
+
     slippage() {
       this.getMaxLeverageMultiplier();
       this.updateLeverageAmounts();
+    },
+
+    borrowInputAmount() {
+      const borrowInputAmount = utils.parseUnits(
+        this.borrowInputAmount,
+        MIM_DECIMALS
+      );
+
+      const leverageAmounts = {
+        amountFrom: borrowInputAmount,
+        amountToMin: applySlippageToMinOut(
+          Number(this.slippage),
+          borrowInputAmount
+        ),
+      };
+
+      this.$emit("updateLeverageAmounts", leverageAmounts);
     },
   },
 
@@ -197,7 +210,7 @@ export default {
       this.updateLeverageAmounts();
     },
 
-    onUpdateInputAmount(value: BigNumber) {
+    onUpdateBorrowInputAmount(value: BigNumber) {
       this.useCustomBorrowValue = true;
       this.borrowInputValue = value;
       this.updateLeverageAmounts();
@@ -254,10 +267,25 @@ export default {
       if (maxMultiplier < this.multiplier) this.multiplier = maxMultiplier;
       this.maxLeverageMultiplier = maxMultiplier;
     },
+
+    getMaxBorrowAmount() {
+      if (!this.depositCollateralAmount?.isZero)
+        this.maxToBorrow = BigNumber.from(0);
+      else {
+        this.maxToBorrow = getBorrowAmountByMultiplier(
+          this.maxLeverageMultiplier,
+          this.cauldron,
+          this.depositCollateralAmount!
+        );
+      }
+
+      this.$emit("updateMaxToBorrow", this.maxToBorrow);
+    },
   },
 
   created() {
     this.getMaxLeverageMultiplier();
+    this.getMaxBorrowAmount();
   },
 
   components: {

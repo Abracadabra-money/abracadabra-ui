@@ -24,17 +24,6 @@
       @updateInputValue="onUpdateWithdrawValue"
     />
 
-    <AmountRange
-      class="range"
-      :amount="withdrawAmount"
-      :maxAmount="maxToRemove"
-      :risk="positionHealth"
-      :rangePrecision="rangePrecision"
-      :decimals="collateraDecimals"
-      isPotion
-      @updateAmount="onUpdateWithdrawValue"
-    />
-
     <div class="expected-amount" v-if="isWrapAllowed && withdrawUnwrapToken">
       <span> Expected</span>
       <span>
@@ -48,11 +37,9 @@
 <script lang="ts">
 import {
   getLiquidationPrice,
-  getPositionHealth,
   PERCENT_PRESITION,
   getMaxCollateralToRemove,
 } from "@/helpers/cauldron/utils";
-import { mapGetters } from "vuex";
 import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { formatToFixed } from "@/helpers/filters";
@@ -96,25 +83,17 @@ export default {
   },
 
   computed: {
-    ...mapGetters({
-      account: "getAccount",
-      chainId: "getChainId",
-    }),
-
     inputAmount() {
       if (this.withdrawAmount.eq(BigNumber.from(0))) {
         return "";
       }
+
       return trimZeroDecimals(
         utils.formatUnits(
           this.withdrawAmount,
           this.cauldron.config.collateralInfo.decimals
         )
       );
-    },
-
-    collateraDecimals() {
-      return this.cauldron?.config?.collateralInfo?.decimals || 18;
     },
 
     maxToRemove() {
@@ -182,19 +161,6 @@ export default {
       );
     },
 
-    positionHealth() {
-      const { oracleExchangeRate } = this.cauldron.mainParams;
-      const { decimals } = this.cauldron.config.collateralInfo;
-
-      const { status } = getPositionHealth(
-        this.expectedLiquidationPrice,
-        oracleExchangeRate,
-        decimals
-      );
-
-      return status;
-    },
-
     isWrapAllowed() {
       return (
         this.cauldron?.config?.wrapInfo &&
@@ -255,9 +221,6 @@ export default {
 
   components: {
     Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
-    AmountRange: defineAsyncComponent(
-      () => import("@/components/ui/range/AmountRange.vue")
-    ),
     BaseTokenInput: defineAsyncComponent(
       () => import("@/components/base/BaseTokenInput.vue")
     ),
@@ -288,6 +251,7 @@ export default {
 }
 
 .expected-amount {
+  margin-top: 20px;
   padding: 6px 12px;
   color: #878b93;
   font-family: Poppins;
@@ -306,9 +270,5 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
-
-.range {
-  margin-top: 20px;
 }
 </style>

@@ -75,7 +75,7 @@
           @updateToggle="onToggleDeleverage"
         />
 
-        <RemoveCollateralRangeBlock
+        <RemoveCollateralDeleverageBlock
           v-else
           :cauldron="cauldron"
           :isWithdrawUnwrapToken="actionConfig.withdrawUnwrapToken"
@@ -325,8 +325,8 @@ export default {
     RemoveCollateralBlock: defineAsyncComponent(
       () => import("@/components/market/RemoveCollateralBlock.vue")
     ),
-    RemoveCollateralRangeBlock: defineAsyncComponent(
-      () => import("@/components/market/RemoveCollateralRangeBlock.vue")
+    RemoveCollateralDeleverageBlock: defineAsyncComponent(
+      () => import("@/components/market/RemoveCollateralDeleverageBlock.vue")
     ),
     RepayBlock: defineAsyncComponent(
       () => import("@/components/market/RepayBlock.vue")
