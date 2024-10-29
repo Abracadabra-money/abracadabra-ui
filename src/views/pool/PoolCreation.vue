@@ -125,6 +125,7 @@
         :tokenType="tokenType"
         :baseTokenAddress="baseToken.config.address"
         :quoteTokenAddress="quoteToken.config.address"
+        :selectedNetwork="selectedNetwork"
         @updateSelectedToken="updateSelectedToken"
       />
     </LocalPopupWrap>

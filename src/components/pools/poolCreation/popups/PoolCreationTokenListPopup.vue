@@ -87,6 +87,7 @@ import {
 } from "@/helpers/pools/poolCreation/getPoolCreationTokenInfo";
 import { updateLocalStorageCustomTokens } from "@/helpers/pools/poolCreation/localStorage";
 import { isAddress } from "viem";
+import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 
 const searchFields = ["name", "symbol", "address"];
 
@@ -115,6 +116,10 @@ export default {
       type: String,
       default: "",
     },
+    selectedNetwork: {
+      type: Number,
+      default: ARBITRUM_CHAIN_ID,
+    },
   },
 
   data() {
@@ -126,7 +131,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters({ account: "getAccount", chainId: "getChainId" }),
+    ...mapGetters({ account: "getAccount" }),
 
     filteredLocalTokensList() {
       return this.tokensList.filter(({ config }) => this.checkForMatch(config));
@@ -192,7 +197,7 @@ export default {
         this.isSearching = true;
         const searchingTokenConfig = await createTokenConfigByAddress(
           searchKey,
-          this.chainId
+          this.selectedNetwork
         );
         this.isSearching = false;
         return searchingTokenConfig ? [{ config: searchingTokenConfig }] : [];
