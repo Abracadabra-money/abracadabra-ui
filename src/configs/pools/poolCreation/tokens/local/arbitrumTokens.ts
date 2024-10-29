@@ -87,7 +87,7 @@ const arbitrumTokens: Array<PoolCreationTokenConfig> = [
   },
   {
     chainId: ARBITRUM_CHAIN_ID,
-    name: "Aave",
+    name: "Aave Token",
     symbol: "AAVE",
     address: "0xba5DdD1f9d7F570dc94a51479a000E3BCE967196",
     //todo new token icon
@@ -97,7 +97,7 @@ const arbitrumTokens: Array<PoolCreationTokenConfig> = [
   },
   {
     chainId: ARBITRUM_CHAIN_ID,
-    name: "ChainLink",
+    name: "ChainLink Token",
     symbol: "LINK",
     address: "0xf97f4df75117a78c1A5a0DBb814Af92458539FB4",
     icon: useImage(`assets/images/tokens/LINK.png`),
