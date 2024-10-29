@@ -53,7 +53,7 @@
 
         <p
           :class="['wallet-balance', { 'primary-max': primaryMax }]"
-          v-if="!disabled && !compact"
+          v-if="!disabled && !compact && !isGradientSelector"
           @click="inputValue = formattedMax"
         >
           <span v-if="primaryMax">MAX:</span>
