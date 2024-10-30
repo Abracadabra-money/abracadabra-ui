@@ -3,11 +3,16 @@ import { swap0xRequest } from "@/helpers/0x";
 import { getCurveWithdrawOneCoinAmount } from "@/helpers/getCurveWithdrawOneCoinAmount";
 const usdtAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
 
-const fetchCvx3pool0xData = async (
-  cauldronObject,
-  collateralAmount,
-  slipage
+import type { CauldronInfo } from "@/helpers/cauldron/types";
+import type { BigNumber } from "ethers";
+
+const fetchCvxTricrypto0xData = async (
+  cauldronObject: CauldronInfo,
+  collateralAmount: BigNumber,
+  slipage: number
 ) => {
+
+  //@ts-ignore
   const { liquidationSwapper, mim } = cauldronObject.contracts;
 
   const selToken = usdtAddress;
@@ -23,15 +28,16 @@ const fetchCvx3pool0xData = async (
     selToken,
     slipage,
     selAmount,
-    liquidationSwapper.address
+    liquidationSwapper!.address
   );
 
-  const usdtTokenIndex = 2;
+  const usdtTokenIndex = 0;
 
   return utils.defaultAbiCoder.encode(
     ["uint256", "bytes"],
+    //@ts-ignore
     [usdtTokenIndex, response.data]
   );
 };
 
-export default fetchCvx3pool0xData;
+export default fetchCvxTricrypto0xData;

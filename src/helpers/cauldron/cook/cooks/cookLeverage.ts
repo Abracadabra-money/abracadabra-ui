@@ -11,6 +11,7 @@ import recipeLeverage from "@/helpers/cauldron/cook/recipies/recipeLeverage";
 
 import type { CookData, PayloadLeverage } from "./types";
 import type { CauldronInfo } from "@/helpers/cauldron/types";
+import type { Address } from "viem";
 
 const defaultTokenAddress = "0x0000000000000000000000000000000000000000";
 
@@ -34,7 +35,7 @@ const cookLeverage = async (
     cauldronObject.config.cauldronSettings;
   const { updatePrice } = cauldronObject.mainParams;
 
-  const value = useNativeToken ? collateralAmount.toString() : 0;
+  const value = useNativeToken ? collateralAmount.toString() : "0";
   const tokenAddr = useNativeToken ? defaultTokenAddress : collateral.address;
 
   let cookData: CookData = {
@@ -59,7 +60,7 @@ const cookLeverage = async (
     cookData = await recipeAddCollatral(
       cookData,
       cauldronObject,
-      tokenAddr,
+      tokenAddr as Address,
       useWrapper,
       to,
       collateralAmount,
@@ -67,7 +68,11 @@ const cookLeverage = async (
     );
   }
 
-  cookData = await actions.borrow(cookData, mimAmount, leverageSwapper.address);
+  cookData = await actions.borrow(
+    cookData,
+    mimAmount,
+    leverageSwapper!.address
+  );
 
   cookData = await recipeLeverage(
     cookData,

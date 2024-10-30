@@ -50,9 +50,10 @@ import ARB from "@/abis/tokensAbi/ARB";
 import yvUSDT from "@/abis/tokensAbi/yvUSDT";
 import yvUSDC from "@/abis/tokensAbi/yvUSDC";
 import USDT from "@/abis/tokensAbi/USDT";
-import bSPELL from "@/abis/tokensAbi/bSPELL";
+import MagicKodiakVault from "@/abis/tokensAbi/MagicKodiakVault";
 import MagicUSD0pp from "@/abis/tokensAbi/MagicUSD0pp";
 import USD0pp from "@/abis/tokensAbi/USD0pp";
+import bSPELL from "@/abis/tokensAbi/bSPELL";
 
 export default {
   ALCX,
@@ -107,7 +108,8 @@ export default {
   yvUSDT,
   yvUSDC,
   USDT,
-  bSPELL,
+  MagicKodiakVault,
   MagicUSD0pp,
   USD0pp,
+  bSPELL,
 };

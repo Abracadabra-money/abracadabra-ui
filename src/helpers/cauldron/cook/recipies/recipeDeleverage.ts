@@ -1,13 +1,13 @@
 import { actions } from "@/helpers/cauldron/cook/actions";
 import getDelev0xData from "../0xSwapData/deleverage/getDelev0xData";
-
+import type {Address} from "viem";
 const recipe0xDeleverage = async (
   cookData: any,
   cauldronObject: any,
   shareFrom: any,
   shareToMin: any,
   slipage: any,
-  userAddr: string
+  userAddr: Address
 ): Promise<any> => {
   const { collateral, mim, liquidationSwapper } = cauldronObject.contracts;
 
@@ -82,7 +82,7 @@ const recipeDeleverage = async (
   shareToMin: any,
   slipage: any,
   is0x: boolean,
-  userAddr: string
+  userAddr: Address
 ): Promise<any> => {
   if (is0x)
     return await recipe0xDeleverage(
