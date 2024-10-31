@@ -473,7 +473,7 @@ const config: Array<CauldronConfig> = [
     },
   },
   {
-    icon: useImage(`assets/images/tokens/WETH.png`),
+    icon: useImage(`assets/images/tokens/ZRO.png`),
     name: "ZRO",
     chainId: 42161,
     id: 11,
