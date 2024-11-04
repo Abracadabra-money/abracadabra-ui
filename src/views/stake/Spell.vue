@@ -13,14 +13,6 @@
               <StatisticIcon />
             </button>
           </h3>
-          <Tabs
-            :name="activeToken"
-            :items="tabTokens"
-            :icons="tabTokenIcons"
-            width="280px"
-            small
-            @select="changeToken"
-          />
         </div>
 
         <AvailableNetworksBlock
@@ -196,8 +188,6 @@ import { getStakeInfo } from "@/helpers/stake/spell/getStakeInfo";
 export default {
   data() {
     return {
-      activeToken: "mSpell",
-      tabTokens: ["mSpell", "sSpell"],
       tabTokenIcons: [
         useImage("assets/images/tokens/mSPELL.png"),
         useImage("assets/images/tokens/sSPELL.png"),
@@ -222,6 +212,10 @@ export default {
       account: "getAccount",
       localStakeData: "getSpellStakeData",
     }),
+
+    activeToken() {
+      return (this.$route.query.token as string) || "mSpell";
+    },
 
     isStakeAction() {
       return this.activeTab === "stake";
@@ -477,11 +471,6 @@ export default {
       }
     },
 
-    getActiveToken() {
-      const activeToken = localStorage.getItem("SPELL_SELECTED_TOKEN");
-      if (activeToken) this.activeToken = activeToken;
-    },
-
     async claimMimHandler() {
       if (!this.isUnsupportedChain) {
         switchNetwork(this.selectedNetwork);
@@ -587,7 +576,6 @@ export default {
     if (window.innerWidth <= 600) this.isMobile = true;
     else this.isAdditionalInfo = true;
     window.addEventListener("resize", this.getWindowSize, false);
-    this.getActiveToken();
     this.updateActiveNetwork();
 
     this.checkLocalData();

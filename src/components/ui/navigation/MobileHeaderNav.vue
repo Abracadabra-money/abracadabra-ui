@@ -15,12 +15,11 @@
         </MobileHeaderLink>
       </li>
 
-      <li class="stake-wrap" @click.stop="$emit('open-inner-popup')">
-        <span class="stake-btn">
+      <li @click="$emit('close-popup')">
+        <MobileHeaderLink to="StakeList">
           <img src="@/assets/images/header/dropdown/more/stake-icon.svg" />
-          <span> Stake </span>
-          <img class="arrow" src="@/assets/images/arrow.svg" />
-        </span>
+          Stake
+        </MobileHeaderLink>
       </li>
 
       <li @click="$emit('close-popup')">

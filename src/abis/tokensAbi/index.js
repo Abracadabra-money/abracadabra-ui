@@ -46,12 +46,14 @@ import crv3crypto from "@/abis/tokensAbi/crv3crypto";
 import GM from "@/abis/tokensAbi/GM";
 import mimUsdtCurveLp from "@/abis/tokensAbi/mimUsdtCurveLp";
 import TetherUSDtLP from "@/abis/tokensAbi/TetherUSDtLP";
+import ARB from "@/abis/tokensAbi/ARB";
 import yvUSDT from "@/abis/tokensAbi/yvUSDT";
 import yvUSDC from "@/abis/tokensAbi/yvUSDC";
 import USDT from "@/abis/tokensAbi/USDT";
 import MagicKodiakVault from "@/abis/tokensAbi/MagicKodiakVault";
 import MagicUSD0pp from "@/abis/tokensAbi/MagicUSD0pp";
 import USD0pp from "@/abis/tokensAbi/USD0pp";
+import bSPELL from "@/abis/tokensAbi/bSPELL";
 
 export default {
   ALCX,
@@ -102,10 +104,12 @@ export default {
   GM,
   mimUsdtCurveLp,
   TetherUSDtLP,
+  ARB,
   yvUSDT,
   yvUSDC,
   USDT,
   MagicKodiakVault,
   MagicUSD0pp,
   USD0pp,
+  bSPELL,
 };
