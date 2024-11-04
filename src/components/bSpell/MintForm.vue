@@ -52,7 +52,8 @@
 
 <script lang="ts">
 import { formatUnits } from "viem";
-import { defineAsyncComponent, PropType } from "vue";
+import type { PropType } from "vue";
+import { defineAsyncComponent } from "vue";
 import { mint } from "@/helpers/bSpell/actions/mint";
 import { approveTokenViem } from "@/helpers/approval";
 import type { LockerInfo } from "@/helpers/bSpell/types";
@@ -169,6 +170,7 @@ export default {
         notification.pending
       );
 
+      // @ts-ignore
       const { error } = await mint(
         this.lockerInfo.tokenBank,
         this.inputAmount,

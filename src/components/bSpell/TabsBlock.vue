@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts">
-import { PropType } from "vue";
+import type { PropType } from "vue";
 import type { TabInfo } from "@/helpers/bSpell/types";
 
 export default {

@@ -100,7 +100,8 @@
 <script lang="ts">
 import moment from "moment";
 import { formatUnits } from "viem";
-import { defineAsyncComponent, PropType } from "vue";
+import type { PropType } from "vue";
+import { defineAsyncComponent } from "vue";
 import { approveTokenViem } from "@/helpers/approval";
 import { formatTokenBalance } from "@/helpers/filters";
 import { redeem } from "@/helpers/bSpell/actions/redeem";
@@ -257,6 +258,7 @@ export default {
         notification.pending
       );
 
+      // @ts-ignore
       const { error } = await redeem(
         this.lockerInfo.tokenBank,
         this.inputAmount,
@@ -280,6 +282,7 @@ export default {
         notification.pending
       );
 
+      // @ts-ignore
       const { error } = await instantRedeem(
         this.lockerInfo.tokenBank,
         this.inputAmount,

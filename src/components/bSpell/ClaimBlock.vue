@@ -114,6 +114,7 @@ export default {
         notification.pending
       );
 
+      // @ts-ignore
       const { error } = await claim(this.lockerInfo.tokenBank);
 
       if (error) {

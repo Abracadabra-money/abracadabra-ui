@@ -99,7 +99,8 @@
 <script lang="ts">
 import moment from "moment";
 import { formatUnits } from "viem";
-import { defineAsyncComponent, PropType } from "vue";
+import type { PropType } from "vue";
+import { defineAsyncComponent } from "vue";
 import { formatTokenBalance } from "@/helpers/filters";
 import type { LockerInfo } from "@/helpers/bSpell/types";
 
