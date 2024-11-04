@@ -1,6 +1,6 @@
 import type { ActionConfig } from "@/helpers/pools/poolCreation/actions/createPool";
 import type { PoolCreationTokenInfo } from "@/configs/pools/poolCreation/types";
-import { PoolTypes } from "@/constants/pools/poolCreation";
+import type { PoolTypes } from "@/constants/pools/poolCreation";
 import type { Address } from "viem";
 
 type ValidationData = {
