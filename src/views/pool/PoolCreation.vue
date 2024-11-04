@@ -329,8 +329,6 @@ export default {
     },
 
     async selectedNetwork(value) {
-      console.log("selectedNetwork", value);
-
       this.similarPools = [];
       this.isLoading = true;
       await this.createTokenList();
@@ -357,8 +355,6 @@ export default {
     },
 
     async chainId(value) {
-      console.log("chainId", value);
-
       await this.createTokenList();
     },
 

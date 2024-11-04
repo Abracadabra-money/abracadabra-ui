@@ -15,7 +15,7 @@ const blastTokens: Array<PoolCreationTokenConfig> = [
   },
   {
     chainId: BLAST_CHAIN_ID,
-    address: "0x76DA31D7C9CbEAE102aff34D3398bC450c8374c1",
+    address: "0x4300000000000000000000000000000000000003",
     name: "USDB",
     symbol: "USDB",
     icon: useImage("assets/images/tokens/USDB.png"),
