@@ -18,19 +18,7 @@
         {{ cauldron.config.name }}
       </div>
 
-      <div class="multiplier" v-if="isMultiplierLabel">
-        <div class="multiplier-title">Elixir Potion Multiplier</div>
-        <div class="multiplier-value">5x - 29.5x</div>
-      </div>
-
-      <div class="multiplier" v-else-if="isPillsPoints">
-        <div class="multiplier-title">Pills Multiplier</div>
-        <div class="multiplier-value">1x - 6.3x</div>
-      </div>
-
-      <div class="apr" v-else>
-        {{ loopApr }}
-      </div>
+      <RewardInfo :cauldron="cauldron" small />
     </div>
 
     <div class="row">
@@ -69,10 +57,11 @@
 
 <script lang="ts">
 import { formatUnits } from "viem";
+import { defineAsyncComponent } from "vue";
+import { formatLargeSum } from "@/helpers/filters";
 import type { RouterLinkParams } from "@/types/global";
-import { BERA_BARTIO_CHAIN_ID, MAINNET_CHAIN_ID } from "@/constants/global";
+import { BERA_BARTIO_CHAIN_ID } from "@/constants/global";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
-import { formatToFixed, formatLargeSum } from "@/helpers/filters";
 import type { CauldronListItem } from "@/helpers/cauldron/lists/getMarketList";
 
 enum CauldronLabel {
@@ -93,7 +82,7 @@ export default {
   data() {
     return {
       elixirPotions: [43, 44],
-      pillsPoints: [45]
+      pillsPoints: [45],
     };
   },
 
@@ -111,27 +100,6 @@ export default {
       if (cauldronSettings?.isDepreciated) return CauldronLabel.deprecated;
       return CauldronLabel.empty;
     },
-
-    loopApr(): string {
-      if (!this.cauldron.apr.value) return "-";
-
-      const { value, multiplier } = this.cauldron.apr;
-      return `${value}% - ${formatToFixed(value * multiplier, 2)}%`;
-    },
-
-    isMultiplierLabel() {
-      return (
-        this.cauldron.config.chainId === MAINNET_CHAIN_ID &&
-        this.elixirPotions.includes(this.cauldron.config.id)
-      );
-    },
-
-    isPillsPoints() {
-      return (
-        this.cauldron.config.chainId === MAINNET_CHAIN_ID &&
-        this.pillsPoints.includes(this.cauldron.config.id)
-      );
-    },
   },
 
   methods: {
@@ -145,6 +113,12 @@ export default {
     formatLargeSum(value: bigint, decimals = 18): string {
       return formatLargeSum(formatUnits(value, decimals));
     },
+  },
+
+  components: {
+    RewardInfo: defineAsyncComponent(
+      () => import("@/components/cauldrons/RewardInfo.vue")
+    ),
   },
 };
 </script>
@@ -251,38 +225,6 @@ export default {
   height: 20px;
   border-radius: 50%;
   border: 1px solid #0d1427;
-}
-
-.multiplier {
-  padding: 6px 12px;
-  background: linear-gradient(
-      270deg,
-      #ffe47c -3.8%,
-      #ff43c3 50.8%,
-      #4156e0 100%
-    ),
-    linear-gradient(0deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2));
-  border-radius: 10px;
-}
-
-.multiplier-title {
-  font-size: 10px;
-  font-weight: 500;
-  text-align: center;
-}
-
-.multiplier-value {
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 16px;
-  text-align: center;
-}
-
-.apr {
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 150%;
-  text-shadow: 0px 0px 16px #ab5de8;
 }
 
 .title {

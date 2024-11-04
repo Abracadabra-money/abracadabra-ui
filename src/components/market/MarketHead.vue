@@ -3,7 +3,6 @@
     <div class="market-head">
       <div class="group-wrap">
         <TokenInfo :cauldron="cauldron" />
-        {{ isDepreciatedCauldron }}
       </div>
 
       <div class="icons-wrap group-wrap">
