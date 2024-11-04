@@ -267,6 +267,7 @@ export default {
         this.actionConfig,
         this.poolType,
         this.chainId,
+        this.selectedNetwork,
         this.account,
         this.isActionProcessing,
         !!this.identicalPool,
@@ -303,21 +304,33 @@ export default {
 
     baseToken: {
       handler(newValue: PoolCreationTokenInfo) {
-        this.actionConfig.baseToken = newValue.config.address;
-        this.resetInputs();
+        if (
+          this.actionConfig.baseToken.toLowerCase() !==
+          newValue.config.address.toLowerCase()
+        ) {
+          this.actionConfig.baseToken = newValue.config.address;
+          this.resetInputs();
+        }
       },
       deep: true,
     },
 
     quoteToken: {
       handler(newValue: PoolCreationTokenInfo) {
-        this.actionConfig.quoteToken = newValue.config.address;
-        this.resetInputs();
+        if (
+          this.actionConfig.quoteToken.toLowerCase() !==
+          newValue.config.address.toLowerCase()
+        ) {
+          this.actionConfig.quoteToken = newValue.config.address;
+          this.resetInputs();
+        }
       },
       deep: true,
     },
 
-    async selectedNetwork() {
+    async selectedNetwork(value) {
+      console.log("selectedNetwork", value);
+
       this.similarPools = [];
       this.isLoading = true;
       await this.createTokenList();
@@ -343,7 +356,9 @@ export default {
         parseUnits("1", oldDecimals);
     },
 
-    async chainId() {
+    async chainId(value) {
+      console.log("chainId", value);
+
       await this.createTokenList();
     },
 
@@ -583,7 +598,7 @@ export default {
           break;
         case "switchNetwork":
           this.isActionProcessing = true;
-          await switchNetwork(42161); //todo
+          await switchNetwork(this.selectedNetwork);
           this.isActionProcessing = true;
           break;
         case "approveBaseToken":

@@ -1,6 +1,6 @@
 import type { ActionConfig } from "@/helpers/pools/poolCreation/actions/createPool";
 import type { PoolCreationTokenInfo } from "@/configs/pools/poolCreation/types";
-import { PoolTypes, SUPPORTED_CHAINS } from "@/constants/pools/poolCreation";
+import { PoolTypes } from "@/constants/pools/poolCreation";
 import type { Address } from "viem";
 
 type ValidationData = {
@@ -14,7 +14,8 @@ export const validationActions = (
   quoteToken: PoolCreationTokenInfo,
   actionConfig: ActionConfig,
   poolType: PoolTypes | null,
-  chainId: number,
+  currentChainId: number,
+  selectedChainId: number,
   account: Address | null,
   isActionProcessing: boolean,
   identicalPoolExists: boolean,
@@ -31,7 +32,7 @@ export const validationActions = (
       method: "connectWallet",
     };
 
-  const chainError = validateChain(chainId);
+  const chainError = validateChain(currentChainId, selectedChainId);
   if (chainError.btnText) return chainError;
 
   if (baseToken.config.name === "Select Token")
@@ -48,11 +49,12 @@ export const validationActions = (
 
   if (!K) return { btnText: "Select K", isAllowed: false };
 
-  if (identicalPoolExists && !mobileMode) return {
-    btnText: 'Go To Identical',
-    isAllowed: true,
-    method: "goToIdenticalPool",
-  }
+  if (identicalPoolExists && !mobileMode)
+    return {
+      btnText: "Go To Identical",
+      isAllowed: true,
+      method: "goToIdenticalPool",
+    };
 
   if (!baseInAmount || !quoteInAmount)
     return { btnText: "Enter amount", isAllowed: false };
@@ -88,9 +90,10 @@ export const validationActions = (
 
 const validateChain = (
   connectedChainId: number,
+  selectedChainId: number,
   btnText = "Switch chain"
 ) => {
-  if (!SUPPORTED_CHAINS.includes(connectedChainId))
+  if (connectedChainId !== selectedChainId)
     return {
       btnText,
       isAllowed: true,
