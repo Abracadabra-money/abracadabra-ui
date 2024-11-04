@@ -1,10 +1,7 @@
 <template>
   <div :class="['price-selector-wrap', { disabled: isPriceSelectorDisabled }]">
     <div class="price-selector-header">
-      <h4 class="action-title">
-        Initial Price
-        <Tooltip tooltip="tooltip" />
-      </h4>
+      <h4 class="action-title">Initial Price</h4>
 
       <template v-if="!isPriceSelectorDisabled">
         <BaseCheckBox
