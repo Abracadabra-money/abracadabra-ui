@@ -1,8 +1,9 @@
 <template>
-  <div class="market-head-wrap">
+  <div :class="['market-head-wrap', { deprecated: isDepreciatedCauldron }]">
     <div class="market-head">
       <div class="group-wrap">
         <TokenInfo :cauldron="cauldron" />
+        {{ isDepreciatedCauldron }}
       </div>
 
       <div class="icons-wrap group-wrap">
@@ -35,6 +36,10 @@
         <DepositButton :cauldron="cauldron" v-if="isActiveChain" />
 
         <ClaimButton :cauldron="cauldron" v-if="isActiveChain" />
+
+        <div class="deprecated-label" v-if="isDepreciatedCauldron">
+          Deprecated
+        </div>
       </div>
 
       <div class="info-wrap group-wrap">
@@ -126,6 +131,10 @@ export default {
     hasElixirPotions() {
       return this.cauldron.config.cauldronSettings.hasElixirPotions;
     },
+
+    isDepreciatedCauldron() {
+      return this.cauldron.config.cauldronSettings.isDepreciated;
+    },
   },
 
   methods: {
@@ -200,6 +209,14 @@ export default {
   backdrop-filter: blur(10.75px);
 }
 
+.deprecated {
+  background: linear-gradient(
+    90deg,
+    rgba(140, 64, 64, 0.18) 0%,
+    rgba(107, 36, 36, 0.18) 100%
+  );
+}
+
 .testing-chip {
   background: linear-gradient(90deg, #af6900 0%, #e9984d 100%);
   align-items: center;
@@ -236,6 +253,16 @@ export default {
   display: flex;
   gap: 8px;
   align-items: center;
+}
+
+.deprecated-label {
+  padding: 6px 12px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #8c4040 0%, #6b2424 100%);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
 }
 
 @media screen and (max-width: 1024px) {
