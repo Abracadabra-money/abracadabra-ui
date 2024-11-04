@@ -1,15 +1,17 @@
 export default [
-  {
-    inputs: [
-      { internalType: "address", name: "_owner", type: "address" },
-      { internalType: "string", name: "name_", type: "string" },
-      { internalType: "string", name: "symbol_", type: "string" },
-      { internalType: "uint8", name: "decimals_", type: "uint8" },
-    ],
-    stateMutability: "nonpayable",
-    type: "constructor",
-  },
+  { inputs: [], stateMutability: "nonpayable", type: "constructor" },
+  { inputs: [], name: "AllowanceOverflow", type: "error" },
+  { inputs: [], name: "AllowanceUnderflow", type: "error" },
+  { inputs: [], name: "InsufficientAllowance", type: "error" },
+  { inputs: [], name: "InsufficientBalance", type: "error" },
+  { inputs: [], name: "InvalidInitialization", type: "error" },
+  { inputs: [], name: "InvalidPermit", type: "error" },
+  { inputs: [], name: "NotInitializing", type: "error" },
+  { inputs: [], name: "PermitExpired", type: "error" },
+  { inputs: [], name: "TotalSupplyOverflow", type: "error" },
   { inputs: [], name: "Unauthorized", type: "error" },
+  { inputs: [], name: "UnauthorizedCallContext", type: "error" },
+  { inputs: [], name: "UpgradeFailed", type: "error" },
   {
     anonymous: false,
     inputs: [
@@ -33,6 +35,19 @@ export default [
       },
     ],
     name: "Approval",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint64",
+        name: "version",
+        type: "uint64",
+      },
+    ],
+    name: "Initialized",
     type: "event",
   },
   {
@@ -74,19 +89,32 @@ export default [
     type: "event",
   },
   {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "implementation",
+        type: "address",
+      },
+    ],
+    name: "Upgraded",
+    type: "event",
+  },
+  {
     inputs: [],
     name: "DOMAIN_SEPARATOR",
-    outputs: [{ internalType: "bytes32", name: "", type: "bytes32" }],
+    outputs: [{ internalType: "bytes32", name: "result", type: "bytes32" }],
     stateMutability: "view",
     type: "function",
   },
   {
     inputs: [
-      { internalType: "address", name: "", type: "address" },
-      { internalType: "address", name: "", type: "address" },
+      { internalType: "address", name: "owner", type: "address" },
+      { internalType: "address", name: "spender", type: "address" },
     ],
     name: "allowance",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    outputs: [{ internalType: "uint256", name: "result", type: "uint256" }],
     stateMutability: "view",
     type: "function",
   },
@@ -101,9 +129,9 @@ export default [
     type: "function",
   },
   {
-    inputs: [{ internalType: "address", name: "", type: "address" }],
+    inputs: [{ internalType: "address", name: "owner", type: "address" }],
     name: "balanceOf",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    outputs: [{ internalType: "uint256", name: "result", type: "uint256" }],
     stateMutability: "view",
     type: "function",
   },
@@ -126,6 +154,18 @@ export default [
   },
   {
     inputs: [
+      { internalType: "string", name: "name_", type: "string" },
+      { internalType: "string", name: "symbol_", type: "string" },
+      { internalType: "uint8", name: "decimals_", type: "uint8" },
+      { internalType: "address", name: "owner_", type: "address" },
+    ],
+    name: "initialize",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
       { internalType: "address", name: "to", type: "address" },
       { internalType: "uint256", name: "amount", type: "uint256" },
     ],
@@ -142,9 +182,9 @@ export default [
     type: "function",
   },
   {
-    inputs: [{ internalType: "address", name: "", type: "address" }],
+    inputs: [{ internalType: "address", name: "owner", type: "address" }],
     name: "nonces",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    outputs: [{ internalType: "uint256", name: "result", type: "uint256" }],
     stateMutability: "view",
     type: "function",
   },
@@ -178,6 +218,13 @@ export default [
     type: "function",
   },
   {
+    inputs: [],
+    name: "proxiableUUID",
+    outputs: [{ internalType: "bytes32", name: "", type: "bytes32" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       { internalType: "address", name: "operator", type: "address" },
       { internalType: "bool", name: "enable", type: "bool" },
@@ -197,7 +244,7 @@ export default [
   {
     inputs: [],
     name: "totalSupply",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    outputs: [{ internalType: "uint256", name: "result", type: "uint256" }],
     stateMutability: "view",
     type: "function",
   },
@@ -227,6 +274,16 @@ export default [
     name: "transferOwnership",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "address", name: "newImplementation", type: "address" },
+      { internalType: "bytes", name: "data", type: "bytes" },
+    ],
+    name: "upgradeToAndCall",
+    outputs: [],
+    stateMutability: "payable",
     type: "function",
   },
 ];

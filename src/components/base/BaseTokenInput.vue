@@ -1,6 +1,6 @@
 <template>
   <div class="wrap">
-    <div class="val-input">
+    <div :class="['val-input', { disabled: disabled }]">
       <div class="token-input-wrap">
         <input
           name="tokenInput"
@@ -285,5 +285,14 @@ export default {
 
 .arrow-icon {
   margin-left: 8px;
+}
+
+.disabled {
+  border: 1px solid rgba(73, 70, 97, 0.4);
+  background: linear-gradient(
+    146deg,
+    rgba(0, 10, 35, 0.07) 0%,
+    rgba(0, 80, 156, 0.07) 101.49%
+  );
 }
 </style>

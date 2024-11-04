@@ -62,7 +62,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/bspell",
     name: "BSpell",
-    component: () => import("@/views/stake/BSpell.vue"),
+    component: () => import("@/views/BSpell.vue"),
   },
   {
     path: "/magicGLP",
