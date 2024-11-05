@@ -66,13 +66,7 @@
 <script lang="ts">
 import { defineAsyncComponent, type PropType } from "vue";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
-import {
-  FEE_TIER_DECIMALS,
-  STANDARD_K_VALUE,
-} from "@/constants/pools/poolCreation";
-import { formatPercent } from "@/helpers/filters";
 import type { MagicLPInfo } from "@/helpers/pools/swap/types";
-import { formatUnits } from "viem";
 import type { SortOrder } from "@/types/sorting";
 
 export default {

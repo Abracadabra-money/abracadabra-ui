@@ -7,7 +7,12 @@
 
     <TokenPair :pool="pool" chainIcon />
 
-    <div class="rewards">
+    <div class="indicator">
+      <h3 class="title">TVL</h3>
+      <div class="value">${{ tvl }}</div>
+    </div>
+
+    <div class="indicator rewards">
       <h3 class="title">Rewards</h3>
 
       <RewardPointsTagWrap
@@ -25,18 +30,6 @@
           :size="index === 0 ? '20px' : '24px'"
           :key="index"
         />
-      </div>
-    </div>
-
-    <div class="indicator">
-      <h3 class="title">TVL</h3>
-      <div class="value">${{ tvl }}</div>
-    </div>
-
-    <div class="indicator">
-      <h3 class="title">TBD</h3>
-      <div class="value">
-        {{ toBeDistributed }}
       </div>
     </div>
 
@@ -84,10 +77,6 @@ export default {
       return formatLargeSum(
         formatUnits(this.pool.stakedTotalSupply, this.decimals)
       );
-    },
-
-    toBeDistributed() {
-      return "todo";
     },
 
     poolApr() {
@@ -262,16 +251,12 @@ export default {
   grid-column: span 1;
 }
 
-.rewards {
-  grid-column: 3 / 4;
-}
-
 .reward-points-wrap::v-deep(.multiplier-text) {
   display: none;
 }
 
 .token-pair {
-  grid-column: span 2;
+  grid-column: span 3;
   gap: 8px !important;
 }
 

@@ -11,8 +11,6 @@
 
     <div class="column">${{ tvl }}</div>
 
-    <div class="column">{{ toBeDistributed }}</div>
-
     <div class="column">
       <RewardPointsTagWrap
         :rewardPointsType="rewardPointsType"
@@ -69,10 +67,6 @@ export default {
 
       const tvlInUsd = formattedTotalSupply * (this.pool.price || 1);
       return formatLargeSum(tvlInUsd);
-    },
-
-    toBeDistributed() {
-      return "Todo ";
     },
 
     poolApr() {
