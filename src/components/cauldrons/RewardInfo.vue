@@ -1,12 +1,12 @@
 <template>
-  <div :class="['column', { small }]" v-if="isMultiplierLabel">
+  <div :class="['reward-info', { small }]" v-if="isMultiplierLabel">
     <div class="additional-info">
       <div class="additional-info-title">Elixir Potion Multiplier</div>
       <div class="additional-info-value">5x - 29.5x</div>
     </div>
   </div>
 
-  <div :class="['column', { small }]" v-else-if="isPillsPoints">
+  <div :class="['reward-info', { small }]" v-else-if="isPillsPoints">
     <div class="additional-info">
       <div class="additional-info-title">Pills Multiplier</div>
       <div class="additional-info-value">1x - 6.3x</div>
@@ -69,6 +69,24 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.reward-info {
+  max-width: 180px;
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid #2d4a96;
+  background: linear-gradient(
+    90deg,
+    rgba(45, 74, 150, 0.12) 0%,
+    rgba(116, 92, 210, 0.12) 100%
+  );
+  box-shadow: 0px 4px 9px 0px rgba(134, 92, 230, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 18px;
+}
+
 .column {
   max-width: 180px;
   width: 100%;
@@ -85,20 +103,19 @@ export default {
 }
 
 .additional-info-title {
-  font-size: 10px;
+  font-size: 12px;
   font-style: normal;
   font-weight: 500;
   line-height: normal;
-  line-height: 15px;
 }
 
 .additional-info-value {
+  text-align: center;
   text-shadow: 0px 0px 16px #ab5de8;
   font-size: 16px;
   font-style: normal;
   font-weight: 600;
   line-height: 16px;
-  text-align: center;
 }
 
 .apr {
@@ -111,6 +128,16 @@ export default {
   .additional-info-value,
   .apr {
     font-size: 14px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .reward-info {
+    padding: 5px 8px;
+  }
+
+  .additional-info-title {
+    font-size: 10px;
   }
 }
 </style>

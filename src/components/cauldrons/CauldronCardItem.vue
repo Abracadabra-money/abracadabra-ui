@@ -203,7 +203,7 @@ export default {
 
 .cauldron-info {
   display: flex;
-  gap: 20px;
+  gap: 8px;
   align-items: center;
   font-size: 14px;
 }

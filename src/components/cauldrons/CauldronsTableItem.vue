@@ -172,6 +172,7 @@ export default {
 .column {
   max-width: 180px;
   width: 100%;
+  text-align: center;
 }
 
 .cauldron-info {
