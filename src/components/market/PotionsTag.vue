@@ -1,11 +1,18 @@
 <template>
-  <div class="tag-wrap">
-    <span class="content">Earning Elixir Potions</span>
+  <div class="tag-wrap" v-if="!!text">
+    <span class="content">{{ text }}</span>
   </div>
 </template>
 
 <script lang="ts">
-export default {};
+export default {
+  props: {
+    text: {
+      type: String,
+      default: "",
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>

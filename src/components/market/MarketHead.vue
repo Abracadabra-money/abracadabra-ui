@@ -26,7 +26,7 @@
           :icon="tokenLinkData.icon"
         />
 
-        <ElixirPotionsTag v-if="hasElixirPotions" />
+        <PotionsTag :text="potionText" />
 
         <div class="testing-chip" v-if="showTestnetChip">
           <p>Bartio Testnet</p>
@@ -127,12 +127,16 @@ export default {
       return this.isActiveChain && this.collateralSymbol.length <= 11;
     },
 
-    hasElixirPotions() {
-      return this.cauldron.config.cauldronSettings.hasElixirPotions;
-    },
-
     isDepreciatedCauldron() {
       return this.cauldron.config.cauldronSettings.isDepreciated;
+    },
+
+    potionText() {
+      if (this.cauldron.config.cauldronSettings.hasElixirPotions)
+        return "Earning Elixir Potions";
+      if (this.cauldron.config.cauldronSettings.isUSD0) return "Earning Pills";
+
+      return "";
     },
   },
 
@@ -191,8 +195,8 @@ export default {
     ClaimButton: defineAsyncComponent(
       () => import("@/components/ui/buttons/ClaimButton.vue")
     ),
-    ElixirPotionsTag: defineAsyncComponent(
-      () => import("@/components/market/ElixirPotionsTag.vue")
+    PotionsTag: defineAsyncComponent(
+      () => import("@/components/market/PotionsTag.vue")
     ),
   },
 };
