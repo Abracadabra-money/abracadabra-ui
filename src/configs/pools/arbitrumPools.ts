@@ -85,15 +85,6 @@ const arbitrumPools: Array<PoolConfig | AdditionalPoolConfig> = [
           abi: erc20Abi,
         },
       },
-      {
-        name: "ARB",
-        icon: useImage(`assets/images/tokens/ARB.png`),
-        decimals: 18,
-        contract: {
-          address: "0x912CE59144191C1204E64559FE8253a0e49E6548",
-          abi: erc20Abi,
-        },
-      },
     ],
     settings: {
       isNew: true,
@@ -147,15 +138,6 @@ const arbitrumPools: Array<PoolConfig | AdditionalPoolConfig> = [
         decimals: 18,
         contract: {
           address: "0x3E6648C5a70A150A88bCE65F4aD4d506Fe15d2AF",
-          abi: erc20Abi,
-        },
-      },
-      {
-        name: "ARB",
-        icon: useImage(`assets/images/tokens/ARB.png`),
-        decimals: 18,
-        contract: {
-          address: "0x912CE59144191C1204E64559FE8253a0e49E6548",
           abi: erc20Abi,
         },
       },
