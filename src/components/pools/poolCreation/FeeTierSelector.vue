@@ -7,15 +7,14 @@
     <ul class="fee-tier-options" v-if="poolType">
       <li
         :class="['fee-tier-option', { active: index == currentOptionIndex }]"
-        v-for="({ value, description }, index) in feeTierOptions"
+        v-for="(feeTier, index) in feeTierOptions"
         :key="index"
         @click="selectOption(index)"
       >
-        <span class="fee-tier-value">{{ formatFeeTier(value) }}</span>
-        <p class="fee-tier-description">
-          {{ description }}
-        </p>
-        <RadioButton :active="index == currentOptionIndex" />
+        <span class="fee-tier-value">
+          {{ formatFeeTier(feeTier) }}
+          <RadioButton :active="index == currentOptionIndex" />
+        </span>
       </li>
     </ul>
 
@@ -49,24 +48,10 @@ export default {
     feeTierOptions() {
       switch (this.poolType) {
         case PoolTypes.Pegged:
-          return [
-            {
-              value: 400000000000000n,
-              description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
-            },
-            {
-              value: 500000000000000n,
-              description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
-            },
-          ];
+          return [400000000000000n, 500000000000000n];
 
         case PoolTypes.Standard:
-          return [
-            {
-              value: 300000000000000n,
-              description: "Lorem ipsum dolor sit amet, consectetur adipiscing",
-            },
-          ];
+          return [300000000000000n];
 
         default:
           return [];
@@ -87,7 +72,7 @@ export default {
 
     selectOption(index: number) {
       this.currentOptionIndex = index;
-      this.$emit("selectFeeTier", this.feeTierOptions[index]?.value || 0n);
+      this.$emit("selectFeeTier", this.feeTierOptions[index] || 0n);
     },
   },
 
@@ -115,8 +100,10 @@ export default {
 
 .fee-tier-options {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
   gap: 12px;
+  height: 71px;
 }
 
 .fee-tier-option {
@@ -124,7 +111,7 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 12px;
+  width: calc(50% - 12px);
   border-radius: 12px;
   border: 1px solid rgba(180, 180, 180, 0.08);
   background: linear-gradient(
@@ -134,28 +121,30 @@ export default {
   );
   box-shadow: 0px 4px 33px 0px rgba(0, 0, 0, 0.06);
   cursor: pointer;
-  transition: all 0.3s ease-in;
+  transition: background-color 0.3s ease-in;
 }
 
 .fee-tier-value {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 19px 20px;
+  border-radius: 12px;
   font-size: 18px;
   font-weight: 500;
 }
 
-.fee-tier-description {
-  color: #878b93;
-  font-size: 14px;
-  font-weight: 500;
-}
-
 .fee-tier-option.active {
-  border: 1px solid #2d4a96;
+  padding: 1px 1.25px;
+  background: linear-gradient(90deg, #2d4a96, #745cd2);
+  border: none;
 }
 
-.radio-button {
-  position: absolute;
-  top: 8px;
-  right: 8px;
+.fee-tier-option.active .fee-tier-value {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #1c2b53 0%, #303063 100%);
+  box-shadow: 0px 4px 33px 0px rgba(0, 0, 0, 0.06);
 }
 
 .explanation-wrap {
@@ -169,5 +158,15 @@ export default {
   max-width: 247px;
   font-size: 14px;
   text-align: center;
+}
+
+@media (max-width: 1024px) {
+  .fee-tier-options {
+    height: 56px;
+  }
+
+  .fee-tier-value {
+    padding: 12px;
+  }
 }
 </style>

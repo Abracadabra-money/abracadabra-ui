@@ -36,8 +36,8 @@
             @selectFeeTier="selectFeeTier"
           />
 
-          <div class="error-button-wrap">
-            <Warning v-if="!!identicalPool && !mobileMode">
+          <div class="error-button-wrap" v-if="!mobileMode">
+            <Warning v-if="!!identicalPool">
               Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
               eiusmod tempor
             </Warning>
@@ -46,7 +46,6 @@
               primary
               :disabled="!validationData.isAllowed"
               @click="actionHandler"
-              v-if="!mobileMode"
             >
               {{ validationData.btnText }}
             </BaseButton>
@@ -328,7 +327,7 @@ export default {
       deep: true,
     },
 
-    async selectedNetwork(value) {
+    async selectedNetwork() {
       this.similarPools = [];
       this.isLoading = true;
       await this.createTokenList();
@@ -354,7 +353,7 @@ export default {
         parseUnits("1", oldDecimals);
     },
 
-    async chainId(value) {
+    async chainId() {
       await this.createTokenList();
     },
 
