@@ -13,12 +13,7 @@ export default {};
   display: flex;
   padding: 1px;
   border-radius: 8px;
-  background: linear-gradient(
-    270deg,
-    rgb(255, 229, 124) 0%,
-    rgb(255, 67, 195) 52.6%,
-    rgb(65, 86, 224) 100%
-  );
+  background: linear-gradient(90deg, #2d4a96 0%, rgba(116, 92, 210, 0) 100%);
 }
 
 .content {
