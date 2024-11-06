@@ -24,6 +24,15 @@ const arbitrumTokens: Array<PoolCreationTokenConfig> = [
   },
   {
     chainId: ARBITRUM_CHAIN_ID,
+    name: "Ethereum",
+    symbol: "ETH",
+    icon: useImage(`assets/images/tokens/ETH.png`),
+    isNative: true,
+    decimals: 18,
+    abi: erc20Abi,
+  },
+  {
+    chainId: ARBITRUM_CHAIN_ID,
     address: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
     name: "Wrapped Ether",
     symbol: "WETH",

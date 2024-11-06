@@ -24,6 +24,15 @@ const kavaTokens: Array<PoolCreationTokenConfig> = [
   },
   {
     chainId: KAVA_CHAIN_ID,
+    name: "Kava",
+    symbol: "KAVA",
+    icon: useImage(`assets/images/tokens/KAVA.png`),
+    isNative: true,
+    decimals: 18,
+    abi: erc20Abi,
+  },
+  {
+    chainId: KAVA_CHAIN_ID,
     address: "0xc86c7C0eFbd6A49B35E8714C5f59D99De09A225b",
     name: "Wrapped Kava",
     symbol: "wKAVA",

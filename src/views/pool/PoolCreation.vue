@@ -154,6 +154,7 @@ import { validationActions } from "@/helpers/pools/poolCreation/validationAction
 import {
   type ActionConfig,
   createPool,
+  createPoolNative,
 } from "@/helpers/pools/poolCreation/actions/createPool";
 import type {
   PoolCreationTokenConfig,
@@ -284,6 +285,13 @@ export default {
       );
     },
 
+    nativeTokenIndicator() {
+      const isNative =
+        this.baseToken.config.isNative || this.quoteToken.config.isNative;
+      const useTokenAsQuote = !!this.quoteToken.config.isNative;
+      return { isNative, useTokenAsQuote };
+    },
+
     identicalPool() {
       return this.similarPools.find((pool) =>
         checkIdentity(pool, this.actionConfig)
@@ -305,9 +313,9 @@ export default {
       handler(newValue: PoolCreationTokenInfo) {
         if (
           this.actionConfig.baseToken.toLowerCase() !==
-          newValue.config.address.toLowerCase()
+          newValue.config.address?.toLowerCase()
         ) {
-          this.actionConfig.baseToken = newValue.config.address;
+          this.actionConfig.baseToken = newValue.config.address || "0x";
           this.resetInputs();
         }
       },
@@ -318,9 +326,9 @@ export default {
       handler(newValue: PoolCreationTokenInfo) {
         if (
           this.actionConfig.quoteToken.toLowerCase() !==
-          newValue.config.address.toLowerCase()
+          newValue.config.address?.toLowerCase()
         ) {
-          this.actionConfig.quoteToken = newValue.config.address;
+          this.actionConfig.quoteToken = newValue.config.address || "0x";
           this.resetInputs();
         }
       },
@@ -557,8 +565,15 @@ export default {
       );
 
       try {
-        const result = await createPool(this.routerAddress, this.actionConfig);
-        console.log(result);
+        if (this.nativeTokenIndicator.isNative) {
+          await createPoolNative(
+            this.routerAddress,
+            this.actionConfig,
+            this.nativeTokenIndicator.useTokenAsQuote
+          );
+        } else {
+          await createPool(this.routerAddress, this.actionConfig);
+        }
 
         await this.deleteNotification(notificationId);
 
@@ -597,22 +612,24 @@ export default {
           this.isActionProcessing = true;
           break;
         case "approveBaseToken":
-          await this.approveTokenHandler(
-            {
-              address: this.baseToken.config.address,
-              abi: this.baseToken.config.abi,
-            },
-            this.actionConfig.baseInAmount
-          );
+          if (!this.baseToken.config.isNative)
+            await this.approveTokenHandler(
+              {
+                address: this.baseToken.config.address!,
+                abi: this.baseToken.config.abi,
+              },
+              this.actionConfig.baseInAmount
+            );
           break;
         case "approveQuoteToken":
-          await this.approveTokenHandler(
-            {
-              address: this.quoteToken.config.address,
-              abi: this.quoteToken.config.abi,
-            },
-            this.actionConfig.quoteInAmount
-          );
+          if (!this.quoteToken.config.isNative)
+            await this.approveTokenHandler(
+              {
+                address: this.quoteToken.config.address!,
+                abi: this.quoteToken.config.abi,
+              },
+              this.actionConfig.quoteInAmount
+            );
           break;
         case "goToIdenticalPool":
           this.goToIdenticalPool();
@@ -762,7 +779,7 @@ export default {
 
 .action-form {
   @include block-wrap;
-  gap: 40px;
+  gap: 32px;
   display: flex;
   flex-direction: column;
 }

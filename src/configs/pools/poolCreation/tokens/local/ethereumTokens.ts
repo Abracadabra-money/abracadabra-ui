@@ -42,6 +42,15 @@ const ethereumTokens: Array<PoolCreationTokenConfig> = [
   },
   {
     chainId: MAINNET_CHAIN_ID,
+    name: "Ethereum",
+    symbol: "ETH",
+    icon: useImage(`assets/images/tokens/ETH.png`),
+    isNative: true,
+    decimals: 18,
+    abi: erc20Abi,
+  },
+  {
+    chainId: MAINNET_CHAIN_ID,
     name: "Wrapped Ether",
     symbol: "WETH",
     address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",

@@ -5,11 +5,15 @@ import type {
 } from "@/configs/pools/poolCreation/types";
 import { getSwapRouterByChain } from "@/configs/pools/routers";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
-import { getCoinsPrices } from "@/helpers/prices/defiLlama";
+import {
+  getCoinsPrices,
+  getNativeTokensPrice,
+} from "@/helpers/prices/defiLlama";
 import type { ContractInfo } from "@/types/global";
-import type { Address } from "viem";
+import { hexToBigInt, type Address } from "viem";
 import erc20Abi from "@/abis/farm/erc20Abi";
 import baseTokenIcon from "@/assets/images/base_token_icon.png";
+import { MAX_ALLOWANCE_VALUE } from "@/constants/global";
 
 export type GetPoolCreationTokenInfoArguments = {
   tokenConfig: PoolCreationTokenConfig;
@@ -23,8 +27,10 @@ export const getPoolCreationTokenInfo = async ({
   account,
 }: GetPoolCreationTokenInfoArguments): Promise<PoolCreationTokenInfo> => {
   if (!price) {
-    const { chainId, address } = tokenConfig;
-    price = (await getCoinsPrices(chainId, [address]))[0].price;
+    const { chainId, address, isNative } = tokenConfig;
+    price = isNative
+      ? (await getNativeTokensPrice([chainId]))[0].price
+      : (await getCoinsPrices(chainId, [address!]))[0].price;
   }
 
   const tokenInfo: PoolCreationTokenInfo = {
@@ -46,26 +52,37 @@ export const getTokenUserInfo = async (
 ): Promise<TokenUserInfo> => {
   const publicClient = getPublicClient(tokenConfig.chainId);
 
-  const routerAddress = getSwapRouterByChain(tokenConfig.chainId);
+  if (tokenConfig.isNative) {
+    const nativeTokenBalance = await publicClient.getBalance({
+      address: account,
+    });
 
-  const [allowance, balanceOf]: any = await publicClient.multicall({
-    contracts: [
-      {
-        address: tokenConfig.address,
-        abi: tokenConfig.abi,
-        functionName: "allowance",
-        args: [account, routerAddress],
-      },
-      {
-        address: tokenConfig.address,
-        abi: tokenConfig.abi,
-        functionName: "balanceOf",
-        args: [account],
-      },
-    ],
-  });
+    return {
+      allowance: hexToBigInt(MAX_ALLOWANCE_VALUE),
+      balance: nativeTokenBalance,
+    };
+  } else {
+    const routerAddress = getSwapRouterByChain(tokenConfig.chainId);
 
-  return { allowance: allowance.result, balance: balanceOf.result };
+    const [allowance, balanceOf]: any = await publicClient.multicall({
+      contracts: [
+        {
+          address: tokenConfig.address,
+          abi: tokenConfig.abi,
+          functionName: "allowance",
+          args: [account, routerAddress],
+        },
+        {
+          address: tokenConfig.address,
+          abi: tokenConfig.abi,
+          functionName: "balanceOf",
+          args: [account],
+        },
+      ],
+    });
+
+    return { allowance: allowance.result, balance: balanceOf.result };
+  }
 };
 
 export const getTokenAllowance = async (
