@@ -315,7 +315,7 @@ export default {
           this.actionConfig.baseToken.toLowerCase() !==
           newValue.config.address?.toLowerCase()
         ) {
-          this.actionConfig.baseToken = newValue.config.address || "0x";
+          this.actionConfig.baseToken = newValue.config.address;
           this.resetInputs();
         }
       },
@@ -328,7 +328,7 @@ export default {
           this.actionConfig.quoteToken.toLowerCase() !==
           newValue.config.address?.toLowerCase()
         ) {
-          this.actionConfig.quoteToken = newValue.config.address || "0x";
+          this.actionConfig.quoteToken = newValue.config.address;
           this.resetInputs();
         }
       },

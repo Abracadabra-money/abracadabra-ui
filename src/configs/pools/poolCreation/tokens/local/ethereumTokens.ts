@@ -44,6 +44,7 @@ const ethereumTokens: Array<PoolCreationTokenConfig> = [
     chainId: MAINNET_CHAIN_ID,
     name: "Ethereum",
     symbol: "ETH",
+    address: "0xeth",
     icon: useImage(`assets/images/tokens/ETH.png`),
     isNative: true,
     decimals: 18,

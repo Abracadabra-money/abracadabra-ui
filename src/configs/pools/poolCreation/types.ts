@@ -2,7 +2,7 @@ import type { Address } from "viem";
 
 export type PoolCreationTokenConfig = {
   chainId: number;
-  address?: Address;
+  address: Address;
   name: string;
   symbol: string;
   decimals: number;
