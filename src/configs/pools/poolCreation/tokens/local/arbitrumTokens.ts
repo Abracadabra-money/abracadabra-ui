@@ -99,8 +99,7 @@ const arbitrumTokens: Array<PoolCreationTokenConfig> = [
     name: "Aave Token",
     symbol: "AAVE",
     address: "0xba5DdD1f9d7F570dc94a51479a000E3BCE967196",
-    //todo new token icon
-    icon: useImage("assets/images/base_token_icon.png"),
+    icon: useImage(`assets/images/tokens/AAVE.png`),
     decimals: 18,
     abi: erc20Abi,
   },
@@ -118,8 +117,7 @@ const arbitrumTokens: Array<PoolCreationTokenConfig> = [
     name: "Compound",
     symbol: "COMP",
     address: "0x354A6dA3fcde098F8389cad84b0182725c6C91dE",
-    //todo new token icon
-    icon: useImage("assets/images/base_token_icon.png"),
+    icon: useImage(`assets/images/tokens/COMP.png`),
     decimals: 18,
     abi: erc20Abi,
   },
@@ -137,8 +135,7 @@ const arbitrumTokens: Array<PoolCreationTokenConfig> = [
     name: "Balancer",
     symbol: "BAL",
     address: "0x040d1EdC9569d4Bab2D15287Dc5A4F10F56a56B8",
-    //todo new token icon
-    icon: useImage("assets/images/base_token_icon.png"),
+    icon: useImage(`assets/images/tokens/BAL.png`),
     decimals: 18,
     abi: erc20Abi,
   },
@@ -152,33 +149,11 @@ const arbitrumTokens: Array<PoolCreationTokenConfig> = [
     abi: erc20Abi,
   },
   {
-    //todo: doublecheck
-    chainId: ARBITRUM_CHAIN_ID,
-    name: "Renzo Restaked ETH",
-    symbol: "ezETH",
-    address: "0x2416092f143378750bb29b79eD961ab195CcEea5",
-    //todo new token icon
-    icon: useImage("assets/images/base_token_icon.png"),
-    decimals: 18,
-    abi: erc20Abi,
-  },
-  {
     chainId: ARBITRUM_CHAIN_ID,
     name: "1INCH",
     symbol: "1INCH",
     address: "0x6314C31A7a1652cE482cffe247E9CB7c3f4BB9aF",
-    //todo new token icon
-    icon: useImage("assets/images/base_token_icon.png"),
-    decimals: 18,
-    abi: erc20Abi,
-  },
-  {
-    chainId: ARBITRUM_CHAIN_ID,
-    name: "AlphaToken",
-    symbol: "ALPHA",
-    address: "0xC9CBf102c73fb77Ec14f8B4C8bd88e050a6b2646",
-    //todo new token icon
-    icon: useImage("assets/images/base_token_icon.png"),
+    icon: useImage(`assets/images/tokens/1INCH.png`),
     decimals: 18,
     abi: erc20Abi,
   },
@@ -187,8 +162,7 @@ const arbitrumTokens: Array<PoolCreationTokenConfig> = [
     name: "BarnBridge Governance Token",
     symbol: "BOND",
     address: "0x0D81E50bC677fa67341c44D7eaA9228DEE64A4e1",
-    //todo new token icon
-    icon: useImage("assets/images/base_token_icon.png"),
+    icon: useImage(`assets/images/tokens/BOND.png`),
     decimals: 18,
     abi: erc20Abi,
   },
@@ -206,8 +180,7 @@ const arbitrumTokens: Array<PoolCreationTokenConfig> = [
     name: "Graph Token",
     symbol: "GRT",
     address: "0x9623063377AD1B27544C965cCd7342f7EA7e88C7",
-    //todo new token icon
-    icon: useImage("assets/images/base_token_icon.png"),
+    icon: useImage(`assets/images/tokens/GRT.png`),
     decimals: 18,
     abi: erc20Abi,
   },

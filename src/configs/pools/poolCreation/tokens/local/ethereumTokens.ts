@@ -81,8 +81,7 @@ const ethereumTokens: Array<PoolCreationTokenConfig> = [
     name: "Aave Token",
     symbol: "AAVE",
     address: "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9",
-    //todo new token icon
-    icon: useImage("assets/images/base_token_icon.png"),
+    icon: useImage(`assets/images/tokens/AAVE.png`),
     decimals: 18,
     abi: erc20Abi,
   },
@@ -100,8 +99,7 @@ const ethereumTokens: Array<PoolCreationTokenConfig> = [
     name: "Compound",
     symbol: "COMP",
     address: "0xc00e94Cb662C3520282E6f5717214004A7f26888",
-    //todo new token icon
-    icon: useImage("assets/images/base_token_icon.png"),
+    icon: useImage(`assets/images/tokens/COMP.png`),
     decimals: 18,
     abi: erc20Abi,
   },
@@ -119,8 +117,7 @@ const ethereumTokens: Array<PoolCreationTokenConfig> = [
     name: "Graph Token",
     symbol: "GRT",
     address: "0xc944E90C64B2c07662A292be6244BDf05Cda44a7",
-    //todo new token icon
-    icon: useImage("assets/images/base_token_icon.png"),
+    icon: useImage(`assets/images/tokens/GRT.png`),
     decimals: 18,
     abi: erc20Abi,
   },
@@ -138,8 +135,7 @@ const ethereumTokens: Array<PoolCreationTokenConfig> = [
     name: "Pepe",
     symbol: "PEPE",
     address: "0x6982508145454Ce325dDbE47a25d4ec3d2311933",
-    //todo new token icon
-    icon: useImage("assets/images/base_token_icon.png"),
+    icon: useImage(`assets/images/tokens/PEPE.png`),
     decimals: 18,
     abi: erc20Abi,
   },

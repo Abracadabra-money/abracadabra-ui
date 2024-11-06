@@ -3,7 +3,7 @@
     <h4 class="action-title">Select tokens</h4>
 
     <div class="inputs-wrap">
-      <BaseTokenInputSkeleton v-if="isLoading" />
+      <BaseTokenInputSkeleton v-show="isLoading" />
       <BaseTokenInput
         :name="baseToken.config.symbol"
         :icon="baseToken.config.icon"
@@ -15,7 +15,7 @@
         :isGradientSelector="!checkIsTokenSelected(baseToken)"
         @onSelectClick="$emit('openTokensPopup', TokenTypes.Base)"
         @updateInputValue="updateBaseTokenInputAmount"
-        v-else
+        v-show="!isLoading"
       />
 
       <IconButton
@@ -40,7 +40,7 @@
         :isGradientSelector="!checkIsTokenSelected(quoteToken)"
         @onSelectClick="$emit('openTokensPopup', TokenTypes.Quote)"
         @updateInputValue="updateQuoteTokenInputAmount"
-        v-else
+        v-show="!isLoading"
       />
     </div>
   </div>

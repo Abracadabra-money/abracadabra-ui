@@ -45,8 +45,7 @@ const kavaTokens: Array<PoolCreationTokenConfig> = [
     address: "0x15932E26f5BD4923d46a2b205191C4b5d5f43FE3",
     name: "ATOM",
     symbol: "ATOM",
-    //todo new token icon
-    icon: useImage("assets/images/base_token_icon.png"),
+    icon: useImage(`assets/images/tokens/ATOM.png`),
     decimals: 6,
     abi: erc20Abi,
   },
@@ -64,8 +63,7 @@ const kavaTokens: Array<PoolCreationTokenConfig> = [
     address: "0xE1da44C0dA55B075aE8E2e4b6986AdC76Ac77d73",
     name: "Vara",
     symbol: "VARA",
-    //todo new token icon
-    icon: useImage("assets/images/base_token_icon.png"),
+    icon: useImage(`assets/images/tokens/VARA.png`),
     decimals: 18,
     abi: erc20Abi,
   },
@@ -74,8 +72,7 @@ const kavaTokens: Array<PoolCreationTokenConfig> = [
     address: "0xaf20f5f19698f1d19351028cd7103b63d30de7d7",
     name: "Wagmi",
     symbol: "WAGMI",
-    //todo new token icon
-    icon: useImage("assets/images/base_token_icon.png"),
+    icon: useImage(`assets/images/tokens/WAGMI.png`),
     decimals: 18,
     abi: erc20Abi,
   },

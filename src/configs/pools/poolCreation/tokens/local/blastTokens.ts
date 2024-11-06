@@ -27,8 +27,7 @@ const blastTokens: Array<PoolCreationTokenConfig> = [
     address: "0xc7Edf7B7b3667a06992508e7B156eff794a9e1c8",
     name: "XPRT native asset",
     symbol: "XPRT",
-    //todo new token icon
-    icon: useImage("assets/images/base_token_icon.png"),
+    icon: useImage(`assets/images/tokens/XPRT.png`),
     decimals: 6,
     abi: erc20Abi,
   },
@@ -37,8 +36,7 @@ const blastTokens: Array<PoolCreationTokenConfig> = [
     address: "0xE36072DD051Ce26261BF50CD966311cab62C596e",
     name: "Thruster",
     symbol: "THRUST",
-    //todo new token icon
-    icon: useImage("assets/images/base_token_icon.png"),
+    icon: useImage(`assets/images/tokens/THRUST.png`),
     decimals: 18,
     abi: erc20Abi,
   },
@@ -47,8 +45,7 @@ const blastTokens: Array<PoolCreationTokenConfig> = [
     address: "0x818a92bc81Aad0053d72ba753fb5Bc3d0C5C0923",
     name: "Juice",
     symbol: "JUICE",
-    //todo new token icon
-    icon: useImage("assets/images/base_token_icon.png"),
+    icon: useImage(`assets/images/tokens/JUICE.png`),
     decimals: 18,
     abi: erc20Abi,
   },
@@ -57,8 +54,7 @@ const blastTokens: Array<PoolCreationTokenConfig> = [
     address: "0x15bD262ede6E8aA04b2361a1Df697adF1Cf40e75",
     name: "Petoshi",
     symbol: "PETOSHI",
-    //todo new token icon
-    icon: useImage("assets/images/base_token_icon.png"),
+    icon: useImage(`assets/images/tokens/PETOSHI.png`),
     decimals: 18,
     abi: erc20Abi,
   },
@@ -67,8 +63,7 @@ const blastTokens: Array<PoolCreationTokenConfig> = [
     address: "0x5ffd9EbD27f2fcAB044c0f0a26A45Cb62fa29c06",
     name: "PacMoon",
     symbol: "PAC",
-    //todo new token icon
-    icon: useImage("assets/images/base_token_icon.png"),
+    icon: useImage(`assets/images/tokens/PAC.png`),
     decimals: 18,
     abi: erc20Abi,
   },
@@ -77,8 +72,7 @@ const blastTokens: Array<PoolCreationTokenConfig> = [
     address: "0x9FE9991dAF6b9a5d79280F48cbb6827D46DE2EA4",
     name: "HyperBlast",
     symbol: "HYPE",
-    //todo new token icon
-    icon: useImage("assets/images/base_token_icon.png"),
+    icon: useImage(`assets/images/tokens/HYPE.png`),
     decimals: 9,
     abi: erc20Abi,
   },
@@ -87,8 +81,7 @@ const blastTokens: Array<PoolCreationTokenConfig> = [
     address: "0xb1a5700fA2358173Fe465e6eA4Ff52E36e88E2ad",
     name: "Blast",
     symbol: "BLAST",
-    //todo new token icon
-    icon: useImage("assets/images/base_token_icon.png"),
+    icon: useImage(`assets/images/tokens/BLAST.png`),
     decimals: 18,
     abi: erc20Abi,
   },
