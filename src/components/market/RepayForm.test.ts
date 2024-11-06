@@ -14,6 +14,7 @@ describe("RepayForm", () => {
       },
       props: {
         actionConfig,
+        // @ts-ignore
         cauldron: magicGlpConfig,
       },
 
@@ -34,6 +35,7 @@ describe("RepayForm", () => {
       },
       props: {
         actionConfig,
+        // @ts-ignore
         cauldron: magicGlpConfig,
       },
       computed: {
@@ -59,6 +61,7 @@ describe("RepayForm", () => {
       },
       props: {
         actionConfig,
+        // @ts-ignore
         cauldron: magicGlpConfig,
       },
       computed: {
@@ -85,6 +88,7 @@ describe("RepayForm", () => {
       },
       props: {
         actionConfig,
+        // @ts-ignore
         cauldron: magicGlpConfig,
       },
       computed: {
@@ -110,6 +114,7 @@ describe("RepayForm", () => {
       },
       props: {
         actionConfig,
+        // @ts-ignore
         cauldron: magicGlpConfig,
       },
       computed: {
@@ -137,6 +142,7 @@ describe("RepayForm", () => {
       },
       props: {
         actionConfig,
+        // @ts-ignore
         cauldron: magicGlpConfig,
       },
       computed: {

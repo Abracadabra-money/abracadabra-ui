@@ -1,18 +1,5 @@
 <template>
   <div>
-    <div class="row">
-      <h3 class="title">Remove Collateral</h3>
-
-      <Toggle
-        v-if="isWrapAllowed"
-        :text="unwrappedTokenName"
-        :selected="isWithdrawUnwrapToken"
-        @updateToggle="onChangeWithdrawToken"
-      />
-    </div>
-
-    <h4 class="subtitle">Choose the amount of collateral you want to remove</h4>
-
     <BaseTokenInput
       :value="inputAmount"
       :name="cauldron.config.name"
@@ -28,7 +15,7 @@
       <span> Expected</span>
       <span>
         {{ expectedTokenAmount }}
-        {{ cauldron.config.wrapInfo.unwrappedToken.name }}</span
+        {{ cauldron.config.wrapInfo?.unwrappedToken.name }}</span
       >
     </div>
   </div>
@@ -40,17 +27,20 @@ import {
   PERCENT_PRESITION,
   getMaxCollateralToRemove,
 } from "@/helpers/cauldron/utils";
+import { formatUnits } from "viem";
+import type { PropType } from "vue";
 import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { formatToFixed } from "@/helpers/filters";
 import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
-import { formatUnits } from "viem";
 import { trimZeroDecimals } from "@/helpers/numbers";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 
 export default {
   props: {
     cauldron: {
-      type: Object as any,
+      type: Object as PropType<CauldronInfo>,
+      required: true,
     },
     isWithdrawUnwrapToken: {
       type: Boolean,
@@ -173,11 +163,14 @@ export default {
     },
 
     expectedTokenAmount() {
-      return formatToFixed(
-        this.inputValue *
-          Number(utils.formatUnits(this.cauldron.additionalInfo.tokensRate)),
-        this.rangePrecision
-      );
+      if (this.isWithdrawUnwrapToken)
+        return formatToFixed(this.inputValue, this.rangePrecision);
+      else
+        return formatToFixed(
+          this.inputValue *
+            Number(utils.formatUnits(this.cauldron.additionalInfo.tokensRate)),
+          this.rangePrecision
+        );
     },
 
     rangePrecision() {
@@ -190,10 +183,6 @@ export default {
 
   watch: {
     useDeleverage() {
-      this.inputValue = 0;
-    },
-
-    isWithdrawUnwrapToken() {
       this.inputValue = 0;
     },
   },
@@ -220,7 +209,6 @@ export default {
   },
 
   components: {
-    Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
     BaseTokenInput: defineAsyncComponent(
       () => import("@/components/base/BaseTokenInput.vue")
     ),

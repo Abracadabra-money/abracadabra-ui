@@ -1,5 +1,26 @@
 <template>
-  <div>
+  <div class="deleverage-block">
+    <div>
+      <div class="row">
+        <div class="title-wrap">
+          <h3 class="title">To repay</h3>
+
+          <SlippagePopup
+            :amount="slippage"
+            @updateSlippage="onUpdateSlippage"
+          />
+        </div>
+
+        <Toggle
+          :selected="true"
+          text="Deleverage"
+          @updateToggle="onToggleDeleverage"
+        />
+      </div>
+
+      <h4 class="subtitle">Chose the amount of MIM you want to repay</h4>
+    </div>
+
     <BaseTokenInput
       :value="inputAmount"
       :name="cauldron.config.mimInfo.name"
@@ -31,23 +52,24 @@
 </template>
 
 <script lang="ts">
-import { mapGetters } from "vuex";
-import { BigNumber, utils } from "ethers";
-import { defineAsyncComponent } from "vue";
-import { trimZeroDecimals } from "@/helpers/numbers";
-
 import {
   getLiquidationPrice,
   getPositionHealth,
   getDeleverageAmounts,
-  PERCENT_PRESITION,
 } from "@/helpers/cauldron/utils";
+import { mapGetters } from "vuex";
+import type { PropType } from "vue";
+import { BigNumber, utils } from "ethers";
+import { defineAsyncComponent } from "vue";
+import { trimZeroDecimals } from "@/helpers/numbers";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 import { BERA_BARTIO_CHAIN_ID, KAVA_CHAIN_ID } from "@/constants/global";
 
 export default {
   props: {
     cauldron: {
-      type: Object as any,
+      type: Object as PropType<CauldronInfo>,
+      required: true,
     },
     slippage: {
       type: BigNumber,
@@ -60,6 +82,7 @@ export default {
     },
     withdrawAmount: {
       type: BigNumber,
+      default: BigNumber.from(0),
     },
   },
 
@@ -69,7 +92,7 @@ export default {
     };
   },
 
-  emits: ["updateDeleverageAmounts"],
+  emits: ["updateDeleverageAmounts", "updateSlippage", "updateToggle"],
 
   computed: {
     ...mapGetters({
@@ -167,6 +190,15 @@ export default {
       this.value = value;
       this.updateDeleverageAmounts(value);
     },
+
+    onUpdateSlippage(slippage: BigNumber) {
+      this.$emit("updateSlippage", slippage);
+    },
+
+    onToggleDeleverage() {
+      this.$emit("updateToggle", "useDeleverage", true);
+    },
+
     updateDeleverageAmounts(value: BigNumber) {
       const { oracleExchangeRate } = this.cauldron.mainParams;
 
@@ -190,11 +222,48 @@ export default {
     GmPriceImpact: defineAsyncComponent(
       () => import("@/components/market/GmPriceImpact.vue")
     ),
+
+    SlippagePopup: defineAsyncComponent(
+      () => import("@/components/popups/SlippagePopup.vue")
+    ),
+    Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.deleverage-block {
+  gap: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title-wrap {
+  gap: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 150%;
+}
+
+.subtitle {
+  color: #878b93;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
 .dynamic-wrap {
   border-radius: 8px;
   border: 1px solid #2d4a96;
@@ -203,7 +272,6 @@ export default {
     rgba(45, 74, 150, 0.12) 0%,
     rgba(116, 92, 210, 0.12) 100%
   );
-  margin-top: 12px;
   padding: 5px 12px;
 }
 </style>
