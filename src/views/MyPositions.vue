@@ -39,7 +39,7 @@
 
       <div
         class="loader-wrap"
-        v-if="showConnectionBlock || showEmptyBlock || showLoader"
+        v-else-if="showConnectionBlock || showEmptyBlock || showLoader"
       >
         <ConnectWalletBlock v-if="showConnectionBlock" />
         <BaseLoader v-if="showLoader" large text="Loading Positions" />

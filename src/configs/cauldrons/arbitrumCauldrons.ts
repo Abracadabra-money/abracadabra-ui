@@ -472,6 +472,42 @@ const config: Array<CauldronConfig> = [
       abi: zeroXLiqSwapperAbi,
     },
   },
+  {
+    icon: useImage(`assets/images/tokens/ZRO.png`),
+    name: "ZRO",
+    chainId: 42161,
+    id: 11,
+    liquidationFee: 6,
+    mcr: 80,
+    borrowFee: 1,
+    version: 4,
+    cauldronSettings: {
+      isNew: true,
+      is0xSwap: true,
+      isSwappersActive: false,
+      isDegenBox: true,
+      strategyLink: false,
+      isDepreciated: false,
+      acceptUseDefaultBalance: false,
+      healthMultiplier: 1,
+      hasAccountBorrowLimit: false,
+      hasWithdrawableLimit: false,
+      localBorrowAmountLimit: false,
+      hasCrvClaimLogic: false,
+    },
+    contract: {
+      name: "CauldronV4",
+      address: "0x6B04C535C852AD19345571247ee12B5BF23dAcB6",
+      abi: poolsAbi.CauldronV4,
+    },
+    collateralInfo: {
+      name: "ZRO",
+      decimals: 18,
+      address: "0x6985884C4392D348587B19cb9eAAf157F13271cd",
+      abi: tokensAbi.ZRO,
+    },
+    mimInfo,
+  },
 ];
 
 export default config;
