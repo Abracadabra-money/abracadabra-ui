@@ -43,8 +43,11 @@
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
 import { mapGetters, mapMutations } from "vuex";
+// @ts-ignore
 import { getCollateralApr } from "@/helpers/collateralsApy";
 import { getMarketList } from "@/helpers/cauldron/lists/getMarketList";
+import type { CauldronListItem } from "@/helpers/cauldron/lists/getMarketList";
+import { getMaxLeverageMultiplier } from "@/helpers/cauldron/getMaxLeverageMultiplier";
 
 type Data = {
   cauldrons: any;
@@ -53,11 +56,15 @@ type Data = {
   timerInterval: number;
   isFiltersPopupOpened: boolean;
   tableKeys: any;
+  aprArray: any;
 };
+
+type AprInfo = { [key: string]: AprInfo };
 
 export default {
   data(): Data {
     return {
+      aprArray: [],
       cauldrons: [],
       cauldronsLoading: true,
       updateInterval: null,
@@ -100,7 +107,7 @@ export default {
 
   watch: {
     async account() {
-      this.cauldrons = await getMarketList(this.account);
+      await this.createCaulldronsInfo();
     },
   },
 
@@ -109,14 +116,35 @@ export default {
       setCauldronsList: "setCauldronsList",
     }),
 
-    async getCollateralsApr(): Promise<void> {
-      this.cauldrons = await Promise.all(
-        this.cauldrons.map(async (cauldron: any) => {
-          const apr = await getCollateralApr(cauldron, true);
-          cauldron.apr = apr;
-          return cauldron;
+    async getCollateralsApr(
+      cauldrons: CauldronListItem[]
+    ): Promise<CauldronListItem[]> {
+      const response = await Promise.allSettled(
+        cauldrons.map(async (cauldron: CauldronListItem) => {
+          try {
+            const apr = await getCollateralApr(cauldron, true);
+            return { [cauldron.config.contract.address]: apr };
+          } catch (error) {
+            const multiplier = getMaxLeverageMultiplier(cauldron);
+            return {
+              [cauldron.config.contract.address]: { value: 0, multiplier },
+            };
+          }
         })
       );
+
+      this.aprArray = response
+        .filter((result) => result.status === "fulfilled" && result.value)
+        .map((result: any) => result.value);
+
+      return cauldrons.map((cauldron: CauldronListItem) => {
+        const apr = this.aprArray.find(
+          (apr: AprInfo) => apr[cauldron.config.contract.address]
+        );
+
+        cauldron.apr = apr[cauldron.config.contract.address];
+        return cauldron;
+      });
     },
 
     openMobileFiltersPopup(): void {
@@ -135,11 +163,15 @@ export default {
     },
 
     async createCaulldronsInfo(): Promise<void> {
-      this.cauldrons = await getMarketList(this.account);
+      const cauldrons = await getMarketList(this.account);
+
+      if (this.aprArray.length) {
+        this.cauldrons = await this.getCollateralsApr(cauldrons);
+      } else {
+        this.cauldrons = await this.getCollateralsApr(cauldrons);
+      }
+
       this.cauldronsLoading = false;
-
-      await this.getCollateralsApr();
-
       this.setCauldronsList(this.cauldrons);
     },
   },
@@ -149,7 +181,8 @@ export default {
     await this.createCaulldronsInfo();
 
     this.updateInterval = setInterval(async () => {
-      this.cauldrons = await getMarketList(this.account);
+      await this.createCaulldronsInfo();
+      console.log("update cauldrons");
     }, this.timerInterval);
   },
 
@@ -162,9 +195,11 @@ export default {
     //   () => import("@/components/cauldrons/ArbitrumBlock.vue")
     // ),
     CauldronsCarousel: defineAsyncComponent(
+      // @ts-ignore
       () => import("@/components/ui/carousel/CauldronsCarousel.vue")
     ),
     CauldronsTable: defineAsyncComponent(
+      // @ts-ignore
       () => import("@/components/cauldrons/CauldronsTable.vue")
     ),
     FiltersPopup: defineAsyncComponent(
