@@ -2,6 +2,7 @@ import erc20Abi from "@/abis/farm/erc20Abi";
 import { useImage } from "@/helpers/useImage";
 import type { PoolCreationTokenConfig } from "@/configs/pools/poolCreation/types";
 import { KAVA_CHAIN_ID } from "@/constants/global";
+import { ZERO_ADDRESS } from "@/constants/gm";
 
 const kavaTokens: Array<PoolCreationTokenConfig> = [
   {
@@ -26,7 +27,7 @@ const kavaTokens: Array<PoolCreationTokenConfig> = [
     chainId: KAVA_CHAIN_ID,
     name: "Kava",
     symbol: "KAVA",
-    address: "0xkava",
+    address: ZERO_ADDRESS,
     icon: useImage(`assets/images/tokens/KAVA.png`),
     isNative: true,
     decimals: 18,

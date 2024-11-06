@@ -2,6 +2,7 @@ import erc20Abi from "@/abis/farm/erc20Abi";
 import { useImage } from "@/helpers/useImage";
 import type { PoolCreationTokenConfig } from "@/configs/pools/poolCreation/types";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
+import { ZERO_ADDRESS } from "@/constants/gm";
 
 const arbitrumTokens: Array<PoolCreationTokenConfig> = [
   {
@@ -26,7 +27,7 @@ const arbitrumTokens: Array<PoolCreationTokenConfig> = [
     chainId: ARBITRUM_CHAIN_ID,
     name: "Ethereum",
     symbol: "ETH",
-    address: "0xeth",
+    address: ZERO_ADDRESS,
     icon: useImage(`assets/images/tokens/ETH.png`),
     isNative: true,
     decimals: 18,
