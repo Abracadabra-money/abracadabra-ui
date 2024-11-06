@@ -1,5 +1,5 @@
 <template>
-  <div class="market-head-wrap">
+  <div :class="['market-head-wrap', { deprecated: isDepreciatedCauldron }]">
     <div class="market-head">
       <div class="group-wrap">
         <TokenInfo :cauldron="cauldron" />
@@ -26,7 +26,7 @@
           :icon="tokenLinkData.icon"
         />
 
-        <ElixirPotionsTag v-if="hasElixirPotions" />
+        <PotionsTag :text="potionText" />
 
         <div class="testing-chip" v-if="showTestnetChip">
           <p>Bartio Testnet</p>
@@ -35,6 +35,10 @@
         <DepositButton :cauldron="cauldron" v-if="isActiveChain" />
 
         <ClaimButton :cauldron="cauldron" v-if="isActiveChain" />
+
+        <div class="deprecated-label" v-if="isDepreciatedCauldron">
+          Deprecated
+        </div>
       </div>
 
       <div class="info-wrap group-wrap">
@@ -123,8 +127,16 @@ export default {
       return this.isActiveChain && this.collateralSymbol.length <= 11;
     },
 
-    hasElixirPotions() {
-      return this.cauldron.config.cauldronSettings.hasElixirPotions;
+    isDepreciatedCauldron() {
+      return this.cauldron.config.cauldronSettings.isDepreciated;
+    },
+
+    potionText() {
+      if (this.cauldron.config.cauldronSettings.hasElixirPotions)
+        return "Earning Elixir Potions";
+      if (this.cauldron.config.cauldronSettings.isUSD0) return "Earning Pills";
+
+      return "";
     },
   },
 
@@ -183,8 +195,8 @@ export default {
     ClaimButton: defineAsyncComponent(
       () => import("@/components/ui/buttons/ClaimButton.vue")
     ),
-    ElixirPotionsTag: defineAsyncComponent(
-      () => import("@/components/market/ElixirPotionsTag.vue")
+    PotionsTag: defineAsyncComponent(
+      () => import("@/components/market/PotionsTag.vue")
     ),
   },
 };
@@ -198,6 +210,14 @@ export default {
     rgba(116, 92, 210, 0.07) 100%
   );
   backdrop-filter: blur(10.75px);
+}
+
+.deprecated {
+  background: linear-gradient(
+    90deg,
+    rgba(140, 64, 64, 0.18) 0%,
+    rgba(107, 36, 36, 0.18) 100%
+  );
 }
 
 .testing-chip {
@@ -236,6 +256,16 @@ export default {
   display: flex;
   gap: 8px;
   align-items: center;
+}
+
+.deprecated-label {
+  padding: 6px 12px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #8c4040 0%, #6b2424 100%);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
 }
 
 @media screen and (max-width: 1024px) {

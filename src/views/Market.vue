@@ -230,7 +230,7 @@ export default {
     onUpdateToggle(toggle: string, isReset = false) {
       // @ts-ignore
       this.actionConfig[toggle] = !this.actionConfig[toggle];
-      if (isReset) this.resetAmounts();
+      if (toggle === "useDeleverage" && isReset) this.resetAmounts();
 
       this.checkAndUpdateRouteQuery();
     },
