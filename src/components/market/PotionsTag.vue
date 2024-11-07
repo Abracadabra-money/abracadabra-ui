@@ -1,11 +1,18 @@
 <template>
-  <div class="tag-wrap">
-    <span class="content">Earning Elixir Potions</span>
+  <div class="tag-wrap" v-if="!!text">
+    <span class="content">{{ text }}</span>
   </div>
 </template>
 
 <script lang="ts">
-export default {};
+export default {
+  props: {
+    text: {
+      type: String,
+      default: "",
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>
@@ -13,12 +20,7 @@ export default {};
   display: flex;
   padding: 1px;
   border-radius: 8px;
-  background: linear-gradient(
-    270deg,
-    rgb(255, 229, 124) 0%,
-    rgb(255, 67, 195) 52.6%,
-    rgb(65, 86, 224) 100%
-  );
+  background: linear-gradient(90deg, #2d4a96 0%, rgba(116, 92, 210, 0) 100%);
 }
 
 .content {

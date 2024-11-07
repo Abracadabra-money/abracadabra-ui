@@ -3,51 +3,29 @@
     <div class="dynamic-elixir-potions">
       <div class="row">
         <div class="title">
-          Elixir Potions Multiplier
+          Pills Multiplier
           <TooltipIcon
             :width="20"
             :height="20"
             fill="#FFF"
-            tooltip="Leverage your position to gain bigger multiplier on Elixir Potions"
+            tooltip="Leverage your position to gain bigger multiplier on Pills"
           />
         </div>
-        <div class="value">{{ estimationResult }}X</div>
-      </div>
-      <div class="weekly">
-        1 sdeUSD earns
-        <span class="weekly-value">{{ formatToFixed(elixirRate, 3) }}</span>
-        Potions weekly
+        <div class="value">{{ multiplier }}X</div>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import axios from "axios";
 import { defineAsyncComponent } from "vue";
 import { formatToFixed } from "@/helpers/filters";
-import { ELIXIR_POTIONS_URL } from "@/constants/global";
-import { LS_ELIXIR_RARE_KEY } from "@/helpers/dataStore";
-
-const ELIXIR_POTIONS_BASE_MULTIPLIER = 5;
 
 export default {
   props: {
     multiplier: {
       type: Number,
       default: 1,
-    },
-  },
-
-  data() {
-    return {
-      elixirRate: 0,
-    };
-  },
-
-  computed: {
-    estimationResult() {
-      return formatToFixed(ELIXIR_POTIONS_BASE_MULTIPLIER * this.multiplier, 2);
     },
   },
 
@@ -59,37 +37,6 @@ export default {
 
   methods: {
     formatToFixed,
-
-    async getElixirRate() {
-      try {
-        this.checkLocalElixirRate();
-
-        const { data } = await axios.get(`${ELIXIR_POTIONS_URL}`);
-
-        this.elixirRate =
-          data.weeks.filter(({ preliminary }: any) => !preliminary).at(-1)
-            .rate || 0;
-
-        localStorage.setItem(LS_ELIXIR_RARE_KEY, this.elixirRate.toString());
-
-        return;
-      } catch (error) {
-        this.elixirRate = 0;
-        return;
-      }
-    },
-
-    checkLocalElixirRate() {
-      const lsElixirRate = localStorage.getItem(LS_ELIXIR_RARE_KEY);
-
-      if (lsElixirRate) {
-        this.elixirRate = Number(lsElixirRate);
-      }
-    },
-  },
-
-  async created() {
-    await this.getElixirRate();
   },
 };
 </script>
