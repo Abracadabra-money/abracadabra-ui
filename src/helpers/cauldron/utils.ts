@@ -1,7 +1,7 @@
 import { BigNumber, utils } from "ethers";
 import { formatUnits, parseUnits } from "viem";
 import { expandDecimals } from "../gm/fee/expandDecials";
-import { applySlippageToMinOut } from "../gm/applySlippageToMinOut";
+import { applySlippageToMinOut } from "@/helpers/gm/applySlippageToMinOut";
 import type { AlternativePositionHealth } from "./types";
 
 const MIM_DECIMALS = 18;
@@ -179,7 +179,7 @@ export const getAlternativePositionHealth = (
   liquidationPrice: bigint,
   oracleExchangeRate: bigint,
   collateralDecimals: number
-):AlternativePositionHealth => {
+): AlternativePositionHealth => {
   if (!oracleExchangeRate) return { percent: 0n, status: "safe" };
 
   const expandDecimals = parseUnits("1", 18 + collateralDecimals);
