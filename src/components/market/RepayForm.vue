@@ -9,27 +9,6 @@
       :deleverageFromOrder="gmDeleverageFromOrder"
     />
 
-    <div class="block-settings" v-if="actionConfig.useDeleverage">
-      <div class="row">
-        <div class="title-wrap">
-          <h3 class="title">Deleverage</h3>
-          <SlippagePopup
-            v-if="actionConfig.useDeleverage"
-            :amount="actionConfig.amounts.slippage"
-            @updateSlippage="onUpdateSlippage"
-          />
-        </div>
-
-        <Toggle
-          v-if="isDeleverageAllowed"
-          :selected="actionConfig.useDeleverage"
-          text="Deleverage"
-          @updateToggle="onToggleDeleverage"
-        />
-      </div>
-      <h4 class="subtitle">Select leverage ‘’x’’</h4>
-    </div>
-
     <div class="block-wrap remove-block">
       <div class="row">
         <h3 class="title">{{ titleText }}</h3>
@@ -53,13 +32,15 @@
         @updateWithdrawAmount="onUpdateWithdrawAmount"
       />
 
-      <DeleverageBlock
+      <RemoveCollateralDeleverageBlock
         v-else
         :cauldron="cauldron"
-        :slippage="actionConfig.amounts.slippage"
+        :isWithdrawUnwrapToken="actionConfig.withdrawUnwrapToken"
+        :useDeleverage="actionConfig.useDeleverage"
         :deleverageAmounts="actionConfig.amounts.deleverageAmounts"
         :withdrawAmount="actionConfig.amounts.withdrawAmount"
-        @updateDeleverageAmounts="onUpdateDeleverageAmounts"
+        @updateWithdrawAmount="onUpdateWithdrawAmount"
+        @updateToggle="onChangeWithdrawToken"
       />
     </div>
 
@@ -75,15 +56,15 @@
           @updateToggle="onToggleDeleverage"
         />
 
-        <RemoveCollateralRangeBlock
+        <DeleverageBlock
           v-else
           :cauldron="cauldron"
-          :isWithdrawUnwrapToken="actionConfig.withdrawUnwrapToken"
-          :useDeleverage="actionConfig.useDeleverage"
+          :slippage="actionConfig.amounts.slippage"
           :deleverageAmounts="actionConfig.amounts.deleverageAmounts"
           :withdrawAmount="actionConfig.amounts.withdrawAmount"
-          @updateWithdrawAmount="onUpdateWithdrawAmount"
-          @updateToggle="onChangeWithdrawToken"
+          @updateDeleverageAmounts="onUpdateDeleverageAmounts"
+          @updateSlippage="onUpdateSlippage"
+          @updateToggle="onToggleDeleverage"
         />
       </div>
 
@@ -117,25 +98,27 @@
 </template>
 
 <script lang="ts">
-import { mapGetters } from "vuex";
-import { BigNumber } from "ethers";
-import { defineAsyncComponent } from "vue";
-import type { SwapAmounts } from "@/helpers/cauldron/types";
-// @ts-ignore
-import tempMixin from "@/mixins/temp";
-import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
 import {
   getDeleverageAmounts,
   PERCENT_PRESITION,
   getMaxCollateralToRemove,
 } from "@/helpers/cauldron/utils";
+import { mapGetters } from "vuex";
+import { BigNumber } from "ethers";
+import type { PropType } from "vue";
+// @ts-ignore
+import tempMixin from "@/mixins/temp";
+import { defineAsyncComponent } from "vue";
+import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
+import type { CauldronInfo, SwapAmounts } from "@/helpers/cauldron/types";
 
 export default {
   emits: ["updateToggle", "updateAmounts"],
   mixins: [tempMixin],
   props: {
     cauldron: {
-      type: Object as any,
+      type: Object as PropType<CauldronInfo>,
+      required: true,
     },
     actionConfig: {
       type: Object as any,
@@ -216,22 +199,16 @@ export default {
       );
     },
 
-    isDeleverageAllowed() {
-      const { isSwappersActive } = this.cauldron.config.cauldronSettings;
-
-      return isSwappersActive && this.cauldron.contracts.liquidationSwapper;
-    },
-
     titleText() {
       const { useDeleverage } = this.actionConfig;
-      return useDeleverage ? "To Repay" : "Remove Collateral";
+      return useDeleverage ? "To remove" : "Remove Collateral";
     },
 
     subtitleText() {
       const { useDeleverage } = this.actionConfig;
       const { name } = this.cauldron.config.collateralInfo;
       return useDeleverage
-        ? "Choose the amount of MIM you want to repay"
+        ? "Chose the amount of collateral you want to remove"
         : `Select the amount of ${name} to withdraw from the Cauldron`;
     },
 
@@ -243,8 +220,7 @@ export default {
     isWrapAllowed() {
       return (
         this.cauldron?.config?.wrapInfo &&
-        !this.cauldron?.config?.wrapInfo?.isHiddenWrap &&
-        !this.actionConfig.useDeleverage
+        !this.cauldron?.config?.wrapInfo?.isHiddenWrap
       );
     },
 
@@ -316,17 +292,14 @@ export default {
 
   components: {
     Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
-    SlippagePopup: defineAsyncComponent(
-      () => import("@/components/popups/SlippagePopup.vue")
-    ),
     BaseButton: defineAsyncComponent(
       () => import("@/components/base/BaseButton.vue")
     ),
     RemoveCollateralBlock: defineAsyncComponent(
       () => import("@/components/market/RemoveCollateralBlock.vue")
     ),
-    RemoveCollateralRangeBlock: defineAsyncComponent(
-      () => import("@/components/market/RemoveCollateralRangeBlock.vue")
+    RemoveCollateralDeleverageBlock: defineAsyncComponent(
+      () => import("@/components/market/RemoveCollateralDeleverageBlock.vue")
     ),
     RepayBlock: defineAsyncComponent(
       () => import("@/components/market/RepayBlock.vue")
@@ -359,16 +332,6 @@ export default {
   @include block-wrap;
 }
 
-.block-settings {
-  @include block-wrap;
-  padding: 16px 24px;
-  z-index: 10;
-
-  .subtitle {
-    margin-bottom: 0;
-  }
-}
-
 .row {
   display: flex;
   align-items: center;
@@ -376,15 +339,6 @@ export default {
   height: 30px;
   margin-bottom: 4px;
   position: relative;
-}
-
-.title-wrap {
-  gap: 16px;
-  display: flex;
-  align-items: center;
-  font-size: 18px;
-  font-weight: 500;
-  line-height: 150%;
 }
 
 .title {

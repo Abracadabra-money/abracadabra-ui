@@ -255,11 +255,19 @@ const validateBorrow = (
     oracleExchangeRate
   );
 
+  const maxBorrowAmountMultiplier =
+    actionConfig.additionalInfo?.maxBorrowAmountMultiplier;
+
+  const maxBorrowAmount =
+    !!maxBorrowAmountMultiplier && maxToBorrow > maxBorrowAmountMultiplier
+      ? maxBorrowAmountMultiplier
+      : maxToBorrow;
+
   const mimToBorrow = useLeverage ? leverageAmounts.amountFrom : borrowAmount;
 
   const cauldronMimLeftCheck = mimToBorrow.lte(mimLeftToBorrow);
   const userMaxBorrowCheck = mimToBorrow.lte(userMaxBorrow);
-  const positionMaxToBorrowCheck = mimToBorrow.lte(maxToBorrow);
+  const positionMaxToBorrowCheck = mimToBorrow.lte(maxBorrowAmount);
 
   if (!positionMaxToBorrowCheck)
     validationErrors.push(WARNING_TYPES.POSITION_MAX_TO_BORROW);
@@ -333,8 +341,12 @@ const validateRemoveCollateral = (
       : withdrawAmount.lte(maxWithdrawAmount);
   }
 
+  const expectedCollateralAmount = useDeleverage
+    ? userCollateralAmount.sub(deleverageAmounts.amountFrom)
+    : userCollateralAmount;
+
   const maxToRemove = getMaxCollateralToRemove(
-    userCollateralAmount,
+    expectedCollateralAmount,
     expectPosition.mimAmount,
     mcr,
     oracleExchangeRate

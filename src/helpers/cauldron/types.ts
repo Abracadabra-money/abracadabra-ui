@@ -132,6 +132,9 @@ export type ActionConfig = {
   useUnwrapToken: boolean;
   withdrawUnwrapToken: boolean;
   amounts: ActionAmounts;
+  additionalInfo?: {
+    maxBorrowAmountMultiplier: BigNumber;
+  };
 };
 
 export type UserTotalAssets = {

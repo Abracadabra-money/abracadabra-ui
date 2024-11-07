@@ -55,6 +55,7 @@
           :leverageAmounts="actionConfig.amounts.leverageAmounts"
           :cauldron="cauldron"
           @updateLeverageAmounts="onUpdateLeverageAmounts"
+          @updateMaxToBorrow="onUpdateMaxToBorrow"
         />
 
         <BorrowBlock
@@ -110,7 +111,7 @@ import type { DepositAmounts, SwapAmounts } from "@/helpers/cauldron/types";
 import tempMixin from "@/mixins/temp";
 
 export default {
-  emits: ["updateToggle", "updateAmounts"],
+  emits: ["updateToggle", "updateAmounts", "onUpdateMaxToBorrow"],
   mixins: [tempMixin],
   props: {
     cauldron: {
@@ -163,6 +164,10 @@ export default {
     onUpdateSlippage(slippage: BigNumber) {
       this.$emit("updateAmounts", "slippage", slippage);
     },
+
+    onUpdateMaxToBorrow(maxToBorrow: BigNumber) {
+      this.$emit("onUpdateMaxToBorrow", maxToBorrow);
+    },
   },
 
   components: {
@@ -190,6 +195,7 @@ export default {
       () => import("@/components/popups/GMStatus.vue")
     ),
     LocalPopupWrap: defineAsyncComponent(
+      //@ts-ignore
       () => import("@/components/popups/LocalPopupWrap.vue")
     ),
     NoDeleverageConfirmationPopup: defineAsyncComponent(
