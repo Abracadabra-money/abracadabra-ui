@@ -259,7 +259,9 @@ const validateBorrow = (
     actionConfig.additionalInfo?.maxBorrowAmountMultiplier;
 
   const maxBorrowAmount =
-    !!maxBorrowAmountMultiplier && maxToBorrow > maxBorrowAmountMultiplier
+    maxBorrowAmountMultiplier &&
+    !maxBorrowAmountMultiplier?.isZero() &&
+    maxToBorrow > maxBorrowAmountMultiplier
       ? maxBorrowAmountMultiplier
       : maxToBorrow;
 
