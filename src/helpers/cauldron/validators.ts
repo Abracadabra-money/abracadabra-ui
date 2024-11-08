@@ -255,14 +255,15 @@ const validateBorrow = (
     oracleExchangeRate
   );
 
-  const maxBorrowAmountMultiplier =
+  const maxToBorrowByMultiplier =
     actionConfig.additionalInfo?.maxBorrowAmountMultiplier;
 
+  const useMaxByMultiplier =
+    maxToBorrowByMultiplier && !maxToBorrowByMultiplier?.isZero();
+
   const maxBorrowAmount =
-    maxBorrowAmountMultiplier &&
-    !maxBorrowAmountMultiplier?.isZero() &&
-    maxToBorrow > maxBorrowAmountMultiplier
-      ? maxBorrowAmountMultiplier
+    useMaxByMultiplier && maxToBorrow > maxToBorrowByMultiplier
+      ? maxToBorrowByMultiplier
       : maxToBorrow;
 
   const mimToBorrow = useLeverage ? leverageAmounts.amountFrom : borrowAmount;
