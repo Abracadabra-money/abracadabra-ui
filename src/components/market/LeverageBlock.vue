@@ -193,7 +193,7 @@ export default {
 
     borrowInputAmount() {
       const borrowInputAmount = utils.parseUnits(
-        this.borrowInputAmount,
+        this.borrowInputAmount || "0",
         MIM_DECIMALS
       );
 

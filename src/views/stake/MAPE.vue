@@ -194,6 +194,8 @@ export default {
     },
 
     expectedAmount() {
+      if (!this.inputAmount) return "";
+
       const amount = this.isStakeAction
         ? (this.inputAmount * this.precision) / this.mainToken.rate
         : (this.inputAmount * this.mainToken.rate) / this.precision;

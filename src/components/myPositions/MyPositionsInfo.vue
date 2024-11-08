@@ -101,7 +101,7 @@ export default {
   justify-content: center;
   align-items: center;
   gap: 8px;
-  padding: 24px;
+  padding: 14px;
   width: 262px;
   height: 102px;
   border-radius: 16px;
