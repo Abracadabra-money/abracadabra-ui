@@ -1,6 +1,15 @@
 import { utils } from "ethers";
 import { swap0xRequestV2 } from "@/helpers/0x";
-const getDeUsd0xData = async (cauldronObject, collateralAmount, slipage) => {
+
+import type { CauldronInfo } from "@/helpers/cauldron/types";
+import type { BigNumber } from "ethers";
+
+const getDeUsd0xData = async (
+  cauldronObject: CauldronInfo,
+  collateralAmount: BigNumber,
+  slipage: number
+) => {
+  //@ts-ignore
   const { mim, liquidationSwapper, collateral } = cauldronObject.contracts;
 
   const response = await swap0xRequestV2(
@@ -8,18 +17,21 @@ const getDeUsd0xData = async (cauldronObject, collateralAmount, slipage) => {
     mim.address,
     collateral.address,
     slipage,
+    // @ts-ignore
     collateralAmount,
-    liquidationSwapper.address
+    liquidationSwapper!.address
   );
 
+  // @ts-ignore
   const liquidityAvailable = response.response.liquidityAvailable;
 
-  if(!liquidityAvailable) {
+  if (!liquidityAvailable) {
     throw new Error("Not enough liquidity available");
   }
 
   return utils.defaultAbiCoder.encode(
     ["address", "bytes"],
+    // @ts-ignore
     [response.to, response.data]
   );
 };

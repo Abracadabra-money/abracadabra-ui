@@ -1,13 +1,17 @@
 import type { TokenConfig } from "@/configs/pools/types";
 import { type Address, formatUnits } from "viem";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
-import { getCoinsPrices } from "@/helpers//prices/defiLlama";
+import { getCoinsPrices, type TokenPrice } from "@/helpers/prices/defiLlama";
 
-export const getPoolApr = async (chainId: number, poolInfo: any) => {
+export const getPoolApr = async (
+  chainId: number,
+  poolInfo: any,
+  tokensPrices?: TokenPrice[]
+) => {
   try {
     const publicClient = getPublicClient(chainId);
 
-    const rewardTokensInfo = await getTokenPrices(poolInfo);
+    const rewardTokensInfo = await getRewardTokensInfo(poolInfo, tokensPrices);
 
     const stakingTokenPrice = poolInfo.price;
 
@@ -60,19 +64,34 @@ export const getPoolApr = async (chainId: number, poolInfo: any) => {
   }
 };
 
-const getTokenPrices = async (config: any) => {
-  const tokenAddresses: Address[] = [];
-  const rewardTokens = config.rewardTokens;
-
+const getRewardTokensInfo = async (
+  poolConfig: any,
+  tokensPrices?: TokenPrice[]
+) => {
+  const rewardTokens = poolConfig.rewardTokens;
   if (!rewardTokens) return [];
 
-  config.rewardTokens.forEach((token: TokenConfig) =>
-    tokenAddresses.push(token.contract.address)
-  );
+  let rewardTokensPrices: TokenPrice[];
 
-  const prices = await getCoinsPrices(config.chainId, tokenAddresses);
+  if (tokensPrices) {
+    rewardTokensPrices = tokensPrices.filter(({ address }) =>
+      rewardTokens.some(
+        (token: TokenConfig) => token.contract.address === address
+      )
+    );
+  } else {
+    const tokenAddresses = poolConfig.rewardTokens.reduce(
+      (acc: Address[], token: TokenConfig) => acc.push(token.contract.address),
+      []
+    );
 
-  return config.rewardTokens.map((token: TokenConfig, index: number) => {
-    return { ...token, price: prices[index].price || 0 };
+    rewardTokensPrices = await getCoinsPrices(
+      poolConfig.chainId,
+      tokenAddresses
+    );
+  }
+
+  return poolConfig.rewardTokens.map((token: TokenConfig, index: number) => {
+    return { ...token, price: rewardTokensPrices[index].price || 0 };
   });
 };

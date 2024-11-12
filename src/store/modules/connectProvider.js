@@ -7,7 +7,7 @@ export default {
     isMetamaskActive: false,
     isCoinbase: false,
     isWalletConnected: false,
-    walletCheckInProcess: true,
+    isWalletCheckInProcess: true,
     wagmiConfig: null,
   },
   mutations: {
@@ -35,9 +35,8 @@ export default {
     setMetamaskActive(state, payload) {
       state.isMetamaskActive = payload;
     },
-
-    SET_WALLET_CHECK_IN_PROCCESS(state, payload) {
-      state.walletCheckInProcess = payload;
+    setIsWalletCheckInProcess(state, payload) {
+      state.isWalletCheckInProcess = payload;
     },
   },
   getters: {
@@ -47,6 +46,7 @@ export default {
     getAccount: (state) => state.account,
     getEnsName: (state) => state.ensName,
     getWalletIsConnected: (state) => state.isWalletConnected,
+    getIsWalletCheckInProcess: (state) => state.isWalletCheckInProcess,
     getMetamaskActive: (state) => state.isMetamaskActive,
   },
 };

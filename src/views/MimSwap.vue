@@ -205,6 +205,7 @@ export default {
         this.actionConfig,
         this.selectedNetwork,
         this.chainId,
+        this.account,
         this.isApproving
       );
     },

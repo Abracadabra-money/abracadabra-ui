@@ -32,26 +32,17 @@
 
     <div class="column">{{ cauldron.mainParams.interest }}%</div>
 
-    <ElixirPotionMultiplier class="column" v-if="isMultiplierLabel" />
-
-    <div class="column multiplier" v-else-if="isPillsPoints">
-      <div class="multiplier-title">Pills Multiplier</div>
-      <div class="multiplier-value">1x - 6.3x</div>
-    </div>
-
-    <div class="column apr" v-else>
-      {{ loopApr }}
-    </div>
+    <RewardInfo :cauldron="cauldron" />
   </router-link>
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent } from "vue";
 import { formatUnits } from "viem";
+import { defineAsyncComponent } from "vue";
+import { formatLargeSum } from "@/helpers/filters";
 import type { RouterLinkParams } from "@/types/global";
-import { BERA_BARTIO_CHAIN_ID, MAINNET_CHAIN_ID } from "@/constants/global";
+import { BERA_BARTIO_CHAIN_ID } from "@/constants/global";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
-import { formatToFixed, formatLargeSum } from "@/helpers/filters";
 import type { CauldronListItem } from "@/helpers/cauldron/lists/getMarketList";
 
 enum CauldronLabel {
@@ -69,13 +60,6 @@ export default {
     },
   },
 
-  data() {
-    return {
-      elixirPotions: [43, 44],
-      pillsPoints: [45],
-    };
-  },
-
   computed: {
     isOpenPosition(): boolean {
       const { collateralInfo, borrowInfo } =
@@ -89,26 +73,6 @@ export default {
       if (cauldronSettings?.isNew) return CauldronLabel.new;
       if (cauldronSettings?.isDepreciated) return CauldronLabel.deprecated;
       return CauldronLabel.empty;
-    },
-
-    loopApr(): string {
-      if (!this.cauldron.apr.value) return "-";
-
-      const { value, multiplier } = this.cauldron.apr;
-      return `${value}% - ${formatToFixed(value * multiplier, 2)}%`;
-    },
-
-    isMultiplierLabel() {
-      return (
-        this.cauldron.config.chainId === MAINNET_CHAIN_ID &&
-        this.elixirPotions.includes(this.cauldron.config.id)
-      );
-    },
-    isPillsPoints() {
-      return (
-        this.cauldron.config.chainId === MAINNET_CHAIN_ID &&
-        this.pillsPoints.includes(this.cauldron.config.id)
-      );
     },
   },
 
@@ -126,8 +90,8 @@ export default {
   },
 
   components: {
-    ElixirPotionMultiplier: defineAsyncComponent(
-      () => import("@/components/ui/info/ElixirPotionMultiplier.vue")
+    RewardInfo: defineAsyncComponent(
+      () => import("@/components/cauldrons/RewardInfo.vue")
     ),
   },
 };
@@ -208,6 +172,7 @@ export default {
 .column {
   max-width: 180px;
   width: 100%;
+  text-align: center;
 }
 
 .cauldron-info {

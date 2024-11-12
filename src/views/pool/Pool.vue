@@ -36,6 +36,7 @@ import { defineAsyncComponent } from "vue";
 import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
 import { getPoolConfig } from "@/helpers/pools/configs/getOrCreatePairsConfigs";
 import { getPoolTvlPieChartOption } from "@/helpers/pools/charts/getPoolTvlPieChartOption";
+import { debounce } from "lodash";
 
 export default {
   props: {
@@ -60,6 +61,10 @@ export default {
       signer: "getSigner",
     }),
 
+    showTvlChart() {
+      return !!this.pool?.lockInfo;
+    },
+
     isUserPositionOpen() {
       const hasLp = this.pool?.userInfo?.balance > 0n;
       return this.account && hasLp;
@@ -70,23 +75,28 @@ export default {
     account: {
       immediate: true,
       async handler() {
-        await this.getPoolInfo();
+        await this.getPoolInfoDebounce();
       },
     },
 
     chainId: {
       immediate: true,
       async handler() {
-        await this.getPoolInfo();
+        await this.getPoolInfoDebounce();
       },
     },
   },
 
   methods: {
+    getPoolInfoDebounce: debounce(async function () {
+      await this.getPoolInfo();
+    }, 500),
+
     async getPoolInfo() {
       this.pool = await getPoolInfo(
         Number(this.poolChainId),
         this.poolConfig,
+        undefined,
         this.account
       );
     },
@@ -100,7 +110,7 @@ export default {
     this.chartOption = await getPoolTvlPieChartOption(this.pool);
 
     this.poolsTimer = setInterval(async () => {
-      await this.getPoolInfo();
+      await this.getPoolInfoDebounce();
     }, 60000);
   },
 

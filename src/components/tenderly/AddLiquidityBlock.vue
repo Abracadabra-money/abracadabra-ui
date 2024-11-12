@@ -356,6 +356,7 @@ export default {
       this.pool = await getPoolInfo(
         Number(this.poolInfo.chainId),
         this.poolConfig,
+        undefined,
         this.account
       );
     },

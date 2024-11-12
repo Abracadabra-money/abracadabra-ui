@@ -1,4 +1,5 @@
 import { parseUnits } from "viem";
+import type { Address } from "viem";
 import { utils, BigNumber } from "ethers";
 import { ZERO_ADDRESS } from "@/constants/gm";
 import type { ContractInfo } from "@/types/global";
@@ -6,6 +7,7 @@ import { getGmInfo } from "@/helpers/cauldron/getGMInfo";
 import type { AdditionalInfo } from "@/helpers/cauldron/types";
 import { getFeePercent } from "@/helpers/cauldron/getFeePercent";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
+import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
 import { getWhiteListedInfo } from "@/helpers/cauldron/getWhiteListedInfo";
 import { checkIsUserCollateralLocked } from "@/helpers/cauldron/check/checkIsUserCollateralLocked";
 
@@ -22,8 +24,8 @@ const EMPTY_STATE = {
 
 export const getAdditionalInfo = async (
   chainId: number,
-  config: any,
-  account: string | undefined,
+  config: CauldronConfig,
+  account: Address | undefined,
   masterContract: ContractInfo,
   bentoBoxContract: ContractInfo
 ): Promise<AdditionalInfo> => {

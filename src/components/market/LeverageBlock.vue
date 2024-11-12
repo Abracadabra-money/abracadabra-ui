@@ -1,5 +1,16 @@
 <template>
   <div class="range-wrap">
+    <BaseTokenInput
+      :value="borrowInputAmount"
+      :name="cauldron.config.mimInfo.name"
+      :icon="cauldron.config.mimInfo.icon"
+      :decimals="cauldron.config.mimInfo.decimals"
+      :max="maxToBorrow"
+      isBigNumber
+      primaryMax
+      @updateInputValue="onUpdateBorrowInputAmount"
+    />
+
     <LeverageRange
       :value="multiplier"
       :max="maxLeverageMultiplier"
@@ -16,6 +27,8 @@
     v-if="hasElixirPotions"
   />
 
+  <DynamicPillsMultiplier :multiplier="multiplier" v-if="hasPillsPotions" />
+
   <DynamicallyEstimatedPrice
     :multiplier="multiplier"
     :cauldron="cauldron"
@@ -31,10 +44,19 @@ import {
   applyBorrowFee,
   PERCENT_PRESITION,
 } from "@/helpers/cauldron/utils";
+import {
+  getBorrowAmountByMultiplier,
+  getMaxLeverageMultiplierAlternative,
+  getLeverageMultiplierByBorrowAmount,
+} from "@/helpers/cauldron/getMaxLeverageMultiplier";
 import { mapGetters } from "vuex";
 import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
-import { getMaxLeverageMultiplierAlternative } from "@/helpers/cauldron/getMaxLeverageMultiplier";
+import { formatToFixed } from "@/helpers/filters";
+import { trimZeroDecimals } from "@/helpers/numbers";
+import { applySlippageToMinOut } from "@/helpers/gm/applySlippageToMinOut";
+
+const MIM_DECIMALS = 18;
 
 export default {
   props: {
@@ -55,7 +77,7 @@ export default {
     },
   },
 
-  emits: ["updateLeverageAmounts"],
+  emits: ["updateLeverageAmounts", "updateMaxToBorrow"],
 
   data() {
     return {
@@ -72,6 +94,9 @@ export default {
         },
         borrow: BigNumber.from(0),
       },
+      borrowInputValue: BigNumber.from(0),
+      useCustomBorrowValue: false,
+      maxToBorrow: BigNumber.from(0),
     };
   },
 
@@ -80,6 +105,28 @@ export default {
       account: "getAccount",
       chainId: "getChainId",
     }),
+
+    borrowInputAmount() {
+      if (this.useCustomBorrowValue) {
+        if (this.borrowInputValue.eq(0)) return "";
+        return trimZeroDecimals(
+          utils.formatUnits(this.borrowInputValue, MIM_DECIMALS)
+        );
+      }
+
+      const amount = getBorrowAmountByMultiplier(
+        this.multiplier,
+        this.cauldron,
+        this.depositCollateralAmount!
+      );
+
+      const borrowInputAmount = trimZeroDecimals(
+        utils.formatUnits(amount, MIM_DECIMALS)
+      );
+
+      if (!Number(borrowInputAmount)) return "";
+      return borrowInputAmount;
+    },
 
     expectedCollateralAmount() {
       return this.cauldron.userPosition.collateralInfo.userCollateralAmount
@@ -126,22 +173,52 @@ export default {
     hasElixirPotions() {
       return this.cauldron.config.cauldronSettings.hasElixirPotions;
     },
+
+    hasPillsPotions() {
+      return this.cauldron.config.cauldronSettings.isUSD0;
+    },
   },
 
   watch: {
     depositCollateralAmount() {
       this.getMaxLeverageMultiplier();
+      this.getMaxBorrowAmount();
       this.updateLeverageAmounts();
     },
+
     slippage() {
       this.getMaxLeverageMultiplier();
       this.updateLeverageAmounts();
+    },
+
+    borrowInputAmount() {
+      const borrowInputAmount = utils.parseUnits(
+        this.borrowInputAmount || "0",
+        MIM_DECIMALS
+      );
+
+      const leverageAmounts = {
+        amountFrom: borrowInputAmount,
+        amountToMin: applySlippageToMinOut(
+          Number(this.slippage),
+          borrowInputAmount
+        ),
+      };
+
+      this.$emit("updateLeverageAmounts", leverageAmounts);
     },
   },
 
   methods: {
     onUpdateMultiplier(value: number) {
+      this.useCustomBorrowValue = false;
       this.multiplier = value;
+      this.updateLeverageAmounts();
+    },
+
+    onUpdateBorrowInputAmount(value: BigNumber) {
+      this.useCustomBorrowValue = true;
+      this.borrowInputValue = value;
       this.updateLeverageAmounts();
     },
 
@@ -150,6 +227,19 @@ export default {
         this.cauldron.userPosition.collateralInfo;
 
       const { oracleExchangeRate } = this.cauldron.mainParams;
+
+      if (this.useCustomBorrowValue) {
+        const multiplier = getLeverageMultiplierByBorrowAmount(
+          this.borrowInputValue,
+          this.maxToBorrow,
+          this.maxLeverageMultiplier
+        );
+
+        this.multiplier = Number(
+          formatToFixed(String(utils.formatUnits(multiplier, MIM_DECIMALS)), 2)
+        );
+      }
+
       const multiplier = utils.parseUnits(
         String(this.multiplier),
         PERCENT_PRESITION
@@ -183,13 +273,31 @@ export default {
       if (maxMultiplier < this.multiplier) this.multiplier = maxMultiplier;
       this.maxLeverageMultiplier = maxMultiplier;
     },
+
+    getMaxBorrowAmount() {
+      if (!this.depositCollateralAmount?.isZero)
+        this.maxToBorrow = BigNumber.from(0);
+      else {
+        this.maxToBorrow = getBorrowAmountByMultiplier(
+          this.maxLeverageMultiplier,
+          this.cauldron,
+          this.depositCollateralAmount!
+        );
+      }
+
+      this.$emit("updateMaxToBorrow", this.maxToBorrow);
+    },
   },
 
   created() {
     this.getMaxLeverageMultiplier();
+    this.getMaxBorrowAmount();
   },
 
   components: {
+    BaseTokenInput: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenInput.vue")
+    ),
     LeverageRange: defineAsyncComponent(
       () => import("@/components/ui/range/LeverageRange.vue")
     ),
@@ -199,12 +307,18 @@ export default {
     DynamicElixirPotionsMultiplier: defineAsyncComponent(
       () => import("@/components/market/DynamicElixirPotionsMultiplier.vue")
     ),
+    DynamicPillsMultiplier: defineAsyncComponent(
+      () => import("@/components/market/DynamicPillsMultiplier.vue")
+    ),
   },
 };
 </script>
 
 <style lang="scss" scoped>
 .range-wrap {
-  margin: 16px 0;
+  margin: 4px 0 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
 }
 </style>

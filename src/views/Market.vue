@@ -22,6 +22,7 @@
             @updateMarket="createCauldronInfo"
             @updateToggle="onUpdateToggle"
             @updateAmounts="onUpdateAmounts"
+            @onUpdateMaxToBorrow="onUpdateMaxToBorrow"
             @clearData="resetAmounts"
           />
 
@@ -108,6 +109,9 @@ export default {
           repayAmount: BigNumber.from(0),
           withdrawAmount: BigNumber.from(0),
           slippage: utils.parseUnits("1", PERCENT_PRESITION),
+        },
+        additionalInfo: {
+          maxBorrowAmountMultiplier: BigNumber.from(0),
         },
       },
       activeTab: "borrow",
@@ -230,7 +234,7 @@ export default {
     onUpdateToggle(toggle: string, isReset = false) {
       // @ts-ignore
       this.actionConfig[toggle] = !this.actionConfig[toggle];
-      if (isReset) this.resetAmounts();
+      if (toggle === "useDeleverage" && isReset) this.resetAmounts();
 
       this.checkAndUpdateRouteQuery();
     },
@@ -300,6 +304,10 @@ export default {
     onUpdateAmounts(type: string, value: any) {
       // @ts-ignore
       this.actionConfig.amounts[type] = value;
+    },
+
+    onUpdateMaxToBorrow(maxToBorrow: BigNumber) {
+      this.actionConfig.additionalInfo.maxBorrowAmountMultiplier = maxToBorrow;
     },
 
     changeTab(action: string) {

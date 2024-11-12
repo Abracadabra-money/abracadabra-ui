@@ -5,7 +5,7 @@
       :style="{ background: gradientRangeTrack }"
     >
       <span class="progress-value" :style="progressValuePosition">
-        {{ value }}x
+        {{ progressValue }}
       </span>
 
       <input
@@ -43,20 +43,27 @@ export default {
         medium: { start: "#A78300", end: "#FED84F" },
         high: { start: "#4F1717", end: "#8C4040" },
         default: { start: "#0C0F1C", end: "#212555" },
+        disabled: { start: "#727375", end: "#323639" },
       },
     };
   },
 
   computed: {
+    progressValue() {
+      return this.value > this.max ? "" : `${this.value}x`;
+    },
+
     progressValuePosition() {
       return `left: ${this.gradientPercent}%`;
     },
 
     gradientRangeTrack() {
+      const risk = this.value > this.max ? "disabled" : this.risk;
+
       return `linear-gradient(
             90deg,
-            ${this.colors[this.risk].start} 0%,
-            ${this.colors[this.risk].end} ${this.gradientPercent}%,
+            ${this.colors[risk].start} 0%,
+            ${this.colors[risk].end} ${this.gradientPercent}%,
             #0C0F1C ${this.gradientPercent}%,
             #212555 100%
           )
@@ -68,7 +75,7 @@ export default {
 
       if (this.min > 0) {
         if (this.inputValue === 1) return 0;
-        if (this.inputValue === max) return 100;
+        if (this.inputValue >= max) return 100;
         const percent = Math.floor(
           (100 / (max - this.min)) * (this.inputValue - this.min)
         );

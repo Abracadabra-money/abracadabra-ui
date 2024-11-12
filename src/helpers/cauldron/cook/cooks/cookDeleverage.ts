@@ -47,7 +47,7 @@ const cookDeleverage = async (
   cookData = await actions.removeCollateral(
     cookData,
     collateralShare,
-    liquidationSwapper.address
+    liquidationSwapper!.address
   );
 
   cookData = await recipeDeleverage(

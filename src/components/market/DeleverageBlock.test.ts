@@ -9,6 +9,7 @@ describe("DeleverageBlock", () => {
   it("renders AmountRange component", () => {
     const wrapper = shallowMount(DeleverageBlock, {
       props: {
+        // @ts-ignore
         cauldron: magicGlpConfig,
         slippage: BigNumber.from(0),
         deleverageAmounts: {
@@ -25,6 +26,7 @@ describe("DeleverageBlock", () => {
   it("renders DynamicFee component when chainId is not 2222", () => {
     const wrapper = shallowMount(DeleverageBlock, {
       props: {
+        // @ts-ignore
         cauldron: magicGlpConfig,
         slippage: BigNumber.from(0),
         deleverageAmounts: {
@@ -41,6 +43,7 @@ describe("DeleverageBlock", () => {
   it("renders GmPriceImpact component when cauldronSettings.isGMXMarket is true", () => {
     const wrapper = shallowMount(DeleverageBlock, {
       props: {
+        // @ts-ignore
         cauldron: gmArbTestConfig,
         slippage: BigNumber.from(0),
         deleverageAmounts: {

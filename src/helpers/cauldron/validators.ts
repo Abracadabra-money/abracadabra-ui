@@ -4,7 +4,7 @@ import { getExpectedPostition } from "./getExpectedPosition";
 import { expandDecimals } from "../gm/fee/expandDecials";
 import { getMaxToBorrow, getMaxCollateralToRemove } from "./utils";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
-import { getAccountHelper } from "@/helpers/walletClienHelper";
+import type { Address } from "viem";
 
 export const WARNING_TYPES = {
   DEPOSIT_ALLOWANCE: 0,
@@ -58,7 +58,8 @@ export const validateCookByAction = (
   cauldron: CauldronInfo,
   actionConfig: ActionConfig,
   action: "borrow" | "repay",
-  chainId: number
+  chainId: number,
+  account: Address
 ) => {
   const cookType = getCookTypeByAction(actionConfig, action);
 
@@ -66,7 +67,8 @@ export const validateCookByAction = (
 
   let validationErrors: any = [];
 
-  validationErrors = validateConnection(validationErrors);
+  validationErrors = validateConnection(account, validationErrors);
+
   validationErrors = validateChain(validationErrors, cauldron, chainId);
 
   validationErrors = validatePosition(
@@ -253,11 +255,22 @@ const validateBorrow = (
     oracleExchangeRate
   );
 
+  const maxToBorrowByMultiplier =
+    actionConfig.additionalInfo?.maxBorrowAmountMultiplier;
+
+  const useMaxByMultiplier =
+    maxToBorrowByMultiplier && !maxToBorrowByMultiplier?.isZero();
+
+  const maxBorrowAmount =
+    useMaxByMultiplier && maxToBorrow > maxToBorrowByMultiplier
+      ? maxToBorrowByMultiplier
+      : maxToBorrow;
+
   const mimToBorrow = useLeverage ? leverageAmounts.amountFrom : borrowAmount;
 
   const cauldronMimLeftCheck = mimToBorrow.lte(mimLeftToBorrow);
   const userMaxBorrowCheck = mimToBorrow.lte(userMaxBorrow);
-  const positionMaxToBorrowCheck = mimToBorrow.lte(maxToBorrow);
+  const positionMaxToBorrowCheck = mimToBorrow.lte(maxBorrowAmount);
 
   if (!positionMaxToBorrowCheck)
     validationErrors.push(WARNING_TYPES.POSITION_MAX_TO_BORROW);
@@ -331,8 +344,12 @@ const validateRemoveCollateral = (
       : withdrawAmount.lte(maxWithdrawAmount);
   }
 
+  const expectedCollateralAmount = useDeleverage
+    ? userCollateralAmount.sub(deleverageAmounts.amountFrom)
+    : userCollateralAmount;
+
   const maxToRemove = getMaxCollateralToRemove(
-    userCollateralAmount,
+    expectedCollateralAmount,
     expectPosition.mimAmount,
     mcr,
     oracleExchangeRate
@@ -450,10 +467,8 @@ const validateChain = (
   return validationErrors;
 };
 
-const validateConnection = (validationErrors: any) => {
-  const { isConnected } = getAccountHelper();
-
-  if (!isConnected) validationErrors.push(WARNING_TYPES.CONNECTION);
+const validateConnection = (account: Address, validationErrors: any) => {
+  if (!account) validationErrors.push(WARNING_TYPES.CONNECTION);
 
   return validationErrors;
 };

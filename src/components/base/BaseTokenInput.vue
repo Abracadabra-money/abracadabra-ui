@@ -119,7 +119,8 @@ export default {
   watch: {
     inputValue(value, oldValue) {
       if (!value) {
-        this.$emit("updateInputValue", null);
+        if (this.isBigNumber) this.$emit("updateInputValue", BigNumber.from(0));
+        else this.$emit("updateInputValue", BigInt(0));
         return;
       }
 
