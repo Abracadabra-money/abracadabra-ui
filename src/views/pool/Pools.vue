@@ -53,15 +53,17 @@ export default {
         },
         {
           tableKey: "Fee Tier",
-          tooltip: "Fee Tier.",
+          tooltip:
+            "Fee that trader pays when exchanging one token for another within the pool.",
         },
         {
           tableKey: "Pool type",
-          tooltip: "Pool type.",
+          tooltip: "Indicates how liquidity is concentrated within the pool.",
         },
         {
           tableKey: "Staking APR",
-          tooltip: "Staking APR.",
+          tooltip:
+            "Reward token(s) and total APR for staking the pool's LP tokens.",
           isSortingCriterion: true,
         },
       ],

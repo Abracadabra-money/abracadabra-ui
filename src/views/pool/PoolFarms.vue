@@ -39,16 +39,18 @@ export default {
         },
         {
           tableKey: "Staked TVL",
-          tooltip: "Staked Total Value Locked.",
+          tooltip:
+            "Represents the total value from the pool that LPers have staked.",
           isSortingCriterion: true,
         },
         {
           tableKey: "Rewards",
-          tooltip: "Rewards.",
+          tooltip:
+            "Tokens that LPers receive as rewards for participating in staking.",
         },
         {
           tableKey: "APR",
-          tooltip: "APR.",
+          tooltip: "Annual percentage rate.",
           isSortingCriterion: true,
         },
       ],
