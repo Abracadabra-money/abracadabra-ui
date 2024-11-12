@@ -1,12 +1,5 @@
 <template>
-  <div :class="['reward-info', { small }]" v-if="isMultiplierLabel">
-    <div class="additional-info">
-      <div class="additional-info-title">Elixir Potion Multiplier</div>
-      <div class="additional-info-value">5x - 29.5x</div>
-    </div>
-  </div>
-
-  <div :class="['reward-info', { small }]" v-else-if="isPillsPoints">
+  <div :class="['reward-info', { small }]" v-if="isPillsPoints">
     <div class="additional-info">
       <div class="additional-info-title">Pills Multiplier</div>
       <div class="additional-info-value">1x - 6.3x</div>
@@ -38,19 +31,11 @@ export default {
 
   data() {
     return {
-      elixirPotions: [43, 44],
       pillsPoints: [45],
     };
   },
 
   computed: {
-    isMultiplierLabel() {
-      return (
-        this.cauldron.config.chainId === MAINNET_CHAIN_ID &&
-        this.elixirPotions.includes(this.cauldron.config.id)
-      );
-    },
-
     isPillsPoints() {
       return (
         this.cauldron.config.chainId === MAINNET_CHAIN_ID &&
