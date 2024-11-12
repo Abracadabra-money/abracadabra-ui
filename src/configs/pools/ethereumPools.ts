@@ -41,7 +41,7 @@ const ethereumPools: Array<PoolConfig | AdditionalPoolConfig> = [
       abi: MultiRewardsAbi,
     },
     settings: {
-      isNew: true,
+      isNew: false,
       isDeprecated: false,
       isMim: true,
       rewardPointsType: RewardPointsTypes.Elixir,
@@ -84,7 +84,7 @@ const ethereumPools: Array<PoolConfig | AdditionalPoolConfig> = [
     },
     rewardTokens: [],
     settings: {
-      isNew: true,
+      isNew: false,
       isDeprecated: false,
       isMim: true,
       rewardPointsType: RewardPointsTypes.Pills,

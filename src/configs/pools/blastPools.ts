@@ -40,7 +40,7 @@ const blastPools: Array<PoolConfig | AdditionalPoolConfig> = [
       abi: BlastLockingMultiRewardsAbi,
     },
     settings: {
-      isNew: true,
+      isNew: false,
       isDeprecated: false,
       isMim: true,
       isPointsLogic: true,

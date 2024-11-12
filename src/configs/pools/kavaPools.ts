@@ -51,7 +51,7 @@ const kavaPools: Array<PoolConfig | AdditionalPoolConfig> = [
       },
     ],
     settings: {
-      isNew: true,
+      isNew: false,
       isDeprecated: false,
       isMim: true,
     },

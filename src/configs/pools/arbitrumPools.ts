@@ -36,7 +36,7 @@ const arbitrumPools: Array<PoolConfig | AdditionalPoolConfig> = [
   //     isPopular: true,
   //   },
   //   settings: {
-  //     isNew: true,
+  //     isNew: false,
   //     isDeprecated: false,
   //     isMim: true,
   //   },
@@ -87,7 +87,7 @@ const arbitrumPools: Array<PoolConfig | AdditionalPoolConfig> = [
       },
     ],
     settings: {
-      isNew: true,
+      isNew: false,
       isDeprecated: false,
       isMim: true,
     },
@@ -143,7 +143,7 @@ const arbitrumPools: Array<PoolConfig | AdditionalPoolConfig> = [
       },
     ],
     settings: {
-      isNew: true,
+      isNew: false,
       isDeprecated: false,
       isMim: true,
     },
