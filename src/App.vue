@@ -12,15 +12,16 @@
       alt="Mim"
     />
     <MlpMigrationBanner />
-    <router-view v-slot="{ Component }">
-      <Transition
-        mode="out-in"
-        @before-enter="animation.beforeEnter"
-        @enter="animation.enter"
-        @leave="animation.leave"
+    <router-view v-slot="{ Component, route }">
+      <TransitionGroup
+        @before-enter="beforeEnter"
+        @enter="enter"
+        @leave="leave"
       >
-        <component :is="Component" />
-      </Transition>
+        <div :key="route.name">
+          <component :is="Component" />
+        </div>
+      </TransitionGroup>
     </router-view>
   </div>
   <NotificationContainer />
@@ -70,10 +71,10 @@ export default {
     ...mapGetters({
       signer: "getSigner",
     }),
+  },
 
-    animation() {
-      return useAnimation("fade");
-    },
+  methods: {
+    ...useAnimation("fade"),
   },
 
   async beforeCreate() {

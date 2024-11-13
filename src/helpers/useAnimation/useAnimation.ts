@@ -8,15 +8,16 @@ export const useAnimation = (animationType = DEFAULT_ANIMATION) => {
     throw new Error(`Animation "${animationType}" not found`);
   }
 
-  const beforeEnter = (element: HTMLElement) => {
-    if ("beforeEnter" in animation) animation.beforeEnter(element);
+  const beforeEnter = (element: Element) => {
+    if ("beforeEnter" in animation)
+      animation.beforeEnter(element as HTMLElement);
   };
 
-  const enter = (element: HTMLElement, done: () => void) => {
+  const enter = (element: Element, done: () => void) => {
     animation.enter(element, done);
   };
 
-  const leave = (element: HTMLElement, done: () => void) => {
+  const leave = (element: Element, done: () => void) => {
     animation.leave(element, done);
   };
 
