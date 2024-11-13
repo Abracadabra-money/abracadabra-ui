@@ -12,7 +12,16 @@
       alt="Mim"
     />
     <MlpMigrationBanner />
-    <router-view />
+    <router-view v-slot="{ Component }">
+      <Transition
+        mode="out-in"
+        @before-enter="animation.beforeEnter"
+        @enter="animation.enter"
+        @leave="animation.leave"
+      >
+        <component :is="Component" />
+      </Transition>
+    </router-view>
   </div>
   <NotificationContainer />
   <PopupsWrapper />
@@ -20,10 +29,13 @@
   <OldAllowanceBanner />
   <TenderlyMod />
 </template>
+
 <script>
+import axios from "axios";
 import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
-import axios from "axios";
+import { useAnimation } from "@/helpers/useAnimation/useAnimation";
+
 export default {
   data() {
     return {
@@ -58,6 +70,10 @@ export default {
     ...mapGetters({
       signer: "getSigner",
     }),
+
+    animation() {
+      return useAnimation("fade");
+    },
   },
 
   async beforeCreate() {
