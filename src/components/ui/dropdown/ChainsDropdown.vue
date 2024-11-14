@@ -1,6 +1,6 @@
 <template>
   <div class="dropdown" v-click-outside="closeDropdown">
-    <button class="dropdown-btn" @click="toogleDropdown">
+    <button class="dropdown-btn" @click="toggleDropdown">
       Chains
       <div
         :class="[
@@ -42,54 +42,56 @@
       </svg>
     </button>
 
-    <div class="dropdown-list" ref="dropdownList" v-if="showDropdownList">
-      <div class="select-all">
-        <h6 class="list-title">Select all</h6>
-        <Toggle
-          :selected="allSelected"
-          @updateToggle="$emit('selectAllChains')"
-        />
-      </div>
-
-      <div
-        class="list-item"
-        v-for="chainId in orderedActiveChains"
-        :key="chainId"
-      >
-        <div class="chain-info">
-          <img class="chain-icon" :src="getChainIcon(+chainId)" alt="" />
-          <span class="chain-name">{{ getChainName(+chainId) }}</span>
+    <Transition @before-enter="beforeEnter" @enter="enter" @leave="leave">
+      <div class="dropdown-list" ref="dropdownList" v-show="showDropdownList">
+        <div class="select-all">
+          <h6 class="list-title">Select all</h6>
+          <Toggle
+            :selected="allSelected"
+            @updateToggle="$emit('selectAllChains')"
+          />
         </div>
 
         <div
-          :class="[
-            'checkbox',
-            {
-              active: selectedChains.includes(+chainId) && !allSelected,
-            },
-          ]"
-          @click="updateSelectedChain(+chainId)"
+          class="list-item"
+          v-for="chainId in orderedActiveChains"
+          :key="chainId"
         >
-          <svg
-            class="checked"
-            v-show="selectedChains.includes(+chainId) && !allSelected"
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 20 20"
-            fill="none"
+          <div class="chain-info">
+            <img class="chain-icon" :src="getChainIcon(+chainId)" alt="" />
+            <span class="chain-name">{{ getChainName(+chainId) }}</span>
+          </div>
+
+          <div
+            :class="[
+              'checkbox',
+              {
+                active: selectedChains.includes(+chainId) && !allSelected,
+              },
+            ]"
+            @click="updateSelectedChain(+chainId)"
           >
-            <path
-              d="M15.5 5.5L8.83333 12.5L5.5 9"
-              stroke="#7088CC"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
+            <svg
+              class="checked"
+              v-show="selectedChains.includes(+chainId) && !allSelected"
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+            >
+              <path
+                d="M15.5 5.5L8.83333 12.5L5.5 9"
+                stroke="#7088CC"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </div>
         </div>
       </div>
-    </div>
+    </Transition>
   </div>
 </template>
 
@@ -97,6 +99,7 @@
 import { defineAsyncComponent, type PropType } from "vue";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 import { getChainConfig } from "@/helpers/chains/getChainsInfo";
+import { useAnimation } from "@/helpers/useAnimation/useAnimation";
 
 export default {
   props: {
@@ -158,12 +161,14 @@ export default {
 
   methods: {
     getChainIcon,
+    ...useAnimation("roll"),
+
     getChainName(chainId: number) {
       const chain = getChainConfig(chainId);
       return chain?.chainName;
     },
 
-    toogleDropdown() {
+    toggleDropdown() {
       if (!this.activeChains.length) return false;
       this.showDropdownList = !this.showDropdownList;
     },
