@@ -14,7 +14,7 @@
       />
     </div>
 
-    <Transition @before-enter="beforeEnter" @enter="enter" @leave="leave">
+    <TransitionWrapper animation-type="roll">
       <div class="list" v-show="showDropdownList">
         <router-link class="list-link" :to="{ name: 'MarketsFarm' }">
           <div class="link-title">
@@ -89,7 +89,7 @@
           <V2 class="media-link" />
         </div>
       </div>
-    </Transition>
+    </TransitionWrapper>
   </div>
 </template>
 
@@ -100,7 +100,7 @@ import Mirror from "@/components/ui/icons/Mirror.vue";
 import GitHub from "@/components/ui/icons/GitHub.vue";
 import Twitter from "@/components/ui/icons/Twitter.vue";
 import Discord from "@/components/ui/icons/Discord.vue";
-import { useAnimation } from "@/helpers/useAnimation/useAnimation";
+import TransitionWrapper from "@/components/ui/TransitionWrapper.vue";
 
 export default {
   data() {
@@ -110,8 +110,6 @@ export default {
   },
 
   methods: {
-    ...useAnimation("roll"),
-
     toggleDropdown() {
       this.showDropdownList = !this.showDropdownList;
     },
@@ -128,6 +126,7 @@ export default {
     Discord,
     GitHub,
     V2,
+    TransitionWrapper,
   },
 };
 </script>

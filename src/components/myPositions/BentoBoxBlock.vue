@@ -23,23 +23,27 @@
       :isBento="true"
     />
 
-    <DegenBentoPopup
-      v-if="popupData.opened && currentChainBentoData"
-      :infoObject="currentChainBentoData"
-      :isBento="popupData.isBento"
-      @close="popupData.opened = false"
-    />
+    <TransitionWrapper>
+      <DegenBentoPopup
+        v-if="popupData.opened && currentChainBentoData"
+        :infoObject="currentChainBentoData"
+        :isBento="popupData.isBento"
+        @close="popupData.opened = false"
+      />
+    </TransitionWrapper>
   </div>
 </template>
 
 <script lang="ts">
 import { parseUnits } from "viem";
 import { mapGetters, mapMutations } from "vuex";
+// @ts-ignore
 import bentoBoxMixin from "@/mixins/mimBentoDeposit";
 import BentoBoxItem from "@/components/myPositions/BentoBoxItem.vue";
 import DegenBentoPopup from "@/components/popups/DegenBentoPopup.vue";
 import { createBentoBoxDatas } from "@/helpers/bentoBox/createBentoBoxData";
 import type { BentoBoxData } from "@/helpers/bentoBox/types";
+import TransitionWrapper from "@/components/ui/TransitionWrapper.vue";
 
 const initialPopupData: PopupData = {
   opened: false,
@@ -75,7 +79,7 @@ export default {
       bentoBoxData: "getBentoBoxData",
     }),
 
-    activeChains(){
+    activeChains() {
       let bento: BentoBoxData[] = [];
       let degen: BentoBoxData[] = [];
 
@@ -187,6 +191,7 @@ export default {
   components: {
     BentoBoxItem,
     DegenBentoPopup,
+    TransitionWrapper,
   },
 };
 </script>

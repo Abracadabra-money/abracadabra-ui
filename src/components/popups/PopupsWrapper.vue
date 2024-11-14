@@ -1,12 +1,12 @@
 <template>
   <div class="popup-wrap" v-if="popupActiveType">
-    <!-- <div v-click-outside="closePopup"> -->
     <div>
-      <CrvStakePopup v-if="popupActiveType === '3crv'" />
-
-      <SucessPopup v-if="popupActiveType === 'success'" />
-      <RouteOptimisationPopup v-if="popupActiveType === 'mglp-route'" />
-      <ApprovalsPopup v-if="popupActiveType === 'approvals'" />
+      <TransitionWrapper>
+        <CrvStakePopup v-if="popupActiveType === '3crv'" />
+        <SucessPopup v-if="popupActiveType === 'success'" />
+        <RouteOptimisationPopup v-if="popupActiveType === 'mglp-route'" />
+        <ApprovalsPopup v-if="popupActiveType === 'approvals'" />
+      </TransitionWrapper>
     </div>
   </div>
 </template>
@@ -25,6 +25,9 @@ export default {
   },
 
   components: {
+    TransitionWrapper: defineAsyncComponent(() =>
+      import("@/components/ui/TransitionWrapper.vue")
+    ),
     CrvStakePopup: defineAsyncComponent(() =>
       import("@/components/popups/CrvStakePopup.vue")
     ),

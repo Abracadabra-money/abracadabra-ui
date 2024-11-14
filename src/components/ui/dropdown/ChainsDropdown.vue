@@ -42,7 +42,7 @@
       </svg>
     </button>
 
-    <Transition @before-enter="beforeEnter" @enter="enter" @leave="leave">
+    <TransitionWrapper animation-type="roll">
       <div class="dropdown-list" ref="dropdownList" v-show="showDropdownList">
         <div class="select-all">
           <h6 class="list-title">Select all</h6>
@@ -91,7 +91,7 @@
           </div>
         </div>
       </div>
-    </Transition>
+    </TransitionWrapper>
   </div>
 </template>
 
@@ -99,7 +99,6 @@
 import { defineAsyncComponent, type PropType } from "vue";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 import { getChainConfig } from "@/helpers/chains/getChainsInfo";
-import { useAnimation } from "@/helpers/useAnimation/useAnimation";
 
 export default {
   props: {
@@ -161,7 +160,6 @@ export default {
 
   methods: {
     getChainIcon,
-    ...useAnimation("roll"),
 
     getChainName(chainId: number) {
       const chain = getChainConfig(chainId);
@@ -184,6 +182,9 @@ export default {
 
   components: {
     Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
+    TransitionWrapper: defineAsyncComponent(
+      () => import("@/components/ui/TransitionWrapper.vue")
+    ),
   },
 };
 </script>

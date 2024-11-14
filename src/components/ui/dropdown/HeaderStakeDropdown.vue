@@ -14,7 +14,7 @@
       />
     </div>
 
-    <Transition @before-enter="beforeEnter" @enter="enter" @leave="leave">
+    <TransitionWrapper animation-type="roll">
       <div class="list" v-show="showDropdownList">
         <router-link class="list-link" :to="{ name: 'StakeSpell' }">
           <div class="link-title">
@@ -73,7 +73,7 @@
           <p class="link-description">Stake APE</p>
         </router-link>
       </div>
-    </Transition>
+    </TransitionWrapper>
   </div>
 </template>
 
@@ -81,7 +81,7 @@
 import { mapGetters } from "vuex";
 import { formatPercent } from "@/helpers/filters";
 import BaseLoader from "@/components/base/BaseLoader.vue";
-import { useAnimation } from "@/helpers/useAnimation/useAnimation";
+import TransitionWrapper from "@/components/ui/TransitionWrapper.vue";
 import { ARBITRUM_CHAIN_ID, MAINNET_CHAIN_ID } from "@/constants/global";
 import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
 import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
@@ -103,8 +103,6 @@ export default {
 
   methods: {
     formatPercent,
-    ...useAnimation("roll"),
-
     async getSpellApr() {
       const spellAprs = await getSpellStakingApr();
       this.spellApr = spellAprs?.sSpellApr;
@@ -136,6 +134,7 @@ export default {
 
   components: {
     BaseLoader,
+    TransitionWrapper,
   },
 };
 </script>

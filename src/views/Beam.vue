@@ -90,24 +90,28 @@
         @changeChain="changeChain"
       />
 
-      <SettingsPopup
-        v-if="isSettingsOpened && toChain"
-        :beamInfoObject="beamInfoObject"
-        :dstChainInfo="toChain"
-        :dstNativeTokenAmount="dstTokenAmount"
-        :mimAmount="inputAmount"
-        @onUpdateAmount="updateDstNativeTokenAmount"
-        @closeSettings="isSettingsOpened = false"
-      />
+      <TransitionWrapper>
+        <SettingsPopup
+          v-if="isSettingsOpened && toChain"
+          :beamInfoObject="beamInfoObject"
+          :dstChainInfo="toChain"
+          :dstNativeTokenAmount="dstTokenAmount"
+          :mimAmount="inputAmount"
+          @onUpdateAmount="updateDstNativeTokenAmount"
+          @closeSettings="isSettingsOpened = false"
+        />
+      </TransitionWrapper>
     </div>
   </div>
 
-  <SuccessPopup
-    v-if="isOpenSuccessPopup && beamInfoObject"
-    :beamInfoObject="beamInfoObject"
-    :successData="successData"
-    @close-popup="isOpenSuccessPopup = false"
-  />
+  <TransitionWrapper>
+    <SuccessPopup
+      v-if="isOpenSuccessPopup && beamInfoObject"
+      :beamInfoObject="beamInfoObject"
+      :successData="successData"
+      @close-popup="isOpenSuccessPopup = false"
+    />
+  </TransitionWrapper>
 </template>
 
 <script lang="ts">
@@ -630,6 +634,9 @@ export default {
     ),
     ExpectedBlock: defineAsyncComponent(
       () => import("@/components/beam/ExpectedBlock.vue")
+    ),
+    TransitionWrapper: defineAsyncComponent(
+      () => import("@/components/ui/TransitionWrapper.vue")
     ),
   },
 };

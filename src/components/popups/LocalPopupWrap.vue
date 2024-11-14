@@ -1,21 +1,25 @@
 <template>
-  <div class="popup-wrap" v-if="isOpened" @click="closePopup">
-    <div :class="['popup', { farmPopup: isFarm }]" @click.stop>
-      <div class="popup-content">
-        <button class="close-btn" @click="closePopup">
-          <img
-            class="close-img"
-            src="@/assets/images/cross.svg"
-            alt="Close popup"
-          />
-        </button>
-        <slot />
+  <TransitionWrapper>
+    <div class="popup-wrap" v-if="isOpened" @click="closePopup">
+      <div :class="['popup', { farmPopup: isFarm }]" @click.stop>
+        <div class="popup-content">
+          <button class="close-btn" @click="closePopup">
+            <img
+              class="close-img"
+              src="@/assets/images/cross.svg"
+              alt="Close popup"
+            />
+          </button>
+          <slot />
+        </div>
       </div>
     </div>
-  </div>
+  </TransitionWrapper>
 </template>
 
 <script>
+import { defineAsyncComponent } from "vue";
+
 export default {
   name: "LocalPopupWrap",
   props: {
@@ -37,6 +41,12 @@ export default {
     isOpened(value) {
       document.documentElement.style.overflow = value ? "hidden" : "auto";
     },
+  },
+
+  components: {
+    TransitionWrapper: defineAsyncComponent(() =>
+      import("@/components/ui/TransitionWrapper.vue")
+    ),
   },
 };
 </script>
