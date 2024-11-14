@@ -2,7 +2,7 @@
   <div
     class="dropdown-tools"
     :class="{ active: showDropdownList }"
-    @click="toggleDropdown()"
+    @click="toggleDropdown"
     v-click-outside="closeDropdown"
   >
     <div class="dropdown-title">
@@ -14,71 +14,75 @@
       />
     </div>
 
-    <div class="list" v-if="showDropdownList">
-      <router-link class="list-link" :to="{ name: 'StakeSpell' }">
-        <div class="link-title">
-          <span class="stake-token">
-            <img
-              class="link-icon"
-              src="@/assets/images/stake/tokens/Spell.png"
-            />
-            Spell
-          </span>
-          <span class="apr" v-if="spellApr"
-            >APR: {{ formatPercent(spellApr) }}</span
-          >
-          <div class="loader-wrap" v-else>
-            <BaseLoader type="loader" />
+    <Transition @before-enter="beforeEnter" @enter="enter" @leave="leave">
+      <div class="list" v-show="showDropdownList">
+        <router-link class="list-link" :to="{ name: 'StakeSpell' }">
+          <div class="link-title">
+            <span class="stake-token">
+              <img
+                class="link-icon"
+                src="@/assets/images/stake/tokens/Spell.png"
+              />
+              Spell
+            </span>
+            <span class="apr" v-if="spellApr"
+              >APR: {{ formatPercent(spellApr) }}</span
+            >
+            <div class="loader-wrap" v-else>
+              <BaseLoader type="loader" />
+            </div>
           </div>
-        </div>
-        <p class="link-description">Stake Spell</p>
-      </router-link>
+          <p class="link-description">Stake Spell</p>
+        </router-link>
 
-      <router-link class="list-link" :to="{ name: 'magicGLP' }">
-        <div class="link-title">
-          <span class="stake-token">
-            <img class="link-icon" src="@/assets/images/stake/tokens/GLP.png" />
-            GLP
-          </span>
-          <span class="apr" v-if="glpApr"
-            >APR: {{ formatPercent(glpApr) }}</span
-          >
-          <div class="loader-wrap" v-else>
-            <BaseLoader type="loader" />
+        <router-link class="list-link" :to="{ name: 'magicGLP' }">
+          <div class="link-title">
+            <span class="stake-token">
+              <img
+                class="link-icon"
+                src="@/assets/images/stake/tokens/GLP.png"
+              />
+              GLP
+            </span>
+            <span class="apr" v-if="glpApr"
+              >APR: {{ formatPercent(glpApr) }}</span
+            >
+            <div class="loader-wrap" v-else>
+              <BaseLoader type="loader" />
+            </div>
           </div>
-        </div>
-        <p class="link-description">Stake GLP</p>
-      </router-link>
+          <p class="link-description">Stake GLP</p>
+        </router-link>
 
-      <router-link class="list-link" :to="{ name: 'magicAPE' }">
-        <div class="link-title">
-          <span class="stake-token">
-            <img class="link-icon" src="@/assets/images/stake/tokens/APE.png" />
-            APE
-          </span>
-          <span class="apr" v-if="apeApr"
-            >APR: {{ formatPercent(apeApr) }}</span
-          >
-          <div class="loader-wrap" v-else>
-            <BaseLoader type="loader" />
+        <router-link class="list-link" :to="{ name: 'magicAPE' }">
+          <div class="link-title">
+            <span class="stake-token">
+              <img
+                class="link-icon"
+                src="@/assets/images/stake/tokens/APE.png"
+              />
+              APE
+            </span>
+            <span class="apr" v-if="apeApr"
+              >APR: {{ formatPercent(apeApr) }}</span
+            >
+            <div class="loader-wrap" v-else>
+              <BaseLoader type="loader" />
+            </div>
           </div>
-        </div>
-        <p class="link-description">Stake APE</p>
-      </router-link>
-    </div>
+          <p class="link-description">Stake APE</p>
+        </router-link>
+      </div>
+    </Transition>
   </div>
 </template>
 
-<script>
-import {
-  ANALYTICS_URK,
-  ARBITRUM_CHAIN_ID,
-  MAINNET_CHAIN_ID,
-} from "@/constants/global";
-import axios from "axios";
+<script lang="ts">
 import { mapGetters } from "vuex";
 import { formatPercent } from "@/helpers/filters";
 import BaseLoader from "@/components/base/BaseLoader.vue";
+import { useAnimation } from "@/helpers/useAnimation/useAnimation";
+import { ARBITRUM_CHAIN_ID, MAINNET_CHAIN_ID } from "@/constants/global";
 import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
 import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
 import { getSpellStakingApr } from "@/helpers/stake/spell/getSpellStakingApr";
@@ -86,9 +90,9 @@ import { getSpellStakingApr } from "@/helpers/stake/spell/getSpellStakingApr";
 export default {
   data() {
     return {
-      spellApr: null,
-      glpApr: null,
-      apeApr: null,
+      spellApr: null as string | null,
+      glpApr: null as number | null,
+      apeApr: null as number | null,
       showDropdownList: false,
     };
   },
@@ -99,6 +103,7 @@ export default {
 
   methods: {
     formatPercent,
+    ...useAnimation("roll"),
 
     async getSpellApr() {
       const spellAprs = await getSpellStakingApr();
@@ -170,6 +175,7 @@ export default {
   background: #101622;
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
   backdrop-filter: blur(12.5px);
+  overflow: hidden;
 }
 
 .list-link {
