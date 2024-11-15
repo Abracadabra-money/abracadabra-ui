@@ -2,9 +2,14 @@
   <div class="token-rewards-wrap" v-if="tokenRewards">
     <div class="title-wrap">
       <h4 class="title">{{ titleText }}</h4>
-
       <div class="apr-wrap" v-if="!rewardPointsType">
-        <Tooltip :width="18" :height="18" fill="#ffffff" :tooltip="''" />
+        <Tooltip
+          v-if="poolRewards && poolRewards.length > 1"
+          :width="18"
+          :height="18"
+          fill="#ffffff"
+          :tooltip="''"
+        />
 
         <div class="apr-info" v-if="poolRewards && poolRewards.length > 1">
           <div
@@ -64,6 +69,7 @@ export default {
     isPoolHasReward() {
       return this.pool.stakeInfo ?? false;
     },
+
     poolRewards() {
       if (!this.isPoolHasReward) return;
       return this.pool.stakeInfo.earnedInfo;
