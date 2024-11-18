@@ -53,6 +53,7 @@ import MagicKodiakVault from "@/abis/tokensAbi/MagicKodiakVault";
 import MagicUSD0pp from "@/abis/tokensAbi/MagicUSD0pp";
 import USD0pp from "@/abis/tokensAbi/USD0pp";
 import ZRO from "@/abis/tokensAbi/ZRO";
+import ENA from "@/abis/tokensAbi/ENA";
 
 export default {
   ALCX,
@@ -109,5 +110,6 @@ export default {
   MagicKodiakVault,
   MagicUSD0pp,
   USD0pp,
-  ZRO
+  ZRO,
+  ENA,
 };
