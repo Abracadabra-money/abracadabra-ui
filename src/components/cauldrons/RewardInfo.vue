@@ -1,7 +1,7 @@
 <template>
   <div :class="['reward-info', { small }]" v-if="isMultiplierLabel">
     <div class="additional-info">
-      <div class="additional-info-title">Elixir Potion Multiplier</div>
+      <div class="additional-info-title">Elixir Potions Multiplier</div>
       <div class="additional-info-value">5x - 29.5x</div>
     </div>
   </div>
