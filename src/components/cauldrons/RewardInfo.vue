@@ -9,7 +9,7 @@
           alt="Elixir icon"
         />
       </div>
-      <div class="elixir-apr">
+      <div class="elixir-apr" v-if="loopApr">
         {{ loopApr }}
         <img
           class="token-icon"
@@ -126,6 +126,10 @@ export default {
   gap: 6px;
   display: flex;
   align-items: center;
+}
+
+.elixir-apr {
+  font-size: 14px;
 }
 
 .elixir-icon,
