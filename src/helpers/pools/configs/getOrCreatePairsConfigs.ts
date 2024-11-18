@@ -18,6 +18,7 @@ import type { PoolConfig } from "@/configs/pools/types";
 import { tokenConfigs } from "@/configs/pools/tokenConfigs";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { blackListedPools } from "@/helpers/pools/configs/blackList";
+import { whiteListedPools } from "@/helpers/pools/configs/whiteList";
 import { fetchPairsList } from "@/helpers/pools/configs/fetchPairsList";
 
 const poolChains = [
@@ -76,11 +77,21 @@ const filterBlacklistPools = (
   pairsList: GraphPairsConfigs,
   chainId: number
 ) => {
+  const blackListArr =
+    blackListedPools[chainId as keyof typeof blackListedPools];
+  const whiteListArr =
+    whiteListedPools[chainId as keyof typeof whiteListedPools];
+
+  const blackListSet = new Set(
+    blackListArr?.map((id) => id.toLocaleLowerCase()) || []
+  );
+  const whiteListSet = new Set(
+    whiteListArr?.map((id) => id.toLocaleLowerCase()) || []
+  );
+
   return pairsList.pairs.filter((pool: any) => {
-    const blackListArr =
-      blackListedPools[chainId as keyof typeof blackListedPools];
-    if (!blackListArr) return true;
-    return !blackListArr.includes(pool.id.toLocaleLowerCase());
+    const poolId = pool.id.toLocaleLowerCase();
+    return !blackListSet.has(poolId) && whiteListSet.has(poolId);
   });
 };
 

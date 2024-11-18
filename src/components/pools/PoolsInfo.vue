@@ -5,14 +5,14 @@
       <h4 class="subtitle">{{ text.description }}</h4>
     </div>
 
-    <BaseButton
+    <!-- <BaseButton
       class="pool-creation-link-button"
       @click="goToPoolCreation"
       v-if="!isFarms"
     >
       <img src="@/assets/images/pools/plus.svg" />
       Create new pool
-    </BaseButton>
+    </BaseButton> -->
 
     <!-- 
     <div class="cards-wrap">
@@ -50,7 +50,8 @@
 
 <script lang="ts">
 import { formatUnits } from "viem";
-import { defineAsyncComponent, type PropType } from "vue";
+import type { PropType } from "vue";
+// import { defineAsyncComponent } from "vue";
 import { formatLargeSum, formatTokenBalance } from "@/helpers/filters";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 import type { MagicLPInfo } from "@/helpers/pools/swap/types";
@@ -186,11 +187,11 @@ export default {
     },
   },
 
-  components: {
-    BaseButton: defineAsyncComponent(
-      () => import("@/components/base/BaseButton.vue")
-    ),
-  },
+  // components: {
+  //   BaseButton: defineAsyncComponent(
+  //     () => import("@/components/base/BaseButton.vue")
+  //   ),
+  // },
 
   async created() {
     this.kavaRewardData = await this.getRewardData();
