@@ -79,20 +79,20 @@
         </p>
       </div>
 
-      <ChainsPopup
-        v-if="isOpenNetworkPopup"
-        :isOpen="isOpenNetworkPopup"
-        :popupType="popupType"
-        :beamInfoObject="beamInfoObject"
-        :selectedFromChain="fromChain"
-        :selectedToChain="toChain"
-        @closePopup="closeNetworkPopup"
-        @changeChain="changeChain"
-      />
+      <TransitionWrapper appear v-if="isOpenNetworkPopup">
+        <ChainsPopup
+          :isOpen="isOpenNetworkPopup"
+          :popupType="popupType"
+          :beamInfoObject="beamInfoObject"
+          :selectedFromChain="fromChain"
+          :selectedToChain="toChain"
+          @closePopup="closeNetworkPopup"
+          @changeChain="changeChain"
+        />
+      </TransitionWrapper>
 
-      <TransitionWrapper>
+      <TransitionWrapper appear v-if="isSettingsOpened && toChain">
         <SettingsPopup
-          v-if="isSettingsOpened && toChain"
           :beamInfoObject="beamInfoObject"
           :dstChainInfo="toChain"
           :dstNativeTokenAmount="dstTokenAmount"
