@@ -1,43 +1,37 @@
 <template>
   <TransitionWrapper>
     <div class="popup-wrap" @click.self="closePopup" v-if="isOpen">
-      <TransitionWrapper animationType="scale" appear>
-        <div class="popup" v-if="isOpen">
-          <h3 class="title">
-            Select Chain
-            <img
-              class="popup-close"
-              @click="closePopup"
-              src="@/assets/images/cross.svg"
-              alt="Close popup"
-            />
-          </h3>
-          <div class="content-wrap">
-            <div
-              class="select-item"
-              v-for="(network, inx) in networksArr"
-              :key="inx"
-              @click="switchHandler(network.chainId)"
-            >
-              <div class="description">
-                <div class="chain-icon-wrap">
-                  <img
-                    class="current-chain-marker"
-                    src="@/assets/images/beam/current-chain-marker.png"
-                    v-if="network.chainId == activeChain"
-                  />
-                  <img
-                    class="chain-icon"
-                    :src="network.networkIcon"
-                    alt="Icon"
-                  />
-                </div>
-                <p class="chain-title">{{ network.chainName }}</p>
+      <div class="popup" v-if="isOpen">
+        <h3 class="title">
+          Select Chain
+          <img
+            class="popup-close"
+            @click="closePopup"
+            src="@/assets/images/cross.svg"
+            alt="Close popup"
+          />
+        </h3>
+        <div class="content-wrap">
+          <div
+            class="select-item"
+            v-for="(network, inx) in networksArr"
+            :key="inx"
+            @click="switchHandler(network.chainId)"
+          >
+            <div class="description">
+              <div class="chain-icon-wrap">
+                <img
+                  class="current-chain-marker"
+                  src="@/assets/images/beam/current-chain-marker.png"
+                  v-if="network.chainId == activeChain"
+                />
+                <img class="chain-icon" :src="network.networkIcon" alt="Icon" />
               </div>
+              <p class="chain-title">{{ network.chainName }}</p>
             </div>
           </div>
         </div>
-      </TransitionWrapper>
+      </div>
     </div>
   </TransitionWrapper>
 </template>
