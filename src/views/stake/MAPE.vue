@@ -95,6 +95,7 @@ import { parseUnits, formatUnits } from "viem";
 import { formatToFixed } from "@/helpers/filters";
 import { approveTokenViem } from "@/helpers/approval";
 import actions from "@/helpers/stake/magicApe/actions/";
+import { dataRefresher } from "@/helpers/dataRefresher";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
@@ -112,9 +113,14 @@ export default {
       stakeInfoArr: null as null | MagicApeStakeInfo[],
       inputAmount: BigInt(0),
       inputValue: "" as string | bigint,
-      updateInterval: null as null | NodeJS.Timeout,
       isMobile: false,
       chartToggle: false,
+      refresherInfo: {
+        refresher: null as any,
+        remainingTime: 0,
+        isLoading: false,
+        intervalTime: 60,
+      },
     };
   },
 
@@ -254,11 +260,11 @@ export default {
 
   watch: {
     async account() {
-      await this.createStakeInfo();
+      await this.createOrUpdateInfo();
     },
 
     async chainId() {
-      await this.createStakeInfo();
+      await this.createOrUpdateInfo();
     },
   },
 
@@ -286,6 +292,16 @@ export default {
       this.chartToggle = !this.chartToggle;
     },
 
+    async createOrUpdateInfo() {
+      const refresher = this.refresherInfo?.refresher;
+      try {
+        if (!refresher) this.stakeInfoArr = await this.createStakeInfo();
+        else refresher.update();
+      } catch (error) {
+        this.stakeInfoArr = await this.createStakeInfo();
+      }
+    },
+
     changeTab(action: string) {
       this.activeTab = action;
       this.inputValue = "";
@@ -304,10 +320,11 @@ export default {
 
       const approve = await approveTokenViem(
         this.stakeToken.contract,
-        this.mainToken.contract.address
+        this.mainToken.contract.address,
+        this.inputAmount
       );
 
-      if (approve) await this.createStakeInfo();
+      if (approve) await this.createOrUpdateInfo();
       await this.deleteNotification(notificationId);
       if (!approve) await this.createNotification(notification.approveError);
       return false;
@@ -345,7 +362,7 @@ export default {
         await this.deleteNotification(notificationId);
         await this.createNotification(error);
       } else {
-        await this.createStakeInfo();
+        await this.createOrUpdateInfo();
         this.inputValue = "";
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.success);
@@ -364,7 +381,18 @@ export default {
     },
 
     async createStakeInfo() {
-      this.stakeInfoArr = await getStakeInfo(this.account);
+      return await getStakeInfo(this.account);
+    },
+
+    createDataRefresher() {
+      this.refresherInfo.refresher = new dataRefresher(
+        this.createStakeInfo,
+        this.refresherInfo.intervalTime,
+        (time) => (this.refresherInfo.remainingTime = time),
+        (loading) => (this.refresherInfo.isLoading = loading),
+        (updatedData: null | MagicApeStakeInfo[]) =>
+          (this.stakeInfoArr = updatedData)
+      );
     },
   },
 
@@ -377,16 +405,14 @@ export default {
     window.addEventListener("resize", this.getWindowSize, false);
 
     this.checkLocalData();
-    await this.createStakeInfo();
+    await this.createOrUpdateInfo();
     this.setMagicApeStakeData(this.stakeInfoArr);
-
-    this.updateInterval = setInterval(async () => {
-      await this.createStakeInfo();
-    }, 60000);
+    this.createDataRefresher();
+    this.refresherInfo.refresher.start();
   },
 
   beforeUnmount() {
-    clearInterval(Number(this.updateInterval));
+    this.refresherInfo.refresher.stop();
     window.removeEventListener("resize", this.getWindowSize);
   },
 
