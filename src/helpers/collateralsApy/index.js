@@ -6,6 +6,7 @@ import { getCrvApy } from "@/helpers/collateralsApy/getCrvApy";
 import { getVeloApy } from "@/helpers/collateralsApy/getVeloApy";
 import { getLUSDApy } from "@/helpers/collateralsApy/getLUSDApy";
 import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
+import { getElixirApy } from "@/helpers/collateralsApy/getElixirApy";
 import { getStargateApy } from "@/helpers/collateralsApy/getStargateApy";
 import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
 import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
@@ -16,7 +17,9 @@ export const isApyCalcExist = (chainId, poolId) => {
   let cauldronsIds = [];
 
   if (chainId === 1) {
-    cauldronsIds = [6, 7, 15, 16, 24, 25, 29, 30, 31, 32, 33, 34, 37, 38, 39];
+    cauldronsIds = [
+      6, 7, 15, 16, 24, 25, 29, 30, 31, 32, 33, 34, 37, 38, 39, 43, 44,
+    ];
   }
 
   // if (chainId === 10) cauldronsIds = [1];
@@ -52,6 +55,8 @@ export const fetchTokenApy = async (pool, chainId, provider) => {
       return await getStargateApy(pool, provider);
 
     if (pool.config.id === 39) return await getMagicApeApy(chainId);
+
+    if (pool.config.id === 43 || pool.config.id === 44) return getElixirApy();
   }
 
   if (chainId === 10) {
