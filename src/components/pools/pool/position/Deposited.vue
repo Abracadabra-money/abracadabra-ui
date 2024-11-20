@@ -34,7 +34,7 @@
     </div>
 
     <div class="staking-rewards" v-if="rewardPointsType">
-      <p class="title">Staking Rewards</p>
+      <p class="title">{{ rewardTitle }}</p>
       <RewardPointsTagWrap
         :rewardPointsType="rewardPointsType"
         icon
@@ -156,6 +156,11 @@ export default {
 
     hasFarm() {
       return !!this.pool.stakeContract;
+    },
+
+    rewardTitle() {
+      if (this.rewardPointsType === "pills") return "Earning Rewards";
+      return "Staking Rewards";
     },
   },
 

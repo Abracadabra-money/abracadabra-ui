@@ -92,6 +92,7 @@ export default {
     },
 
     poolApr() {
+      if (!this.pool.poolAPR?.totalApr) return "";
       return formatPercent(this.pool.poolAPR?.totalApr || 0);
     },
 

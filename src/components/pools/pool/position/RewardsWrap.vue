@@ -99,7 +99,7 @@ export default {
     },
 
     titleText() {
-      return this.rewardPointsType ? "Staking Rewards" : "Rewards Earned";
+      return this.rewardPointsType ? "Earning Rewards" : "Rewards Earned";
     },
   },
   methods: {

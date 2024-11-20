@@ -4,7 +4,7 @@
       Earning
       <span class="points-type">{{ "" + rewardPointsType + "" }}</span>
       Rewards
-      <a class="reward-link" href="">
+      <a class="reward-link" :href="rewardLink">
         <img class="reward-link-icon" src="@/assets/images/open-link.svg" />
       </a>
     </div>
@@ -27,6 +27,14 @@ export default {
 
   data() {
     return { RewardPointsTypes };
+  },
+
+  computed: {
+    rewardLink() {
+      return this.rewardPointsType === RewardPointsTypes.Elixir
+        ? "https://www.elixir.xyz/deusd"
+        : "https://app.usual.money/";
+    },
   },
 
   components: {
