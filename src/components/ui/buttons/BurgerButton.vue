@@ -11,12 +11,14 @@
     @openNetworksPopup="isOpenNetworkPopup = !isOpenNetworkPopup"
   />
 
-  <NetworkPopup
-    :activeChain="chainId"
-    :networksArr="networksArr"
-    :isOpen="isOpenNetworkPopup"
-    @closePopup="isOpenNetworkPopup = false"
-  />
+  <TransitionWrapper>
+    <NetworkPopup
+      :activeChain="chainId"
+      :networksArr="networksArr"
+      :isOpen="isOpenNetworkPopup"
+      @closePopup="isOpenNetworkPopup = false"
+    />
+  </TransitionWrapper>
 </template>
 
 <script lang="ts">
@@ -80,6 +82,9 @@ export default {
     ),
     MobileMenu: defineAsyncComponent(
       () => import("@/components/popups/MobileMenu.vue")
+    ),
+    TransitionWrapper: defineAsyncComponent(
+      () => import("@/components/ui/TransitionWrapper.vue")
     ),
   },
 };

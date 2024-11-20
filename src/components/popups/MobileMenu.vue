@@ -1,47 +1,52 @@
 <template>
-  <div class="popup-wrap" @click.self="closePopup">
-    <div class="popup" v-if="!showStake">
-      <div class="popup-header">
-        <ConnectButton @click="closePopup" />
+  <TransitionWrapper>
+    <div class="popup-wrap" @click.self="closePopup">
+      <TransitionWrapper animation-type="fadeLeft" appear v-if="!showStake">
+        <div class="popup">
+          <div class="popup-header">
+            <ConnectButton @click="closePopup" />
 
-        <img
-          class="chain-icon"
-          v-if="!!chainIcon"
-          :src="chainIcon"
-          v-tooltip="unsupportedTooltip"
-          @click.stop="$emit('openNetworksPopup')"
+            <img
+              class="chain-icon"
+              v-if="!!chainIcon"
+              :src="chainIcon"
+              v-tooltip="unsupportedTooltip"
+              @click.stop="$emit('openNetworksPopup')"
+            />
+          </div>
+
+          <div class="primary-block">
+            <SwapMobileButton
+              :isClassicHeader="isClassicHeader"
+              @change-view="isClassicHeader = !isClassicHeader"
+            />
+          </div>
+
+          <component
+            :is="isClassicHeader ? 'MobileHeaderNav' : 'SwapMobileHeaderNav'"
+            @close-popup="closePopup"
+            @open-inner-popup="openInnerPopup"
+          />
+
+          <div class="social-wrap">
+            <Lens width="20" height="20" />
+            <GitHub />
+            <Discord />
+            <Twitter />
+            <Mirror />
+            <V2 />
+          </div>
+        </div>
+      </TransitionWrapper>
+
+      <TransitionWrapper appear v-else>
+        <HeaderStakeMobilePopup
+          @closePopup="closeInnerPopup"
+          @closeMobileMenu="closePopup"
         />
-      </div>
-
-      <div class="primary-block">
-        <SwapMobileButton
-          :isClassicHeader="isClassicHeader"
-          @change-view="isClassicHeader = !isClassicHeader"
-        />
-      </div>
-
-      <component
-        :is="isClassicHeader ? 'MobileHeaderNav' : 'SwapMobileHeaderNav'"
-        @close-popup="closePopup"
-        @open-inner-popup="openInnerPopup"
-      />
-
-      <div class="social-wrap">
-        <Lens width="20" height="20" />
-        <GitHub />
-        <Discord />
-        <Twitter />
-        <Mirror />
-        <V2 />
-      </div>
+      </TransitionWrapper>
     </div>
-
-    <HeaderStakeMobilePopup
-      v-if="showStake"
-      @closePopup="closeInnerPopup"
-      @closeMobileMenu="closePopup"
-    />
-  </div>
+  </TransitionWrapper>
 </template>
 
 <script>
@@ -113,6 +118,9 @@ export default {
     V2: defineAsyncComponent(() => import("@/components/ui/icons/V2.vue")),
     HeaderStakeMobilePopup: defineAsyncComponent(() =>
       import("@/components/popups/HeaderStakeMobilePopup.vue")
+    ),
+    TransitionWrapper: defineAsyncComponent(() =>
+      import("@/components/ui/TransitionWrapper.vue")
     ),
   },
 };
