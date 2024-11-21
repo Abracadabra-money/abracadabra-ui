@@ -6,7 +6,7 @@
   >
     <div class="label">{{ poolLabel }}</div>
     <div class="column">
-      <TokenPair :pool="pool" chainIcon />
+      <TokenPair :pool="pool" chainIcon isLabal />
     </div>
 
     <div class="column">${{ tvl }}</div>

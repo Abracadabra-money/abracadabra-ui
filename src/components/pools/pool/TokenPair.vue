@@ -47,6 +47,7 @@ export default {
     chainIcon: Boolean,
     iconSize: { type: Number, default: 46 },
     borderThickness: { type: Number, default: 3 },
+    isLabal: { type: Boolean, default: false },
   },
 
   computed: {
@@ -85,7 +86,9 @@ export default {
     },
 
     isPillsLabel() {
-      return this.pool.config.settings.rewardPointsType === "pills";
+      return (
+        this.pool.config.settings.rewardPointsType === "pills" && this.isLabal
+      );
     },
   },
 
