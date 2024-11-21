@@ -16,11 +16,10 @@
     <div class="column pool-type">{{ poolType }}</div>
 
     <div class="column apr">
-      <RewardPointsTagWrap
-        :rewardPointsType="multiplierLabel"
-        icon
-        multiplier
-        v-if="multiplierLabel"
+      <ElixirRewardTag
+        :icon="true"
+        :multiplier="true"
+        v-if="multiplierLabel === RewardPointsTypes.Elixir"
       />
       <div class="token-icons" v-else>
         <BaseTokenIcon
@@ -47,6 +46,7 @@ import {
   PoolTypes,
   STANDARD_K_VALUE,
 } from "@/constants/pools/poolCreation";
+import { RewardPointsTypes } from "@/configs/pools/types";
 
 export default {
   props: {
@@ -54,6 +54,12 @@ export default {
       type: Object as PropType<MagicLPInfo>,
       required: true,
     },
+  },
+
+  data() {
+    return {
+      RewardPointsTypes,
+    };
   },
 
   computed: {
@@ -123,8 +129,8 @@ export default {
     TokenPair: defineAsyncComponent(
       () => import("@/components/pools/pool/TokenPair.vue")
     ),
-    RewardPointsTagWrap: defineAsyncComponent(
-      () => import("@/components/pools/rewardPoints/RewardPointsTagWrap.vue")
+    ElixirRewardTag: defineAsyncComponent(
+      () => import("@/components/pools/rewardPoints/elixir/ElixirRewardTag.vue")
     ),
   },
 };
