@@ -10,15 +10,21 @@ import {
   } from "@/helpers/walletClienHelper";
 
 export const testAxiosError = async () => {
+  const goodExample = "https://jsonplaceholder.typicode.com/pos/1";
+  const badExample = "https://subgraph.satsuma-prod.com/3b2ced13c8d9/gmx/synthetics-arbitrum-stats/apid";
   return axios
-    .get("https://jsonplaceholder.typicode.com/posts/1")
+    .get("https://api.yexporter.io/v1/chains/1/vaults/all")
     .catch((error) => {
+      console.log(error.isAxiosError);
+      console.log(error.code);
+      console.log(error.message);
+      console.log(error.response);
       console.log(error);
     });
 };
 
 export const testCustomError = async () => {
-  throw new Error("Custom error");
+  throw new Error("CUSTOM_TEST_ERROR");
 };
 
 export const testReadContractError = async () => {
@@ -30,7 +36,7 @@ export const testReadContractError = async () => {
   const result = await publicClient.readContract({
     address: mimInfo!.address,
     abi: mimInfo!.abi as any,
-    functionName: "method",
+    functionName: "ddd",
     args: [],
   });
 
