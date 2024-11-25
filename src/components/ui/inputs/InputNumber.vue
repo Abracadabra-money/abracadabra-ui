@@ -12,7 +12,11 @@
       />
       <button class="btn-max" @click="getMax" v-if="+max">max</button>
     </div>
-    <p class="error-message" :class="{ visibility: errorAmount }">
+    <p
+      class="error-message"
+      :class="{ visibility: errorAmount }"
+      v-if="errorAmount"
+    >
       Our holders do not have enough tokens. Enter holders
     </p>
   </div>

@@ -1,55 +1,69 @@
 <template>
   <div class="deposited">
-    <PoolCompoundCard :lpToken="lpToken" :tokensList="tokensList" />
+    <p class="position-title">Your Magic LP</p>
 
-    <div class="pills-rewards" v-if="isPillsPotions">
-      <p class="pills-title">Earning Rewards</p>
-      <div class="pills-row">
-        <span class="pills-icon-wrap">
-          <img
-            class="pills-icon"
-            src="@/assets/images/pools/pills-potions.png"
-            alt=""
-          />
-          Pills
-        </span>
+    <div class="card-wrap">
+      <PoolCompoundCard
+        :lpToken="lpToken"
+        :tokensList="tokensList"
+        v-if="isUserPositionOpen"
+      />
 
-        <span>1x Multiplier </span>
+      <NoPositionCard v-else />
+    </div>
+
+    <div class="staking-apr" v-if="isPoolHasReward">
+      <p class="title">
+        <img
+          src="@/assets/images/pools/pool/staking-apr-image.svg"
+          class="staking-apr-image"
+        />
+        Staking APR
+      </p>
+
+      <div class="reward-items">
+        <img
+          :src="reward.token.icon"
+          alt=""
+          class="reward-icon"
+          v-for="(reward, index) in poolRewards"
+          :key="index"
+        />
+        <p class="apr">{{ apr }}</p>
       </div>
     </div>
 
-    <RewardsCard :isPosition="true" :pool="pool" />
+    <div class="staking-rewards" v-if="rewardPointsType">
+      <p class="title">{{ rewardTitle }}</p>
+      <RewardPointsTagWrap
+        :rewardPointsType="rewardPointsType"
+        icon
+        name
+        multiplier
+      />
+    </div>
 
-    <BaseButton
-      v-if="hasLockLogic || hasStakeLogic"
-      primary
-      @click="actionHandler"
-      :disabled="isButtonDisabled"
-    >
-      {{ buttonText }}
+    <BaseButton primary v-if="hasFarm" @click="goToFarm">
+      Go to Farm
     </BaseButton>
   </div>
 </template>
 
 <script>
-import {
-  writeContractHelper,
-  simulateContractHelper,
-  waitForTransactionReceiptHelper,
-} from "@/helpers/walletClienHelper";
 import { formatUnits } from "viem";
 import { defineAsyncComponent } from "vue";
-import { approveTokenViem } from "@/helpers/approval";
-import { mapActions, mapGetters, mapMutations } from "vuex";
-import notification from "@/helpers/notification/notification";
-import { switchNetwork } from "@/helpers/chains/switchNetwork";
-import { formatUSD, formatTokenBalance } from "@/helpers/filters";
+import { mapGetters } from "vuex";
+import {
+  formatUSD,
+  formatTokenBalance,
+  formatPercent,
+} from "@/helpers/filters";
 import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
-import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 
 export default {
   props: {
     pool: { type: Object },
+    isUserPositionOpen: { type: Boolean, default: false },
   },
 
   data() {
@@ -64,44 +78,25 @@ export default {
       chainId: "getChainId",
     }),
 
-    hasLockLogic() {
-      return !!this.pool.lockInfo;
-    },
-    hasStakeLogic() {
-      return !!this.pool.stakeInfo;
-    },
-    isAllowed() {
-      if (!this.hasLockLogic && !this.hasStakeLogic) return false;
-
-      if (this.hasLockLogic)
-        return this.pool.lockInfo.allowance >= this.pool.userInfo.balance;
-      return this.pool.stakeInfo.allowance >= this.pool.userInfo.balance;
+    isPoolHasReward() {
+      return !!this.pool.config.rewardTokens?.length;
     },
 
-    isValid() {
-      return !!this.pool.userInfo.balance;
+    rewardPointsType() {
+      return this.pool.config.settings.rewardPointsType;
     },
 
-    buttonText() {
-      if (!this.isProperNetwork) return "Switch network";
-      if (!this.account) return "Connect wallet";
-
-      if (this.isActionProcessing) return "Processing...";
-      if (!this.isAllowed) return "Approve for Staking";
-
-      return "Stake all";
+    poolRewards() {
+      if (!this.isPoolHasReward) return;
+      return this.pool.config.rewardTokens.map((token, index) => ({
+        token,
+        apr: this.pool.poolAPR?.tokensApr[index].apr ?? 0,
+      }));
     },
 
-    isProperNetwork() {
-      return this.chainId == this.pool.chainId;
-    },
-
-    isButtonDisabled() {
-      return (
-        (!this.isValid || this.isActionProcessing) &&
-        this.isProperNetwork &&
-        !!this.account
-      );
+    apr() {
+      if (!this.pool?.poolAPR) return "0.0%";
+      return formatPercent(this.pool.poolAPR.totalApr);
     },
 
     lpToken() {
@@ -159,111 +154,28 @@ export default {
       return tokensList.length ? tokensList : false;
     },
 
-    isPillsPotions() {
-      return this.pool.config.id === 2 && this.pool.config.chainId === 1;
+    hasFarm() {
+      return !!this.pool.stakeContract;
+    },
+
+    rewardTitle() {
+      if (this.rewardPointsType === "pills") return "Earning Rewards";
+      return "Staking Rewards";
     },
   },
 
   methods: {
-    ...mapActions({ createNotification: "notifications/new" }),
-    ...mapMutations({ deleteNotification: "notifications/delete" }),
-
     formatUSD,
-
-    async approveHandler() {
-      this.isActionProcessing = true;
-
-      const notificationId = await this.createNotification(
-        notification.approvePending
-      );
-
-      const contract = this.hasLockLogic
-        ? this.pool.lockContract
-        : this.pool.stakeContract;
-
-      try {
-        await approveTokenViem(
-          this.pool.contract,
-          contract.address,
-          this.pool.userInfo.balance
-        );
-        await this.$emit("updatePoolInfo");
-
-        await this.deleteNotification(notificationId);
-      } catch (error) {
-        console.log("approve err:", error);
-
-        const errorNotification = {
-          msg: await notificationErrorMsg(error),
-          type: "error",
-        };
-
-        await this.deleteNotification(notificationId);
-        await this.createNotification(errorNotification);
-      }
-      this.isActionProcessing = false;
-    },
-
-    async stakeHandler() {
-      this.isActionProcessing = true;
-
-      const notificationId = await this.createNotification(
-        notification.pending
-      );
-
-      const contract = this.hasLockLogic
-        ? this.pool.lockContract
-        : this.pool.stakeContract;
-
-      try {
-        const { request } = await simulateContractHelper({
-          address: contract.address,
-          abi: contract.abi,
-          functionName: "stake",
-          args: [this.pool.userInfo.balance],
-        });
-
-        const hash = await writeContractHelper(request);
-
-        const { result, error } = await waitForTransactionReceiptHelper({
-          hash,
-        });
-
-        await this.$emit("updatePoolInfo");
-
-        await this.deleteNotification(notificationId);
-        await this.createNotification(notification.success);
-      } catch (error) {
-        console.log("stake lp err:", error);
-
-        const errorNotification = {
-          msg: await notificationErrorMsg(error),
-          type: "error",
-        };
-
-        await this.deleteNotification(notificationId);
-        await this.createNotification(errorNotification);
-      }
-      this.isActionProcessing = false;
-    },
-
-    async actionHandler() {
-      if (this.isButtonDisabled) return false;
-      if (!this.isProperNetwork) return switchNetwork(this.pool.chainId);
-      if (!this.account) {
-        // @ts-ignore
-        return this.$openWeb3modal();
-      }
-
-      if (!this.isAllowed) return await this.approveHandler();
-
-      await this.stakeHandler();
-
-      await this.$emit("updatePoolInfo");
-    },
 
     formatTokenBalance(value, decimals) {
       return formatTokenBalance(formatUnits(value, decimals));
+    },
+
+    goToFarm() {
+      this.$router.push({
+        name: "PoolFarm",
+        params: { poolChainId: this.pool.chainId, id: this.pool.id },
+      });
     },
   },
 
@@ -274,14 +186,23 @@ export default {
     PoolCompoundCard: defineAsyncComponent(() =>
       import("@/components/pools/pool/position/cards/PoolCompoundCard.vue")
     ),
-    RewardsCard: defineAsyncComponent(() =>
-      import("@/components/pools/pool/RewardsCard.vue")
+    NoPositionCard: defineAsyncComponent(() =>
+      import("@/components/pools/pool/position/cards/NoPositionCard.vue")
+    ),
+    RewardPointsTagWrap: defineAsyncComponent(() =>
+      import("@/components/pools/rewardPoints/RewardPointsTagWrap.vue")
     ),
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.position-title {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 22px;
+}
+
 .reward-wrap {
   display: flex;
   align-items: center;
@@ -315,57 +236,61 @@ export default {
   gap: 16px;
 }
 
+.card-wrap {
+  padding: 20px 12px;
+  border-radius: 16px;
+  border: 1px solid #2d4a96;
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+}
+
+.staking-apr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.staking-rewards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .title {
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 500;
+  color: #fff;
 }
 
-.rewards-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  margin-bottom: 31px;
-}
-
-.rewards-list {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  list-style: none;
-}
-
-.list-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.item-title {
+.reward-items {
   display: flex;
   align-items: center;
   gap: 4px;
 }
 
 .reward-icon {
-  width: 24px;
+  border-radius: 8px;
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
 }
 
-.item-value {
-  font-size: 16px;
-  font-weight: 400;
+.reward-icon:not(:first-child) {
+  margin-left: -12px;
 }
 
-.row-skeleton {
-  height: 13px !important;
-  background-image: linear-gradient(
-    90deg,
-    rgb(23, 30, 59) 0px,
-    rgb(36, 43, 67) 60px,
-    rgb(23, 30, 59) 120px
-  ) !important;
+.reward-name {
+  font-size: 18px;
+}
+
+.apr {
+  font-size: 23px;
+  font-weight: 600;
+  text-shadow: 0px 0px 16px #ab5de8;
 }
 
 .pills-rewards {

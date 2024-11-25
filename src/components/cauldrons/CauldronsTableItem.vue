@@ -201,6 +201,12 @@ export default {
   border: 1px solid #0d1427;
 }
 
+.apr {
+  text-shadow: 0px 0px 16px #ab5de8;
+  font-weight: 600;
+  line-height: 150%;
+}
+
 @media screen and (max-width: 1024px) {
   .cauldrons-table-link {
     width: 930px;

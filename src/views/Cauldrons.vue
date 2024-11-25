@@ -34,7 +34,7 @@
     <FiltersPopup
       v-if="isFiltersPopupOpened"
       :sortersData="tableKeys.slice(1)"
-      @updateSortKey="($refs.cauldronsTable as any).updateSortKeys"
+      @updateSortKey="updateSortKeys"
       @close="isFiltersPopupOpened = false"
     />
   </div>
@@ -77,22 +77,27 @@ export default {
         {
           tableKey: "TVL",
           tooltip: "Total Value Locked.",
+          isSortingCriterion: true,
         },
         {
           tableKey: "TMB",
           tooltip: "Total MIM Borrowed.",
+          isSortingCriterion: true,
         },
         {
           tableKey: "MIMS LB",
           tooltip: "MIMs left to be Borrowed.",
+          isSortingCriterion: true,
         },
         {
           tableKey: "Interest",
           tooltip: "Annualised percent that your debt will increase each year.",
+          isSortingCriterion: true,
         },
         {
           tableKey: "APR",
           tooltip: "Annualised Percentage Return Range.",
+          isSortingCriterion: true,
         },
       ],
     };

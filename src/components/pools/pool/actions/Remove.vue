@@ -12,6 +12,8 @@
       />
     </div>
 
+    <p class="slippage-included-message">Output amounts include slippage</p>
+
     <PreviewRemove
       :pool="pool"
       :previewRemoveLiquidityResult="previewRemoveLiquidityResult"
@@ -317,9 +319,6 @@ export default {
     BaseTokenInput: defineAsyncComponent(() =>
       import("@/components/base/BaseTokenInput.vue")
     ),
-    BaseTokenIcon: defineAsyncComponent(() =>
-      import("@/components/base/BaseTokenIcon.vue")
-    ),
     BaseButton: defineAsyncComponent(() =>
       import("@/components/base/BaseButton.vue")
     ),
@@ -355,66 +354,18 @@ export default {
   height: 46px;
 }
 
-.info-blocks {
+.slippage-included-message {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   width: 100%;
-  gap: 24px;
-}
-
-.info-block {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
   padding: 12px;
   border-radius: 12px;
-  border: 1px solid rgba(180, 180, 180, 0.08);
+  border: 1px solid #2d4a96;
   background: linear-gradient(
-    146deg,
-    rgba(0, 10, 35, 0.07) 0%,
-    rgba(0, 80, 156, 0.07) 101.49%
+    90deg,
+    rgba(45, 74, 150, 0.12) 0%,
+    rgba(116, 92, 210, 0.12) 100%
   );
   box-shadow: 0px 4px 33px 0px rgba(0, 0, 0, 0.06);
-}
-
-.tag {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  color: #878b93;
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.token-amount {
-  display: flex;
-  flex-direction: column;
-  align-items: end;
-}
-
-.value {
-  color: #fff;
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.value,
-.title {
-  display: flex;
-  align-items: center;
-}
-
-.apr {
-  color: #fff;
-  text-shadow: 0px 0px 16px #ab5de8;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.usd-equivalent {
-  color: #575c62;
-  font-size: 16px;
-  font-weight: 400;
 }
 </style>
