@@ -156,8 +156,8 @@ export default {
   position: absolute;
   text-align: center;
   top: 50%;
-  left: -43px;
-  width: 100px;
+  left: -57px;
+  width: 130px;
   font-size: 10px;
   font-weight: 500;
   line-height: 16px;
