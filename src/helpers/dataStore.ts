@@ -5,11 +5,13 @@ export const LS_USER_POSITION_KEY = "abracadabraUserPositions";
 export const LS_CAULDRONS_LIST_KEY = "abracadabraCauldronsList";
 export const LS_BENTOBOX_DATA_KEY = "abracadabraBentoBoxData";
 export const LS_POOLS_LIST_KEY = "abracadabraPoolsList";
+export const LS_POOL_FARMS_LIST_KEY = "abracadabraPoolFarmsList";
 export const LS_SPELL_STAKE_KEY = "abracadabraSpellStakeData";
 export const LS_MAGIC_GLP_STAKE_KEY = "abracadabraMagicGlpStakeData";
 export const LS_MAGIC_GLP_STAKE_CHART_KEY = "abracadabraMagicGlpChartData";
 export const LS_MAGIC_APE_STAKE_KEY = "abracadabraMagicApeStakeData";
 export const LS_MAGIC_APE_STAKE_CHART_KEY = "abracadabraMagicApeChartData";
+export const LS_POOL_CREATION_CUSTOM_TOKENS_KEY = 'abracadabraPoolCreationCustomTokens'
 export const LS_ELIXIR_RARE_KEY = "abracadabraElixirRate";
 
 export const bigintStringify = (payload: any) =>
@@ -113,6 +115,26 @@ export const getAndParsePoolsList = () => {
   }
 };
 
+export const getAndParsePoolFarmsList = () => {
+  try {
+    const lsPoolFarmsList = localStorage.getItem(LS_POOL_FARMS_LIST_KEY);
+
+    if (!lsPoolFarmsList) {
+      return { data: [], isCreated: false };
+    }
+
+    const poolFarmsList = JSON.parse(lsPoolFarmsList);
+    const data = poolFarmsList.map((item: any) =>
+      jsonBigIntTransform(jsonBigNumberTransform(item))
+    );
+
+    return { data, isCreated: true };
+  } catch (error) {
+    console.log("getAndParsePoolFarmsList -> error", error);
+    return { data: [], isCreated: false };
+  }
+};
+
 export const getAndParseBentoBoxData = () => {
   const lsBentoBoxData = localStorage.getItem(LS_BENTOBOX_DATA_KEY);
 
@@ -189,3 +211,9 @@ export const getAndParseMagicApeStakeData = () => {
     isCreated: true,
   };
 };
+
+
+export const getAndParsePoolCreationCustomTokens = () => {
+  const storedItem = localStorage.getItem(LS_POOL_CREATION_CUSTOM_TOKENS_KEY);
+  return storedItem ? { data: JSON.parse(storedItem), isCreated: true } : { data: [], isCreated: false };
+}

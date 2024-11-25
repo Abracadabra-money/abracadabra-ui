@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { shallowMount } from "@vue/test-utils";
 import FiltersPopup from "@/components/myPositions/FiltersPopup.vue";
-import type { PositionsSortKey } from "@/views/MyPositions.vue";
+import type { PositionsSortKey } from "@/types/sorting";
 
 describe("FiltersPopup", () => {
   it("renders correctly", () => {

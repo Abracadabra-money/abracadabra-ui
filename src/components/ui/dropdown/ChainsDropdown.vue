@@ -42,7 +42,7 @@
       </svg>
     </button>
 
-    <div class="dropdown-list" ref="dropdownList" v-if="showDropdownList">
+    <div class="dropdown-list" ref="dropdownList" v-show="showDropdownList">
       <div class="select-all">
         <h6 class="list-title">Select all</h6>
         <Toggle
@@ -97,6 +97,7 @@
 import { defineAsyncComponent, type PropType } from "vue";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 import { getChainConfig } from "@/helpers/chains/getChainsInfo";
+import { adjustDropdownPosition } from "@/helpers/ui/adjustDropdownPosition";
 
 export default {
   props: {
@@ -166,6 +167,7 @@ export default {
     toogleDropdown() {
       if (!this.activeChains.length) return false;
       this.showDropdownList = !this.showDropdownList;
+      adjustDropdownPosition(this.$refs.dropdownList as HTMLElement);
     },
 
     closeDropdown() {

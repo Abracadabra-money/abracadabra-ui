@@ -123,9 +123,11 @@ export default {
 .elixir-apr {
   text-shadow: 0px 0px 16px #ab5de8;
   font-weight: 600;
+  min-width: 170px;
   gap: 6px;
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 .elixir-apr {
@@ -178,6 +180,7 @@ export default {
   .elixir-multiplier,
   .elixir-apr {
     font-size: 12px;
+    min-width: initial;
   }
 
   .additional-info-title {

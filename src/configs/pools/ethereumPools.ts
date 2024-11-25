@@ -1,12 +1,13 @@
 import erc20Abi from "@/abis/farm/erc20Abi";
 import { useImage } from "@/helpers/useImage";
 import BlastMagicLpAbi from "@/abis/BlastMagicLP";
-import type { PoolConfig } from "@/configs/pools/types";
 import MultiRewardsAbi from "@/abis/MultiRewards";
+import { RewardPointsTypes } from "@/configs/pools/types";
+import type { AdditionalPoolConfig, PoolConfig } from "@/configs/pools/types";
 
-const ethereumPools: Array<PoolConfig> = [
+const ethereumPools: Array<PoolConfig | AdditionalPoolConfig> = [
   {
-    id: 1,
+    id: "0x95b485615c193cf75582b70ABdB08bc7172a80fe",
     chainId: 1,
     name: "MIM / deUSD",
     icon: useImage(`assets/images/tokens/MIM-deUSD.png`),
@@ -39,25 +40,20 @@ const ethereumPools: Array<PoolConfig> = [
       address: "0xaFe0BB622D83fDBF86686E097AeC9a4D9F2c47db",
       abi: MultiRewardsAbi,
     },
-    rewardTokens: [
-      // {
-      //   name: "bSPELL",
-      //   icon: useImage(`assets/images/tokens/SPELL_2.png`),
-      //   decimals: 18,
-      //   contract: {
-      //     address: "0x34D239C8672B814D8F31F1a3e7e72702b6516D28",
-      //     abi: erc20Abi,
-      //   },
-      // },
-    ],
     settings: {
-      isNew: true,
+      isNew: false,
       isDeprecated: false,
       isMim: true,
+      rewardPointsType: RewardPointsTypes.Elixir,
+    },
+    initialParameters: {
+      I: 1000000000000000000n,
+      K: 250000000000000n,
+      lpFeeRate: 500000000000000n,
     },
   },
   {
-    id: 2,
+    id: "0x6f9F9ea9c06c7D928a2fFbbCc5542b18188488E9",
     chainId: 1,
     name: "MIM / USD0",
     icon: useImage(`assets/images/tokens/MIM-USD0.png`),
@@ -88,9 +84,15 @@ const ethereumPools: Array<PoolConfig> = [
     },
     rewardTokens: [],
     settings: {
-      isNew: true,
+      isNew: false,
       isDeprecated: false,
       isMim: true,
+      rewardPointsType: RewardPointsTypes.Pills,
+    },
+    initialParameters: {
+      I: 1000000000000000000n,
+      K: 250000000000000n,
+      lpFeeRate: 500000000000000n,
     },
   },
 ];

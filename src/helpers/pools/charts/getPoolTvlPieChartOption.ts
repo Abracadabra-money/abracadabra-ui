@@ -1,9 +1,11 @@
 import { formatUnits } from "viem";
 import { formatLargeSum } from "@/helpers/filters";
-import store from "@/store";
 
 export const getPoolTvlPieChartOption = async (pool: any) => {
-  const tvlByCategory: TvlByCategory = await getTvlByCategory(pool);
+  const tvlByToken: TvlByToken = await getTvlByToken(pool);
+
+  const baseTokenName = pool.config.baseToken.name;
+  const quoteTokenName = pool.config.quoteToken.name;
 
   return {
     title: {
@@ -15,7 +17,7 @@ export const getPoolTvlPieChartOption = async (pool: any) => {
         fontWeight: "500",
         fontFamily: "Poppins",
       },
-      subtext: `$${formatLargeSum(tvlByCategory.total)}`,
+      subtext: `$${formatLargeSum(tvlByToken.total)}`,
       subtextStyle: {
         fontSize: 32,
         fontWeight: "500",
@@ -23,8 +25,8 @@ export const getPoolTvlPieChartOption = async (pool: any) => {
         color: "white",
       },
       textAlign: "center",
-      x: "47.5%",
-      y: "35%",
+      x: "48%",
+      y: "36%",
     },
 
     series: [
@@ -65,24 +67,24 @@ export const getPoolTvlPieChartOption = async (pool: any) => {
               const value = formatLargeSum(params.value.toString());
               return [
                 `{name|${params.name}}` +
-                  "\n" +
-                  `{value|$${value}}` +
-                  "\n" +
-                  `{name|${params.percent}%}`,
+                "\n" +
+                `{value|$${value}}` +
+                "\n" +
+                `{name|${params.percent}%}`,
               ].join();
             },
           },
         },
         data: [
           {
-            value: tvlByCategory.locked,
-            name: "Locked",
-            itemStyle: { color: "#2881D6" },
+            value: tvlByToken.base,
+            name: baseTokenName,
+            itemStyle: { color: "#745CD2" },
           },
           {
-            value: +tvlByCategory.staked,
-            name: "Staked",
-            itemStyle: { color: "#9788D7" },
+            value: tvlByToken.quote,
+            name: quoteTokenName,
+            itemStyle: { color: "#2D4A96" },
           },
         ],
       },
@@ -90,31 +92,25 @@ export const getPoolTvlPieChartOption = async (pool: any) => {
   };
 };
 
-const getTvlByCategory = async (pool: any) => {
-  const publicClient = store.getters.getChainById(pool.chainId).publicClient;
+const getTvlByToken = async (pool: any) => {
+  const baseTokenDecimals = pool.config.baseToken.decimals;
+  const quoteTokenDecimals = pool.config.quoteToken.decimals;
 
-  const total =
-    Number(formatUnits(pool.totalSupply, pool.decimals)) * pool.price;
+  const baseTokenAmount = pool.vaultReserve[0];
+  const quoteTokenAmount = pool.vaultReserve[1];
 
-  const lockedSupply: any = await publicClient.readContract({
-    address: pool.lockContract.address,
-    abi: pool.lockContract.abi,
-    functionName: "lockedSupply",
-  });
-
-  const locked = Number(formatUnits(lockedSupply, pool.decimals)) * pool.price;
-
-  const staked = total - locked;
+  const baseTokenValue = Number(formatUnits(baseTokenAmount, baseTokenDecimals)) * pool.baseTokenPrice;
+  const quoteTokenValue = Number(formatUnits(quoteTokenAmount, quoteTokenDecimals)) * pool.quoteTokenPrice;
 
   return {
-    staked,
-    locked,
-    total,
+    base: baseTokenValue,
+    quote: quoteTokenValue,
+    total: baseTokenValue + quoteTokenValue
   };
 };
 
-type TvlByCategory = {
-  staked: number | string;
-  locked: number | string;
-  total: number | string;
+type TvlByToken = {
+  base: number;
+  quote: number;
+  total: number;
 };
