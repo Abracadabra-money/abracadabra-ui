@@ -11,21 +11,25 @@ export const getChartData = async (
 ) => {
   let chartData: any;
 
-  switch (type) {
-    case "Yield":
-      chartData = await getYield(period, chainId);
-      break;
-    case "TVL":
-      chartData = await getTvl(type, period, chainId);
-      break;
-    case "Price":
-      chartData = await getPrice(type, period, chainId);
-      break;
-    case "magicGlpTvl":
-      chartData = await getMagicGlpTvl(chainId, period, feePercent);
-      break;
-    default:
-      console.log("Error Get Chart Data");
+  try {
+    switch (type) {
+      case "Yield":
+        chartData = await getYield(period, chainId);
+        break;
+      case "TVL":
+        chartData = await getTvl(type, period, chainId);
+        break;
+      case "Price":
+        chartData = await getPrice(type, period, chainId);
+        break;
+      case "magicGlpTvl":
+        chartData = await getMagicGlpTvl(chainId, period, feePercent);
+        break;
+      default:
+        console.log("Error Get Chart Data");
+    }
+  } catch (error) {
+    return { error: "No results found" };
   }
 
   return chartData;
