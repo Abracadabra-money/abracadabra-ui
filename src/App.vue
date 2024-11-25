@@ -25,8 +25,8 @@ import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
 import axios from "axios";
 
-// import ErrorHandler from "./helpers/errorHandler/ErrorHandler";
-// import {testCustomError, testReadContractError} from "./helpers/errorHandler/testing";
+import ErrorHandler from "./helpers/errorHandler/ErrorHandler";
+import {testCustomError, testReadContractError, testAxiosError} from "./helpers/errorHandler/testing";
 
 export default {
   data() {
@@ -114,23 +114,23 @@ export default {
     ),
   },
 
-  // async created() {
-  //   console.log("Start testing");
-  //   try {
-  //     await testReadContractError();
-  //   } catch (error) {
-  //     console.log("Cath Handler:", {
-  //       error: error,
-  //       isAxiosError: error.isAxiosError,
-  //       code: error.code,
-  //       message: error.message,
-  //       response: error.response,
-  //       name: error.name,
-  //     })
-  //     ErrorHandler.handleError(error);
-  //   }
+  async created() {
+    console.log("Start testing");
+    try {
+      await testAxiosError();
+    } catch (error) {
+      console.log("Cath Handler:", {
+        error: error,
+        isAxiosError: error.isAxiosError,
+        code: error.code,
+        message: error.message,
+        response: error.response,
+        name: error.name,
+      })
+      ErrorHandler.handleError(error);
+    }
 
-  // },
+  },
 };
 </script>
 

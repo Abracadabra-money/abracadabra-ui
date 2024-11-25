@@ -1,3 +1,9 @@
+type AbraError = {
+  template: string;
+  isDevOnly?: boolean;
+  isShowToUser?: boolean;
+}
+
 export const errorRegistry = {
   GENERIC_ERROR: {
     template: "Something went wrong. Please try again later.",
@@ -11,5 +17,9 @@ export const errorRegistry = {
 
   VIEM_ERROR: {
     template: "{message}",
+  },
+
+  AXIOS_ERROR: {
+    template: "Axios error",
   }
 };

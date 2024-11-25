@@ -4,23 +4,16 @@ import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import mimTokenInfo from "@/configs/tokens/mim";
 
 import {
-    writeContractHelper,
-    simulateContractHelper,
-    waitForTransactionReceiptHelper,
-  } from "@/helpers/walletClienHelper";
+  writeContractHelper,
+  simulateContractHelper,
+  waitForTransactionReceiptHelper,
+} from "@/helpers/walletClienHelper";
 
 export const testAxiosError = async () => {
   const goodExample = "https://jsonplaceholder.typicode.com/pos/1";
-  const badExample = "https://subgraph.satsuma-prod.com/3b2ced13c8d9/gmx/synthetics-arbitrum-stats/apid";
-  return axios
-    .get("https://api.yexporter.io/v1/chains/1/vaults/all")
-    .catch((error) => {
-      console.log(error.isAxiosError);
-      console.log(error.code);
-      console.log(error.message);
-      console.log(error.response);
-      console.log(error);
-    });
+  const badExample =
+    "https://subgraph.satsuma-prod.com/3b2ced13c8d9/gmx/synthetics-arbitrum-stats/apid";
+  return await axios.get(badExample);
 };
 
 export const testCustomError = async () => {
@@ -44,15 +37,15 @@ export const testReadContractError = async () => {
 };
 
 export const testWriteContractError = async () => {
-    const { request } = await simulateContractHelper({
-        ...contract,
-        functionName: "approve",
-        args: [spender, allowanceValue],
-      });
-  
-      const hash = await writeContractHelper(request);
-  
-      await waitForTransactionReceiptHelper({
-        hash,
-      });
+  const { request } = await simulateContractHelper({
+    ...contract,
+    functionName: "approve",
+    args: [spender, allowanceValue],
+  });
+
+  const hash = await writeContractHelper(request);
+
+  await waitForTransactionReceiptHelper({
+    hash,
+  });
 };

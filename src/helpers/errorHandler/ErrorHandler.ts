@@ -3,7 +3,6 @@ import { errorRegistry } from "./errorRegistry";
 import { AxiosError } from "axios";
 import { BaseError } from "viem";
 
-
 // 1. Custom error handler
 // 2. Axios (HTTP) error handler
 // 3. Metamask, Rabby (EIP-1193, JSON-RPC 2.0) error handler
@@ -51,6 +50,11 @@ class ErrorHandler {
 
   static identifyViemError(error) {
     if (error.version?.includes("viem")) return "VIEM_ERROR";
+    return null;
+  }
+
+  static identifyAxiosError(error) {
+    if (error.isAxios) return "AXIOS_ERROR";
     return null;
   }
 
