@@ -82,7 +82,7 @@ export default {
       searchValue: "",
       showMyPositions: false,
       showActiveCauldrons: true,
-      sortKey: "TVL",
+      sortKey: "",
       sortOrder: true,
       selectedChains: [],
       isFiltersPopupOpened: false,
@@ -99,32 +99,13 @@ export default {
     },
 
     cauldronsToRender() {
-      const filteredByChain = this.filterByChain(
-        this.cauldrons,
-        this.selectedChains
-      );
-      const filteredByDepreciate = this.showMyPositions
-        ? filteredByChain
-        : this.filterByActiveCauldrons(filteredByChain);
-
-      const filteredByPositions = this.filterPositions(filteredByDepreciate);
-
-      const filteredByValue = this.filterBySearchValue(
-        filteredByPositions,
-        this.searchValue
-      );
-
-      const sortedByChain = this.sortByKey(
-        filteredByValue,
-        this.sortKey,
-        this.sortOrder
-      );
-
-      // const sortedByTesting = this.sortByTesting(sortedByChain);
-
-      const sortedByNew =
-        this.sortOrder === true ? this.sortByNew(sortedByChain) : sortedByChain;
-      return sortedByNew;
+      let filteredCauldrons = this.filterByChain(this.cauldrons);
+      filteredCauldrons = this.filterByDeprecated(filteredCauldrons);
+      filteredCauldrons = this.filterByPositions(filteredCauldrons);
+      filteredCauldrons = this.filterBySearchValue(filteredCauldrons);
+      filteredCauldrons = this.sortByNew(filteredCauldrons);
+      filteredCauldrons = this.sortByWeight(filteredCauldrons);
+      return this.sortByKey(filteredCauldrons);
     },
 
     activeChains() {
@@ -165,8 +146,10 @@ export default {
     },
 
     updateSortKeys(key, order) {
+      console.log("key", key, "order", order);
+
       if (!order) {
-        this.sortKey = "TVL";
+        this.sortKey = "";
         this.sortOrder = true;
       } else {
         this.sortKey = key;
@@ -176,11 +159,6 @@ export default {
 
     updateSearch(value) {
       this.searchValue = value.toLowerCase();
-    },
-
-    selectAllChains() {
-      if (this.allChainsSelected) this.selectedChains = [];
-      else this.selectedChains = [...this.activeChains];
     },
 
     updateSelectedChain(chainId) {
@@ -193,47 +171,40 @@ export default {
       if (!this.selectedChains.length) this.selectAllChains();
     },
 
-    filterByChain(cauldrons, selectedChains) {
+    selectAllChains() {
+      if (this.allChainsSelected) this.selectedChains = [];
+      else this.selectedChains = [...this.activeChains];
+    },
+
+    filterByChain(cauldrons) {
       if (this.allChainsSelected) return cauldrons;
-      return cauldrons.filter((cauldron) => {
-        return selectedChains.includes(cauldron.config?.chainId);
-      });
+      return cauldrons.filter((cauldron) =>
+        this.selectedChains.includes(cauldron.config?.chainId)
+      );
     },
 
-    filterByActiveCauldrons(cauldrons) {
-      if (this.showActiveCauldrons) {
-        return cauldrons.filter((cauldron) => {
-          return !cauldron.config?.cauldronSettings?.isDepreciated;
-        });
-      }
-
-      return cauldrons.sort((a, b) => {
-        const settingsA = a?.config?.cauldronSettings;
-        const settingsB = b?.config?.cauldronSettings;
-        if (settingsA || settingsB) {
-          return +settingsA?.isDepreciated - +settingsB?.isDepreciated;
-        }
-
-        return a;
-      });
-    },
-
-    filterPositions(cauldrons) {
-      if (this.showMyPositions) {
-        return cauldrons.filter(({ userPosition }) => {
-          return (
-            userPosition.collateralInfo.userCollateralShare.gt(0) ||
-            userPosition.borrowInfo.userBorrowPart.gt(0)
-          );
-        });
-      }
-
-      return cauldrons;
-    },
-
-    filterBySearchValue(cauldrons, value) {
+    filterByDeprecated(cauldrons) {
+      if (this.showMyPositions || !this.showActiveCauldrons) return cauldrons;
       return cauldrons.filter(
-        ({ config }) => config.name.toLowerCase().indexOf(value) !== -1
+        (cauldron) => !cauldron.config?.cauldronSettings?.isDepreciated
+      );
+    },
+
+    filterByPositions(cauldrons) {
+      if (!this.showMyPositions) return cauldrons;
+
+      return cauldrons.filter(({ userPosition }) => {
+        return (
+          userPosition.collateralInfo.userCollateralShare.gt(0) ||
+          userPosition.borrowInfo.userBorrowPart.gt(0)
+        );
+      });
+    },
+
+    filterBySearchValue(cauldrons) {
+      if (!this.searchValue) return cauldrons;
+      return cauldrons.filter(({ config }) =>
+        config.name.toLowerCase().includes(this.searchValue.toLowerCase())
       );
     },
 
@@ -241,47 +212,46 @@ export default {
       return cauldrons.sort((a, b) => {
         const isNewA = +!!a?.config?.cauldronSettings?.isNew;
         const isNewB = +!!b?.config?.cauldronSettings?.isNew;
+        const tvlA = BigInt(a.mainParams.alternativeData.tvl || 0);
+        const tvlB = BigInt(b.mainParams.alternativeData.tvl || 0);
+
+        if (isNewA && isNewB) return tvlB > tvlA ? 1 : -1;
         if (isNewA || isNewB) return isNewB - isNewA;
+        return tvlB > tvlA ? 1 : -1;
+      });
+    },
+
+    sortByWeight(cauldrons) {
+      return [...cauldrons].sort((a, b) => {
+        const weightA = a.config?.cauldronSettings?.weight || 0;
+        const weightB = b.config?.cauldronSettings?.weight || 0;
+        if (weightA !== weightB) return weightB - weightA;
         return a;
       });
     },
 
-    sortByTesting(cauldrons) {
-      return cauldrons.sort((a, b) => {
-        const isNewA = +!!a?.config?.cauldronSettings?.isNew;
-        const isTestingA = +!!a?.config?.cauldronSettings?.isTesting;
-
-        const isNewB = +!!b?.config?.cauldronSettings?.isNew;
-        const isTestingB = +!!b?.config?.cauldronSettings?.isTesting;
-
-        if (isTestingB && isNewA) {
-          return -1;
-        }
-
-        return 0;
-      });
-    },
-
-    sortByKey(cauldrons, key, sortOrder) {
-      if (!key || !sortOrder) return cauldrons;
+    sortByKey(cauldrons) {
+      if (!this.sortKey || !this.sortOrder) return cauldrons;
 
       return cauldrons.sort((cauldronA, cauldronB) => {
-        const a = this.getSortKey(cauldronA, key);
-        const b = this.getSortKey(cauldronB, key);
+        const a = this.getSortKey(cauldronA, this.sortKey);
+        const b = this.getSortKey(cauldronB, this.sortKey);
 
-        const factor = sortOrder === "down" ? -1 : 1;
+        const factor = this.sortOrder === "down" ? -1 : 1;
         return a < b ? factor : -factor;
       });
     },
 
     getSortKey(cauldron, key) {
-      if (key === "TVL") return cauldron.mainParams.alternativeData.tvl;
+      if (key === "TVL")
+        return BigInt(cauldron.mainParams.alternativeData.tvl || 0);
       if (key === "TMB")
-        return cauldron.mainParams.alternativeData.totalBorrowed;
+        return BigInt(cauldron.mainParams.alternativeData.totalBorrowed || 0);
       if (key === "MIMS LB")
-        return cauldron.mainParams.alternativeData.mimLeftToBorrow;
-      if (key === "Interest") return cauldron.mainParams.interest;
-      if (key === "APR") return +cauldron.apr.value;
+        return BigInt(cauldron.mainParams.alternativeData.mimLeftToBorrow || 0);
+      if (key === "Interest") return cauldron.mainParams.interest || 0;
+      if (key === "APR") return cauldron.apr.value || 0;
+      return 0;
     },
 
     getActiveChain() {
