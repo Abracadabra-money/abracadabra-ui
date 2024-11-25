@@ -1,6 +1,8 @@
 <template>
   <HeaderLink to="MimSwap">Swap</HeaderLink>
   <HeaderLink to="Pools">Pools</HeaderLink>
+  <HeaderLink to="PoolFarms">Farms</HeaderLink>
+
   <!-- <HeaderLink to="PotionPoints">
     <img
       class="link-icon"
