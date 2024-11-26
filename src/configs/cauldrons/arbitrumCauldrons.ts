@@ -206,11 +206,11 @@ const config: Array<CauldronConfig> = [
     },
     mimInfo,
     leverageInfo: {
-      address: "0x4B4C275A5BBBb68a4DCC99C7C47be3ec04108940",
+      address: "0xE2c6322190f3e8b2730e9b79f6de1CE21715dd74",
       abi: zeroXLevSwapperAbi,
     },
     deleverageInfo: {
-      address: "0xab0fbe08b8d41508e6a8bbd5f9046d4246992116",
+      address: "0x40107186Bd4b60Dfa8c292E46675e080f9d67b6D",
       abi: zeroXLiqSwapperAbi,
     },
   },
@@ -249,11 +249,11 @@ const config: Array<CauldronConfig> = [
     },
     mimInfo,
     leverageInfo: {
-      address: "0x4B4C275A5BBBb68a4DCC99C7C47be3ec04108940",
+      address: "0xE2c6322190f3e8b2730e9b79f6de1CE21715dd74",
       abi: zeroXLevSwapperAbi,
     },
     deleverageInfo: {
-      address: "0xab0fbe08b8d41508e6a8bbd5f9046d4246992116",
+      address: "0x40107186Bd4b60Dfa8c292E46675e080f9d67b6D",
       abi: zeroXLiqSwapperAbi,
     },
   },
@@ -292,11 +292,11 @@ const config: Array<CauldronConfig> = [
     },
     mimInfo,
     leverageInfo: {
-      address: "0x4B4C275A5BBBb68a4DCC99C7C47be3ec04108940",
+      address: "0xE2c6322190f3e8b2730e9b79f6de1CE21715dd74",
       abi: zeroXLevSwapperAbi,
     },
     deleverageInfo: {
-      address: "0xab0fbe08b8d41508e6a8bbd5f9046d4246992116",
+      address: "0x40107186Bd4b60Dfa8c292E46675e080f9d67b6D",
       abi: zeroXLiqSwapperAbi,
     },
   },
@@ -335,11 +335,11 @@ const config: Array<CauldronConfig> = [
     },
     mimInfo,
     leverageInfo: {
-      address: "0x4B4C275A5BBBb68a4DCC99C7C47be3ec04108940",
+      address: "0xE2c6322190f3e8b2730e9b79f6de1CE21715dd74",
       abi: zeroXLevSwapperAbi,
     },
     deleverageInfo: {
-      address: "0xab0fbe08b8d41508e6a8bbd5f9046d4246992116",
+      address: "0x40107186Bd4b60Dfa8c292E46675e080f9d67b6D",
       abi: zeroXLiqSwapperAbi,
     },
   },
@@ -378,11 +378,11 @@ const config: Array<CauldronConfig> = [
     },
     mimInfo,
     leverageInfo: {
-      address: "0x4B4C275A5BBBb68a4DCC99C7C47be3ec04108940",
+      address: "0xE2c6322190f3e8b2730e9b79f6de1CE21715dd74",
       abi: zeroXLevSwapperAbi,
     },
     deleverageInfo: {
-      address: "0xab0fbe08b8d41508e6a8bbd5f9046d4246992116",
+      address: "0x40107186Bd4b60Dfa8c292E46675e080f9d67b6D",
       abi: zeroXLiqSwapperAbi,
     },
   },
