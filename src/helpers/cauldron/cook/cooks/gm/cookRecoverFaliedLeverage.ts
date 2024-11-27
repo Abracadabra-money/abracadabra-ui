@@ -7,6 +7,12 @@ import { recipeCreateLeverageOrder } from "@/helpers/cauldron/cook/recipies/gm/r
 
 import type { CookData, PayloadRecoverFailedLeverageGm } from "../types";
 import type { CauldronInfo } from "@/helpers/cauldron/types";
+import { getGasLimits } from "@/helpers/gm/fee/getGasLimits";
+import {
+  estimateExecuteDepositGasLimit,
+  getExecutionFee,
+} from "@/helpers/gm/fee/getExecutionFee";
+import { utils } from "ethers";
 
 const cookRecoverFaliedLeverage = async (
   { order, to }: PayloadRecoverFailedLeverageGm,
@@ -14,8 +20,9 @@ const cookRecoverFaliedLeverage = async (
 ): Promise<void> => {
   //@ts-ignore
   const { collateral } = cauldronObject.contracts;
-  const provider = store.getters.getProvider;
-  const { balanceUSDC, balanceWETH } = await getOrderBalances(order, provider);
+
+  // const provider = store.getters.getProvider;
+  // const { balanceUSDC, balanceWETH } = await getOrderBalances(order, provider);
 
   let cookData: CookData = {
     events: [],
@@ -23,31 +30,50 @@ const cookRecoverFaliedLeverage = async (
     datas: [],
   };
 
-  cookData = balanceWETH.gt(0)
-    ? await actions.withdrawFromOrder(
-        cookData,
-        WETH_ADDRESS,
-        to,
-        balanceWETH,
-        false
-      )
-    : cookData;
+  console.log("cauldronObject", cauldronObject);
+
+  // cookData = balanceWETH.gt(0)
+  //   ? await actions.withdrawFromOrder(
+  //       cookData,
+  //       WETH_ADDRESS,
+  //       to,
+  //       balanceWETH,
+  //       false
+  //     )
+  //   : cookData;
+
+  const balance = await collateral.balanceOf(order);
 
   cookData = await actions.withdrawFromOrder(
     cookData,
-    USDC_ADDRESS,
-    ORDER_AGENT,
-    balanceUSDC,
+    cauldronObject.config.collateralInfo.address,
+    // ORDER_AGENT,
+    cauldronObject.config.contract.address,
+    // balanceUSDC,
+    balance,
     true
   );
 
-  const { updatedCookData, executionFee } = await recipeCreateLeverageOrder(
-    cookData,
-    collateral.address,
-    balanceUSDC
-  );
+  // const { updatedCookData, executionFee } = await recipeCreateLeverageOrder(
+  //   cookData,
+  //   collateral.address,
+  //   balanceUSDC
+  // );
 
-  await cookViem(cauldronObject, updatedCookData, executionFee);
+  // const gasLimits = await getGasLimits(provider);
+  // const estimatedDepositGasLimit = estimateExecuteDepositGasLimit(gasLimits);
+
+  // const executionFee = await getExecutionFee(
+  //   gasLimits,
+  //   estimatedDepositGasLimit,
+  //   provider
+  // );
+
+  // console.log("executionFee", executionFee);
+
+  // console.log("3333444", updatedCookData, executionFee);
+
+  await cookViem(cauldronObject, cookData, 0);
 };
 
 export default cookRecoverFaliedLeverage;

@@ -41,10 +41,10 @@ export const getOrderStatus = async (
     provider
   );
 
-  if ((isDeposit && itsZero) || (isDeposit && balanceUSDC.eq(0)))
-    return ORDER_SUCCESS;
+  // if ((isDeposit && itsZero) || (isDeposit && balanceUSDC.eq(0)))
+  //   return ORDER_SUCCESS;
 
-  if (!isDeposit && balanceUSDC.gt(0)) return ORDER_SUCCESS;
+  // if (!isDeposit && balanceUSDC.gt(0)) return ORDER_SUCCESS;
 
   return ORDER_FAIL;
 };
