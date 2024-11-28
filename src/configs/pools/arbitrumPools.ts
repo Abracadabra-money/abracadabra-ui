@@ -1,10 +1,10 @@
 import erc20Abi from "@/abis/farm/erc20Abi";
 import { useImage } from "@/helpers/useImage";
 import BlastMagicLpAbi from "@/abis/BlastMagicLP";
-import type { PoolConfig } from "@/configs/pools/types";
 import MultiRewardsAbi from "@/abis/MultiRewards";
+import type { PoolConfig, AdditionalPoolConfig } from "@/configs/pools/types";
 
-const arbitrumPools: Array<PoolConfig> = [
+const arbitrumPools: Array<PoolConfig | AdditionalPoolConfig> = [
   // {
   //   id: 1,
   //   chainId: 42161,
@@ -36,13 +36,13 @@ const arbitrumPools: Array<PoolConfig> = [
   //     isPopular: true,
   //   },
   //   settings: {
-  //     isNew: true,
+  //     isNew: false,
   //     isDeprecated: false,
   //     isMim: true,
   //   },
   // },
   {
-    id: 1,
+    id: "0x236b9ee6f185dc8b70d8bd3649f40ec37688c1ab",
     chainId: 42161,
     name: "MIM / USDT",
     icon: useImage(`assets/images/tokens/MIM-USDT.png`),
@@ -85,24 +85,20 @@ const arbitrumPools: Array<PoolConfig> = [
           abi: erc20Abi,
         },
       },
-      {
-        name: "ARB",
-        icon: useImage(`assets/images/tokens/ARB.png`),
-        decimals: 18,
-        contract: {
-          address: "0x912CE59144191C1204E64559FE8253a0e49E6548",
-          abi: erc20Abi,
-        },
-      },
     ],
     settings: {
-      isNew: true,
+      isNew: false,
       isDeprecated: false,
       isMim: true,
     },
+    initialParameters: {
+      I: 1000000n,
+      K: 250000000000000n,
+      lpFeeRate: 500000000000000n,
+    },
   },
   {
-    id: 2,
+    id: "0x8279699D397ED22b1014fE4D08fFD7Da7B3374C0",
     chainId: 42161,
     name: "MIM / USDC",
     icon: useImage(`assets/images/tokens/MIM-USDC.png`),
@@ -145,20 +141,16 @@ const arbitrumPools: Array<PoolConfig> = [
           abi: erc20Abi,
         },
       },
-      {
-        name: "ARB",
-        icon: useImage(`assets/images/tokens/ARB.png`),
-        decimals: 18,
-        contract: {
-          address: "0x912CE59144191C1204E64559FE8253a0e49E6548",
-          abi: erc20Abi,
-        },
-      },
     ],
     settings: {
-      isNew: true,
+      isNew: false,
       isDeprecated: false,
       isMim: true,
+    },
+    initialParameters: {
+      I: 1000000n,
+      K: 250000000000000n,
+      lpFeeRate: 500000000000000n,
     },
   },
 ];

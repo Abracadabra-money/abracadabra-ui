@@ -1,9 +1,23 @@
 <template>
-  <div class="row-skeleton"></div>
+  <div
+    class="row-skeleton"
+    :style="{ 'max-width': maxWidth, height: height }"
+  ></div>
 </template>
 
-<script>
-export default {};
+<script lang="ts">
+export default {
+  props: {
+    maxWidth: {
+      type: String,
+      default: "130px",
+    },
+    height: {
+      type: String,
+      default: "48px",
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>
@@ -31,7 +45,7 @@ export default {};
 
   50%,
   100% {
-    background-position: 180px;
+    background-position: 400px;
   }
 }
 </style>

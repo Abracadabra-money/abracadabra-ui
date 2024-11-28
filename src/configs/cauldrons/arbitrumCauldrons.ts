@@ -508,6 +508,42 @@ const config: Array<CauldronConfig> = [
     },
     mimInfo,
   },
+  {
+    icon: useImage(`assets/images/tokens/ENA.png`),
+    name: "ENA",
+    chainId: 42161,
+    id: 12,
+    liquidationFee: 6,
+    mcr: 80,
+    borrowFee: 1,
+    version: 4,
+    cauldronSettings: {
+      isNew: true,
+      is0xSwap: true,
+      isSwappersActive: false,
+      isDegenBox: true,
+      strategyLink: false,
+      isDepreciated: false,
+      acceptUseDefaultBalance: false,
+      healthMultiplier: 1,
+      hasAccountBorrowLimit: false,
+      hasWithdrawableLimit: false,
+      localBorrowAmountLimit: false,
+      hasCrvClaimLogic: false,
+    },
+    contract: {
+      name: "CauldronV4",
+      address: "0xFCE0b2fe7d7d5057C82A896e4D8EC0e4b813f71f",
+      abi: poolsAbi.CauldronV4,
+    },
+    collateralInfo: {
+      name: "ENA",
+      decimals: 18,
+      address: "0x58538e6A46E07434d7E7375Bc268D3cb839C0133",
+      abi: tokensAbi.ENA,
+    },
+    mimInfo,
+  },
 ];
 
 export default config;

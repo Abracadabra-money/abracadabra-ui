@@ -1,5 +1,6 @@
 <template>
-  <div class="current-price" v-if="isSelectedTokens">
+  <RowSkeleton v-if="isLoading" max-width="100%" height="24px" />
+  <div class="current-price" v-else-if="isSelectedTokens">
     <SwapIcon pointer fill="#7088CC" @click="toggle = !toggle" />
     <span
       >1 {{ fromTokenName }} = {{ tokensRateToShow }} {{ toTokenName }}</span
@@ -40,6 +41,7 @@ export default {
         fromBase: false,
       }),
     },
+    isLoading: Boolean,
   },
 
   data() {
@@ -111,6 +113,9 @@ export default {
   components: {
     SwapIcon: defineAsyncComponent(
       () => import("@/components/ui/icons/SwapIcon.vue")
+    ),
+    RowSkeleton: defineAsyncComponent(
+      () => import("@/components/ui/skeletons/RowSkeleton.vue")
     ),
   },
 };

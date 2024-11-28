@@ -31,18 +31,21 @@
 
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
-import { formatPercent, formatLargeSum } from "@/helpers/filters";
-import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
 import { useImage } from "@/helpers/useImage";
+import type { PoolConfig } from "@/configs/pools/types";
+import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
+import { getPoolConfig } from "@/helpers/pools/configs/getOrCreatePairsConfigs";
+import { formatPercent, formatLargeSum } from "@/helpers/filters";
 
 const POOL_CHAIN_ID = 42161;
-const POOL_ID = 2;
+const POOL_ID = "0x8279699D397ED22b1014fE4D08fFD7Da7B3374C0";
 
 export default {
   data() {
     return {
       apr: "",
       pool: null as any,
+      poolConfig: null as PoolConfig | null,
     };
   },
 
@@ -51,11 +54,11 @@ export default {
       return [
         {
           name: "SPELL",
-          icon: useImage("assets/images/tokens/SPELL.png"),
+          icon: useImage("assets/images/tokens/SPELL_2.png"),
         },
         {
           name: "ARB",
-          icon: useImage("assets/images/tokens/AETH.png"),
+          icon: useImage("assets/images/tokens/ARB.png"),
         },
       ];
     },
@@ -75,12 +78,14 @@ export default {
     formatLargeSum,
 
     async fetchData() {
-      this.pool = await getPoolInfo(POOL_CHAIN_ID, POOL_ID);
+      if (!this.poolConfig) return;
+      this.pool = await getPoolInfo(POOL_CHAIN_ID, this.poolConfig);
       this.apr = formatPercent(this.pool.poolAPR.totalApr);
     },
   },
 
   async created() {
+    this.poolConfig = await getPoolConfig(Number(POOL_CHAIN_ID), POOL_ID);
     await this.fetchData();
   },
 
@@ -89,6 +94,7 @@ export default {
       () => import("@/components/base/BaseTokenIcon.vue")
     ),
     SwapLogoIcon: defineAsyncComponent(
+      // @ts-ignore
       () => import("@/components/ui/icons/SwapLogoIcon.vue")
     ),
   },
