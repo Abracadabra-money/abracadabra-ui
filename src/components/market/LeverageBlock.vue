@@ -264,6 +264,7 @@ export default {
     getMaxLeverageMultiplier() {
       const maxMultiplier = getMaxLeverageMultiplierAlternative(
         this.cauldron,
+        false,
         //@ts-ignore
         this.depositCollateralAmount,
         //@ts-ignore

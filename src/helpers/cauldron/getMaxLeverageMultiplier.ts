@@ -72,15 +72,21 @@ export const getMaxLeverageMultiplier = (
 
 export const getMaxLeverageMultiplierAlternative = (
   { mainParams, config, userPosition }: any,
+  ignoreUserPosition = true,
   depositAmount: BigNumber = BigNumber.from(0),
-  slippage: BigNumber = expandDecimals(1, 2)
+  slippage: BigNumber = expandDecimals(1, 2),
 ) => {
   const { mcr } = config;
   const { oracleExchangeRate } = mainParams;
   const { decimals } = config.collateralInfo;
-  const { userBorrowAmount } = userPosition.borrowInfo;
+  let userBorrowAmount = userPosition.borrowInfo.userBorrowAmount;
   const { userCollateralAmount } = userPosition.collateralInfo;
-  const positionExpectedCollateral = userCollateralAmount.add(depositAmount);
+  let positionExpectedCollateral = userCollateralAmount.add(depositAmount);
+
+  if (ignoreUserPosition) {
+    positionExpectedCollateral = utils.parseUnits("10", decimals);
+    userBorrowAmount = BigNumber.from(0);
+  }
 
   // if user position is empty
   const testCollateral = positionExpectedCollateral.gt(0)
