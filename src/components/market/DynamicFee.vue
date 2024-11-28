@@ -171,4 +171,12 @@ export default {
 .value {
   text-transform: uppercase;
 }
+
+@media (max-width: 390px) {
+  .value {
+    width: max-content;
+    min-width: 45%;
+    text-align: right;
+  }
+}
 </style>
