@@ -2,7 +2,7 @@
   <div class="order-wrap">
     <div class="row">
       <div class="title-wrap">
-        <h3 class="title">Acrive Order</h3>
+        <h3 class="title">Active Order</h3>
         <SlippagePopup
           v-if="showSettingBtn"
           :amount="slippage"
