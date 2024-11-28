@@ -12,7 +12,9 @@ import {
   estimateExecuteDepositGasLimit,
   getExecutionFee,
 } from "@/helpers/gm/fee/getExecutionFee";
-import { utils } from "ethers";
+import { BigNumber, utils } from "ethers";
+
+import orderAbi from "@/abis/gm/order";
 
 const cookRecoverFaliedLeverage = async (
   { order, to }: PayloadRecoverFailedLeverageGm,
@@ -21,8 +23,10 @@ const cookRecoverFaliedLeverage = async (
   //@ts-ignore
   const { collateral } = cauldronObject.contracts;
 
-  // const provider = store.getters.getProvider;
-  // const { balanceUSDC, balanceWETH } = await getOrderBalances(order, provider);
+  const provider = store.getters.getProvider;
+  const { balanceUSDC, balanceWETH } = await getOrderBalances(order, provider);
+
+  console.log("balanceUSDC, balanceWETH", balanceUSDC, balanceWETH, order);
 
   let cookData: CookData = {
     events: [],
@@ -30,48 +34,26 @@ const cookRecoverFaliedLeverage = async (
     datas: [],
   };
 
-  console.log("cauldronObject", cauldronObject);
-
-  // cookData = balanceWETH.gt(0)
-  //   ? await actions.withdrawFromOrder(
-  //       cookData,
-  //       WETH_ADDRESS,
-  //       to,
-  //       balanceWETH,
-  //       false
-  //     )
-  //   : cookData;
-
   const balance = await collateral.balanceOf(order);
+
+  console.log(
+    "balance",
+    cookData,
+    cauldronObject.config.collateralInfo.address,
+    cauldronObject.config.contract.address,
+    balance.toString(),
+    true
+  );
 
   cookData = await actions.withdrawFromOrder(
     cookData,
     cauldronObject.config.collateralInfo.address,
-    // ORDER_AGENT,
     cauldronObject.config.contract.address,
-    // balanceUSDC,
     balance,
     true
   );
 
-  // const { updatedCookData, executionFee } = await recipeCreateLeverageOrder(
-  //   cookData,
-  //   collateral.address,
-  //   balanceUSDC
-  // );
-
-  // const gasLimits = await getGasLimits(provider);
-  // const estimatedDepositGasLimit = estimateExecuteDepositGasLimit(gasLimits);
-
-  // const executionFee = await getExecutionFee(
-  //   gasLimits,
-  //   estimatedDepositGasLimit,
-  //   provider
-  // );
-
-  // console.log("executionFee", executionFee);
-
-  // console.log("3333444", updatedCookData, executionFee);
+  console.log("cookData", cookData);
 
   await cookViem(cauldronObject, cookData, 0);
 };

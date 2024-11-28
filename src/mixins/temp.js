@@ -255,38 +255,38 @@ export default {
         notification.pending
       );
 
-      try {
-        await cooks.gmCooks.cookRecoverFaliedLeverage(
-          { order, to: this.account },
-          this.cauldron
-        );
+      // try {
+      await cooks.gmCooks.cookRecoverFaliedLeverage(
+        { order, to: this.account },
+        this.cauldron
+      );
 
-        const { cauldron } = this.cauldron.contracts;
-        const newOrder = await cauldron.orders(this.account);
+      const { cauldron } = this.cauldron.contracts;
+      const newOrder = await cauldron.orders(this.account);
 
-        const itsZero = order === ZERO_ADDRESS;
-        // instant success
-        if (itsZero) {
-          this.deleteNotification(notificationId);
-          await this.successGmLeverageCallback(order);
-          return false;
-        }
-
-        this.successNotification(notificationId);
-        this.activeOrder = newOrder;
-      } catch (error) {
-        const errorType = String(error).indexOf("GM Capcity")
-          ? "warning"
-          : "error";
-
-        const errorNotification = {
-          msg: notificationErrorMsg(error),
-          type: errorType,
-        };
-
+      const itsZero = order === ZERO_ADDRESS;
+      // instant success
+      if (itsZero) {
         this.deleteNotification(notificationId);
-        this.createNotification(errorNotification);
+        await this.successGmLeverageCallback(order);
+        return false;
       }
+
+      this.successNotification(notificationId);
+      this.activeOrder = newOrder;
+      // } catch (error) {
+      //   const errorType = String(error).indexOf("GM Capcity")
+      //     ? "warning"
+      //     : "error";
+
+      //   const errorNotification = {
+      //     msg: notificationErrorMsg(error),
+      //     type: errorType,
+      //   };
+
+      //   this.deleteNotification(notificationId);
+      //   this.createNotification(errorNotification);
+      // }
     },
     async gmDeleverageFromOrder(order, successPayload) {
       const notificationId = await this.createNotification(
