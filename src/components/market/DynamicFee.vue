@@ -1,7 +1,8 @@
 <template>
   <div class="dynamic-price">
     <div class="title">
-      {{ estimationDescription }}
+      <p>{{ estimationDescription }}</p>
+
       <TooltipIcon
         :width="20"
         :height="20"
@@ -165,6 +166,7 @@ export default {
   gap: 4px;
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   color: #878b93;
 }
 
@@ -172,7 +174,7 @@ export default {
   text-transform: uppercase;
 }
 
-@media (max-width: 390px) {
+@media (max-width: 460px) {
   .value {
     width: max-content;
     min-width: 45%;

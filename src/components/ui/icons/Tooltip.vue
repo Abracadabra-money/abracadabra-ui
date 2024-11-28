@@ -1,6 +1,6 @@
 <template>
   <svg
-    :style="`width: ${width}px; height: ${height}px; cursor: pointer;`"
+    :style="`width: ${width}px; height: ${height}px; cursor: pointer; min-width: ${width}px; min-height: ${height}px;`"
     v-tooltip="tooltip"
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
