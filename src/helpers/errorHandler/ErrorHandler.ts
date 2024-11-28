@@ -1,39 +1,27 @@
-// errorHandler.js - Централізована логіка обробки помилок
 import { errorRegistry } from "./errorRegistry";
-import { AxiosError } from "axios";
-import { BaseError } from "viem";
-
-// 1. Custom error handler
-// 2. Axios (HTTP) error handler
-// 3. Metamask, Rabby (EIP-1193, JSON-RPC 2.0) error handler
-// 4. 
-
-// https://blog.logrocket.com/understanding-resolving-metamask-error-codes/
-// https://rabby.io/docs/integrating-rabby-wallet/
-// https://www.jsonrpc.org/specification
-// https://developer.mozilla.org/ru/docs/Web/HTTP/Status
-// https://viem.sh/docs/error-handling.html
+import store from "@/store";
 
 class ErrorHandler {
   static handleError(error: Error) {
-    console.log("handleError:")
-    // Визначення типу помилки
     const errorType = this.identifyErrorType(error);
+
+    //@ts-ignore
     const errorData = errorRegistry[errorType] || errorRegistry.GENERIC_ERROR;
 
-    // Генеруємо повідомлення для користувача
-    const message = this.getErrorMessage(errorData.template, error.shortMessage ? error.shortMessage : error.message);
+    const message = this.getErrorMessage(
+      errorData.template,
+      //@ts-ignore
+      error.shortMessage ? error.shortMessage : error.message
+    );
 
-    // Логування або інші дії
-    console.log(`Error:`, {errorType, errorData, message});
+    // Show error notification
+    this.setErrorNotifictiom(message);
+
+    console.log(`Error:`, { errorType, errorData, message });
   }
 
-  // Основна функція, що ідентифікує тип помилки
   static identifyErrorType(error: Error) {
-    const checks = [
-      this.identifyCustomThrownError,
-      this.identifyViemError,
-    ];
+    const checks = [this.identifyCustomThrownError, this.identifyViemError];
 
     for (const check of checks) {
       const errorType = check(error);
@@ -48,17 +36,17 @@ class ErrorHandler {
     return null;
   }
 
-  static identifyViemError(error) {
+  static identifyViemError(error: any) {
     if (error.version?.includes("viem")) return "VIEM_ERROR";
     return null;
   }
 
-  static identifyAxiosError(error) {
+  static identifyAxiosError(error: any) {
     if (error.isAxios) return "AXIOS_ERROR";
     return null;
   }
 
-  static getErrorMessage(template, messageFromError) {
+  static getErrorMessage(template: string, messageFromError: string) {
     let finalMessage = template;
     if (template.includes("{message}")) {
       finalMessage = finalMessage.replace(
@@ -68,6 +56,15 @@ class ErrorHandler {
     }
 
     return finalMessage;
+  }
+
+  static setErrorNotifictiom(message: string) {
+    store.commit("notifications/deleteAll");
+
+    store.dispatch("notifications/new", {
+      msg: message,
+      type: "error",
+    });
   }
 }
 

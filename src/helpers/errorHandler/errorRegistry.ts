@@ -6,7 +6,7 @@ type AbraError = {
 
 export const errorRegistry = {
   GENERIC_ERROR: {
-    template: "Something went wrong. Please try again later.",
+    template: "Something went wrong.",
   },
 
   // Custom errors___________________
