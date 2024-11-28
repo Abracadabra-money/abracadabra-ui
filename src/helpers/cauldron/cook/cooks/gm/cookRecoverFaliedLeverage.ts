@@ -49,7 +49,7 @@ const cookRecoverFaliedLeverage = async (
     cookData,
     cauldronObject.config.collateralInfo.address,
     cauldronObject.config.contract.address,
-    balance,
+    balance.toString(),
     true
   );
 
