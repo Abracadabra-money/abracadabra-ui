@@ -7,7 +7,7 @@ const AVAILABLE_SKIM = "0xd1a840df";
 const SKIM_HELPER_CONTRACT_ADDRESS =
   "0x7BE10723Acd0FC9A9d74E1b2d0A85AC136e00C66";
 
-export const cookCloseFailedOrder = async (
+export const cookUnfinishedLeverage = async (
   order: string,
   account: string,
   cauldronObject: CauldronInfo
@@ -19,20 +19,20 @@ export const cookCloseFailedOrder = async (
   };
 
   const { collateral } = cauldronObject.contracts;
-  const orderBalance = await collateral.balanceOf(order);
+  const balanceCollateral = await collateral.balanceOf(order);
 
   cookData = await actions.withdrawFromOrder(
     cookData,
     cauldronObject.config.collateralInfo.address,
     cauldronObject.config.contract.address,
-    orderBalance,
+    balanceCollateral,
     true
   );
 
   cookData = await actions.call(
     cookData,
     SKIM_HELPER_CONTRACT_ADDRESS,
-    AVAILABLE_SKIM, // availableSkim()(uint256 share)
+    AVAILABLE_SKIM,
     false,
     false,
     1

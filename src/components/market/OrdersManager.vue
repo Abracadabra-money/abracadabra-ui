@@ -3,7 +3,7 @@
     <OrderItem
       @updateInfo="checkOrders"
       :deleverageFromOrder="deleverageFromOrder"
-      :closeFeiledOrder="closeFeiledOrder"
+      :unfinishedLeverage="unfinishedLeverage"
       :recoverLeverage="recoverLeverage"
       :cauldronObject="cauldronObject"
       :cauldron="cauldron"
@@ -34,7 +34,7 @@ export default {
     deleverageFromOrder: {
       type: Function || null,
     },
-    closeFeiledOrder: {
+    unfinishedLeverage: {
       type: Function || null,
     },
   },

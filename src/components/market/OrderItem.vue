@@ -72,10 +72,10 @@ import {
   ORDER_PENDING,
   ORDER_SUCCESS,
   ORDER_FAIL,
-  ORDER_CLOSE,
   ORDER_TYPE_UNKNOWN,
   ORDER_TYPE_LEVERAGE,
   ORDER_TYPE_DELEVERAGE,
+  ORDER_TYPE_UNFINISHED_LEVERAGE,
   monitorOrderStatus,
   getOrderBalances,
   getOrderType,
@@ -115,7 +115,7 @@ export default {
     deleverageFromOrder: {
       type: Function as any,
     },
-    closeFeiledOrder: {
+    unfinishedLeverage: {
       type: Function as any,
     },
   },
@@ -191,7 +191,8 @@ export default {
       }
 
       if (this.type === ORDER_TYPE_LEVERAGE) {
-        if (this.status === ORDER_CLOSE) return "Close Order";
+        if (this.status === ORDER_TYPE_UNFINISHED_LEVERAGE)
+          return "Close Order";
       }
 
       if (this.type === ORDER_TYPE_DELEVERAGE) {
@@ -276,8 +277,8 @@ export default {
           this.$emit("updateInfo");
         }
 
-        if (this.status === ORDER_CLOSE) {
-          await this.closeFeiledOrder(this.order);
+        if (this.status === ORDER_TYPE_UNFINISHED_LEVERAGE) {
+          await this.unfinishedLeverage(this.order);
         }
       }
 

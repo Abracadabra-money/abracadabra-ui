@@ -336,13 +336,13 @@ export default {
       // Notice: no await
       this.$emit("updateMarket");
     },
-    async gmCloseFailedOrder(order) {
+    async gmUnfinishedLeverage(order) {
       const notificationId = await this.createNotification(
         notification.pending
       );
 
       try {
-        await cooks.gmCooks.cookCloseFailedOrder(
+        await cooks.gmCooks.cookUnfinishedLeverage(
           order,
           this.account,
           this.cauldron
