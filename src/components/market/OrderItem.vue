@@ -75,6 +75,7 @@ import {
   ORDER_TYPE_UNKNOWN,
   ORDER_TYPE_LEVERAGE,
   ORDER_TYPE_DELEVERAGE,
+  ORDER_TYPE_UNFINISHED_LEVERAGE,
   monitorOrderStatus,
   getOrderBalances,
   getOrderType,
@@ -114,6 +115,9 @@ export default {
     deleverageFromOrder: {
       type: Function as any,
     },
+    unfinishedLeverage: {
+      type: Function as any,
+    },
   },
   data() {
     return {
@@ -133,6 +137,11 @@ export default {
           classes: ["created"],
         },
         2: {
+          name: "Order failed",
+          icon: FAIL_ICON,
+          classes: ["failed"],
+        },
+        3: {
           name: "Order failed",
           icon: FAIL_ICON,
           classes: ["failed"],
@@ -179,6 +188,11 @@ export default {
     buttonText() {
       if (this.type === ORDER_TYPE_LEVERAGE) {
         if (this.status === ORDER_FAIL) return "Retry Order";
+      }
+
+      if (this.type === ORDER_TYPE_LEVERAGE) {
+        if (this.status === ORDER_TYPE_UNFINISHED_LEVERAGE)
+          return "Close Order";
       }
 
       if (this.type === ORDER_TYPE_DELEVERAGE) {
@@ -261,6 +275,10 @@ export default {
         if (this.status === ORDER_FAIL) {
           await this.recoverLeverage(this.order);
           this.$emit("updateInfo");
+        }
+
+        if (this.status === ORDER_TYPE_UNFINISHED_LEVERAGE) {
+          await this.unfinishedLeverage(this.order);
         }
       }
 
