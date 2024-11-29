@@ -7,6 +7,7 @@ import { USDC_ADDRESS, WETH_ADDRESS, ZERO_ADDRESS } from "@/constants/gm";
 export const ORDER_PENDING = 0;
 export const ORDER_SUCCESS = 1;
 export const ORDER_FAIL = 2;
+export const ORDER_CLOSE = 3;
 
 export const ORDER_TYPE_UNKNOWN = 0;
 export const ORDER_TYPE_LEVERAGE = 1;
@@ -40,6 +41,14 @@ export const getOrderStatus = async (
     orderContract.address,
     provider
   );
+
+  const collateralAddress = await cauldron.collateral();
+  const collateralContract = new Contract(collateralAddress, ERC20, provider);
+  const orderBalance = await collateralContract.balanceOf(
+    orderContract.address
+  );
+
+  if (!isActive && balanceUSDC.eq(0) && orderBalance.gt(0)) return ORDER_CLOSE;
 
   if ((isDeposit && itsZero) || (isDeposit && balanceUSDC.eq(0)))
     return ORDER_SUCCESS;

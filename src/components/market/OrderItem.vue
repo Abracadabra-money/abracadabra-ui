@@ -72,6 +72,7 @@ import {
   ORDER_PENDING,
   ORDER_SUCCESS,
   ORDER_FAIL,
+  ORDER_CLOSE,
   ORDER_TYPE_UNKNOWN,
   ORDER_TYPE_LEVERAGE,
   ORDER_TYPE_DELEVERAGE,
@@ -114,6 +115,9 @@ export default {
     deleverageFromOrder: {
       type: Function as any,
     },
+    closeFeiledOrder: {
+      type: Function as any,
+    },
   },
   data() {
     return {
@@ -133,6 +137,11 @@ export default {
           classes: ["created"],
         },
         2: {
+          name: "Order failed",
+          icon: FAIL_ICON,
+          classes: ["failed"],
+        },
+        3: {
           name: "Order failed",
           icon: FAIL_ICON,
           classes: ["failed"],
@@ -179,6 +188,10 @@ export default {
     buttonText() {
       if (this.type === ORDER_TYPE_LEVERAGE) {
         if (this.status === ORDER_FAIL) return "Retry Order";
+      }
+
+      if (this.type === ORDER_TYPE_LEVERAGE) {
+        if (this.status === ORDER_CLOSE) return "Close Order";
       }
 
       if (this.type === ORDER_TYPE_DELEVERAGE) {
@@ -261,6 +274,10 @@ export default {
         if (this.status === ORDER_FAIL) {
           await this.recoverLeverage(this.order);
           this.$emit("updateInfo");
+        }
+
+        if (this.status === ORDER_CLOSE) {
+          await this.closeFeiledOrder(this.order);
         }
       }
 

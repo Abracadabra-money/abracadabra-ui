@@ -336,5 +336,29 @@ export default {
       // Notice: no await
       this.$emit("updateMarket");
     },
+    async gmCloseFailedOrder(order) {
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
+
+      try {
+        await cooks.gmCooks.cookCloseFailedOrder(
+          order,
+          this.account,
+          this.cauldron
+        );
+
+        this.$emit("updateMarket");
+        this.successNotification(notificationId);
+      } catch (error) {
+        const errorNotification = {
+          msg: notificationErrorMsg(error),
+          type: "error",
+        };
+
+        this.deleteNotification(notificationId);
+        this.createNotification(errorNotification);
+      }
+    },
   },
 };

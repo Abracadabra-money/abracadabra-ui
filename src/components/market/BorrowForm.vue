@@ -6,6 +6,7 @@
       :cauldronObject="cauldron"
       :recoverLeverage="gmRecoverLeverageOrder"
       :deleverageFromOrder="gmDeleverageFromOrder"
+      :closeFeiledOrder="gmCloseFailedOrder"
     />
 
     <div class="deposit-wrap">
