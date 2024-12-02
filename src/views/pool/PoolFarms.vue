@@ -66,7 +66,7 @@ export default {
     }),
 
     poolFarmsConfigs() {
-      return this.poolConfigs.filter(({ stakeContract }) => stakeContract);
+      return this.poolConfigs.filter(({ stakeContract, lockContract }) => stakeContract || lockContract);
     },
   },
 

@@ -27,6 +27,7 @@ export type AdditionalPoolConfig = {
     isDeprecated: boolean;
     isMim: boolean;
     rewardPointsType?: RewardPointsTypes;
+    isLockAsStake?: boolean;
   };
   stakeContract?: ContractInfo;
 };

@@ -137,6 +137,10 @@ export default {
       return this.isFarm ? "Farm" : "Pool";
     },
 
+    isDeprecated() {
+      return this.isFarm && this.pool.settings.isDeprecated;
+    },
+
     isRemove() {
       return this.activeTab === "remove";
     },
@@ -167,6 +171,11 @@ export default {
         if (value) {
           this.activeTab = stakeTabItems[0];
           this.tabItems = [...stakeTabItems];
+
+          if(this.isDeprecated) {
+            this.activeTab = stakeTabItems[1];
+            this.tabItems = [stakeTabItems[1]];
+          }
         }
       },
       immediate: true,

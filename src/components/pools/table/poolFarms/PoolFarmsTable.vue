@@ -132,14 +132,14 @@ export default {
     },
 
     showDeprecatedButton() {
-      const hasDeprecatedPool = this.poolsToRender.some(
+      const hasDeprecatedPool = this.pools.some(
         (pool: MagicLPInfo) => pool.settings.isDeprecated
       );
       return this.poolsToRender.length && hasDeprecatedPool;
     },
 
     deprecatedButtonText() {
-      if (this.showActivePools) return " Show Deprecated pools";
+      if (this.showActivePools) return "Show Deprecated pools";
       return "Hide Deprecated pools";
     },
   },

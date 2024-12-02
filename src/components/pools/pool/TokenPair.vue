@@ -30,6 +30,9 @@
         <img src="@/assets/images/pools/rewards/pills-icon.svg" />
         <span>1x Multiplier </span>
       </div>
+      <div class="deprecated-wrap" v-if="isDeprecated">
+        <span>Deprecated</span>
+      </div>
     </div>
   </div>
 </template>
@@ -51,6 +54,10 @@ export default {
   },
 
   computed: {
+    isDeprecated() {
+      return this.pool.settings.isDeprecated;
+    },
+
     baseIconSize() {
       return this.iconSize - this.borderThickness * 2;
     },
@@ -103,6 +110,17 @@ export default {
   gap: 8px;
   display: flex;
   align-items: center;
+}
+
+.deprecated-wrap {
+  padding: 2px 12px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #8c4040 0%, #6b2424 100%);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  margin-top: 3px;
 }
 
 .token-icon {

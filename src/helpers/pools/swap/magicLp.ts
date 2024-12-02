@@ -140,6 +140,25 @@ export const getLpInfo = async (
     });
   }
 
+  //
+  if (lp.lockContract?.address) {
+    const lockedSupply = await publicClient.readContract({
+      address: lp.lockContract.address,
+      abi: lp.lockContract.abi as any,
+      functionName: "lockedSupply",
+      args: [],
+    });
+
+    const unlockedSupply = await publicClient.readContract({
+      address: lp.lockContract.address,
+      abi: lp.lockContract.abi as any,
+      functionName: "unlockedSupply",
+      args: [],
+    });
+
+    stakedTotalSupply = lockedSupply + unlockedSupply;
+  }
+
   const userInfo = await getUserLpInfo(
     lp.contract.address,
     getSwapRouterByChain(chainId),

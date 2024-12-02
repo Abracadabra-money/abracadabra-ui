@@ -15,11 +15,7 @@
     <RewardsWrap :pool="pool" v-if="earnedBalance || rewardPointsType" />
 
     <BaseButton
-      v-if="
-        hasStakeLogic &&
-        (isUserPositionOpen || earnedBalance) &&
-        !rewardPointsType
-      "
+      v-if="showButton"
       primary
       @click="actionHandler"
       :disabled="isButtonDisabled"
@@ -63,6 +59,11 @@ export default {
       account: "getAccount",
       chainId: "getChainId",
     }),
+    showButton() {
+      return this.hasStakeLogic &&
+        (this.isUserPositionOpen || this.earnedBalance) &&
+        !this.rewardPointsType && !this.pool.settings.isDeprecated
+    },
     hasLockLogic() {
       return !!this.pool.lockInfo;
     },

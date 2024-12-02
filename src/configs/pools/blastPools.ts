@@ -41,9 +41,10 @@ const blastPools: Array<PoolConfig | AdditionalPoolConfig> = [
     },
     settings: {
       isNew: false,
-      isDeprecated: false,
+      isDeprecated: true,
       isMim: true,
       isPointsLogic: true,
+      isLockAsStake: true,
     },
     initialParameters: {
       I: 1000000000000000000n,
