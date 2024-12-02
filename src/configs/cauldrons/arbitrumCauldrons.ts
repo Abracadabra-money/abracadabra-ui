@@ -10,6 +10,8 @@ import zeroXLevSwapperAbi from "@/abis/zeroXLevSwapper";
 import zeroXLiqSwapperAbi from "@/abis/zeroXLiqSwapper";
 
 import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
+import gmLevSwapperAbi from "@/abis/gmLevSwapper";
+import gmLiqSwapper from "@/abis/gmLiqSwapper";
 
 const mimInfo = {
   name: "MIM",
@@ -207,11 +209,11 @@ const config: Array<CauldronConfig> = [
     mimInfo,
     leverageInfo: {
       address: "0xE2c6322190f3e8b2730e9b79f6de1CE21715dd74",
-      abi: zeroXLevSwapperAbi,
+      abi: gmLevSwapperAbi,
     },
     deleverageInfo: {
       address: "0x40107186Bd4b60Dfa8c292E46675e080f9d67b6D",
-      abi: zeroXLiqSwapperAbi,
+      abi: gmLiqSwapper,
     },
   },
   {
@@ -250,11 +252,11 @@ const config: Array<CauldronConfig> = [
     mimInfo,
     leverageInfo: {
       address: "0xE2c6322190f3e8b2730e9b79f6de1CE21715dd74",
-      abi: zeroXLevSwapperAbi,
+      abi: gmLevSwapperAbi,
     },
     deleverageInfo: {
       address: "0x40107186Bd4b60Dfa8c292E46675e080f9d67b6D",
-      abi: zeroXLiqSwapperAbi,
+      abi: gmLiqSwapper,
     },
   },
   {
@@ -293,11 +295,11 @@ const config: Array<CauldronConfig> = [
     mimInfo,
     leverageInfo: {
       address: "0xE2c6322190f3e8b2730e9b79f6de1CE21715dd74",
-      abi: zeroXLevSwapperAbi,
+      abi: gmLevSwapperAbi,
     },
     deleverageInfo: {
       address: "0x40107186Bd4b60Dfa8c292E46675e080f9d67b6D",
-      abi: zeroXLiqSwapperAbi,
+      abi: gmLiqSwapper,
     },
   },
   {
@@ -336,11 +338,11 @@ const config: Array<CauldronConfig> = [
     mimInfo,
     leverageInfo: {
       address: "0xE2c6322190f3e8b2730e9b79f6de1CE21715dd74",
-      abi: zeroXLevSwapperAbi,
+      abi: gmLevSwapperAbi,
     },
     deleverageInfo: {
       address: "0x40107186Bd4b60Dfa8c292E46675e080f9d67b6D",
-      abi: zeroXLiqSwapperAbi,
+      abi: gmLiqSwapper,
     },
   },
   {
@@ -379,11 +381,11 @@ const config: Array<CauldronConfig> = [
     mimInfo,
     leverageInfo: {
       address: "0xE2c6322190f3e8b2730e9b79f6de1CE21715dd74",
-      abi: zeroXLevSwapperAbi,
+      abi: gmLevSwapperAbi,
     },
     deleverageInfo: {
       address: "0x40107186Bd4b60Dfa8c292E46675e080f9d67b6D",
-      abi: zeroXLiqSwapperAbi,
+      abi: gmLiqSwapper,
     },
   },
   {
