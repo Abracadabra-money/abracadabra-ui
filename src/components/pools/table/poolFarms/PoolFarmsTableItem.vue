@@ -6,7 +6,7 @@
   >
     <div class="label">{{ poolLabel }}</div>
     <div class="column">
-      <TokenPair :pool="pool" chainIcon />
+      <TokenPair :pool="pool" chainIcon :isFarm="isFarm" />
     </div>
 
     <div class="column">${{ tvl }}</div>
@@ -54,6 +54,10 @@ export default {
     pool: {
       type: Object as PropType<MagicLPInfo>,
       required: true,
+    },
+    isFarm: {
+      type: Boolean,
+      default: false,
     },
   },
 

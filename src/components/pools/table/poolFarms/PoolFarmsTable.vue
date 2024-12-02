@@ -34,6 +34,7 @@
             v-for="(pool, index) in poolsToRender"
             :key="index"
             :pool="pool"
+            :isFarm="true"
           />
         </div>
 
@@ -42,6 +43,7 @@
             v-for="(pool, index) in poolsToRender"
             :key="index"
             :pool="pool"
+            :isFarm="true"
           />
         </div>
 
@@ -133,14 +135,14 @@ export default {
 
     showDeprecatedButton() {
       const hasDeprecatedPool = this.pools.some(
-        (pool: MagicLPInfo) => pool.settings.isDeprecated
+        (pool: MagicLPInfo) => pool.settings.isDeprecatedFarm
       );
       return this.poolsToRender.length && hasDeprecatedPool;
     },
 
     deprecatedButtonText() {
-      if (this.showActivePools) return "Show Deprecated pools";
-      return "Hide Deprecated pools";
+      if (this.showActivePools) return "Show Deprecated Farms";
+      return "Hide Deprecated Farms";
     },
   },
 
@@ -191,7 +193,7 @@ export default {
     filterByActivepools(pools: MagicLPInfo[]) {
       if (this.showActivePools) {
         return pools.filter((pool) => {
-          return !pool.settings.isDeprecated;
+          return !pool.settings.isDeprecatedFarm;
         });
       }
 
@@ -199,7 +201,8 @@ export default {
         const settingsA = a?.settings;
         const settingsB = b?.settings;
         if (settingsA || settingsB) {
-          return +settingsA?.isDeprecated - +settingsB?.isDeprecated;
+          // @ts-ignore
+          return +settingsA?.isDeprecatedFarm - +settingsB?.isDeprecatedFarm;
         }
 
         return 1;

@@ -5,7 +5,7 @@
   >
     <div class="label">{{ poolLabel }}</div>
 
-    <TokenPair :pool="pool" chainIcon />
+    <TokenPair :pool="pool" chainIcon :isFarm="isFarm" />
 
     <div class="indicator">
       <h3 class="title">TVL</h3>
@@ -67,6 +67,10 @@ export default {
     pool: {
       type: Object,
       required: true,
+    },
+    isFarm: {
+      type: Boolean,
+      default: false,
     },
   },
 

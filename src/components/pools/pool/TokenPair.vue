@@ -30,7 +30,7 @@
         <img src="@/assets/images/pools/rewards/pills-icon.svg" />
         <span>1x Multiplier </span>
       </div>
-      <div class="deprecated-wrap" v-if="isDeprecated">
+      <div class="deprecated-wrap" v-if="isDeprecatedFarm">
         <span>Deprecated</span>
       </div>
     </div>
@@ -46,6 +46,7 @@ const borderRadiusCoefficient = 2.5;
 
 export default {
   props: {
+    isFarm: { type: Boolean, default: false },
     pool: { type: Object },
     chainIcon: Boolean,
     iconSize: { type: Number, default: 46 },
@@ -54,8 +55,8 @@ export default {
   },
 
   computed: {
-    isDeprecated() {
-      return this.pool.settings.isDeprecated;
+    isDeprecatedFarm() {
+      return this.isFarm && this.pool.settings.isDeprecatedFarm;
     },
 
     baseIconSize() {

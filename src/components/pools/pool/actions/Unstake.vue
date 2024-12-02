@@ -12,7 +12,7 @@
       />
     </div>
 
-    <StakingAprWrap :pool="pool" v-if="!rewardPointsType && !isDeprecated" />
+    <StakingAprWrap :pool="pool" v-if="!rewardPointsType && !isDeprecatedFarm" />
     <RewardPointsBannerWrap :rewardPointsType="rewardPointsType" v-else-if="rewardPointsType" />
 
     <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
@@ -59,8 +59,8 @@ export default {
       account: "getAccount",
     }),
 
-    isDeprecated(){
-      return this.pool.settings.isDeprecated;
+    isDeprecatedFarm(){
+      return this.pool.settings.isDeprecatedFarm;
     },
 
     isBlastLockLogic() {

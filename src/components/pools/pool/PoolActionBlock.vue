@@ -3,7 +3,7 @@
     <div class="pool-header">
       <h2 class="title">{{ titleText }}</h2>
 
-      <TokenPair class="token-pair" chainIcon :pool="pool" :iconSize="50" />
+      <TokenPair class="token-pair" chainIcon :pool="pool" :iconSize="50" :isFarm="isFarm" />
 
       <div class="initial-parameters">
         <ParameterChip>{{ feeTier }}</ParameterChip>
@@ -137,8 +137,8 @@ export default {
       return this.isFarm ? "Farm" : "Pool";
     },
 
-    isDeprecated() {
-      return this.isFarm && this.pool.settings.isDeprecated;
+    isDeprecatedFarm() {
+      return this.isFarm && this.pool.settings.isDeprecatedFarm;
     },
 
     isRemove() {
@@ -172,7 +172,7 @@ export default {
           this.activeTab = stakeTabItems[0];
           this.tabItems = [...stakeTabItems];
 
-          if(this.isDeprecated) {
+          if(this.isDeprecatedFarm) {
             this.activeTab = stakeTabItems[1];
             this.tabItems = [stakeTabItems[1]];
           }

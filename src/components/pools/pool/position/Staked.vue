@@ -62,7 +62,7 @@ export default {
     showButton() {
       return this.hasStakeLogic &&
         (this.isUserPositionOpen || this.earnedBalance) &&
-        !this.rewardPointsType && !this.pool.settings.isDeprecated
+        !this.rewardPointsType && !this.pool.settings.isDeprecatedFarm
     },
     hasLockLogic() {
       return !!this.pool.lockInfo;
