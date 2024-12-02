@@ -89,12 +89,12 @@ export default {
       // @ts-ignore
       if (isConnect) return this.$openWeb3modal();
 
-      // if (this.useNoDeleverageConfirmationPopup) {
-      //   this.isDeleverageInfoPopupOpened = true;
-      //   return;
-      // }
+      if (this.useNoDeleverageConfirmationPopup) {
+        this.isDeleverageInfoPopupOpened = true;
+        return;
+      }
 
-      // this.isDeleverageInfoPopupOpened = false;
+      this.isDeleverageInfoPopupOpened = false;
       return await this.cookHandler();
     },
     async approveTokenHandler() {
@@ -335,6 +335,30 @@ export default {
       this.activeOrder = null;
       // Notice: no await
       this.$emit("updateMarket");
+    },
+    async gmUnfinishedLeverage(order) {
+      const notificationId = await this.createNotification(
+        notification.pending
+      );
+
+      try {
+        await cooks.gmCooks.cookUnfinishedLeverage(
+          order,
+          this.account,
+          this.cauldron
+        );
+
+        this.$emit("updateMarket");
+        this.successNotification(notificationId);
+      } catch (error) {
+        const errorNotification = {
+          msg: notificationErrorMsg(error),
+          type: "error",
+        };
+
+        this.deleteNotification(notificationId);
+        this.createNotification(errorNotification);
+      }
     },
   },
 };
