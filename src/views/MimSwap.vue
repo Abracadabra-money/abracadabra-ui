@@ -387,7 +387,6 @@ export default {
 
     "actionConfig.fromToken": {
       async handler() {
-        this.isLoading = true;
         // @ts-ignore
         this.swapInfo = await getSwapInfo(
           this.poolsList,
@@ -397,14 +396,12 @@ export default {
         );
 
         this.actionConfig.toInputValue = this.swapInfo.outputAmount;
-        this.isLoading = false;
       },
       deep: true,
     },
 
     "actionConfig.toToken": {
       async handler() {
-        this.isLoading = true;
         // @ts-ignore
         this.swapInfo = await getSwapInfo(
           this.poolsList,
@@ -414,7 +411,6 @@ export default {
         );
 
         this.actionConfig.toInputValue = this.swapInfo.outputAmount;
-        this.isLoading = false;
       },
       deep: true,
     },
@@ -592,6 +588,8 @@ export default {
         this.account
       );
 
+      this.updatedTokenInfo();
+
       this.poolsList = await getAllPoolsByChain(
         this.selectedNetwork,
         this.poolConfigs,
@@ -617,6 +615,27 @@ export default {
       if (this.availableNetworks.includes(this.chainId)) {
         this.selectedNetwork = this.chainId;
       }
+    },
+
+    updatedTokenInfo() {
+      if (this.actionConfig.fromToken.config.contract.address === "0x") return;
+      if (this.actionConfig.toToken.config.contract.address === "0x") return;
+
+      const fromToken = this.tokensList.find(
+        (token: TokenInfo) =>
+          this.actionConfig.fromToken.config.contract.address.toLowerCase() ===
+          token.config.contract.address.toLowerCase()
+      );
+
+      if (fromToken) this.actionConfig.fromToken = fromToken;
+
+      const toToken = this.tokensList.find(
+        (token: TokenInfo) =>
+          this.actionConfig.toToken.config.contract.address.toLowerCase() ===
+          token.config.contract.address.toLowerCase()
+      );
+
+      if (toToken) this.actionConfig.toToken = toToken;
     },
   },
 
