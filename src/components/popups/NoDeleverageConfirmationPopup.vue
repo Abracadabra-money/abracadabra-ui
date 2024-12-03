@@ -96,6 +96,7 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 24px;
+  position: relative;
 }
 
 .title {
@@ -137,5 +138,36 @@ export default {
 .mim-repay {
   display: flex;
   align-items: center;
+}
+
+@media (max-width: 768px) {
+  .popup-content {
+  gap: 15px;
+}
+
+  .notification-image {
+    width: 20px;
+    height: 20px;
+  }
+
+  .title {
+    font-size: 18px;
+    line-height: 1.4;
+  }
+
+  .notification-text,
+  .description-text,
+  .repayment {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .repayment {
+    height: auto;
+    padding: 5px 0;
+    margin: 10px 0;
+    flex-wrap: wrap;
+    line-height: 1.4;
+  }
 }
 </style>

@@ -6,6 +6,7 @@
       :cauldronObject="cauldron"
       :recoverLeverage="gmRecoverLeverageOrder"
       :deleverageFromOrder="gmDeleverageFromOrder"
+      :unfinishedLeverage="gmUnfinishedLeverage"
     />
 
     <div class="deposit-wrap">

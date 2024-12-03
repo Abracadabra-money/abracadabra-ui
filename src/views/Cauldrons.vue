@@ -127,7 +127,7 @@ export default {
       const response = await Promise.allSettled(
         cauldrons.map(async (cauldron: CauldronListItem) => {
           try {
-            const apr = await getCollateralApr(cauldron, true);
+            const apr = await getCollateralApr(cauldron);
             return { [cauldron.config.contract.address]: apr };
           } catch (error) {
             const multiplier = getMaxLeverageMultiplier(cauldron);
