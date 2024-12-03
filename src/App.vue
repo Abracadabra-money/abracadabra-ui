@@ -24,6 +24,7 @@
 import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
 import axios from "axios";
+
 export default {
   data() {
     return {
