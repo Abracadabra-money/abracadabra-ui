@@ -1,28 +1,21 @@
-import { getLpInfo } from "@/helpers/pools/swap/magicLp";
-import poolsConfig from "@/configs/pools/pools";
 import { formatUnits, type Address } from "viem";
+import { getPoolApr } from "@/helpers/pools/getPoolAPR";
 import type { PoolConfig } from "@/configs/pools/types";
-import type { PairTokensInfo } from "@/helpers/pools/swap/tokens";
-
+import { getLpInfo } from "@/helpers/pools/swap/magicLp";
 import type { MagicLPInfo } from "@/helpers/pools/swap/types";
 import { getPoolTokenInfo } from "@/helpers/pools/swap/tokens";
 import type { TokenPrice } from "@/helpers/prices/defiLlama/index";
 import { getSwapRouterByChain } from "@/configs/pools/routers";
-
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
-import { getPoolApr } from "./getPoolAPR";
+import type { PairTokensInfo } from "@/helpers/pools/swap/tokens";
 import { getPoolTokensPrices } from "@/helpers/pools/getPoolsTokensPrices";
 
 export const getPoolInfo = async (
   poolChainId: number,
-  poolId: number,
+  poolConfig: PoolConfig,
   tokensPrices?: TokenPrice[],
   account?: Address
 ) => {
-  const poolConfig = poolsConfig.find(
-    ({ id, chainId }: PoolConfig) => id == poolId && chainId == poolChainId
-  );
-
   if (!poolConfig) return false;
 
   if (!tokensPrices)
@@ -48,7 +41,7 @@ export const getPoolInfo = async (
     ...getLpInfoResult,
     price: lpTokenPrice,
     tokens,
-    swapRouter: getSwapRouterByChain(poolChainId),
+    swapRouter: getSwapRouterByChain(Number(poolChainId)),
   };
 
   if (account && poolConfig.lockContract)
@@ -186,7 +179,7 @@ export const getStakeInfo = async (
 
   const earnedBalances = await publicClient.multicall({
     contracts: [
-      ...config.rewardTokens.map((token: any) => ({
+      ...(config.rewardTokens || []).map((token: any) => ({
         address: config.stakeContract.address,
         abi: config.stakeContract.abi,
         functionName: "earned",
@@ -195,11 +188,13 @@ export const getStakeInfo = async (
     ],
   });
 
-  const earnedInfo = config.rewardTokens.map((token: any, index: number) => ({
-    token,
-    earned: earnedBalances[index].result,
-    ...tokensApr[index],
-  }));
+  const earnedInfo = (config.rewardTokens || []).map(
+    (token: any, index: number) => ({
+      token,
+      earned: earnedBalances[index].result,
+      ...tokensApr[index],
+    })
+  );
 
   return {
     balance: balance.result,

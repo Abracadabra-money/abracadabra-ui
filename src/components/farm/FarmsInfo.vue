@@ -31,7 +31,7 @@
           <div class="token-amount">
             <img
               class="token-icon"
-              src="@/assets/images/tokens/AETH.png"
+              src="@/assets/images/tokens/ARB.png"
               alt="SPELL"
             />
             {{ formattedArbitrum.amount }}

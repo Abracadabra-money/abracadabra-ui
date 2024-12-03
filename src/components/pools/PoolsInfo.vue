@@ -1,13 +1,20 @@
 <template>
   <div class="pools-info">
     <div>
-      <h3 class="title">MIM Pools</h3>
-      <h4 class="subtitle">
-        Explore our curated list of MIMSwap pairs. Become a liquidity provider
-        and earn fees along with additional rewards
-      </h4>
+      <h3 class="title">{{ text.title }}</h3>
+      <h4 class="subtitle">{{ text.description }}</h4>
     </div>
 
+    <!-- <BaseButton
+      class="pool-creation-link-button"
+      @click="goToPoolCreation"
+      v-if="!isFarms"
+    >
+      <img src="@/assets/images/pools/plus.svg" />
+      Create new pool
+    </BaseButton> -->
+
+    <!-- 
     <div class="cards-wrap">
       <div class="tvl-card">
         <div>
@@ -29,21 +36,22 @@
         </div>
       </div>
 
-      <!-- <div class="kava-card">
+      <div class="kava-card">
         <h4 class="kava-card-title">To be distributed</h4>
         <div class="kava-card-value">
           <img class="kava-icon" src="@/assets/images/tokens/KAVA.png" alt="" />
 
           {{ formatTokenBalance(toBeDistributed) }}
         </div>
-      </div> -->
-    </div>
+      </div>
+    </div> -->
   </div>
 </template>
 
 <script lang="ts">
 import { formatUnits } from "viem";
 import type { PropType } from "vue";
+// import { defineAsyncComponent } from "vue";
 import { formatLargeSum, formatTokenBalance } from "@/helpers/filters";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 import type { MagicLPInfo } from "@/helpers/pools/swap/types";
@@ -91,6 +99,7 @@ const abi = [
 export default {
   props: {
     pools: { type: Array as PropType<MagicLPInfo[]>, required: true },
+    isFarms: Boolean,
   },
 
   data() {
@@ -100,6 +109,17 @@ export default {
   },
 
   computed: {
+    text() {
+      return {
+        title: this.isFarms ? "Farms" : "Pools",
+        description: this.isFarms
+          ? `Stake your Magic LP tokens in the Farm to start earning 
+          additional rewards`
+          : `Explore our curated list of MIMSwap pairs. Become a liquidity
+        provider and earn fees along with additional rewards`,
+      };
+    },
+
     totalTvl() {
       return this.tvlByChains.reduce(
         (acc: any, chainInfo: any) => acc + chainInfo.tvl,
@@ -159,7 +179,19 @@ export default {
         args: [WKAVA_TOKEN_ADDRESS],
       });
     },
+
+    goToPoolCreation() {
+      this.$router.push({
+        name: "PoolCreation",
+      });
+    },
   },
+
+  // components: {
+  //   BaseButton: defineAsyncComponent(
+  //     () => import("@/components/base/BaseButton.vue")
+  //   ),
+  // },
 
   async created() {
     this.kavaRewardData = await this.getRewardData();
@@ -169,6 +201,7 @@ export default {
 
 <style lang="scss" scoped>
 .pools-info {
+  position: relative;
   display: flex;
   justify-content: space-between;
   margin-bottom: 32px;
@@ -187,6 +220,19 @@ export default {
   font-weight: 400;
   line-height: 150%;
   color: rgba(255, 255, 255, 0.6);
+}
+
+.pool-creation-link-button {
+  position: absolute !important;
+  top: 0;
+  right: 0;
+  max-width: fit-content !important;
+}
+
+.pool-creation-link-button::v-deep(div) {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .cards-wrap {

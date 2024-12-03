@@ -11,6 +11,7 @@ export const ORDER_FAIL = 2;
 export const ORDER_TYPE_UNKNOWN = 0;
 export const ORDER_TYPE_LEVERAGE = 1;
 export const ORDER_TYPE_DELEVERAGE = 2;
+export const ORDER_TYPE_UNFINISHED_LEVERAGE = 3;
 
 export const getOrderBalances = async (order, provider) => {
   const WETHContract = new Contract(WETH_ADDRESS, ERC20, provider);
@@ -40,6 +41,15 @@ export const getOrderStatus = async (
     orderContract.address,
     provider
   );
+
+  const collateralAddress = await cauldron.collateral();
+  const collateralContract = new Contract(collateralAddress, ERC20, provider);
+  const balanceCollateral = await collateralContract.balanceOf(
+    orderContract.address
+  );
+
+  if (!isActive && balanceUSDC.eq(0) && balanceCollateral.gt(0))
+    return ORDER_TYPE_UNFINISHED_LEVERAGE;
 
   if ((isDeposit && itsZero) || (isDeposit && balanceUSDC.eq(0)))
     return ORDER_SUCCESS;

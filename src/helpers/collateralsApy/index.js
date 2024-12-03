@@ -11,7 +11,7 @@ import { getStargateApy } from "@/helpers/collateralsApy/getStargateApy";
 import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
 import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
 import { getYearnVaultsApy } from "@/helpers/collateralsApy/getYearnVaultsApy";
-import { getMaxLeverageMultiplier } from "@/helpers/cauldron/getMaxLeverageMultiplier.ts";
+import { getMaxLeverageMultiplierAlternative } from "@/helpers/cauldron/getMaxLeverageMultiplier.ts";
 
 export const isApyCalcExist = (chainId, poolId) => {
   let cauldronsIds = [];
@@ -111,8 +111,7 @@ const isAprOutdate = (localData, address) => {
 };
 
 export const getCollateralApr = async (
-  cauldron,
-  ignoreUserPosition = false
+  cauldron
 ) => {
   const { chainId, id, contract } = cauldron.config;
   const isApyExist = isApyCalcExist(chainId, id);
@@ -127,9 +126,7 @@ export const getCollateralApr = async (
     ? parseLocalApr[contract.address].apr
     : await fetchCollateralApy(cauldron, chainId, contract.address);
 
-  const multiplier = !ignoreUserPosition
-    ? getMaxLeverageMultiplier(cauldron)
-    : getMaxLeverageMultiplier(cauldron, 10, false, 1, true);
+  const multiplier = getMaxLeverageMultiplierAlternative(cauldron, true)
 
   return { value: collateralApy, multiplier };
 };

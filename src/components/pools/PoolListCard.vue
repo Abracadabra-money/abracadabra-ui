@@ -15,7 +15,7 @@
 
       <router-link
         class="pool-link"
-        :to="`/pool/${pool.config.id}/${pool.config.chainId}`"
+        :to="`/pool/${pool.config.chainId}/${pool.config.id}`"
       >
         <svg
           class="arrow"
@@ -120,7 +120,7 @@
 
           <img
             class="reward-icons"
-            src="@/assets/images/pools/elixir-icon.svg"
+            src="@/assets/images/pools/rewards/elixir-icon.svg"
             alt=""
           />
         </div>

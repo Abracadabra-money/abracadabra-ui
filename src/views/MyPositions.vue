@@ -13,8 +13,8 @@
         <div class="sort-buttons">
           <SortButton
             v-for="data in sortersData"
-            :sortOrder="getSortOrder(data.tableKey)"
-            @click="updateSortKey(data.tableKey)"
+            :sortOrder="getSortOrder(data.tableKey as PositionsSortKey)"
+            @click="updateSortKey(data.tableKey as PositionsSortKey)"
             :key="data.tableKey"
             >{{ data.text }}</SortButton
           >
@@ -75,17 +75,11 @@ import {
 } from "@/helpers/cauldron/position/getUserOpenPositions";
 import type { Address } from "viem";
 import type { UserTotalAssets } from "@/helpers/cauldron/types";
-import type { SortOrder } from "@/types/common";
+import type { PositionsSortKey, SorterData, SortOrder } from "@/types/sorting";
 import axios from "axios";
 import { ELIXIR_POTIONS_URL } from "@/constants/global";
 import { LS_ELIXIR_RARE_KEY } from "@/helpers/dataStore";
 
-export type PositionsSortKey =
-  | "positionHealth"
-  | "collateralDepositedUsd"
-  | "mimBorrowed"
-  | "apr";
-export type SorterData = { tableKey: PositionsSortKey; text: string };
 export type LocalAPRData = {
   chainId: number;
   apr: number;
@@ -178,10 +172,22 @@ export default {
 
     sortersData(): SorterData[] {
       return [
-        { tableKey: "positionHealth", text: "Health factor" },
-        { tableKey: "collateralDepositedUsd", text: "Collateral deposited" },
-        { tableKey: "mimBorrowed", text: "MIM minted" },
-        { tableKey: "apr", text: "APR" },
+        {
+          tableKey: "positionHealth",
+          text: "Health factor",
+          isSortingCriterion: true,
+        },
+        {
+          tableKey: "collateralDepositedUsd",
+          text: "Collateral deposited",
+          isSortingCriterion: true,
+        },
+        {
+          tableKey: "mimBorrowed",
+          text: "MIM minted",
+          isSortingCriterion: true,
+        },
+        { tableKey: "apr", text: "APR", isSortingCriterion: true },
       ];
     },
 

@@ -11,85 +11,65 @@
       />
     </div>
 
-    <div class="filters">
-      <div class="filter" v-for="sorter in sortersData" :key="sorter.tableKey">
-        <p class="filter-title">
-          Sort by {{ sorter.text ? sorter.text : sorter.tableKey }}
-        </p>
-        <label class="label" :for="`${sorter.tableKey}-down`">
-          <span class="checkmark"
-            ><svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="21"
-              viewBox="0 0 20 21"
-              fill="none"
-            >
-              <rect
-                x="0.5"
-                y="1"
-                width="19"
-                height="19"
-                rx="9.5"
-                stroke="#7088CC"
-              />
-              <rect
-                x="3"
-                y="3.5"
-                width="14"
-                height="14"
-                rx="7"
-                fill="#7088CC"
-                v-if="comparePikedAndSorter(sorter, 'down')"
-              /></svg
-          ></span>
-          <input
-            class="radio-button"
-            type="radio"
-            :id="`${sorter.tableKey}-down`"
-            :value="{ sorter, order: 'down' }"
-            v-model="picked"
-          />
-          {{ sorter.text ? sorter.text : sorter.tableKey }}: Low to high
-        </label>
+    <div class="filters" v-if="filtersData">
+      <template v-for="filter in filtersData" :key="filter.filterKey">
+        <div class="filter">
+          {{ filter.text }}
 
-        <label class="label" :for="`${sorter.tableKey}-up`">
-          <span class="checkmark"
-            ><svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="21"
-              viewBox="0 0 20 21"
-              fill="none"
+          <div class="options">
+            <div
+              class="option"
+              v-for="(option, index) in filter.options"
+              :key="index"
+              @click="pickOption(filter.filterKey, option)"
             >
-              <rect
-                x="0.5"
-                y="1"
-                width="19"
-                height="19"
-                rx="9.5"
-                stroke="#7088CC"
+              <RadioButton
+                :active="
+                  filtersOptionsPickedByKey[filter.filterKey].options[index]
+                    .value
+                "
               />
-              <rect
-                x="3"
-                y="3.5"
-                width="14"
-                height="14"
-                rx="7"
-                fill="#7088CC"
-                v-if="comparePikedAndSorter(sorter, 'up')"
-              /></svg
-          ></span>
-          <input
-            class="radio-button"
-            type="radio"
-            :id="`${sorter.tableKey}-up`"
-            :value="{ sorter, order: 'up' }"
-            v-model="picked"
-          />
-          {{ sorter.text ? sorter.text : sorter.tableKey }}: High to low
-        </label>
-      </div>
+              {{ option }}
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <div class="divider" v-if="filtersData"></div>
+
+    <div class="sorters">
+      <template v-for="sorter in sortersData" :key="sorter.tableKey">
+        <div class="sorter" v-if="sorter.isSortingCriterion">
+          <p class="sorter-title">
+            Sort by {{ sorter.text ? sorter.text : sorter.tableKey }}
+          </p>
+          <label class="label" :for="`${sorter.tableKey}-down`">
+            <RadioButton :active="comparePikedAndSorter(sorter, 'down')" />
+
+            <input
+              class="radio-button-input"
+              type="radio"
+              :id="`${sorter.tableKey}-down`"
+              :value="{ sorter, order: 'down' }"
+              v-model="picked"
+            />
+            {{ sorter.text ? sorter.text : sorter.tableKey }}: Low to high
+          </label>
+
+          <label class="label" :for="`${sorter.tableKey}-up`">
+            <RadioButton :active="comparePikedAndSorter(sorter, 'up')" />
+            <input
+              class="radio-button-input"
+              type="radio"
+              :id="`${sorter.tableKey}-up`"
+              :value="{ sorter, order: 'up' }"
+              v-model="picked"
+            />
+            {{ sorter.text ? sorter.text : sorter.tableKey }}: High to low
+          </label>
+        </div>
+      </template>
     </div>
 
     <BaseButton
@@ -104,30 +84,35 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from "vue";
-import type { SorterData } from "@/views/MyPositions.vue";
-import type { SortOrder } from "@/types/common";
-import BaseButton from "@/components/base/BaseButton.vue";
+import { defineAsyncComponent, type PropType } from "vue";
+import type { FilterData, SortOrder, SorterData } from "@/types/sorting";
 
 type PickedSorter = {
   sorter: SorterData;
   order: SortOrder;
 };
 
+type PickedFilterOption = {
+  name: string;
+  value: boolean;
+};
+
 export default {
   props: {
+    filtersData: { type: Array as PropType<FilterData[]> },
     sortersData: { type: Array as PropType<SorterData[]>, required: true },
   },
 
   data() {
     return {
       picked: null as PickedSorter | null,
+      filtersOptionsPickedByKey: {} as any,
     };
   },
 
   computed: {
     isDisabled() {
-      return !this.picked;
+      return !this.picked && !this.filtersData;
     },
   },
 
@@ -139,13 +124,41 @@ export default {
       );
     },
 
+    pickOption(filterKey: string, option: string) {
+      let valueToSet = false;
+      const optionIndex = this.filtersOptionsPickedByKey[
+        filterKey
+      ].options.findIndex((element: PickedFilterOption) => {
+        valueToSet = !element.value;
+        return element.name === option;
+      });
+
+      this.filtersOptionsPickedByKey[filterKey].options[optionIndex].value =
+        valueToSet;
+    },
+
+    applyPickedFilterOptions() {
+      const filterKeys = Object.keys(this.filtersOptionsPickedByKey);
+      filterKeys.forEach((key: string) => {
+        const emitter = this.filtersOptionsPickedByKey[key].emitter;
+        const optionsToEmit = this.filtersOptionsPickedByKey[key].options
+          .filter((option: PickedFilterOption) => option.value)
+          .map((option: PickedFilterOption) => option.name);
+
+        emitter(optionsToEmit);
+      });
+    },
+
     applyFilter() {
-      if (!this.picked) return false;
-      this.$emit(
-        "updateSortKey",
-        this.picked?.sorter.tableKey,
-        this.picked?.order
-      );
+      if (this.picked)
+        this.$emit(
+          "updateSortKey",
+          this.picked?.sorter.tableKey,
+          this.picked?.order
+        );
+
+      if (this.filtersData) this.applyPickedFilterOptions();
+
       this.closePopup();
     },
 
@@ -154,13 +167,32 @@ export default {
     },
   },
 
+  created() {
+    (this.filtersData || []).forEach(({ filterKey, options, emitter }) => {
+      this.filtersOptionsPickedByKey[filterKey] = { emitter, options: [] };
+      options.forEach((option: string) => {
+        this.filtersOptionsPickedByKey[filterKey].options.push({
+          name: option,
+          picked: false,
+        });
+      });
+    });
+  },
+
   components: {
-    BaseButton,
+    BaseButton: defineAsyncComponent(
+      () => import("@/components/base/BaseButton.vue")
+    ),
+    RadioButton: defineAsyncComponent(
+      () => import("@/components/ui/buttons/RadioButton.vue")
+    ),
   },
 };
 </script>
 
 <style lang="scss" scoped>
+@include scrollbar;
+
 .filters-popup {
   position: fixed;
   top: 0;
@@ -200,25 +232,34 @@ export default {
   font-size: 18px;
 }
 
+.sorters,
 .filters {
   display: flex;
   flex-direction: column;
   gap: 24px;
   width: 100%;
-  overflow: auto;
 }
 
+.sorter,
 .filter {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-transform: capitalize;
+}
+
+.options {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.label {
+.label,
+.option {
   display: flex;
   align-items: center;
+  gap: 12px;
   position: relative;
-  padding-left: 35px;
   cursor: pointer;
   font-size: 22px;
   -webkit-user-select: none;
@@ -231,7 +272,7 @@ export default {
   font-weight: 400;
 }
 
-.radio-button {
+.radio-button-input {
   position: absolute;
   opacity: 0;
   cursor: pointer;
@@ -248,5 +289,16 @@ export default {
 .apply-button {
   min-height: 39px;
   margin-top: auto;
+}
+
+.divider {
+  height: 1px;
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
 }
 </style>

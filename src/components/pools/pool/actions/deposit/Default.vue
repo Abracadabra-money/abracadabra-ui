@@ -34,7 +34,10 @@
       />
     </div>
 
-    <PillsPotions :pool="pool" />
+    <RewardPointsBannerWrap
+      :rewardPointsType="rewardPointsType"
+      v-if="rewardPointsType"
+    />
 
     <div class="info-blocks">
       <div class="info-block lp">
@@ -197,6 +200,13 @@ export default {
 
     isProperNetwork() {
       return this.chainId == this.pool.chainId;
+    },
+
+    rewardPointsType() {
+      const currentRewardPointsType =
+        this.pool.config.settings.rewardPointsType;
+      const hasStakeContract = !!this.pool.config.stakeContract;
+      return hasStakeContract ? "" : currentRewardPointsType;
     },
   },
 
@@ -436,8 +446,8 @@ export default {
     PreviewAddLiquidityPopup: defineAsyncComponent(() =>
       import("@/components/pools/pool/popups/PreviewAddLiquidityPopup.vue")
     ),
-    PillsPotions: defineAsyncComponent(() =>
-      import("@/components/pools/pool/PillsPotions.vue")
+    RewardPointsBannerWrap: defineAsyncComponent(() =>
+      import("@/components/pools/rewardPoints/RewardPointsBannerWrap.vue")
     ),
     // CurrentPrice: defineAsyncComponent(() =>
     //   import("@/components/pools/CurrentPrice.vue")

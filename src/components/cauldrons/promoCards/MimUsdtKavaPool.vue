@@ -25,18 +25,21 @@
 
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
-import { formatPercent, formatLargeSum } from "@/helpers/filters";
-import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
 import { useImage } from "@/helpers/useImage";
+import type { PoolConfig } from "@/configs/pools/types";
+import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
+import { getPoolConfig } from "@/helpers/pools/configs/getOrCreatePairsConfigs";
+import { formatPercent, formatLargeSum } from "@/helpers/filters";
 
 const POOL_CHAIN_ID = 2222;
-const POOL_ID = 1;
+const POOL_ID = "0x10C9FCDa1655b7A55250AdCEe06f0B6e83F473c1";
 
 export default {
   data() {
     return {
       apr: "",
       pool: null as any,
+      poolConfig: null as PoolConfig | null,
     };
   },
 
@@ -65,12 +68,14 @@ export default {
     formatLargeSum,
 
     async fetchData() {
-      this.pool = await getPoolInfo(POOL_CHAIN_ID, POOL_ID);
+      if (!this.poolConfig) return;
+      this.pool = await getPoolInfo(POOL_CHAIN_ID, this.poolConfig);
       this.apr = formatPercent(this.pool.poolAPR.totalApr);
     },
   },
 
   async created() {
+    this.poolConfig = await getPoolConfig(Number(POOL_CHAIN_ID), POOL_ID);
     await this.fetchData();
   },
 
@@ -79,6 +84,7 @@ export default {
       () => import("@/components/base/BaseTokenIcon.vue")
     ),
     SwapLogoIcon: defineAsyncComponent(
+      // @ts-ignore
       () => import("@/components/ui/icons/SwapLogoIcon.vue")
     ),
   },

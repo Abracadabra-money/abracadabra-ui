@@ -99,6 +99,7 @@
 import { defineAsyncComponent, type PropType } from "vue";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 import { getChainConfig } from "@/helpers/chains/getChainsInfo";
+import { adjustDropdownPosition } from "@/helpers/ui/adjustDropdownPosition";
 
 export default {
   props: {
@@ -169,6 +170,7 @@ export default {
     toggleDropdown() {
       if (!this.activeChains.length) return false;
       this.showDropdownList = !this.showDropdownList;
+      adjustDropdownPosition(this.$refs.dropdownList as HTMLElement);
     },
 
     closeDropdown() {

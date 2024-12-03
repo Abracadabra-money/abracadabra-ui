@@ -26,6 +26,8 @@
       <TickChart :chartData="chartData" :createChartOptions="getChartOptions" />
     </template>
 
+    <BaseSearchEmpty v-else-if="error" :text="error" />
+
     <BaseLoader v-else medium text="Loading chart" />
   </div>
 </template>
@@ -49,6 +51,7 @@ export default {
       chartData: null as any,
       updateInterval: null as any,
       chartDataPerYear: null as any,
+      error: null as any,
     };
   },
 
@@ -87,6 +90,11 @@ export default {
           this.chainId,
           this.chartConfig.feePercent
         );
+      }
+
+      if (this.chartDataPerYear?.error) {
+        this.error = this.chartDataPerYear.error;
+        return;
       }
 
       const { datasets, labels }: any = this.chartDataPerYear;
@@ -166,6 +174,9 @@ export default {
     ),
     BaseLoader: defineAsyncComponent(
       () => import("@/components/base/BaseLoader.vue")
+    ),
+    BaseSearchEmpty: defineAsyncComponent(
+      () => import("@/components/base/BaseSearchEmpty.vue")
     ),
   },
 };

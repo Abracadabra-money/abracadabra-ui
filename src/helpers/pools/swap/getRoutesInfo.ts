@@ -52,3 +52,48 @@ export const getRoutesInfo = (
 
   return path;
 };
+
+export const getChunkedRoutesInfo = (routes: RouteInfo[] | undefined) => {
+  const routesInfo: Array<{
+    address: string;
+    icon: string;
+    percent: string;
+  }> = [];
+
+  routes?.forEach((route: RouteInfo) => {
+    const inputTokenIcon = route.fromBase
+      ? route.lpInfo.config.baseToken.icon
+      : route.lpInfo.config.quoteToken.icon;
+
+    const outputTokenIcon = route.fromBase
+      ? route.lpInfo.config.quoteToken.icon
+      : route.lpInfo.config.baseToken.icon;
+
+    routesInfo.push({
+      address: route.inputToken,
+      icon: inputTokenIcon,
+      percent: "100%",
+    });
+
+    routesInfo.push({
+      address: route.lpInfo.contract.address,
+      icon: route.lpInfo.icon,
+      percent: formatPercent(formatUnits(route.fees, FEES_DECIMALS)),
+    });
+
+    routesInfo.push({
+      address: route.outputToken,
+      icon: outputTokenIcon,
+      percent: "100%",
+    });
+  });
+
+  const chunkSize = 3;
+  const result = [];
+
+  for (let i = 0; i < routesInfo.length; i += chunkSize) {
+    result.push(routesInfo.slice(i, i + chunkSize));
+  }
+
+  return result;
+};

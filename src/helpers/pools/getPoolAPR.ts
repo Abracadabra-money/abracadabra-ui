@@ -16,7 +16,8 @@ export const getPoolApr = async (
     const stakingTokenPrice = poolInfo.price;
 
     const totalStakedInUSD =
-      Number(formatUnits(poolInfo.totalSupply, 18)) * stakingTokenPrice;
+      Number(formatUnits(poolInfo.stakedTotalSupply, poolInfo.decimals)) *
+      stakingTokenPrice;
 
     let totalAnnualRewardsInUSD = 0;
     const tokensApr = [];

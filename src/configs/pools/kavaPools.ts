@@ -2,11 +2,11 @@ import erc20Abi from "@/abis/farm/erc20Abi";
 import { useImage } from "@/helpers/useImage";
 import BlastMagicLpAbi from "@/abis/BlastMagicLP";
 import MultiRewardsAbi from "@/abis/MultiRewards";
-import type { PoolConfig } from "@/configs/pools/types";
+import type { PoolConfig, AdditionalPoolConfig } from "@/configs/pools/types";
 
-const kavaPools: Array<PoolConfig> = [
+const kavaPools: Array<PoolConfig | AdditionalPoolConfig> = [
   {
-    id: 1,
+    id: "0x10C9FCDa1655b7A55250AdCEe06f0B6e83F473c1",
     chainId: 2222,
     name: "MIM / USDT",
     icon: useImage(`assets/images/tokens/MIM-USDT.png`),
@@ -51,9 +51,15 @@ const kavaPools: Array<PoolConfig> = [
       },
     ],
     settings: {
-      isNew: true,
+      isNew: false,
       isDeprecated: false,
       isMim: true,
+    },
+    //todo: dummy info. kavascan contract didnt work
+    initialParameters: {
+      I: 1000000000000000000n,
+      K: 250000000000000n,
+      lpFeeRate: 500000000000000n,
     },
   },
 ];

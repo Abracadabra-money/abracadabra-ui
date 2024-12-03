@@ -48,15 +48,17 @@ import { Contract } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
 import { formatUnits, parseUnits } from "viem";
-import poolsConfig from "@/configs/pools/pools";
 import { approveToken } from "@/helpers/approval";
 import { formatToFixed } from "@/helpers/filters";
 import { trimZeroDecimals } from "@/helpers/numbers";
+import type { PoolConfig } from "@/configs/pools/types";
 import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 // @ts-ignore
-import BlastMIMSwapRouterAbi from "@/abis/BlastMIMSwapRouter.js";
+import { getPoolConfigsByChains } from "@/helpers/pools/configs/getOrCreatePairsConfigs";
 import notification from "@/helpers/notification/notification";
+// @ts-ignore
+import BlastMIMSwapRouterAbi from "@/abis/BlastMIMSwapRouter.js";
 import { previewAddLiquidity } from "@/helpers/pools/swap/liquidity";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
 // @ts-ignore
@@ -74,6 +76,8 @@ export default {
       deadline: 100n,
       pool: null as any,
       isActionProcessing: false,
+      poolConfig: null as PoolConfig | null,
+      poolConfigs: [] as PoolConfig[],
     };
   },
 
@@ -127,7 +131,7 @@ export default {
     },
 
     poolList() {
-      const filteredPools = poolsConfig.filter(
+      const filteredPools = this.poolConfigs.filter(
         (config) => config.chainId === +this.chainId
       );
 
@@ -197,6 +201,11 @@ export default {
 
     changeTokenAddress(poolInfo: any) {
       this.poolInfo = poolInfo;
+
+      this.poolConfig =
+        this.poolConfigs.find(
+          (config) => config.contract.address === poolInfo.address
+        ) || null;
     },
 
     updateTokenAddress(address: string) {
@@ -205,6 +214,11 @@ export default {
         address: address,
         name: "",
       };
+
+      this.poolConfig =
+        this.poolConfigs.find(
+          (config) => config.contract.address === address
+        ) || null;
     },
 
     clearData() {
@@ -337,9 +351,11 @@ export default {
     },
 
     async getPoolInfo() {
+      if (!this.poolConfig) return;
+
       this.pool = await getPoolInfo(
         Number(this.poolInfo.chainId),
-        Number(this.poolInfo.id),
+        this.poolConfig,
         undefined,
         this.account
       );
@@ -453,6 +469,10 @@ export default {
 
       this.depositHandler();
     },
+  },
+
+  async created() {
+    this.poolConfigs = await getPoolConfigsByChains();
   },
 
   components: {

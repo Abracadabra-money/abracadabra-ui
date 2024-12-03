@@ -7,7 +7,7 @@
 
 <script lang="ts">
 import { defineAsyncComponent, type PropType } from "vue";
-import type { SortOrder } from "@/types/common";
+import type { SortOrder } from "@/types/sorting";
 
 export default {
   props: {

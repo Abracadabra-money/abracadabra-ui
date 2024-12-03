@@ -8,6 +8,8 @@ import {
   LS_FARMS_LIST_KEY,
   getAndParsePoolsList,
   LS_POOLS_LIST_KEY,
+  getAndParsePoolFarmsList,
+  LS_POOL_FARMS_LIST_KEY,
   getAndParseBentoBoxData,
   LS_BENTOBOX_DATA_KEY,
   getAndParseSpellStakeData,
@@ -18,6 +20,8 @@ import {
   getAndParseMagicApeStakeData,
   LS_MAGIC_APE_STAKE_KEY,
   LS_MAGIC_APE_STAKE_CHART_KEY,
+  getAndParsePoolCreationCustomTokens,
+  LS_POOL_CREATION_CUSTOM_TOKENS_KEY,
 } from "@/helpers/dataStore";
 
 export default {
@@ -26,6 +30,7 @@ export default {
     userPositions: getAndParseUserPositions(),
     farmList: getAndParseFarmsList(),
     poolsList: getAndParsePoolsList(),
+    poolFarmsList: getAndParsePoolFarmsList(),
     bentoBoxData: getAndParseBentoBoxData(),
     userTotalAssets: {
       data: {},
@@ -34,6 +39,7 @@ export default {
     spellStakeData: getAndParseSpellStakeData(),
     magicGlpStakeData: getAndParseMagicGlpStakeData(),
     magicApeStakeData: getAndParseMagicApeStakeData(),
+    poolCreationCustomTokens: getAndParsePoolCreationCustomTokens(),
   },
 
   mutations: {
@@ -56,6 +62,11 @@ export default {
       state.poolsList.isCreated = true;
       state.poolsList.data = payload;
       localStorage.setItem(LS_POOLS_LIST_KEY, bigintStringify(payload));
+    },
+    setPoolFarmsList(state, payload) {
+      state.poolFarmsList.isCreated = true;
+      state.poolFarmsList.data = payload;
+      localStorage.setItem(LS_POOL_FARMS_LIST_KEY, bigintStringify(payload));
     },
     setBentoBoxData(state, payload) {
       state.bentoBoxData.isCreated = true;
@@ -95,6 +106,13 @@ export default {
         bigintStringify(payload)
       );
     },
+    setPoolCreationCustomTokensData(state, payload) {
+      state.poolCreationCustomTokens.data = payload;
+      localStorage.setItem(
+        LS_POOL_CREATION_CUSTOM_TOKENS_KEY,
+        JSON.stringify(payload)
+      );
+    },
   },
 
   getters: {
@@ -102,10 +120,12 @@ export default {
     getUserPositions: (state) => state.userPositions,
     getFarmList: (state) => state.farmList,
     getPoolsList: (state) => state.poolsList,
+    getPoolFarmsList: (state) => state.poolFarmsList,
     getBentoBoxData: (state) => state.bentoBoxData,
     getUserTotalAssets: (state) => state.userTotalAssets,
     getSpellStakeData: (state) => state.spellStakeData,
     getMagicGlpStakeData: (state) => state.magicGlpStakeData,
     getMagicApeStakeData: (state) => state.magicApeStakeData,
+    getPoolCreationCustomTokens: (state) => state.poolCreationCustomTokens,
   },
 };

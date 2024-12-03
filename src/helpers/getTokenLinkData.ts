@@ -95,16 +95,23 @@ const configs = [
   {
     id: 43,
     chain: 1,
-    href: "https://www.elixir.xyz/apothecary",
+    href: "https://www.elixir.xyz/deusd",
     label: "Get sdeUSD Token",
     icon: useImage(`assets/images/get-lp-icons/elixir.png`),
   },
   {
     id: 44,
     chain: 1,
-    href: "https://www.elixir.xyz/apothecary",
+    href: "https://www.elixir.xyz/deusd",
     label: "Get sdeUSD Token",
     icon: useImage(`assets/images/get-lp-icons/elixir.png`),
+  },
+  {
+    id: 45,
+    chain: 1,
+    href: "https://app.usual.money/",
+    label: "Get USD0++ Token",
+    icon: useImage(`assets/images/pools/rewards/pills-icon.svg`),
   },
 ];
 

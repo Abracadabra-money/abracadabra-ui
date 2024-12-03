@@ -1,6 +1,6 @@
 <template>
   <div class="wrap">
-    <div class="val-input">
+    <div :class="['val-input', { compact }]">
       <div class="token-input-wrap">
         <input
           name="tokenInput"
@@ -10,7 +10,7 @@
           placeholder="0.0"
           :disabled="disabled"
         />
-        <div class="usd-wrap">
+        <div class="usd-wrap" v-if="!compact">
           <p class="usd-equivalent" v-if="tokenPrice">{{ usdEquivalent }}</p>
           <p
             :class="['difference-price', { warning: differencePrice < 0 }]"
@@ -23,11 +23,22 @@
 
       <div class="token-input-info">
         <div
-          :class="['token-info', { 'select-token': allowSelectToken }]"
+          :class="[
+            'token-info',
+            {
+              'select-token': allowSelectToken,
+              'gradient-selector': isGradientSelector,
+            },
+          ]"
           v-tooltip="tooltip"
           @click="onSelectClick"
         >
-          <BaseTokenIcon :icon="icon" :name="name" size="28px" />
+          <BaseTokenIcon
+            :icon="icon"
+            :name="name"
+            size="28px"
+            v-if="!isGradientSelector"
+          />
           <span class="token-name" ref="tokenName">
             {{ tokenName }}
           </span>
@@ -42,7 +53,7 @@
 
         <p
           :class="['wallet-balance', { 'primary-max': primaryMax }]"
-          v-if="!disabled"
+          v-if="!disabled && !compact && !isGradientSelector"
           @click="inputValue = formattedMax"
         >
           <span v-if="primaryMax">MAX:</span>
@@ -75,7 +86,10 @@ export default {
     tokenPrice: { type: [String, Number] },
     disabled: { type: Boolean, default: false },
     primaryMax: { type: Boolean, default: false },
+    compact: { type: Boolean, default: false },
     allowSelectToken: { type: Boolean, default: false },
+    isGradientSelector: { type: Boolean, default: false },
+    poolCreation: { type: Boolean, default: false },
     differencePrice: { type: Number, default: 0 },
   },
 
@@ -188,6 +202,10 @@ export default {
   min-height: 82px;
 }
 
+.compact {
+  min-height: auto;
+}
+
 .token-input-wrap,
 .token-input-info {
   display: flex;
@@ -253,6 +271,13 @@ export default {
 
 .select-token {
   cursor: pointer;
+}
+
+.gradient-selector {
+  padding: 6px 8px;
+  background: linear-gradient(90deg, #2d4a96 0%, #745cd2 100%);
+  background-size: 101%;
+  background-position: top left -1px;
 }
 
 .token-name {

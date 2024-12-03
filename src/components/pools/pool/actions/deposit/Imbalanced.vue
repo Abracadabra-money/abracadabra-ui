@@ -34,7 +34,10 @@
       />
     </div>
 
-    <PillsPotions :pool="pool" />
+    <RewardPointsBannerWrap
+      :rewardPointsType="rewardPointsType"
+      v-if="rewardPointsType"
+    />
 
     <PreviewAddLiquidity
       :pool="pool"
@@ -192,6 +195,13 @@ export default {
 
     isOneSide() {
       return !this.baseInputAmount || !this.quoteInputAmount;
+    },
+
+    rewardPointsType() {
+      const currentRewardPointsType =
+        this.pool.config.settings.rewardPointsType;
+      const hasStakeContract = !!this.pool.config.stakeContract;
+      return hasStakeContract ? "" : currentRewardPointsType;
     },
   },
 
@@ -393,8 +403,8 @@ export default {
     PreviewAddLiquidityPopup: defineAsyncComponent(() =>
       import("@/components/pools/pool/popups/PreviewAddLiquidityPopup.vue")
     ),
-    PillsPotions: defineAsyncComponent(() =>
-      import("@/components/pools/pool/PillsPotions.vue")
+    RewardPointsBannerWrap: defineAsyncComponent(() =>
+      import("@/components/pools/rewardPoints/RewardPointsBannerWrap.vue")
     ),
   },
 };

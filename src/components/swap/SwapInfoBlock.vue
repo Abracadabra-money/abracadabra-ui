@@ -19,10 +19,12 @@
         </div>
         <h4 class="info-title">Price impact</h4>
       </div>
+      <RowSkeleton v-if="isLoading" max-width="100%" height="34px" />
       <div
         :class="['info-value', 'price-impact-value', { warning: isWarning }]"
+        v-else
       >
-        {{ priceImpact }}%
+        {{ swapPriceImpact }}
       </div>
     </div>
 
@@ -49,7 +51,8 @@
         </div>
         <h4 class="info-title">Slippage</h4>
       </div>
-      <div class="info-value">{{ swapSlippage }}%</div>
+      <RowSkeleton v-if="isLoading" max-width="100%" height="34px" />
+      <div class="info-value" v-else>{{ swapSlippage }}%</div>
     </div>
 
     <div class="swap-info-item">
@@ -75,20 +78,28 @@
         </div>
         <h4 class="info-title">Fees</h4>
       </div>
-      <div class="info-value">{{ swapFees }}</div>
+      <RowSkeleton v-if="isLoading" max-width="100%" height="34px" />
+      <div class="info-value" v-else>{{ swapFees }}</div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
+import {
+  formatUSD,
+  formatPercent,
+  formatToFixed,
+  formatTokenBalance,
+} from "@/helpers/filters";
 import { mapGetters } from "vuex";
 import { formatUnits } from "viem";
 import type { Prop, PropType } from "vue";
 import { encodeFunctionData } from "viem";
+import { defineAsyncComponent } from "vue";
 import { KAVA_CHAIN_ID } from "@/constants/global";
+// @ts-ignore
 import BlastMIMSwapRouterAbi from "@/abis/BlastMIMSwapRouter";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
-import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import type { ActionConfig, RouteInfo } from "@/helpers/pools/swap/getSwapInfo";
 
 export default {
@@ -104,6 +115,7 @@ export default {
       type: Array as PropType<{ chainId: number; price: number }[]>,
       required: true,
     },
+    isLoading: Boolean,
   },
 
   data() {
@@ -201,6 +213,10 @@ export default {
 
       return `${formatTokenBalance(amount)} ${tokenName}`;
     },
+
+    swapPriceImpact() {
+      return formatPercent(formatToFixed(this.priceImpact, 2));
+    },
   },
 
   watch: {
@@ -214,6 +230,8 @@ export default {
 
   methods: {
     formatUSD,
+    formatPercent,
+    formatToFixed,
 
     async getGasCost() {
       const fromInputValue = this.actionConfig?.fromInputValue || 0n;
@@ -286,6 +304,12 @@ export default {
         args: config.args,
       });
     },
+  },
+
+  components: {
+    RowSkeleton: defineAsyncComponent(
+      () => import("@/components/ui/skeletons/RowSkeleton.vue")
+    ),
   },
 };
 </script>
@@ -378,6 +402,7 @@ export default {
   font-style: normal;
   font-weight: 500;
   line-height: normal;
+  height: 34px;
 }
 
 .price-impact-value {

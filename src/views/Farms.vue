@@ -66,7 +66,7 @@ import { defineAsyncComponent } from "vue";
 import { mapGetters, mapMutations } from "vuex";
 import { getFarmsList } from "@/helpers/farm/list/getFarmsList";
 import type { FarmItem } from "@/configs/farms/types";
-import type { SortOrder } from "@/types/common";
+import type { SortOrder } from "@/types/sorting";
 
 export default {
   data() {
