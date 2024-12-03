@@ -57,8 +57,12 @@ export const swapOdosRequest = async (
     );
 
     const { transaction } = assembleResponse.data;
-    const buyAmount = assembleResponse.data.outputTokens[0].amount;
-    const sellAmount = assembleResponse.data.inputTokens[0].amount;
+    const buyAmount = BigNumber.from(
+      assembleResponse.data.outputTokens[0].amount
+    );
+    const sellAmount = BigNumber.from(
+      assembleResponse.data.inputTokens[0].amount
+    );
 
     const slippagePercentage = slippage / 100;
 
@@ -68,8 +72,8 @@ export const swapOdosRequest = async (
       to: transaction.to,
       buyToken,
       sellToken,
-      buyAmount: BigNumber.from(buyAmount),
-      sellAmount: BigNumber.from(sellAmount),
+      buyAmount: buyAmount,
+      sellAmount: sellAmount,
       buyAmountWithSlippage: buyAmount
         .mul(
           BigNumber.from(
