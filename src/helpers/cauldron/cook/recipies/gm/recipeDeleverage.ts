@@ -1,12 +1,9 @@
 import store from "@/store";
 import { utils } from "ethers";
-import { BigNumber } from "ethers";
 import toAmount from "@/helpers/toAmount";
 import { USDC_ADDRESS } from "@/constants/gm";
 import { swapOdosRequest } from "@/helpers/odos";
 import { actions } from "@/helpers/cauldron/cook/actions";
-
-const SLIPPAGE_ACCURACY = 1e4;
 
 export const recipeDeleverage = async (
   cookData: any,
@@ -39,17 +36,10 @@ export const recipeDeleverage = async (
     [swapResponse.to, swapResponse.data]
   );
 
-  const slippagePercentage = slipage / 100;
-  //@ts-ignore
-  const buyAmountWithSlippage = swapResponse.buyAmount
-    .mul(
-      BigNumber.from(SLIPPAGE_ACCURACY - slippagePercentage * SLIPPAGE_ACCURACY)
-    )
-    .div(BigNumber.from(SLIPPAGE_ACCURACY));
-
   const buyShare = await bentoBox.toShare(
     mim.address,
-    buyAmountWithSlippage,
+    // @ts-ignore
+    swapResponse.buyAmountWithSlippage,
     false
   );
 

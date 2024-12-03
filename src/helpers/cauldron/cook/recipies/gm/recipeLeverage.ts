@@ -1,5 +1,4 @@
 import { utils } from "ethers";
-import { BigNumber } from "ethers";
 import toAmount from "@/helpers/toAmount";
 import { swapOdosRequest } from "@/helpers/odos";
 import { USDC_ADDRESS, ORDER_AGENT } from "@/constants/gm";
@@ -9,7 +8,6 @@ export const recipeLeverage = async (pool: any, amount: any, slipage: any) => {
   const chainId = pool.config.chainId;
   const mimAddress = pool.config.mimInfo.address;
   const buyToken = USDC_ADDRESS;
-  const SLIPPAGE_ACCURACY = 1e4;
 
   const shareFrom = await bentoBox.toShare(mimAddress, amount, false);
 
@@ -31,14 +29,8 @@ export const recipeLeverage = async (pool: any, amount: any, slipage: any) => {
     [swapResponse.to, swapResponse.data]
   );
 
-  const slippagePercentage = slipage / 100;
-
   //@ts-ignore
-  const minExpected = swapResponse.buyAmount
-    .mul(
-      BigNumber.from(SLIPPAGE_ACCURACY - slippagePercentage * SLIPPAGE_ACCURACY)
-    )
-    .div(BigNumber.from(SLIPPAGE_ACCURACY));
+  const minExpected = swapResponse.buyAmountWithSlippage;
 
   const swapStaticTx = await leverageSwapper.populateTransaction.swap(
     ORDER_AGENT,
