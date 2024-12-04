@@ -27,6 +27,8 @@ export type AdditionalPoolConfig = {
     isDeprecated: boolean;
     isMim: boolean;
     rewardPointsType?: RewardPointsTypes;
+    isLockAsStake?: boolean;
+    isDeprecatedFarm?: boolean;
   };
   stakeContract?: ContractInfo;
 };
@@ -38,6 +40,8 @@ type PoolSettings = {
   isMim: boolean;
   isPointsLogic?: boolean;
   rewardPointsType?: RewardPointsTypes;
+  isLockAsStake?: boolean;
+  isDeprecatedFarm?: boolean;
 };
 
 type InitialParameters = {
