@@ -6,7 +6,7 @@
   >
     <div class="label">{{ poolLabel }}</div>
     <div class="column">
-      <TokenPair :pool="pool" chainIcon />
+      <TokenPair :pool="pool" chainIcon :isFarm="isFarm" />
     </div>
 
     <div class="column">${{ tvl }}</div>
@@ -18,7 +18,7 @@
         name
         v-if="rewardPointsType"
       />
-      <div class="token-icons" v-else>
+      <div class="token-icons" v-else-if="rewardTokens?.length">
         <BaseTokenIcon
           v-for="(token, index) in rewardTokens"
           :icon="token.icon"
@@ -27,6 +27,7 @@
           :key="index"
         />
       </div>
+      <p v-else>-</p>
     </div>
 
     <div class="column apr">
@@ -35,7 +36,8 @@
         multiplier
         v-if="rewardPointsType"
       />
-      <span class="apr-value" v-else>{{ poolApr }}</span>
+      <span class="apr-value" v-else-if="poolApr">{{ poolApr }}</span>
+      <p v-else>-</p>
     </div>
   </router-link>
 </template>
@@ -52,6 +54,10 @@ export default {
     pool: {
       type: Object as PropType<MagicLPInfo>,
       required: true,
+    },
+    isFarm: {
+      type: Boolean,
+      default: false,
     },
   },
 

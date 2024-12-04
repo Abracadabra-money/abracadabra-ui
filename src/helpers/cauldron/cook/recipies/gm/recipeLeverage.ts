@@ -1,6 +1,7 @@
-import { USDC_ADDRESS, ORDER_AGENT } from "@/constants/gm";
+import { utils } from "ethers";
 import toAmount from "@/helpers/toAmount";
-import { swap0xRequest } from "@/helpers/0x";
+import { swapOdosRequest } from "@/helpers/odos";
+import { USDC_ADDRESS, ORDER_AGENT } from "@/constants/gm";
 
 export const recipeLeverage = async (pool: any, amount: any, slipage: any) => {
   const { leverageSwapper, bentoBox, mim } = pool.contracts;
@@ -11,20 +12,22 @@ export const recipeLeverage = async (pool: any, amount: any, slipage: any) => {
   const shareFrom = await bentoBox.toShare(mimAddress, amount, false);
 
   // to be sure that sell amount in 0x and amountOut inside call will be same
-  const amountToSwap = await toAmount(bentoBox, mimAddress, shareFrom);
+  const amountToSwap: any = await toAmount(bentoBox, mimAddress, shareFrom);
 
-  const swapResponse = await swap0xRequest(
+  const swapResponse = await swapOdosRequest(
     chainId,
     buyToken,
     mim.address,
     slipage,
-    //@ts-ignore
     amountToSwap,
     leverageSwapper.address
   );
 
-  //@ts-ignore
-  const swapData = swapResponse.data;
+  const swapData = utils.defaultAbiCoder.encode(
+    ["address", "bytes"],
+    // @ts-ignore
+    [swapResponse.to, swapResponse.data]
+  );
 
   //@ts-ignore
   const minExpected = swapResponse.buyAmountWithSlippage;
