@@ -1,8 +1,9 @@
-import { USDC_ADDRESS } from "@/constants/gm";
-import toAmount from "@/helpers/toAmount";
-import { swap0xRequest } from "@/helpers/0x";
-import { actions } from "@/helpers/cauldron/cook/actions";
 import store from "@/store";
+import { utils } from "ethers";
+import toAmount from "@/helpers/toAmount";
+import { USDC_ADDRESS } from "@/constants/gm";
+import { swapOdosRequest } from "@/helpers/odos";
+import { actions } from "@/helpers/cauldron/cook/actions";
 
 export const recipeDeleverage = async (
   cookData: any,
@@ -19,7 +20,7 @@ export const recipeDeleverage = async (
 
   const amountToSwap = await toAmount(bentoBox, sellToken, shareFrom);
 
-  const swapResponse = await swap0xRequest(
+  const swapResponse = await swapOdosRequest(
     chainId,
     mim.address,
     sellToken,
@@ -29,9 +30,15 @@ export const recipeDeleverage = async (
     liquidationSwapper.address
   );
 
+  const swapData = utils.defaultAbiCoder.encode(
+    ["address", "bytes"],
+    // @ts-ignore
+    [swapResponse.to, swapResponse.data]
+  );
+
   const buyShare = await bentoBox.toShare(
     mim.address,
-    //@ts-ignore
+    // @ts-ignore
     swapResponse.buyAmountWithSlippage,
     false
   );
@@ -42,8 +49,7 @@ export const recipeDeleverage = async (
     userAddr,
     shareToMin.eq(0) ? buyShare : shareToMin,
     shareFrom,
-    //@ts-ignore
-    swapResponse.data,
+    swapData,
     {
       gasLimit: 1000000000,
     }
