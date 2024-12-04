@@ -5,6 +5,8 @@ import axios from "axios";
 import rateLimit from "axios-rate-limit";
 import type { Address } from "viem";
 
+const SLIPPAGE_ACCURACY = 1e4;
+
 // rate limit to avoid 429 error
 const http = rateLimit(axios.create(), {
   maxRequests: 1,
@@ -55,8 +57,14 @@ export const swapOdosRequest = async (
     );
 
     const { transaction } = assembleResponse.data;
-    const buyAmount = assembleResponse.data.outputTokens[0].amount;
-    const sellAmount = assembleResponse.data.inputTokens[0].amount;
+    const buyAmount = BigNumber.from(
+      assembleResponse.data.outputTokens[0].amount
+    );
+    const sellAmount = BigNumber.from(
+      assembleResponse.data.inputTokens[0].amount
+    );
+
+    const slippagePercentage = slippage / 100;
 
     return {
       response: assembleResponse.data,
@@ -64,8 +72,15 @@ export const swapOdosRequest = async (
       to: transaction.to,
       buyToken,
       sellToken,
-      buyAmount: BigNumber.from(buyAmount),
-      sellAmount: BigNumber.from(sellAmount),
+      buyAmount: buyAmount,
+      sellAmount: sellAmount,
+      buyAmountWithSlippage: buyAmount
+        .mul(
+          BigNumber.from(
+            SLIPPAGE_ACCURACY - slippagePercentage * SLIPPAGE_ACCURACY
+          )
+        )
+        .div(BigNumber.from(SLIPPAGE_ACCURACY)),
     };
   } catch (error) {
     console.log("swapOdosRequest error:", error);
