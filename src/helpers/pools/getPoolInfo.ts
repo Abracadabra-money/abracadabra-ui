@@ -44,8 +44,12 @@ export const getPoolInfo = async (
     swapRouter: getSwapRouterByChain(Number(poolChainId)),
   };
 
-  if (account && poolConfig.lockContract)
+  if (account && poolConfig.lockContract) {
     poolInfo.lockInfo = await getLockInfo(account, poolChainId, poolConfig);
+    poolInfo.stakeInfo = parseLockAsStake(poolInfo.lockInfo);
+    poolInfo.stakeContract = poolConfig.lockContract;
+  }
+
 
   if (poolConfig.stakeContract)
     poolInfo.poolAPR = await getPoolApr(poolChainId, poolInfo, tokensPrices);
@@ -203,6 +207,15 @@ export const getStakeInfo = async (
     earnedInfo,
   };
 };
+
+export const parseLockAsStake = (lockInfo: any) => {
+  return {
+    balance: lockInfo.balances.unlocked,
+    allowance: lockInfo.allowance,
+    earned: 0,
+    earnedInfo: [],
+  };
+}
 
 export const getUserLocks = async (
   account: Address,

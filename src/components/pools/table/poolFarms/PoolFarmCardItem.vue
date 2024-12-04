@@ -5,7 +5,7 @@
   >
     <div class="label">{{ poolLabel }}</div>
 
-    <TokenPair :pool="pool" chainIcon />
+    <TokenPair :pool="pool" chainIcon :isFarm="isFarm" />
 
     <div class="indicator">
       <h3 class="title">TVL</h3>
@@ -22,7 +22,7 @@
         v-if="rewardPointsType"
       />
 
-      <div class="token-icons" v-else>
+      <div class="token-icons" v-else-if="rewardTokens?.length">
         <BaseTokenIcon
           v-for="(token, index) in rewardTokens"
           :icon="token.icon"
@@ -31,14 +31,16 @@
           :key="index"
         />
       </div>
+      <p v-else>-</p>
     </div>
 
     <div class="indicator">
       <div v-if="!rewardPointsType">
         <h3 class="title">APR</h3>
-        <div class="value apr">
+        <div class="value apr" v-if="poolApr">
           {{ poolApr }}
         </div>
+        <p v-else>-</p>
       </div>
 
       <div v-else>
@@ -65,6 +67,10 @@ export default {
     pool: {
       type: Object,
       required: true,
+    },
+    isFarm: {
+      type: Boolean,
+      default: false,
     },
   },
 
