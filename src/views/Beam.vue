@@ -79,35 +79,39 @@
         </p>
       </div>
 
-      <ChainsPopup
-        v-if="isOpenNetworkPopup"
-        :isOpen="isOpenNetworkPopup"
-        :popupType="popupType"
-        :beamInfoObject="beamInfoObject"
-        :selectedFromChain="fromChain"
-        :selectedToChain="toChain"
-        @closePopup="closeNetworkPopup"
-        @changeChain="changeChain"
-      />
+      <TransitionWrapper appear v-if="isOpenNetworkPopup">
+        <ChainsPopup
+          :isOpen="isOpenNetworkPopup"
+          :popupType="popupType"
+          :beamInfoObject="beamInfoObject"
+          :selectedFromChain="fromChain"
+          :selectedToChain="toChain"
+          @closePopup="closeNetworkPopup"
+          @changeChain="changeChain"
+        />
+      </TransitionWrapper>
 
-      <SettingsPopup
-        v-if="isSettingsOpened && toChain"
-        :beamInfoObject="beamInfoObject"
-        :dstChainInfo="toChain"
-        :dstNativeTokenAmount="dstTokenAmount"
-        :mimAmount="inputAmount"
-        @onUpdateAmount="updateDstNativeTokenAmount"
-        @closeSettings="isSettingsOpened = false"
-      />
+      <TransitionWrapper appear v-if="isSettingsOpened && toChain">
+        <SettingsPopup
+          :beamInfoObject="beamInfoObject"
+          :dstChainInfo="toChain"
+          :dstNativeTokenAmount="dstTokenAmount"
+          :mimAmount="inputAmount"
+          @onUpdateAmount="updateDstNativeTokenAmount"
+          @closeSettings="isSettingsOpened = false"
+        />
+      </TransitionWrapper>
     </div>
   </div>
 
-  <SuccessPopup
-    v-if="isOpenSuccessPopup && beamInfoObject"
-    :beamInfoObject="beamInfoObject"
-    :successData="successData"
-    @close-popup="isOpenSuccessPopup = false"
-  />
+  <TransitionWrapper>
+    <SuccessPopup
+      v-if="isOpenSuccessPopup && beamInfoObject"
+      :beamInfoObject="beamInfoObject"
+      :successData="successData"
+      @close-popup="isOpenSuccessPopup = false"
+    />
+  </TransitionWrapper>
 </template>
 
 <script lang="ts">
@@ -630,6 +634,9 @@ export default {
     ),
     ExpectedBlock: defineAsyncComponent(
       () => import("@/components/beam/ExpectedBlock.vue")
+    ),
+    TransitionWrapper: defineAsyncComponent(
+      () => import("@/components/ui/TransitionWrapper.vue")
     ),
   },
 };
