@@ -8,36 +8,38 @@
       @click="() => (showPopup = !showPopup)"
     />
 
-    <div class="slippage-popup" v-if="showPopup">
-      <div class="title-wrap">
-        <h3>Slippage settings</h3>
+    <TransitionWrapper>
+      <div class="slippage-popup" v-if="showPopup">
+        <div class="title-wrap">
+          <h3>Slippage settings</h3>
 
-        <TooltipIcon
-          :width="24"
-          :height="24"
-          tooltip="Transaction will revert if the leveraged amount changes by this percent."
-        />
+          <TooltipIcon
+            :width="24"
+            :height="24"
+            tooltip="Transaction will revert if the leveraged amount changes by this percent."
+          />
+        </div>
+
+        <div class="row">
+          <input
+            class="input"
+            v-model="inputValue"
+            min="0"
+            max="100"
+            step="1"
+            type="text"
+            placeholder="1 - 100"
+          />
+
+          <button
+            :class="['auto-button', { active: isActiveAutoButton }]"
+            @click="getDefaultSlippage"
+          >
+            Auto
+          </button>
+        </div>
       </div>
-
-      <div class="row">
-        <input
-          class="input"
-          v-model="inputValue"
-          min="0"
-          max="100"
-          step="1"
-          type="text"
-          placeholder="1 - 100"
-        />
-
-        <button
-          :class="['auto-button', { active: isActiveAutoButton }]"
-          @click="getDefaultSlippage"
-        >
-          Auto
-        </button>
-      </div>
-    </div>
+    </TransitionWrapper>
   </div>
 </template>
 <script lang="ts">
@@ -106,6 +108,9 @@ export default {
     ),
     IconButton: defineAsyncComponent(
       () => import("@/components/ui/buttons/IconButton.vue")
+    ),
+    TransitionWrapper: defineAsyncComponent(
+      () => import("@/components/ui/TransitionWrapper.vue")
     ),
   },
 };

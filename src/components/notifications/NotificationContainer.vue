@@ -1,23 +1,29 @@
 <template>
   <div class="notification-container">
-    <transition-group name="list">
+    <TransitionGroup @before-enter="beforeEnter" @enter="enter" @leave="leave">
       <NotificationItem
         v-for="notification in notifications"
         :notification="notification"
         :key="notification.id"
       />
-    </transition-group>
+    </TransitionGroup>
   </div>
 </template>
 
 <script lang="ts">
-import NotificationItem from "@/components/notifications/Notification.vue";
 import { mapGetters } from "vuex";
+import { useAnimation } from "@/helpers/useAnimation/useAnimation";
+import NotificationItem from "@/components/notifications/Notification.vue";
 
 export default {
   computed: {
     ...mapGetters({ notifications: "notifications/getAll" }),
   },
+
+  methods: {
+    ...useAnimation("notification"),
+  },
+
   components: {
     NotificationItem,
   },
@@ -38,16 +44,6 @@ export default {
   & .notification-item {
     margin-bottom: 20px;
   }
-}
-
-.list-enter-active,
-.list-leave-active {
-  transition: all 0.4s;
-}
-.list-enter,
-.list-leave-to {
-  opacity: 0;
-  transform: translateY(30px);
 }
 
 @media (max-width: 600px) {
