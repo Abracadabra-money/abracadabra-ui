@@ -48,6 +48,16 @@
         :actionType="2"
       />
     </div>
+
+    <Warning
+      mark="exclamation"
+      v-tooltip="
+        'deUSD/sdeUSD on chain liquidity is low, please consider closing your position manually to reduce slippage.'
+      "
+      v-if="showDeleverageWarning"
+    >
+      Low liquidity warning
+    </Warning>
   </div>
 </template>
 
@@ -177,6 +187,16 @@ export default {
 
       return status;
     },
+
+    showDeleverageWarning() {
+      console.log(this.cauldron);
+      const cauldronAddress = this.cauldron.config.contract.address;
+
+      return (
+        cauldronAddress == "0x00380CB5858664078F2289180CC32F74440AC923" ||
+        cauldronAddress == "0x38E7D1e4E2dE5b06b6fc9A91C2c37828854A41bb"
+      );
+    },
   },
 
   watch: {
@@ -222,11 +242,13 @@ export default {
     GmPriceImpact: defineAsyncComponent(
       () => import("@/components/market/GmPriceImpact.vue")
     ),
-
     SlippagePopup: defineAsyncComponent(
       () => import("@/components/popups/SlippagePopup.vue")
     ),
     Toggle: defineAsyncComponent(() => import("@/components/ui/Toggle.vue")),
+    Warning: defineAsyncComponent(
+      () => import("@/components/ui/info/Warning.vue")
+    ),
   },
 };
 </script>
@@ -273,5 +295,10 @@ export default {
     rgba(116, 92, 210, 0.12) 100%
   );
   padding: 5px 12px;
+}
+
+.warning-wrap {
+  padding: 4px 8px;
+  cursor: pointer;
 }
 </style>
