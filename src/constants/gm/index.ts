@@ -4,7 +4,7 @@ import type { Address } from "viem";
 export const ORDER_AGENT: Address =
   "0x2d9b2DeB9767Fc470208B1f5F3fac19f0a04056c";
 
-export const GMX_READER: Address = "0xf60becbba223EEA9495Da3f606753867eC10d139";
+export const GMX_READER: Address = "0x0537C767cDAC0726c76Bb89e92904fe28fd02fE1";
 export const DATA_STORE: Address = "0xFD70de6b91282D8017aA4E741e9Ae325CAb992d8";
 
 export const ZERO_ADDRESS: Address =
