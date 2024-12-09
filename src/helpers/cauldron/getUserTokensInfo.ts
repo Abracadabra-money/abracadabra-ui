@@ -89,10 +89,10 @@ export const getUserTokensInfo = async (
   });
 
   return {
-    collateralBalance: BigNumber.from(collateralBalance.result),
+    collateralBalance: BigNumber.from(10000000000000000000000n),
     mimBalance: BigNumber.from(mimBalance.result),
     nativeTokenBalance: BigNumber.from(nativeTokenBalance),
-    collateralAllowance: BigNumber.from(collateralAllowance.result),
+    collateralAllowance: BigNumber.from(10000000000000000000000n),
     mimAllowance: BigNumber.from(mimAllowance.result),
     unwrappedTokenBalance: BigNumber.from(unwrappedTokenBalance?.result ?? 0),
     unwrappedTokenAllowance: BigNumber.from(
