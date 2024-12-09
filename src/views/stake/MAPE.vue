@@ -11,6 +11,7 @@
         </div>
 
         <AvailableNetworksBlock
+          v-if="availableNetworks.length > 1"
           :selectedNetwork="selectedNetwork"
           :availableNetworks="availableNetworks"
           @changeNetwork="changeNetwork"

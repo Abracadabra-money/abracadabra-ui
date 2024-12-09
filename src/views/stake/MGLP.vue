@@ -11,6 +11,7 @@
         </div>
 
         <AvailableNetworksBlock
+          v-if="availableNetworks.length > 1"
           :selectedNetwork="selectedNetwork"
           :availableNetworks="availableNetworks"
           @changeNetwork="changeNetwork"
@@ -109,7 +110,7 @@ export default {
       activeTab: "stake",
       tabItems: ["stake", "unstake"],
       selectedNetwork: 42161,
-      availableNetworks: [42161, 43114],
+      availableNetworks: [42161],
       stakeInfoArr: null as null | MagicGlpStakeInfo[],
       inputAmount: BigInt(0),
       inputValue: "" as string | bigint,

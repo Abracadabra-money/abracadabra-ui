@@ -6,8 +6,7 @@ import type { ContractInfo } from "@/types/global";
 import magicGlpHarvestorAbi from "@/abis/MagicGlpHarvestor";
 
 export type MagicGlpConfigs = {
-  42161: ChainConfig;
-  43114: ChainConfig;
+  [key: string]: ChainConfig;
 };
 
 export type ChainConfig = {
@@ -88,48 +87,48 @@ export const magicGlpConfig: MagicGlpConfigs = {
       isArbitrumChain: true,
     },
   },
-  43114: {
-    harvestor: {
-      address: "0x05b3b96df07b4630373ae7506e51777b547335b0",
-      abi: magicGlpHarvestorAbi,
-    },
-    mainToken: {
-      name: "magicGLP",
-      decimals: 18,
-      icon: useImage("assets/images/tokens/mGlpToken.png"),
-      rateIcon: useImage("assets/images/glp/mGlpNew.png"),
-      contract: {
-        address: "0x5EFC10C353FA30C5758037fdF0A233e971ECc2e0",
-        abi: tokensAbi.magicGLP,
-      },
-    },
-    stakeToken: {
-      name: "GLP",
-      decimals: 18,
-      icon: useImage(`assets/images/tokens/GLP.png`),
-      contract: {
-        address: "0xae64d55a6f09e4263421737397d1fdfa71896a69",
-        abi: tokensAbi.sGLP,
-      },
-    },
-    oracle: {
-      address: "0x3Cc89EA432c36c8F96731765997722192202459D",
-      abi: oracleAbi,
-    },
-    chainLink: {
-      address: "0x0a77230d17318075983913bc2145db16c7366156",
-      abi: chainLinkAbi,
-    },
-    additionalInfo: {
-      rewardToken: {
-        symbol: "AVAX",
-        icon: useImage("assets/images/tokens/AVAX.png"),
-      },
-      leverageInfo: {
-        label: "Abracadabra Leverage Engine is being developed, stay tuned!",
-      },
-      timestampProp: "timestamp",
-      isAvaxChain: true,
-    },
-  },
+  // 43114: {
+  //   harvestor: {
+  //     address: "0x05b3b96df07b4630373ae7506e51777b547335b0",
+  //     abi: magicGlpHarvestorAbi,
+  //   },
+  //   mainToken: {
+  //     name: "magicGLP",
+  //     decimals: 18,
+  //     icon: useImage("assets/images/tokens/mGlpToken.png"),
+  //     rateIcon: useImage("assets/images/glp/mGlpNew.png"),
+  //     contract: {
+  //       address: "0x5EFC10C353FA30C5758037fdF0A233e971ECc2e0",
+  //       abi: tokensAbi.magicGLP,
+  //     },
+  //   },
+  //   stakeToken: {
+  //     name: "GLP",
+  //     decimals: 18,
+  //     icon: useImage(`assets/images/tokens/GLP.png`),
+  //     contract: {
+  //       address: "0xae64d55a6f09e4263421737397d1fdfa71896a69",
+  //       abi: tokensAbi.sGLP,
+  //     },
+  //   },
+  //   oracle: {
+  //     address: "0x3Cc89EA432c36c8F96731765997722192202459D",
+  //     abi: oracleAbi,
+  //   },
+  //   chainLink: {
+  //     address: "0x0a77230d17318075983913bc2145db16c7366156",
+  //     abi: chainLinkAbi,
+  //   },
+  //   additionalInfo: {
+  //     rewardToken: {
+  //       symbol: "AVAX",
+  //       icon: useImage("assets/images/tokens/AVAX.png"),
+  //     },
+  //     leverageInfo: {
+  //       label: "Abracadabra Leverage Engine is being developed, stay tuned!",
+  //     },
+  //     timestampProp: "timestamp",
+  //     isAvaxChain: true,
+  //   },
+  // },
 };
