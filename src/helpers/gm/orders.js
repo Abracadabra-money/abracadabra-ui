@@ -41,10 +41,13 @@ export const getOrderStatus = async (
   const currentOrder = await cauldron.orders(user);
   const itsZero = currentOrder === ZERO_ADDRESS;
   const isDeposit = await orderContract.depositType();
-  const { balanceUSDC } = await getOrderBalances(
+  const { balanceUSDC, balanceWBTC, balanceWETH } = await getOrderBalances(
     orderContract.address,
     provider
   );
+
+  const orderBalances = [balanceUSDC, balanceWBTC, balanceWETH];
+  const isEmptyBalances = orderBalances.every((balance) => balance.eq(0));
 
   const collateralAddress = await cauldron.collateral();
   const collateralContract = new Contract(collateralAddress, ERC20, provider);
@@ -52,13 +55,13 @@ export const getOrderStatus = async (
     orderContract.address
   );
 
-  if (!isActive && balanceUSDC.eq(0) && balanceCollateral.gt(0))
+  if (!isActive && isEmptyBalances && balanceCollateral.gt(0))
     return ORDER_TYPE_UNFINISHED_LEVERAGE;
 
-  if ((isDeposit && itsZero) || (isDeposit && balanceUSDC.eq(0)))
+  if ((isDeposit && itsZero) || (isDeposit && isEmptyBalances))
     return ORDER_SUCCESS;
 
-  if (!isDeposit && balanceUSDC.gt(0)) return ORDER_SUCCESS;
+  if (!isDeposit && !isEmptyBalances) return ORDER_SUCCESS;
 
   return ORDER_FAIL;
 };
