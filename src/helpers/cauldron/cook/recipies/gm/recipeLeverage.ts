@@ -10,8 +10,10 @@ export const recipeLeverage = async (pool: any, amount: any, slipage: any) => {
   const chainId = pool.config.chainId;
   const mimAddress = pool.config.mimInfo.address;
 
+  console.log("recipeLeverage", pool);
+
   // TODO: condition for different tokens
-  const buyToken = pool.additionalData.gmInfo.marketInfo.shortToken;
+  const buyToken = pool.additionalInfo.gmInfo.marketInfo.shortToken;
   // const buyToken = getSwapTokenByMarket(pool.config.collateralInfo.address);
 
   const shareFrom = await bentoBox.toShare(mimAddress, amount, false);

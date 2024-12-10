@@ -16,7 +16,7 @@ export const recipeDeleverage = async (
 
   const userAddr = store.getters.getAccount; // TODO: add to payload
 
-  const sellToken = pool.additionalData.gmInfo.marketInfo.shortToken;
+  const sellToken = pool.additionalInfo.gmInfo.marketInfo.shortToken;
 
   //const sellToken = getSwapTokenByMarket(pool.config.collateralInfo.address);
   const chainId = pool.config.chainId;
