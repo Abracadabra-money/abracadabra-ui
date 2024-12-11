@@ -93,12 +93,11 @@ export default {
           `Location fetching unsuccessful: ${location.data.message}`
         );
 
-      const isVPN = location.data.security?.vpn;
+      // const isVPN = location.data.security?.vpn;
 
       if (
         this.country.includes(location.data.country) ||
-        this.region.includes(location.data.region) ||
-        isVPN
+        this.region.includes(location.data.region)
       )
         document.location.href = "https://abracadabra.money/location";
     } catch (error) {

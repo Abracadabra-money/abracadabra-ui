@@ -52,11 +52,11 @@
     <Warning
       mark="exclamation"
       v-tooltip="
-        'deUSD/sdeUSD on chain liquidity is low, please consider closing your position manually to reduce slippage.'
+        'Deleveraging is dependent on sdeUSD/deUSD liquidity. Please verify current liquidity levels before proceeding to ensure minimal slippage.'
       "
       v-if="showDeleverageWarning"
     >
-      Low liquidity warning
+    Liquidity-Dependent Action
     </Warning>
   </div>
 </template>
