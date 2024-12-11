@@ -582,11 +582,11 @@ const config: Array<CauldronConfig> = [
     },
     mimInfo,
     leverageInfo: {
-      address: "0xE2c6322190f3e8b2730e9b79f6de1CE21715dd74",
+      address: "0x2d99D20693787cf7896C746185b7aBE3b4FB62D0",
       abi: gmLevSwapperAbi,
     },
     deleverageInfo: {
-      address: "0x40107186Bd4b60Dfa8c292E46675e080f9d67b6D",
+      address: "0x988D95d38bE1Be9BCFAdB795654C74aBD5AD7B70",
       abi: gmLiqSwapper,
     },
   },
@@ -626,11 +626,11 @@ const config: Array<CauldronConfig> = [
     },
     mimInfo,
     leverageInfo: {
-      address: "0xE2c6322190f3e8b2730e9b79f6de1CE21715dd74",
+      address: "0xC8EF845433E749d48B5F70fd4634d92177FDe5BF",
       abi: gmLevSwapperAbi,
     },
     deleverageInfo: {
-      address: "0x40107186Bd4b60Dfa8c292E46675e080f9d67b6D",
+      address: "0x45C208D5c590caeE3B047aEF09f7e1D32899A126",
       abi: gmLiqSwapper,
     },
   },

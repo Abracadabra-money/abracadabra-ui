@@ -38,7 +38,7 @@ export const recipeLeverage = async (pool: any, amount: any, slipage: any) => {
 
   //@ts-ignore
   const minExpected = swapResponse.buyAmountWithSlippage;
-
+  
   const swapStaticTx = await leverageSwapper.populateTransaction.swap(
     ORDER_AGENT,
     minExpected,

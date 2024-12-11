@@ -60,7 +60,7 @@ export const getDepositAmount = async (
     shortTokenAmount,
     uiFeeReceiver
   );
-
+  
   return applySlippageToMinOut(DEFAULT_SLIPPAGE_AMOUNT, depositAmountOut);
 };
 

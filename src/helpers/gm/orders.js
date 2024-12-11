@@ -2,7 +2,12 @@ import orderAbi from "@/abis/gm/order";
 import ERC20 from "@/abis/zeroXSwap/ERC20";
 import { Contract } from "ethers";
 
-import { USDC_ADDRESS, WETH_ADDRESS, ZERO_ADDRESS, WBTC_ADDRESS } from "@/constants/gm";
+import {
+  USDC_ADDRESS,
+  WETH_ADDRESS,
+  ZERO_ADDRESS,
+  WBTC_ADDRESS,
+} from "@/constants/gm";
 
 export const ORDER_PENDING = 0;
 export const ORDER_SUCCESS = 1;
@@ -27,6 +32,28 @@ export const getOrderBalances = async (order, provider) => {
     balanceUSDC,
     balanceWBTC,
   };
+};
+
+export const getOrderTokensInfo = async (order, provider) => {
+  const { balanceWETH, balanceUSDC, balanceWBTC } = await getOrderBalances(
+    order,
+    provider
+  );
+
+  return [
+    {
+      address: WETH_ADDRESS,
+      balance: balanceWETH,
+    },
+    {
+      address: USDC_ADDRESS,
+      balance: balanceUSDC,
+    },
+    {
+      address: WBTC_ADDRESS,
+      balance: balanceWBTC,
+    },
+  ];
 };
 
 export const getOrderStatus = async (
