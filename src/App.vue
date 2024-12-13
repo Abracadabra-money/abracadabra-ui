@@ -1,6 +1,6 @@
 <template>
   <AppHeader />
-  <div class="router-wrap" :style="pageBackground">
+  <div class="router-wrap">
     <img
       class="mim-top-bg"
       src="@/assets/images/main-mim-top-bg.png"

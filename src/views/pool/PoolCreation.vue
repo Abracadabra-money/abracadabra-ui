@@ -388,7 +388,6 @@ export default {
         "1",
         tokenDecimalsDifference
       );
-
       if (type == TokenTypes.Base) {
         this.actionConfig.baseInAmount = amount;
 
@@ -401,12 +400,15 @@ export default {
       } else {
         this.actionConfig.quoteInAmount = amount;
 
+        const decimalsEqual = !tokenDecimalsDifference;
+
         const baseAmountWithPrecision = isBaseDecimalsGreater
           ? RATE_PRECISION / tokensDecimalsDifferencePrecision
           : RATE_PRECISION * tokensDecimalsDifferencePrecision;
 
         this.actionConfig.baseInAmount = amount
-          ? (amount * this.IforCalc + baseAmountWithPrecision) /
+          ? (amount * this.IforCalc +
+              (decimalsEqual ? 0n : baseAmountWithPrecision)) /
             baseAmountWithPrecision
           : 0n;
       }
@@ -481,6 +483,7 @@ export default {
 
     updateTokensRate(I: bigint) {
       this.IforCalc = I;
+
       const decimalsDifferense = Math.abs(RATE_DECIMALS - this.IValueDecimals);
       const differencePrecision = parseUnits("1", decimalsDifferense);
       this.actionConfig.I =
@@ -824,9 +827,13 @@ export default {
   width: fit-content;
 }
 
-@media (max-width: 1200px) {
+.warning-wrap {
+  padding: 16px 22px 19px 12px;
+}
+
+@media (max-width: 1300px) {
   .pool-creation-wrap {
-    grid-template-columns: 400px 1fr;
+    grid-template-columns: 1fr minmax(500px, 600px);
   }
 }
 
@@ -834,6 +841,7 @@ export default {
   .pool-creation-wrap {
     display: flex;
     flex-direction: column;
+    max-width: 500px;
   }
 }
 

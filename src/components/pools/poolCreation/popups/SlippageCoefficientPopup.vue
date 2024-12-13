@@ -51,9 +51,9 @@
         </li>
       </ul>
 
-      <BaseButton primary :disabled="!!error" @click="selectKvalue"
-        >Select</BaseButton
-      >
+      <BaseButton primary :disabled="!!error" @click="selectKvalue">
+        Save
+      </BaseButton>
     </div>
   </div>
 </template>
@@ -329,6 +329,10 @@ export default {
   font-family: Prompt;
   font-size: 14px;
   font-weight: 400;
+}
+
+.default-button {
+  min-height: 39px;
 }
 
 @media (max-width: 600px) {

@@ -51,7 +51,7 @@ export const validationActions = (
 
   if (identicalPoolExists && !mobileMode)
     return {
-      btnText: "Go To Identical",
+      btnText: "Go to identical pool’s page",
       isAllowed: true,
       method: "goToIdenticalPool",
     };
