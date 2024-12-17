@@ -93,7 +93,6 @@ export default {
     },
 
     isIdentical() {
-      //todo consider I factor
       return checkIdentity(this.pool, this.actionConfig);
     },
   },
