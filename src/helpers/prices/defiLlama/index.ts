@@ -68,6 +68,10 @@ const coingeckoCoinsIds = [
     addresses: ["0x471EE749bA270eb4c1165B5AD95E614947f6fCeb"],
   },
   {
+    id: "magic-internet-money",
+    addresses: ["0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A"],
+  },
+  {
     id: "spell-token",
     addresses: ["0x55be39c912621606683dee44c4ab2dde083bc925"],
   },
