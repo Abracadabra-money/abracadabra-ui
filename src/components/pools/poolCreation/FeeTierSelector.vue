@@ -2,7 +2,9 @@
   <div class="fee-tier-selector-wrap">
     <h4 class="action-title">
       Select a Fee Tier
-      <Tooltip tooltip="tooltip" />
+      <Tooltip
+        tooltip="Swap fee traders will pay for trading within this pool"
+      />
     </h4>
     <ul class="fee-tier-options" v-if="poolType">
       <li

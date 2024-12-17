@@ -5,8 +5,7 @@
         <div class="chosen-creation-type" v-if="!mobileMode">
           <h3 class="creation-type-title">{{ poolType }} Pool Type</h3>
           <p class="creation-type-description">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor
+            {{ poolTypeDescription }}
           </p>
         </div>
 
@@ -103,6 +102,12 @@ export default {
 
     formattedKValue() {
       return formatUnits(this.kValue || 0n, K_VALUE_DECIMALS);
+    },
+
+    poolTypeDescription() {
+      return this.poolType == PoolTypes.Standard
+        ? "Suitable for most assets"
+        : "Optimized for synthetic assets";
     },
   },
 

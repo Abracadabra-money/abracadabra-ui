@@ -1,6 +1,6 @@
 <template>
   <div class="empty-similar-pool">
-    <p class="text">Similar Pools will appear here</p>
+    <p class="text">Similar Pool will appear here</p>
   </div>
 </template>
 

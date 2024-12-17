@@ -11,8 +11,7 @@
       />
       <span class="name">Pegged</span>
       <p class="description">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-        tempor
+        Liquidity is highly concentrated around specific price level
       </p>
 
       <RadioButton :active="poolType == PoolTypes.Pegged" />
@@ -29,8 +28,7 @@
       />
       <span class="name">Standard</span>
       <p class="description">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-        tempor
+        Classic AMM pool, the 'K' value is always fixed at 1
       </p>
 
       <RadioButton :active="poolType == PoolTypes.Standard" />

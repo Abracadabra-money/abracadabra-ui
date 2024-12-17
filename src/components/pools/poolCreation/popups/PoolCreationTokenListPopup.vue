@@ -6,6 +6,7 @@
       class="input-search"
       @input="changeSearch"
       :disabled="isSearching"
+      placeholder="Search name or paste address"
     />
 
     <template v-if="popularTokens.length">

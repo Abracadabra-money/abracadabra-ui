@@ -16,7 +16,7 @@
 
     <input
       type="text"
-      placeholder="Search"
+      :placeholder="placeholder"
       class="search-input"
       :disabled="disabled"
       @input="changeSearch"
@@ -28,6 +28,7 @@
 export default {
   props: {
     disabled: { type: Boolean, default: false },
+    placeholder: { type: String, default: "Search" },
   },
 
   methods: {
