@@ -1784,7 +1784,7 @@ const config: Array<CauldronConfig> = [
     borrowFee: 0.5,
     version: 4,
     cauldronSettings: {
-      isNew: true,
+      isNew: false,
       isSwappersActive: true,
       is0xSwap: true, // NOTICE: here the ODOS Api is used and not 0x 
       isDegenBox: true,

@@ -484,7 +484,7 @@ const config: Array<CauldronConfig> = [
     borrowFee: 1,
     version: 4,
     cauldronSettings: {
-      isNew: true,
+      isNew: false,
       is0xSwap: true,
       isSwappersActive: false,
       isDegenBox: true,
@@ -520,7 +520,7 @@ const config: Array<CauldronConfig> = [
     borrowFee: 1,
     version: 4,
     cauldronSettings: {
-      isNew: true,
+      isNew: false,
       is0xSwap: true,
       isSwappersActive: false,
       isDegenBox: true,
