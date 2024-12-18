@@ -26,8 +26,8 @@
             v-model="inputValue"
             min="0"
             max="100"
-            step="1"
-            type="text"
+            step="0.1"
+            type="number"
             placeholder="1 - 100"
           />
 
