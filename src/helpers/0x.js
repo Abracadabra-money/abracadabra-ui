@@ -1,4 +1,4 @@
-import { BigNumber } from "ethers";
+import { BigNumber, utils } from "ethers";
 import axios from "axios";
 import rateLimit from "axios-rate-limit";
 
@@ -10,6 +10,7 @@ const http = rateLimit(axios.create(), {
 });
 
 const SLIPPAGE_ACCURACY = 1e4;
+const SLIPPAGE_DECIMALS = 4;
 
 const endpoints = {
   1: "https://api.0x.org",
@@ -109,7 +110,8 @@ export const swap0xRequestV2 = async (
   amountBuy = 0
 ) => {
   try {
-    const slippagePercentage = slippage / 100;
+    const slippageBN = utils.parseUnits(slippage, SLIPPAGE_DECIMALS);
+    const slippagePercentage = utils.formatUnits(slippageBN.div(100), SLIPPAGE_DECIMALS);
 
     let params;
 
