@@ -15,7 +15,7 @@ const cookRecoverFaliedLeverage = async (
   //@ts-ignore
   const { collateral } = cauldronObject.contracts;
   const provider = store.getters.getProvider;
-  const { balanceUSDC, balanceWETH } = await getOrderBalances(order, provider);
+  const { balanceUSDC, balanceWETH, balanceWBTC } = await getOrderBalances(order, provider);
 
   let cookData: CookData = {
     events: [],
@@ -42,6 +42,7 @@ const cookRecoverFaliedLeverage = async (
   );
 
   const { updatedCookData, executionFee } = await recipeCreateLeverageOrder(
+    cauldronObject,
     cookData,
     collateral.address,
     balanceUSDC

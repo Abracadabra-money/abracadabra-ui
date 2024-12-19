@@ -1,5 +1,5 @@
 import { actions } from "@/helpers/cauldron/cook/actions";
-import { USDC_ADDRESS } from "@/constants/gm";
+import { USDC_ADDRESS, WBTC_ADDRESS } from "@/constants/gm";
 import { getGasLimits } from "@/helpers/gm/fee/getGasLimits";
 import {
   estimateExecuteDepositGasLimit,
@@ -11,12 +11,15 @@ import store from "@/store";
 
 import { BigNumber } from "ethers";
 
+import type { CauldronInfo } from "@/helpers/cauldron/types";
+
 export const recipeCreateLeverageOrder = async (
+  cauldronObject: CauldronInfo,
   cookData: any,
   market: any,
   inputAmount: any
 ) => {
-  const inputToken = USDC_ADDRESS;
+  const inputToken = cauldronObject.additionalInfo.gmInfo.marketInfo.shortToken;
   const deposit = true;
 
   const provider = store.getters.getProvider;
@@ -36,6 +39,7 @@ export const recipeCreateLeverageOrder = async (
     inputAmount,
     provider
   );
+
   const minOutLong = 0; // ok for leverage
 
   const updatedCookData = actions.createOrder(

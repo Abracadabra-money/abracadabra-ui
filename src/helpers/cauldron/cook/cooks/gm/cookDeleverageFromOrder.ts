@@ -1,8 +1,8 @@
 // @ts-nocheck
 import store from "@/store";
-import { getOrderBalances } from "@/helpers/gm/orders";
+import { getOrderTokensInfo } from "@/helpers/gm/orders";
 import { actions } from "@/helpers/cauldron/cook/actions";
-import { USDC_ADDRESS } from "@/constants/gm";
+import { USDC_ADDRESS, WETH_ADDRESS, WBTC_ADDRESS } from "@/constants/gm";
 import { recipeDeleverage } from "@/helpers/cauldron/cook/recipies/gm/recipeDeleverage";
 import { repayEncodeHandler } from "@/helpers/cauldron/cook/degenBoxHelper/actionHandlers.js";
 import recipeRemoveCollateral from "@/helpers/cauldron/cook/recipies/recipeRemoveCollateral";
@@ -27,7 +27,14 @@ const cookDeleverageFromOrder = async (
 
   const provider = store.getters.getProvider;
 
-  const { balanceUSDC } = await getOrderBalances(order, provider);
+  const orderTokensInfo = await getOrderTokensInfo(order, provider);
+  const shortToken = cauldronObject.additionalInfo.gmInfo.marketInfo.shortToken;
+
+  const activeToken = orderTokensInfo.find(
+    (token) => token.address.toLowerCase() === shortToken.toLowerCase()
+  );
+
+  let sellToken = shortToken;
 
   let cookData: CookData = {
     events: [],
@@ -37,13 +44,17 @@ const cookDeleverageFromOrder = async (
 
   cookData = actions.withdrawFromOrder(
     cookData,
-    USDC_ADDRESS,
+    activeToken!.address,
     liquidationSwapper.address,
-    balanceUSDC,
+    activeToken!.balance,
     true
   );
 
-  const shareFrom = await bentoBox.toShare(USDC_ADDRESS, balanceUSDC, false);
+  const shareFrom = await bentoBox.toShare(
+    activeToken!.address,
+    activeToken!.balance,
+    false
+  );
 
   const deleverageData = await recipeDeleverage(
     cookData,
@@ -55,7 +66,8 @@ const cookDeleverageFromOrder = async (
 
   cookData = deleverageData.cookData;
 
-  const { userBorrowPart, userBorrowAmount } = cauldronObject.userPosition.borrowInfo;
+  const { userBorrowPart, userBorrowAmount } =
+    cauldronObject.userPosition.borrowInfo;
 
   if (itsMax || deleverageData.buyAmount.gt(userBorrowAmount)) {
     cookData = await repayEncodeHandler(

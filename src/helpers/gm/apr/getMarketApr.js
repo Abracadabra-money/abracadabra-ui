@@ -12,6 +12,8 @@ import {
   GM_ETH,
   GM_BTC,
   GM_LINK,
+  GM_BTC_BTC,
+  GM_ETH_ETH,
   DAYS_CONSIDERED,
   MARKET_FEES_URL,
 } from "@/constants/gm";
@@ -49,7 +51,7 @@ const marketFeesQuery = (marketAddress) => {
 
 const getIncentivesBonusApr = async (provider) => {
   const rawIncentivesStats = await fetchIncentiveStats();
-  const marketAddresses = [GM_ARB, GM_SOL, GM_ETH, GM_BTC, GM_LINK];
+  const marketAddresses = [GM_ARB, GM_SOL, GM_ETH, GM_BTC, GM_LINK, GM_BTC_BTC, GM_ETH_ETH];
 
   const tokenPricesResponse = await fetchTokenPrices();
   const marketsPoolValueInfoMin = await getMarketsPoolValueInfoMin(
@@ -94,14 +96,14 @@ const getIncentivesBonusApr = async (provider) => {
 
 export const getMarketsApr = async (provider) => {
   const cachedData = checkAndGetCachedData();
-  if(cachedData) return cachedData;
+  if (cachedData) return cachedData;
 
   const graphClient = new ApolloClient({
     uri: MARKET_FEES_URL,
     cache: new InMemoryCache(),
   });
 
-  const marketAddresses = [GM_ARB, GM_SOL, GM_ETH, GM_BTC, GM_LINK];
+  const marketAddresses = [GM_ARB, GM_SOL, GM_ETH, GM_BTC, GM_LINK, GM_BTC_BTC, GM_ETH_ETH];
   const query = marketAddresses.reduce(
     (acc, marketAddress) => acc + marketFeesQuery(marketAddress),
     ""
@@ -169,7 +171,7 @@ const checkAndGetCachedData = () => {
   const cachedData = localStorage.getItem("GM_APRS");
   const allowedTime = 5; // 5 min
 
-  if(!cachedData) return false;
+  if (!cachedData) return false;
 
   try {
     const { marketsApr, time } = JSON.parse(cachedData);
@@ -177,7 +179,7 @@ const checkAndGetCachedData = () => {
     const currentTime = new Date().getTime();
     const timeDiff = currentTime - time;
     const minutes = Math.floor(timeDiff / 1000 / 60);
-    if(minutes > allowedTime) return false;
+    if (minutes > allowedTime) return false;
 
     return marketsApr;
   } catch (error) {

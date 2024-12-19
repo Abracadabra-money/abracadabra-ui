@@ -63,6 +63,7 @@ const cookLeverage = async (
   );
 
   const { updatedCookData, executionFee } = await recipeCreateLeverageOrder(
+    cauldronObject,
     cookData,
     collateral.address,
     buyAmount

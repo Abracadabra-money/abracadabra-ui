@@ -79,6 +79,20 @@ const configs = [
     icon: useImage(`assets/images/get-lp-icons/gmx.png`),
   },
   {
+    id: 13,
+    chain: 42161,
+    href: "https://app.gmx.io/#/pools",
+    label: "Get GM Token",
+    icon: useImage(`assets/images/get-lp-icons/gmx.png`),
+  },
+  {
+    id: 14,
+    chain: 42161,
+    href: "https://app.gmx.io/#/pools",
+    label: "Get GM Token",
+    icon: useImage(`assets/images/get-lp-icons/gmx.png`),
+  },
+  {
     id: 1,
     chain: 80084,
     href: "https://bartio.bex.berachain.com/pool/0xa11e60393dbaec5a45416f063de2abf94af2cd50",
