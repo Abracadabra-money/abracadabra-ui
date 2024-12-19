@@ -13,6 +13,7 @@ import ConvexWrapperLevSwapper from "@/abis/ConvexWrapperLevSwapper";
 import YearnLevSwapper from "@/abis/YearnLevSwapper";
 import ConvexWrapperSwapper from "@/abis/ConvexWrapperSwapper";
 import YearnSwapper from "@/abis/YearnSwapper";
+import SDEUSDSwapper from "@/abis/SDEUSDSwapper";
 import { useImage } from "@/helpers/useImage";
 import { GNOSIS_SAFE_ADDRESS } from "@/constants/global";
 
@@ -1770,8 +1771,8 @@ const config: Array<CauldronConfig> = [
       abi: ERC4626LevSwapper,
     },
     deleverageInfo: {
-      address: "0xd3941893cFd1a563333f7383259b21dAf34C14A8",
-      abi: ERC4626LiqSwapper,
+      address: "0x64d4160d5f5efffaf90317c47b80d73b36108180",
+      abi: SDEUSDSwapper,
     },
   },
   {
