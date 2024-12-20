@@ -228,7 +228,7 @@ export default {
     balancesInfo() {
       if (!this.balances) return [];
 
-      const { balanceUSDC }: any = this.balances;
+      const { balanceWETH, balanceUSDC, balanceWBTC }: any = this.balances;
 
       const balances = [];
 
@@ -239,12 +239,19 @@ export default {
           balance: this.formatTokenBalance(utils.formatUnits(balanceUSDC, 6)),
         });
 
-      // if (balanceWETH.gt(0))
-      //   balances.push({
-      //     name: "WETH",
-      //     icon: useImage(`assets/images/tokens/WETH.png`),
-      //     balance: this.formatTokenBalance(utils.formatUnits(balanceWETH)),
-      //   });
+      if (balanceWETH.gt(0))
+        balances.push({
+          name: "WETH",
+          icon: useImage(`assets/images/tokens/WETH.png`),
+          balance: this.formatTokenBalance(utils.formatUnits(balanceWETH)),
+        });
+
+      if (balanceWBTC.gt(0))
+        balances.push({
+          name: "WBTC",
+          icon: useImage(`assets/images/tokens/WBTC.png`),
+          balance: this.formatTokenBalance(utils.formatUnits(balanceWBTC, 8)),
+        });
 
       return balances;
     },

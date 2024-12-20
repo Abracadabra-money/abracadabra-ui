@@ -21,6 +21,8 @@ const approvalWarnings = [
 import { saveOrder } from "@/helpers/gm/orders";
 import { ZERO_ADDRESS } from "@/constants/gm";
 
+import sleep from "@/helpers/sleep";
+
 // NOTICE: Temporary mixin, need to change to helpers after cooks refactoring
 export default {
   emits: ["updateMarket", "clearData"],
@@ -234,6 +236,9 @@ export default {
       await cooks.gmCooks.cookWitdrawToOrderGM(cookPayload, cauldronObject);
 
       this.$emit("clearData");
+
+      const sleepTime = 2000;
+      await sleep(sleepTime)
 
       const order = await cauldron.orders(cookPayload.to);
 
