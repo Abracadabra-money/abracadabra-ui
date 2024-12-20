@@ -1,7 +1,6 @@
 import store from "@/store";
 import { utils } from "ethers";
 import toAmount from "@/helpers/toAmount";
-import { USDC_ADDRESS } from "@/constants/gm";
 import { swapOdosRequest } from "@/helpers/odos";
 import { actions } from "@/helpers/cauldron/cook/actions";
 
@@ -15,7 +14,9 @@ export const recipeDeleverage = async (
   const { mim, liquidationSwapper, bentoBox } = pool.contracts;
 
   const userAddr = store.getters.getAccount; // TODO: add to payload
-  const sellToken = USDC_ADDRESS;
+
+  const sellToken = pool.additionalInfo.gmInfo.marketInfo.shortToken;
+
   const chainId = pool.config.chainId;
 
   const amountToSwap = await toAmount(bentoBox, sellToken, shareFrom);

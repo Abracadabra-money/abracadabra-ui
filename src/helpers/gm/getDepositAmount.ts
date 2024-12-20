@@ -43,15 +43,20 @@ export const getDepositAmount = async (
     throw new Error("GM Capcity");
   }
 
+  const swapPricingType = 0n;
+  const includeVirtualInventoryImpact = true;
+
   const depositAmountOut = await GMXReaderContract.getDepositAmountOut(
     DATA_STORE,
     marketInfo,
     prices,
     longTokenAmount,
     shortTokenAmount,
-    uiFeeReceiver
+    uiFeeReceiver,
+    swapPricingType,
+    includeVirtualInventoryImpact
   );
-
+  
   return applySlippageToMinOut(DEFAULT_SLIPPAGE_AMOUNT, depositAmountOut);
 };
 
