@@ -400,7 +400,7 @@ export default {
       } else {
         this.actionConfig.quoteInAmount = amount;
 
-        const decimalsEqual = !tokenDecimalsDifference;
+        const rateIsPeriodic = Number(this.actionConfig.I) % 10 !== 0;
 
         const baseAmountWithPrecision = isBaseDecimalsGreater
           ? RATE_PRECISION / tokensDecimalsDifferencePrecision
@@ -408,7 +408,7 @@ export default {
 
         this.actionConfig.baseInAmount = amount
           ? (amount * this.IforCalc +
-              (decimalsEqual ? 0n : baseAmountWithPrecision)) /
+              (rateIsPeriodic ? baseAmountWithPrecision : 0n)) /
             baseAmountWithPrecision
           : 0n;
       }
