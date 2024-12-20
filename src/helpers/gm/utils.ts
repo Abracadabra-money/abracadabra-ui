@@ -124,12 +124,3 @@ export function getMintableMarketTokens(marketInfo: any) {
     shortDepositCapacityAmount,
   };
 }
-
-export const getSwapTokenByMarket = (market: Address) => {
-  switch (market) {
-    case GM_BTC_BTC:
-      return WBTC_ADDRESS;
-    default:
-      return USDC_ADDRESS;
-  }
-};

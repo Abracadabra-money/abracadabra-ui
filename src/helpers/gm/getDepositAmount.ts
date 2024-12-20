@@ -26,11 +26,6 @@ export const getDepositAmount = async (
   shortTokenAmount: BigNumber,
   provider: providers.BaseProvider
 ): Promise<BigNumber> => {
-  console.log("getDepositAmount payload", {
-    market,
-    longTokenAmount: longTokenAmount.toString(),
-    shortTokenAmount: shortTokenAmount.toString(),
-  });
   const GMXReaderContract = new Contract(GMX_READER, GMXReaderAbi, provider);
 
   const marketInfo = await getMarketInfo(provider, market);
@@ -40,13 +35,9 @@ export const getDepositAmount = async (
     await fetchTokenPrices();
   const prices = getContractMarketPrices(tokenPricesResponse, marketInfo);
 
-  console.log("prices", prices);
-
   const dataStoreInfo = await getDataStoreInfo(market, marketInfo, provider);
 
   const { shortDepositCapacityAmount } = getMintableMarketTokens(dataStoreInfo);
-
-  console.log("shortDepositCapacityAmount", shortDepositCapacityAmount.toString());
 
   if (shortTokenAmount.gt(shortDepositCapacityAmount)) {
     throw new Error("GM Capcity");

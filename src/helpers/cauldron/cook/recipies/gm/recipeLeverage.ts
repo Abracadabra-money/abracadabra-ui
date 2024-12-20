@@ -3,18 +3,12 @@ import toAmount from "@/helpers/toAmount";
 import { swapOdosRequest } from "@/helpers/odos";
 import { ORDER_AGENT } from "@/constants/gm";
 
-// import { getSwapTokenByMarket } from "@/helpers/gm/utils";
-
 export const recipeLeverage = async (pool: any, amount: any, slipage: any) => {
   const { leverageSwapper, bentoBox, mim } = pool.contracts;
   const chainId = pool.config.chainId;
   const mimAddress = pool.config.mimInfo.address;
 
-  console.log("recipeLeverage", pool);
-
-  // TODO: condition for different tokens
   const buyToken = pool.additionalInfo.gmInfo.marketInfo.shortToken;
-  // const buyToken = getSwapTokenByMarket(pool.config.collateralInfo.address);
 
   const shareFrom = await bentoBox.toShare(mimAddress, amount, false);
 
