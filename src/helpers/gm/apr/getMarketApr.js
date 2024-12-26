@@ -69,7 +69,7 @@ const getIncentivesBonusApr = async (provider) => {
 
   return marketAddresses.reduce((acc, marketAddress) => {
     const arbTokensAmount = BigNumber.from(
-      rawIncentivesStats.lp.rewardsPerMarket[marketAddress] ?? 0
+      rawIncentivesStats.lp.rewardsPerMarket?.[marketAddress] ?? 0
     );
     const yearMultiplier = Math.floor(
       (365 * 24 * 60 * 60) / rawIncentivesStats.lp.period
