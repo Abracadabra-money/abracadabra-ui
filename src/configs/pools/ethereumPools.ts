@@ -87,7 +87,6 @@ const ethereumPools: Array<PoolConfig | AdditionalPoolConfig> = [
       isNew: false,
       isDeprecated: false,
       isMim: true,
-      rewardPointsType: RewardPointsTypes.Pills,
     },
     initialParameters: {
       I: 1000000000000000000n,

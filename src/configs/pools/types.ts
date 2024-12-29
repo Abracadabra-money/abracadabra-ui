@@ -60,5 +60,4 @@ export type TokenConfig = {
 
 export enum RewardPointsTypes {
   Elixir = "elixir",
-  Pills = "pills",
 }
