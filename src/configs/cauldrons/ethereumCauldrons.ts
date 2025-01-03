@@ -1686,8 +1686,8 @@ const config: Array<CauldronConfig> = [
     name: "sdeUSD",
     chainId: 1,
     id: 43,
-    liquidationFee: 7.5,
-    mcr: 85,
+    liquidationFee: 2,
+    mcr: 90,
     borrowFee: 0.5,
     version: 4,
     cauldronSettings: {
@@ -1733,8 +1733,8 @@ const config: Array<CauldronConfig> = [
     name: "sdeUSD V2",
     chainId: 1,
     id: 44,
-    liquidationFee: 7.5,
-    mcr: 85,
+    liquidationFee: 2,
+    mcr: 90,
     borrowFee: 0.5,
     version: 4,
     cauldronSettings: {
