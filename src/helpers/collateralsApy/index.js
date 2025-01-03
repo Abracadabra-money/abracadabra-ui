@@ -12,13 +12,14 @@ import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
 import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
 import { getYearnVaultsApy } from "@/helpers/collateralsApy/getYearnVaultsApy";
 import { getMaxLeverageMultiplierAlternative } from "@/helpers/cauldron/getMaxLeverageMultiplier.ts";
+import { getUsd0ppApy } from "./getUsd0ppApy";
 
 export const isApyCalcExist = (chainId, poolId) => {
   let cauldronsIds = [];
 
   if (chainId === 1) {
     cauldronsIds = [
-      6, 7, 15, 16, 24, 25, 29, 30, 31, 32, 33, 34, 37, 38, 39, 43, 44,
+      6, 7, 15, 16, 24, 25, 29, 30, 31, 32, 33, 34, 37, 38, 39, 43, 44, 45
     ];
   }
 
@@ -57,6 +58,8 @@ export const fetchTokenApy = async (pool, chainId, provider) => {
     if (pool.config.id === 39) return await getMagicApeApy(chainId);
 
     if (pool.config.id === 43 || pool.config.id === 44) return getElixirApy();
+
+    if (pool.config.id === 45) return getUsd0ppApy();
   }
 
   if (chainId === 10) {

@@ -134,7 +134,6 @@ export default {
     potionText() {
       if (this.cauldron.config.cauldronSettings.hasElixirPotions)
         return "Earning Elixir Potions";
-      if (this.cauldron.config.cauldronSettings.isUSD0) return "Earning Pills";
 
       return "";
     },

@@ -26,10 +26,6 @@
       <p class="name">
         {{ pool.name }}
       </p>
-      <div class="pills-wrap" v-if="isPillsLabel">
-        <img src="@/assets/images/pools/rewards/pills-icon.svg" />
-        <span>1x Multiplier </span>
-      </div>
       <div class="deprecated-wrap" v-if="isDeprecatedFarm">
         <span>Deprecated</span>
       </div>
@@ -91,12 +87,6 @@ export default {
 
     quoteTokenConfig() {
       return this.pool.tokens.quoteToken.config;
-    },
-
-    isPillsLabel() {
-      return (
-        this.pool.config.settings.rewardPointsType === "pills" && this.isLabal
-      );
     },
   },
 
@@ -163,32 +153,5 @@ export default {
   line-height: 22px;
   text-align: start;
   min-width: 110px;
-}
-
-.pills-wrap {
-  border-radius: 33px;
-  border: 1px solid var(--Primary-Gradient, #2d4a96);
-  background: linear-gradient(90deg, #1c2b53 0%, #303063 100%),
-    linear-gradient(
-      90deg,
-      rgba(45, 74, 150, 0.12) 0%,
-      rgba(116, 92, 210, 0.12) 100%
-    );
-  display: flex;
-  padding: 2px 5px;
-  align-items: flex-start;
-  gap: 4px;
-
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: normal;
-  min-width: 120px;
-}
-
-@media screen and (max-width: 600px) {
-  .pills-wrap {
-    display: none;
-  }
 }
 </style>

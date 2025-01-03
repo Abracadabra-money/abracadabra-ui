@@ -82,7 +82,6 @@ export default {
   data() {
     return {
       elixirPotions: [43, 44],
-      pillsPoints: [45],
     };
   },
 
