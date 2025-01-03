@@ -68,7 +68,7 @@ export const getCauldronInfo = async (
 
   const mainParams = await getMainParams([config], chainId, config.contract);
 
-  const userPositions = await getUserPositions([config], address, chainId);
+  const userPositions = await getUserPositions([config], mainParams, address, chainId);
 
   const userTokensInfo = await getUserTokensInfo(
     chainId,

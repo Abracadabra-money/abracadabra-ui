@@ -1797,6 +1797,16 @@ const config: Array<CauldronConfig> = [
       hasWithdrawableLimit: false,
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
+      oracleInfo: {
+        kind: "PYTH",
+        address: "0x4305FB66699C3B2702D4d05CF36551390A4c69C6",
+        feedId: "0xf9c96a45784d0ce4390825a43a313149da787e6a6c66076f3a3f83e92501baeb",
+        wrapper: {
+          kind: "ERC4626",
+          vault: "0x73075fD1522893D9dC922991542f98F08F2c1C99",
+          decimalScale: 100000000000000000000000000n
+        },
+      },
       isUSD0: true,
     },
     contract: {

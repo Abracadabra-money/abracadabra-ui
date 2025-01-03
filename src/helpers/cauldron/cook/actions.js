@@ -181,7 +181,7 @@ const call = (
   useValue1,
   useValue2,
   returnValues,
-  value = 0
+  value = 0n
 ) => {
   const methodId = 30;
 

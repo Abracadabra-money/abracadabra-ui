@@ -24,19 +24,21 @@ export const getUserOpenPositions = async (
   const positions: UserOpenPosition[] = [];
 
   await Promise.all(
-    currentChains.map(async (chainId: string) => {
+    // TODO: Enable all chains --- updated marketLens needs to be deployed on all chains
+    currentChains.filter(x => x == "1").map(async (chainId: string) => {
       const configs = cauldronsConfig.filter(
         (config) => config.chainId === Number(chainId)
       );
       if (!configs) return [];
 
+      const mainParams = await getMainParams(configs, Number(chainId));
+
       const userPositions = await getUserPositions(
         configs,
+        mainParams,
         account as Address,
         Number(chainId)
       );
-
-      const mainParams = await getMainParams(configs, Number(chainId));
 
       userPositions.forEach((position: UserPositions, idx: number) => {
         if (

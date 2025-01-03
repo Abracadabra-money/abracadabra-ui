@@ -2,6 +2,7 @@ import { actions } from "@/helpers/cauldron/cook/actions";
 import { cook, cookViem } from "@/helpers/cauldron/cauldron";
 import checkAndSetMcApprove from "@/helpers/cauldron/cook/checkAndSetMcApprove";
 import recipeApproveMC from "@/helpers/cauldron/cook/recipies/recipeApproveMC";
+import recipeUpdatePythOracle from "@/helpers/cauldron/cook/recipies/recipeUpdatePythOracle";
 
 import recipeRepay from "@/helpers/cauldron/cook/recipies/recipeRepay";
 import recipeRemoveCollateral from "@/helpers/cauldron/cook/recipies/recipeRemoveCollateral";
@@ -57,7 +58,14 @@ const cookRemoveCollateralAndRepay = async (
       to
     );
 
-  await cookViem(cauldronObject, cookData, 0);
+  let value = 0n;
+  if (cauldronObject.config.cauldronSettings.oracleInfo?.kind === "PYTH") {
+    let updateValue: bigint;
+    ({ cookData, value: updateValue } = await recipeUpdatePythOracle(cookData, cauldronObject));
+    value += updateValue;
+  }
+
+  await cookViem(cauldronObject, cookData, value);
 };
 
 export default cookRemoveCollateralAndRepay;
