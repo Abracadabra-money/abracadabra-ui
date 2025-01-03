@@ -1,462 +1,963 @@
 export default [
   {
-    inputs: [
+    "type": "function",
+    "name": "availableSkim",
+    "inputs": [
       {
-        internalType: "contract ICauldronV2",
-        name: "cauldron",
-        type: "address",
-      },
+        "name": "cauldron",
+        "type": "address",
+        "internalType": "contract ICauldronV2"
+      }
     ],
-    name: "getBorrowFee",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
+    "outputs": [
+      {
+        "name": "share",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
   },
   {
-    inputs: [
+    "type": "function",
+    "name": "availableSkim",
+    "inputs": [],
+    "outputs": [
       {
-        internalType: "contract ICauldronV2",
-        name: "cauldron",
-        type: "address",
-      },
+        "name": "share",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
     ],
-    name: "getCollateralPrice",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
+    "stateMutability": "view"
   },
   {
-    inputs: [
+    "type": "function",
+    "name": "getBorrowFee",
+    "inputs": [
       {
-        internalType: "contract ICauldronV2",
-        name: "cauldron",
-        type: "address",
-      },
-      { internalType: "address", name: "account", type: "address" },
+        "name": "cauldron",
+        "type": "address",
+        "internalType": "contract ICauldronV2"
+      }
     ],
-    name: "getHealthFactor",
-    outputs: [
-      { internalType: "uint256", name: "healthFactor", type: "uint256" },
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "stateMutability": "view"
   },
   {
-    inputs: [
+    "type": "function",
+    "name": "getCollateralPrice",
+    "inputs": [
       {
-        internalType: "contract ICauldronV2",
-        name: "cauldron",
-        type: "address",
-      },
+        "name": "cauldron",
+        "type": "address",
+        "internalType": "contract ICauldronV2"
+      }
     ],
-    name: "getInterestPerYear",
-    outputs: [{ internalType: "uint64", name: "", type: "uint64" }],
-    stateMutability: "view",
-    type: "function",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
   },
   {
-    inputs: [
+    "type": "function",
+    "name": "getHealthFactor",
+    "inputs": [
       {
-        internalType: "contract ICauldronV2",
-        name: "cauldron",
-        type: "address",
+        "name": "cauldron",
+        "type": "address",
+        "internalType": "contract ICauldronV2"
       },
+      {
+        "name": "account",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "isStable",
+        "type": "bool",
+        "internalType": "bool"
+      }
     ],
-    name: "getLiquidationFee",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
   },
   {
-    inputs: [
+    "type": "function",
+    "name": "getInterestPerYear",
+    "inputs": [
       {
-        internalType: "contract ICauldronV2",
-        name: "cauldron",
-        type: "address",
-      },
+        "name": "cauldron",
+        "type": "address",
+        "internalType": "contract ICauldronV2"
+      }
     ],
-    name: "getMarketInfoCauldronV2",
-    outputs: [
+    "outputs": [
       {
-        components: [
-          { internalType: "address", name: "cauldron", type: "address" },
-          { internalType: "uint256", name: "borrowFee", type: "uint256" },
+        "name": "",
+        "type": "uint64",
+        "internalType": "uint64"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getLiquidationFee",
+    "inputs": [
+      {
+        "name": "cauldron",
+        "type": "address",
+        "internalType": "contract ICauldronV2"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getMarketInfoCauldronV2",
+    "inputs": [
+      {
+        "name": "cauldron",
+        "type": "address",
+        "internalType": "contract ICauldronV2"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct MarketLens.MarketInfo",
+        "components": [
           {
-            internalType: "uint256",
-            name: "maximumCollateralRatio",
-            type: "uint256",
-          },
-          { internalType: "uint256", name: "liquidationFee", type: "uint256" },
-          { internalType: "uint256", name: "interestPerYear", type: "uint256" },
-          { internalType: "uint256", name: "marketMaxBorrow", type: "uint256" },
-          { internalType: "uint256", name: "userMaxBorrow", type: "uint256" },
-          { internalType: "uint256", name: "totalBorrowed", type: "uint256" },
-          {
-            internalType: "uint256",
-            name: "oracleExchangeRate",
-            type: "uint256",
-          },
-          { internalType: "uint256", name: "collateralPrice", type: "uint256" },
-          {
-            components: [
-              { internalType: "uint256", name: "amount", type: "uint256" },
-              { internalType: "uint256", name: "value", type: "uint256" },
-            ],
-            internalType: "struct MarketLens.AmountValue",
-            name: "totalCollateral",
-            type: "tuple",
-          },
-        ],
-        internalType: "struct MarketLens.MarketInfo",
-        name: "",
-        type: "tuple",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "contract ICauldronV3",
-        name: "cauldron",
-        type: "address",
-      },
-    ],
-    name: "getMarketInfoCauldronV3",
-    outputs: [
-      {
-        components: [
-          { internalType: "address", name: "cauldron", type: "address" },
-          { internalType: "uint256", name: "borrowFee", type: "uint256" },
-          {
-            internalType: "uint256",
-            name: "maximumCollateralRatio",
-            type: "uint256",
-          },
-          { internalType: "uint256", name: "liquidationFee", type: "uint256" },
-          { internalType: "uint256", name: "interestPerYear", type: "uint256" },
-          { internalType: "uint256", name: "marketMaxBorrow", type: "uint256" },
-          { internalType: "uint256", name: "userMaxBorrow", type: "uint256" },
-          { internalType: "uint256", name: "totalBorrowed", type: "uint256" },
-          {
-            internalType: "uint256",
-            name: "oracleExchangeRate",
-            type: "uint256",
-          },
-          { internalType: "uint256", name: "collateralPrice", type: "uint256" },
-          {
-            components: [
-              { internalType: "uint256", name: "amount", type: "uint256" },
-              { internalType: "uint256", name: "value", type: "uint256" },
-            ],
-            internalType: "struct MarketLens.AmountValue",
-            name: "totalCollateral",
-            type: "tuple",
-          },
-        ],
-        internalType: "struct MarketLens.MarketInfo",
-        name: "marketInfo",
-        type: "tuple",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "contract ICauldronV2",
-        name: "cauldron",
-        type: "address",
-      },
-    ],
-    name: "getMaxMarketBorrowForCauldronV2",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "contract ICauldronV3",
-        name: "cauldron",
-        type: "address",
-      },
-    ],
-    name: "getMaxMarketBorrowForCauldronV3",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "contract ICauldronV2",
-        name: "cauldron",
-        type: "address",
-      },
-    ],
-    name: "getMaxUserBorrowForCauldronV2",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "contract ICauldronV3",
-        name: "cauldron",
-        type: "address",
-      },
-    ],
-    name: "getMaxUserBorrowForCauldronV3",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "contract ICauldronV2",
-        name: "cauldron",
-        type: "address",
-      },
-    ],
-    name: "getMaximumCollateralRatio",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "contract ICauldronV2",
-        name: "cauldron",
-        type: "address",
-      },
-    ],
-    name: "getOracleExchangeRate",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "contract IBentoBoxV1",
-        name: "bentoBox",
-        type: "address",
-      },
-      { internalType: "contract IERC20", name: "token", type: "address" },
-      { internalType: "address", name: "account", type: "address" },
-    ],
-    name: "getTokenInBentoBox",
-    outputs: [
-      { internalType: "uint256", name: "share", type: "uint256" },
-      { internalType: "uint256", name: "amount", type: "uint256" },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "contract ICauldronV2",
-        name: "cauldron",
-        type: "address",
-      },
-    ],
-    name: "getTotalBorrowed",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "contract ICauldronV2",
-        name: "cauldron",
-        type: "address",
-      },
-    ],
-    name: "getTotalCollateral",
-    outputs: [
-      {
-        components: [
-          { internalType: "uint256", name: "amount", type: "uint256" },
-          { internalType: "uint256", name: "value", type: "uint256" },
-        ],
-        internalType: "struct MarketLens.AmountValue",
-        name: "",
-        type: "tuple",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "contract ICauldronV2",
-        name: "cauldron",
-        type: "address",
-      },
-      { internalType: "address", name: "account", type: "address" },
-    ],
-    name: "getUserBorrow",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "contract ICauldronV2",
-        name: "cauldron",
-        type: "address",
-      },
-      { internalType: "address", name: "account", type: "address" },
-    ],
-    name: "getUserCollateral",
-    outputs: [
-      {
-        components: [
-          { internalType: "uint256", name: "amount", type: "uint256" },
-          { internalType: "uint256", name: "value", type: "uint256" },
-        ],
-        internalType: "struct MarketLens.AmountValue",
-        name: "",
-        type: "tuple",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "contract ICauldronV2",
-        name: "cauldron",
-        type: "address",
-      },
-      { internalType: "address", name: "account", type: "address" },
-    ],
-    name: "getUserLiquidationPrice",
-    outputs: [
-      { internalType: "uint256", name: "liquidationPrice", type: "uint256" },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "contract ICauldronV2",
-        name: "cauldron",
-        type: "address",
-      },
-      { internalType: "address", name: "account", type: "address" },
-    ],
-    name: "getUserLtv",
-    outputs: [{ internalType: "uint256", name: "ltvBps", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "contract ICauldronV2",
-        name: "cauldron",
-        type: "address",
-      },
-      { internalType: "address", name: "account", type: "address" },
-    ],
-    name: "getUserMaxBorrow",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "contract ICauldronV2",
-        name: "cauldron",
-        type: "address",
-      },
-      { internalType: "address", name: "account", type: "address" },
-    ],
-    name: "getUserPosition",
-    outputs: [
-      {
-        components: [
-          { internalType: "address", name: "cauldron", type: "address" },
-          { internalType: "address", name: "account", type: "address" },
-          { internalType: "uint256", name: "ltvBps", type: "uint256" },
-          { internalType: "uint256", name: "healthFactor", type: "uint256" },
-          { internalType: "uint256", name: "borrowValue", type: "uint256" },
-          {
-            components: [
-              { internalType: "uint256", name: "amount", type: "uint256" },
-              { internalType: "uint256", name: "value", type: "uint256" },
-            ],
-            internalType: "struct MarketLens.AmountValue",
-            name: "collateral",
-            type: "tuple",
+            "name": "cauldron",
+            "type": "address",
+            "internalType": "address"
           },
           {
-            internalType: "uint256",
-            name: "liquidationPrice",
-            type: "uint256",
+            "name": "borrowFee",
+            "type": "uint256",
+            "internalType": "uint256"
           },
-        ],
-        internalType: "struct MarketLens.UserPosition",
-        name: "",
-        type: "tuple",
-      },
+          {
+            "name": "maximumCollateralRatio",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "liquidationFee",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "interestPerYear",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "marketMaxBorrow",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "userMaxBorrow",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "totalBorrowed",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "oracleExchangeRate",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "collateralPrice",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "totalCollateral",
+            "type": "tuple",
+            "internalType": "struct MarketLens.AmountValue",
+            "components": [
+              {
+                "name": "amount",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "value",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
+          }
+        ]
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "stateMutability": "view"
   },
   {
-    inputs: [
+    "type": "function",
+    "name": "getMarketInfoCauldronV2Pyth",
+    "inputs": [
       {
-        internalType: "contract ICauldronV2",
-        name: "cauldron",
-        type: "address",
-      },
-      { internalType: "address[]", name: "accounts", type: "address[]" },
+        "name": "cauldron",
+        "type": "address",
+        "internalType": "contract ICauldronV2"
+      }
     ],
-    name: "getUserPositions",
-    outputs: [
+    "outputs": [
       {
-        components: [
-          { internalType: "address", name: "cauldron", type: "address" },
-          { internalType: "address", name: "account", type: "address" },
-          { internalType: "uint256", name: "ltvBps", type: "uint256" },
-          { internalType: "uint256", name: "healthFactor", type: "uint256" },
-          { internalType: "uint256", name: "borrowValue", type: "uint256" },
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct MarketLens.MarketInfoPyth",
+        "components": [
           {
-            components: [
-              { internalType: "uint256", name: "amount", type: "uint256" },
-              { internalType: "uint256", name: "value", type: "uint256" },
-            ],
-            internalType: "struct MarketLens.AmountValue",
-            name: "collateral",
-            type: "tuple",
+            "name": "cauldron",
+            "type": "address",
+            "internalType": "address"
           },
           {
-            internalType: "uint256",
-            name: "liquidationPrice",
-            type: "uint256",
+            "name": "borrowFee",
+            "type": "uint256",
+            "internalType": "uint256"
           },
-        ],
-        internalType: "struct MarketLens.UserPosition[]",
-        name: "positions",
-        type: "tuple[]",
-      },
+          {
+            "name": "maximumCollateralRatio",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "liquidationFee",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "interestPerYear",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "marketMaxBorrow",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "userMaxBorrow",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "totalBorrowed",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "totalCollateral",
+            "type": "tuple",
+            "internalType": "struct MarketLens.Amount",
+            "components": [
+              {
+                "name": "amount",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
+          }
+        ]
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "stateMutability": "view"
   },
+  {
+    "type": "function",
+    "name": "getMarketInfoCauldronV3",
+    "inputs": [
+      {
+        "name": "cauldron",
+        "type": "address",
+        "internalType": "contract ICauldronV3"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "marketInfo",
+        "type": "tuple",
+        "internalType": "struct MarketLens.MarketInfo",
+        "components": [
+          {
+            "name": "cauldron",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "borrowFee",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "maximumCollateralRatio",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "liquidationFee",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "interestPerYear",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "marketMaxBorrow",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "userMaxBorrow",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "totalBorrowed",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "oracleExchangeRate",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "collateralPrice",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "totalCollateral",
+            "type": "tuple",
+            "internalType": "struct MarketLens.AmountValue",
+            "components": [
+              {
+                "name": "amount",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "value",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getMarketInfoCauldronV3Pyth",
+    "inputs": [
+      {
+        "name": "cauldron",
+        "type": "address",
+        "internalType": "contract ICauldronV3"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "marketInfo",
+        "type": "tuple",
+        "internalType": "struct MarketLens.MarketInfoPyth",
+        "components": [
+          {
+            "name": "cauldron",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "borrowFee",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "maximumCollateralRatio",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "liquidationFee",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "interestPerYear",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "marketMaxBorrow",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "userMaxBorrow",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "totalBorrowed",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "totalCollateral",
+            "type": "tuple",
+            "internalType": "struct MarketLens.Amount",
+            "components": [
+              {
+                "name": "amount",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getMaxMarketBorrowForCauldronV2",
+    "inputs": [
+      {
+        "name": "cauldron",
+        "type": "address",
+        "internalType": "contract ICauldronV2"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getMaxMarketBorrowForCauldronV3",
+    "inputs": [
+      {
+        "name": "cauldron",
+        "type": "address",
+        "internalType": "contract ICauldronV3"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getMaxUserBorrowForCauldronV2",
+    "inputs": [
+      {
+        "name": "cauldron",
+        "type": "address",
+        "internalType": "contract ICauldronV2"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getMaxUserBorrowForCauldronV3",
+    "inputs": [
+      {
+        "name": "cauldron",
+        "type": "address",
+        "internalType": "contract ICauldronV3"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getMaximumCollateralRatio",
+    "inputs": [
+      {
+        "name": "cauldron",
+        "type": "address",
+        "internalType": "contract ICauldronV2"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getOracleExchangeRate",
+    "inputs": [
+      {
+        "name": "cauldron",
+        "type": "address",
+        "internalType": "contract ICauldronV2"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getTokenInBentoBox",
+    "inputs": [
+      {
+        "name": "bentoBox",
+        "type": "address",
+        "internalType": "contract IBentoBoxV1"
+      },
+      {
+        "name": "token",
+        "type": "address",
+        "internalType": "contract IERC20"
+      },
+      {
+        "name": "account",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "share",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getTotalBorrowed",
+    "inputs": [
+      {
+        "name": "cauldron",
+        "type": "address",
+        "internalType": "contract ICauldronV2"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getTotalCollateral",
+    "inputs": [
+      {
+        "name": "cauldron",
+        "type": "address",
+        "internalType": "contract ICauldronV2"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct MarketLens.AmountValue",
+        "components": [
+          {
+            "name": "amount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "value",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getTotalCollateralAmount",
+    "inputs": [
+      {
+        "name": "cauldron",
+        "type": "address",
+        "internalType": "contract ICauldronV2"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct MarketLens.Amount",
+        "components": [
+          {
+            "name": "amount",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getUserBorrow",
+    "inputs": [
+      {
+        "name": "cauldron",
+        "type": "address",
+        "internalType": "contract ICauldronV2"
+      },
+      {
+        "name": "account",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getUserCollateral",
+    "inputs": [
+      {
+        "name": "cauldron",
+        "type": "address",
+        "internalType": "contract ICauldronV2"
+      },
+      {
+        "name": "account",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct MarketLens.AmountValue",
+        "components": [
+          {
+            "name": "amount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "value",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getUserLiquidationPrice",
+    "inputs": [
+      {
+        "name": "cauldron",
+        "type": "address",
+        "internalType": "contract ICauldronV2"
+      },
+      {
+        "name": "account",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "liquidationPrice",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getUserLtv",
+    "inputs": [
+      {
+        "name": "cauldron",
+        "type": "address",
+        "internalType": "contract ICauldronV2"
+      },
+      {
+        "name": "account",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "ltvBps",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getUserMaxBorrow",
+    "inputs": [
+      {
+        "name": "cauldron",
+        "type": "address",
+        "internalType": "contract ICauldronV2"
+      },
+      {
+        "name": "account",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getUserPosition",
+    "inputs": [
+      {
+        "name": "cauldron",
+        "type": "address",
+        "internalType": "contract ICauldronV2"
+      },
+      {
+        "name": "account",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct MarketLens.UserPosition",
+        "components": [
+          {
+            "name": "cauldron",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "account",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "ltvBps",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "healthFactor",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "borrowValue",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "collateral",
+            "type": "tuple",
+            "internalType": "struct MarketLens.AmountValue",
+            "components": [
+              {
+                "name": "amount",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "value",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
+          },
+          {
+            "name": "liquidationPrice",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getUserPositions",
+    "inputs": [
+      {
+        "name": "cauldron",
+        "type": "address",
+        "internalType": "contract ICauldronV2"
+      },
+      {
+        "name": "accounts",
+        "type": "address[]",
+        "internalType": "address[]"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "positions",
+        "type": "tuple[]",
+        "internalType": "struct MarketLens.UserPosition[]",
+        "components": [
+          {
+            "name": "cauldron",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "account",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "ltvBps",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "healthFactor",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "borrowValue",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "collateral",
+            "type": "tuple",
+            "internalType": "struct MarketLens.AmountValue",
+            "components": [
+              {
+                "name": "amount",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "value",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
+          },
+          {
+            "name": "liquidationPrice",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  }
 ];
