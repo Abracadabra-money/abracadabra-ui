@@ -125,7 +125,7 @@ const configs = [
     chain: 1,
     href: "https://app.usual.money/",
     label: "Get USD0++ Token",
-    icon: useImage(`assets/images/pools/rewards/pills-icon.svg`),
+    icon: useImage(`assets/images/tokens/USD0pp.png`),
   },
 ];
 

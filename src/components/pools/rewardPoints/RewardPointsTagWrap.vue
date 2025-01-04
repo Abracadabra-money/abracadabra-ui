@@ -7,13 +7,6 @@
       :card="card"
       v-if="rewardPointsType === RewardPointsTypes.Elixir"
     />
-    <PillsRewardTag
-      :icon="icon"
-      :name="name"
-      :multiplier="multiplier"
-      :card="card"
-      v-if="rewardPointsType === RewardPointsTypes.Pills"
-    />
   </div>
 </template>
 
@@ -40,9 +33,6 @@ export default {
   components: {
     ElixirRewardTag: defineAsyncComponent(
       () => import("@/components/pools/rewardPoints/elixir/ElixirRewardTag.vue")
-    ),
-    PillsRewardTag: defineAsyncComponent(
-      () => import("@/components/pools/rewardPoints/pills/PillsRewardTag.vue")
     ),
   },
 };
