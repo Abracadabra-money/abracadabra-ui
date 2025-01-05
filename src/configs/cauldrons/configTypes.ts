@@ -37,6 +37,8 @@ type CauldronSettings = {
   isNoDeleverage?: boolean;
   hasElixirPotions?: boolean;
   isUSD0?: boolean;
+  isBeraDesign?: boolean;
+  weight?: number;
 };
 
 type PythOracleInfo = {

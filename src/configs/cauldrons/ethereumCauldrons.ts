@@ -1706,6 +1706,7 @@ const config: Array<CauldronConfig> = [
       iStdeUSD: true,
       isNoDeleverage: true,
       hasElixirPotions: true,
+      weight: 2,
     },
     contract: {
       name: "CauldronV4",
@@ -1724,8 +1725,8 @@ const config: Array<CauldronConfig> = [
       abi: ERC4626LevSwapper,
     },
     deleverageInfo: {
-      address: "0xd3941893cFd1a563333f7383259b21dAf34C14A8",
-      abi: ERC4626LiqSwapper,
+      address: "0x64D4160d5F5EfFfAf90317C47B80D73B36108180",
+      abi: SDEUSDSwapper,
     },
   },
   {
@@ -1780,14 +1781,14 @@ const config: Array<CauldronConfig> = [
     name: "USD0++",
     chainId: 1,
     id: 45,
-    liquidationFee: 7.5,
-    mcr: 86,
+    liquidationFee: 2,
+    mcr: 90,
     borrowFee: 0.5,
     version: 4,
     cauldronSettings: {
       isNew: false,
       isSwappersActive: true,
-      is0xSwap: true, // NOTICE: here the ODOS Api is used and not 0x 
+      is0xSwap: true, // NOTICE: here the ODOS Api is used and not 0x
       isDegenBox: true,
       strategyLink: false,
       isDepreciated: false,
@@ -1808,6 +1809,7 @@ const config: Array<CauldronConfig> = [
         },
       },
       isUSD0: true,
+      weight: 4,
     },
     contract: {
       name: "CauldronV4",

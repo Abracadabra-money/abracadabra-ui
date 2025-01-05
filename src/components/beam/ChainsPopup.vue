@@ -60,22 +60,35 @@ export default {
     popupTitle() {
       return this.popupType == "to" ? "destination" : "origin";
     },
+
     chainsArray(): BeamConfig[] {
-      if (this.popupType == "from") {
-        return this.beamInfoObject.beamConfigs;
-      } else {
-        return this.beamInfoObject.destinationChainsInfo.map((info) => {
-          return info.chainConfig;
-        });
-      }
+      if (this.popupType === "from")
+        return this.beamInfoObject.beamConfigs.filter(
+          (config, index, self) =>
+            index ===
+            self.findIndex(
+              (c) => c.chainId === config.chainId && !c.settings.disabledFrom
+            )
+        );
+
+      return this.beamInfoObject.beamConfigs.filter((config, index, self) => {
+        return (
+          index === self.findIndex((c) => c.chainId === config.chainId) &&
+          config.chainId !== this.selectedFromChain?.chainId &&
+          !this.selectedFromChain!.settings.disabledDestinationChains.includes(
+            config.chainId
+          )
+        );
+      });
     },
+
     activeChainId() {
-      if(this.popupType == "from") {
+      if (this.popupType == "from") {
         return this.selectedFromChain?.chainId;
       } else {
         return this.selectedToChain?.chainId;
       }
-    }
+    },
   },
 
   methods: {

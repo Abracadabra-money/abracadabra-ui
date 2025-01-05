@@ -456,6 +456,7 @@ export default {
       this.activeToken = token;
       this.activeTab = "stake";
       this.inputValue = "";
+      this.$router.push({ name: "StakeSpell", query: { token: token } });
     },
 
     changeNetwork(network: number) {
@@ -494,8 +495,12 @@ export default {
     },
 
     getActiveToken() {
-      const activeToken = localStorage.getItem("SPELL_SELECTED_TOKEN");
-      if (activeToken) this.activeToken = activeToken;
+      const activeToken = localStorage.getItem("SPELL_SELECTED_TOKEN") as
+        | "mSpell"
+        | "sSpell";
+      const query = this.$route.query.token as "mSpell" | "sSpell";
+
+      this.activeToken = !query ? activeToken : query;
     },
 
     async claimMimHandler() {
@@ -626,7 +631,7 @@ export default {
   },
 
   beforeUnmount() {
-    this.refresherInfo.refresher.stop();
+    if (this.refresherInfo.refresher) this.refresherInfo.refresher.stop();
     window.removeEventListener("resize", this.getWindowSize);
   },
 

@@ -194,6 +194,7 @@ const config: Array<CauldronConfig> = [
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
       isGMXMarket: true,
+      weight: 3,
     },
     contract: {
       name: "CauldronV4",
@@ -237,6 +238,7 @@ const config: Array<CauldronConfig> = [
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
       isGMXMarket: true,
+      weight: 3,
     },
     contract: {
       name: "CauldronV4",
@@ -280,6 +282,7 @@ const config: Array<CauldronConfig> = [
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
       isGMXMarket: true,
+      weight: 3,
     },
     contract: {
       name: "CauldronV4",
@@ -323,6 +326,7 @@ const config: Array<CauldronConfig> = [
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
       isGMXMarket: true,
+      weight: 3,
     },
     contract: {
       name: "CauldronV4",
@@ -366,6 +370,7 @@ const config: Array<CauldronConfig> = [
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
       isGMXMarket: true,
+      weight: 3,
     },
     contract: {
       name: "CauldronV4",
@@ -568,6 +573,7 @@ const config: Array<CauldronConfig> = [
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
       isGMXMarket: true,
+      weight: 3,
     },
     contract: {
       name: "CauldronV4",
@@ -612,6 +618,7 @@ const config: Array<CauldronConfig> = [
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
       isGMXMarket: true,
+      weight: 3,
     },
     contract: {
       name: "CauldronV4",
