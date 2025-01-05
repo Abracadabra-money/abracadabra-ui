@@ -31,6 +31,13 @@ const cookBorrow = async (
     datas: [],
   };
 
+  let value = 0n;
+  if (cauldronObject.config.cauldronSettings.oracleInfo?.kind === "PYTH") {
+    let updateValue: bigint;
+    ({ cookData, value: updateValue } = await recipeUpdatePythOracle(cookData, cauldronObject));
+    value += updateValue;
+  }
+
   cookData = await checkAndSetMcApprove(
     cookData,
     cauldronObject,
@@ -59,13 +66,6 @@ const cookBorrow = async (
       await cauldron.masterContract(),
       to
     );
-
-  let value = 0n;
-  if (cauldronObject.config.cauldronSettings.oracleInfo?.kind === "PYTH") {
-    let updateValue: bigint;
-    ({ cookData, value: updateValue } = await recipeUpdatePythOracle(cookData, cauldronObject));
-    value += updateValue;
-  }
 
   await cookViem(cauldronObject, cookData, value);
 };

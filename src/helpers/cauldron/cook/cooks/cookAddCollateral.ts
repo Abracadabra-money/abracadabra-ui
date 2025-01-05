@@ -21,7 +21,7 @@ const cookAddCollateral = async (
   const { useDegenBoxHelper } = cauldronObject.config.cauldronSettings;
 
   const token = useNativeToken ? defaultTokenAddress : address;
-  const value = useNativeToken ? amount.toString() : "0";
+  const collateralValue = useNativeToken ? amount.toString() : "0";
 
   let cookData: CookData = {
     events: [],
@@ -44,7 +44,7 @@ const cookAddCollateral = async (
     useWrapper,
     to,
     amount,
-    value
+    collateralValue
   );
 
   if (isMasterContractApproved && useDegenBoxHelper)
@@ -56,7 +56,7 @@ const cookAddCollateral = async (
       to
     );
 
-  await cookViem(cauldronObject, cookData, value);
+  await cookViem(cauldronObject, cookData, collateralValue);
 };
 
 export default cookAddCollateral;

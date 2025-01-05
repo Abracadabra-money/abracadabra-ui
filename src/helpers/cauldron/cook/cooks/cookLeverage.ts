@@ -36,7 +36,7 @@ const cookLeverage = async (
     cauldronObject.config.cauldronSettings;
   const { updatePrice } = cauldronObject.mainParams;
 
-  let value = useNativeToken ? BigInt(collateralAmount.toString()) : 0n;
+  const collateralValue = useNativeToken ? BigInt(collateralAmount.toString()) : 0n;
   const tokenAddr = useNativeToken ? defaultTokenAddress : collateral.address;
 
   let cookData: CookData = {
@@ -44,6 +44,13 @@ const cookLeverage = async (
     values: [],
     datas: [],
   };
+
+  let value = collateralValue;
+  if (cauldronObject.config.cauldronSettings.oracleInfo?.kind === "PYTH") {
+    let updateValue: bigint;
+    ({ cookData, value: updateValue } = await recipeUpdatePythOracle(cookData, cauldronObject));
+    value += updateValue;
+  }
 
   cookData = await checkAndSetMcApprove(
     cookData,
@@ -65,7 +72,7 @@ const cookLeverage = async (
       useWrapper,
       to,
       collateralAmount,
-      value.toString()
+      collateralValue.toString()
     );
   }
 
@@ -96,12 +103,6 @@ const cookLeverage = async (
       await cauldron.masterContract(),
       to
     );
-
-  if (cauldronObject.config.cauldronSettings.oracleInfo?.kind === "PYTH") {
-    let updateValue: bigint;
-    ({ cookData, value: updateValue } = await recipeUpdatePythOracle(cookData, cauldronObject));
-    value += updateValue;
-  }
 
   await cookViem(cauldronObject, cookData, value);
 };

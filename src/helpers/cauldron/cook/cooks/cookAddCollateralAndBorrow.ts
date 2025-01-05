@@ -31,13 +31,20 @@ const cookAddCollateralAndBorrow = async (
   const { useDegenBoxHelper } = cauldronObject.config.cauldronSettings;
 
   const tokenAddr = useNativeToken ? defaultTokenAddress : address;
-  let value = useNativeToken ? BigInt(collateralAmount.toString()) : 0n;
+  const collateralValue = useNativeToken ? BigInt(collateralAmount.toString()) : 0n;
 
   let cookData: CookData = {
     events: [],
     values: [],
     datas: [],
   };
+
+  let value = collateralValue;
+  if (cauldronObject.config.cauldronSettings.oracleInfo?.kind === "PYTH") {
+    let updateValue: bigint;
+    ({ cookData, value: updateValue } = await recipeUpdatePythOracle(cookData, cauldronObject));
+    value += updateValue;
+  }
 
   cookData = await checkAndSetMcApprove(
     cookData,
@@ -62,7 +69,7 @@ const cookAddCollateralAndBorrow = async (
     useWrapper,
     to,
     collateralAmount,
-    value.toString()
+    collateralValue.toString()
   );
 
   if (isMasterContractApproved && useDegenBoxHelper)
@@ -73,12 +80,6 @@ const cookAddCollateralAndBorrow = async (
       await cauldron.masterContract(),
       to
     );
-
-  if (cauldronObject.config.cauldronSettings.oracleInfo?.kind === "PYTH") {
-    let updateValue: bigint;
-    ({ cookData, value: updateValue } = await recipeUpdatePythOracle(cookData, cauldronObject));
-    value += updateValue;
-  }
 
   await cookViem(cauldronObject, cookData, value);
 };
