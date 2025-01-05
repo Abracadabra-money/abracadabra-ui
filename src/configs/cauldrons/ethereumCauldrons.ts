@@ -1724,8 +1724,8 @@ const config: Array<CauldronConfig> = [
       abi: ERC4626LevSwapper,
     },
     deleverageInfo: {
-      address: "0xd3941893cFd1a563333f7383259b21dAf34C14A8",
-      abi: ERC4626LiqSwapper,
+      address: "0x64D4160d5F5EfFfAf90317C47B80D73B36108180",
+      abi: SDEUSDSwapper,
     },
   },
   {
