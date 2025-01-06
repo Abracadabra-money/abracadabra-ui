@@ -54,7 +54,7 @@ export const getMainParams = async (
   const lensAddress = getLensAddress(chainId);
   const publicClient: PublicClient = getPublicClient(chainId);
 
-  const [contractExchangeRate, ...marketInfos] = await Promise.all([
+  const [contractExchangeRate, marketInfos] = await Promise.all([
     cauldron
       ? await (publicClient as any).readContract({
         ...cauldron,
@@ -78,7 +78,7 @@ export const getMainParams = async (
     })
   ]);
 
-  return Promise.all(marketInfos.map(async (marketInfo, index: number) => {
+  return Promise.all(marketInfos.map(async (marketInfo, index) => {
     const config = configs[index];
     switch (config.cauldronSettings.oracleInfo?.kind) {
       case "PYTH":
