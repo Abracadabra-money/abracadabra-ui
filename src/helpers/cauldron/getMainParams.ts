@@ -90,8 +90,14 @@ export const getMainParams = async (
 };
 
 const getRegularMainParams = (config: CauldronConfig, marketInfo: MarketInfo, contractExchangeRate?: bigint): MainParams => {
-  const updatePrice = contractExchangeRate
-    ? !BigNumber.from(contractExchangeRate).eq(marketInfo.oracleExchangeRate)
+  // Note: Never needed for Cauldron V3+ and never needed
+  // for the user if the update decreases the collateralPrice
+  // Could be:
+  // const updatePrice = config.version < 3 && contractExchangeRate !== undefined
+  //   ? marketInfo.oracleExchangeRate < contractExchangeRate
+  //   : false;
+  const updatePrice = contractExchangeRate !== undefined
+    ? contractExchangeRate !== marketInfo.oracleExchangeRate
     : false;
   return {
     borrowFee: Number(marketInfo.borrowFee) / 100,
