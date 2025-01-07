@@ -198,7 +198,9 @@ export default {
   },
   methods: {
     setInputValue(newValue: string = "") {
-      this.inputValue = newValue;
+      this.inputValue = trimZeroDecimals(
+        Number(newValue).toFixed(this.benchmarkCurrency.decimals)
+      );
     },
 
     updateInputValue(amount: bigint) {
@@ -207,7 +209,11 @@ export default {
         this.inputAmount = 0n;
       } else {
         this.inputAmount = amount;
-        this.inputValue = trimZeroDecimals(formatUnits(amount, RATE_DECIMALS));
+        this.inputValue = trimZeroDecimals(
+          Number(formatUnits(amount, RATE_DECIMALS)).toFixed(
+            this.benchmarkCurrency.decimals
+          )
+        );
       }
     },
 
