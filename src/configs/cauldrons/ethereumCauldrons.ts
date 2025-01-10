@@ -1780,8 +1780,8 @@ const config: Array<CauldronConfig> = [
     name: "USD0++",
     chainId: 1,
     id: 45,
-    liquidationFee: 7.5,
-    mcr: 86,
+    liquidationFee: 2,
+    mcr: 90,
     borrowFee: 0.5,
     version: 4,
     cauldronSettings: {
