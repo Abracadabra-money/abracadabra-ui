@@ -498,7 +498,7 @@ export default {
     },
 
     async updateTokenAllowance(contract: ContractInfo) {
-      const isBaseToken = (this.baseToken.config.address = contract.address);
+      const isBaseToken = this.baseToken.config.address == contract.address;
 
       this[`${isBaseToken ? "base" : "quote"}Token`].userInfo.allowance =
         await getTokenAllowance(contract, this.chainId, this.account);

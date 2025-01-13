@@ -16,11 +16,11 @@
         <div
           class="popular-token-item"
           v-for="token in popularTokens"
-          :key="token.config.name"
+          :key="token.config.symbol"
           @click="updateSelectedToken(token)"
         >
           <img class="popular-token-icon" :src="token.config.icon" alt="" />
-          <span class="popular-token-name">{{ token.config.name }}</span>
+          <span class="popular-token-name">{{ token.config.symbol }}</span>
         </div>
       </div>
 
@@ -37,7 +37,7 @@
           },
         ]"
         v-for="token in tokensToRender"
-        :key="token.config.name"
+        :key="token.config.symbol"
         @click="updateSelectedToken(token)"
       >
         <div class="token-info">
@@ -46,7 +46,7 @@
           </div>
           <img class="token-icon" :src="token.config.icon" alt="" />
           <div>
-            <div class="token-name">{{ token.config.name }}</div>
+            <div class="token-name">{{ token.config.symbol }}</div>
           </div>
         </div>
 
