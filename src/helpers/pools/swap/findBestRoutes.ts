@@ -107,24 +107,24 @@ export const findBestSwapPath = (
   pairs: MagicLPInfo[],
   fromToken: Address,
   toToken: Address,
-  amountToSwap: bigint // Обсяг токенів, які ми хочемо обміняти
+  amountToSwap: bigint
 ) => {
   const graph: Graph = {};
   const visited = new Set();
   const bestCosts = { [fromToken.toLowerCase()]: 0 };
 
-  // Заповнюємо граф
+  // Filling the graph
   pairs.forEach(({ baseToken, quoteToken, lpFeeRate, totalSupply, id }) => {
-    const fees = Number(formatUnits(lpFeeRate, 18)); // Комісія
-    const tvl = Number(formatUnits(totalSupply, 18)); // Ліквідність
-    const weight = fees * (1 / tvl); // Вага ребра враховує комісію і ліквідність
+    const fees = Number(formatUnits(lpFeeRate, 18));
+    const tvl = Number(formatUnits(totalSupply, 18));
+    const weight = fees / tvl; // Rib weight takes into account fees and TVL
+
     const baseTokenAddress = baseToken.toLowerCase();
     const quoteTokenAddress = quoteToken.toLowerCase();
 
-    if (!graph[baseTokenAddress as keyof typeof graph])
-      graph[baseTokenAddress] = [];
-    if (!graph[quoteTokenAddress as keyof typeof graph])
-      graph[quoteTokenAddress] = [];
+    if (!graph[baseTokenAddress]) graph[baseTokenAddress] = [];
+    if (!graph[quoteTokenAddress]) graph[quoteTokenAddress] = [];
+
     graph[baseTokenAddress].push({
       token: quoteTokenAddress,
       weight,
@@ -145,7 +145,6 @@ export const findBestSwapPath = (
 
   while (!pq.isEmpty()) {
     const dequeuedItem = pq.dequeue();
-
     if (!dequeuedItem) continue;
 
     const {
@@ -163,49 +162,36 @@ export const findBestSwapPath = (
       const poolInfo = pairs.find(
         (pool) => pool.id.toLowerCase() === pair.toLowerCase()
       );
-
       if (!poolInfo) return;
 
-      // Перевірка балансу токенів
       const baseBalance = poolInfo.balances.baseBalance;
       const quoteBalance = poolInfo.balances.quoteBalance;
       const { baseToken, quoteToken } = poolInfo;
 
-      let sufficientLiquidity = false;
       let newAmountToSwap = currentAmount;
 
+      // Calculation of the new number of tokens taking into account slippage
       if (currentToken.toLowerCase() === baseToken.toLowerCase()) {
-        if (baseBalance >= currentAmount) {
-          sufficientLiquidity = true;
-        } else {
-          newAmountToSwap = calculateSlippage(
-            baseBalance,
-            quoteBalance,
-            currentAmount
-          );
-        }
+        newAmountToSwap = calculateSlippage(
+          baseBalance,
+          quoteBalance,
+          currentAmount
+        );
       } else if (currentToken.toLowerCase() === quoteToken.toLowerCase()) {
-        if (quoteBalance >= currentAmount) {
-          sufficientLiquidity = true;
-        } else {
-          newAmountToSwap = calculateSlippage(
-            quoteBalance,
-            baseBalance,
-            currentAmount
-          );
-        }
+        newAmountToSwap = calculateSlippage(
+          quoteBalance,
+          baseBalance,
+          currentAmount
+        );
       }
 
-      const newCost = currentCost + weight;
-
-      // Вплив прослизання на пріоритет (зміна кількості токенів)
-      // Якщо кількість токенів після прослизання значно менша, це збільшує вартість шляху
       const slippageImpact =
         Number(currentAmount - newAmountToSwap) / Number(currentAmount);
-      const adjustedCost = newCost + slippageImpact; // Чим більше прослизання, тим більша вартість
 
-      if (!(neighbor in bestCosts) || adjustedCost < bestCosts[neighbor]) {
-        bestCosts[neighbor] = adjustedCost;
+      const newCost = currentCost + weight + slippageImpact; // Вартість із врахуванням fees, TVL та прослизання
+
+      if (!(neighbor in bestCosts) || newCost < bestCosts[neighbor]) {
+        bestCosts[neighbor] = newCost;
 
         const newSwap = {
           pair: pair,
@@ -218,9 +204,9 @@ export const findBestSwapPath = (
           {
             token: neighbor,
             swaps: [...swaps, newSwap],
-            currentAmount: newAmountToSwap, // Оновлюємо кількість токенів після обміну з урахуванням прослизання
+            currentAmount: newAmountToSwap,
           },
-          adjustedCost // Враховуємо новий пріоритет з урахуванням прослизання
+          newCost
         );
       }
     });

@@ -163,12 +163,17 @@ const createPoolConfig = async (pool: GraphPairConfig, chainId: number) => {
   );
 
   const formattedLpName = lpName.split(" ").pop().replace("/", " / ");
+  const lpIconName = lpName
+    ? (lpName as string).split(" ").pop()?.replace("/", "-")
+    : "";
+  const lpIcon = useImage(`assets/images/tokens/${lpIconName}.png`);
+  const isLpIcon = !lpIcon.includes("undefined");
 
   const poolConfig = {
     id: pool.id,
     chainId: chainId,
     name: formattedLpName,
-    icon: useImage(`assets/images/tokens/MIM-deUSD.png`),
+    icon: isLpIcon ? lpIcon : useImage(`assets/images/base_token_icon-min.png`),
     decimals: lpDecimals,
     contract: {
       address: pool.id as Address,

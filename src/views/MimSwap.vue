@@ -201,6 +201,13 @@ export default {
     },
 
     actionValidationData() {
+      if (!this.swapInfo.routes.length && !this.isLoading)
+        return {
+          isAllowed: false,
+          method: "",
+          btnText: "There is not enough liquidity for this Trade",
+        };
+
       return validationActions(
         this.actionConfig,
         this.selectedNetwork,
