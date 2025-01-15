@@ -31,7 +31,9 @@
       <li class="item-info-tag">
         <div class="tag-title">
           Fee tier
-          <Tooltip tooltip="fee tier" />
+          <Tooltip
+            tooltip="The percentage fee applied to each trade within the pool."
+          />
         </div>
         <p class="tag-value">{{ feeTier }}</p>
       </li>
@@ -39,7 +41,9 @@
       <li class="item-info-tag">
         <div class="tag-title">
           TVL
-          <Tooltip tooltip="tvl" />
+          <Tooltip
+            tooltip="The total value of assets staked in the liquidity pool, indicating its size and liquidity."
+          />
         </div>
         <p class="tag-value">{{ tvl }}</p>
       </li>
