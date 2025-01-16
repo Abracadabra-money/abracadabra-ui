@@ -73,9 +73,9 @@ export const createPoolNative = async (
     protocolOwnedPool,
   } = payload;
 
-  const value = useTokenAsQuote ? quoteInAmount : baseInAmount;
-  const token = useTokenAsQuote ? baseToken : quoteToken;
-  const tokenInAmount = useTokenAsQuote ? baseInAmount : quoteInAmount;
+  const value = useTokenAsQuote ? baseInAmount : quoteInAmount;
+  const token = useTokenAsQuote ? quoteToken : baseToken;
+  const tokenInAmount = useTokenAsQuote ? quoteInAmount : baseInAmount;
 
   const { request } = await simulateContractHelper({
     address: swapRouterAddress,

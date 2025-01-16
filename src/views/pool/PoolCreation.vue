@@ -288,7 +288,7 @@ export default {
     nativeTokenIndicator() {
       const isNative =
         this.baseToken.config.isNative || this.quoteToken.config.isNative;
-      const useTokenAsQuote = !!this.quoteToken.config.isNative;
+      const useTokenAsQuote = !!this.baseToken.config.isNative;
       return { isNative, useTokenAsQuote };
     },
 

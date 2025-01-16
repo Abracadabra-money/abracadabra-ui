@@ -60,14 +60,13 @@ export default {
 <style lang="scss" scoped>
 .creation-type-tabs {
   display: flex;
-  align-items: center;
   gap: 22px;
   list-style-type: none;
-  height: fit-content;
 }
 
 .creation-type {
   position: relative;
+  width: 100%;
   padding: 16px;
   border-radius: 16px;
   border: 1px solid #00296b;
