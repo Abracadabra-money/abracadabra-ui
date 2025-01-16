@@ -122,8 +122,14 @@ export default {
 
       // const sortedByTesting = this.sortByTesting(sortedByChain);
 
-      const sortedByNew =
-        this.sortOrder === true ? this.sortByNew(sortedByChain) : sortedByChain;
+      if (this.sortOrder !== true) {
+        return sortedByChain;
+      }
+
+      const sortedByWeight = this.sortByWeight(sortedByChain);
+
+      const sortedByNew = this.sortByNew(sortedByWeight);
+
       return sortedByNew;
     },
 
@@ -242,6 +248,16 @@ export default {
         const isNewA = +!!a?.config?.cauldronSettings?.isNew;
         const isNewB = +!!b?.config?.cauldronSettings?.isNew;
         if (isNewA || isNewB) return isNewB - isNewA;
+        return a;
+      });
+    },
+
+    sortByWeight(cauldrons) {
+      return [...cauldrons].sort((a, b) => {
+        const weightA = a.config.cauldronSettings?.weight || 0;
+        const weightB = b.config.cauldronSettings?.weight || 0;
+        console.log(weightA, weightB);
+        if (weightA || weightB) return weightB - weightA;
         return a;
       });
     },
