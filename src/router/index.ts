@@ -124,6 +124,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/views/PotionPoints.vue"),
   },
   {
+    path: "/bspell",
+    name: "BSpell",
+    component: () => import("@/views/BSpell.vue"),
+  },
+  {
     path: "/:catchAll(.*)",
     redirect: "/",
   },
