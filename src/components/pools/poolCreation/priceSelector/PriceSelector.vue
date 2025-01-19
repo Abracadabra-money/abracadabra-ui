@@ -56,7 +56,7 @@
         :name="benchmarkCurrency.symbol"
         :icon="benchmarkCurrency.icon"
         :disabled="isPriceSelectorDisabled || isAutoPricingEnabled"
-        @updateInputValue="updateInputValue"
+        @updateInputValue="updateUserTokenRate"
       />
     </div>
   </div>
@@ -85,7 +85,6 @@ export default {
   data() {
     return {
       inputValue: "",
-      inputAmount: 0n,
       userTokenRate: 0n,
       isFromBase: true,
     };
@@ -109,12 +108,9 @@ export default {
     },
 
     autoTokenRate() {
-      if (
-        this.isPriceSelectorDisabled ||
-        !this.isAutoPricingEnabled ||
-        !this.isAutoPricingPossible
-      )
+      if (this.isPriceSelectorDisabled || !this.isAutoPricingPossible)
         return 0n;
+
       const basePriceBigInt = parseUnits(
         this.baseToken.price.toString(),
         RATE_DECIMALS
@@ -124,11 +120,7 @@ export default {
         RATE_DECIMALS
       );
 
-      const baseQuoteRate =
-        (basePriceBigInt * RATE_PRECISION) / quotePriceBigInt;
-      return this.isFromBase
-        ? baseQuoteRate
-        : (RATE_PRECISION * RATE_PRECISION) / baseQuoteRate;
+      return (basePriceBigInt * RATE_PRECISION) / quotePriceBigInt;
     },
 
     isAutoPricingPossible() {
@@ -137,17 +129,39 @@ export default {
   },
 
   watch: {
-    isAutoPricingPossible() {
-      this.resetInput();
+    isAutoPricingPossible: {
+      handler(value: boolean) {
+        if (value) this.updateInputValue();
+      },
+      immediate: true,
+    },
+
+    baseToken: {
+      handler() {
+        this.updateInputValue();
+      },
+      deep: true,
+      immediate: true,
+    },
+
+    quoteToken: {
+      handler() {
+        this.updateInputValue();
+      },
+      deep: true,
+      immediate: true,
     },
 
     isAutoPricingEnabled: {
-      immediate: true,
-      handler() {
-        this.setInputValue(
-          formatUnits(this.autoTokenRate || this.userTokenRate, RATE_DECIMALS)
-        );
+      handler(value: boolean) {
+        if (!value) {
+          this.userTokenRate = this.autoTokenRate;
+        } else {
+          this.$emit("updateTokensRate", this.autoTokenRate);
+        }
+        this.updateInputValue();
       },
+      immediate: true,
     },
 
     isPriceSelectorDisabled(isDisabled: boolean) {
@@ -159,64 +173,55 @@ export default {
         this.$emit("toggleAutopricing");
     },
 
-    inputAmount(amount: bigint) {
-      if (!this.isAutoPricingEnabled && amount) {
-        this.userTokenRate = (RATE_PRECISION * RATE_PRECISION) / amount;
-      }
-    },
+    isFromBase: {
+      handler() {
+        if (!this.isAutoPricingPossible) return;
 
-    isFromBase() {
-      if (!this.isAutoPricingPossible) return;
-      if (this.isAutoPricingEnabled) {
-        this.userTokenRate = this.autoTokenRate;
-        this.setInputValue(formatUnits(this.autoTokenRate, RATE_DECIMALS));
-      } else if (this.userTokenRate) {
-        this.setInputValue(formatUnits(this.userTokenRate, RATE_DECIMALS));
-        this.userTokenRate =
-          (RATE_PRECISION * RATE_PRECISION) / this.userTokenRate;
-      }
+        this.updateInputValue();
+      },
+      immediate: true,
     },
 
     userTokenRate(userRate: bigint) {
-      const rateToEmit = this.isFromBase
-        ? userRate
-        : (RATE_PRECISION * RATE_PRECISION) / userRate;
-      if (this.inputValue && !this.isAutoPricingEnabled)
-        this.$emit("updateTokensRate", rateToEmit);
+      if (!this.isAutoPricingEnabled) this.$emit("updateTokensRate", userRate);
     },
 
     autoTokenRate(autoRate: bigint) {
       if (autoRate) {
-        this.userTokenRate = autoRate;
-        this.setInputValue(formatUnits(autoRate, RATE_DECIMALS));
-        const rateToEmit = !this.isFromBase
-          ? autoRate
-          : (RATE_PRECISION * RATE_PRECISION) / autoRate;
-        this.$emit("updateTokensRate", rateToEmit);
+        this.$emit("updateTokensRate", autoRate);
       }
     },
   },
   methods: {
-    setInputValue(newValue: string = "") {
+    updateInputValue() {
+      const rateToRender = this.calculateRateToRender(
+        this.isAutoPricingEnabled ? this.autoTokenRate : this.userTokenRate,
+        this.isFromBase,
+        RATE_PRECISION
+      );
+      const valueToRender = formatUnits(rateToRender, RATE_DECIMALS);
+
       this.inputValue = parseFloat(
-        Number(newValue).toFixed(this.benchmarkCurrency.decimals)
+        Number(valueToRender).toFixed(this.benchmarkCurrency.decimals)
       ).toString();
     },
 
-    updateInputValue(amount: bigint) {
+    updateUserTokenRate(amount: bigint) {
       if (!amount) {
-        this.inputValue = "";
-        this.inputAmount = 0n;
+        this.userTokenRate = 0n;
       } else {
-        this.inputAmount = amount;
-        this.setInputValue(formatUnits(amount, RATE_DECIMALS));
+        this.userTokenRate = this.isFromBase
+          ? amount
+          : (RATE_PRECISION * RATE_PRECISION) / amount;
       }
     },
 
-    resetInput() {
-      this.inputValue = "";
-      this.inputAmount = 0n;
-      this.$emit("updateTokensRate", 0n);
+    calculateRateToRender(
+      rate: bigint,
+      isFromBase: boolean,
+      ratePrecision: bigint = RATE_PRECISION
+    ) {
+      return isFromBase ? rate : (ratePrecision * ratePrecision) / rate;
     },
   },
 
@@ -230,9 +235,6 @@ export default {
     ),
     BaseCheckBox: defineAsyncComponent(
       () => import("@/components/base/BaseCheckBox.vue")
-    ),
-    Tooltip: defineAsyncComponent(
-      () => import("@/components/ui/icons/Tooltip.vue")
     ),
   },
 };
@@ -291,7 +293,6 @@ export default {
 .price-selector {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 12px;
 }
 
@@ -310,10 +311,6 @@ export default {
   background: rgba(111, 111, 111, 0.06);
   padding: 4px;
   height: 36px;
-}
-
-.price-input {
-  max-width: 319px;
 }
 
 .token-icon,

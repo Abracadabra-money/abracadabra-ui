@@ -225,7 +225,7 @@ export default {
       similarPools: [],
       selectedNetwork: ARBITRUM_CHAIN_ID,
       availableNetworks,
-      isAutoPricingEnabled: false,
+      isAutoPricingEnabled: true,
       isTokensPopupOpened: false,
       isSlippagePopupOpened: false,
       isAutoPricingWarnPopupOpened: false,
@@ -388,28 +388,19 @@ export default {
         "1",
         tokenDecimalsDifference
       );
+
+      const baseAdjustedRatePrecision = isBaseDecimalsGreater
+        ? RATE_PRECISION * tokensDecimalsDifferencePrecision
+        : RATE_PRECISION / tokensDecimalsDifferencePrecision;
+
       if (type == TokenTypes.Base) {
         this.actionConfig.baseInAmount = amount;
-
-        const baseAdjustedRatePrecision = isBaseDecimalsGreater
-          ? RATE_PRECISION / tokensDecimalsDifferencePrecision
-          : RATE_PRECISION * tokensDecimalsDifferencePrecision;
-
         this.actionConfig.quoteInAmount =
-          (amount * baseAdjustedRatePrecision) / this.IforCalc;
+          (amount * this.IforCalc) / baseAdjustedRatePrecision;
       } else {
         this.actionConfig.quoteInAmount = amount;
-
-        const rateIsPeriodic = Number(this.actionConfig.I) % 10 !== 0;
-
-        const baseAmountWithPrecision = isBaseDecimalsGreater
-          ? RATE_PRECISION / tokensDecimalsDifferencePrecision
-          : RATE_PRECISION * tokensDecimalsDifferencePrecision;
-
         this.actionConfig.baseInAmount = amount
-          ? (amount * this.IforCalc +
-              (rateIsPeriodic ? baseAmountWithPrecision : 0n)) /
-            baseAmountWithPrecision
+          ? (amount * baseAdjustedRatePrecision) / this.IforCalc
           : 0n;
       }
     },
@@ -482,7 +473,10 @@ export default {
     },
 
     updateTokensRate(I: bigint) {
-      this.IforCalc = I;
+      if (I === 0n) {
+        this.actionConfig.I = I;
+        return;
+      }
 
       const decimalsDifferense = Math.abs(RATE_DECIMALS - this.IValueDecimals);
       const differencePrecision = parseUnits("1", decimalsDifferense);
@@ -491,12 +485,14 @@ export default {
           ? I / differencePrecision
           : I * differencePrecision;
 
-      this.updateTokenInputAmount(
-        TokenTypes.Base,
-        this.actionConfig.baseInAmount
-      );
+      if (I !== this.IforCalc) {
+        this.IforCalc = I;
+        this.updateTokenInputAmount(
+          TokenTypes.Base,
+          this.actionConfig.baseInAmount
+        );
+      }
     },
-
     async updateTokenAllowance(contract: ContractInfo) {
       const isBaseToken = this.baseToken.config.address == contract.address;
 

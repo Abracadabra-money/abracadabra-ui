@@ -37,25 +37,26 @@ export default {
     return {
       inputValue: this.value,
       tooltip: "",
+      inputChangedProgrammatically: false,
     };
   },
 
   watch: {
     inputValue(value, oldValue) {
-      if (!value) {
-        this.$emit("updateInputValue", null);
-        return;
-      }
-
       if (isNaN(value)) {
         this.inputValue = oldValue;
         return false;
       }
 
-      this.updateInputValue(value, this.decimals);
+      if (!this.inputChangedProgrammatically) {
+        this.updateInputValue(value, this.decimals);
+      }
+
+      this.inputChangedProgrammatically = false;
     },
 
     value(value) {
+      this.inputChangedProgrammatically = true;
       this.inputValue = value;
     },
   },
@@ -65,7 +66,6 @@ export default {
       const emitValue = !value
         ? BigInt(0)
         : parseUnits(formatToFixed(value, decimals), decimals);
-
       this.$emit("updateInputValue", emitValue);
     },
   },
