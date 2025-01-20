@@ -73,12 +73,12 @@ export const getPoolTokenInfo = async (
 ): Promise<PairTokensInfo> => {
   const quoteTokenPrice =
     prices.find(
-      (priceInfo) => priceInfo.address == poolConfig.quoteToken.contract.address
+      (priceInfo) => priceInfo.address.toLowerCase() == poolConfig.quoteToken.contract.address.toLowerCase()
     )?.price || 0;
 
   const baseTokenPrice =
     prices.find(
-      (priceInfo) => priceInfo.address == poolConfig.baseToken.contract.address
+      (priceInfo) => priceInfo.address.toLowerCase() == poolConfig.baseToken.contract.address.toLowerCase()
     )?.price || 0;
 
   const [quoteTokenInfo, baseTokenInfo] = await Promise.all([

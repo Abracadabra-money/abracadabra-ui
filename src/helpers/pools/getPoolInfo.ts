@@ -73,8 +73,8 @@ const getTokensInfo = async (
 ) => {
   const compoundTokensPrices = tokensPrices.filter(
     ({ address }) =>
-      address === poolConfig.baseToken.contract.address ||
-      address === poolConfig.quoteToken.contract.address
+      address.toLowerCase() === poolConfig.baseToken.contract.address.toLowerCase() ||
+      address.toLowerCase() === poolConfig.quoteToken.contract.address.toLowerCase()
   );
 
   const tokens = await getPoolTokenInfo(

@@ -39,13 +39,13 @@ export const getPoolApr = async (
         Number(rewardData.periodFinish) <= Math.floor(new Date() / 1000)
           ? 0
           : //@ts-ignore
-            formatUnits(rewardData.rewardRate, 18) *
-            (365 * 24 * 60 * 60) *
-            // rewardData.rewardsDuration *
-            rewardTokenPrice;
+          formatUnits(rewardData.rewardRate, 18) *
+          (365 * 24 * 60 * 60) *
+          // rewardData.rewardsDuration *
+          rewardTokenPrice;
 
       const tokenApr = (annualReward / totalStakedInUSD) * 100;
-
+   
       tokensApr.push({
         address: tokenInfo.contract.address,
         apr: tokenApr,
@@ -76,12 +76,12 @@ const getRewardTokensInfo = async (
   if (tokensPrices) {
     rewardTokensPrices = tokensPrices.filter(({ address }) =>
       rewardTokens.some(
-        (token: TokenConfig) => token.contract.address === address
+        (token: TokenConfig) => token.contract.address.toLowerCase() === address.toLowerCase()
       )
     );
   } else {
     const tokenAddresses = poolConfig.rewardTokens.reduce(
-      (acc: Address[], token: TokenConfig) => acc.push(token.contract.address),
+      (acc: Address[], token: TokenConfig) => acc.push(token.contract.address.toLowerCase() as Address),
       []
     );
 

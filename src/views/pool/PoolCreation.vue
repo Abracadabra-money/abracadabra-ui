@@ -176,7 +176,6 @@ import {
   STANDARD_K_VALUE,
   SAFE_PEGGED_K_VALUE,
   RATE_DECIMALS,
-  RATE_PRECISION,
 } from "@/constants/pools/poolCreation";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 import {
@@ -184,6 +183,10 @@ import {
   checkIdentity,
 } from "@/helpers/pools/poolCreation/createSimilarPoolsInfo";
 import { debounce } from "lodash";
+import {
+  calculateQuoteAndBaseAmounts,
+  invertIValueBasedOnUpdatedDecimals,
+} from "@/helpers/pools/poolCreation/utils";
 
 const emptyPoolCreationTokenInfo: PoolCreationTokenInfo = {
   config: {
@@ -356,9 +359,11 @@ export default {
 
     IValueDecimals(newDecimals: number, oldDecimals: number) {
       const currentI = this.actionConfig.I;
-      this.actionConfig.I =
-        (currentI * parseUnits("1", newDecimals)) /
-        parseUnits("1", oldDecimals);
+      this.actionConfig.I = invertIValueBasedOnUpdatedDecimals(
+        currentI,
+        newDecimals,
+        oldDecimals
+      );
     },
 
     async chainId() {
@@ -381,28 +386,16 @@ export default {
       const baseDecimals = this.baseToken.config.decimals;
       const quoteDecimals = this.quoteToken.config.decimals;
 
-      const isBaseDecimalsGreater = baseDecimals > quoteDecimals;
-
-      const tokenDecimalsDifference = Math.abs(baseDecimals - quoteDecimals);
-      const tokensDecimalsDifferencePrecision = parseUnits(
-        "1",
-        tokenDecimalsDifference
+      const { baseInAmount, quoteInAmount } = calculateQuoteAndBaseAmounts(
+        amount,
+        type,
+        this.IforCalc,
+        baseDecimals,
+        quoteDecimals
       );
 
-      const baseAdjustedRatePrecision = isBaseDecimalsGreater
-        ? RATE_PRECISION * tokensDecimalsDifferencePrecision
-        : RATE_PRECISION / tokensDecimalsDifferencePrecision;
-
-      if (type == TokenTypes.Base) {
-        this.actionConfig.baseInAmount = amount;
-        this.actionConfig.quoteInAmount =
-          (amount * this.IforCalc) / baseAdjustedRatePrecision;
-      } else {
-        this.actionConfig.quoteInAmount = amount;
-        this.actionConfig.baseInAmount = amount
-          ? (amount * baseAdjustedRatePrecision) / this.IforCalc
-          : 0n;
-      }
+      this.actionConfig.baseInAmount = baseInAmount;
+      this.actionConfig.quoteInAmount = quoteInAmount;
     },
 
     openTokensPopup(type: TokenTypes) {

@@ -38,11 +38,11 @@ const getPoolTokensAdressess = (
   tokensAddressessSet: Set<Address>,
   { baseToken, quoteToken, rewardTokens }: PoolConfig
 ) => {
-  tokensAddressessSet.add(baseToken.contract.address);
-  tokensAddressessSet.add(quoteToken.contract.address);
+  tokensAddressessSet.add(baseToken.contract.address.toLowerCase() as Address);
+  tokensAddressessSet.add(quoteToken.contract.address.toLowerCase() as Address);
 
   if (rewardTokens && rewardTokens?.length > 0)
     rewardTokens.forEach((rewardToken: TokenConfig) =>
-      tokensAddressessSet.add(rewardToken.contract.address)
+      tokensAddressessSet.add(rewardToken.contract.address.toLowerCase() as Address)
     );
 };

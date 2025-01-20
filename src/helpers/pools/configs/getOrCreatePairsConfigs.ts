@@ -203,9 +203,9 @@ const createPoolConfig = async (pool: GraphPairConfig, chainId: number) => {
       isMim: false,
     },
     initialParameters: {
-      I: pool.i,
-      K: pool.k,
-      lpFeeRate: pool.lpFeeRate,
+      I: BigInt(pool.i),
+      K: BigInt(pool.k),
+      lpFeeRate: BigInt(pool.lpFeeRate),
     },
   };
 

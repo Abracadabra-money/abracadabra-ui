@@ -13,8 +13,8 @@ export const createSimilarPoolsInfo = async (
     )
     .filter(
       ({ baseToken, quoteToken }) =>
-        baseToken.contract.address === actionConfig.baseToken &&
-        quoteToken.contract.address === actionConfig.quoteToken
+        baseToken.contract.address.toLowerCase() === actionConfig.baseToken.toLowerCase() &&
+        quoteToken.contract.address.toLowerCase() === actionConfig.quoteToken.toLowerCase()
     );
 
   const similarPools = await getPoolsList(account, similarConfigs);
