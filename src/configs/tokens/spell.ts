@@ -1,20 +1,41 @@
+import tokensAbi from "@/abis/tokensAbi/index";
+import { useImage } from "@/helpers/useImage";
+
 export default [
   {
     name: "Spell",
-    chain: 1,
+    chainId: 1,
     address: "0x090185f2135308bad17527004364ebcc2d37e5f6",
     symbol: "SPELL",
     decimals: 18,
-    image:
-      "https://fra1.digitaloceanspaces.com/static.popsicle.finance/tokenmagicwandpng.png",
+    abi: tokensAbi.SPELL,
+    image: useImage("assets/images/tokens/SPELL.png"),
   },
   {
-    name: "sSpell",
-    chain: 1,
-    address: "0x26fa3fffb6efe8c1e69103acb4044c26b9a106a9",
-    symbol: "sSPELL",
+    name: "Spell",
+    chainId: 42161,
+    address: "0x55BE39c912621606683DEe44C4ab2Dde083Bc925",
+    symbol: "SPELL",
     decimals: 18,
-    image:
-      "https://fra1.digitaloceanspaces.com/static.popsicle.finance/sspelllogopng.png",
+    abi: tokensAbi.SPELL,
+    image: useImage("assets/images/tokens/SPELL.png"),
+  },
+  {
+    name: "Spell",
+    chainId: 43114,
+    address: "0x55BE39c912621606683DEe44C4ab2Dde083Bc925",
+    symbol: "SPELL",
+    decimals: 18,
+    abi: tokensAbi.SPELL,
+    image: useImage("assets/images/tokens/SPELL.png"),
+  },
+  {
+    name: "Spell",
+    chainId: 250,
+    address: "0x55BE39c912621606683DEe44C4ab2Dde083Bc925",
+    symbol: "SPELL",
+    decimals: 18,
+    abi: tokensAbi.SPELL,
+    image: useImage("assets/images/tokens/SPELL.png"),
   },
 ];

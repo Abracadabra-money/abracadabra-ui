@@ -21,24 +21,41 @@
         </div>
       </div>
 
+      <div class="tabs">
+        <button
+          :class="['tab-item', { active: tokenType === tab.id }]"
+          v-for="tab in tabsInfo"
+          :key="tab.id"
+          @click="changeTokenType(tab.id)"
+        >
+          <img class="tab-icon" :src="tab.icon" alt="" />
+          {{ tab.name }}
+        </button>
+      </div>
+
       <div class="beam-actions" v-if="!isOpenNetworkPopup && !isSettingsOpened">
         <ChainsWrap
           :fromChain="fromChain"
           :toChain="toChain"
+          :isChainsDisabled="isLoadingBeamInfo || tokenType === 1"
           @onChainSelectClick="openNetworkPopup"
           @switchChains="switchChains"
         />
 
         <div class="inputs-wrap" v-if="tokenConfig">
           <div>
-            <h4 class="input-label">MIM to Beam</h4>
+            <h4 class="input-label">{{ tokenSymbol }} to Beam</h4>
+
+            <div class="row-skeleton" v-if="isLoadingBeamInfo"></div>
+
             <BaseTokenInput
+              v-else
               class="beam-input"
               :decimals="tokenConfig.decimals"
-              :max="maxMimAmount"
+              :max="maxTokenAmount"
               :value="inputValue"
               :name="tokenConfig.symbol"
-              :icon="tokenConfig.image"
+              :icon="beamInfoObject.tokenConfig.image"
               @updateInputValue="updateMainValue"
               :error="amountError"
             />
@@ -79,62 +96,60 @@
         </p>
       </div>
 
-      <TransitionWrapper appear v-if="isOpenNetworkPopup">
-        <ChainsPopup
-          :isOpen="isOpenNetworkPopup"
-          :popupType="popupType"
-          :beamInfoObject="beamInfoObject"
-          :selectedFromChain="fromChain"
-          :selectedToChain="toChain"
-          @closePopup="closeNetworkPopup"
-          @changeChain="changeChain"
-        />
-      </TransitionWrapper>
+      <ChainsPopup
+        v-if="isOpenNetworkPopup"
+        :isOpen="isOpenNetworkPopup"
+        :popupType="popupType"
+        :beamInfoObject="beamInfoObject"
+        :selectedFromChain="fromChain"
+        :selectedToChain="toChain"
+        @closePopup="closeNetworkPopup"
+        @changeChain="changeChain"
+      />
 
-      <TransitionWrapper appear v-if="isSettingsOpened && toChain">
-        <SettingsPopup
-          :beamInfoObject="beamInfoObject"
-          :dstChainInfo="toChain"
-          :dstNativeTokenAmount="dstTokenAmount"
-          :mimAmount="inputAmount"
-          @onUpdateAmount="updateDstNativeTokenAmount"
-          @closeSettings="isSettingsOpened = false"
-        />
-      </TransitionWrapper>
+      <SettingsPopup
+        v-if="isSettingsOpened && toChain"
+        :beamInfoObject="beamInfoObject"
+        :dstChainInfo="toChain"
+        :dstNativeTokenAmount="dstTokenAmount"
+        :mimAmount="inputAmount"
+        @onUpdateAmount="updateDstNativeTokenAmount"
+        @closeSettings="isSettingsOpened = false"
+      />
     </div>
   </div>
 
-  <TransitionWrapper>
-    <SuccessPopup
-      v-if="isOpenSuccessPopup && beamInfoObject"
-      :beamInfoObject="beamInfoObject"
-      :successData="successData"
-      @close-popup="isOpenSuccessPopup = false"
-    />
-  </TransitionWrapper>
+  <SuccessPopup
+    v-if="isOpenSuccessPopup && beamInfoObject"
+    :beamInfoObject="beamInfoObject"
+    :successData="successData"
+    @close-popup="isOpenSuccessPopup = false"
+  />
 </template>
 
 <script lang="ts">
-import { utils } from "ethers";
-import { defineAsyncComponent } from "vue";
-import { trimZeroDecimals } from "@/helpers/numbers";
-import { approveTokenViem } from "@/helpers/approval";
-import { sendFrom } from "@/helpers/beam/sendFromNew";
-import { mapGetters, mapActions, mapMutations } from "vuex";
-import { switchNetwork } from "@/helpers/chains/switchNetwork";
-import notification from "@/helpers/notification/notification";
-import beamConfigs from "@/configs/beam/beamConfigs";
-import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFeeNew";
-
-import { getBeamInfo } from "@/helpers/beam/getBeamInfo";
-import { formatUnits, type Address } from "viem";
-
 import type {
-  BeamConfig,
   BeamInfo,
+  BeamConfig,
   DestinationChainInfo,
 } from "@/helpers/beam/types";
+import { ethers, utils } from "ethers";
+import { defineAsyncComponent } from "vue";
+import { useImage } from "@/helpers/useImage";
 import type { ContractInfo } from "@/types/global";
+import { sendFrom } from "@/helpers/beam/sendFrom";
+import { sendLzV2 } from "@/helpers/beam/sendLzV2";
+import { MIM_ID, SPELL_ID } from "@/constants/beam";
+import { trimZeroDecimals } from "@/helpers/numbers";
+import { approveTokenViem } from "@/helpers/approval";
+import { beamConfigs } from "@/configs/beam/beamConfigs";
+import { getBeamInfo } from "@/helpers/beam/getBeamInfo";
+import { mapGetters, mapActions, mapMutations } from "vuex";
+import { formatUnits, encodePacked, type Address } from "viem";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import notification from "@/helpers/notification/notification";
+import { quoteSendFee } from "@/helpers/beam/getEstimateSendFee";
+import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFee";
 
 export default {
   data() {
@@ -148,23 +163,19 @@ export default {
       isOpenSuccessPopup: false,
       tx: null,
       successData: null as any,
-
       isApproving: false,
       isBeaming: false,
       isUpdateFeesData: false,
-
       beamInfoObject: undefined as BeamInfo | undefined,
       fromChain: undefined as BeamConfig | undefined,
       toChain: undefined as BeamConfig | undefined,
-
       dstTokenAmount: 0n,
-
       inputAmount: 0n,
       inputValue: "",
-
       isShowDstAddress: false,
-
       estimateSendFee: 0n,
+      tokenType: MIM_ID,
+      isLoadingBeamInfo: false,
     };
   },
 
@@ -184,6 +195,13 @@ export default {
     },
 
     toAddressBytes() {
+      if (this.tokenType === SPELL_ID) {
+        return ethers.utils.defaultAbiCoder.encode(
+          ["bytes32"],
+          [ethers.utils.hexZeroPad(this.account, 32)]
+        );
+      }
+
       return utils.defaultAbiCoder.encode(["address"], [this.toAddress]);
     },
 
@@ -201,7 +219,7 @@ export default {
       if (!this.beamInfoObject) return "";
 
       if (this.inputAmount > this.beamInfoObject.userInfo.balance) {
-        return `The value cannot be greater than ${this.maxMimAmountParsed}`;
+        return `The value cannot be greater than ${this.maxTokenAmountParsed}`;
       }
       return "";
     },
@@ -210,18 +228,18 @@ export default {
       return !this.dstAddress && this.isShowDstAddress;
     },
 
-    maxMimAmount() {
+    maxTokenAmount() {
       if (!this.beamInfoObject) return 0n;
 
       return this.beamInfoObject.userInfo.balance;
     },
 
-    maxMimAmountParsed() {
-      return formatUnits(this.maxMimAmount, 18);
+    maxTokenAmountParsed() {
+      return formatUnits(this.maxTokenAmount, 18);
     },
 
     isInsufficientBalance() {
-      return this.inputAmount > this.maxMimAmount;
+      return this.inputAmount > this.maxTokenAmount;
     },
 
     isWrongChain() {
@@ -253,6 +271,45 @@ export default {
       if (this.isBeaming) return { disable: true, text: "Beaming" };
       return { disable: false, text: "Beam" };
     },
+
+    tabsInfo() {
+      return [
+        {
+          id: MIM_ID,
+          name: "MIM",
+          icon: useImage("assets/images/tokens/MIM.png"),
+        },
+        {
+          id: SPELL_ID,
+          name: "Spell",
+          icon: useImage("assets/images/tokens/SPELL.png"),
+        },
+      ];
+    },
+
+    tokenSymbol() {
+      return this.tabsInfo.find((tab) => tab.id === this.tokenType)?.name;
+    },
+
+    tokenIcon() {
+      return this.tabsInfo.find((tab) => tab.id === this.tokenType)?.icon;
+    },
+
+    sendParam() {
+      const extraOptions = this.dstTokenAmount
+        ? encodePacked(["uint16", "uint256"], [2, this.dstTokenAmount])
+        : "0x";
+
+      return {
+        dstEid: this.toChain?.settings.lzChainId, // uint32
+        to: this.toAddressBytes, // bytes32
+        amountLD: this.inputAmount, // uint256
+        minAmountLD: this.inputAmount, // uint256
+        extraOptions, // bytes
+        composeMsg: "0x", // bytes
+        oftCmd: "0x", // bytes
+      };
+    },
   },
 
   watch: {
@@ -264,7 +321,9 @@ export default {
 
       this.inputValue = trimZeroDecimals(formatUnits(value, 18));
     },
+
     fromChain(value) {
+      if (!value) return;
       if (this.toChain && this.toChain.chainId === value.chainId)
         this.toChain = undefined;
 
@@ -287,11 +346,13 @@ export default {
         this.initBeamInfo(value.chainId);
       }
     },
+
     async toChain() {
       if (this.beamInfoObject && this.fromChain) {
         this.estimateSendFee = await this.getEstimatedFees();
       }
     },
+
     account() {
       const currentChain = this.beamInfoObject
         ? this.beamInfoObject.fromChainConfig.chainId
@@ -299,6 +360,7 @@ export default {
       this.clearData();
       this.initBeamInfo(currentChain);
     },
+
     chainId(value) {
       if (
         this.beamInfoObject &&
@@ -308,6 +370,43 @@ export default {
         this.initBeamInfo(value);
       }
     },
+
+    async tokenType() {
+      const fromChainId = this.fromChain?.chainId || 1;
+
+      this.fromChain = undefined;
+
+      this.toChain = undefined;
+      this.isOpenNetworkPopup = false;
+      this.isShowDstAddress = false;
+      this.isSettingsOpened = false;
+
+      const currentChain = this.beamInfoObject
+        ? this.beamInfoObject.fromChainConfig.chainId
+        : this.chainId;
+      this.clearData();
+      this.isLoadingBeamInfo = true;
+      await this.initBeamInfo(currentChain);
+
+      const chainConfig = this.beamInfoObject!.beamConfigs.find(
+        (chain) => chain.chainId === fromChainId
+      );
+
+      if (this.tokenType === SPELL_ID) {
+        this.fromChain = this.beamInfoObject!.beamConfigs[0];
+        this.toChain = this.beamInfoObject!.beamConfigs[1];
+        this.isLoadingBeamInfo = false;
+        return;
+      }
+
+      if (!chainConfig) {
+        this.fromChain = this.beamInfoObject!.beamConfigs[0];
+      } else {
+        this.fromChain = chainConfig;
+      }
+
+      this.isLoadingBeamInfo = false;
+    },
   },
 
   methods: {
@@ -316,6 +415,10 @@ export default {
       deleteNotification: "notifications/delete",
       updateNotification: "notifications/updateTitle",
     }),
+
+    changeTokenType(type: number) {
+      this.tokenType = type;
+    },
 
     checkChainsCompability(fromChain: number, toChain: number) {
       if (!this.fromChain || !this.toChain) return false;
@@ -352,6 +455,7 @@ export default {
         return false;
       }
       this.inputAmount = value;
+
       this.estimateSendFee = await this.getEstimatedFees();
     },
 
@@ -378,7 +482,8 @@ export default {
       }
 
       const beamContract = this.beamInfoObject!.fromChainConfig.contract;
-      const mimContract: ContractInfo = {
+
+      const tokenContract: ContractInfo = {
         address: this.beamInfoObject!.tokenConfig.address as Address,
         abi: this.beamInfoObject!.tokenConfig.abi,
       };
@@ -396,8 +501,9 @@ export default {
         });
 
         const isTokenApproved = await approveTokenViem(
-          mimContract,
-          beamContract.address
+          tokenContract,
+          beamContract.address,
+          this.inputAmount
         );
 
         this.isApproving = false;
@@ -413,7 +519,9 @@ export default {
         });
       }
 
-      await this.seendBeam(notificationId);
+      if (this.fromChain!.settings?.lzVersion === 2) {
+        await this.seendBeamV2(notificationId);
+      } else await this.seendBeam(notificationId);
     },
 
     async seendBeam(notificationId: number) {
@@ -467,6 +575,67 @@ export default {
         console.log("Success Popup Data:", successPopupData);
 
         this.successData = successPopupData;
+        this.successData.tokenIcon = this.tokenIcon;
+        this.isOpenSuccessPopup = true;
+
+        this.clearData();
+      } catch (error) {
+        console.log("Seend Beam Error:", error);
+        this.isBeaming = false;
+        this.errorTransaction(error, notificationId);
+      }
+    },
+
+    async seendBeamV2(notificationId: number) {
+      this.isBeaming = true;
+
+      try {
+        const fees = await this.getEstimatedFees(true);
+
+        const hash = await sendLzV2(
+          this.account,
+          this.sendParam,
+          this.beamInfoObject!,
+          fees
+        );
+
+        this.deleteNotification(notificationId);
+        this.isBeaming = false;
+
+        const dstChainFullInfo =
+          this.beamInfoObject!.destinationChainsInfo.find(
+            (chain: DestinationChainInfo) =>
+              chain.chainConfig.chainId === this.toChain!.chainId
+          );
+
+        const dstNativePrice = dstChainFullInfo!.nativePrice;
+
+        const successPopupData = {
+          originChain: {
+            ...this.fromChain,
+            nativePrice: this.beamInfoObject!.nativePrice,
+          },
+          dstChain: {
+            ...this.toChain,
+            nativePrice: dstNativePrice,
+          },
+          txPayload: {
+            fees: fees.nativeFee,
+            dstLzChainId: this.toChain!.settings.lzChainId,
+            amount: this.inputAmount,
+            account: this.account,
+            to: this.toAddress,
+          },
+          txHash: hash,
+          // txHash:
+          // "0xcf03015d1c70f328b03c055683e4640e317ad9406edf638b99a57a5e4cd17c74",
+          dstNativeTokenAmount: this.dstTokenAmount,
+        };
+
+        console.log("Success Popup Data:", successPopupData);
+
+        this.successData = successPopupData;
+        this.successData.tokenIcon = this.tokenIcon;
         this.isOpenSuccessPopup = true;
 
         this.clearData();
@@ -483,21 +652,25 @@ export default {
 
       this.isUpdateFeesData = true;
 
-      // @ts-ignore
-      const { fees, params } = await getEstimateSendFee(
-        this.beamInfoObject!,
-        this.toChain,
-        this.account,
-        this.dstTokenAmount,
-        this.inputAmount
-      );
+      if (this.fromChain.settings?.lzVersion === 2) {
+        const fees = await quoteSendFee(this.beamInfoObject!, this.sendParam);
+        this.isUpdateFeesData = false;
+        if (getParams) return fees;
+        else return fees.nativeFee;
+      } else {
+        // @ts-ignore
+        const { fees, params } = await getEstimateSendFee(
+          this.beamInfoObject!,
+          this.toChain,
+          this.account,
+          this.dstTokenAmount,
+          this.inputAmount
+        );
 
-      const additionalFee = fees[0] / 100n;
-      const updatedFee = fees[0] + additionalFee; // add 1% from base fee to be sure tx success
-
-      this.isUpdateFeesData = false;
-      if (getParams) return { fees: updatedFee, params };
-      else return updatedFee;
+        this.isUpdateFeesData = false;
+        if (getParams) return { fees, params };
+        else return fees;
+      }
     },
 
     async errorTransaction(error: any, notificationId: any) {
@@ -531,7 +704,6 @@ export default {
     },
 
     async changeChain(chainId: number, type: string) {
-      console.log("changeChain", { chainId, type });
       const chainConfig = this.beamInfoObject!.beamConfigs.find(
         (chain) => chain.chainId === chainId
       );
@@ -570,12 +742,15 @@ export default {
 
     async initBeamInfo(chainId: number): Promise<number | undefined> {
       try {
-        const isChainIdValid = beamConfigs.some(
-          (item) => item.chainId === chainId
-        );
-        const beamChainId = isChainIdValid ? chainId : beamConfigs[0].chainId;
+        const configs = beamConfigs[this.tokenType as keyof typeof beamConfigs];
+        const isChainIdValid = configs.some((item) => item.chainId === chainId);
+        const beamChainId = isChainIdValid ? chainId : configs[0].chainId;
 
-        this.beamInfoObject = await getBeamInfo(beamChainId, this.account);
+        this.beamInfoObject = await getBeamInfo(
+          beamChainId,
+          this.account,
+          this.tokenType
+        );
 
         return this.beamInfoObject.fromChainConfig.chainId;
       } catch (error) {
@@ -635,9 +810,6 @@ export default {
     ExpectedBlock: defineAsyncComponent(
       () => import("@/components/beam/ExpectedBlock.vue")
     ),
-    TransitionWrapper: defineAsyncComponent(
-      () => import("@/components/ui/TransitionWrapper.vue")
-    ),
   },
 };
 </script>
@@ -658,7 +830,7 @@ export default {
   margin-top: 50px;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 20px;
   position: relative;
 }
 
@@ -729,6 +901,40 @@ export default {
   z-index: 1;
 }
 
+.tabs {
+  display: flex;
+  padding: 6px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: rgba(16, 18, 23, 0.38);
+  backdrop-filter: blur(20px);
+  max-width: 236px;
+}
+
+.tab-item {
+  padding: 6px 24px;
+  gap: 8px;
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  border: transparent;
+  outline: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 500;
+  line-height: normal;
+  background: transparent;
+  cursor: pointer;
+}
+
+.active {
+  background: rgba(111, 111, 111, 0.06);
+}
+
+.tab-icon {
+  width: 20px;
+  height: 20px;
+}
+
 .inputs-wrap {
   display: flex;
   flex-direction: column;
@@ -768,6 +974,32 @@ export default {
 
 .caption-icon {
   max-width: 85px;
+}
+
+.row-skeleton {
+  height: 82px;
+  width: 100%;
+  border-radius: 16px;
+  border: 1px solid rgba(73, 70, 97, 0.4);
+  background-image: linear-gradient(
+    90deg,
+    rgba(8, 14, 31, 0.6) 0px,
+    rgba(35, 41, 64, 1) 60px,
+    rgba(19, 24, 42, 1) 120px
+  );
+  background-size: 1000px;
+  animation: skeleton 1.6s infinite forwards;
+}
+
+@keyframes skeleton {
+  0% {
+    background-position: -100px;
+  }
+
+  50%,
+  100% {
+    background-position: 480px;
+  }
 }
 
 @media (max-width: 600px) {

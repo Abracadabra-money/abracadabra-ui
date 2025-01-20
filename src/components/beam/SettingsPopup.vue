@@ -72,7 +72,7 @@
 <script lang="ts">
 import Tooltip from "@/components/ui/icons/Tooltip.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
-import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFeeNew";
+import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFee";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import { formatUnits, parseUnits } from "viem";
 import type { BeamInfo, BeamConfig } from "@/helpers/beam/types";
@@ -122,7 +122,7 @@ export default {
     ...mapGetters({
       account: "getAccount",
     }),
-    
+
     dstUpdatedInfo() {
       return this.beamInfoObject.destinationChainsInfo.find(
         (chain) => chain.chainConfig.chainId === this.dstChainInfo.chainId

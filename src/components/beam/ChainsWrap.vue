@@ -2,7 +2,10 @@
   <div class="chains-wrap">
     <h4 class="select-title">Select Networks</h4>
     <div class="chains-swap">
-      <button class="select-item" @click="chainSelectHandler('from')">
+      <button
+        :class="['select-item', { disabled: isChainsDisabled }]"
+        @click="chainSelectHandler('from')"
+      >
         <div class="icon-wrap">
           <img class="chain-icon" :src="fromChainInfo.icon" alt="Icon" />
         </div>
@@ -11,7 +14,7 @@
 
       <button
         class="switch-chain-button"
-        :disabled="isSwitchChainsDisabled"
+        :disabled="isSwitchChainsDisabled || isChainsDisabled"
         @click="switchChains"
       >
         <img
@@ -21,7 +24,10 @@
         />
       </button>
 
-      <button class="select-item" @click="chainSelectHandler('to')">
+      <button
+        :class="['select-item', { disabled: isChainsDisabled }]"
+        @click="chainSelectHandler('to')"
+      >
         <div class="icon-wrap">
           <img class="chain-icon" :src="toChainInfo.icon" alt="Icon" />
         </div>
@@ -51,6 +57,10 @@ export default {
     },
     toChain: {
       type: Object as PropType<BeamConfig>,
+    },
+    isChainsDisabled: {
+      type: Boolean,
+      default: false,
     },
   },
 
@@ -82,8 +92,10 @@ export default {
 
   methods: {
     chainSelectHandler(type: "from" | "to") {
+      if (this.isChainsDisabled) return;
       this.$emit("onChainSelectClick", type);
     },
+
     switchChains() {
       this.$emit("switchChains");
     },
@@ -180,7 +192,8 @@ export default {
 }
 
 .disabled {
-  opacity: 0.5;
+  opacity: 0.8;
+  cursor: not-allowed;
 }
 
 .switch-chain-image {
