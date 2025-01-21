@@ -1706,6 +1706,7 @@ const config: Array<CauldronConfig> = [
       iStdeUSD: true,
       isNoDeleverage: true,
       hasElixirPotions: true,
+      weight: 2,
     },
     contract: {
       name: "CauldronV4",
@@ -1787,7 +1788,7 @@ const config: Array<CauldronConfig> = [
     cauldronSettings: {
       isNew: false,
       isSwappersActive: true,
-      is0xSwap: true, // NOTICE: here the ODOS Api is used and not 0x 
+      is0xSwap: true, // NOTICE: here the ODOS Api is used and not 0x
       isDegenBox: true,
       strategyLink: false,
       isDepreciated: false,
@@ -1798,6 +1799,7 @@ const config: Array<CauldronConfig> = [
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
       isUSD0: true,
+      weight: 4,
     },
     contract: {
       name: "CauldronV4",
