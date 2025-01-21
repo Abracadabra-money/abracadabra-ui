@@ -12,6 +12,9 @@ import { switchNetwork } from "@/helpers/chains/switchNetwork";
 
 import cooks from "@/helpers/cauldron/cook/cooks";
 
+import ErrorHandler from "@/helpers/errorHandler/ErrorHandler";
+import { erc20Abi } from "viem";
+
 const approvalWarnings = [
   WARNING_TYPES.DEPOSIT_ALLOWANCE,
   WARNING_TYPES.REPAY_ALLOWANCE,
@@ -113,12 +116,20 @@ export default {
 
       const contract = this.action === "borrow" ? depositContract : mim;
 
-      const approve = await approveToken(contract, bentoBox.address);
+      const contractInfo = {
+        address: contract.address,
+        abi: erc20Abi
+      }
 
-      if (approve) this.$emit("updateMarket"); //await this.createCauldronInfo();
-      this.deleteNotification(notificationId);
+      try {
+        const approve = await approveToken(contractInfo, bentoBox.address);
 
-      if (!approve) await this.createNotification(notification.approveError);
+        if (approve) this.$emit("updateMarket");
+        this.deleteNotification(notificationId);
+      } catch (error) {
+        this.deleteNotification(notificationId);
+        ErrorHandler.handleError(error)
+      }
     },
     async cookHandler() {
       const notificationId = await this.createNotification(
@@ -184,13 +195,16 @@ export default {
         this.$emit("clearData");
         this.successNotification(notificationId);
       } catch (error) {
-        console.log("cook error", error);
-        const errorNotification = {
-          msg: notificationErrorMsg(error),
-          type: "error",
-        };
         this.deleteNotification(notificationId);
-        this.createNotification(errorNotification);
+        ErrorHandler.handleError(error);
+
+
+        // const errorNotification = {
+        //   msg: notificationErrorMsg(error),
+        //   type: "error",
+        // };
+        // this.deleteNotification(notificationId);
+        // this.createNotification(errorNotification);
       }
     },
 

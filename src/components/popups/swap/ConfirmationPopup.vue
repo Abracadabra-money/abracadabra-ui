@@ -63,7 +63,7 @@ import { swapTokensForTokens } from "@/helpers/pools/swap/actions/swapTokensForT
 import { sellBaseTokensForTokens } from "@/helpers/pools/swap/actions/sellBaseTokensForTokens";
 import { sellQuoteTokensForTokens } from "@/helpers/pools/swap/actions/sellQuoteTokensForTokens";
 import { SECONDS_PER_MINUTE } from "@/constants/global";
-
+import ErrorHandler from "@/helpers/errorHandler/ErrorHandler";
 export default {
   props: {
     actionConfig: {} as any,
@@ -178,12 +178,8 @@ export default {
         this.$emit("confirm");
       } catch (error) {
         console.log("Swap Error", error);
-        const errorNotification = {
-          msg: notificationErrorMsg(error),
-          type: "error",
-        };
         this.deleteNotification(notificationId);
-        this.createNotification(errorNotification);
+        ErrorHandler.handleError(error as Error)
       }
 
       this.isActionProcessing = false;

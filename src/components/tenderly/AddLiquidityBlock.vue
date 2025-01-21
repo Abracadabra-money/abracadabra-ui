@@ -47,7 +47,7 @@ import moment from "moment";
 import { Contract } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
-import { formatUnits, parseUnits } from "viem";
+import { Address, formatUnits, parseUnits } from "viem";
 import { approveToken } from "@/helpers/approval";
 import { formatToFixed } from "@/helpers/filters";
 import { trimZeroDecimals } from "@/helpers/numbers";
@@ -63,7 +63,7 @@ import { previewAddLiquidity } from "@/helpers/pools/swap/liquidity";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
 // @ts-ignore
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-
+import { erc20Abi } from "viem";
 export default {
   data() {
     return {
@@ -379,7 +379,12 @@ export default {
       }
 
       try {
-        await approveToken(tokenContract, this.pool.swapRouter);
+        const contractInfo = {
+          address: tokenContract.address as Address,
+          abi: erc20Abi
+        }
+
+        await approveToken(contractInfo, this.pool.swapRouter);
         await this.getPoolInfo();
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.success);
