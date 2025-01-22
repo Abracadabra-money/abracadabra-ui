@@ -17,6 +17,7 @@
   "dependencies": {
     "@apollo/client": "^3.8.7",
     "@coinbase/wallet-sdk": "^3.6.5",
+    "@layerzerolabs/lz-v2-utilities": "^3.0.46",
     "@layerzerolabs/scan-client": "^0.0.4",
     "@notifi-network/notifi-frontend-client": "0.90.7",
     "@notifi-network/notifi-react-card": "0.90.7",

@@ -14,6 +14,7 @@
             buttonType="settings"
             v-if="fromChain && toChain"
           />
+
           <BeamSettingsButton
             :active="isShowDstAddress"
             @click="toggleDstAddress"
@@ -136,6 +137,7 @@ import type {
 import { ethers, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
+import { formatUnits, type Address } from "viem";
 import type { ContractInfo } from "@/types/global";
 import { sendFrom } from "@/helpers/beam/sendFrom";
 import { sendLzV2 } from "@/helpers/beam/sendLzV2";
@@ -144,8 +146,8 @@ import { trimZeroDecimals } from "@/helpers/numbers";
 import { approveTokenViem } from "@/helpers/approval";
 import { beamConfigs } from "@/configs/beam/beamConfigs";
 import { getBeamInfo } from "@/helpers/beam/getBeamInfo";
+import { Options } from "@layerzerolabs/lz-v2-utilities";
 import { mapGetters, mapActions, mapMutations } from "vuex";
-import { formatUnits, encodePacked, type Address } from "viem";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
 import { quoteSendFee } from "@/helpers/beam/getEstimateSendFee";
@@ -297,7 +299,12 @@ export default {
 
     sendParam() {
       const extraOptions = this.dstTokenAmount
-        ? encodePacked(["uint16", "uint256"], [2, this.dstTokenAmount])
+        ? Options.newOptions()
+            .addExecutorNativeDropOption(
+              this.dstTokenAmount,
+              this.toAddressBytes
+            )
+            .toHex()
         : "0x";
 
       return {

@@ -46,6 +46,7 @@ export const spellConfigs: BeamConfig[] = [
       contractVersion: 1,
       disabledDestinationChains: [],
       lzChainId: 30110,
+      lzVersion: 2,
     },
     defaultValue: {
       1: "0.008858578698816767",

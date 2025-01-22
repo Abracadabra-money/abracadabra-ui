@@ -35,23 +35,33 @@
     <div class="right-block">
       <div class="info">
         <p class="info-title">bSpell In Curculation</p>
+
         <p class="info-text">
           <img
             class="info-icon"
             src="@/assets/images/tokens/bSPELL.png"
             alt="bSPELL icon"
-          />{{ formatLargeSum(totalCirculation) }}
+          />
+          <RowSkeleton v-if="!bSpellInfo" height="32px" />
+          <span v-else>
+            {{ bSpellCurculation }}
+          </span>
         </p>
       </div>
       <div class="line"></div>
-      <div>
+      <div class="info">
         <p class="info-title">Staked</p>
         <p class="info-text">
           <img
             class="info-icon"
             src="@/assets/images/tokens/bSPELL.png"
             alt="bSPELL icon"
-          />120.00M
+          />
+
+          <RowSkeleton v-if="!bSpellInfo" height="32px" />
+          <span v-else>
+            {{ totalStaked }}
+          </span>
         </p>
       </div>
     </div>
@@ -61,20 +71,23 @@
 <script lang="ts">
 import { formatUnits } from "viem";
 import { useImage } from "@/helpers/useImage";
-import { bSpellLockConfig } from "@/helpers/bSpell/сonfig";
-import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { formatLargeSum } from "@/helpers/filters";
+import type { BSpellInfo } from "@/helpers/bSpell/types";
+import { defineAsyncComponent, type PropType } from "vue";
 
 export default {
   emits: ["changeActiveTab"],
 
+  props: {
+    bSpellInfo: {
+      type: Object as PropType<BSpellInfo>,
+      required: true,
+    },
+  },
+
   data() {
     return {
-      bSpellTabName: "BSpellBlock",
-      spellPowerTabName: "SpellPowerBlock",
       activeTab: "BSpellBlock",
-      totalCirculation: "0.0",
-      updateInterval: null as null | NodeJS.Timeout,
       tabsInfo: [
         {
           name: "BSpellBlock",
@@ -90,53 +103,35 @@ export default {
     };
   },
 
-  methods: {
-    formatLargeSum,
+  computed: {
+    bSpellCurculation() {
+      if (!this.bSpellInfo) return formatLargeSum(0);
+      return formatLargeSum(
+        formatUnits(this.bSpellInfo.bSpell.totalSupply, 18)
+      );
+    },
 
+    totalStaked() {
+      if (!this.bSpellInfo || !this.bSpellInfo.stakeInfo)
+        return formatLargeSum(0);
+
+      return formatLargeSum(
+        formatUnits(this.bSpellInfo.stakeInfo.totalSupply, 18)
+      );
+    },
+  },
+
+  methods: {
     changeActiveTab(tabName: string) {
       this.activeTab = tabName;
       this.$emit("changeActiveTab", tabName);
     },
-
-    async bSpellCurculation() {
-      const chains = Object.keys(bSpellLockConfig).map(Number);
-
-      const responses = await Promise.allSettled(
-        chains.map(async (chainId) => {
-          const {
-            bSpell: { contract },
-          } = bSpellLockConfig[chainId];
-          const publicClient = getPublicClient(chainId);
-
-          return publicClient.readContract({
-            address: contract.address,
-            abi: contract.abi,
-            functionName: "totalSupply",
-          });
-        })
-      );
-
-      const totalCirculation = responses
-        .filter(
-          (result): result is PromiseFulfilledResult<bigint> =>
-            result.status === "fulfilled"
-        )
-        .reduce((acc, { value }) => acc + value, 0n);
-
-      this.totalCirculation = formatUnits(totalCirculation, 18);
-    },
   },
 
-  created() {
-    this.bSpellCurculation();
-
-    this.updateInterval = setInterval(async () => {
-      await this.bSpellCurculation();
-    }, 60000);
-  },
-
-  beforeUnmount() {
-    clearInterval(Number(this.updateInterval));
+  components: {
+    RowSkeleton: defineAsyncComponent(
+      () => import("@/components/ui/skeletons/RowSkeleton.vue")
+    ),
   },
 };
 </script>
@@ -232,6 +227,10 @@ export default {
   );
 }
 
+.info {
+  min-width: 140px;
+}
+
 .info-title {
   color: #878b93;
   font-weight: 500;
@@ -240,6 +239,7 @@ export default {
 }
 
 .info-text {
+  height: 42px;
   font-size: 28px;
   font-weight: 500;
   gap: 6px;
