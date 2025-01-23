@@ -23,7 +23,7 @@
           </div>
         </div>
 
-        <BaseButton primary :disabled="isClaimDisabled" @click="claimHandler">
+        <BaseButton primary :disabled="isClaimDisabled" @click="actionHandler">
           {{ claimButtonText }}
         </BaseButton>
       </div>
@@ -46,6 +46,7 @@ import type { BSpellInfo } from "@/helpers/bSpell/types";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import ErrorHandler from "@/helpers/errorHandler/ErrorHandler";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 
 export default {
@@ -57,7 +58,7 @@ export default {
       required: true,
     },
 
-    selectedChain: {
+    selectedNetwork: {
       type: Number,
       required: true,
     },
@@ -67,7 +68,7 @@ export default {
     ...mapGetters({ account: "getAccount", chainId: "getChainId" }),
 
     isUnsupportedChain() {
-      return this.chainId === this.selectedChain;
+      return this.chainId === this.selectedNetwork;
     },
 
     claimButtonText() {
@@ -103,31 +104,28 @@ export default {
       deleteNotification: "notifications/delete",
     }),
 
-    async claimHandler() {
+    async actionHandler() {
       if (!this.account && this.isUnsupportedChain) {
         // @ts-ignore
         return this.$openWeb3modal();
       }
 
-      if (!this.isUnsupportedChain) {
-        switchNetwork(this.selectedChain);
-        return false;
-      }
+      if (!this.isUnsupportedChain) return switchNetwork(this.selectedNetwork);
+      await this.claimHandler();
+    },
 
-      const notificationId = await this.createNotification(
-        notification.pending
-      );
+    async claimHandler() {
+      try {
+        const notificationId = await this.createNotification(
+          notification.pending
+        );
 
-      // @ts-ignore
-      const { error } = await claim(this.bSpellInfo.tokenBank);
-
-      if (error) {
-        await this.deleteNotification(notificationId);
-        await this.createNotification(error);
-      } else {
+        await claim(this.bSpellInfo!.tokenBank);
         this.$emit("updateBSpellInfo");
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.success);
+      } catch (error) {
+        ErrorHandler.handleError(error as Error);
       }
     },
   },

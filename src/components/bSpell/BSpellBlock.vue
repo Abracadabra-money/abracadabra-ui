@@ -26,7 +26,7 @@
       <RedeemForm
         v-else
         :bSpellInfo="bSpellInfo"
-        :selectedChain="selectedNetwork"
+        :selectedNetwork="selectedNetwork"
         @updateBSpellInfo="$emit('updateBSpellInfo')"
       />
     </div>
@@ -34,7 +34,7 @@
     <div class="info-wrap">
       <ClaimBlock
         :bSpellInfo="bSpellInfo"
-        :selectedChain="selectedNetwork"
+        :selectedNetwork="selectedNetwork"
         @updateBSpellInfo="$emit('updateBSpellInfo')"
       />
 
@@ -45,7 +45,6 @@
 
 <script lang="ts">
 import { mapGetters } from "vuex";
-import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 import type { BSpellInfo } from "@/helpers/bSpell/types";
 import { defineAsyncComponent, type PropType } from "vue";
 
@@ -72,7 +71,6 @@ export default {
   data() {
     return {
       activeTab: "MintForm",
-      selectedChain: ARBITRUM_CHAIN_ID,
       tabsInfo: [
         {
           name: "MintForm",

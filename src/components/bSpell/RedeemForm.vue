@@ -122,7 +122,7 @@ export default {
       required: true,
     },
 
-    selectedChain: {
+    selectedNetwork: {
       type: Number,
       required: true,
     },
@@ -141,7 +141,7 @@ export default {
     ...mapGetters({ account: "getAccount", chainId: "getChainId" }),
 
     isUnsupportedChain() {
-      return this.chainId === this.selectedChain;
+      return this.chainId === this.selectedNetwork;
     },
 
     isInsufficientBalance() {
@@ -240,7 +240,7 @@ export default {
       }
 
       if (!this.isUnsupportedChain) {
-        return switchNetwork(this.selectedChain);
+        return switchNetwork(this.selectedNetwork);
       }
 
       if (!this.isTokenApproved) return await this.approveTokenHandler();
