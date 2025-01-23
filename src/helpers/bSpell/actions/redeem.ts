@@ -6,8 +6,6 @@ import {
 import moment from "moment";
 import type { Address } from "viem";
 import type { ContractInfo } from "@/types/global";
-// @ts-ignore
-import { notificationErrorMsg } from "@/helpers/notification/notificationError";
 
 export const redeem = async (
   contract: ContractInfo,
@@ -15,23 +13,15 @@ export const redeem = async (
   account: Address,
   lockingDeadline: bigint
 ) => {
-  try {
-    const deadline = moment().unix() + Number(lockingDeadline);
+  const deadline = moment().unix() + Number(lockingDeadline);
 
-    const { request } = await simulateContractHelper({
-      ...contract,
-      functionName: "redeem",
-      args: [amount, account, deadline],
-    });
+  const { request } = await simulateContractHelper({
+    ...contract,
+    functionName: "redeem",
+    args: [amount, account, deadline],
+  });
 
-    const hash = await writeContractHelper(request);
+  const hash = await writeContractHelper(request);
 
-    return await waitForTransactionReceiptHelper({ hash });
-  } catch (error) {
-    console.log("Redeem Handler Error:", error);
-
-    return {
-      error: { type: "error", msg: await notificationErrorMsg(error) },
-    };
-  }
+  return await waitForTransactionReceiptHelper({ hash });
 };

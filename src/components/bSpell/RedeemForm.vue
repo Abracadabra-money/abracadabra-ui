@@ -1,5 +1,5 @@
 <template>
-  <div class="action-form">
+  <div class="action-form" v-if="bSpellInfo">
     <div class="inputs-wrap">
       <BaseTokenInput
         :value="inputValue"
@@ -110,6 +110,7 @@ import { mapActions, mapGetters, mapMutations } from "vuex";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
 import notification from "@/helpers/notification/notification";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import ErrorHandler from "@/helpers/errorHandler/ErrorHandler";
 import { instantRedeem } from "@/helpers/bSpell/actions/instantRedeem";
 
 export default {
@@ -117,7 +118,7 @@ export default {
 
   props: {
     bSpellInfo: {
-      type: Object as PropType<BSpellInfo>,
+      type: Object as PropType<BSpellInfo | null>,
       required: true,
     },
 
@@ -144,7 +145,7 @@ export default {
     },
 
     isInsufficientBalance() {
-      return this.inputAmount > this.bSpellInfo.bSpell?.balance;
+      return this.inputAmount > (this.bSpellInfo?.bSpell?.balance || 0n);
     },
 
     isActionDisabled() {
@@ -158,7 +159,9 @@ export default {
       if (!this.inputAmount) return true;
       if (!this.account) return true;
       if (!this.isUnsupportedChain) return true;
-      return this.bSpellInfo.bSpell?.approvedAmount >= this.inputAmount;
+      return (
+        (this.bSpellInfo?.bSpell?.approvedAmount || 0n) >= this.inputAmount
+      );
     },
 
     actionButtonText() {
@@ -182,7 +185,7 @@ export default {
     penaltyAmount() {
       const penaltyPercent = Number(
         formatUnits(
-          this.bSpellInfo.lockInfo.instantRedeemParams.immediateBips,
+          this.bSpellInfo?.lockInfo.instantRedeemParams.immediateBips || 0n,
           PERCENT_PRESITION
         )
       );
@@ -217,8 +220,8 @@ export default {
       );
 
       const approve = await approveTokenViem(
-        this.bSpellInfo.bSpell.contract,
-        this.bSpellInfo.tokenBank.address,
+        this.bSpellInfo!.bSpell.contract,
+        this.bSpellInfo!.tokenBank.address,
         this.inputAmount
       );
 
@@ -237,8 +240,7 @@ export default {
       }
 
       if (!this.isUnsupportedChain) {
-        switchNetwork(this.selectedChain);
-        return false;
+        return switchNetwork(this.selectedChain);
       }
 
       if (!this.isTokenApproved) return await this.approveTokenHandler();
@@ -254,49 +256,45 @@ export default {
     },
 
     async redeemHandler() {
-      const notificationId = await this.createNotification(
-        notification.pending
-      );
+      try {
+        const notificationId = await this.createNotification(
+          notification.pending
+        );
 
-      // @ts-ignore
-      const { error } = await redeem(
-        this.bSpellInfo.tokenBank,
-        this.inputAmount,
-        this.account,
-        this.deadline
-      );
+        await redeem(
+          this.bSpellInfo!.tokenBank,
+          this.inputAmount,
+          this.account,
+          this.deadline
+        );
 
-      if (error) {
-        await this.deleteNotification(notificationId);
-        await this.createNotification(error);
-      } else {
         this.$emit("updateBSpellInfo");
         this.inputValue = "";
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.success);
+      } catch (error) {
+        ErrorHandler.handleError(error as Error);
       }
     },
 
     async instantRedeemHandler() {
-      const notificationId = await this.createNotification(
-        notification.pending
-      );
+      try {
+        const notificationId = await this.createNotification(
+          notification.pending
+        );
 
-      // @ts-ignore
-      const { error } = await instantRedeem(
-        this.bSpellInfo.tokenBank,
-        this.inputAmount,
-        this.account
-      );
+        await instantRedeem(
+          this.bSpellInfo!.tokenBank,
+          this.inputAmount,
+          this.account
+        );
 
-      if (error) {
-        await this.deleteNotification(notificationId);
-        await this.createNotification(error);
-      } else {
         this.$emit("updateBSpellInfo");
         this.inputValue = "";
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.success);
+      } catch (error) {
+        ErrorHandler.handleError(error as Error);
       }
     },
   },

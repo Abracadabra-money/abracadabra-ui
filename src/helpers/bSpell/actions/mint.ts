@@ -5,8 +5,6 @@ import {
 } from "@/helpers/walletClienHelper";
 import type { Address } from "viem";
 import type { ContractInfo } from "@/types/global";
-// @ts-ignore
-import { notificationErrorMsg } from "@/helpers/notification/notificationError";
 
 export const mint = async (
   contract: ContractInfo,
