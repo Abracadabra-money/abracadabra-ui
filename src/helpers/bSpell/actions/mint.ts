@@ -13,20 +13,13 @@ export const mint = async (
   amount: bigint,
   account: Address
 ) => {
-  try {
-    const { request } = await simulateContractHelper({
-      ...contract,
-      functionName: "mint",
-      args: [amount, account],
-    });
+  const { request } = await simulateContractHelper({
+    ...contract,
+    functionName: "mint",
+    args: [amount, account],
+  });
 
-    const hash = await writeContractHelper(request);
+  const hash = await writeContractHelper(request);
 
-    return await waitForTransactionReceiptHelper({ hash });
-  } catch (error) {
-    console.log("Mint Handler Error:", error);
-    return {
-      error: { type: "error", msg: await notificationErrorMsg(error) },
-    };
-  }
+  return await waitForTransactionReceiptHelper({ hash });
 };

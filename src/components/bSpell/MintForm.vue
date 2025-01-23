@@ -44,7 +44,7 @@
       <img class="right-icon" src="@/assets/images/bSpell/timer.png" alt="" />
     </div>
 
-    <BaseButton primary :disabled="isActionDisabled" @click="mintHandler">
+    <BaseButton primary :disabled="isActionDisabled" @click="actionHandler">
       {{ actionButtonText }}
     </BaseButton>
   </div>
@@ -60,6 +60,7 @@ import type { BSpellInfo } from "@/helpers/bSpell/types";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
+import ErrorHandler from "@/helpers/errorHandler/ErrorHandler";
 
 export default {
   emits: ["updateBSpellInfo"],
@@ -152,7 +153,7 @@ export default {
       return false;
     },
 
-    async mintHandler() {
+    async actionHandler() {
       if (this.isActionDisabled) return false;
 
       if (!this.account && this.isUnsupportedChain) {
@@ -161,31 +162,27 @@ export default {
       }
 
       if (!this.isUnsupportedChain) {
-        switchNetwork(this.selectedNetwork);
-        return false;
+        return switchNetwork(this.selectedNetwork);
       }
 
       if (!this.isTokenApproved) return await this.approveTokenHandler();
+      await this.mintHandler();
+    },
 
-      const notificationId = await this.createNotification(
-        notification.pending
-      );
+    async mintHandler() {
+      try {
+        const notificationId = await this.createNotification(
+          notification.pending
+        );
 
-      // @ts-ignore
-      const { error } = await mint(
-        this.bSpellInfo!.tokenBank,
-        this.inputAmount,
-        this.account
-      );
+        await mint(this.bSpellInfo!.tokenBank, this.inputAmount, this.account);
 
-      if (error) {
-        await this.deleteNotification(notificationId);
-        await this.createNotification(error);
-      } else {
         this.$emit("updateBSpellInfo");
         this.inputValue = "";
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.success);
+      } catch (error) {
+        ErrorHandler.handleError(error as Error);
       }
     },
   },
