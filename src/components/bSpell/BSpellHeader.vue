@@ -80,7 +80,7 @@ export default {
 
   props: {
     bSpellInfo: {
-      type: Object as PropType<BSpellInfo>,
+      type: Object as PropType<BSpellInfo | null>,
       required: true,
     },
   },

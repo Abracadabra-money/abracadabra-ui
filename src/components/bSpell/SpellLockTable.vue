@@ -102,21 +102,21 @@ import { formatUnits } from "viem";
 import type { PropType } from "vue";
 import { defineAsyncComponent } from "vue";
 import { formatTokenBalance } from "@/helpers/filters";
-import type { LockerInfo } from "@/helpers/bSpell/types";
+import type { BSpellInfo } from "@/helpers/bSpell/types";
 
 export default {
   props: {
-    lockerInfo: {
-      type: Object as PropType<LockerInfo>,
+    bSpellInfo: {
+      type: Object as PropType<BSpellInfo | null>,
       required: true,
     },
   },
 
   computed: {
     userLocks() {
-      if (!this.lockerInfo) return [];
+      if (!this.bSpellInfo) return [];
 
-      return this.lockerInfo.lockInfo.userLocks.map(
+      return this.bSpellInfo.lockInfo.userLocks.map(
         ({ unlockTime, amount }) => {
           const currentTimestamp = moment();
 
@@ -134,7 +134,7 @@ export default {
     },
 
     lockAmount() {
-      return formatUnits(this.lockerInfo?.lockInfo?.lockAmount || 0n, 18);
+      return formatUnits(this.bSpellInfo?.lockInfo?.lockAmount || 0n, 18);
     },
   },
 

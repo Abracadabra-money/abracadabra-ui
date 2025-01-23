@@ -1,12 +1,12 @@
 <template>
-  <div class="action-form">
+  <div class="action-form" v-if="bSpellInfo">
     <div class="inputs-wrap">
       <BaseTokenInput
         :value="inputValue"
-        :icon="lockerInfo.spell?.icon"
-        :name="lockerInfo.spell?.name"
-        :max="lockerInfo.spell?.balance"
-        :tokenPrice="lockerInfo.spell?.price"
+        :icon="bSpellInfo.spell?.icon"
+        :name="bSpellInfo.spell?.name"
+        :max="bSpellInfo.spell?.balance"
+        :tokenPrice="bSpellInfo.spell?.price"
         @updateInputValue="updateMainValue"
       />
 
@@ -27,9 +27,9 @@
 
       <BaseTokenInput
         :value="inputValue"
-        :icon="lockerInfo.bSpell.icon"
-        :name="lockerInfo.bSpell.name"
-        :tokenPrice="lockerInfo.bSpell.price"
+        :icon="bSpellInfo.bSpell.icon"
+        :name="bSpellInfo.bSpell.name"
+        :tokenPrice="bSpellInfo.bSpell.price"
         disabled
       />
     </div>
@@ -56,7 +56,7 @@ import type { PropType } from "vue";
 import { defineAsyncComponent } from "vue";
 import { mint } from "@/helpers/bSpell/actions/mint";
 import { approveTokenViem } from "@/helpers/approval";
-import type { LockerInfo } from "@/helpers/bSpell/types";
+import type { BSpellInfo } from "@/helpers/bSpell/types";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
@@ -65,13 +65,13 @@ export default {
   emits: ["updateBSpellInfo"],
 
   props: {
-    lockerInfo: {
-      type: Object as PropType<LockerInfo>,
+    selectedNetwork: {
+      type: Number,
       required: true,
     },
 
-    selectedChain: {
-      type: Number,
+    bSpellInfo: {
+      type: Object as PropType<BSpellInfo | null>,
       required: true,
     },
   },
@@ -87,11 +87,11 @@ export default {
     ...mapGetters({ account: "getAccount", chainId: "getChainId" }),
 
     isUnsupportedChain() {
-      return this.chainId === this.selectedChain;
+      return this.chainId === this.selectedNetwork;
     },
 
     isInsufficientBalance() {
-      return this.inputAmount > this.lockerInfo.spell?.balance;
+      return this.inputAmount > (this.bSpellInfo?.spell?.balance ?? 0n);
     },
 
     isActionDisabled() {
@@ -105,7 +105,8 @@ export default {
       if (!this.inputAmount) return true;
       if (!this.account) return true;
       if (!this.isUnsupportedChain) return true;
-      return this.lockerInfo.spell?.approvedAmount >= this.inputAmount;
+      if (!this.bSpellInfo) return true;
+      return this.bSpellInfo.spell?.approvedAmount >= this.inputAmount;
     },
 
     actionButtonText() {
@@ -139,8 +140,8 @@ export default {
       );
 
       const approve = await approveTokenViem(
-        this.lockerInfo.spell.contract,
-        this.lockerInfo.tokenBank.address,
+        this.bSpellInfo!.spell.contract,
+        this.bSpellInfo!.tokenBank.address,
         this.inputAmount
       );
 
@@ -160,7 +161,7 @@ export default {
       }
 
       if (!this.isUnsupportedChain) {
-        switchNetwork(this.selectedChain);
+        switchNetwork(this.selectedNetwork);
         return false;
       }
 
@@ -172,7 +173,7 @@ export default {
 
       // @ts-ignore
       const { error } = await mint(
-        this.lockerInfo.tokenBank,
+        this.bSpellInfo!.tokenBank,
         this.inputAmount,
         this.account
       );

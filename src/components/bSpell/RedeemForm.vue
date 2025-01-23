@@ -3,10 +3,10 @@
     <div class="inputs-wrap">
       <BaseTokenInput
         :value="inputValue"
-        :icon="lockerInfo.bSpell?.icon"
-        :name="lockerInfo.bSpell?.name"
-        :max="lockerInfo.bSpell?.balance"
-        :tokenPrice="lockerInfo.bSpell?.price"
+        :icon="bSpellInfo.bSpell?.icon"
+        :name="bSpellInfo.bSpell?.name"
+        :max="bSpellInfo.bSpell?.balance"
+        :tokenPrice="bSpellInfo.bSpell?.price"
         @updateInputValue="updateMainValue"
       />
 
@@ -27,9 +27,9 @@
 
       <BaseTokenInput
         :value="inputValue"
-        :icon="lockerInfo.spell.icon"
-        :name="lockerInfo.spell.name"
-        :tokenPrice="lockerInfo.spell.price"
+        :icon="bSpellInfo.spell.icon"
+        :name="bSpellInfo.spell.name"
+        :tokenPrice="bSpellInfo.spell.price"
         disabled
       />
     </div>
@@ -105,7 +105,7 @@ import { defineAsyncComponent } from "vue";
 import { approveTokenViem } from "@/helpers/approval";
 import { formatTokenBalance } from "@/helpers/filters";
 import { redeem } from "@/helpers/bSpell/actions/redeem";
-import type { LockerInfo } from "@/helpers/bSpell/types";
+import type { BSpellInfo } from "@/helpers/bSpell/types";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
 import notification from "@/helpers/notification/notification";
@@ -116,8 +116,8 @@ export default {
   emits: ["updateBSpellInfo"],
 
   props: {
-    lockerInfo: {
-      type: Object as PropType<LockerInfo>,
+    bSpellInfo: {
+      type: Object as PropType<BSpellInfo>,
       required: true,
     },
 
@@ -144,7 +144,7 @@ export default {
     },
 
     isInsufficientBalance() {
-      return this.inputAmount > this.lockerInfo.bSpell?.balance;
+      return this.inputAmount > this.bSpellInfo.bSpell?.balance;
     },
 
     isActionDisabled() {
@@ -158,7 +158,7 @@ export default {
       if (!this.inputAmount) return true;
       if (!this.account) return true;
       if (!this.isUnsupportedChain) return true;
-      return this.lockerInfo.bSpell?.approvedAmount >= this.inputAmount;
+      return this.bSpellInfo.bSpell?.approvedAmount >= this.inputAmount;
     },
 
     actionButtonText() {
@@ -174,7 +174,7 @@ export default {
       return moment
         .unix(
           Number(moment().unix()) +
-            Number(this.lockerInfo?.lockInfo?.lockDuration || 0)
+            Number(this.bSpellInfo?.lockInfo?.lockDuration || 0)
         )
         .format("DD MMM YYYY");
     },
@@ -182,7 +182,7 @@ export default {
     penaltyAmount() {
       const penaltyPercent = Number(
         formatUnits(
-          this.lockerInfo.lockInfo.instantRedeemParams.immediateBips,
+          this.bSpellInfo.lockInfo.instantRedeemParams.immediateBips,
           PERCENT_PRESITION
         )
       );
@@ -217,8 +217,8 @@ export default {
       );
 
       const approve = await approveTokenViem(
-        this.lockerInfo.bSpell.contract,
-        this.lockerInfo.tokenBank.address,
+        this.bSpellInfo.bSpell.contract,
+        this.bSpellInfo.tokenBank.address,
         this.inputAmount
       );
 
@@ -260,7 +260,7 @@ export default {
 
       // @ts-ignore
       const { error } = await redeem(
-        this.lockerInfo.tokenBank,
+        this.bSpellInfo.tokenBank,
         this.inputAmount,
         this.account,
         this.deadline
@@ -284,7 +284,7 @@ export default {
 
       // @ts-ignore
       const { error } = await instantRedeem(
-        this.lockerInfo.tokenBank,
+        this.bSpellInfo.tokenBank,
         this.inputAmount,
         this.account
       );

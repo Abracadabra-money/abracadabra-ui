@@ -1,6 +1,6 @@
 import type { Address } from "viem";
 
-export type LockerConfig = {
+export type bSpellConfig = {
   spell: {
     name: string;
     decimals: number;
@@ -23,18 +23,52 @@ export type LockerConfig = {
     address: Address;
     abi: any;
   };
+  stakeInfo?: {
+    address: Address;
+    abi: any;
+  };
+  rewardTokensInfo?: {
+    name: string;
+    decimals: number;
+    icon: string;
+    contract: {
+      abi: any;
+      address: Address;
+      addressForPrice?: Address;
+    };
+  }[];
 };
 
-export type LockerConfigs = {
-  [key: number]: LockerConfig;
+export type bSpellConfigs = {
+  [key: number]: bSpellConfig;
 };
 
-export type ActionConfig = {
-  selectedNetwork: number;
-  availableNetworks: number[];
+export type AprInfo = {
+  totalApr: number;
+  tokensApr: {
+    address: Address;
+    apr: number;
+    price: number;
+    icon: string;
+    name: string;
+  }[];
 };
 
-export type LockerInfo = {
+export type RewardTokenInfo = {
+  name: string;
+  icon: string;
+  decimals: number;
+  rewardAmount: bigint;
+  price: number;
+  contract: {
+    abi: any;
+    address: Address;
+    addressForPrice?: Address;
+  };
+};
+
+export type BSpellInfo = {
+  chainId: number;
   spell: {
     name: string;
     decimals: number;
@@ -58,6 +92,7 @@ export type LockerInfo = {
     price: number;
     balance: bigint;
     approvedAmount: bigint;
+    totalSupply: bigint;
   };
   tokenBank: {
     address: Address;
@@ -77,6 +112,19 @@ export type LockerInfo = {
       feeCollector: Address;
     };
   };
+  stakeInfo: {
+    contract: {
+      address: Address;
+      abi: any;
+    };
+    stakeBalance: bigint;
+    approvedAmount: bigint;
+    totalSupply: bigint;
+    lastAdded: bigint;
+    lockupPeriod: bigint;
+    unlockTime: number;
+  } | null;
+  rewardTokensInfo: RewardTokenInfo[] | null;
 };
 
 export type TokenPrice = {

@@ -22,6 +22,8 @@ import {
   LS_MAGIC_APE_STAKE_CHART_KEY,
   getAndParsePoolCreationCustomTokens,
   LS_POOL_CREATION_CUSTOM_TOKENS_KEY,
+  getAndParseBSpellData,
+  LS_BSPELL_DATA,
 } from "@/helpers/dataStore";
 
 export default {
@@ -40,6 +42,7 @@ export default {
     magicGlpStakeData: getAndParseMagicGlpStakeData(),
     magicApeStakeData: getAndParseMagicApeStakeData(),
     poolCreationCustomTokens: getAndParsePoolCreationCustomTokens(),
+    bSpellData: getAndParseBSpellData(),
   },
 
   mutations: {
@@ -113,6 +116,11 @@ export default {
         JSON.stringify(payload)
       );
     },
+    setSpellStakeData(state, payload) {
+      state.bSpellData.isCreated = true;
+      state.bSpellData.data = payload;
+      localStorage.setItem(LS_BSPELL_DATA, bigintStringify(payload));
+    },
   },
 
   getters: {
@@ -127,5 +135,6 @@ export default {
     getMagicGlpStakeData: (state) => state.magicGlpStakeData,
     getMagicApeStakeData: (state) => state.magicApeStakeData,
     getPoolCreationCustomTokens: (state) => state.poolCreationCustomTokens,
+    getBSpellData: (state) => state.bSpellData,
   },
 };

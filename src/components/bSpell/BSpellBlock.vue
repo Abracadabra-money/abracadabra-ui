@@ -1,12 +1,12 @@
 <template>
-  <div class="wrapper" v-if="lockerInfo">
+  <div class="wrapper" v-if="bSpellInfo">
     <div class="action-form">
       <div class="networks-wrap">
         <div class="network-title">Available on:</div>
         <AvailableNetworksBlock
-          :selectedNetwork="selectedChain"
+          :selectedNetwork="selectedNetwork"
           :availableNetworks="availableNetworks"
-          @changeNetwork="changeNetwork"
+          @changeNetwork="$emit('changeNetwork')"
         />
       </div>
 
@@ -16,42 +16,63 @@
         @changeActiveTab="changeActiveTab"
       />
 
-      <component
-        :is="activeTab"
-        :lockerInfo="lockerInfo"
-        :selectedChain="selectedChain"
-        @updateBSpellInfo="createStakeInfo"
+      <MintForm
+        v-if="activeTab === 'MintForm'"
+        :bSpellInfo="bSpellInfo"
+        :selectedNetwork="selectedNetwork"
+        @updateBSpellInfo="$emit('updateBSpellInfo')"
+      />
+
+      <RedeemForm
+        v-else
+        :bSpellInfo="bSpellInfo"
+        :selectedChain="selectedNetwork"
+        @updateBSpellInfo="$emit('updateBSpellInfo')"
       />
     </div>
 
     <div class="info-wrap">
       <ClaimBlock
-        :lockerInfo="lockerInfo"
-        :selectedChain="selectedChain"
-        @updateBSpellInfo="createStakeInfo"
+        :bSpellInfo="bSpellInfo"
+        :selectedChain="selectedNetwork"
+        @updateBSpellInfo="$emit('updateBSpellInfo')"
       />
 
-      <SpellLockTable :lockerInfo="lockerInfo" />
+      <SpellLockTable :bSpellInfo="bSpellInfo" />
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { mapGetters } from "vuex";
-import { defineAsyncComponent } from "vue";
-import { formatTokenBalance } from "@/helpers/filters";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
-import type { LockerInfo } from "@/helpers/bSpell/types";
-import { getLockInfo } from "@/helpers/bSpell/getLockInfo";
+import type { BSpellInfo } from "@/helpers/bSpell/types";
+import { defineAsyncComponent, type PropType } from "vue";
 
 export default {
+  emits: ["updateBSpellInfo", "changeNetwork"],
+
+  props: {
+    selectedNetwork: {
+      type: Number,
+      required: true,
+    },
+
+    availableNetworks: {
+      type: Array as () => number[],
+      required: true,
+    },
+
+    bSpellInfo: {
+      type: Object as PropType<BSpellInfo | null>,
+      required: true,
+    },
+  },
+
   data() {
     return {
       activeTab: "MintForm",
       selectedChain: ARBITRUM_CHAIN_ID,
-      lockerInfo: null as null | LockerInfo,
-      availableNetworks: [ARBITRUM_CHAIN_ID],
-      updateInterval: null as null | NodeJS.Timeout,
       tabsInfo: [
         {
           name: "MintForm",
@@ -69,42 +90,10 @@ export default {
     ...mapGetters({ account: "getAccount" }),
   },
 
-  watch: {
-    async account() {
-      await this.createStakeInfo();
-    },
-
-    async selectedChain() {
-      await this.createStakeInfo();
-    },
-  },
-
   methods: {
-    formatTokenBalance,
-
     changeActiveTab(tabName: string) {
       this.activeTab = tabName;
     },
-
-    changeNetwork(chainId: number) {
-      this.selectedChain = chainId;
-    },
-
-    async createStakeInfo() {
-      this.lockerInfo = await getLockInfo(this.account, this.selectedChain);
-    },
-  },
-
-  async created() {
-    await this.createStakeInfo();
-
-    this.updateInterval = setInterval(async () => {
-      await this.createStakeInfo();
-    }, 60000);
-  },
-
-  beforeUnmount() {
-    clearInterval(Number(this.updateInterval));
   },
 
   components: {

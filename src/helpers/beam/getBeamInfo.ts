@@ -70,12 +70,18 @@ export const getBeamInfo = async (
     configs.map((config: BeamConfig) => config.chainId)
   );
 
+  // todo
+  const isSpellToken = tokenConfig?.name === "Spell";
+
   const destinationChainsInfo = destinationChainsConfig.map(
     (chainConfig: any, index: number) => {
       return {
         chainConfig,
-        minDstGasLookupResult: results[index * 2].result,
-        dstConfigLookupResult: results[index * 2 + 1].result[0],
+        minDstGasLookupResult: results[index * 2].result || 0,
+        // todo
+        dstConfigLookupResult: isSpellToken
+          ? 240000000000000000n
+          : results[index * 2 + 1].result[0],
         nativePrice:
           prices.find((info) => info.chainId === chainConfig.chainId)?.price ||
           0,

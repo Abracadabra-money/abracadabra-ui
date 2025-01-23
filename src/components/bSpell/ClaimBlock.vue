@@ -1,5 +1,5 @@
 <template>
-  <div class="claim-block">
+  <div class="claim-block" v-if="bSpellInfo">
     <img
       class="spell-left"
       src="@/assets/images/bSpell/claim-spell-left.png"
@@ -39,9 +39,10 @@
 
 <script lang="ts">
 import { formatUnits } from "viem";
+import type { PropType } from "vue";
 import { defineAsyncComponent } from "vue";
 import { claim } from "@/helpers/bSpell/actions/claim";
-import type { LockerInfo } from "@/helpers/bSpell/types";
+import type { BSpellInfo } from "@/helpers/bSpell/types";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
@@ -51,8 +52,8 @@ export default {
   emits: ["updateBSpellInfo"],
 
   props: {
-    lockerInfo: {
-      type: Object as () => LockerInfo,
+    bSpellInfo: {
+      type: Object as PropType<BSpellInfo | null>,
       required: true,
     },
 
@@ -76,15 +77,18 @@ export default {
     },
 
     claimAmount() {
-      const { decimals } = this.lockerInfo.spell;
+      if (!this.bSpellInfo) return 0;
+
+      const { decimals } = this.bSpellInfo.spell;
       return formatUnits(
-        this.lockerInfo?.lockInfo?.claimAmount || 0n,
+        this.bSpellInfo?.lockInfo?.claimAmount || 0n,
         decimals
       );
     },
 
     claimAmountUsd() {
-      return formatUSD(Number(this.claimAmount) * this.lockerInfo.spell.price);
+      if (!this.bSpellInfo) return 0;
+      return formatUSD(Number(this.claimAmount) * this.bSpellInfo.spell.price);
     },
 
     isClaimDisabled() {
@@ -115,7 +119,7 @@ export default {
       );
 
       // @ts-ignore
-      const { error } = await claim(this.lockerInfo.tokenBank);
+      const { error } = await claim(this.bSpellInfo.tokenBank);
 
       if (error) {
         await this.deleteNotification(notificationId);
