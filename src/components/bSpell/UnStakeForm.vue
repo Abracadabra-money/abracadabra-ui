@@ -38,7 +38,7 @@ import { unStake } from "@/helpers/bSpell/actions/unStake";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
-import moment from "moment";
+import ErrorHandler from "@/helpers/errorHandler/ErrorHandler";
 
 export default {
   emits: ["updateBSpellInfo"],
@@ -112,29 +112,24 @@ export default {
         return this.$openWeb3modal();
       }
 
-      if (!this.isUnsupportedChain) {
-        switchNetwork(this.selectedNetwork);
-        return false;
-      }
+      if (!this.isUnsupportedChain) return switchNetwork(this.selectedNetwork);
+      await this.unstakeHandler();
+    },
 
-      const notificationId = await this.createNotification(
-        notification.pending
-      );
+    async unstakeHandler() {
+      try {
+        const notificationId = await this.createNotification(
+          notification.pending
+        );
 
-      // @ts-ignore
-      const { error } = await unStake(
-        this.bSpellInfo.stakeInfo.contract,
-        this.inputAmount
-      );
+        await unStake(this.bSpellInfo!.stakeInfo!.contract, this.inputAmount);
 
-      if (error) {
-        await this.deleteNotification(notificationId);
-        await this.createNotification(error);
-      } else {
         this.$emit("updateBSpellInfo");
         this.inputValue = "";
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.success);
+      } catch (error) {
+        ErrorHandler.handleError(error as Error);
       }
     },
   },
