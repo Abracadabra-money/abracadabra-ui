@@ -47,7 +47,11 @@ import { mapGetters, mapMutations } from "vuex";
 import { getCollateralApr } from "@/helpers/collateralsApy";
 import { getMarketList } from "@/helpers/cauldron/lists/getMarketList";
 import type { CauldronListItem } from "@/helpers/cauldron/lists/getMarketList";
-import { getMaxLeverageMultiplier } from "@/helpers/cauldron/getMaxLeverageMultiplier";
+import {
+  getMaxLeverageMultiplier,
+  getMaxLeverageMultiplierAlternative,
+} from "@/helpers/cauldron/getMaxLeverageMultiplier";
+import { fetchCauldronsAprs } from "@/helpers/collateralsApy/fetchCauldronsAprs";
 
 type Data = {
   cauldrons: any;
@@ -56,7 +60,7 @@ type Data = {
   timerInterval: number;
   isFiltersPopupOpened: boolean;
   tableKeys: any;
-  aprArray: any;
+  aprs: any;
 };
 
 type AprInfo = { [key: string]: AprInfo };
@@ -64,7 +68,7 @@ type AprInfo = { [key: string]: AprInfo };
 export default {
   data(): Data {
     return {
-      aprArray: [],
+      aprs: {},
       cauldrons: [],
       cauldronsLoading: true,
       updateInterval: null,
@@ -124,32 +128,42 @@ export default {
     async getCollateralsApr(
       cauldrons: CauldronListItem[]
     ): Promise<CauldronListItem[]> {
-      const response = await Promise.allSettled(
-        cauldrons.map(async (cauldron: CauldronListItem) => {
-          try {
-            const apr = await getCollateralApr(cauldron);
-            return { [cauldron.config.contract.address]: apr };
-          } catch (error) {
-            const multiplier = getMaxLeverageMultiplier(cauldron);
-            return {
-              [cauldron.config.contract.address]: { value: 0, multiplier },
-            };
-          }
-        })
-      );
+      // const response = await Promise.allSettled(
+      //   cauldrons.map(async (cauldron: CauldronListItem) => {
+      //     try {
+      //       const apr = await getCollateralApr(cauldron);
+      //       return { [cauldron.config.contract.address]: apr };
+      //     } catch (error) {
+      //       const multiplier = getMaxLeverageMultiplier(cauldron);
+      //       return {
+      //         [cauldron.config.contract.address]: { value: 0, multiplier },
+      //       };
+      //     }
+      //   })
+      // );
 
-      this.aprArray = response
-        .filter((result) => result.status === "fulfilled" && result.value)
-        .map((result: any) => result.value);
+      // this.aprArray = response
+      //   .filter((result) => result.status === "fulfilled" && result.value)
+      //   .map((result: any) => result.value);
 
+      this.aprs = await fetchCauldronsAprs(cauldrons);
       return cauldrons.map((cauldron: CauldronListItem) => {
-        const apr = this.aprArray.find(
-          (apr: AprInfo) => apr[cauldron.config.contract.address]
-        );
+        const apr =
+          this.aprs![
+            cauldron.config.contract.address.toLowerCase() as keyof typeof this.aprs
+          ];
 
-        cauldron.apr = apr[cauldron.config.contract.address];
+        const multiplier = getMaxLeverageMultiplierAlternative(cauldron, true);
+
+        cauldron.apr = apr
+          ? {
+              value: apr,
+              multiplier,
+            }
+          : { value: 0, multiplier: 0 };
         return cauldron;
       });
+      // return cauldrons;
     },
 
     openMobileFiltersPopup(): void {
@@ -170,11 +184,11 @@ export default {
     async createCaulldronsInfo(): Promise<void> {
       const cauldrons = await getMarketList(this.account);
 
-      if (this.aprArray.length) {
-        this.cauldrons = await this.getCollateralsApr(cauldrons);
-      } else {
-        this.cauldrons = await this.getCollateralsApr(cauldrons);
-      }
+      this.cauldrons = await this.getCollateralsApr(cauldrons);
+      //   if (this.aprArray.length) {
+      // } else {
+      //   this.cauldrons = await this.getCollateralsApr(cauldrons);
+      // }
 
       this.cauldronsLoading = false;
       this.setCauldronsList(this.cauldrons);
