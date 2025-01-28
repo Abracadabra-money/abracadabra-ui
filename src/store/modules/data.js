@@ -116,7 +116,7 @@ export default {
         JSON.stringify(payload)
       );
     },
-    setSpellStakeData(state, payload) {
+    setBSpellStakeData(state, payload) {
       state.bSpellData.isCreated = true;
       state.bSpellData.data = payload;
       localStorage.setItem(LS_BSPELL_DATA, bigintStringify(payload));
