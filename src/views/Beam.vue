@@ -1,7 +1,6 @@
 <template>
   <div class="beam-view" v-if="beamInfoObject">
     <div class="beam">
-      test
       <div class="beam-header">
         <div class="title-desc">
           <h3 class="title">Beam</h3>
