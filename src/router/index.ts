@@ -107,6 +107,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/pool/:id?/:poolChainId?",
     name: "Pool",
+    // @ts-ignore
     component: () => import("@/views/Pool.vue"),
     props: true,
     beforeEnter: [removeQueryParams],
