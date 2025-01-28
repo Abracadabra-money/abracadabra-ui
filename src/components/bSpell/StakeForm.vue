@@ -11,17 +11,7 @@
       />
     </div>
 
-    <div class="warning" v-if="isLock && inputValue">
-      <span>You already have an active stake that will expire in </span>
-      <Timer
-        small
-        padding="0px 4px"
-        :endDateTimestamp="bSpellInfo.stakeInfo?.unlockTime"
-      />
-      <span>If you make a steak the timer will reset</span>
-    </div>
-
-    <div class="lock-info" v-else>
+    <div class="lock-info">
       <img src="@/assets/images/stake/lock.svg" alt="Lock icon" />
 
       <span>Unstaking is locked for 7 days after staking</span>
@@ -120,15 +110,6 @@ export default {
 
   computed: {
     ...mapGetters({ account: "getAccount", chainId: "getChainId" }),
-
-    isLock() {
-      const currentTimestamp = moment();
-      const unixUnlockTime = moment.unix(
-        Number(this.bSpellInfo?.stakeInfo?.unlockTime)
-      );
-
-      return unixUnlockTime.isAfter(currentTimestamp);
-    },
 
     isUnsupportedChain() {
       return this.chainId === this.selectedNetwork;
