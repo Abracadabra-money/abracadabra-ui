@@ -1,6 +1,6 @@
 <template>
   <div class="page-view">
-    <div class="content-wrap">
+    <div class="content-wrap" v-if="bSpellInfo">
       <BSpellHeader
         :bSpellInfo="bSpellInfo"
         @changeActiveTab="changeActiveTab"
@@ -26,6 +26,10 @@
           @updateBSpellInfo="createOrUpdateInfo"
         />
       </TransitionWrapper>
+    </div>
+
+    <div class="loader-wrap" v-else>
+      <BaseLoader large text="Loading stake" />
     </div>
   </div>
 </template>
@@ -97,7 +101,7 @@ export default {
 
   methods: {
     ...mapMutations({
-      setSpellStakeData: "setSpellStakeData",
+      setBSpellStakeData: "setBSpellStakeData",
     }),
 
     changeActiveTab(tabName: string) {
@@ -182,7 +186,7 @@ export default {
   async created() {
     this.checkLocalData();
     await this.createOrUpdateInfo();
-    this.setSpellStakeData(this.bSpellInfoArr);
+    this.setBSpellStakeData(this.bSpellInfoArr);
     this.createDataRefresher();
     this.refresherInfo.refresher.start();
 
@@ -202,6 +206,9 @@ export default {
     TransitionWrapper: defineAsyncComponent(
       () => import("@/components/ui/TransitionWrapper.vue")
     ),
+    BaseLoader: defineAsyncComponent(
+      () => import("@/components/base/BaseLoader.vue")
+    ),
   },
 };
 </script>
@@ -217,5 +224,12 @@ export default {
   padding: 124px 15px 90px;
   margin: 0 auto;
   position: relative;
+}
+
+.loader-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
 }
 </style>

@@ -129,6 +129,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/views/BSpell.vue"),
   },
   {
+    path: "/stake-list",
+    name: "StakeList",
+    component: () => import("@/views/stake/StakeList.vue"),
+  },
+  {
     path: "/:catchAll(.*)",
     redirect: "/",
   },
