@@ -67,7 +67,7 @@ import { mapGetters, mapMutations } from "vuex";
 import { APR_KEY } from "@/constants/global";
 import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
 // @ts-ignore
-import { isApyCalcExist, fetchTokenApy } from "@/helpers/collateralsApy";
+import { fetchTokenApy } from "@/helpers/collateralsApy";
 import { getUsersTotalAssets } from "@/helpers/cauldron/position/getUsersTotalAssets";
 import {
   getUserOpenPositions,
@@ -319,8 +319,8 @@ export default {
     },
 
     async getCollateralApr(cauldron: UserOpenPosition) {
-      const { chainId, id, contract } = cauldron.config;
-      const isApyExist = isApyCalcExist(chainId, id);
+      const { chainId, contract } = cauldron.config;
+      const isApyExist = cauldron.config.cauldronSettings.isAprExist;
       if (isApyExist) {
         const localApr = localStorage.getItem(APR_KEY);
 
