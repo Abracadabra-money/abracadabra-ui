@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import { utils } from "ethers";
+import { isAddress } from "viem";
 
 export default {
   props: {
@@ -57,7 +57,7 @@ export default {
   computed: {
     checkInputAddress() {
       if (!this.validation) return true;
-      return this.address ? utils.isAddress(this.address.toLowerCase()) : false;
+      return this.address ? isAddress(this.address.toLowerCase()) : false;
     },
 
     addressEntryError() {
