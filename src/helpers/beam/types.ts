@@ -9,7 +9,8 @@ export type BeamConfig = {
     abi: any;
   };
   outboundProofType: number;
-  relayer: Address;
+  relayer?: Address;
+  executor?: Address;
   settings: {
     contractVersion: number;
     disabledDestinationChains: Array<number>;

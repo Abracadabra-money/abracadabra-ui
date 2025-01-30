@@ -12,11 +12,11 @@ export const spellConfigs: BeamConfig[] = [
       abi: abi.transparentUpgradeableProxy,
     },
     outboundProofType: 2,
-    relayer: "0x902F09715B6303d4173037652FA7377e5b98089E",
+    executor: "0x173272739Bd7Aa6e4e214714048a9fE699453059",
     settings: {
       contractVersion: 1,
       disabledDestinationChains: [],
-      lzChainId: 101,
+      lzChainId: 30101,
       lzVersion: 2,
     },
     defaultValue: {
@@ -41,7 +41,7 @@ export const spellConfigs: BeamConfig[] = [
       abi: abi.LzIndirectOFTV2,
     },
     outboundProofType: 2,
-    relayer: "0x177d36dBE2271A4DdB2Ad8304d82628eb921d790",
+    executor: "0x31CAe3B7fB82d847621859fb1585353c5720660D",
     settings: {
       contractVersion: 1,
       disabledDestinationChains: [],

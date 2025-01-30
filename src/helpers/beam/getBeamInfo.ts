@@ -2,6 +2,7 @@ import type { Address } from "viem";
 import relayerAbi from "@/abis/beam/relayer";
 import mimConfigs from "@/configs/tokens/mim";
 import { useImage } from "@/helpers/useImage";
+import executorAbi from "@/abis/beam/executor";
 import spellConfigs from "@/configs/tokens/spell";
 import { beamConfigs } from "@/configs/beam/beamConfigs";
 import { tokensChainLink } from "@/configs/chainLink/config";
@@ -45,23 +46,33 @@ export const getBeamInfo = async (
   const results = await publicClient.multicall({
     contracts: destinationChainsConfig
       .map((chainConfig: any) => {
-        return [
-          {
-            address: fromChainConfig.contract.address,
-            abi: fromChainConfig.contract.abi,
-            functionName: "minDstGasLookup",
-            args: [chainConfig.settings.lzChainId, PACKET_TYPE],
-          },
-          {
-            address: fromChainConfig.relayer,
-            abi: relayerAbi,
-            functionName: "dstConfigLookup",
-            args: [
-              chainConfig.settings.lzChainId,
-              fromChainConfig.outboundProofType,
-            ],
-          },
-        ];
+        if (chainConfig.settings?.lzVersion === 2) {
+          return [
+            {
+              address: fromChainConfig.executor,
+              abi: executorAbi,
+              functionName: "dstConfig",
+              args: [chainConfig.settings.lzChainId],
+            },
+          ];
+        } else
+          return [
+            {
+              address: fromChainConfig.contract.address,
+              abi: fromChainConfig.contract.abi,
+              functionName: "minDstGasLookup",
+              args: [chainConfig.settings.lzChainId, PACKET_TYPE],
+            },
+            {
+              address: fromChainConfig.relayer,
+              abi: relayerAbi,
+              functionName: "dstConfigLookup",
+              args: [
+                chainConfig.settings.lzChainId,
+                fromChainConfig.outboundProofType,
+              ],
+            },
+          ];
       })
       .flat(2),
   });
@@ -70,18 +81,22 @@ export const getBeamInfo = async (
     configs.map((config: BeamConfig) => config.chainId)
   );
 
-  // todo
-  const isSpellToken = tokenConfig?.name === "Spell";
-
   const destinationChainsInfo = destinationChainsConfig.map(
-    (chainConfig: any, index: number) => {
+    (chainConfig: BeamConfig, index: number) => {
+      const isLzVersion2 = chainConfig.settings?.lzVersion === 2;
+
+      const minDstGasLookupResult = isLzVersion2
+        ? 0
+        : results[index * 2].result || 0;
+
+      const dstConfigLookupResult = isLzVersion2
+        ? results[index].result[3]
+        : results[index * 2 + 1].result[0] || 0;
+
       return {
         chainConfig,
-        minDstGasLookupResult: results[index * 2].result || 0,
-        // todo
-        dstConfigLookupResult: isSpellToken
-          ? 240000000000000000n
-          : results[index * 2 + 1].result[0],
+        minDstGasLookupResult,
+        dstConfigLookupResult,
         nativePrice:
           prices.find((info) => info.chainId === chainConfig.chainId)?.price ||
           0,
@@ -164,7 +179,10 @@ const getUserInfo = async (
   };
 };
 
-const filterDestinationChains = (fromChainConfig: any, beamConfigs: any) => {
+const filterDestinationChains = (
+  fromChainConfig: BeamConfig,
+  beamConfigs: BeamConfig[]
+) => {
   return beamConfigs.filter((chainConfig: any) => {
     const isFromChain = chainConfig.chainId === fromChainConfig.chainId;
     const isDisabled =
