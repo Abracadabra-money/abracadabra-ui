@@ -4,6 +4,7 @@ import { swap0xRequest } from "@/helpers/0x";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 import { actions } from "@/helpers/cauldron/cook/actions";
 import { MulticallWrapper } from "ethers-multicall-provider";
+import { encodeAbiParameters, parseAbiParameters } from "viem";
 import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
 
 const staticProvider = getEthersProvider(ARBITRUM_CHAIN_ID);
@@ -70,13 +71,7 @@ const getWhitelistedTokens = async () => {
   return tokensInfo;
 };
 
-const getGlpLevData = async (
-  cookData,
-  pool,
-  sellAmount,
-  chainId,
-  slipage
-) => {
+const getGlpLevData = async (cookData, pool, sellAmount, chainId, slipage) => {
   store.commit("updateRouteData", []);
   store.commit("setPopupState", {
     type: "mglp-route",
@@ -198,10 +193,11 @@ const getGlpLevData = async (
   for (let info of cookInfo) {
     const swapAmount = info.sellAmount;
     const minExpected = info.minExpected;
-    const swapData = ethers.utils.defaultAbiCoder.encode(
-      ["bytes", "address"],
-      [info.data, info.buyToken]
-    );
+
+    const swapData = encodeAbiParameters(parseAbiParameters("bytes, address"), [
+      info.data,
+      info.buyToken,
+    ]);
 
     const swapStaticTx = await leverageSwapper.populateTransaction.swap(
       userAddr,
@@ -269,8 +265,8 @@ const getGlpLiqData = async (pool, amount, chainId, slipage) => {
       ...tokensArr[idx],
       ...resp,
       ...tokenOutFromBurningGlpArr[idx],
-      swapDataEncode: ethers.utils.defaultAbiCoder.encode(
-        ["bytes", "address"],
+      swapDataEncode: encodeAbiParameters(
+        parseAbiParameters("bytes, address"),
         [resp.data, resp.sellToken]
       ),
     };
