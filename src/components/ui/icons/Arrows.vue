@@ -37,7 +37,7 @@ import type { SortOrder } from "@/types/sorting";
 export default {
   props: {
     sortOrder: {
-      type: String as PropType<SortOrder>,
+      type: [String, Boolean] as PropType<SortOrder>,
       default: null,
     },
   },

@@ -37,6 +37,7 @@ type CauldronSettings = {
   isNoDeleverage?: boolean;
   hasElixirPotions?: boolean;
   isUSD0?: boolean;
+  weight?: number;
 };
 
 type MimInfo = {
