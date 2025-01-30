@@ -24,6 +24,7 @@
         <CauldronsTable
           :cauldrons="cauldrons"
           :cauldronsLoading="cauldronsLoading"
+          :aprsLoading="aprsLoading"
           :tableKeys="tableKeys"
           @openMobileFiltersPopup="openMobileFiltersPopup"
           ref="cauldronsTable"
@@ -44,13 +45,9 @@
 import { defineAsyncComponent } from "vue";
 import { mapGetters, mapMutations } from "vuex";
 // @ts-ignore
-import { getCollateralApr } from "@/helpers/collateralsApy";
 import { getMarketList } from "@/helpers/cauldron/lists/getMarketList";
 import type { CauldronListItem } from "@/helpers/cauldron/lists/getMarketList";
-import {
-  getMaxLeverageMultiplier,
-  getMaxLeverageMultiplierAlternative,
-} from "@/helpers/cauldron/getMaxLeverageMultiplier";
+import { getMaxLeverageMultiplierAlternative } from "@/helpers/cauldron/getMaxLeverageMultiplier";
 import { fetchCauldronsAprs } from "@/helpers/collateralsApy/fetchCauldronsAprs";
 
 type Data = {
@@ -61,6 +58,7 @@ type Data = {
   isFiltersPopupOpened: boolean;
   tableKeys: any;
   aprs: any;
+  aprsLoading: boolean;
 };
 
 type AprInfo = { [key: string]: AprInfo };
@@ -68,9 +66,10 @@ type AprInfo = { [key: string]: AprInfo };
 export default {
   data(): Data {
     return {
-      aprs: {},
       cauldrons: [],
       cauldronsLoading: true,
+      aprs: {},
+      aprsLoading: true,
       updateInterval: null,
       timerInterval: 60000,
       isFiltersPopupOpened: false,
@@ -128,25 +127,9 @@ export default {
     async getCollateralsApr(
       cauldrons: CauldronListItem[]
     ): Promise<CauldronListItem[]> {
-      // const response = await Promise.allSettled(
-      //   cauldrons.map(async (cauldron: CauldronListItem) => {
-      //     try {
-      //       const apr = await getCollateralApr(cauldron);
-      //       return { [cauldron.config.contract.address]: apr };
-      //     } catch (error) {
-      //       const multiplier = getMaxLeverageMultiplier(cauldron);
-      //       return {
-      //         [cauldron.config.contract.address]: { value: 0, multiplier },
-      //       };
-      //     }
-      //   })
-      // );
-
-      // this.aprArray = response
-      //   .filter((result) => result.status === "fulfilled" && result.value)
-      //   .map((result: any) => result.value);
-
+      this.aprsLoading = true;
       this.aprs = await fetchCauldronsAprs(cauldrons);
+
       return cauldrons.map((cauldron: CauldronListItem) => {
         const apr =
           this.aprs![
@@ -163,7 +146,6 @@ export default {
           : { value: 0, multiplier: 0 };
         return cauldron;
       });
-      // return cauldrons;
     },
 
     openMobileFiltersPopup(): void {
@@ -185,12 +167,9 @@ export default {
       const cauldrons = await getMarketList(this.account);
 
       this.cauldrons = await this.getCollateralsApr(cauldrons);
-      //   if (this.aprArray.length) {
-      // } else {
-      //   this.cauldrons = await this.getCollateralsApr(cauldrons);
-      // }
 
       this.cauldronsLoading = false;
+      this.aprsLoading = false;
       this.setCauldronsList(this.cauldrons);
     },
   },

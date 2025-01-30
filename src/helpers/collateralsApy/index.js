@@ -8,11 +8,11 @@ import { getLUSDApy } from "@/helpers/collateralsApy/getLUSDApy";
 import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
 import { getElixirApy } from "@/helpers/collateralsApy/getElixirApy";
 import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
-import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
 import { getMaxLeverageMultiplierAlternative } from "@/helpers/cauldron/getMaxLeverageMultiplier.ts";
 import { getUsd0ppApy } from "./getUsd0ppApy";
 
 //NOTICE: check comments below
+// import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
 // import { getStargateApy } from "@/helpers/collateralsApy/getStargateApy";
 // import { getYearnVaultsApy } from "@/helpers/collateralsApy/getYearnVaultsApy";
 
@@ -36,7 +36,7 @@ export const fetchTokenApy = async (pool, chainId, provider) => {
         "0x9d5c5e364d81dab193b72db9e9be9d8ee669b652",
         provider
       );
-    //doubleCheck
+    //doubleCheck distribution ended
     // if (pool.config.id === 39) return await getMagicApeApy(chainId);
 
     if (pool.config.id === 43 || pool.config.id === 44) return getElixirApy();
@@ -75,7 +75,7 @@ const fetchCollateralApy = async (cauldron, chainId, address) => {
   const localData = localStorage.getItem(APR_KEY);
   const parsedData = localData ? JSON.parse(localData) : {};
 
-  parsedData[address] = {
+  parsedData.aprs[address.toLowerCase] = {
     chainId,
     apr: Number(formatToFixed(apr, 2)),
     createdAt: new Date().getTime(),
@@ -100,16 +100,15 @@ const isAprOutdate = (localData, address) => {
 
 export const getCollateralApr = async (cauldron) => {
   const { chainId, contract } = cauldron.config;
-  const isApyExist = cauldron.config.cauldronSettings;
-
-  if (!isApyExist) return { value: 0, multiplier: 0 };
+  const { isAprExist } = cauldron.config.cauldronSettings;
+  if (!isAprExist) return { value: 0, multiplier: 0 };
 
   const localApr = localStorage.getItem(APR_KEY);
   const parseLocalApr = localApr ? JSON.parse(localApr) : null;
 
   const isOutdated = isAprOutdate(parseLocalApr, contract.address);
   const collateralApy = !isOutdated
-    ? parseLocalApr[contract.address].apr
+    ? parseLocalApr.aprs[contract.address.toLowerCase()].apr
     : await fetchCollateralApy(cauldron, chainId, contract.address);
 
   const multiplier = getMaxLeverageMultiplierAlternative(cauldron, true);

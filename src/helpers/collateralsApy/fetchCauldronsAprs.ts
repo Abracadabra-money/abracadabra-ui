@@ -1,5 +1,8 @@
-import store from "@/store";
-import { ARBITRUM_CHAIN_ID, MAINNET_CHAIN_ID } from "@/constants/global";
+import {
+  APR_KEY,
+  ARBITRUM_CHAIN_ID,
+  MAINNET_CHAIN_ID,
+} from "@/constants/global";
 import { BigNumber, providers, utils } from "ethers";
 import type { CauldronListItem } from "../cauldron/lists/getMarketList";
 import { getMarketsApr } from "@/helpers/gm/apr/getMarketApr";
@@ -19,39 +22,103 @@ import {
 } from "@/constants/gm";
 import { BASIS_POINTS_DIVISOR } from "../gm/applySlippageToMinOut";
 import { ABRA_FEES } from "@/helpers/collateralsApy/getGMApr";
-import type { Address } from "viem";
 import { getEthersProvider } from "../chains/getChainsInfo";
+import { formatToFixed } from "../filters";
 
 const LUSD_CAULDRON_ADDRESS = "0x8227965A7f42956549aFaEc319F4E444aa438Df5";
 const USD0_CAULDRON_ADDRESS = "0xE8ed7455fa1b2a3D8959cD2D59c7f136a45BF341";
+
 export const fetchCauldronsAprs = async (cauldrons: CauldronListItem[]) => {
-  // const provider = store.getters.getProvider;
-  const provider = getEthersProvider(MAINNET_CHAIN_ID);
+  const lsAprs = getLSAprsAndCheckForExpiration();
+
+  if (lsAprs) return lsAprs;
+
+  const eth_provider = getEthersProvider(MAINNET_CHAIN_ID);
+  const arb_provider = getEthersProvider(ARBITRUM_CHAIN_ID);
 
   const aprFetchingTasks = [
-    //temporarily
     //@ts-ignore
-    getAndFormatApr(LUSD_CAULDRON_ADDRESS, getLUSDApy, provider),
-    filterCrvCauldronsAndGetAprs(cauldrons, provider),
+    getAndFormatApr(LUSD_CAULDRON_ADDRESS, getLUSDApy, eth_provider),
+    filterCrvCauldronsAndGetAprs(cauldrons, eth_provider),
     getAndFormatElixirApr(),
     getAndFormatApr(USD0_CAULDRON_ADDRESS, getUsd0ppApy),
     getAndFormatGlpAprs(),
-    getGmCauldronsAprs(cauldrons, provider),
+    getGmCauldronsAprs(cauldrons, arb_provider),
   ];
 
-  try {
-    const results = (
-      await Promise.all(
-        aprFetchingTasks.map((task) => task.catch(() => undefined))
-      )
-    ).flat(2);
+  const results = (
+    await Promise.all(
+      aprFetchingTasks.map((task) => task.catch(() => undefined))
+    )
+  ).flat(2);
 
-    return results
-      .filter((result: any) => result)
-      .reduce((acc, curr) => ({ ...acc, ...curr }), {});
-  } catch {
-    return {};
-  }
+  const cauldronsAprs = results
+    .filter((result: any) => result)
+    .reduce((acc, curr) => ({ ...acc, ...curr }), {});
+
+  formatAprsAndSaveToLS(cauldronsAprs, cauldrons);
+
+  return cauldronsAprs;
+};
+
+const getLSAprsAndCheckForExpiration = () => {
+  const localApr = localStorage.getItem(APR_KEY);
+  const parsedLocalApr = localApr ? JSON.parse(localApr) : undefined;
+  if (!parsedLocalApr) return;
+
+  const createdAt = parsedLocalApr.timestamp;
+
+  if (checkIfExpired(createdAt)) return;
+
+  const aprs = parsedLocalApr.aprs;
+
+  return Object.keys(parsedLocalApr.aprs).reduce(
+    (acc: any, address: any) => ({
+      ...acc,
+      [address.toLowerCase()]: aprs[address.toLowerCase()].apr,
+    }),
+    {}
+  );
+};
+
+const formatAprsAndSaveToLS = (aprs: any, cauldrons: CauldronListItem[]) => {
+  const createdAt = new Date().getTime();
+
+  const aprsFormattedForLS = Object.keys(aprs).reduce(
+    (acc: any, address: any) => {
+      const { chainId } = cauldrons.find(
+        ({ config }) =>
+          config.contract.address.toLowerCase() === address.toLowerCase()
+      )!.config;
+
+      const apr = aprs[address];
+
+      return {
+        ...acc,
+        [address.toLowerCase()]: {
+          chainId,
+          apr: Number(formatToFixed(apr, 2)),
+          createdAt: createdAt,
+        },
+      };
+    },
+    {}
+  );
+
+  localStorage.setItem(
+    APR_KEY,
+    JSON.stringify({ timestamp: createdAt, aprs: aprsFormattedForLS })
+  );
+};
+
+const checkIfExpired = (
+  timestampToCheck: number,
+  expirationTimeInMinutes: number = 5
+) => {
+  const currentTime = new Date().getTime();
+  const timeDiff = currentTime - timestampToCheck;
+  const minutes = Math.floor(timeDiff / 1000 / 60);
+  return minutes > expirationTimeInMinutes;
 };
 
 const filterCrvCauldronsAndGetAprs = async (
@@ -86,7 +153,8 @@ const filterCrvCauldronsAndGetAprs = async (
 
         return crvCauldronApr
           ? {
-              [cauldron.config.contract.address.toLowerCase()]: crvCauldronApr,
+              [cauldron.config.contract.address.toLowerCase()]:
+                Number(crvCauldronApr),
             }
           : undefined;
       })
