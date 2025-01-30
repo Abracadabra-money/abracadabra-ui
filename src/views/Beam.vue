@@ -115,26 +115,24 @@
 </template>
 
 <script lang="ts">
-import { utils } from "ethers";
-import { defineAsyncComponent } from "vue";
-import { trimZeroDecimals } from "@/helpers/numbers";
-import { approveTokenViem } from "@/helpers/approval";
-import { sendFrom } from "@/helpers/beam/sendFromNew";
-import { mapGetters, mapActions, mapMutations } from "vuex";
-import { switchNetwork } from "@/helpers/chains/switchNetwork";
-import notification from "@/helpers/notification/notification";
-import beamConfigs from "@/configs/beam/beamConfigs";
-import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFeeNew";
-
-import { getBeamInfo } from "@/helpers/beam/getBeamInfo";
-import { formatUnits, type Address } from "viem";
-
 import type {
   BeamConfig,
   BeamInfo,
   DestinationChainInfo,
 } from "@/helpers/beam/types";
+import { defineAsyncComponent } from "vue";
+import { formatUnits, type Address } from "viem";
 import type { ContractInfo } from "@/types/global";
+import { trimZeroDecimals } from "@/helpers/numbers";
+import beamConfigs from "@/configs/beam/beamConfigs";
+import { approveTokenViem } from "@/helpers/approval";
+import { sendFrom } from "@/helpers/beam/sendFromNew";
+import { getBeamInfo } from "@/helpers/beam/getBeamInfo";
+import { mapGetters, mapActions, mapMutations } from "vuex";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import notification from "@/helpers/notification/notification";
+import { encodeAbiParameters, parseAbiParameters } from "viem";
+import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFeeNew";
 
 export default {
   data() {
@@ -184,7 +182,9 @@ export default {
     },
 
     toAddressBytes() {
-      return utils.defaultAbiCoder.encode(["address"], [this.toAddress]);
+      return encodeAbiParameters(parseAbiParameters("address"), [
+        this.toAddress,
+      ]);
     },
 
     isTokenApproved() {
