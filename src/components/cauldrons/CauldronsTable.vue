@@ -33,6 +33,7 @@
             v-for="(cauldron, index) in cauldronsToRender"
             :key="index"
             :cauldron="cauldron"
+            :aprsLoading="aprsLoading"
           />
         </div>
         <div class="card-wrapper">
@@ -71,6 +72,7 @@ export default {
       required: true,
     },
     cauldronsLoading: { type: Boolean },
+    aprsLoading: { type: Boolean },
     tableKeys: {
       type: Array,
       required: true,

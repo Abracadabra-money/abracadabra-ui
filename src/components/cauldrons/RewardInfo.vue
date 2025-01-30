@@ -9,7 +9,9 @@
           alt="Elixir icon"
         />
       </div>
-      <div class="elixir-apr" v-if="loopApr">
+
+      <RowSkeleton v-if="aprsLoading" height="24px" />
+      <div class="elixir-apr" v-else>
         {{ loopApr }}
         <img
           class="token-icon"
@@ -21,7 +23,11 @@
   </div>
 
   <div :class="['column', 'apr', { small }]" v-else>
-    {{ loopApr }}
+    <RowSkeleton v-if="aprsLoading" height="24px" />
+
+    <template v-else>
+      {{ loopApr }}
+    </template>
   </div>
 </template>
 
@@ -29,6 +35,7 @@
 import { MAINNET_CHAIN_ID } from "@/constants/global";
 import type { CauldronListItem } from "@/helpers/cauldron/lists/getMarketList";
 import { formatToFixed } from "@/helpers/filters";
+import { defineAsyncComponent } from "vue";
 
 export default {
   props: {
@@ -41,6 +48,8 @@ export default {
       type: Boolean,
       default: false,
     },
+
+    aprsLoading: { type: Boolean, default: false },
   },
 
   data() {
@@ -61,8 +70,17 @@ export default {
       if (!this.cauldron.apr.value) return "-";
 
       const { value, multiplier } = this.cauldron.apr;
-      return `${value}% - ${formatToFixed(value * multiplier, 2)}%`;
+      return `${formatToFixed(value, 2)}% - ${formatToFixed(
+        value * multiplier,
+        2
+      )}%`;
     },
+  },
+
+  components: {
+    RowSkeleton: defineAsyncComponent(
+      () => import("@/components/ui/skeletons/RowSkeleton.vue")
+    ),
   },
 };
 </script>
@@ -155,6 +173,10 @@ export default {
   text-shadow: 0px 0px 16px #ab5de8;
   font-weight: 600;
   line-height: 150%;
+}
+
+.row-skeleton {
+  margin: auto;
 }
 
 @media screen and (max-width: 600px) {

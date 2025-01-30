@@ -13,6 +13,7 @@ export const ONE_MILLISECOND: number = 1000;
 export const RANDOM_ACCOUNT: string = Wallet.createRandom().address;
 
 export const MAINNET_CHAIN_ID: number = 1;
+export const OPTIMISM_CHAIN_ID: number = 10;
 export const BSC_CHAIN_ID: number = 56;
 export const KAVA_CHAIN_ID: number = 2222;
 export const ARBITRUM_CHAIN_ID: number = 42161;

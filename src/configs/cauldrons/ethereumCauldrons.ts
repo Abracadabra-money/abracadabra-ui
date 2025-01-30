@@ -581,6 +581,7 @@ const config: Array<CauldronConfig> = [
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
       isCvxTricrypto: true,
+      isAprExist: true,
     },
     contract: {
       name: "PrivilegedCheckpointCauldronV4",
@@ -887,6 +888,7 @@ const config: Array<CauldronConfig> = [
       hasWithdrawableLimit: false,
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: true,
+      isAprExist: true,
     },
     contract: {
       name: "CauldronV2Flat",
@@ -931,6 +933,7 @@ const config: Array<CauldronConfig> = [
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
       isCvx3pool: true,
+      isAprExist: true,
     },
     contract: {
       name: "PrivilegedCheckpointCauldronV4",
@@ -1334,6 +1337,7 @@ const config: Array<CauldronConfig> = [
       hasWithdrawableLimit: true,
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
+      isAprExist: true,
     },
     contract: {
       name: "CauldronV3_2",
@@ -1529,6 +1533,7 @@ const config: Array<CauldronConfig> = [
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
       isMagicApe: true,
+      isAprExist: true,
     },
     contract: {
       name: "CauldronV4",
@@ -1706,6 +1711,7 @@ const config: Array<CauldronConfig> = [
       iStdeUSD: true,
       isNoDeleverage: true,
       hasElixirPotions: true,
+      isAprExist: true,
     },
     contract: {
       name: "CauldronV4",
@@ -1753,6 +1759,7 @@ const config: Array<CauldronConfig> = [
       iStdeUSD: true,
       isNoDeleverage: true,
       hasElixirPotions: true,
+      isAprExist: true,
     },
     contract: {
       name: "CauldronV4",
@@ -1787,7 +1794,7 @@ const config: Array<CauldronConfig> = [
     cauldronSettings: {
       isNew: false,
       isSwappersActive: true,
-      is0xSwap: true, // NOTICE: here the ODOS Api is used and not 0x 
+      is0xSwap: true, // NOTICE: here the ODOS Api is used and not 0x
       isDegenBox: true,
       strategyLink: false,
       isDepreciated: false,
@@ -1798,6 +1805,7 @@ const config: Array<CauldronConfig> = [
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
       isUSD0: true,
+      isAprExist: true,
     },
     contract: {
       name: "CauldronV4",
