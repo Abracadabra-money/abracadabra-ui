@@ -1,10 +1,10 @@
-import { ethers } from "ethers";
+import { encodeAbiParameters, parseAbiParameters } from "viem";
 
 const repay = (cookData, share, to, skim, value = 0) => {
   const methodId = 2;
 
-  const encode = ethers.utils.defaultAbiCoder.encode(
-    ["int256", "address", "bool"],
+  const encode = encodeAbiParameters(
+    parseAbiParameters("int256, address, bool"),
     [share, to, skim]
   );
 
@@ -18,10 +18,10 @@ const repay = (cookData, share, to, skim, value = 0) => {
 const removeCollateral = (cookData, fraction, to, value = 0) => {
   const methodId = 4;
 
-  const encode = ethers.utils.defaultAbiCoder.encode(
-    ["int256", "address"],
-    [fraction, to]
-  );
+  const encode = encodeAbiParameters(parseAbiParameters("int256, address"), [
+    fraction,
+    to,
+  ]);
 
   cookData.events.push(methodId);
   cookData.values.push(value);
@@ -33,10 +33,10 @@ const removeCollateral = (cookData, fraction, to, value = 0) => {
 const borrow = (cookData, amount, to, value = 0) => {
   const methodId = 5;
 
-  const encode = ethers.utils.defaultAbiCoder.encode(
-    ["int256", "address"],
-    [amount, to]
-  );
+  const encode = encodeAbiParameters(parseAbiParameters("int256, address"), [
+    amount,
+    to,
+  ]);
 
   cookData.events.push(methodId);
   cookData.values.push(value);
@@ -48,7 +48,7 @@ const borrow = (cookData, amount, to, value = 0) => {
 const getRepayShare = (cookData, part, value = 0) => {
   const methodId = 6;
 
-  const encode = ethers.utils.defaultAbiCoder.encode(["int256"], [part]);
+  const encode = encodeAbiParameters(parseAbiParameters("int256"), [part]);
 
   cookData.events.push(methodId);
   cookData.values.push(value);
@@ -60,7 +60,7 @@ const getRepayShare = (cookData, part, value = 0) => {
 const getRepayPart = (cookData, amount, value = 0) => {
   const methodId = 7;
 
-  const encode = ethers.utils.defaultAbiCoder.encode(["int256"], [amount]);
+  const encode = encodeAbiParameters(parseAbiParameters("int256"), [amount]);
 
   cookData.events.push(methodId);
   cookData.values.push(value);
@@ -72,8 +72,8 @@ const getRepayPart = (cookData, amount, value = 0) => {
 const withdrawFromOrder = (cookData, token, to, amount, close, value = 0) => {
   const methodId = 9;
 
-  const encode = ethers.utils.defaultAbiCoder.encode(
-    ["address", "address", "uint256", "bool"],
+  const encode = encodeAbiParameters(
+    parseAbiParameters("address, address, uint256, bool"),
     [token, to, amount, close]
   );
 
@@ -87,8 +87,8 @@ const withdrawFromOrder = (cookData, token, to, amount, close, value = 0) => {
 const addCollateral = (cookData, share, to, skim, value = 0) => {
   const methodId = 10;
 
-  const encode = ethers.utils.defaultAbiCoder.encode(
-    ["int256", "address", "bool"],
+  const encode = encodeAbiParameters(
+    parseAbiParameters("int256, address, bool"),
     [share, to, skim]
   );
 
@@ -108,8 +108,8 @@ const updateExchangeRate = (
 ) => {
   const methodId = 11;
 
-  const encode = ethers.utils.defaultAbiCoder.encode(
-    ["bool", "uint256", "uint256"],
+  const encode = encodeAbiParameters(
+    parseAbiParameters("bool, uint256, uint256"),
     [mustUpdate, minRate, maxRate]
   );
 
@@ -123,8 +123,8 @@ const updateExchangeRate = (
 const bentoDeposit = (cookData, token, to, amount, share, value = 0) => {
   const methodId = 20;
 
-  const encode = ethers.utils.defaultAbiCoder.encode(
-    ["address", "address", "int256", "int256"],
+  const encode = encodeAbiParameters(
+    parseAbiParameters("address, address, int256, int256"),
     [token, to, amount, share]
   );
 
@@ -138,8 +138,8 @@ const bentoDeposit = (cookData, token, to, amount, share, value = 0) => {
 const bentoWithdraw = (cookData, token, to, amount, share, value = 0) => {
   const methodId = 21;
 
-  const encode = ethers.utils.defaultAbiCoder.encode(
-    ["address", "address", "int256", "int256"],
+  const encode = encodeAbiParameters(
+    parseAbiParameters("address, address, int256, int256"),
     [token, to, amount, share]
   );
 
@@ -162,8 +162,8 @@ const bentoSetApproval = (
 ) => {
   const methodId = 24;
 
-  const encode = ethers.utils.defaultAbiCoder.encode(
-    ["address", "address", "bool", "uint8", "bytes32", "bytes32"],
+  const encode = encodeAbiParameters(
+    parseAbiParameters("address, address, bool, uint8, bytes32, bytes32"),
     [user, masterContract, approved, v, r, s]
   );
 
@@ -185,8 +185,8 @@ const call = (
 ) => {
   const methodId = 30;
 
-  const encode = ethers.utils.defaultAbiCoder.encode(
-    ["address", "bytes", "bool", "bool", "uint8"],
+  const encode = encodeAbiParameters(
+    parseAbiParameters("address, bytes, bool, bool, uint8"),
     [callee, callData, useValue1, useValue2, returnValues]
   );
 
@@ -209,8 +209,8 @@ const createOrder = (
 ) => {
   const methodId = 3;
 
-  const encode = ethers.utils.defaultAbiCoder.encode(
-    ["address", "bool", "uint128", "uint128", "uint128", "uint128"],
+  const encode = encodeAbiParameters(
+    parseAbiParameters("address, bool, uint128, uint128, uint128, uint128"),
     [inputToken, deposit, inputAmount, executionFee, minOutput, minOutLong]
   );
 
