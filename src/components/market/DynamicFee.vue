@@ -17,11 +17,11 @@
 </template>
 
 <script lang="ts">
-import { utils } from "ethers";
-import { mapGetters } from "vuex";
+import { formatUnits } from "viem";
 import { defineAsyncComponent } from "vue";
 // @ts-ignore
 import { swap0xRequest } from "@/helpers/0x";
+import { ETHER_DECIMALS } from "@/constants/global";
 import { chainsUsdcConfigs } from "@/configs/tokens/usdc";
 
 export default {
@@ -57,7 +57,9 @@ export default {
 
   computed: {
     formatAmount() {
-      return Number(utils.formatUnits(this.amount || "0"));
+      return Number(
+        formatUnits(this.amount?.toBigInt() || "0", ETHER_DECIMALS)
+      );
     },
 
     estimationResult() {
