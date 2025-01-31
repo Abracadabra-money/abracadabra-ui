@@ -1,6 +1,6 @@
 <template>
   <div class="chains-wrap">
-    <h4 class="select-title">Select Networks</h4>
+    <h4 class="select-title">{{ title }}</h4>
     <div class="chains-swap">
       <button
         :class="['select-item', { disabled: isChainsDisabled }]"
@@ -13,6 +13,7 @@
       </button>
 
       <button
+        v-if="tokenType === 0"
         class="switch-chain-button"
         :disabled="isSwitchChainsDisabled || isChainsDisabled"
         @click="switchChains"
@@ -23,6 +24,13 @@
           alt="Switch network"
         />
       </button>
+
+      <img
+        class="migrate-arrow"
+        v-else
+        src="@/assets/images/beam/migrate-arrow.png"
+        alt=""
+      />
 
       <button
         :class="['select-item', { disabled: isChainsDisabled }]"
@@ -38,11 +46,10 @@
 </template>
 
 <script lang="ts">
-import type { BeamConfig } from "@/helpers/beam/types";
-
 import { mapGetters } from "vuex";
-import { useImage } from "@/helpers/useImage";
 import type { PropType } from "vue";
+import { useImage } from "@/helpers/useImage";
+import type { BeamConfig } from "@/helpers/beam/types";
 
 const EmptyChain = {
   title: "Select Chain",
@@ -62,10 +69,20 @@ export default {
       type: Boolean,
       default: false,
     },
+    tokenType: {
+      type: Number,
+      default: 0,
+    },
   },
 
   computed: {
     ...mapGetters({ account: "getAccount" }),
+
+    title() {
+      if (this.tokenType === 0) return "Select Networks";
+
+      return "Migrate to OFT V2 Spell";
+    },
 
     fromChainInfo() {
       if (!this.fromChain) return EmptyChain;
@@ -192,13 +209,17 @@ export default {
 }
 
 .disabled {
-  opacity: 0.8;
   cursor: not-allowed;
 }
 
 .switch-chain-image {
   width: 16px;
   height: 16px;
+}
+
+.migrate-arrow {
+  width: 44px;
+  height: 44px;
 }
 
 .select-button-text {

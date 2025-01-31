@@ -1,6 +1,11 @@
 <template>
   <div class="beam-view" v-if="beamInfoObject">
     <div class="beam">
+      <div class="spell-message" v-if="tokenType === 1">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+        tempor incididunt ut lab
+      </div>
+
       <div class="beam-header">
         <div class="title-desc">
           <h3 class="title">Beam</h3>
@@ -36,8 +41,9 @@
 
       <div class="beam-actions" v-if="!isOpenNetworkPopup && !isSettingsOpened">
         <ChainsWrap
-          :fromChain="fromChain"
           :toChain="toChain"
+          :fromChain="fromChain"
+          :tokenType="tokenType"
           :isChainsDisabled="isLoadingBeamInfo || tokenType === 1"
           @onChainSelectClick="openNetworkPopup"
           @switchChains="switchChains"
@@ -998,6 +1004,26 @@ export default {
   animation: skeleton 1.6s infinite forwards;
 }
 
+.spell-message {
+  position: absolute;
+  top: 138px;
+  right: -290px;
+  padding: 28px 16px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: normal;
+  max-width: 261px;
+  width: 100%;
+  border-radius: 16px;
+  border: 1px solid var(--Primary-Gradient, #2d4a96);
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
+  background: url("@/assets/images/beam/message-bg.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
 @keyframes skeleton {
   0% {
     background-position: -100px;
@@ -1006,6 +1032,17 @@ export default {
   50%,
   100% {
     background-position: 480px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .beam {
+    margin-top: 24px;
+  }
+
+  .spell-message {
+    max-width: 100%;
+    position: initial;
   }
 }
 
