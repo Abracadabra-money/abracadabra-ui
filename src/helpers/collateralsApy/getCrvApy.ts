@@ -33,7 +33,6 @@ const getCrvApy = async (pool: CauldronListItem, baseRewardPoolAddress: Address)
     const totalSupplyBigint = totalSupply.result as bigint;
 
     const tokenIn1000Usd = 1000n * pool.mainParams.alternativeData.oracleExchangeRate;
-    console.log({ rewardRateBigint, totalSupplyBigint, tokenIn1000Usd });
 
     const secondsPerYear = 31536000n;
 
@@ -41,7 +40,6 @@ const getCrvApy = async (pool: CauldronListItem, baseRewardPoolAddress: Address)
       ((rewardRateBigint * ONE_IN_NORMAL_DECIMALS / totalSupplyBigint) * tokenIn1000Usd * secondsPerYear) / ONE_IN_NORMAL_DECIMALS;
 
     const cvxReward = await convertCrvToCvx(crvReward, publicClient);
-    console.log({ crvReward, cvxReward, totalSupply, rewardRateBigint });
 
     const formattedCrvReward = Number(formatUnits(crvReward, NORMAL_DECIMALS));
     const formattedCvxReward = Number(formatUnits(cvxReward, NORMAL_DECIMALS));
