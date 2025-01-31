@@ -26,6 +26,8 @@
           @updateBSpellInfo="createOrUpdateInfo"
         />
       </TransitionWrapper>
+
+      <BSpellInfoBlock :bSpellInfo="bSpellInfo" />
     </div>
 
     <div class="loader-wrap" v-else>
@@ -206,6 +208,9 @@ export default {
     TransitionWrapper: defineAsyncComponent(
       () => import("@/components/ui/TransitionWrapper.vue")
     ),
+    BSpellInfoBlock: defineAsyncComponent(
+      () => import("@/components/bSpell/BSpellInfoBlock.vue")
+    ),
     BaseLoader: defineAsyncComponent(
       () => import("@/components/base/BaseLoader.vue")
     ),
@@ -224,6 +229,9 @@ export default {
   padding: 124px 15px 90px;
   margin: 0 auto;
   position: relative;
+  gap: 24px;
+  display: flex;
+  flex-direction: column;
 }
 
 .loader-wrap {
@@ -231,5 +239,11 @@ export default {
   align-items: center;
   justify-content: center;
   height: 100vh;
+}
+
+@media screen and (max-width: 600px) {
+  .content-wrap {
+    gap: 16px;
+  }
 }
 </style>

@@ -219,4 +219,36 @@ export default {
   font-size: 16px;
   font-weight: 500;
 }
+
+@media (max-width: 600px) {
+  .spell-left,
+  .spell-right {
+    max-width: 160px;
+  }
+
+  .spell-left {
+    left: -60px;
+  }
+
+  .spell-right {
+    right: -60px;
+  }
+
+  .claim-title {
+    font-size: 16px;
+  }
+
+  .claim-token-icon {
+    width: 34px;
+    height: 34px;
+  }
+
+  .claim-amount {
+    font-size: 20px;
+  }
+
+  .claim-amount-usd {
+    font-size: 14px;
+  }
+}
 </style>

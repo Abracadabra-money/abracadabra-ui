@@ -133,4 +133,19 @@ export default {
   display: flex;
   flex-direction: column;
 }
+
+@media screen and (max-width: 1024px) {
+  .wrapper {
+    grid-template-columns: 1fr;
+    grid-gap: 16px;
+  }
+
+  .action-form {
+    padding: 16px;
+  }
+
+  .info-wrap {
+    gap: 16px;
+  }
+}
 </style>

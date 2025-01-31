@@ -24,7 +24,7 @@
     </div>
 
     <div class="info-wrap">
-      <div class="row">
+      <div class="stake-info">
         <StakeBalanceBlock
           :decimals="bSpellInfo.bSpell?.decimals"
           :balance="bSpellInfo.bSpell?.balance"
@@ -151,9 +151,28 @@ export default {
   flex-direction: column;
 }
 
-.row {
+.stake-info {
   gap: 16px;
   display: flex;
   justify-content: space-between;
+}
+
+@media screen and (max-width: 1024px) {
+  .wrapper {
+    grid-template-columns: 1fr;
+    grid-gap: 16px;
+  }
+
+  .action-form {
+    padding: 16px;
+  }
+
+  .info-wrap {
+    gap: 16px;
+  }
+
+  .stake-info {
+    flex-direction: column;
+  }
 }
 </style>

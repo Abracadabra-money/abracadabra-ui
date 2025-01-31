@@ -440,4 +440,18 @@ export default {
   width: 38px;
   height: 38px;
 }
+
+@media screen and (max-width: 600px) {
+  .unlock-info {
+    height: 80px;
+  }
+
+  .unlock-title {
+    font-size: 14px;
+  }
+
+  .unlock-timer {
+    font-size: 20px;
+  }
+}
 </style>

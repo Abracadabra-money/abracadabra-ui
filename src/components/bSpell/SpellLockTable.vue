@@ -271,4 +271,29 @@ export default {
   font-weight: 400;
   line-height: normal;
 }
+
+@media screen and (max-width: 600px) {
+  .lock-info {
+    padding: 16px;
+  }
+
+  .sub-title {
+    font-size: 16px;
+  }
+
+  .lock-text {
+    font-size: 12px;
+  }
+
+  .empty-list {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .empty-text {
+    font-size: 14px;
+    max-width: 100%;
+    text-align: center;
+  }
+}
 </style>

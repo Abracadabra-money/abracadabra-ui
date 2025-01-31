@@ -139,7 +139,6 @@ export default {
 <style lang="scss" scoped>
 .content-header {
   z-index: 1;
-  margin-bottom: 32px;
   display: flex;
   justify-content: space-between;
 }
@@ -251,5 +250,40 @@ export default {
 .info-icon {
   width: 24px;
   height: 24px;
+}
+
+@media screen and (max-width: 1024px) {
+  .right-block {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .content-header {
+    flex-direction: column;
+  }
+
+  .left-block {
+    gap: 16px;
+  }
+
+  .header-title {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: normal;
+  }
+
+  .tab-btn {
+    max-width: 100%;
+    height: 43px;
+    font-size: 18px;
+    line-height: normal;
+  }
+
+  .tab-icon {
+    width: 24px;
+    height: 24px;
+  }
 }
 </style>

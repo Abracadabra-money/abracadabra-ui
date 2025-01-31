@@ -14,7 +14,7 @@
     <div class="lock-info">
       <div class="lock-title">
         <img src="@/assets/images/stake/lock.svg" alt="Lock icon" />
-        <span>Unlock is</span>
+        <span class="lock-text">Unlock is</span>
       </div>
       <Timer
         small
@@ -185,6 +185,10 @@ export default {
   gap: 8px;
   display: flex;
   align-items: center;
+}
+
+.lock-text {
+  min-width: 75px;
 }
 
 .reward-info {

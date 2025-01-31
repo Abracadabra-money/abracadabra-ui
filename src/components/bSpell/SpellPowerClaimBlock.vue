@@ -182,7 +182,8 @@ export default {
   font-size: 14px;
   font-weight: 600;
   line-height: normal;
-  padding: 9px 24px;
+  padding: 9px;
+  min-width: 90px;
   border-radius: 10px;
   border: 2px solid #7088cc;
   background: rgba(255, 255, 255, 0.01);
@@ -239,5 +240,19 @@ export default {
   font-size: 12px;
   font-weight: 500;
   line-height: normal;
+}
+
+@media screen and (max-width: 600px) {
+  .title {
+    font-size: 16px;
+  }
+
+  .btn-wrap {
+    margin-bottom: 8px;
+  }
+
+  .token-name {
+    font-size: 14px;
+  }
 }
 </style>

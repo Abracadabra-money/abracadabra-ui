@@ -96,4 +96,24 @@ export default {
   font-weight: 500;
   line-height: normal;
 }
+
+@media screen and (max-width: 1024px) {
+  .stake-balance-block {
+    padding: 12px;
+    max-width: 100%;
+  }
+
+  .title {
+    font-size: 14px;
+  }
+
+  .stake-token-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .stake-balance-amount {
+    font-size: 20px;
+  }
+}
 </style>

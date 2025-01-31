@@ -64,4 +64,15 @@ export default {
   color: var(--Primary-Solid, #7088cc);
   background: rgba(111, 111, 111, 0.06);
 }
+
+@media screen and (max-width: 600px) {
+  .tabs-wrap {
+    padding: 4px 6px;
+  }
+
+  .tab-item {
+    height: 33px;
+    font-size: 14px;
+  }
+}
 </style>

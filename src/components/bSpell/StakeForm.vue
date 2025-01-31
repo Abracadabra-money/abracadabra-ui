@@ -368,4 +368,37 @@ export default {
   font-weight: 600;
   line-height: normal;
 }
+
+@media screen and (max-width: 600px) {
+  .stake-form {
+    gap: 16px;
+  }
+
+  .lock-info {
+    font-size: 14px;
+  }
+
+  .apr-info {
+    margin-bottom: 8px;
+  }
+
+  .reward-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .apr-percent {
+    font-size: 20px;
+  }
+
+  .tokens-apr-info {
+    gap: 8px;
+  }
+
+  .apr-title,
+  .token-info,
+  .token-apr-percent {
+    font-size: 16px;
+  }
+}
 </style>
