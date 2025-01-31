@@ -1,5 +1,5 @@
 <template>
-  <div class="action-form" v-if="bSpellInfo">
+  <div class="redeem-form" v-if="bSpellInfo">
     <div class="inputs-wrap">
       <BaseTokenInput
         :value="inputValue"
@@ -315,7 +315,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.action-form {
+.redeem-form {
   display: flex;
   flex-direction: column;
   gap: 16px;

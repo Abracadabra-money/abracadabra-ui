@@ -1,5 +1,5 @@
 <template>
-  <div class="action-form" v-if="bSpellInfo">
+  <div class="unstake-form" v-if="bSpellInfo">
     <div class="inputs-wrap">
       <BaseTokenInput
         :value="inputValue"
@@ -150,7 +150,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.action-form {
+.unstake-form {
   display: flex;
   flex-direction: column;
   gap: 24px;
