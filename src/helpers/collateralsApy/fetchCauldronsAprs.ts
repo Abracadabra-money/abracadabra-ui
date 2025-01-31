@@ -35,10 +35,8 @@ export const fetchCauldronsAprs = async (cauldrons: CauldronListItem[]) => {
 
   const eth_provider = getEthersProvider(MAINNET_CHAIN_ID);
   const arb_provider = getEthersProvider(ARBITRUM_CHAIN_ID);
-
   const aprFetchingTasks = [
-    //@ts-ignore
-    getAndFormatApr(LUSD_CAULDRON_ADDRESS, getLUSDApy, eth_provider),
+    getAndFormatApr(LUSD_CAULDRON_ADDRESS, getLUSDApy),
     filterCrvCauldronsAndGetAprs(cauldrons, eth_provider),
     getAndFormatElixirApr(),
     getAndFormatApr(USD0_CAULDRON_ADDRESS, getUsd0ppApy),
@@ -153,9 +151,9 @@ const filterCrvCauldronsAndGetAprs = async (
 
         return crvCauldronApr
           ? {
-              [cauldron.config.contract.address.toLowerCase()]:
-                Number(crvCauldronApr),
-            }
+            [cauldron.config.contract.address.toLowerCase()]:
+              Number(crvCauldronApr),
+          }
           : undefined;
       })
     )
@@ -226,10 +224,10 @@ const getGmCauldronsAprs = async (
 
     return apr && cauldronContractAddress
       ? {
-          [cauldronContractAddress.toLowerCase()]: Number(
-            utils.formatUnits(apr, 2)
-          ),
-        }
+        [cauldronContractAddress.toLowerCase()]: Number(
+          utils.formatUnits(apr, 2)
+        ),
+      }
       : undefined;
   });
 };
