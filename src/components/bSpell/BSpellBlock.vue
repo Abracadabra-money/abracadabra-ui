@@ -1,15 +1,6 @@
 <template>
   <div class="wrapper" v-if="bSpellInfo">
     <div class="action-form">
-      <div class="networks-wrap">
-        <div class="network-title">Available on:</div>
-        <AvailableNetworksBlock
-          :selectedNetwork="selectedNetwork"
-          :availableNetworks="availableNetworks"
-          @changeNetwork="$emit('changeNetwork')"
-        />
-      </div>
-
       <TabsBlock
         :tabsInfo="tabsInfo"
         :activeTab="activeTab"
@@ -95,9 +86,6 @@ export default {
   },
 
   components: {
-    AvailableNetworksBlock: defineAsyncComponent(
-      () => import("@/components/stake/AvailableNetworksBlock.vue")
-    ),
     TabsBlock: defineAsyncComponent(
       () => import("@/components/bSpell/TabsBlock.vue")
     ),
@@ -138,18 +126,6 @@ export default {
   );
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
   backdrop-filter: blur(12.5px);
-}
-
-.networks-wrap {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.network-title {
-  font-size: 18px;
-  font-weight: 500;
-  letter-spacing: 0.45px;
 }
 
 .info-wrap {
