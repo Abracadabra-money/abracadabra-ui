@@ -29,15 +29,13 @@ const LUSD_CAULDRON_ADDRESS = "0x8227965A7f42956549aFaEc319F4E444aa438Df5";
 const USD0_CAULDRON_ADDRESS = "0xE8ed7455fa1b2a3D8959cD2D59c7f136a45BF341";
 
 export const fetchCauldronsAprs = async (cauldrons: CauldronListItem[]) => {
-  const lsAprs = getLSAprsAndCheckForExpiration();
+  // const lsAprs = getLSAprsAndCheckForExpiration();
 
-  if (lsAprs) return lsAprs;
-
-  const eth_provider = getEthersProvider(MAINNET_CHAIN_ID);
+  // if (lsAprs) return lsAprs;
   const arb_provider = getEthersProvider(ARBITRUM_CHAIN_ID);
   const aprFetchingTasks = [
     getAndFormatApr(LUSD_CAULDRON_ADDRESS, getLUSDApy),
-    filterCrvCauldronsAndGetAprs(cauldrons, eth_provider),
+    filterCrvCauldronsAndGetAprs(cauldrons),
     getAndFormatElixirApr(),
     getAndFormatApr(USD0_CAULDRON_ADDRESS, getUsd0ppApy),
     getAndFormatGlpAprs(),
@@ -121,7 +119,6 @@ const checkIfExpired = (
 
 const filterCrvCauldronsAndGetAprs = async (
   cauldrons: CauldronListItem[],
-  provider: providers.StaticJsonRpcProvider
 ) => {
   const crvCauldronsIds = [16, 24, 25];
 
@@ -139,13 +136,11 @@ const filterCrvCauldronsAndGetAprs = async (
           crvCauldronApr = await getCrvApy(
             cauldron,
             "0x9d5c5e364d81dab193b72db9e9be9d8ee669b652",
-            provider
           );
         } else {
           crvCauldronApr = await getCrvApy(
             cauldron,
             "0x689440f2Ff927E1f24c72F1087E1FAF471eCe1c8",
-            provider
           );
         }
 
