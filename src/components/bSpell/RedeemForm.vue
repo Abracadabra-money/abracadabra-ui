@@ -453,5 +453,18 @@ export default {
   .unlock-timer {
     font-size: 20px;
   }
+
+  .instant-redeem-info {
+    height: 80px;
+  }
+
+  .penalty-amount-wrap {
+    font-size: 20px;
+  }
+
+  .token-icon {
+    width: 28px;
+    height: 28px;
+  }
 }
 </style>
