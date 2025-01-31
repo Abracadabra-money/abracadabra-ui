@@ -34,9 +34,9 @@
 </template>
 
 <script lang="ts">
-import { PropType } from "vue";
 import { formatUnits } from "viem";
-import { BSpellInfo } from "@/helpers/bSpell/types";
+import type { PropType } from "vue";
+import type { BSpellInfo } from "@/helpers/bSpell/types";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import ErrorHandler from "@/helpers/errorHandler/ErrorHandler";

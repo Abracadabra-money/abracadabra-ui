@@ -4,7 +4,7 @@
     <div class="stake-balance">
       <img
         class="stake-token-icon"
-        src="@/assets/images/tokens/BSPELL.png"
+        src="@/assets/images/tokens/bSPELL.png"
         alt="Stake Token Icon"
       />
       <span class="stake-balance-amount">{{ stakedBalance }}</span>
