@@ -3,6 +3,8 @@ import type { Address } from "viem";
 export const getLensAddress = (chainId: Number): Address => {
   // check type
   switch (Number(chainId)) {
+    case 1:
+      return "0x7868e9e5F6952172D7a6365cBA28C7D2503a2049";
     case 80084:
       return "0x1E217d3cA2a19f2cB0F9f12a65b40f335286758E";
     default:

@@ -1,4 +1,4 @@
-import type { Address } from "viem";
+import type { Address, Hex } from "viem";
 
 type CauldronSettings = {
   isSwappersActive: boolean;
@@ -16,7 +16,7 @@ type CauldronSettings = {
   isNew?: boolean;
   executionPrice?: boolean;
   isMigrated?: boolean;
-  oracleAddress?: string;
+  oracleInfo?: OracleInfos;
   isPrivate?: boolean;
   privatelyFor?: string[];
   isAlternativeInterest?: boolean;
@@ -39,6 +39,28 @@ type CauldronSettings = {
   isUSD0?: boolean;
   weight?: number;
 };
+
+type PythOracleInfo = {
+  kind: "PYTH";
+  address: Address;
+  feedId: Hex;
+  wrapper?: OracleWrapperInfos;
+};
+
+type OracleInfos = PythOracleInfo;
+
+type Erc4626OracleWrapperInfo = {
+  kind: "ERC4626";
+  vault: Address;
+  decimalScale: bigint;
+};
+
+type InverseOracleWrapperInfo = {
+  kind: "INVERSE";
+  decimalScale: bigint;
+};
+
+type OracleWrapperInfos = Erc4626OracleWrapperInfo | InverseOracleWrapperInfo;
 
 type MimInfo = {
   name: string;
