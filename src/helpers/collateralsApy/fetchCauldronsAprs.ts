@@ -29,9 +29,9 @@ const LUSD_CAULDRON_ADDRESS = "0x8227965A7f42956549aFaEc319F4E444aa438Df5";
 const USD0_CAULDRON_ADDRESS = "0xE8ed7455fa1b2a3D8959cD2D59c7f136a45BF341";
 
 export const fetchCauldronsAprs = async (cauldrons: CauldronListItem[]) => {
-  // const lsAprs = getLSAprsAndCheckForExpiration();
+  const lsAprs = getLSAprsAndCheckForExpiration();
 
-  // if (lsAprs) return lsAprs;
+  if (lsAprs) return lsAprs;
   const arb_provider = getEthersProvider(ARBITRUM_CHAIN_ID);
   const aprFetchingTasks = [
     getAndFormatApr(LUSD_CAULDRON_ADDRESS, getLUSDApy),
