@@ -6,7 +6,7 @@
     v-click-outside="closeDropdown"
   >
     <div class="dropdown-title">
-      More
+      Menu
       <img
         class="arrow"
         src="@/assets/images/arrow-down.svg"
@@ -16,6 +16,17 @@
 
     <TransitionWrapper animation-type="roll">
       <div class="list" v-show="showDropdownList">
+        <router-link class="list-link" :to="{ name: 'Pools' }">
+          <div class="link-title">
+            <img
+              class="link-icon swap-icon"
+              src="@/assets/images/header/dropdown/more/mim-swap-icon.png"
+            />
+            MIMSwap
+          </div>
+          <p class="link-description">Swap assets</p>
+        </router-link>
+
         <router-link class="list-link" :to="{ name: 'MarketsFarm' }">
           <div class="link-title">
             <img
@@ -37,20 +48,6 @@
           </div>
           <p class="link-description">Move your MIM across networks</p>
         </router-link>
-
-        <a
-          href="https://curve.fi/#/ethereum/pools/mim/swap"
-          class="list-link"
-          target="_blank"
-          ><div class="link-title">
-            <img
-              class="link-icon"
-              src="@/assets/images/header/dropdown/more/swap-icon.svg"
-            />
-            Swap
-          </div>
-          <p class="link-description">Swap assets</p></a
-        >
 
         <a
           href="https://analytics.abracadabra.money"
@@ -226,5 +223,10 @@ export default {
   align-items: baseline;
   width: 20px;
   height: 20px;
+}
+
+.swap-icon {
+  width: 23px;
+  height: 19px;
 }
 </style>
