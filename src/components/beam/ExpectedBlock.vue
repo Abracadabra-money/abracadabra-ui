@@ -100,7 +100,7 @@ export default {
       return {
         symbol: chainInfo!.baseTokenSymbol,
         icon: chainInfo!.baseTokenIcon,
-        price: dstChainInfoUpdated!.nativePrice,
+        price: dstChainInfoUpdated?.nativePrice || 0,
       };
     },
 
