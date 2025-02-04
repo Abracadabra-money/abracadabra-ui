@@ -639,16 +639,14 @@ export default {
             account: this.account,
             to: this.toAddress,
           },
+          tokenType: this.tokenType,
           txHash: hash,
-          // txHash:
-          // "0xcf03015d1c70f328b03c055683e4640e317ad9406edf638b99a57a5e4cd17c74",
           dstNativeTokenAmount: this.dstTokenAmount,
         };
 
-        console.log("Success Popup Data:", successPopupData);
-
         this.successData = successPopupData;
         this.successData.tokenIcon = this.tokenIcon;
+
         this.isOpenSuccessPopup = true;
 
         this.clearData();
