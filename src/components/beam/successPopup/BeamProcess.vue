@@ -10,10 +10,15 @@
     </div>
 
     <div class="beam-amount-wrap">
-      <img class="beam-gif" src="@/assets/gifs/beam.gif" />
+      <img
+        class="beam-gif"
+        src="@/assets/gifs/beam.gif"
+        v-if="successData.tokenType === MIM_ID"
+      />
+      <img class="beam-gif" src="@/assets/gifs/beam-spell.gif" v-else />
       <div class="process-title">Beaming</div>
       <div class="beam-amount">
-        <img class="mim-icon" src="@/assets/images/tokens/MIM.png" />
+        <img class="mim-icon" :src="successData.tokenIcon" />
         {{ parsedMimAmount }}
       </div>
     </div>
@@ -30,10 +35,10 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
 import { formatUnits } from "viem";
 import { formatToFixed } from "@/helpers/filters";
 import { chainsConfigs } from "@/helpers/chains/configs";
+import { MIM_ID } from "@/constants/beam";
 
 export default {
   props: {
@@ -44,6 +49,12 @@ export default {
     lzTxInfo: {
       type: Object,
     },
+  },
+
+  data() {
+    return {
+      MIM_ID,
+    };
   },
 
   computed: {
