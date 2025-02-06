@@ -271,7 +271,7 @@ export default {
       if (this.isExceedMax) return 0;
 
       if (this.dstChainInfo.settings?.lzVersion === 2) {
-        const fees = await quoteSendFee(this.beamInfoObject!, this.sendParam);
+        const fees = await quoteSendFee(this.fromChain!, this.sendParam);
         this.fee = fees.nativeFee;
       } else {
         // @ts-ignore
