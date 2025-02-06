@@ -548,6 +548,8 @@ export default {
           this.inputAmount
         );
 
+        await this.checkAllowanceAmount();
+
         this.isApproving = false;
 
         if (!isTokenApproved) {
@@ -787,6 +789,8 @@ export default {
           this.account,
           this.tokenType
         );
+
+        await this.checkAllowanceAmount();
 
         return this.beamInfoObject.fromChainConfig.chainId;
       } catch (error) {
