@@ -60,22 +60,28 @@ export default {
     popupTitle() {
       return this.popupType == "to" ? "destination" : "origin";
     },
+
     chainsArray(): BeamConfig[] {
-      if (this.popupType == "from") {
-        return this.beamInfoObject.beamConfigs;
-      } else {
-        return this.beamInfoObject.destinationChainsInfo.map((info) => {
-          return info.chainConfig;
-        });
-      }
+      const beamConfigs =
+        this.popupType === "from"
+          ? this.beamInfoObject.beamConfigs ?? []
+          : this.beamInfoObject.destinationChainsInfo?.map(
+              (info) => info.chainConfig
+            ) ?? [];
+
+      return beamConfigs.filter(
+        (config, index, self) =>
+          index === self.findIndex((c) => c.chainId === config.chainId)
+      );
     },
+
     activeChainId() {
-      if(this.popupType == "from") {
+      if (this.popupType == "from") {
         return this.selectedFromChain?.chainId;
       } else {
         return this.selectedToChain?.chainId;
       }
-    }
+    },
   },
 
   methods: {

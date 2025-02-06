@@ -20,6 +20,25 @@ export type BeamConfig = {
   defaultValue: any;
 };
 
+export type BeamConfigV2 = {
+  chainId: number;
+  icon: string;
+  chainName: string;
+  contract: {
+    address: Address;
+    abi: any;
+  };
+  outboundProofType: number;
+  executor: Address;
+  settings: {
+    contractVersion: number;
+    disabledDestinationChains: Array<number>;
+    lzChainId: number;
+    lzVersion?: number;
+  };
+  defaultValue: any;
+};
+
 export type BeamTokenConfig = {
   name: string;
   symbol: string;

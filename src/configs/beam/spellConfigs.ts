@@ -1,8 +1,8 @@
 import abi from "@/abis/beam";
-import type { BeamConfig } from "@/helpers/beam/types";
+import type { BeamConfigV2 } from "@/helpers/beam/types";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 
-export const spellConfigs: BeamConfig[] = [
+export const spellConfigs: BeamConfigV2[] = [
   {
     chainId: 1,
     icon: getChainIcon(1),

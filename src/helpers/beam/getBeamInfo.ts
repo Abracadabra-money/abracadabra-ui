@@ -49,7 +49,7 @@ export const getBeamInfo = async (
         if (chainConfig.settings?.lzVersion === 2) {
           return [
             {
-              address: fromChainConfig.executor,
+              address: chainConfig.executor,
               abi: executorAbi,
               functionName: "dstConfig",
               args: [chainConfig.settings.lzChainId],
@@ -86,12 +86,14 @@ export const getBeamInfo = async (
       const isLzVersion2 = chainConfig.settings?.lzVersion === 2;
 
       const minDstGasLookupResult = isLzVersion2
-        ? 0
-        : results[index * 2].result || 0;
+        ? 0n
+        : results[index * 2]?.result || 0n;
 
       const dstConfigLookupResult = isLzVersion2
-        ? results[index].result[3]
-        : results[index * 2 + 1].result[0] || 0;
+        ? results[index]?.result
+          ? results[index]?.result[3]
+          : 0n
+        : results[index * 2 + 1]?.result[0] || 0n;
 
       return {
         chainConfig,

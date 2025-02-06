@@ -57,17 +57,21 @@ export const getEstimateSendFee = async (
   return { fees: updatedFee, params };
 };
 
-export const quoteSendFee = async (beamInfo: BeamInfo, sendParam: any) => {
+export const quoteSendFee = async (
+  fromChainConfig: BeamConfig,
+  sendParam: any
+): Promise<any> => {
   try {
-    const publicClient = getPublicClient(beamInfo.fromChainConfig.chainId);
+    const publicClient = getPublicClient(fromChainConfig.chainId);
 
     return await publicClient.readContract({
-      address: beamInfo.fromChainConfig.contract.address,
-      abi: beamInfo.fromChainConfig.contract.abi,
+      address: fromChainConfig.contract.address,
+      abi: fromChainConfig.contract.abi,
       functionName: "quoteSend",
       args: [sendParam, false],
     });
   } catch (error) {
-    console.error("Error reading contract:", error);
+    console.error("Error quoteSendFee:", error);
+    return { nativeFee: 0n, lzTokenFee: 0n };
   }
 };

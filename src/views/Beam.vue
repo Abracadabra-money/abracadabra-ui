@@ -157,6 +157,8 @@ import { mapGetters, mapActions, mapMutations } from "vuex";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
 import { quoteSendFee } from "@/helpers/beam/getEstimateSendFee";
+import { getBeamChainInfo } from "@/helpers/beam/getBeamChainInfo";
+import { BASE_CHAIN_ID, LINEA_CHAIN_ID } from "@/constants/global";
 import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFee";
 
 export default {
@@ -202,8 +204,12 @@ export default {
       return this.beamInfoObject?.tokenConfig;
     },
 
+    isLzVersion2() {
+      return this.toChain?.settings?.lzVersion === 2;
+    },
+
     toAddressBytes() {
-      if (this.tokenType === SPELL_ID) {
+      if (this.isLzVersion2) {
         return ethers.utils.defaultAbiCoder.encode(
           ["bytes32"],
           [ethers.utils.hexZeroPad(this.account, 32)]
@@ -216,9 +222,8 @@ export default {
     isTokenApproved() {
       if (!this.beamInfoObject) return false;
 
-      // TODO: fix naming & conditions
-      if (this.chainId === 8453) return true;
-      if (this.chainId === 59144) return true;
+      if (this.chainId === BASE_CHAIN_ID) return true;
+      if (this.chainId === LINEA_CHAIN_ID) return true;
 
       return this.beamInfoObject.userInfo.allowance >= this.inputAmount;
     },
@@ -346,9 +351,7 @@ export default {
           this.toChain.chainId
         );
 
-        if (isDisabled) {
-          this.toChain = undefined;
-        }
+        if (isDisabled) this.toChain = undefined;
       }
 
       if (
@@ -361,7 +364,9 @@ export default {
     },
 
     async toChain() {
-      if (this.beamInfoObject && this.fromChain) {
+      if (this.beamInfoObject && this.fromChain && this.toChain) {
+        this.updateChainInfo(this.fromChain.chainId, this.toChain.chainId);
+
         this.estimateSendFee = await this.getEstimatedFees();
       }
     },
@@ -477,6 +482,17 @@ export default {
       this.dstAddressError = error;
     },
 
+    updateChainInfo(fromChainId: number, toChainId: number) {
+      const { fromChain, toChain } = getBeamChainInfo(
+        this.beamInfoObject!,
+        fromChainId,
+        toChainId
+      );
+
+      this.fromChain = fromChain;
+      this.toChain = toChain;
+    },
+
     errorDestinationAddress(error: boolean) {
       this.dstAddressError = error;
     },
@@ -532,7 +548,7 @@ export default {
         });
       }
 
-      if (this.fromChain!.settings?.lzVersion === 2) {
+      if (this.isLzVersion2) {
         await this.seendBeamV2(notificationId);
       } else await this.seendBeam(notificationId);
     },
@@ -660,11 +676,12 @@ export default {
     async getEstimatedFees(getParams = false) {
       if (!this.toChain || !this.fromChain) return 0n;
       if (this.inputAmount === 0n) return 0n;
+      if (!this.account) return 0n;
 
       this.isUpdateFeesData = true;
 
-      if (this.fromChain.settings?.lzVersion === 2) {
-        const fees = await quoteSendFee(this.beamInfoObject!, this.sendParam);
+      if (this.isLzVersion2) {
+        const fees = await quoteSendFee(this.fromChain, this.sendParam);
         this.isUpdateFeesData = false;
         if (getParams) return fees;
         else return fees.nativeFee;
@@ -715,16 +732,22 @@ export default {
     },
 
     async changeChain(chainId: number, type: string) {
-      const chainConfig = this.beamInfoObject!.beamConfigs.find(
-        (chain) => chain.chainId === chainId
-      );
+      const fromChainId = type === "from" ? chainId : this.fromChain?.chainId;
+      const toChainId = type === "to" ? chainId : this.toChain?.chainId;
 
-      if (type === "from") {
+      if (!toChainId || !fromChainId) {
+        const chainConfig = this.beamInfoObject!.beamConfigs.find(
+          (chain) => chain.chainId === chainId
+        );
+
         this.fromChain = chainConfig;
-        this.clearData();
-      } else {
-        this.toChain = chainConfig;
+
+        return;
       }
+
+      this.updateChainInfo(fromChainId, toChainId);
+
+      if (type === "from") this.clearData();
     },
 
     async switchChains() {
@@ -737,19 +760,6 @@ export default {
       await this.initBeamInfo(this.fromChain!.chainId);
       this.toChain = fromChain;
     },
-
-    // closeSuccessPopup() {
-    //   this.isOpenSuccessPopup = false;
-    // },
-
-    // async getMessagesBySrcTxHash() {
-    //   const client = createClient("mainnet");
-    //   const { messages } = await client.getMessagesBySrcTxHash(
-    //     this.successData.tx.hash
-    //   );
-
-    //   return messages[0];
-    // },
 
     async initBeamInfo(chainId: number): Promise<number | undefined> {
       try {
