@@ -33,12 +33,19 @@
       </p>
     </div>
 
-    <div class="position-info-item">
+    <div :class="['position-info-item', { 'bera-item': isBeraDesign }]">
       <img
         class="icon-right-center"
         src="@/assets/images/market/m-icon.svg"
         alt=""
       />
+      <img
+        v-if="isBeraDesign"
+        class="bera-repay"
+        src="@/assets/images/market/bera/repay-icon.png"
+        alt=""
+      />
+
       <h4 class="item-title">
         MIM to Repay
         <TooltipIcon
@@ -75,6 +82,14 @@
         src="@/assets/images/market/m-icon.svg"
         alt=""
       />
+
+      <img
+        v-if="isBeraDesign"
+        class="bera-liquidation"
+        src="@/assets/images/market/bera/liquidation-icon.png"
+        alt=""
+      />
+
       <div class="position-health">
         {{ expectedPosition.positionHealth.status }}
       </div>
@@ -145,6 +160,10 @@ export default {
     },
   },
   computed: {
+    isBeraDesign() {
+      return !!this.cauldron.config.cauldronSettings?.isBeraDesign;
+    },
+
     collateralDecimals(): number {
       return this.cauldron.config.collateralInfo.decimals;
     },
@@ -232,6 +251,10 @@ export default {
   transition: all 0.3s ease;
 }
 
+.bera-item {
+  padding-left: 30px;
+}
+
 .liquidation-price {
   padding-top: 24px;
 }
@@ -251,6 +274,21 @@ export default {
   position: absolute;
   top: 65px;
   right: -21px;
+}
+
+.bera-repay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 114px;
+  height: 114px;
+}
+
+.bera-liquidation {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 90px;
 }
 
 .icon-right-top {
@@ -374,6 +412,11 @@ export default {
 
   .item-price {
     font-size: 16px;
+  }
+
+  .bera-liquidation,
+  .bera-repay {
+    z-index: -1;
   }
 }
 </style>
