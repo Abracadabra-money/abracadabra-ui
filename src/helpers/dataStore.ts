@@ -11,8 +11,10 @@ export const LS_MAGIC_GLP_STAKE_KEY = "abracadabraMagicGlpStakeData";
 export const LS_MAGIC_GLP_STAKE_CHART_KEY = "abracadabraMagicGlpChartData";
 export const LS_MAGIC_APE_STAKE_KEY = "abracadabraMagicApeStakeData";
 export const LS_MAGIC_APE_STAKE_CHART_KEY = "abracadabraMagicApeChartData";
-export const LS_POOL_CREATION_CUSTOM_TOKENS_KEY = 'abracadabraPoolCreationCustomTokens'
+export const LS_POOL_CREATION_CUSTOM_TOKENS_KEY =
+  "abracadabraPoolCreationCustomTokens";
 export const LS_ELIXIR_RARE_KEY = "abracadabraElixirRate";
+export const LS_BSPELL_DATA = "abracadabraBSpellData";
 
 export const bigintStringify = (payload: any) =>
   JSON.stringify(payload, (key, value) =>
@@ -212,8 +214,26 @@ export const getAndParseMagicApeStakeData = () => {
   };
 };
 
-
 export const getAndParsePoolCreationCustomTokens = () => {
   const storedItem = localStorage.getItem(LS_POOL_CREATION_CUSTOM_TOKENS_KEY);
-  return storedItem ? { data: JSON.parse(storedItem), isCreated: true } : { data: [], isCreated: false };
-}
+  return storedItem
+    ? { data: JSON.parse(storedItem), isCreated: true }
+    : { data: [], isCreated: false };
+};
+
+export const getAndParseBSpellData = () => {
+  const lsBSpellData = localStorage.getItem(LS_BSPELL_DATA);
+
+  if (!lsBSpellData) {
+    return { data: [], isCreated: false };
+  }
+
+  const bSpellData = JSON.parse(lsBSpellData);
+
+  const data = bSpellData.map((item: any) => jsonBigIntTransform(item));
+
+  return {
+    data,
+    isCreated: true,
+  };
+};

@@ -22,16 +22,20 @@ export const getMagicApeApy = async (chainId: number): Promise<number> => {
     multicallProvider
   );
 
-  const [feePercentBips, bips, apeCoinInfo] = await Promise.all([
-    magicApeContract.feePercentBips(),
-    magicApeContract.BIPS(),
-    magicApeLensContract.getApeCoinInfo(),
-  ]);
+  try {
+    const [feePercentBips, bips, apeCoinInfo] = await Promise.all([
+      magicApeContract.feePercentBips(),
+      magicApeContract.BIPS(),
+      magicApeLensContract.getApeCoinInfo(),
+    ]);
 
-  const fee = feePercentBips / bips;
-  const apr = apeCoinInfo[0] / 100;
-  return +formatToFixed(
-    (Math.pow(1 + apr / 100 / 730, 730) - 1) * 100 * (1 - fee),
-    2
-  );
+    const fee = feePercentBips / bips;
+    const apr = apeCoinInfo[0] / 100;
+    return +formatToFixed(
+      (Math.pow(1 + apr / 100 / 730, 730) - 1) * 100 * (1 - fee),
+      2
+    );
+  } catch (error) {
+    return +formatToFixed(0, 2);
+  }
 };
