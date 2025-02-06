@@ -54,6 +54,7 @@ import MagicUSD0pp from "@/abis/tokensAbi/MagicUSD0pp";
 import USD0pp from "@/abis/tokensAbi/USD0pp";
 import ZRO from "@/abis/tokensAbi/ZRO";
 import ENA from "@/abis/tokensAbi/ENA";
+import bSPELL from "@/abis/tokensAbi/bSPELL";
 
 export default {
   ALCX,
@@ -112,4 +113,5 @@ export default {
   USD0pp,
   ZRO,
   ENA,
+  bSPELL,
 };

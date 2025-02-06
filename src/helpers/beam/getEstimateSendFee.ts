@@ -1,36 +1,77 @@
 import { ethers } from "ethers";
-import type { Contract } from "ethers";
-import { adapterParams } from "@/helpers/beam/getAdapterParams";
+import type { BeamInfo, BeamConfig } from "./types";
+
+const MESSAGE_VERSION: number = 2;
+
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 
 export const getEstimateSendFee = async (
-  contract: Contract,
+  beamInfo: BeamInfo,
+  dstChainInfo: BeamConfig,
   address: string,
-  dstChainId: number,
-  dstAmount: string = "0",
-  mimAmount: string = "1"
+  dstNativeAmount: bigint = 0n,
+  mimAmount: bigint = 0n
 ): Promise<Object> => {
-  const params = await adapterParams(contract, address, dstAmount, dstChainId);
+  const dstInfo = beamInfo.destinationChainsInfo.find(
+    (config) => config.chainConfig.chainId === dstChainInfo.chainId
+  );
 
-  const itsV2 = contract.hasOwnProperty("estimateSendFeeV2");
+  const minGas = dstInfo!.minDstGasLookupResult;
+
+  const params = ethers.utils.solidityPack(
+    ["uint16", "uint256", "uint256", "address"],
+    [MESSAGE_VERSION, minGas, dstNativeAmount, address]
+  );
+
+  const itsV2 = beamInfo.fromChainConfig.settings.contractVersion === 2;
 
   const methodName = itsV2 ? "estimateSendFeeV2" : "estimateSendFee";
 
   const args = itsV2
     ? [
-        dstChainId,
+        dstChainInfo.settings.lzChainId,
         ethers.utils.defaultAbiCoder.encode(["address"], [address]),
-        ethers.utils.parseUnits(mimAmount, 18),
+        mimAmount,
         params,
       ]
     : [
-        dstChainId,
+        dstChainInfo.settings.lzChainId,
         ethers.utils.defaultAbiCoder.encode(["address"], [address]),
-        ethers.utils.parseUnits(mimAmount, 18),
+        mimAmount,
         false,
         params,
       ];
 
-  const fees = await contract[methodName](...args);
+  const publicClient = getPublicClient(beamInfo.fromChainConfig.chainId);
 
-  return { fees, params };
+  const fees = await publicClient.readContract({
+    address: beamInfo.fromChainConfig.contract.address,
+    abi: beamInfo.fromChainConfig.contract.abi,
+    functionName: methodName,
+    args,
+  });
+
+  const additionalFee = fees[0] / 100n;
+  const updatedFee = fees[0] + additionalFee; // add 1% from base fee to be sure tx success
+
+  return { fees: updatedFee, params };
+};
+
+export const quoteSendFee = async (
+  fromChainConfig: BeamConfig,
+  sendParam: any
+): Promise<any> => {
+  try {
+    const publicClient = getPublicClient(fromChainConfig.chainId);
+
+    return await publicClient.readContract({
+      address: fromChainConfig.contract.address,
+      abi: fromChainConfig.contract.abi,
+      functionName: "quoteSend",
+      args: [sendParam, false],
+    });
+  } catch (error) {
+    console.error("Error quoteSendFee:", error);
+    return { nativeFee: 0n, lzTokenFee: 0n };
+  }
 };

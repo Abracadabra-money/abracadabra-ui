@@ -1,8 +1,11 @@
 <template>
   <div class="chains-wrap">
-    <h4 class="select-title">Select Networks</h4>
+    <h4 class="select-title">{{ title }}</h4>
     <div class="chains-swap">
-      <button class="select-item" @click="chainSelectHandler('from')">
+      <button
+        :class="['select-item', { disabled: isChainsDisabled }]"
+        @click="chainSelectHandler('from')"
+      >
         <div class="icon-wrap">
           <img class="chain-icon" :src="fromChainInfo.icon" alt="Icon" />
         </div>
@@ -10,8 +13,12 @@
       </button>
 
       <button
-        class="switch-chain-button"
-        :disabled="isSwitchChainsDisabled"
+        v-if="tokenType === 0"
+        :class="[
+          'switch-chain-button',
+          { 'switch-disabled': isSwitchChainsDisabled || isChainsDisabled },
+        ]"
+        :disabled="isSwitchChainsDisabled || isChainsDisabled"
         @click="switchChains"
       >
         <img
@@ -21,7 +28,17 @@
         />
       </button>
 
-      <button class="select-item" @click="chainSelectHandler('to')">
+      <img
+        class="migrate-arrow"
+        v-else
+        src="@/assets/images/beam/migrate-arrow.png"
+        alt=""
+      />
+
+      <button
+        :class="['select-item', { disabled: isChainsDisabled }]"
+        @click="chainSelectHandler('to')"
+      >
         <div class="icon-wrap">
           <img class="chain-icon" :src="toChainInfo.icon" alt="Icon" />
         </div>
@@ -32,11 +49,10 @@
 </template>
 
 <script lang="ts">
-import type { BeamConfig } from "@/helpers/beam/types";
-
 import { mapGetters } from "vuex";
-import { useImage } from "@/helpers/useImage";
 import type { PropType } from "vue";
+import { useImage } from "@/helpers/useImage";
+import type { BeamConfig } from "@/helpers/beam/types";
 
 const EmptyChain = {
   title: "Select Chain",
@@ -52,10 +68,24 @@ export default {
     toChain: {
       type: Object as PropType<BeamConfig>,
     },
+    isChainsDisabled: {
+      type: Boolean,
+      default: false,
+    },
+    tokenType: {
+      type: Number,
+      default: 0,
+    },
   },
 
   computed: {
     ...mapGetters({ account: "getAccount" }),
+
+    title() {
+      if (this.tokenType === 0) return "Select Networks";
+
+      return "Migrate to OFT V2 Spell";
+    },
 
     fromChainInfo() {
       if (!this.fromChain) return EmptyChain;
@@ -76,14 +106,18 @@ export default {
     },
 
     isSwitchChainsDisabled() {
-      return !this.fromChain || !this.toChain;
+      return (
+        !this.fromChain || !this.toChain || this.toChain?.settings?.disabledFrom
+      );
     },
   },
 
   methods: {
     chainSelectHandler(type: "from" | "to") {
+      if (this.isChainsDisabled) return;
       this.$emit("onChainSelectClick", type);
     },
+
     switchChains() {
       this.$emit("switchChains");
     },
@@ -180,7 +214,7 @@ export default {
 }
 
 .disabled {
-  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .switch-chain-image {
@@ -188,10 +222,19 @@ export default {
   height: 16px;
 }
 
+.migrate-arrow {
+  width: 44px;
+  height: 44px;
+}
+
 .select-button-text {
   color: #fff;
   font-size: 14px;
   font-weight: 500;
+}
+
+.switch-disabled {
+  cursor: not-allowed;
 }
 
 @media (max-width: 600px) {

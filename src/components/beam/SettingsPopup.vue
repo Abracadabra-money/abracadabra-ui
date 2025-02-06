@@ -70,15 +70,20 @@
 </template>
 
 <script lang="ts">
-import Tooltip from "@/components/ui/icons/Tooltip.vue";
-import BaseButton from "@/components/base/BaseButton.vue";
-import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFeeNew";
-import { trimZeroDecimals } from "@/helpers/numbers";
-import { formatUnits, parseUnits } from "viem";
-import type { BeamInfo, BeamConfig } from "@/helpers/beam/types";
-import type { PropType } from "vue";
-import { chainsConfigs } from "@/helpers/chains/configs";
+import {
+  getEstimateSendFee,
+  quoteSendFee,
+} from "@/helpers/beam/getEstimateSendFee";
+import { ethers } from "ethers";
 import { mapGetters } from "vuex";
+import type { PropType } from "vue";
+import { formatUnits, parseUnits } from "viem";
+import { trimZeroDecimals } from "@/helpers/numbers";
+import Tooltip from "@/components/ui/icons/Tooltip.vue";
+import { chainsConfigs } from "@/helpers/chains/configs";
+import { Options } from "@layerzerolabs/lz-v2-utilities";
+import BaseButton from "@/components/base/BaseButton.vue";
+import type { BeamInfo, BeamConfig } from "@/helpers/beam/types";
 
 export default {
   emits: ["onUpdateAmount", "closeSettings"],
@@ -102,6 +107,11 @@ export default {
       type: BigInt as any as PropType<bigint>,
       default: 0n,
     },
+
+    fromChain: {
+      type: Object as PropType<BeamConfig>,
+      required: true,
+    },
   },
 
   data() {
@@ -122,7 +132,7 @@ export default {
     ...mapGetters({
       account: "getAccount",
     }),
-    
+
     dstUpdatedInfo() {
       return this.beamInfoObject.destinationChainsInfo.find(
         (chain) => chain.chainConfig.chainId === this.dstChainInfo.chainId
@@ -133,8 +143,6 @@ export default {
       const chainInfo = chainsConfigs.find(
         (chain) => chain.chainId === this.dstChainInfo.chainId
       );
-
-      console.log("chainInfo", chainInfo);
 
       return {
         icon: chainInfo!.baseTokenIcon,
@@ -147,8 +155,6 @@ export default {
       const chainInfo = chainsConfigs.find(
         (chain) => chain.chainId === this.beamInfoObject.fromChainConfig.chainId
       );
-
-      console.log("chainInfo", chainInfo);
 
       return {
         icon: chainInfo!.baseTokenIcon,
@@ -163,9 +169,7 @@ export default {
     },
 
     defaultValue() {
-      return this.beamInfoObject.fromChainConfig.defaultValue[
-        this.dstChainInfo.chainId
-      ];
+      return this.fromChain.defaultValue[this.dstChainInfo.chainId];
     },
 
     maxAmount() {
@@ -215,6 +219,31 @@ export default {
     isDisableBtn() {
       return !!this.error || !this.isValueChanged;
     },
+
+    toAddressBytes() {
+      return ethers.utils.defaultAbiCoder.encode(
+        ["bytes32"],
+        [ethers.utils.hexZeroPad(this.account, 32)]
+      );
+    },
+
+    sendParam() {
+      const extraOptions = this.parsedValue
+        ? Options.newOptions()
+            .addExecutorNativeDropOption(this.parsedValue, this.toAddressBytes)
+            .toHex()
+        : "0x";
+
+      return {
+        dstEid: this.dstChainInfo?.settings.lzChainId, // uint32
+        to: this.toAddressBytes, // bytes32
+        amountLD: this.mimAmount, // uint256
+        minAmountLD: this.mimAmount, // uint256
+        extraOptions, // bytes
+        composeMsg: "0x", // bytes
+        oftCmd: "0x", // bytes
+      };
+    },
   },
 
   watch: {
@@ -223,8 +252,6 @@ export default {
         this.inputValue = oldValue;
         return false;
       }
-
-      console.log("inputValue", value);
 
       this.updateFee();
     },
@@ -242,22 +269,22 @@ export default {
 
     async updateFee() {
       if (this.isExceedMax) return 0;
-      // @ts-ignore
-      const { fees } = await getEstimateSendFee(
-        this.beamInfoObject,
-        this.dstChainInfo,
-        this.account,
-        this.parsedValue,
-        this.mimAmount
-      );
 
-      const additionalFee = fees[0] / 100n;
-      const updatedFee = fees[0] + additionalFee; // add 1% from base fee to be sure tx success
-      if (!updatedFee) {
-        this.fee = 0n;
-        return;
+      if (this.dstChainInfo.settings?.lzVersion === 2) {
+        const fees = await quoteSendFee(this.fromChain!, this.sendParam);
+        this.fee = fees.nativeFee;
+      } else {
+        // @ts-ignore
+        const { fees } = await getEstimateSendFee(
+          this.beamInfoObject,
+          this.dstChainInfo,
+          this.account,
+          this.parsedValue,
+          this.mimAmount
+        );
+
+        this.fee = fees;
       }
-      this.fee = updatedFee;
     },
   },
 
