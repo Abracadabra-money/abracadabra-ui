@@ -14,7 +14,10 @@
 
       <button
         v-if="tokenType === 0"
-        class="switch-chain-button"
+        :class="[
+          'switch-chain-button',
+          { 'switch-disabled': isSwitchChainsDisabled || isChainsDisabled },
+        ]"
         :disabled="isSwitchChainsDisabled || isChainsDisabled"
         @click="switchChains"
       >
@@ -103,7 +106,9 @@ export default {
     },
 
     isSwitchChainsDisabled() {
-      return !this.fromChain || !this.toChain;
+      return (
+        !this.fromChain || !this.toChain || this.toChain?.settings?.disabledFrom
+      );
     },
   },
 
@@ -226,6 +231,10 @@ export default {
   color: #fff;
   font-size: 14px;
   font-weight: 500;
+}
+
+.switch-disabled {
+  cursor: not-allowed;
 }
 
 @media (max-width: 600px) {

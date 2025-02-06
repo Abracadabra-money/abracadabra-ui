@@ -69,6 +69,15 @@ export default {
               (info) => info.chainConfig
             ) ?? [];
 
+      if (this.popupType === "from")
+        return beamConfigs.filter(
+          (config, index, self) =>
+            index ===
+            self.findIndex(
+              (c) => c.chainId === config.chainId && !c.settings.disabledFrom
+            )
+        );
+
       return beamConfigs.filter(
         (config, index, self) =>
           index === self.findIndex((c) => c.chainId === config.chainId)

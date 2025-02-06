@@ -142,4 +142,14 @@ export default <MimInfo[]>[
     image:
       "https://fra1.digitaloceanspaces.com/static.popsicle.finance/mimlogopng.png",
   },
+  {
+    name: "MIM",
+    symbol: "MIM",
+    chainId: 80094,
+    decimals: 18,
+    address: "0x5B82028cfc477C4E7ddA7FF33d59A23FA7Be002a",
+    abi: tokensAbi.MIM,
+    image:
+      "https://fra1.digitaloceanspaces.com/static.popsicle.finance/mimlogopng.png",
+  },
 ];

@@ -16,6 +16,7 @@ export type BeamConfig = {
     disabledDestinationChains: Array<number>;
     lzChainId: number;
     lzVersion?: number;
+    disabledFrom?: boolean;
   };
   defaultValue: any;
 };
@@ -35,6 +36,7 @@ export type BeamConfigV2 = {
     disabledDestinationChains: Array<number>;
     lzChainId: number;
     lzVersion?: number;
+    disabledFrom?: boolean;
   };
   defaultValue: any;
 };

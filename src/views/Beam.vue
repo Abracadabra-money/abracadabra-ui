@@ -120,6 +120,7 @@
         :dstChainInfo="toChain"
         :dstNativeTokenAmount="dstTokenAmount"
         :mimAmount="inputAmount"
+        :fromChain="fromChain!"
         @onUpdateAmount="updateDstNativeTokenAmount"
         @closeSettings="isSettingsOpened = false"
       />
@@ -140,6 +141,11 @@ import type {
   BeamConfig,
   DestinationChainInfo,
 } from "@/helpers/beam/types";
+import {
+  BASE_CHAIN_ID,
+  LINEA_CHAIN_ID,
+  MAINNET_CHAIN_ID,
+} from "@/constants/global";
 import { ethers, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
@@ -150,6 +156,7 @@ import { sendLzV2 } from "@/helpers/beam/sendLzV2";
 import { MIM_ID, SPELL_ID } from "@/constants/beam";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import { approveTokenViem } from "@/helpers/approval";
+import { removeDust } from "@/helpers/beam/removeDust";
 import { beamConfigs } from "@/configs/beam/beamConfigs";
 import { getBeamInfo } from "@/helpers/beam/getBeamInfo";
 import { Options } from "@layerzerolabs/lz-v2-utilities";
@@ -157,8 +164,8 @@ import { mapGetters, mapActions, mapMutations } from "vuex";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
 import { quoteSendFee } from "@/helpers/beam/getEstimateSendFee";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { getBeamChainInfo } from "@/helpers/beam/getBeamChainInfo";
-import { BASE_CHAIN_ID, LINEA_CHAIN_ID } from "@/constants/global";
 import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFee";
 
 export default {
@@ -186,6 +193,7 @@ export default {
       estimateSendFee: 0n,
       tokenType: MIM_ID,
       isLoadingBeamInfo: false,
+      tokenAllowedAmount: 0n,
     };
   },
 
@@ -225,7 +233,7 @@ export default {
       if (this.chainId === BASE_CHAIN_ID) return true;
       if (this.chainId === LINEA_CHAIN_ID) return true;
 
-      return this.beamInfoObject.userInfo.allowance >= this.inputAmount;
+      return this.tokenAllowedAmount >= this.inputAmount;
     },
 
     amountError() {
@@ -244,7 +252,7 @@ export default {
     maxTokenAmount() {
       if (!this.beamInfoObject) return 0n;
 
-      return this.beamInfoObject.userInfo.balance;
+      return removeDust(this.beamInfoObject.userInfo.balance);
     },
 
     maxTokenAmountParsed() {
@@ -322,7 +330,7 @@ export default {
         dstEid: this.toChain?.settings.lzChainId, // uint32
         to: this.toAddressBytes, // bytes32
         amountLD: this.inputAmount, // uint256
-        minAmountLD: this.inputAmount, // uint256
+        minAmountLD: removeDust(this.inputAmount), // uint256
         extraOptions, // bytes
         composeMsg: "0x", // bytes
         oftCmd: "0x", // bytes
@@ -365,7 +373,10 @@ export default {
 
     async toChain() {
       if (this.beamInfoObject && this.fromChain && this.toChain) {
-        this.updateChainInfo(this.fromChain.chainId, this.toChain.chainId);
+        await this.updateChainInfo(
+          this.fromChain.chainId,
+          this.toChain.chainId
+        );
 
         this.estimateSendFee = await this.getEstimatedFees();
       }
@@ -482,7 +493,7 @@ export default {
       this.dstAddressError = error;
     },
 
-    updateChainInfo(fromChainId: number, toChainId: number) {
+    async updateChainInfo(fromChainId: number, toChainId: number) {
       const { fromChain, toChain } = getBeamChainInfo(
         this.beamInfoObject!,
         fromChainId,
@@ -491,6 +502,8 @@ export default {
 
       this.fromChain = fromChain;
       this.toChain = toChain;
+
+      await this.checkAllowanceAmount();
     },
 
     errorDestinationAddress(error: boolean) {
@@ -510,7 +523,7 @@ export default {
         return false;
       }
 
-      const beamContract = this.beamInfoObject!.fromChainConfig.contract;
+      const beamContract = this.fromChain!.contract;
 
       const tokenContract: ContractInfo = {
         address: this.beamInfoObject!.tokenConfig.address as Address,
@@ -624,7 +637,7 @@ export default {
         const hash = await sendLzV2(
           this.account,
           this.sendParam,
-          this.beamInfoObject!,
+          this.fromChain!,
           fees
         );
 
@@ -745,12 +758,14 @@ export default {
         return;
       }
 
-      this.updateChainInfo(fromChainId, toChainId);
+      await this.updateChainInfo(fromChainId, toChainId);
 
       if (type === "from") this.clearData();
     },
 
     async switchChains() {
+      if (this.toChain?.settings?.disabledFrom) return;
+
       const fromChain = this.fromChain;
       const toChain = this.toChain;
 
@@ -782,9 +797,18 @@ export default {
     setDefaulChain(chainId: number) {
       if (!this.beamInfoObject) return;
 
-      this.fromChain = this.beamInfoObject.beamConfigs.find(
-        (chain) => chain.chainId === chainId
-      );
+      const fromChain = this.beamInfoObject!.beamConfigs.find((chain) => {
+        const isActiveChain = chain.chainId === chainId;
+        const isDisabledFrom = chain.settings?.disabledFrom;
+
+        return isActiveChain && !isDisabledFrom;
+      });
+
+      this.fromChain = fromChain
+        ? fromChain
+        : this.beamInfoObject!.beamConfigs.find(
+            (chain) => chain.chainId === MAINNET_CHAIN_ID
+          );
     },
 
     clearData() {
@@ -795,6 +819,18 @@ export default {
       this.isShowDstAddress = false;
       this.estimateSendFee = 0n;
       this.dstTokenAmount = 0n;
+    },
+
+    async checkAllowanceAmount() {
+      if (!this.chainId || !this.account) return 0n;
+      const publicClient = getPublicClient(this.chainId);
+
+      this.tokenAllowedAmount = await publicClient.readContract({
+        address: this.beamInfoObject!.tokenConfig.address,
+        abi: this.beamInfoObject!.tokenConfig.abi,
+        functionName: "allowance",
+        args: [this.account, this.fromChain!.contract.address],
+      });
     },
   },
 

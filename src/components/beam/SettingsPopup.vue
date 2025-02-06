@@ -107,6 +107,11 @@ export default {
       type: BigInt as any as PropType<bigint>,
       default: 0n,
     },
+
+    fromChain: {
+      type: Object as PropType<BeamConfig>,
+      required: true,
+    },
   },
 
   data() {
@@ -151,8 +156,6 @@ export default {
         (chain) => chain.chainId === this.beamInfoObject.fromChainConfig.chainId
       );
 
-      console.log("chainInfo", chainInfo);
-
       return {
         icon: chainInfo!.baseTokenIcon,
         symbol: chainInfo!.baseTokenSymbol,
@@ -166,9 +169,7 @@ export default {
     },
 
     defaultValue() {
-      return this.beamInfoObject.fromChainConfig.defaultValue[
-        this.dstChainInfo.chainId
-      ];
+      return this.fromChain.defaultValue[this.dstChainInfo.chainId];
     },
 
     maxAmount() {

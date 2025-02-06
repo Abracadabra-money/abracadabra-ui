@@ -21,6 +21,7 @@ export const AVALANCHE_CHAIN_ID: number = 43114;
 export const BLAST_CHAIN_ID = 81457;
 export const BASE_CHAIN_ID = 8453;
 export const LINEA_CHAIN_ID = 59144;
+export const BERA_CHAIN_ID = 80094;
 
 export const MAX_ALLOWANCE_VALUE: any =
   "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
