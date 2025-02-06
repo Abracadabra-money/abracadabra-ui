@@ -1,4 +1,4 @@
-export type SortOrder = "up" | "down" | null;
+export type SortOrder = "up" | "down" | null | boolean;
 
 export type SorterData = {
   tableKey: PositionsSortKey | string;
