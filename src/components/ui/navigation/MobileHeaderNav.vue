@@ -15,20 +15,13 @@
         </MobileHeaderLink>
       </li>
 
-      <li @click="$emit('close-popup')">
-        <MobileHeaderLink to="StakeList">
-          <img src="@/assets/images/header/dropdown/more/stake-icon.svg" />
-          Stake
-        </MobileHeaderLink>
-      </li>
-
-      <!-- <li class="stake-wrap" @click.stop="$emit('open-inner-popup')">
+      <li class="stake-wrap" @click.stop="$emit('open-inner-popup')">
         <span class="stake-btn">
           <img src="@/assets/images/header/dropdown/more/stake-icon.svg" />
           <span> Stake </span>
           <img class="arrow" src="@/assets/images/arrow.svg" />
         </span>
-      </li> -->
+      </li>
 
       <li @click="$emit('close-popup')">
         <MobileHeaderLink to="MarketsFarm">

@@ -14,11 +14,9 @@
     <nav class="nav">
       <component :is="isClassicHeader ? 'HeaderNav' : 'SwapHeaderNav'" />
 
-      <template v-if="!isClassicHeader">
-        <div class="line"></div>
+      <div class="line"></div>
 
-        <SwapLink :isClassicHeader="isClassicHeader" />
-      </template>
+      <SwapLink :isClassicHeader="isClassicHeader" />
     </nav>
 
     <div class="user-actions">

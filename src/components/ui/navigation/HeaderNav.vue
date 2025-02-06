@@ -1,33 +1,29 @@
 <template>
   <HeaderLink to="Cauldrons">Cauldrons</HeaderLink>
 
-  <HeaderLink to="BSpell">
-    <img class="bspell-icon" src="@/assets/images/header/bSpell.png" alt="" />
-    bSpell</HeaderLink
-  >
+  <HeaderStakeDropdown />
 
-  <HeaderMenuDropdown />
+  <HeaderMoreDropdown />
+
+  <HeaderLink to="MyPositions">My Positions</HeaderLink>
 </template>
 
-<script lang="ts">
+<script>
 import { defineAsyncComponent } from "vue";
 
 export default {
   components: {
-    HeaderLink: defineAsyncComponent(
-      () => import("@/components/ui/links/HeaderLink.vue")
+    HeaderLink: defineAsyncComponent(() =>
+      import("@/components/ui/links/HeaderLink.vue")
     ),
-    HeaderMenuDropdown: defineAsyncComponent(
-      // @ts-ignore
-      () => import("@/components/ui/dropdown/HeaderMenuDropdown.vue")
+    HeaderMoreDropdown: defineAsyncComponent(() =>
+      import("@/components/ui/dropdown/HeaderMoreDropdown.vue")
+    ),
+    HeaderStakeDropdown: defineAsyncComponent(() =>
+      import("@/components/ui/dropdown/HeaderStakeDropdown.vue")
     ),
   },
 };
 </script>
 
-<style lang="scss" scoped>
-.bspell-icon {
-  width: 24px;
-  height: 24px;
-}
-</style>
+<style lang="scss" scoped></style>
