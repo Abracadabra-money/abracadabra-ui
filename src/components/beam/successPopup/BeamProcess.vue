@@ -15,12 +15,12 @@
         src="@/assets/gifs/beam.gif"
         v-if="successData.tokenType === MIM_ID"
       />
-      <img class="beam-gif" src="@/assets/gifs/beam-spell.gif" v-else />
+      <!-- <img class="beam-gif" src="@/assets/gifs/beam-spell.gif" v-else />
       <div class="process-title">Beaming</div>
       <div class="beam-amount">
         <img class="mim-icon" :src="successData.tokenIcon" />
         {{ parsedMimAmount }}
-      </div>
+      </div> -->
     </div>
 
     <div :class="['beam-chain', sendToCheck]">
