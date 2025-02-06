@@ -80,6 +80,7 @@
           :beamInfoObject="beamInfoObject"
           :dstChainConfig="toChain"
           :gasFee="estimateSendFee"
+          :fromChain="fromChain!"
           :dstNativeTokenAmount="dstTokenAmount"
           :isLoading="isUpdateFeesData"
         />

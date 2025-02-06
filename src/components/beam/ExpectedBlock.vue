@@ -68,6 +68,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    fromChain: {
+      type: Object as PropType<BeamConfig>,
+      required: true,
+    },
   },
 
   computed: {
@@ -75,8 +79,7 @@ export default {
       if (!this.beamInfoObject) return null;
 
       const chainInfo = chainsConfigs.find(
-        (chain) =>
-          chain.chainId === this.beamInfoObject!.fromChainConfig.chainId
+        (chain) => chain.chainId === this.fromChain.chainId
       );
 
       return {
