@@ -27,7 +27,7 @@
         </div>
       </div>
 
-      <div class="tabs">
+      <!-- <div class="tabs">
         <button
           :class="['tab-item', { active: tokenType === tab.id }]"
           v-for="tab in tabsInfo"
@@ -37,7 +37,7 @@
           <img class="tab-icon" :src="tab.icon" alt="" />
           {{ tab.name }}
         </button>
-      </div>
+      </div> -->
 
       <div class="beam-actions" v-if="!isOpenNetworkPopup && !isSettingsOpened">
         <ChainsWrap
