@@ -62,15 +62,8 @@ export default {
     },
 
     chainsArray(): BeamConfig[] {
-      const beamConfigs =
-        this.popupType === "from"
-          ? this.beamInfoObject.beamConfigs ?? []
-          : this.beamInfoObject.destinationChainsInfo?.map(
-              (info) => info.chainConfig
-            ) ?? [];
-
       if (this.popupType === "from")
-        return beamConfigs.filter(
+        return this.beamInfoObject.beamConfigs.filter(
           (config, index, self) =>
             index ===
             self.findIndex(
@@ -78,10 +71,15 @@ export default {
             )
         );
 
-      return beamConfigs.filter(
-        (config, index, self) =>
-          index === self.findIndex((c) => c.chainId === config.chainId)
-      );
+      return this.beamInfoObject.beamConfigs.filter((config, index, self) => {
+        return (
+          index === self.findIndex((c) => c.chainId === config.chainId) &&
+          config.chainId !== this.selectedFromChain?.chainId &&
+          !this.selectedFromChain!.settings.disabledDestinationChains.includes(
+            config.chainId
+          )
+        );
+      });
     },
 
     activeChainId() {

@@ -6,24 +6,22 @@ const MESSAGE_VERSION: number = 2;
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 
 export const getEstimateSendFee = async (
-  beamInfo: BeamInfo,
-  dstChainInfo: BeamConfig,
+
+  fromChainInfo: any,
+  dstChainInfo: any,
   address: string,
   dstNativeAmount: bigint = 0n,
   mimAmount: bigint = 0n
-): Promise<Object> => {
-  const dstInfo = beamInfo.destinationChainsInfo.find(
-    (config) => config.chainConfig.chainId === dstChainInfo.chainId
-  );
-
-  const minGas = dstInfo!.minDstGasLookupResult;
+): Promise<any> => {
+  const minGas = dstChainInfo!.minDstGasLookupResult;
 
   const params = ethers.utils.solidityPack(
     ["uint16", "uint256", "uint256", "address"],
     [MESSAGE_VERSION, minGas, dstNativeAmount, address]
   );
 
-  const itsV2 = beamInfo.fromChainConfig.settings.contractVersion === 2;
+
+  const itsV2 = fromChainInfo.settings?.contractVersion === 2;
 
   const methodName = itsV2 ? "estimateSendFeeV2" : "estimateSendFee";
 
@@ -42,11 +40,11 @@ export const getEstimateSendFee = async (
         params,
       ];
 
-  const publicClient = getPublicClient(beamInfo.fromChainConfig.chainId);
+  const publicClient = getPublicClient(fromChainInfo.chainId);
 
   const fees = await publicClient.readContract({
-    address: beamInfo.fromChainConfig.contract.address,
-    abi: beamInfo.fromChainConfig.contract.abi,
+    address: fromChainInfo.contract.address,
+    abi: fromChainInfo.contract.abi,
     functionName: methodName,
     args,
   });

@@ -118,7 +118,6 @@ export default {
 .beam-process {
   display: flex;
   justify-content: center;
-  align-items: end;
   width: 100%;
 }
 
