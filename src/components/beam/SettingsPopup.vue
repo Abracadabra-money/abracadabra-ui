@@ -134,8 +134,8 @@ export default {
     }),
 
     dstUpdatedInfo() {
-      return this.beamInfoObject.destinationChainsInfo.find(
-        (chain) => chain.chainConfig.chainId === this.dstChainInfo.chainId
+      return this.beamInfoObject.beamConfigs.find(
+        (chain) => chain.chainId === this.dstChainInfo.chainId
       );
     },
 
@@ -276,7 +276,7 @@ export default {
       } else {
         // @ts-ignore
         const { fees } = await getEstimateSendFee(
-          this.beamInfoObject,
+          this.fromChain,
           this.dstChainInfo,
           this.account,
           this.parsedValue,

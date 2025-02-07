@@ -43,7 +43,7 @@ export const mimConfigsV1: BeamConfig[] = [
     relayer: "0x177d36dBE2271A4DdB2Ad8304d82628eb921d790",
     settings: {
       contractVersion: 2,
-      disabledDestinationChains: [],
+      disabledDestinationChains: [80094],
       lzChainId: 110,
     },
     defaultValue: {
@@ -72,7 +72,7 @@ export const mimConfigsV1: BeamConfig[] = [
     relayer: "0xcb566e3B6934Fa77258d68ea18E931fa75e1aaAa",
     settings: {
       contractVersion: 2,
-      disabledDestinationChains: [81457],
+      disabledDestinationChains: [81457, 80094],
       lzChainId: 177,
     },
     defaultValue: {
@@ -101,7 +101,7 @@ export const mimConfigsV1: BeamConfig[] = [
     relayer: "0xCD2E3622d483C7Dc855F72e5eafAdCD577ac78B4",
     settings: {
       contractVersion: 2,
-      disabledDestinationChains: [],
+      disabledDestinationChains: [80094],
       lzChainId: 106,
     },
     defaultValue: {
@@ -130,7 +130,7 @@ export const mimConfigsV1: BeamConfig[] = [
     relayer: "0x81E792e5a9003CC1C8BF5569A00f34b65d75b017",
     settings: {
       contractVersion: 2,
-      disabledDestinationChains: [],
+      disabledDestinationChains: [80094],
       lzChainId: 111,
     },
     defaultValue: {
@@ -159,7 +159,7 @@ export const mimConfigsV1: BeamConfig[] = [
     relayer: "0x52EEA5c490fB89c7A0084B32FEAB854eefF07c82",
     settings: {
       contractVersion: 2,
-      disabledDestinationChains: [],
+      disabledDestinationChains: [80094],
       lzChainId: 112,
     },
     defaultValue: {
@@ -188,7 +188,7 @@ export const mimConfigsV1: BeamConfig[] = [
     relayer: "0xA27A2cA24DD28Ce14Fb5f5844b59851F03DCf182",
     settings: {
       contractVersion: 2,
-      disabledDestinationChains: [],
+      disabledDestinationChains: [80094],
       lzChainId: 102,
     },
     defaultValue: {
@@ -217,7 +217,7 @@ export const mimConfigsV1: BeamConfig[] = [
     relayer: "0x75dC8e5F50C8221a82CA6aF64aF811caA983B65f",
     settings: {
       contractVersion: 2,
-      disabledDestinationChains: [],
+      disabledDestinationChains: [80094],
       lzChainId: 109,
     },
     defaultValue: {
@@ -246,7 +246,7 @@ export const mimConfigsV1: BeamConfig[] = [
     relayer: "0xe9AE261D3aFf7d3fCCF38Fa2d612DD3897e07B2d",
     settings: {
       contractVersion: 2,
-      disabledDestinationChains: [],
+      disabledDestinationChains: [80094],
       lzChainId: 167,
     },
     defaultValue: {
@@ -275,7 +275,7 @@ export const mimConfigsV1: BeamConfig[] = [
     relayer: "0xcb566e3B6934Fa77258d68ea18E931fa75e1aaAa",
     settings: {
       contractVersion: 1,
-      disabledDestinationChains: [],
+      disabledDestinationChains: [80094],
       lzChainId: 184,
     },
     defaultValue: {
@@ -304,7 +304,7 @@ export const mimConfigsV1: BeamConfig[] = [
     relayer: "0xA658742d33ebd2ce2F0bdFf73515Aa797Fd161D9",
     settings: {
       contractVersion: 1,
-      disabledDestinationChains: [],
+      disabledDestinationChains: [80094],
       lzChainId: 183,
     },
     defaultValue: {
@@ -333,7 +333,7 @@ export const mimConfigsV1: BeamConfig[] = [
     relayer: "0xA658742d33ebd2ce2F0bdFf73515Aa797Fd161D9",
     settings: {
       contractVersion: 1,
-      disabledDestinationChains: [2222],
+      disabledDestinationChains: [2222, 80094],
       lzChainId: 243,
     },
     defaultValue: {

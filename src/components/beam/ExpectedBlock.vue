@@ -12,7 +12,9 @@
           />
           {{ fromGasText }}
         </span>
-        <span class="usd">{{ estimatedGasCostUsd }}</span>
+        <span class="usd" v-if="fromChainInfo?.price">{{
+          estimatedGasCostUsd
+        }}</span>
       </p>
     </div>
 
@@ -29,7 +31,9 @@
           />
           {{ dstNativeTokenText }}
         </span>
-        <span class="usd">{{ gasOnDestinationUsd }}</span>
+        <span class="usd" v-if="dstChainInfo?.price">{{
+          gasOnDestinationUsd
+        }}</span>
       </p>
     </div>
 
@@ -43,7 +47,7 @@
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
-import type { BeamInfo, BeamConfig } from "@/helpers/beam/types";
+import type { BeamInfo } from "@/helpers/beam/types";
 import type { PropType } from "vue";
 import { chainsConfigs } from "@/helpers/chains/configs";
 import { formatUnits } from "viem";
@@ -54,7 +58,7 @@ export default {
       type: Object as PropType<BeamInfo>,
     },
     dstChainConfig: {
-      type: Object as PropType<BeamConfig>,
+      type: Object as PropType<any>,
     },
     gasFee: {
       type: BigInt as any as PropType<bigint>,
@@ -69,7 +73,7 @@ export default {
       default: false,
     },
     fromChain: {
-      type: Object as PropType<BeamConfig>,
+      type: Object as PropType<any>,
       required: true,
     },
   },
@@ -85,7 +89,7 @@ export default {
       return {
         symbol: chainInfo!.baseTokenSymbol,
         icon: chainInfo!.baseTokenIcon,
-        price: this.beamInfoObject.nativePrice,
+        price: this.fromChain.nativePrice,
       };
     },
     dstChainInfo() {
@@ -95,15 +99,10 @@ export default {
         (chain) => chain.chainId === this.dstChainConfig!.chainId
       );
 
-      const dstChainInfoUpdated =
-        this.beamInfoObject.destinationChainsInfo.find(
-          (chain) => chain.chainConfig.chainId === this.dstChainConfig!.chainId
-        );
-
       return {
         symbol: chainInfo!.baseTokenSymbol,
         icon: chainInfo!.baseTokenIcon,
-        price: dstChainInfoUpdated?.nativePrice || 0,
+        price: this.dstChainConfig?.nativePrice || 0,
       };
     },
 
