@@ -59,13 +59,22 @@ export type DestinationChainInfo = {
 };
 
 export type BeamUserInfo = {
+  chainId: number;
   balance: bigint;
   allowance: bigint;
   nativeBalance: bigint;
 };
 
+type NewBeamConfig = BeamConfig & {
+  nativePrice: number;
+  dstConfigLookupResult: bigint;
+  minDstGasLookupResult: bigint;
+  userInfo: BeamUserInfo;
+  tokenConfig: BeamTokenConfig;
+};
+
 export type BeamInfo = {
-  beamConfigs: Array<BeamConfig>;
+  beamConfigs: Array<NewBeamConfig>;
   fromChainConfig: BeamConfig;
   destinationChainsInfo: Array<DestinationChainInfo>;
   tokenConfig: BeamTokenConfig;

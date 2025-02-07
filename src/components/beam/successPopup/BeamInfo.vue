@@ -14,7 +14,7 @@
           >{{ parseFloat(parsedFeeAmount).toFixed(4) }}
           {{ originChainNativeToken.symbol }}</span
         >
-        <span class="usd">{{ totalGasUsd }}</span>
+        <span class="usd" v-if="successData.originChain.nativePrice">{{ totalGasUsd }}</span>
       </div>
     </div>
 
@@ -25,7 +25,7 @@
           >{{ parseFloat(parsedDstNativeAmount).toFixed(4) }}
           {{ dstChainNativeToken.symbol }}</span
         >
-        <span class="usd">{{ dstNativeTokenUsd }}</span>
+        <span class="usd" v-if="this.successData.dstChain.nativePrice">{{ dstNativeTokenUsd }}</span>
       </div>
     </div>
 

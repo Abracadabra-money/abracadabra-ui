@@ -38,17 +38,18 @@ export const mimConfigsV2: BeamConfigV2[] = [
     icon: getChainIcon(80094),
     chainName: "Berachain",
     contract: {
-      address: "0xe59b2b20bd72AF8a74c1874408ab7Dd8201Aae31",
+      address: "0x5B82028cfc477C4E7ddA7FF33d59A23FA7Be002a",
       abi: abi.transparentUpgradeableProxy,
     },
     outboundProofType: 2,
     executor: "0x4208D6E27538189bB48E603D6123A94b8Abe0A0b",
     settings: {
       contractVersion: 1,
-      disabledDestinationChains: [],
+      disabledDestinationChains: [
+        42161, 2222, 43114, 10, 250, 56, 137, 1285, 8453, 59144, 81457,
+      ],
       lzChainId: 30362,
       lzVersion: 2,
-      disabledFrom: true,
     },
     defaultValue: {
       10: "0.000000587209028",
