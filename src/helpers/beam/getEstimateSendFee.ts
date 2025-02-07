@@ -6,6 +6,7 @@ const MESSAGE_VERSION: number = 2;
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 
 export const getEstimateSendFee = async (
+
   fromChainInfo: any,
   dstChainInfo: any,
   address: string,
@@ -18,6 +19,7 @@ export const getEstimateSendFee = async (
     ["uint16", "uint256", "uint256", "address"],
     [MESSAGE_VERSION, minGas, dstNativeAmount, address]
   );
+
 
   const itsV2 = fromChainInfo.settings?.contractVersion === 2;
 
