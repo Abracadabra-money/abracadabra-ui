@@ -45,18 +45,18 @@ const cookLeverage = async (
     datas: [],
   };
 
+  cookData = await checkAndSetMcApprove(
+    cookData,
+    cauldronObject,
+    isMasterContractApproved
+  );
+
   let value = collateralValue;
   if (cauldronObject.config.cauldronSettings.oracleInfo?.kind === "PYTH") {
     let updateValue: bigint;
     ({ cookData, value: updateValue } = await recipeUpdatePythOracle(cookData, cauldronObject));
     value += updateValue;
   }
-
-  cookData = await checkAndSetMcApprove(
-    cookData,
-    cauldronObject,
-    isMasterContractApproved
-  );
 
   if (updatePrice) cookData = await actions.updateExchangeRate(cookData, true);
 
