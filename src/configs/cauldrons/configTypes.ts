@@ -44,23 +44,9 @@ type CauldronSettings = {
 type PythOracleInfo = {
   kind: "PYTH";
   feedIds: Lowercase<Hex>[];
-  wrapper?: OracleWrapperInfos;
 };
 
 type OracleInfos = PythOracleInfo;
-
-type Erc4626OracleWrapperInfo = {
-  kind: "ERC4626";
-  vault: Address;
-  decimalScale: bigint;
-};
-
-type InverseOracleWrapperInfo = {
-  kind: "INVERSE";
-  decimalScale: bigint;
-};
-
-type OracleWrapperInfos = Erc4626OracleWrapperInfo | InverseOracleWrapperInfo;
 
 type MimInfo = {
   name: string;
