@@ -43,8 +43,7 @@ type CauldronSettings = {
 
 type PythOracleInfo = {
   kind: "PYTH";
-  address: Address;
-  feedId: Hex;
+  feedIds: Lowercase<Hex>[];
   wrapper?: OracleWrapperInfos;
 };
 

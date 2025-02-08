@@ -39,8 +39,8 @@ export const getMarketList = async (
   const cauldronsInfo: CauldronListItem[] = [];
 
   await Promise.all(
-    // TODO: Enable all chains --- updated marketLens needs to be deployed on all chains
-    curentChains.filter(x => x == "1").map(async (chainId: string) => {
+    // TODO: Remove filter when marketlens is deployed on all chains
+    curentChains.filter((chainId) => chainId === "80094").map(async (chainId: string) => {
       const configsByChain = filteredByChainId(Number(chainId));
 
       const filteredConfigs: CauldronConfig[] = filteredByPrivate(
