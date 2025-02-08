@@ -5,9 +5,8 @@ import type { MainParams } from "@/helpers/cauldron/types";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { getLensAddress } from "@/helpers/cauldron/getLensAddress";
 import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
-import { getPythFeedData } from "../pyth";
-import { getPythAddress } from "./getPythAddress";
-import { getPythPriceSlot } from "./getPythPriceSlot";
+import { getPythFeedData } from "@/helpers/pyth";
+import { getPythConfiguration } from "@/helpers/cauldron/getPythConfiguration";
 
 interface MarketInfo {
   borrowFee: bigint;
@@ -49,13 +48,12 @@ export const getMainParams = async (
   ))];
   if (pythFeedIds.length > 0) {
     // Override the state with the Pyth feed data to get the latest price and avoid reverts
-    const pythAddress = getPythAddress(chainId);
-    const pythPriceSlot = getPythPriceSlot(chainId);
+    const pythConfiguration = getPythConfiguration(chainId);
     const pythData = await getPythFeedData(pythFeedIds);
     stateOverride.push({
-      address: pythAddress,
+      address: pythConfiguration.address,
       stateDiff: pythData.parsed.map(({ id, price }) => ({
-        slot: keccak256(encodeAbiParameters(parseAbiParameters('bytes32, uint256'), [id, pythPriceSlot])),
+        slot: keccak256(encodeAbiParameters(parseAbiParameters('bytes32, uint256'), [id, pythConfiguration.priceInfoSlot])),
         value: pad(encodePacked(['uint64', 'int64', 'int32', 'uint64'], [price.conf, price.price, price.expo, BigInt(price.publish_time)])),
       }))
     });

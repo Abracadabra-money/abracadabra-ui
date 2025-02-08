@@ -6,13 +6,13 @@ import type { CauldronInfo } from "@/helpers/cauldron/types";
 import { type PublicClient, encodeFunctionData } from "viem";
 import { getPythFeedData } from "@/helpers/pyth";
 import pythAbi from "@/abis/pyth";
-import { getPythAddress } from "../../getPythAddress";
+import { getPythConfiguration } from "@/helpers/cauldron/getPythConfiguration";
 
 const recipeUpdatePythOracle = async (
   cookData: CookData,
   cauldronObject: CauldronInfo,
 ): Promise<{ cookData: CookData, value: bigint }> => {
-  const pythAddress = getPythAddress(cauldronObject.config.chainId);
+  const { address: pythAddress } = getPythConfiguration(cauldronObject.config.chainId);
   const { feedIds } = cauldronObject.config.cauldronSettings.oracleInfo!;
 
   const publicClient = getPublicClient(cauldronObject.config.chainId) as PublicClient;
