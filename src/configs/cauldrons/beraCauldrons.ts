@@ -18,7 +18,7 @@ const config: Array<CauldronConfig> = [
     name: "MIM/HONEY",
     chainId: 80094,
     id: 1,
-    liquidationFee: 7.5,
+    liquidationFee: 5,
     mcr: 90,
     borrowFee: 0.5,
     version: 4,
