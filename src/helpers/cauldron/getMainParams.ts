@@ -48,6 +48,7 @@ export const getMainParams = async (
       : []
   ))];
   if (pythFeedIds.length > 0) {
+    // Override the state with the Pyth feed data to get the latest price and avoid reverts
     const pythAddress = getPythAddress(chainId);
     const pythPriceSlot = getPythPriceSlot(chainId);
     const pythData = await getPythFeedData(pythFeedIds);
@@ -85,17 +86,11 @@ export const getMainParams = async (
 
   return Promise.all(marketInfos.map(async (marketInfo, index) => {
     const config = configs[index];
-    return getRegularMainParams(config, marketInfo as any as MarketInfo, contractExchangeRate);
-    // switch (config.cauldronSettings.oracleInfo?.kind) {
-    //   case "PYTH":
-    //     return await getPythMainParams(publicClient, config, marketInfo as any as PythMarketInfo);
-    //   case undefined:
-    //     return getRegularMainParams(config, marketInfo as any as MarketInfo, contractExchangeRate);
-    // }
+    return getMarketMainParams(config, marketInfo as any as MarketInfo, contractExchangeRate);
   }));
 };
 
-const getRegularMainParams = (config: CauldronConfig, marketInfo: MarketInfo, contractExchangeRate?: bigint): MainParams => {
+const getMarketMainParams = (config: CauldronConfig, marketInfo: MarketInfo, contractExchangeRate?: bigint): MainParams => {
   const updatePrice = config.version < 3 && contractExchangeRate !== undefined
     ? marketInfo.oracleExchangeRate < contractExchangeRate
     : false;
@@ -122,63 +117,3 @@ const getRegularMainParams = (config: CauldronConfig, marketInfo: MarketInfo, co
     },
   };
 };
-
-// const getPythMainParams = async (publicClient: PublicClient, config: CauldronConfig, marketInfo: PythMarketInfo): Promise<MainParams> => {
-//   const lensAddress = getLensAddress(config.chainId);
-//   const oracleInfo = config.cauldronSettings.oracleInfo!;
-//   const pythData = await getPythFeedData(oracleInfo.feeds.map(({ id }) => id));
-//   const oracleExchangeRate = (publicClient as PublicClient).readContract({
-//     address: lensAddress,
-//     abi: lensAbi,
-//     functionName: "getOracleExchangeRate",
-//     args: [config.contract.address],
-
-//     stateOverride: [{
-//       address: oracleInfo.address,
-//       state: oracleInfo.feeds.map(({ slot }) => ({
-//         slot,
-//         value: "0x"
-//       }))
-//     }],
-//   });
-//   // const wrapper = config.cauldronSettings.oracleInfo!.wrapper;
-//   // switch (wrapper?.kind) {
-//   //   case "INVERSE":
-//   //     oracleExchangeRate = wrapper.decimalScale / oracleExchangeRate;
-//   //     break;
-//   //   case "ERC4626": {
-//   //     const assets = await (publicClient as PublicClient).readContract({
-//   //       abi: erc4626Abi,
-//   //       address: wrapper.vault,
-//   //       functionName: "convertToAssets",
-//   //       args: [oracleExchangeRate],
-//   //     });
-//   //     oracleExchangeRate = wrapper.decimalScale / assets;
-//   //   }
-//   // }
-//   const collateralPrice = 10n ** (2n * BigInt(config.collateralInfo.decimals)) / oracleExchangeRate;
-//   const tvl = (marketInfo.totalCollateral.amount * 10n ** 18n) / oracleExchangeRate;
-
-//   return {
-//     borrowFee: Number(marketInfo.borrowFee) / 100,
-//     interest: config.interest ?? Number(marketInfo.interestPerYear) / 100,
-//     liquidationFee: Number(marketInfo.liquidationFee) / 100,
-//     collateralPrice: BigNumber.from(collateralPrice),
-//     mimLeftToBorrow: BigNumber.from(marketInfo.marketMaxBorrow),
-//     maximumCollateralRatio: BigNumber.from(marketInfo.maximumCollateralRatio),
-//     oracleExchangeRate: BigNumber.from(oracleExchangeRate),
-//     totalBorrowed: BigNumber.from(marketInfo.totalBorrowed),
-//     tvl: BigNumber.from(tvl),
-//     userMaxBorrow: BigNumber.from(marketInfo.userMaxBorrow),
-//     updatePrice: false,
-//     alternativeData: {
-//       collateralPrice,
-//       mimLeftToBorrow: marketInfo.marketMaxBorrow,
-//       maximumCollateralRatio: marketInfo.maximumCollateralRatio,
-//       oracleExchangeRate,
-//       totalBorrowed: marketInfo.totalBorrowed,
-//       tvl,
-//       userMaxBorrow: marketInfo.userMaxBorrow,
-//     },
-//   }
-// }
