@@ -10,7 +10,7 @@
 
       <router-link
         class="list-link"
-        :to="{ name: 'StakeSpell' }"
+        :to="{ name: 'StakeSpell', query: { token: 'mSpell' } }"
         @click="$emit('closeMobileMenu')"
       >
         <div class="link-title">
