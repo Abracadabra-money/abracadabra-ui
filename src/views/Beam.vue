@@ -27,7 +27,7 @@
         </div>
       </div>
 
-      <!-- <div class="tabs">
+      <div class="tabs">
         <button
           :class="['tab-item', { active: tokenType === tab.id }]"
           v-for="tab in tabsInfo"
@@ -37,35 +37,35 @@
           <img class="tab-icon" :src="tab.icon" alt="" />
           {{ tab.name }}
         </button>
-      </div> -->
+      </div>
 
       <div class="beam-actions" v-if="!isOpenNetworkPopup && !isSettingsOpened">
         <ChainsWrap
           :toChain="toChainConfig!"
           :fromChain="fromChainConfig"
           :tokenType="tokenType"
-          :isChainsDisabled="isLoadingBeamInfo || tokenType === 1"
+          :isChainsDisabled="isLoadingBeamInfo || tokenType === SPELL_ID"
           @onChainSelectClick="openNetworkPopup"
           @switchChains="switchChains"
         />
 
-        <div class="inputs-wrap" v-if="tokenConfig">
+        <div class="inputs-wrap">
           <div>
             <h4 class="input-label">{{ tokenSymbol }} to Beam</h4>
 
-            <div class="row-skeleton" v-if="isLoadingBeamInfo"></div>
-
             <BaseTokenInput
-              v-else
+              v-if="!isLoadingBeamInfo"
               class="beam-input"
-              :decimals="tokenConfig.decimals"
+              :decimals="tokenConfig?.decimals"
               :max="maxTokenAmount"
               :value="inputValue"
-              :name="tokenConfig.symbol"
-              :icon="tokenConfig.image"
+              :name="tokenConfig?.symbol"
+              :icon="tokenConfig?.image"
               @updateInputValue="updateMainValue"
               :error="amountError"
             />
+
+            <div class="row-skeleton" v-else></div>
           </div>
 
           <InputAddress
@@ -76,13 +76,12 @@
         </div>
 
         <ExpectedBlock
-          v-if="beamInfoObject"
           :beamInfoObject="beamInfoObject"
           :dstChainConfig="toChainConfig!"
           :gasFee="estimateSendFee"
           :fromChain="fromChainConfig!"
           :dstNativeTokenAmount="dstTokenAmount"
-          :isLoading="isUpdateFeesData"
+          :isLoading="isUpdateFeesData || isLoadingBeamInfo"
         />
 
         <div class="wrap-btn">
@@ -143,6 +142,7 @@ import type {
   DestinationChainInfo,
 } from "@/helpers/beam/types";
 import {
+  ARBITRUM_CHAIN_ID,
   BASE_CHAIN_ID,
   LINEA_CHAIN_ID,
   MAINNET_CHAIN_ID,
@@ -207,6 +207,14 @@ export default {
     }),
 
     fromChainConfig() {
+      if (this.isLoadingBeamInfo) return undefined;
+      if (this.tokenType === SPELL_ID)
+        return getBeamFromChainInfo(
+          this.beamInfoObject!,
+          MAINNET_CHAIN_ID,
+          ARBITRUM_CHAIN_ID
+        );
+
       return getBeamFromChainInfo(
         this.beamInfoObject!,
         this.fromChainId || this.chainId,
@@ -215,6 +223,10 @@ export default {
     },
 
     toChainConfig() {
+      if (this.isLoadingBeamInfo) return null;
+      if (this.tokenType === SPELL_ID)
+        return getBeamToChainInfo(this.beamInfoObject!, ARBITRUM_CHAIN_ID);
+
       return getBeamToChainInfo(this.beamInfoObject!, this.toChainId);
     },
 
@@ -377,7 +389,7 @@ export default {
 
       if (
         this.beamInfoObject &&
-        this.fromChainConfig!.chainId !== value.chainId
+        this.fromChainConfig?.chainId !== value.chainId
       ) {
         this.clearData();
         this.initBeamInfo(value.chainId);
@@ -402,40 +414,21 @@ export default {
       }
     },
 
-    // todo spell
     async tokenType() {
-      const fromChainId = this.fromChainConfig?.chainId || 1;
-
-      // this.fromChain = undefined;
-
-      // this.toChain = undefined;
       this.isOpenNetworkPopup = false;
-      this.isShowDstAddress = false;
       this.isSettingsOpened = false;
-
-      const currentChain = this.beamInfoObject
-        ? this.beamInfoObject.fromChainConfig.chainId
-        : this.chainId;
       this.clearData();
-      this.isLoadingBeamInfo = true;
-      await this.initBeamInfo(currentChain);
-
-      const chainConfig = this.beamInfoObject!.beamConfigs.find(
-        (chain) => chain.chainId === fromChainId
-      );
 
       if (this.tokenType === SPELL_ID) {
-        // this.fromChain = this.beamInfoObject!.beamConfigs[0];
-        // this.toChain = this.beamInfoObject!.beamConfigs[1];
-        this.isLoadingBeamInfo = false;
-        return;
+        this.fromChainId = MAINNET_CHAIN_ID;
+        this.toChainId = ARBITRUM_CHAIN_ID;
+      } else {
+        this.fromChainId = this.chainId;
+        this.toChainId = null;
       }
 
-      // if (!chainConfig) {
-      //   this.fromChain = this.beamInfoObject!.beamConfigs[0];
-      // } else {
-      //   this.fromChain = chainConfig;
-      // }
+      this.isLoadingBeamInfo = true;
+      await this.initBeamInfo(this.fromChainId!);
 
       this.isLoadingBeamInfo = false;
     },
@@ -551,7 +544,6 @@ export default {
       this.clearData();
     },
 
-    // todo chainIds params
     async switchChains() {
       if (this.toChainConfig?.settings?.disabledFrom) return;
 
@@ -740,6 +732,8 @@ export default {
           this.account,
           this.tokenType
         );
+
+        console.log("this.beamInfoObject", this.beamInfoObject);
 
         return this.beamInfoObject.fromChainConfig.chainId;
       } catch (error) {

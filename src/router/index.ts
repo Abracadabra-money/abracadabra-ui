@@ -123,16 +123,16 @@ const routes: Array<RouteRecordRaw> = [
     name: "PotionPoints",
     component: () => import("@/views/PotionPoints.vue"),
   },
-  //{
-  //  path: "/bspell",
-  //  name: "BSpell",
-  //  component: () => import("@/views/BSpell.vue"),
-  //},
-  //{
-  //  path: "/stake-list",
-  //  name: "StakeList",
-  //  component: () => import("@/views/stake/StakeList.vue"),
-  //},
+  {
+    path: "/bspell",
+    name: "BSpell",
+    component: () => import("@/views/BSpell.vue"),
+  },
+  {
+    path: "/stake-list",
+    name: "StakeList",
+    component: () => import("@/views/stake/StakeList.vue"),
+  },
   {
     path: "/:catchAll(.*)",
     redirect: "/",

@@ -75,6 +75,7 @@ export default {
     fromChain: {
       type: Object as PropType<any>,
       required: true,
+      default: () => ({}),
     },
   },
 

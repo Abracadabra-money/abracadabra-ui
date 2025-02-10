@@ -27,6 +27,17 @@
           <p class="link-description">Swap assets</p>
         </router-link>
 
+        <router-link class="list-link" :to="{ name: 'StakeList' }">
+          <div class="link-title">
+            <img
+              class="link-icon"
+              src="@/assets/images/header/dropdown/more/stake-icon.svg"
+            />
+            Stake
+          </div>
+          <p class="link-description">Stake Opportunities</p>
+        </router-link>
+
         <router-link class="list-link" :to="{ name: 'MarketsFarm' }">
           <div class="link-title">
             <img
