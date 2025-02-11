@@ -65,22 +65,12 @@ export type BeamUserInfo = {
   nativeBalance: bigint;
 };
 
-type NewBeamConfig = BeamConfig & {
+export type BeamInfo = BeamConfig & {
   nativePrice: number;
   dstConfigLookupResult: bigint;
   minDstGasLookupResult: bigint;
   userInfo: BeamUserInfo;
   tokenConfig: BeamTokenConfig;
-};
-
-export type BeamInfo = {
-  beamConfigs: Array<NewBeamConfig>;
-  fromChainConfig: BeamConfig;
-  destinationChainsInfo: Array<DestinationChainInfo>;
-  tokenConfig: BeamTokenConfig;
-  tokenPrice: number;
-  nativePrice: number;
-  userInfo: BeamUserInfo;
 };
 
 export type SendParam = {

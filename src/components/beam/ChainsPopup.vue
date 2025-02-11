@@ -34,7 +34,8 @@
 
 <script lang="ts">
 import type { PropType } from "vue";
-import type { BeamInfo, BeamConfig } from "@/helpers/beam/types";
+import type { BeamInfo } from "@/helpers/beam/types";
+
 export default {
   props: {
     isOpen: {
@@ -45,14 +46,14 @@ export default {
       type: String as PropType<"from" | "to">,
     },
     beamInfoObject: {
-      type: Object as PropType<BeamInfo>,
+      type: Object as PropType<BeamInfo[]>,
       required: true,
     },
     selectedFromChain: {
-      type: Object as PropType<BeamConfig> | null,
+      type: Object as PropType<BeamInfo | null>,
     },
     selectedToChain: {
-      type: Object as PropType<BeamConfig> | null,
+      type: Object as PropType<BeamInfo | null>,
     },
   },
 
@@ -61,9 +62,9 @@ export default {
       return this.popupType == "to" ? "destination" : "origin";
     },
 
-    chainsArray(): BeamConfig[] {
+    chainsArray() {
       if (this.popupType === "from")
-        return this.beamInfoObject.beamConfigs.filter(
+        return this.beamInfoObject.filter(
           (config, index, self) =>
             index ===
             self.findIndex(
@@ -71,7 +72,7 @@ export default {
             )
         );
 
-      return this.beamInfoObject.beamConfigs.filter((config, index, self) => {
+      return this.beamInfoObject.filter((config, index, self) => {
         return (
           index === self.findIndex((c) => c.chainId === config.chainId) &&
           config.chainId !== this.selectedFromChain?.chainId &&

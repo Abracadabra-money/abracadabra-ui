@@ -45,8 +45,8 @@
           :fromChain="fromChainConfig"
           :tokenType="tokenType"
           :isChainsDisabled="isLoadingBeamInfo || tokenType === SPELL_ID"
-          @onChainSelectClick="openNetworkPopup"
           @switchChains="switchChains"
+          @onChainSelectClick="openNetworkPopup"
         />
 
         <div class="inputs-wrap">
@@ -61,8 +61,8 @@
               :value="inputValue"
               :name="tokenConfig?.symbol"
               :icon="tokenConfig?.image"
-              @updateInputValue="updateMainValue"
               :error="amountError"
+              @updateInputValue="updateMainValue"
             />
 
             <div class="row-skeleton" v-else></div>
@@ -76,10 +76,9 @@
         </div>
 
         <ExpectedBlock
-          :beamInfoObject="beamInfoObject"
-          :dstChainConfig="toChainConfig!"
           :gasFee="estimateSendFee"
           :fromChain="fromChainConfig!"
+          :toChain="toChainConfig!"
           :dstNativeTokenAmount="dstTokenAmount"
           :isLoading="isUpdateFeesData || isLoadingBeamInfo"
         />
@@ -105,42 +104,39 @@
 
       <ChainsPopup
         v-if="isOpenNetworkPopup"
-        :isOpen="isOpenNetworkPopup"
         :popupType="popupType"
+        :isOpen="isOpenNetworkPopup"
         :beamInfoObject="beamInfoObject"
+        :selectedToChain="toChainConfig"
         :selectedFromChain="fromChainConfig"
-        :selectedToChain="toChainConfig!"
-        @closePopup="closeNetworkPopup"
         @changeChain="changeChain"
+        @closePopup="closeNetworkPopup"
       />
 
       <SettingsPopup
         v-if="isSettingsOpened && toChainConfig"
+        :tokenAmount="inputAmount"
         :beamInfoObject="beamInfoObject"
         :dstChainInfo="toChainConfig"
         :dstNativeTokenAmount="dstTokenAmount"
-        :mimAmount="inputAmount"
-        :fromChain="fromChainConfig!"
-        @onUpdateAmount="updateDstNativeTokenAmount"
+        :fromChain="fromChainConfig"
         @closeSettings="isSettingsOpened = false"
+        @onUpdateAmount="updateDstNativeTokenAmount"
       />
     </div>
   </div>
 
   <SuccessPopup
     v-if="isOpenSuccessPopup && beamInfoObject"
-    :beamInfoObject="beamInfoObject"
+    :toChain="toChainConfig!"
     :successData="successData"
+    :fromChain="fromChainConfig"
+    :beamInfoObject="beamInfoObject"
     @close-popup="isOpenSuccessPopup = false"
   />
 </template>
 
 <script lang="ts">
-import type {
-  BeamInfo,
-  BeamConfig,
-  DestinationChainInfo,
-} from "@/helpers/beam/types";
 import {
   ARBITRUM_CHAIN_ID,
   BASE_CHAIN_ID,
@@ -156,6 +152,7 @@ import { sendFrom } from "@/helpers/beam/sendFrom";
 import { sendLzV2 } from "@/helpers/beam/sendLzV2";
 import { MIM_ID, SPELL_ID } from "@/constants/beam";
 import { trimZeroDecimals } from "@/helpers/numbers";
+import type { BeamInfo } from "@/helpers/beam/types";
 import { approveTokenViem } from "@/helpers/approval";
 import { removeDust } from "@/helpers/beam/removeDust";
 import { beamConfigs } from "@/configs/beam/beamConfigs";
@@ -165,11 +162,9 @@ import { mapGetters, mapActions, mapMutations } from "vuex";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
 import { quoteSendFee } from "@/helpers/beam/getEstimateSendFee";
-import {
-  getBeamFromChainInfo,
-  getBeamToChainInfo,
-} from "@/helpers/beam/getBeamChainInfo";
+import { getBeamToChainInfo } from "@/helpers/beam/getBeamChainInfo";
 import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFee";
+import { getBeamFromChainInfo } from "@/helpers/beam/getBeamChainInfo";
 
 export default {
   data() {
@@ -187,7 +182,7 @@ export default {
       isApproving: false,
       isBeaming: false,
       isUpdateFeesData: false,
-      beamInfoObject: undefined as BeamInfo | undefined,
+      beamInfoObject: undefined as BeamInfo[] | undefined,
       dstTokenAmount: 0n,
       inputAmount: 0n,
       inputValue: "",
@@ -721,7 +716,7 @@ export default {
       }
     },
 
-    async initBeamInfo(chainId: number): Promise<number | undefined> {
+    async initBeamInfo(chainId: number) {
       try {
         const configs = beamConfigs[this.tokenType as keyof typeof beamConfigs];
         const isChainIdValid = configs.some((item) => item.chainId === chainId);
@@ -732,10 +727,6 @@ export default {
           this.account,
           this.tokenType
         );
-
-        console.log("this.beamInfoObject", this.beamInfoObject);
-
-        return this.beamInfoObject.fromChainConfig.chainId;
       } catch (error) {
         console.log("Beam Info Error:", error);
       }
@@ -747,26 +738,14 @@ export default {
   },
 
   components: {
-    BaseTokenInput: defineAsyncComponent(
-      () => import("@/components/base/BaseTokenInput.vue")
-    ),
-    BaseButton: defineAsyncComponent(
-      () => import("@/components/base/BaseButton.vue")
+    BeamSettingsButton: defineAsyncComponent(
+      () => import("@/components/ui/buttons/BeamSettingsButton.vue")
     ),
     ChainsWrap: defineAsyncComponent(
       () => import("@/components/beam/ChainsWrap.vue")
     ),
-    ChainsPopup: defineAsyncComponent(
-      () => import("@/components/beam/ChainsPopup.vue")
-    ),
-    SettingsPopup: defineAsyncComponent(
-      () => import("@/components/beam/SettingsPopup.vue")
-    ),
-    SuccessPopup: defineAsyncComponent(
-      () => import("@/components/beam/successPopup/SuccessPopup.vue")
-    ),
-    BeamSettingsButton: defineAsyncComponent(
-      () => import("@/components/ui/buttons/BeamSettingsButton.vue")
+    BaseTokenInput: defineAsyncComponent(
+      () => import("@/components/base/BaseTokenInput.vue")
     ),
     InputAddress: defineAsyncComponent(
       () => import("@/components/beam/InputAddress.vue")
@@ -774,6 +753,21 @@ export default {
     ExpectedBlock: defineAsyncComponent(
       () => import("@/components/beam/ExpectedBlock.vue")
     ),
+    BaseButton: defineAsyncComponent(
+      () => import("@/components/base/BaseButton.vue")
+    ),
+    ChainsPopup: defineAsyncComponent(
+      () => import("@/components/beam/ChainsPopup.vue")
+    ),
+
+    SettingsPopup: defineAsyncComponent(
+      () => import("@/components/beam/SettingsPopup.vue")
+    ),
+
+    SuccessPopup: defineAsyncComponent(
+      () => import("@/components/beam/successPopup/SuccessPopup.vue")
+    ),
+    // -----
   },
 };
 </script>

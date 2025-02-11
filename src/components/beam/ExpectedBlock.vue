@@ -24,14 +24,10 @@
       </p>
       <p class="value pointer" @click="$emit('open-settings')">
         <span class="token">
-          <img
-            :src="dstChainInfo.icon"
-            class="token-icon"
-            v-if="dstChainInfo"
-          />
+          <img :src="toChainInfo.icon" class="token-icon" v-if="toChainInfo" />
           {{ dstNativeTokenText }}
         </span>
-        <span class="usd" v-if="dstChainInfo?.price">{{
+        <span class="usd" v-if="toChainInfo?.price">{{
           gasOnDestinationUsd
         }}</span>
       </p>
@@ -45,65 +41,59 @@
 </template>
 
 <script lang="ts">
-import { defineAsyncComponent } from "vue";
-import { formatUSD, formatTokenBalance } from "@/helpers/filters";
-import type { BeamInfo } from "@/helpers/beam/types";
-import type { PropType } from "vue";
-import { chainsConfigs } from "@/helpers/chains/configs";
 import { formatUnits } from "viem";
+import type { PropType } from "vue";
+import { defineAsyncComponent } from "vue";
+import { chainsConfigs } from "@/helpers/chains/configs";
+import type { BeamInfo } from "@/helpers/beam/types";
+import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 
 export default {
   props: {
-    beamInfoObject: {
-      type: Object as PropType<BeamInfo>,
+    toChain: {
+      type: Object as PropType<BeamInfo | undefined>,
     },
-    dstChainConfig: {
-      type: Object as PropType<any>,
+    fromChain: {
+      type: Object as PropType<BeamInfo | undefined>,
     },
-    gasFee: {
-      type: BigInt as any as PropType<bigint>,
-      default: 0n,
-    },
+    isLoading: { type: Boolean, default: false },
+    gasFee: { type: BigInt as any as PropType<bigint>, default: 0n },
     dstNativeTokenAmount: {
       type: BigInt as any as PropType<bigint>,
       default: 0n,
-    },
-    isLoading: {
-      type: Boolean,
-      default: false,
-    },
-    fromChain: {
-      type: Object as PropType<any>,
-      required: true,
-      default: () => ({}),
     },
   },
 
   computed: {
     fromChainInfo() {
-      if (!this.beamInfoObject) return null;
+      if (!this.fromChain) return null;
 
       const chainInfo = chainsConfigs.find(
-        (chain) => chain.chainId === this.fromChain.chainId
+        (chain) => this.fromChain && chain.chainId === this.fromChain.chainId
       );
 
+      if (!chainInfo) return null;
+
       return {
-        symbol: chainInfo!.baseTokenSymbol,
-        icon: chainInfo!.baseTokenIcon,
+        symbol: chainInfo.baseTokenSymbol,
+        icon: chainInfo.baseTokenIcon,
         price: this.fromChain.nativePrice,
       };
     },
-    dstChainInfo() {
-      if (!this.dstChainConfig || !this.beamInfoObject) return null;
+
+    toChainInfo() {
+      if (!this.toChain) return null;
 
       const chainInfo = chainsConfigs.find(
-        (chain) => chain.chainId === this.dstChainConfig!.chainId
+        (chain) => this.toChain && chain.chainId === this.toChain.chainId
       );
 
+      if (!chainInfo) return null;
+
       return {
-        symbol: chainInfo!.baseTokenSymbol,
-        icon: chainInfo!.baseTokenIcon,
-        price: this.dstChainConfig?.nativePrice || 0,
+        symbol: chainInfo.baseTokenSymbol,
+        icon: chainInfo.baseTokenIcon,
+        price: this.toChain?.nativePrice || 0,
       };
     },
 
@@ -124,28 +114,28 @@ export default {
     },
 
     dstNativeTokenText() {
-      if (this.dstChainInfo === null)
+      if (this.toChainInfo === null)
         return formatTokenBalance(this.parsedDstNativeTokenAmount);
       return `${formatTokenBalance(this.parsedDstNativeTokenAmount)} ${
-        this.dstChainInfo.symbol
+        this.toChainInfo.symbol
       }`;
     },
 
     estimatedGasCostUsd() {
-      if (this.gasFee === 0n) return formatUSD(0);
+      if (this.gasFee === 0n || !this.fromChainInfo) return formatUSD(0);
 
       const estimatedGasCostUsd =
-        // @ts-ignore
-        formatUnits(this.gasFee, 18) * this.fromChainInfo!.price;
+        Number(formatUnits(this.gasFee, 18)) * this.fromChainInfo.price;
       return formatUSD(estimatedGasCostUsd);
     },
 
     gasOnDestinationUsd() {
-      if (this.dstNativeTokenAmount === 0n) return formatUSD(0);
+      if (this.dstNativeTokenAmount === 0n || !this.toChainInfo)
+        return formatUSD(0);
 
       const gasOnDestinationUsd =
-        // @ts-ignore
-        formatUnits(this.dstNativeTokenAmount, 18) * this.dstChainInfo!.price;
+        Number(formatUnits(this.dstNativeTokenAmount, 18)) *
+        this.toChainInfo.price;
       return formatUSD(gasOnDestinationUsd);
     },
   },

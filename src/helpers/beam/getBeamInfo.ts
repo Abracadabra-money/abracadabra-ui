@@ -1,16 +1,13 @@
 import type { Address } from "viem";
 import relayerAbi from "@/abis/beam/relayer";
 import mimConfigs from "@/configs/tokens/mim";
-import { useImage } from "@/helpers/useImage";
 import executorAbi from "@/abis/beam/executor";
 import spellConfigs from "@/configs/tokens/spell";
 import { beamConfigs } from "@/configs/beam/beamConfigs";
-import { tokensChainLink } from "@/configs/chainLink/config";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { getNativeTokensPrice } from "@/helpers/prices/defiLlama";
 import type { BeamUserInfo, BeamConfig } from "@/helpers/beam/types";
 import type { BeamInfo, BeamTokenConfig } from "@/helpers/beam/types";
-import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 
 const PACKET_TYPE: number = 1;
 
@@ -18,7 +15,7 @@ export const getBeamInfo = async (
   chainId: number,
   account: Address | null = null,
   tokenType: number = 0
-): Promise<BeamInfo> => {
+): Promise<BeamInfo[]> => {
   const configs = beamConfigs[tokenType];
 
   const fromChainConfig = configs.find(
@@ -34,17 +31,10 @@ export const getBeamInfo = async (
     throw new Error("No Beam config found for chainId");
   }
 
-  const { tokenConfig, tokenPrice } = await getTokenInfo(
-    tokenType,
-    fromChainConfig
-  );
-
   const destinationChainsConfig = filterDestinationChains(
     fromChainConfig,
     configs
   );
-
-  const userInfo = await getUserInfo(tokenConfig, fromChainConfig, account);
 
   const userInfotest = await Promise.all(
     configs.map((config: BeamConfig) => {
@@ -137,15 +127,9 @@ export const getBeamInfo = async (
         chainConfig,
         minDstGasLookupResult,
         dstConfigLookupResult,
-        nativePrice:
-          prices.find((info) => info.chainId === chainConfig.chainId)?.price ||
-          0,
       };
     }
   );
-
-  const nativePrice =
-    prices.find((info) => info.chainId === fromChainConfig.chainId)?.price || 0;
 
   const configsArr = configs.map((config: BeamConfig, index) => {
     const tokenConfig =
@@ -170,35 +154,7 @@ export const getBeamInfo = async (
     };
   });
 
-  return {
-    beamConfigs: configsArr,
-    fromChainConfig: fromChainConfig,
-    destinationChainsInfo,
-    tokenConfig: tokenConfig as BeamTokenConfig,
-    tokenPrice,
-    nativePrice,
-    userInfo,
-  };
-};
-
-const getTokenInfo = async (tokenType: number, fromChainConfig: any) => {
-  const tokenConfig =
-    tokenType === 0
-      ? mimConfigs.find((item) => item.chainId === fromChainConfig.chainId)
-      : spellConfigs.find((item) => item.chainId === fromChainConfig.chainId);
-
-  if (tokenType === 0) {
-    tokenConfig!.image = useImage("assets/images/tokens/MIM.png");
-  }
-
-  const activeTokenSymbol = tokenType === 0 ? "mim" : "spell";
-
-  const tokenPrice = await getTokenPriceByChain(
-    tokensChainLink[activeTokenSymbol].chainId,
-    tokensChainLink[activeTokenSymbol].address
-  );
-
-  return { tokenConfig, tokenPrice };
+  return configsArr;
 };
 
 const getUserInfo = async (

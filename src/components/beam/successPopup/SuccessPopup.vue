@@ -26,60 +26,68 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import type { BeamInfo } from "@/helpers/beam/types";
+import { defineAsyncComponent, type PropType } from "vue";
 import { chainsConfigs } from "@/helpers/chains/configs";
-import BeamInfo from "@/components/beam/successPopup/BeamInfo.vue";
 import { waitForMessageReceived } from "@layerzerolabs/scan-client";
-import BeamProcess from "@/components/beam/successPopup/BeamProcess.vue";
-import TransactionProgressBlock from "@/components/beam/successPopup/TransactionProgressBlock.vue";
 
 export default {
   props: {
-    beamInfoObject: {
-      type: Object,
+    toChain: {
+      type: Object as PropType<BeamInfo | undefined>,
       required: true,
     },
     successData: {
       type: Object,
       required: true,
     },
+    fromChain: {
+      type: Object as PropType<BeamInfo | undefined>,
+      required: true,
+    },
+    beamInfoObject: {
+      type: Object as PropType<BeamInfo[]>,
+      required: true,
+    },
   },
+
   data() {
     return {
-      lzTxInfo: null,
+      lzTxInfo: null as any,
     };
   },
+
   computed: {
     originChainNativeToken() {
-      if (!this.beamInfoObject) return null;
+      if (!this.beamInfoObject || !this.fromChain) return null;
 
       const chainInfo = chainsConfigs.find(
         (chain) => chain.chainId === this.successData.originChain.chainId
       );
 
+      if (!chainInfo) return null;
+
       return {
         symbol: chainInfo.baseTokenSymbol,
         icon: chainInfo.baseTokenIcon,
-        price: this.beamInfoObject.nativePrice,
+        price: this.fromChain.nativePrice,
       };
     },
+
     dstChainNativeToken() {
-      if (!this.beamInfoObject) return null;
+      if (!this.beamInfoObject || !this.toChain) return null;
 
       const chainInfo = chainsConfigs.find(
         (chain) => chain.chainId === this.successData.dstChain.chainId
       );
 
-      const dstChainInfoUpdated =
-        this.beamInfoObject.destinationChainsInfo.find(
-          (chain) =>
-            chain.chainConfig.chainId === this.successData.dstChain.chainId
-        );
+      if (!chainInfo) return null;
 
       return {
         symbol: chainInfo.baseTokenSymbol,
         icon: chainInfo.baseTokenIcon,
-        price: dstChainInfoUpdated.nativePrice,
+        price: this.toChain.nativePrice,
       };
     },
   },
@@ -97,9 +105,16 @@ export default {
     this.waitForTransaction();
   },
   components: {
-    BeamProcess,
-    BeamInfo,
-    TransactionProgressBlock,
+    BeamProcess: defineAsyncComponent(
+      () => import("@/components/beam/successPopup/BeamProcess.vue")
+    ),
+    BeamInfo: defineAsyncComponent(
+      () => import("@/components/beam/successPopup/BeamInfo.vue")
+    ),
+    TransactionProgressBlock: defineAsyncComponent(
+      () =>
+        import("@/components/beam/successPopup/TransactionProgressBlock.vue")
+    ),
   },
 };
 </script>

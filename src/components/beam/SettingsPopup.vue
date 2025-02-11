@@ -79,6 +79,7 @@ import { mapGetters } from "vuex";
 import type { PropType } from "vue";
 import { formatUnits, parseUnits } from "viem";
 import { trimZeroDecimals } from "@/helpers/numbers";
+import { removeDust } from "@/helpers/beam/removeDust";
 import Tooltip from "@/components/ui/icons/Tooltip.vue";
 import { chainsConfigs } from "@/helpers/chains/configs";
 import { Options } from "@layerzerolabs/lz-v2-utilities";
@@ -89,7 +90,7 @@ export default {
   emits: ["onUpdateAmount", "closeSettings"],
   props: {
     beamInfoObject: {
-      type: Object as PropType<BeamInfo>,
+      type: Object as PropType<BeamInfo[]>,
       required: true,
     },
 
@@ -103,13 +104,13 @@ export default {
       default: 0n,
     },
 
-    mimAmount: {
+    tokenAmount: {
       type: BigInt as any as PropType<bigint>,
       default: 0n,
     },
 
     fromChain: {
-      type: Object as PropType<BeamConfig>,
+      type: Object as PropType<BeamInfo | undefined>,
       required: true,
     },
   },
@@ -120,7 +121,7 @@ export default {
       inputValue: trimZeroDecimals(
         formatUnits(
           this.dstNativeTokenAmount,
-          this.beamInfoObject.tokenConfig.decimals
+          this.fromChain?.tokenConfig.decimals || 18
         )
       ),
       tooltip:
@@ -134,7 +135,7 @@ export default {
     }),
 
     dstUpdatedInfo() {
-      return this.beamInfoObject.beamConfigs.find(
+      return this.beamInfoObject.find(
         (chain) => chain.chainId === this.dstChainInfo.chainId
       );
     },
@@ -153,13 +154,13 @@ export default {
 
     fromNativeTokenInfo() {
       const chainInfo = chainsConfigs.find(
-        (chain) => chain.chainId === this.beamInfoObject.fromChainConfig.chainId
+        (chain) => chain.chainId === this.fromChain?.chainId
       );
 
       return {
         icon: chainInfo!.baseTokenIcon,
         symbol: chainInfo!.baseTokenSymbol,
-        balance: this.beamInfoObject.userInfo.nativeBalance,
+        balance: this.fromChain?.userInfo.nativeBalance || 0n,
         decimals: 18,
       };
     },
@@ -169,7 +170,7 @@ export default {
     },
 
     defaultValue() {
-      return this.fromChain.defaultValue[this.dstChainInfo.chainId];
+      return this.fromChain?.defaultValue[this.dstChainInfo.chainId] || 0;
     },
 
     maxAmount() {
@@ -184,12 +185,8 @@ export default {
       return this.parsedValue !== this.dstNativeTokenAmount;
     },
 
-    tokenDecimal() {
-      return this.beamInfoObject.tokenConfig.decimals;
-    },
-
     parsedValue() {
-      return parseUnits(this.inputValue, this.tokenDecimal);
+      return parseUnits(this.inputValue, 18);
     },
 
     isExceedMax() {
@@ -237,8 +234,8 @@ export default {
       return {
         dstEid: this.dstChainInfo?.settings.lzChainId, // uint32
         to: this.toAddressBytes, // bytes32
-        amountLD: this.mimAmount, // uint256
-        minAmountLD: this.mimAmount, // uint256
+        amountLD: this.tokenAmount, // uint256
+        minAmountLD: removeDust(this.tokenAmount), // uint256
         extraOptions, // bytes
         composeMsg: "0x", // bytes
         oftCmd: "0x", // bytes
@@ -280,7 +277,7 @@ export default {
           this.dstChainInfo,
           this.account,
           this.parsedValue,
-          this.mimAmount
+          this.tokenAmount
         );
 
         this.fee = fees;
