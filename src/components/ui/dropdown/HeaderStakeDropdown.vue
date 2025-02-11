@@ -16,7 +16,7 @@
 
     <TransitionWrapper animation-type="roll">
       <div class="list" v-show="showDropdownList">
-        <router-link class="list-link" :to="{ name: 'StakeSpell' }">
+        <router-link class="list-link" :to="{ name: 'StakeSpell', query: { token: 'mSpell' } }">
           <div class="link-title">
             <span class="stake-token">
               <img
