@@ -3,6 +3,8 @@ import tokensAbi from "@/abis/tokensAbi/index";
 import poolsAbi from "@/abis/borrowPoolsAbi/index";
 import degenBoxERC4626Wrapper from "@/abis/lp/DegenBoxERC4626Wrapper";
 import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
+import MagicKodiakIslandLevSwapperAbi from "@/abis/MagicKodiakIslandLevSwapper";
+import MagicKodiakIslandSwapperAbi from "@/abis/MagicKodiakIslandSwapper";
 
 const mimInfo = {
   name: "MIM",
@@ -23,8 +25,8 @@ const config: Array<CauldronConfig> = [
     borrowFee: 0.5,
     version: 4,
     cauldronSettings: {
-      is0xSwap: false,
-      isSwappersActive: false,
+      is0xSwap: true,
+      isSwappersActive: true,
       isDegenBox: true,
       strategyLink: false,
       isDepreciated: false,
@@ -36,8 +38,12 @@ const config: Array<CauldronConfig> = [
       hasCrvClaimLogic: false,
       oracleInfo: {
         kind: "PYTH",
-        feedIds: ["0xf67b033925d73d43ba4401e00308d9b0f26ab4fbd1250e8b5407b9eaade7e1f4"],
+        feedIds: [
+          "0xf67b033925d73d43ba4401e00308d9b0f26ab4fbd1250e8b5407b9eaade7e1f4",
+        ],
       },
+      isBeraDesign: true,
+      isMimHoney: true
     },
     contract: {
       name: "CauldronV4",
@@ -64,6 +70,14 @@ const config: Array<CauldronConfig> = [
         address: "0x6D1EAAdeD97DC9d49BCb08Bdcd15EAcb08da42e4",
         abi: degenBoxERC4626Wrapper,
       },
+    },
+    leverageInfo: {
+      address: "0xA3372CD2178c52fdCB1f6e4c4E93014B4dB3B20d",
+      abi: MagicKodiakIslandLevSwapperAbi,
+    },
+    deleverageInfo: {
+      address: "0x6E4358c889bb7871061904Be31Fe47C3B8b7F442",
+      abi: MagicKodiakIslandSwapperAbi,
     },
   },
 ];

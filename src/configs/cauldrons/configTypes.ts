@@ -39,6 +39,7 @@ type CauldronSettings = {
   isUSD0?: boolean;
   isBeraDesign?: boolean;
   weight?: number;
+  isMimHoney?: boolean // TODO: use cauldronType: string instead of individual keys
 };
 
 type PythOracleInfo = {
