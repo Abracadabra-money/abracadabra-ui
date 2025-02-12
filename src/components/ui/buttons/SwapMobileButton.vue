@@ -26,7 +26,7 @@ export default {
   computed: {
     componentInfo() {
       if (this.isClassicHeader)
-        return { component: "SwapLogoIcon", text: "Swap" };
+        return { component: "SwapLogoIcon", text: "MIMSwap" };
       return { component: "MimLogoIcon", text: "MIM" };
     },
   },

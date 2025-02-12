@@ -46,8 +46,8 @@
 </template>
 
 <script lang="ts">
-import { PropType } from "vue";
-import { AprInfo } from "@/helpers/bSpell/types";
+import type { PropType } from "vue";
+import type { AprInfo } from "@/helpers/bSpell/types";
 
 export default {
   props: {

@@ -27,6 +27,17 @@
           <p class="link-description">Swap assets</p>
         </router-link>
 
+        <router-link class="list-link" :to="{ name: 'Beam' }">
+          <div class="link-title">
+            <img
+              class="link-icon"
+              src="@/assets/images/header/dropdown/more/beam-icon.svg"
+            />
+            Beam
+          </div>
+          <p class="link-description">Move your MIM across networks</p>
+        </router-link>
+
         <router-link class="list-link" :to="{ name: 'StakeList' }">
           <div class="link-title">
             <img
@@ -47,17 +58,6 @@
             Farms
           </div>
           <p class="link-description">Farming Opportunities</p>
-        </router-link>
-
-        <router-link class="list-link" :to="{ name: 'Beam' }">
-          <div class="link-title">
-            <img
-              class="link-icon"
-              src="@/assets/images/header/dropdown/more/beam-icon.svg"
-            />
-            Beam
-          </div>
-          <p class="link-description">Move your MIM across networks</p>
         </router-link>
 
         <a

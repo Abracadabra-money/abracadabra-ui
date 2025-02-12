@@ -148,7 +148,7 @@ export default {
 }
 
 .popup {
-  gap: 30px;
+  gap: 40px;
   display: flex;
   flex-direction: column;
   width: 266px;

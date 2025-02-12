@@ -9,6 +9,13 @@
       </li>
 
       <li @click="$emit('close-popup')">
+        <MobileHeaderLink to="BSpell">
+          <img src="@/assets/images/tokens/bSPELL.png" />
+          bSpell
+        </MobileHeaderLink>
+      </li>
+
+      <li @click="$emit('close-popup')">
         <MobileHeaderLink to="Cauldrons">
           <img src="@/assets/images/header/dropdown/more/cauldrons-icon.png" />
           Cauldrons
@@ -33,13 +40,6 @@
         <MobileHeaderLink to="Beam">
           <img src="@/assets/images/header/dropdown/more/beam-icon.svg" />
           Beam
-        </MobileHeaderLink>
-      </li>
-
-      <li @click="$emit('close-popup')">
-        <MobileHeaderLink href="https://curve.fi/#/ethereum/pools/mim/swap">
-          <img src="@/assets/images/header/dropdown/more/swap-icon.svg" />
-          Swap
         </MobileHeaderLink>
       </li>
 
@@ -83,7 +83,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: start;
-  gap: 23px;
+  gap: 28px;
   list-style: none;
 }
 
