@@ -12,18 +12,19 @@
     </div>
 
     <div class="lock-info">
-      <div class="lock-title">
-        <img src="@/assets/images/stake/lock.svg" alt="Lock icon" />
-        <span class="lock-text">Unlock is</span>
-      </div>
-      <Timer
-        small
-        padding="0px 4px"
-        :endDateTimestamp="bSpellInfo.stakeInfo?.unlockTime"
-      />
+      <img src="@/assets/images/stake/lock.svg" alt="Lock icon" />
+
+      <span>Unstaking is locked for 7 days after staking </span>
     </div>
 
-    <BaseButton primary :disabled="isActionDisabled" @click="actionHandler">
+    <AprInfoBlock :aprInfo="aprInfo" />
+
+    <BaseButton
+      primary
+      :disabled="isActionDisabled"
+      :endDateTimestamp="bSpellInfo.stakeInfo?.unlockTime"
+      @click="actionHandler"
+    >
       {{ actionButtonText }}
     </BaseButton>
   </div>
@@ -33,17 +34,22 @@
 import { formatUnits } from "viem";
 import type { PropType } from "vue";
 import { defineAsyncComponent } from "vue";
-import type { BSpellInfo } from "@/helpers/bSpell/types";
 import { unStake } from "@/helpers/bSpell/actions/unStake";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
 import ErrorHandler from "@/helpers/errorHandler/ErrorHandler";
+import type { AprInfo, BSpellInfo } from "@/helpers/bSpell/types";
 
 export default {
   emits: ["updateBSpellInfo"],
 
   props: {
+    aprInfo: {
+      type: Object as PropType<AprInfo | null>,
+      required: true,
+    },
+
     selectedNetwork: {
       type: Number,
       required: true,
@@ -66,11 +72,15 @@ export default {
     ...mapGetters({ account: "getAccount", chainId: "getChainId" }),
 
     isUnsupportedChain() {
+      console.log("bSpellInfo", this.bSpellInfo);
+
       return this.chainId === this.selectedNetwork;
     },
 
     isInsufficientBalance() {
-      return this.inputAmount > (this.bSpellInfo?.bSpell?.balance ?? 0n);
+      return (
+        this.inputAmount > (this.bSpellInfo?.stakeInfo?.stakeBalance ?? 0n)
+      );
     },
 
     isActionDisabled() {
@@ -138,12 +148,11 @@ export default {
     BaseTokenInput: defineAsyncComponent(
       () => import("@/components/base/BaseTokenInput.vue")
     ),
+    AprInfoBlock: defineAsyncComponent(
+      () => import("@/components/bSpell/AprInfoBlock.vue")
+    ),
     BaseButton: defineAsyncComponent(
       () => import("@/components/base/BaseButton.vue")
-    ),
-    Timer: defineAsyncComponent(
-      // @ts-ignore
-      () => import("@/components/stake/earnPoints/Timer.vue")
     ),
   },
 };
@@ -164,9 +173,6 @@ export default {
 }
 
 .lock-info {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   border-radius: 12px;
   border: 1px solid var(--Primary-Gradient, #2d4a96);
   background: linear-gradient(
@@ -181,109 +187,13 @@ export default {
   align-items: center;
 }
 
-.lock-title {
-  gap: 8px;
-  display: flex;
-  align-items: center;
-}
-
-.lock-text {
-  min-width: 75px;
-}
-
-.reward-info {
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid rgba(180, 180, 180, 0.08);
-  background: linear-gradient(
-    146deg,
-    rgba(0, 10, 35, 0.07) 0%,
-    rgba(0, 80, 156, 0.07) 101.49%
-  );
-  box-shadow: 0px 4px 33px 0px rgba(0, 0, 0, 0.06);
-}
-
-.apr-info {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 18px;
-}
-
-.row {
-  gap: 12px;
-  display: flex;
-  align-items: center;
-}
-
-.reward-icon {
-  width: 48px;
-  height: 48px;
-}
-
-.apr-title {
-  font-size: 18px;
-  font-weight: 500;
-  line-height: 24px;
-}
-
-.tokens-info-wrap {
-  gap: 4px;
-  display: flex;
-  align-items: center;
-}
-
-.tokens-info {
-  display: flex;
-  align-items: center;
-}
-
-.token-icon {
-  width: 24px;
-  height: 24px;
-
-  &:not(:first-child) {
-    margin-left: -4px;
+@media screen and (max-width: 600px) {
+  .unstake-form {
+    gap: 16px;
   }
-}
 
-.apr-percent {
-  color: #fff;
-  text-shadow: 0px 0px 16px #ab5de8;
-  font-size: 23px;
-  font-weight: 600;
-  line-height: normal;
-}
-
-.tokens-apr-info {
-  gap: 12px;
-  display: flex;
-  flex-direction: column;
-}
-
-.token-apr-info {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.token-info {
-  gap: 12px;
-  display: flex;
-  align-items: center;
-  font-size: 18px;
-  font-weight: 500;
-  line-height: 24px;
-}
-
-.token-apr-icon {
-  width: 24px;
-  height: 24px;
-}
-
-.token-apr-percent {
-  font-size: 18px;
-  font-weight: 600;
-  line-height: normal;
+  .lock-info {
+    font-size: 14px;
+  }
 }
 </style>

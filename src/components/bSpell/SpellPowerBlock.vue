@@ -17,6 +17,7 @@
 
       <UnstakeForm
         v-else
+        :aprInfo="aprInfo"
         :bSpellInfo="bSpellInfo"
         :selectedNetwork="selectedNetwork"
         @updateBSpellInfo="$emit('updateBSpellInfo')"
@@ -27,7 +28,7 @@
       <div class="stake-info">
         <StakeBalanceBlock
           :decimals="bSpellInfo.bSpell?.decimals"
-          :balance="bSpellInfo.bSpell?.balance"
+          :balance="bSpellInfo.stakeInfo?.stakeBalance || 0n"
           :price="bSpellInfo.bSpell?.price"
         />
 
