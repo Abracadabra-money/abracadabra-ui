@@ -3,18 +3,27 @@
     <div class="banner-container">
       <div class="cauldrons-container">
         <div class="text-wrap">
-          <h3 class="title">Available Cauldrons</h3>
-          <h4 class="subtitle">
-            Use your favourite assets as collateral to mint
-          </h4>
-          <h4 class="subtitle">
-            <img
-              class="mim-icon"
-              src="@/assets/images/PixelMIM.svg"
-              alt="Mim icon"
-            />
-            MIM a leading decentralised and collateral-backed stablecoin.
-          </h4>
+          <div>
+            <h3 class="title">Available Cauldrons</h3>
+            <h4 class="subtitle">
+              Use your favourite assets as collateral to mint
+            </h4>
+            <h4 class="subtitle">
+              <img
+                class="mim-icon"
+                src="@/assets/images/PixelMIM.svg"
+                alt="Mim icon"
+              />
+              MIM a leading decentralised and collateral-backed stablecoin.
+            </h4>
+          </div>
+
+          <div class="my-position-block">
+            <h3 class="my-position-title">Open Cauldrons</h3>
+            <router-link class="my-position-link" :to="{ name: 'MyPositions' }"
+              >My positions</router-link
+            >
+          </div>
         </div>
 
         <!-- <ArbitrumBlock /> -->
@@ -237,6 +246,12 @@ export default {
   gap: 32px;
 }
 
+.text-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .title {
   font-size: 32px;
   font-weight: 600;
@@ -257,10 +272,64 @@ export default {
   height: 24px;
 }
 
+.my-position-block {
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid var(--Primary-Gradient, #2d4a96);
+  background: linear-gradient(
+    146deg,
+    rgba(0, 10, 35, 0.07) 0%,
+    rgba(0, 80, 156, 0.07) 101.49%
+  );
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
+  background: url("@/assets/images/myPositions/my-position-block-bg.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+  max-width: 260px;
+  width: 100%;
+}
+
+.my-position-title {
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  margin-bottom: 11px;
+}
+
+.my-position-link {
+  display: inline-flex;
+  padding: 7px 22px;
+  border-radius: 10px;
+  border: 2px solid #fff;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: normal;
+  cursor: pointer;
+}
+
 @media screen and (max-width: 768px) {
   .cauldrons-container {
     padding: 100px 12px 60px;
     gap: 16px;
+  }
+
+  .text-wrap {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .my-position-block {
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .my-position-title {
+    text-align: center;
   }
 }
 
