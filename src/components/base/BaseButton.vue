@@ -5,16 +5,33 @@
     :class="{
       warning: warning,
       primary: primary,
-      disabled: disabled || loading,
+      disabled: disabled || loading || (!isUnLockAmount && endDateTimestamp),
       borderless,
     }"
   >
-    <div><slot></slot></div>
-    <span v-if="loading" class="loader"></span>
+    <span class="timer" v-if="!isUnLockAmount && endDateTimestamp">
+      <span>{{ timerText }}</span>
+      <span
+        ><span
+          class="timer-value"
+          v-for="(value, index) in timerValues"
+          :key="index"
+        >
+          {{ value }}</span
+        ></span
+      >
+    </span>
+
+    <template v-else>
+      <div><slot></slot></div>
+      <span v-if="loading" class="loader"></span>
+    </template>
   </a>
 </template>
 
 <script lang="ts">
+import moment from "moment";
+
 export default {
   name: "BaseButton",
   props: {
@@ -39,11 +56,75 @@ export default {
     warning: {
       type: Boolean,
     },
+    endDateTimestamp: {
+      type: Number,
+      default: 0,
+    },
+    timerText: {
+      type: String,
+      default: "Unlocks in ",
+    },
   },
+  data() {
+    return {
+      intervalId: null as ReturnType<typeof setInterval> | null,
+      timerValues: ["00:", "00:", "00"],
+      isUnLockAmount: false,
+    };
+  },
+
+  computed: {
+    endDate() {
+      return moment.utc(this.endDateTimestamp * 1000);
+    },
+  },
+
+  watch: {
+    endDateTimestamp() {
+      this.updateTimer();
+      this.intervalId = setInterval(this.updateTimer, 1000);
+    },
+  },
+
   methods: {
     setWidth() {
       return this.width ? this.width : "100%";
     },
+
+    updateTimer() {
+      const now = moment().utc();
+
+      const duration = moment.duration(this.endDate.diff(now));
+      this.isUnLockAmount = duration.asSeconds() <= 0;
+
+      if (duration.asSeconds() <= 0) {
+        clearInterval(Number(this.intervalId));
+        this.timerValues = ["00:", "00:", "00"];
+        return;
+      }
+
+      const days = Math.max(Math.floor(duration.asDays()), 0);
+      const hours = Math.max(duration.hours(), 0) + days * 24;
+      const minutes = Math.max(duration.minutes(), 0);
+      const seconds = Math.max(duration.seconds(), 0);
+
+      this.timerValues = [
+        `${hours.toString().padStart(2, "0")}:`,
+        `${minutes.toString().padStart(2, "0")}:`,
+        `${seconds.toString().padStart(2, "0")}`,
+      ];
+    },
+  },
+
+  mounted() {
+    if (this.endDateTimestamp) {
+      this.updateTimer();
+      this.intervalId = setInterval(this.updateTimer, 1000);
+    }
+  },
+
+  beforeUnmount() {
+    clearInterval(Number(this.intervalId));
   },
 };
 </script>
@@ -180,6 +261,15 @@ export default {
 .loader:after {
   right: -10px;
   animation: rectangle infinite 1s ease-in-out;
+}
+
+.timer {
+  color: #878b93;
+}
+
+.timer-value {
+  display: inline-block;
+  min-width: 24px;
 }
 
 @keyframes rectangle {
