@@ -83,9 +83,15 @@ const addLiquidityPreview = async (
       ],
     });
 
-    console.log("[addLiquidityPreview] simulation result:", result);
+    const addLiquidityResult = {
+      amount0: result[0],
+      amount1: result[1],
+      mintAmount: result[2],
+    };
 
-    return result;
+    console.log("[addLiquidityPreview] simulation result:", addLiquidityResult);
+
+    return addLiquidityResult;
   } catch (error) {
     console.log("[addLiquidityPreview] error:", error);
   }
@@ -121,14 +127,13 @@ const getMimSlotInfo = (address: Address, spender?: Address) => {
 
   const userBalanceSlot = getSolidityMappingSlot({
     slot: erc20StorageSlot,
-    params: parseAbiParameters(["address"]),
+    params: parseAbiParameters("address"),
     values: [address],
   });
 
   const allowanceSlot = spender ? getSolidityMappingSlot({
     slot: erc20StorageSlot + 1n,
-    params: parseAbiParameters(["address", "address"]),
-    //@ts-ignore
+    params: parseAbiParameters("address, address"),
     values: [address, spender],
   }): null;
   
