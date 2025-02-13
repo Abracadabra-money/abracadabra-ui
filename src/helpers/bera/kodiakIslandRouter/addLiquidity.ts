@@ -21,6 +21,8 @@ import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 
 import IslandRouterAbi from "@/abis/IslandRouter";
 
+import { getSolidityMappingSlot } from "@/helpers/getSolidityMappingSlot";
+
 const addLiquidityPreview = async (
   token0Amount: bigint,
   token1Amount: bigint,
@@ -117,30 +119,19 @@ const getMimSlotInfo = (address: Address, spender?: Address) => {
     "0x52c63247e1f47db19d5ce0460030c497f067ca4cebf71ba98eeadabe20bace00"
   );
 
-  const userBalanceSlot = keccak256(
-    encodeAbiParameters(parseAbiParameters("address, uint256"), [
-      address,
-      erc20StorageSlot,
-    ])
-  );
+  const userBalanceSlot = getSolidityMappingSlot({
+    slot: erc20StorageSlot,
+    params: parseAbiParameters(["address"]),
+    values: [address],
+  });
 
-  let allowanceSlot = null;
-
-  if (spender) {
-    const userAllowanceSlot = keccak256(
-      encodeAbiParameters(parseAbiParameters("address, uint256"), [
-        address,
-        erc20StorageSlot + 1n,
-      ])
-    );
-    const userSpenderAllowanceSlot = keccak256(
-      encodeAbiParameters(parseAbiParameters("address, bytes32"), [
-        spender,
-        userAllowanceSlot,
-      ])
-    );
-    allowanceSlot = userSpenderAllowanceSlot;
-  }
+  const allowanceSlot = spender ? getSolidityMappingSlot({
+    slot: erc20StorageSlot + 1n,
+    params: parseAbiParameters(["address", "address"]),
+    //@ts-ignore
+    values: [address, spender],
+  }): null;
+  
 
   return {
     balanceSlot: userBalanceSlot,
