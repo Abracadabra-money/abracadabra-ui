@@ -8,6 +8,7 @@ import recipeSetMaxBorrow from "@/helpers/cauldron/cook/recipies/recipeSetMaxBor
 
 import recipeAddCollatral from "@/helpers/cauldron/cook/recipies/recipeAddCollateral";
 import recipeLeverage from "@/helpers/cauldron/cook/recipies/recipeLeverage";
+import recipeUpdatePythOracle from "@/helpers/cauldron/cook/recipies/recipeUpdatePythOracle";
 
 import type { CookData, PayloadLeverage } from "./types";
 import type { CauldronInfo } from "@/helpers/cauldron/types";
@@ -35,7 +36,7 @@ const cookLeverage = async (
     cauldronObject.config.cauldronSettings;
   const { updatePrice } = cauldronObject.mainParams;
 
-  const value = useNativeToken ? collateralAmount.toString() : "0";
+  const collateralValue = useNativeToken ? BigInt(collateralAmount.toString()) : 0n;
   const tokenAddr = useNativeToken ? defaultTokenAddress : collateral.address;
 
   let cookData: CookData = {
@@ -49,6 +50,13 @@ const cookLeverage = async (
     cauldronObject,
     isMasterContractApproved
   );
+
+  let value = collateralValue;
+  if (cauldronObject.config.cauldronSettings.oracleInfo?.kind === "PYTH") {
+    let updateValue: bigint;
+    ({ cookData, value: updateValue } = await recipeUpdatePythOracle(cookData, cauldronObject));
+    value += updateValue;
+  }
 
   if (updatePrice) cookData = await actions.updateExchangeRate(cookData, true);
 
@@ -64,7 +72,7 @@ const cookLeverage = async (
       useWrapper,
       to,
       collateralAmount,
-      value
+      collateralValue.toString()
     );
   }
 

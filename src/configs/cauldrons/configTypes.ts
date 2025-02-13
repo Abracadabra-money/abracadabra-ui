@@ -1,4 +1,4 @@
-import type { Address } from "viem";
+import type { Address, Hex } from "viem";
 
 type CauldronSettings = {
   isSwappersActive: boolean;
@@ -16,7 +16,7 @@ type CauldronSettings = {
   isNew?: boolean;
   executionPrice?: boolean;
   isMigrated?: boolean;
-  oracleAddress?: string;
+  oracleInfo?: OracleInfos;
   isPrivate?: boolean;
   privatelyFor?: string[];
   isAlternativeInterest?: boolean;
@@ -39,7 +39,15 @@ type CauldronSettings = {
   isUSD0?: boolean;
   isBeraDesign?: boolean;
   weight?: number;
+  isMimHoney?: boolean // TODO: use cauldronType: string instead of individual keys
 };
+
+type PythOracleInfo = {
+  kind: "PYTH";
+  feedIds: Lowercase<Hex>[];
+};
+
+type OracleInfos = PythOracleInfo;
 
 type MimInfo = {
   name: string;
