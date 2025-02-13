@@ -8,6 +8,7 @@ import fetchCvx3pool0xData from "./fetchCvx3pool";
 import fetchCvxTricrypto0xData from "./fetchCvxTricrypto0xData";
 import getDeUsd0xData from "./fetchDeUSD0xData";
 import fetchUSD0ppOdosData from "./fetchUSD0ppOdosData";
+import fetchDelevMimHoneyData from "./fetchDelevMimHoneyData";
 
 import type { CauldronInfo } from "@/helpers/cauldron/types";
 import type { BigNumber } from "ethers";
@@ -29,6 +30,7 @@ const getDelev0xData = async (
     isCvx3pool,
     iStdeUSD,
     isUSD0,
+    isMimHoney,
   } = cauldronObject.config.cauldronSettings;
 
   if (isVelodrome) return getDelevVelodrome0xData();
@@ -77,6 +79,14 @@ const getDelev0xData = async (
 
   if (isUSD0) {
     return await fetchUSD0ppOdosData(cauldronObject, collateralAmount, slipage);
+  }
+
+  if (isMimHoney) {
+    return await fetchDelevMimHoneyData(
+      cauldronObject,
+      collateralAmount,
+      slipage
+    );
   }
 
   return await fetchDelevDefault0xData(

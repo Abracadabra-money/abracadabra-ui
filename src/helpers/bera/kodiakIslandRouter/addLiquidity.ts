@@ -1,0 +1,151 @@
+import {
+  type Address,
+  keccak256,
+  type PublicClient,
+  encodePacked,
+  pad,
+  numberToHex,
+  encodeAbiParameters,
+  hexToBigInt,
+  parseAbiParameters,
+} from "viem";
+
+import {
+  ISLAND_ROUTER_ADDRESS,
+  BERA_HONEY_ADDRESS,
+  BERA_MIM_ADDRESS,
+} from "./constants";
+
+import { BERA_CHAIN_ID } from "@/constants/global";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
+
+import IslandRouterAbi from "@/abis/IslandRouter";
+
+const addLiquidityPreview = async (
+  token0Amount: bigint,
+  token1Amount: bigint,
+  lpAddress: Address,
+  userAddress: Address,
+  token0Address: Address = BERA_MIM_ADDRESS,
+  token1Address: Address = BERA_HONEY_ADDRESS
+) => {
+  const mimSlotInfo = getMimSlotInfo(userAddress, ISLAND_ROUTER_ADDRESS);
+  const honeySlotInfo = getHoneySlotInfo(userAddress, ISLAND_ROUTER_ADDRESS);
+
+  const token0AmountSlotValue = numberToHex(token0Amount, { size: 32 });
+  const token1AmountSlotValue = numberToHex(token1Amount, { size: 32 });
+
+  const publicClient: PublicClient = getPublicClient(BERA_CHAIN_ID);
+  try {
+    const { result } = await publicClient.simulateContract({
+      address: ISLAND_ROUTER_ADDRESS,
+      abi: IslandRouterAbi,
+      functionName: "addLiquidity",
+      args: [
+        lpAddress,
+        token0Amount,
+        token1Amount,
+        token0Amount / 2n,
+        token1Amount / 2n,
+        0n,
+        userAddress,
+      ],
+      account: userAddress,
+      stateOverride: [
+        {
+          address: token0Address,
+          stateDiff: [
+            {
+              slot: mimSlotInfo.balanceSlot,
+              value: token0AmountSlotValue,
+            },
+            {
+              slot: mimSlotInfo.allowanceSlot,
+              value: token0AmountSlotValue,
+            },
+          ],
+        },
+        {
+          address: token1Address,
+          stateDiff: [
+            {
+              slot: honeySlotInfo.balanceSlot,
+              value: token1AmountSlotValue,
+            },
+            {
+              slot: honeySlotInfo.allowanceSlot,
+              value: token1AmountSlotValue,
+            },
+          ],
+        },
+      ],
+    });
+
+    console.log("[addLiquidityPreview] simulation result:", result);
+
+    return result;
+  } catch (error) {
+    console.log("[addLiquidityPreview] error:", error);
+  }
+};
+
+const getHoneySlotInfo = (address: Address, spender?: Address | undefined) => {
+  const BALANCE_SLOT_SEED = "0x87a211a2";
+  const ALLOWANCE_SLOT_SEED = "0x7f5e9f20";
+
+  const balanceSlot = keccak256(
+    encodePacked(
+      ["address", "bytes"],
+      [address, pad(BALANCE_SLOT_SEED, { size: 12 })]
+    )
+  );
+
+  const allowanceSlot = spender
+    ? keccak256(
+        encodePacked(
+          ["address", "bytes", "address"],
+          [address, pad(ALLOWANCE_SLOT_SEED, { size: 12 }), spender]
+        )
+      )
+    : null;
+
+  return { balanceSlot, allowanceSlot };
+};
+
+const getMimSlotInfo = (address: Address, spender?: Address) => {
+  const erc20StorageSlot = hexToBigInt(
+    "0x52c63247e1f47db19d5ce0460030c497f067ca4cebf71ba98eeadabe20bace00"
+  );
+
+  const userBalanceSlot = keccak256(
+    encodeAbiParameters(parseAbiParameters("address, uint256"), [
+      address,
+      erc20StorageSlot,
+    ])
+  );
+
+  let allowanceSlot = null;
+
+  if (spender) {
+    const userAllowanceSlot = keccak256(
+      encodeAbiParameters(parseAbiParameters("address, uint256"), [
+        address,
+        erc20StorageSlot + 1n,
+      ])
+    );
+    const userSpenderAllowanceSlot = keccak256(
+      encodeAbiParameters(parseAbiParameters("address, bytes32"), [
+        spender,
+        userAllowanceSlot,
+      ])
+    );
+    allowanceSlot = userSpenderAllowanceSlot;
+  }
+
+  return {
+    balanceSlot: userBalanceSlot,
+    allowanceSlot: allowanceSlot,
+  };
+};
+
+export default addLiquidityPreview;
