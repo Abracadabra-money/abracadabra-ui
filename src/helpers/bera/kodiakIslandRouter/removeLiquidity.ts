@@ -65,7 +65,7 @@ const removeLiquidityPreview = async (
 };
 
 // notice: kodiak lp
-const getLpSlotInfo = (address: Address, spender?: Address) => {
+const getLpSlotInfo = (address: Address, spender: Address) => {
   const BALANCE_SLOT_SEED: Hex = "0x87a211a2";
   const ALLOWANCE_SLOT_SEED: Hex = "0x7f5e9f20";
 
@@ -76,14 +76,12 @@ const getLpSlotInfo = (address: Address, spender?: Address) => {
     )
   );
 
-  const allowanceSlot = spender
-    ? keccak256(
-        encodePacked(
-          ["address", "bytes", "address"],
-          [address, pad(ALLOWANCE_SLOT_SEED, { size: 12 }), spender]
-        )
-      )
-    : null;
+  const allowanceSlot = keccak256(
+    encodePacked(
+      ["address", "bytes", "address"],
+      [address, pad(ALLOWANCE_SLOT_SEED, { size: 12 }), spender]
+    )
+  );
 
   return { balanceSlot, allowanceSlot };
 };

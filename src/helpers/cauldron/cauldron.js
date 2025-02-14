@@ -41,16 +41,16 @@ export const cookViem = async (cauldronObject, cookData, value) => {
 
   if (useForkRpc) return cookTenderly(cauldronObject, cookData, value);
 
-  // const populatedTx = await cauldronObject.contracts.cauldron.populateTransaction.cook(
-  //   cookData.events,
-  //   cookData.values,
-  //   cookData.datas,
-  //   {
-  //     value,
-  //   }
-  // );
+  const populatedTx = await cauldronObject.contracts.cauldron.populateTransaction.cook(
+    cookData.events,
+    cookData.values,
+    cookData.datas,
+    {
+      value,
+    }
+  );
 
-  // console.log("populatedTx", populatedTx)
+  console.log("populatedTx", populatedTx)
 
   const { request } = await simulateContractHelper({
     address: cauldronObject.config.contract.address,

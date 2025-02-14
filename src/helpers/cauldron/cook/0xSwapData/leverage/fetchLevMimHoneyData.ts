@@ -8,6 +8,21 @@ import { swapOogaBoogaRequest } from "@/helpers/oogaBooga";
 
 import computeAddLiquidityProportion from "@/helpers/bera/computeAddLiquidityProportion";
 
+const swapDataAbi = {
+  components: [
+    {
+      name: "to",
+      type: "address",
+    },
+    {
+      name: "swapData",
+      type: "bytes",
+    },
+  ],
+  name: "SwapInfo",
+  type: "tuple",
+} as const;
+
 // return swapData bytes
 const fetchLevMimHoneyData = async (
   cauldronObject: CauldronInfo,
@@ -26,7 +41,7 @@ const fetchLevMimHoneyData = async (
     0n
   );
 
-  const sellAmount = BigNumber.from(proportions.token1ProportionAmount)
+  const sellAmount = BigNumber.from(proportions.token1ProportionAmount);
 
   const mimSwapResult = await swapOogaBoogaRequest(
     BERA_HONEY_ADDRESS,
@@ -36,20 +51,12 @@ const fetchLevMimHoneyData = async (
     leverageSwapper!.address as Address
   );
 
-  const token0SwapData = encodeAbiParameters(
-    [{ type: "address" }, { type: "bytes" }],
-    [mimSwapResult!.to, mimSwapResult!.data]
-  );
-
-  // no need to swap for HONEY
-  const token1SwapData = encodeAbiParameters(
-    [{ type: "address" }, { type: "bytes" }],
-    [zeroAddress, "0x0"]
-  );
-
   const swapData = encodeAbiParameters(
-    [{ type: "bytes" }, { type: "bytes" }],
-    [token0SwapData, token1SwapData]
+    [swapDataAbi, swapDataAbi],
+    [
+      { to: mimSwapResult!.to, swapData: mimSwapResult!.data },
+      { to: zeroAddress, swapData: "0x0" },
+    ]
   );
 
   return swapData;

@@ -97,7 +97,7 @@ const addLiquidityPreview = async (
   }
 };
 
-const getHoneySlotInfo = (address: Address, spender?: Address | undefined) => {
+const getHoneySlotInfo = (address: Address, spender: Address) => {
   const BALANCE_SLOT_SEED = "0x87a211a2";
   const ALLOWANCE_SLOT_SEED = "0x7f5e9f20";
 
@@ -108,19 +108,17 @@ const getHoneySlotInfo = (address: Address, spender?: Address | undefined) => {
     )
   );
 
-  const allowanceSlot = spender
-    ? keccak256(
-        encodePacked(
-          ["address", "bytes", "address"],
-          [address, pad(ALLOWANCE_SLOT_SEED, { size: 12 }), spender]
-        )
-      )
-    : null;
+  const allowanceSlot = keccak256(
+    encodePacked(
+      ["address", "bytes", "address"],
+      [address, pad(ALLOWANCE_SLOT_SEED, { size: 12 }), spender]
+    )
+  );
 
   return { balanceSlot, allowanceSlot };
 };
 
-const getMimSlotInfo = (address: Address, spender?: Address) => {
+const getMimSlotInfo = (address: Address, spender: Address) => {
   const erc20StorageSlot = hexToBigInt(
     "0x52c63247e1f47db19d5ce0460030c497f067ca4cebf71ba98eeadabe20bace00"
   );
@@ -131,12 +129,11 @@ const getMimSlotInfo = (address: Address, spender?: Address) => {
     values: [address],
   });
 
-  const allowanceSlot = spender ? getSolidityMappingSlot({
+  const allowanceSlot = getSolidityMappingSlot({
     slot: erc20StorageSlot + 1n,
     params: parseAbiParameters("address, address"),
     values: [address, spender],
-  }): null;
-  
+  });
 
   return {
     balanceSlot: userBalanceSlot,
