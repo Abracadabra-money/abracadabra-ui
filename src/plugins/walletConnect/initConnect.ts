@@ -1,7 +1,6 @@
 import {
   getUserEnsName,
   commitWalletData,
-  getJsonRpcSigner,
   checkUnSupportedChain,
   checkSanctionAddress,
 } from "@/plugins/walletConnect/utils";
@@ -48,18 +47,11 @@ const initConnect = async (wagmiConfig: Config) => {
 
     const provider = markRaw(getEthersProvider(chainId));
 
-    const signer = await getJsonRpcSigner(
-      unsupportedChain,
-      provider,
-      wagmiConfig
-    );
-
     const ensName = await getUserEnsName(wagmiConfig, address!);
 
     await commitWalletData(
       chainId!,
       provider,
-      signer!,
       address!,
       ensName,
       true,
@@ -80,15 +72,7 @@ export const initWithoutConnect = async (wagmiConfig: Config) => {
   const chainId = +(localStorage.getItem("MAGIC_MONEY_CHAIN_ID") || 1);
   const provider = markRaw(getEthersProvider(chainId));
 
-  await commitWalletData(
-    chainId!,
-    provider,
-    provider,
-    null,
-    null,
-    true,
-    wagmiConfig
-  );
+  await commitWalletData(chainId!, provider, null, null, true, wagmiConfig);
 
   watchChainId(wagmiConfig, {
     onChange(id) {
