@@ -31,13 +31,17 @@
 </template>
 
 <script>
-import BaseButton from "@/components/base/BaseButton.vue";
-import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
-import notification from "@/helpers/notification/notification";
+import {
+  writeContractHelper,
+  simulateContractHelper,
+  waitForTransactionReceiptHelper,
+} from "@/helpers/walletClienHelper";
 import { mapGetters } from "vuex";
-import { getAllowanceDatas } from "@/helpers/oldCauldronsAllowance.js";
 import abiERC20 from "@/abis/zeroXSwap/abiERC20";
-import { Contract } from "ethers";
+import BaseButton from "@/components/base/BaseButton.vue";
+import notification from "@/helpers/notification/notification";
+import { getAllowanceDatas } from "@/helpers/oldCauldronsAllowance.js";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 
 export default {
   data() {
@@ -49,7 +53,6 @@ export default {
     ...mapGetters({
       account: "getAccount",
       chainId: "getChainId",
-      userSigner: "getSigner",
     }),
     titleText() {
       return `Your address has a ${
@@ -71,24 +74,23 @@ export default {
         notification.pending
       );
 
-      const userData = await getAllowanceDatas(this.account, this.userSigner);
-
-      console.log(userData);
+      const userData = await getAllowanceDatas(this.account, this.chainId);
 
       try {
         await Promise.all(
           userData.map(async (info) => {
             if (!info.isStillApproved) return false;
 
-            const tokenContract = new Contract(
-              info.token,
-              abiERC20,
-              this.userSigner
-            );
+            const { request } = await simulateContractHelper({
+              adress: info.token,
+              abi: abiERC20,
+              functionName: "approve",
+              args: [info.spender, 0],
+            });
 
-            const tx = await tokenContract.approve(info.spender, 0);
+            const hash = await writeContractHelper(request);
 
-            return await tx.wait();
+            return waitForTransactionReceiptHelper(hash);
           })
         );
 
@@ -109,10 +111,7 @@ export default {
   },
 
   async mounted() {
-    const allovanceData = await getAllowanceDatas(
-      this.account,
-      this.userSigner
-    );
+    const allovanceData = await getAllowanceDatas(this.account, this.chainId);
 
     this.allowanceCount = allovanceData
       ? allovanceData.filter((item) => item.isStillApproved).length
