@@ -8,6 +8,7 @@ import {
   estimateFeesPerGas,
   waitForTransactionReceipt,
   signTypedData,
+  signMessage,
 } from "@wagmi/core";
 
 export const getWalletClientHelper = async () => {
@@ -44,4 +45,8 @@ export const estimateFeesPerGasHelper = async () => {
 
 export const signTypedDataHelper = async (typedData: any) => {
   return await signTypedData(store.getters.getWagmiConfig, typedData);
+};
+
+export const signMessageHelper = async (message: string) => {
+  return await signMessage(store.getters.getWagmiConfig, { message });
 };
