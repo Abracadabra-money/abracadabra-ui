@@ -59,7 +59,6 @@ export default {
     ...mapGetters({
       chainId: "getChainId",
       account: "getAccount",
-      signer: "getSigner",
     }),
 
     isUserPositionOpen() {
