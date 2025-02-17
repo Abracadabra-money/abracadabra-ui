@@ -202,7 +202,6 @@ export default {
     ...mapGetters({
       account: "getAccount",
       chainId: "getChainId",
-      userSigner: "getSigner",
       defaultProvider: "getProvider",
     }),
 
@@ -294,7 +293,7 @@ export default {
     },
 
     contractProvider() {
-      return this.userSigner ? this.userSigner : this.defaultProvider;
+      return this.defaultProvider;
     },
 
     isEthChain() {
