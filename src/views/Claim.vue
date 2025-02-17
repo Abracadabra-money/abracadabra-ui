@@ -354,7 +354,6 @@ export default {
       };
       if (masterContract === "0xb2EBF227188E44ac268565C73e0fCd82D4Bfb1E3") {
         signature = await getApprovalEncode(
-          this.contractProvider,
           this.degenContract,
           this.account,
           this.chainId,
