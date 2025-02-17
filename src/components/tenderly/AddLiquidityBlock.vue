@@ -46,7 +46,7 @@
 import moment from "moment";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
-import { Address, formatUnits, parseUnits } from "viem";
+import { type Address, formatUnits, parseUnits } from "viem";
 import { approveTokenViem } from "@/helpers/approval";
 import { formatToFixed } from "@/helpers/filters";
 import { trimZeroDecimals } from "@/helpers/numbers";
