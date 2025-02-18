@@ -84,7 +84,7 @@ export default {
       searchValue: "",
       showMyPositions: false,
       showActiveCauldrons: true,
-      sortKey: "TVL",
+      sortKey: "MIMS LB",
       sortOrder: true,
       selectedChains: [],
       isFiltersPopupOpened: false,
@@ -124,8 +124,14 @@ export default {
 
       // const sortedByTesting = this.sortByTesting(sortedByChain);
 
-      const sortedByNew =
-        this.sortOrder === true ? this.sortByNew(sortedByChain) : sortedByChain;
+      if (this.sortOrder !== true) {
+        return sortedByChain;
+      }
+
+      const sortedByWeight = this.sortByWeight(sortedByChain);
+
+      const sortedByNew = this.sortByNew(sortedByWeight);
+
       return sortedByNew;
     },
 
@@ -244,6 +250,21 @@ export default {
         const isNewA = +!!a?.config?.cauldronSettings?.isNew;
         const isNewB = +!!b?.config?.cauldronSettings?.isNew;
         if (isNewA || isNewB) return isNewB - isNewA;
+        return a;
+      });
+    },
+
+    sortByWeight(cauldrons) {
+      return [...cauldrons].sort((a, b) => {
+        if (
+          a.config.cauldronSettings?.isGMXMarket &&
+          b.config.cauldronSettings?.isGMXMarket
+        )
+          return +b.apr.value - +a.apr.value;
+
+        const weightA = a.config.cauldronSettings?.weight || 0;
+        const weightB = b.config.cauldronSettings?.weight || 0;
+        if (weightA || weightB) return weightB - weightA;
         return a;
       });
     },

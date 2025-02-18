@@ -15,7 +15,6 @@ const store = new Vuex.Store({
       getters: {
         getChainId: (state) => state.chainId,
         getAccount: (state) => state.account,
-        getSigner: () => new providers.StaticJsonRpcProvider(defaultRpc[1]),
         provider: () => new providers.StaticJsonRpcProvider(defaultRpc[1]),
       },
     },

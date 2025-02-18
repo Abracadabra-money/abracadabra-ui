@@ -22,16 +22,26 @@
       Select the amount of {{ activeToken.name }} to deposit in the Cauldron
     </h4>
 
-    <BaseTokenInput
-      :value="inputValue"
-      :name="activeToken.name"
-      :icon="activeToken.icon"
-      :max="activeToken.balance"
-      :decimals="activeToken.decimals"
-      :tokenPrice="activeToken.price"
-      isBigNumber
-      @updateInputValue="onUpdateDepositValue"
+    <img
+      class="bera-deposit"
+      v-if="isBeraDesign"
+      src="@/assets/images/market/bera/deposit-icon.png"
+      alt=""
     />
+    <div :class="[{ 'bera-input-wrap': isBeraDesign }]">
+      <div :class="[{ 'bera-input ': isBeraDesign }]">
+        <BaseTokenInput
+          :value="inputValue"
+          :name="activeToken.name"
+          :icon="activeToken.icon"
+          :max="activeToken.balance"
+          :decimals="activeToken.decimals"
+          :tokenPrice="activeToken.price"
+          isBigNumber
+          @updateInputValue="onUpdateDepositValue"
+        />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -93,6 +103,10 @@ export default {
       account: "getAccount",
       chainId: "getChainId",
     }),
+
+    isBeraDesign() {
+      return !!this.cauldron.config.cauldronSettings?.isBeraDesign;
+    },
 
     acceptNativeToken() {
       return this.cauldron.config.cauldronSettings.acceptUseDefaultBalance;
@@ -266,5 +280,30 @@ export default {
   font-weight: 400;
   line-height: 20px;
   margin-bottom: 16px;
+}
+
+.bera-deposit {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 117px;
+  height: 117px;
+}
+
+.bera-input-wrap {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.bera-input {
+  width: 100%;
+  max-width: 80%;
+}
+
+@media screen and (max-width: 600px) {
+  .bera-deposit {
+    width: 95px;
+    height: 95px;
+  }
 }
 </style>

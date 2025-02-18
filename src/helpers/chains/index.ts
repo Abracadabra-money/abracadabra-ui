@@ -12,6 +12,7 @@ import {
   PRC_LINEA,
   RPC_BLAST,
   RPC_BERA_BARTIO,
+  RPC_BERA,
 } from "@/constants/rpc";
 
 export const defaultRpc = {
@@ -28,6 +29,7 @@ export const defaultRpc = {
   59144: PRC_LINEA,
   80084: RPC_BERA_BARTIO,
   81457: RPC_BLAST,
+  80094: RPC_BERA,
 };
 
 export const getRpcByChainId = (chainId: number): string =>

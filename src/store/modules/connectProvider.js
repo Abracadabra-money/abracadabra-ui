@@ -1,7 +1,6 @@
 export default {
   state: {
     provider: null,
-    signer: null,
     account: null,
     ensName: null,
     isMetamaskActive: false,
@@ -13,9 +12,6 @@ export default {
   mutations: {
     setProvider(state, payload) {
       state.provider = payload;
-    },
-    setSigner(state, payload) {
-      state.signer = payload;
     },
     setAccount(state, payload) {
       state.account = payload;
@@ -42,7 +38,6 @@ export default {
   getters: {
     getProvider: (state) => state.provider,
     getWagmiConfig: (state) => state.wagmiConfig,
-    getSigner: (state) => state.signer,
     getAccount: (state) => state.account,
     getEnsName: (state) => state.ensName,
     getWalletIsConnected: (state) => state.isWalletConnected,

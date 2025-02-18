@@ -39,7 +39,6 @@ export default {
     ...mapGetters({
       chainId: "getChainId",
       account: "getAccount",
-      signer: "getSigner",
       provider: "getProvider",
     }),
 

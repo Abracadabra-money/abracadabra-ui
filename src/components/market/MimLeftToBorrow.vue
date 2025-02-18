@@ -1,7 +1,7 @@
 <template>
   <div class="mim-left-to-borrow">
     <div ref="anim"></div>
-    <div class="info">
+    <div :class="['info', { 'bera-info': isBeraDesign }]">
       <div class="value">{{ mimLeftToBorrow }}</div>
       <div class="title">MIM Left to Mint</div>
     </div>
@@ -9,6 +9,20 @@
       <span class="value-start">0</span>
       <span class="value-end">{{ totalMimToBorrow }}</span>
     </div>
+
+    <img
+      class="bera-bg"
+      v-if="isBeraDesign"
+      src="@/assets/images/market/bera/bg.png"
+      alt=""
+    />
+
+    <img
+      class="bera-repay"
+      v-if="isBeraDesign"
+      src="@/assets/images/market/bera/borrow-icon.png"
+      alt=""
+    />
   </div>
 </template>
 
@@ -30,6 +44,10 @@ export default {
   },
 
   computed: {
+    isBeraDesign() {
+      return !!this.cauldron?.config.cauldronSettings?.isBeraDesign;
+    },
+
     mimLeftToBorrow(): string {
       return formatLargeSum(
         formatUnits(
@@ -109,6 +127,10 @@ export default {
   transform: translateY(-30%);
 }
 
+.bera-info {
+  top: 40%;
+}
+
 .value {
   font-size: 35px;
   font-weight: 500;
@@ -136,5 +158,36 @@ export default {
 .value-end {
   text-align: center;
   min-width: 50px;
+}
+
+.bera-repay {
+  position: absolute;
+  bottom: -40px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  width: 155px;
+  z-index: 2;
+}
+
+.bera-bg {
+  position: absolute;
+  bottom: -40px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  width: 350px;
+}
+
+@media screen and (max-width: 1024px) {
+  .bera-repay {
+    width: 135px;
+    bottom: -24px;
+  }
+
+  .bera-bg {
+    width: 280px;
+    bottom: -24px;
+  }
 }
 </style>

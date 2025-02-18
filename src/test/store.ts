@@ -14,7 +14,6 @@ export const testStore = new Vuex.Store({
       getters: {
         getChainId: (state) => state.chainId,
         getAccount: (state) => state.account,
-        getSigner: () => new providers.StaticJsonRpcProvider(defaultRpc[1]),
         getEnsName: () => null,
         getAvailableNetworks: (state) => state.networks,
         getNotifiCardId: () => {
@@ -55,7 +54,6 @@ export const testEmptyStore = new Vuex.Store({
       getters: {
         getChainId: () => null,
         getAccount: () => null,
-        getSigner: () => null,
         getEnsName: () => null,
       },
     },
@@ -78,7 +76,6 @@ export const getTestStore = (
         getters: {
           getChainId: (state) => state.chainId,
           getAccount: (state) => state.account,
-          getSigner: () => new providers.StaticJsonRpcProvider(defaultRpc[1]),
           getEnsName: (state) => state.ensName,
         },
       },

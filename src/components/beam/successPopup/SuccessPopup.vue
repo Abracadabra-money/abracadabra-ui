@@ -27,13 +27,11 @@
 </template>
 
 <script>
-import BeamProcess from "@/components/beam/successPopup/BeamProcess.vue";
-import BeamInfo from "@/components/beam/successPopup/BeamInfo.vue";
-import TransactionProgressBlock from "@/components/beam/successPopup/TransactionProgressBlock.vue";
-
-import { waitForMessageReceived } from "@layerzerolabs/scan-client";
-
 import { chainsConfigs } from "@/helpers/chains/configs";
+import BeamInfo from "@/components/beam/successPopup/BeamInfo.vue";
+import { waitForMessageReceived } from "@layerzerolabs/scan-client";
+import BeamProcess from "@/components/beam/successPopup/BeamProcess.vue";
+import TransactionProgressBlock from "@/components/beam/successPopup/TransactionProgressBlock.vue";
 
 export default {
   props: {

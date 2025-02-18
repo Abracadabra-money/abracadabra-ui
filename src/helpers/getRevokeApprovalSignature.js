@@ -1,15 +1,11 @@
-import { ethers } from "ethers";
-
 const getApprovalEncode = async (
-  signer,
   bentoContract,
   account,
-  chain,
+  chainId,
   masterContract
 ) => {
   const verifyingContract = bentoContract.address;
   const nonce = await bentoContract.nonces(account);
-  const chainId = ethers.utils.hexlify(chain);
 
   const domain = {
     name: "BentoBox V1",
@@ -39,7 +35,12 @@ const getApprovalEncode = async (
 
   let signature;
   try {
-    signature = await signer._signTypedData(domain, types, value);
+    signature = await signTypedDataHelper({
+      domain,
+      types,
+      primaryType: "SetMasterContractApproval",
+      message: value,
+    });
   } catch (e) {
     console.log("SIG ERR:", e.code);
 

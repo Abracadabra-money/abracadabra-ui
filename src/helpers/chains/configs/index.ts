@@ -11,8 +11,10 @@ import { mainnetConfig } from "@/helpers/chains/configs/mainnet";
 import { moonriverConfig } from "@/helpers/chains/configs/moonriver";
 import { optimismConfig } from "@/helpers/chains/configs/optimism";
 import { polygonConfig } from "@/helpers/chains/configs/polygon";
+import { beraConfig } from "@/helpers/chains/configs/bera";
 
 export const chainsConfigs = [
+  beraConfig,
   mainnetConfig,
   arbitrumConfig,
   blastConfig,

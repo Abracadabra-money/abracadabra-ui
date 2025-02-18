@@ -202,7 +202,6 @@ export default {
     ...mapGetters({
       account: "getAccount",
       chainId: "getChainId",
-      userSigner: "getSigner",
       defaultProvider: "getProvider",
     }),
 
@@ -294,7 +293,7 @@ export default {
     },
 
     contractProvider() {
-      return this.userSigner ? this.userSigner : this.defaultProvider;
+      return this.defaultProvider;
     },
 
     isEthChain() {
@@ -355,7 +354,6 @@ export default {
       };
       if (masterContract === "0xb2EBF227188E44ac268565C73e0fCd82D4Bfb1E3") {
         signature = await getApprovalEncode(
-          this.contractProvider,
           this.degenContract,
           this.account,
           this.chainId,

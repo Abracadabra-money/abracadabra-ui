@@ -38,6 +38,8 @@ type CauldronSettings = {
   hasElixirPotions?: boolean;
   isUSD0?: boolean;
   isAprExist?: boolean;
+  isBeraDesign?: boolean;
+  weight?: number;
 };
 
 type MimInfo = {

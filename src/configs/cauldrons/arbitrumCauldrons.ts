@@ -197,6 +197,7 @@ const config: Array<CauldronConfig> = [
       hasCrvClaimLogic: false,
       isGMXMarket: true,
       isAprExist: true,
+      weight: 3,
     },
     contract: {
       name: "CauldronV4",
@@ -241,6 +242,7 @@ const config: Array<CauldronConfig> = [
       hasCrvClaimLogic: false,
       isGMXMarket: true,
       isAprExist: true,
+      weight: 3,
     },
     contract: {
       name: "CauldronV4",
@@ -285,6 +287,7 @@ const config: Array<CauldronConfig> = [
       hasCrvClaimLogic: false,
       isGMXMarket: true,
       isAprExist: true,
+      weight: 3,
     },
     contract: {
       name: "CauldronV4",
@@ -329,6 +332,7 @@ const config: Array<CauldronConfig> = [
       hasCrvClaimLogic: false,
       isGMXMarket: true,
       isAprExist: true,
+      weight: 3,
     },
     contract: {
       name: "CauldronV4",
@@ -373,6 +377,7 @@ const config: Array<CauldronConfig> = [
       hasCrvClaimLogic: false,
       isGMXMarket: true,
       isAprExist: true,
+      weight: 3,
     },
     contract: {
       name: "CauldronV4",
@@ -576,6 +581,7 @@ const config: Array<CauldronConfig> = [
       hasCrvClaimLogic: false,
       isGMXMarket: true,
       isAprExist: true,
+      weight: 3,
     },
     contract: {
       name: "CauldronV4",
@@ -621,6 +627,7 @@ const config: Array<CauldronConfig> = [
       hasCrvClaimLogic: false,
       isGMXMarket: true,
       isAprExist: true,
+      weight: 3,
     },
     contract: {
       name: "CauldronV4",

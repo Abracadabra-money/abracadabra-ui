@@ -108,7 +108,6 @@ export default {
       isWalletCheckInProcess: "getIsWalletCheckInProcess",
       chainId: "getChainId",
       provider: "getProvider",
-      signer: "getSigner",
       localUserPositions: "getUserPositions",
       userTotalAssets: "getUserTotalAssets",
     }),

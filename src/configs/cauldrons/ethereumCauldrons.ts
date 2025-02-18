@@ -1712,6 +1712,7 @@ const config: Array<CauldronConfig> = [
       isNoDeleverage: true,
       hasElixirPotions: true,
       isAprExist: true,
+      weight: 2,
     },
     contract: {
       name: "CauldronV4",
@@ -1806,6 +1807,7 @@ const config: Array<CauldronConfig> = [
       hasCrvClaimLogic: false,
       isUSD0: true,
       isAprExist: true,
+      weight: 4,
     },
     contract: {
       name: "CauldronV4",
