@@ -14,10 +14,10 @@
               />
 
               <Toggle
+                v-if="account"
                 text="My Farms"
                 :selected="isMyPositions"
                 @updateToggle="toggleMyPositions"
-                v-if="signer"
               />
             </div>
 
@@ -84,7 +84,7 @@ export default {
 
   computed: {
     ...mapGetters({
-      signer: "getSigner",
+      account: "getAccount",
       chainId: "getChainId",
       localFarmList: "getFarmList",
     }),

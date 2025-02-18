@@ -44,11 +44,10 @@
 
 <script lang="ts">
 import moment from "moment";
-import { Contract } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
-import { formatUnits, parseUnits } from "viem";
-import { approveToken } from "@/helpers/approval";
+import { type Address, formatUnits, parseUnits } from "viem";
+import { approveTokenViem } from "@/helpers/approval";
 import { formatToFixed } from "@/helpers/filters";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import type { PoolConfig } from "@/configs/pools/types";
@@ -63,6 +62,12 @@ import { previewAddLiquidity } from "@/helpers/pools/swap/liquidity";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
 // @ts-ignore
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
+import { MAX_ALLOWANCE_VALUE } from "@/constants/global";
+import {
+  writeContractHelper,
+  simulateContractHelper,
+  waitForTransactionReceiptHelper,
+} from "@/helpers/walletClienHelper";
 
 export default {
   data() {
@@ -85,7 +90,6 @@ export default {
     ...mapGetters({
       chainId: "getChainId",
       account: "getAccount",
-      userSigner: "getSigner",
     }),
 
     isProperNetwork() {
@@ -368,18 +372,23 @@ export default {
         notification.approvePending
       );
 
-      let tokenContract;
+      let tokenContract = {
+        address: "" as Address,
+        abi: [],
+      };
 
       if (!this.isBaseTokenApproved) {
         const { address, abi } = this.pool.tokens.baseToken.config.contract;
-        tokenContract = new Contract(address, abi, this.userSigner);
+        tokenContract.address = address;
+        tokenContract.abi = abi;
       } else {
         const { address, abi } = this.pool.tokens.quoteToken.config.contract;
-        tokenContract = new Contract(address, abi, this.userSigner);
+        tokenContract.address = address;
+        tokenContract.abi = abi;
       }
 
       try {
-        await approveToken(tokenContract, this.pool.swapRouter);
+        await approveTokenViem(tokenContract, MAX_ALLOWANCE_VALUE);
         await this.getPoolInfo();
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.success);
@@ -425,39 +434,23 @@ export default {
     },
 
     async addLiquidity() {
-      const contract = new Contract(
-        this.pool!.swapRouter,
-        BlastMIMSwapRouterAbi,
-        this.userSigner
-      );
+      try {
+        const { lp, to, baseInAmount, quoteInAmount, minimumShares, deadline } =
+          this.createDepositPayload();
 
-      const { lp, to, baseInAmount, quoteInAmount, minimumShares, deadline } =
-        this.createDepositPayload();
+        const { request } = await simulateContractHelper({
+          address: this.pool!.swapRouter,
+          abi: BlastMIMSwapRouterAbi,
+          functionName: "addLiquidity",
+          args: [lp, to, baseInAmount, quoteInAmount, minimumShares, deadline],
+        });
 
-      const estimateGas = await contract.estimateGas.addLiquidity(
-        lp,
-        to,
-        baseInAmount,
-        quoteInAmount,
-        minimumShares,
-        deadline
-      );
+        const hash = await writeContractHelper(request);
 
-      const gasLimit = 1000 + +estimateGas.toString();
-
-      const tx = await contract.addLiquidity(
-        lp,
-        to,
-        baseInAmount,
-        quoteInAmount,
-        minimumShares,
-        deadline,
-        {
-          gasLimit,
-        }
-      );
-
-      return await tx.wait();
+        await waitForTransactionReceiptHelper({ hash });
+      } catch (error) {
+        console.log("Error addLiquidity:", error);
+      }
     },
 
     actionHandler() {

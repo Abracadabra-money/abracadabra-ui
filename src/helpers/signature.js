@@ -1,6 +1,5 @@
-import { ethers } from "ethers";
-import store from "@/store";
-import { verifyTypedData } from "ethers/lib/utils";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
+import { signTypedDataHelper } from "@/helpers/walletClienHelper.ts";
 
 const signMasterContract = async (
   chainId,
@@ -10,13 +9,9 @@ const signMasterContract = async (
   approved,
   nonce
 ) => {
-  const signer = store.getters.getSigner;
-
-  const chainHex = ethers.utils.hexlify(chainId);
-
   const domain = {
     name: "BentoBox V1",
-    chainId: chainHex,
+    chainId: chainId,
     verifyingContract,
   };
 
@@ -41,13 +36,26 @@ const signMasterContract = async (
     user,
     masterContract,
     approved,
-    nonce,
+    nonce: Number(nonce),
   };
 
-  const signature = await signer._signTypedData(domain, types, value);
+  const signature = await signTypedDataHelper({
+    domain,
+    types,
+    primaryType: "SetMasterContractApproval",
+    message: value,
+  });
 
-  const verifiedAccount = verifyTypedData(domain, types, value, signature);
-  const isVerified = verifiedAccount.toLowerCase() === user.toLowerCase();
+  const publicClient = getPublicClient(chainId);
+
+  const isVerified = await publicClient.verifyTypedData({
+    address: user,
+    domain,
+    types,
+    primaryType: "SetMasterContractApproval",
+    message: value,
+    signature,
+  });
 
   if (!isVerified) throw new Error("Invalid signature");
 
