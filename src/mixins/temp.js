@@ -1,4 +1,3 @@
-import cookMixin from "@/mixins/borrow/cooksV2.js";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { getCookTypeByAction } from "@/helpers/cauldron/getCookActionType";
 import { validateCookByAction } from "@/helpers/cauldron/validators";
@@ -26,7 +25,6 @@ import sleep from "@/helpers/sleep";
 // NOTICE: Temporary mixin, need to change to helpers after cooks refactoring
 export default {
   emits: ["updateMarket", "clearData"],
-  mixins: [cookMixin],
   data() {
     return {
       // GM variables
@@ -40,7 +38,6 @@ export default {
       chainId: "getChainId",
       account: "getAccount",
       provider: "getProvider",
-      signer: "getSigner",
       getChainById: "getChainById",
     }),
     cookValidationData() {
@@ -238,7 +235,7 @@ export default {
       this.$emit("clearData");
 
       const sleepTime = 2000;
-      await sleep(sleepTime)
+      await sleep(sleepTime);
 
       const order = await cauldron.orders(cookPayload.to);
 

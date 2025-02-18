@@ -37,8 +37,6 @@
 <script lang="ts">
 import { parseUnits } from "viem";
 import { mapGetters, mapMutations } from "vuex";
-// @ts-ignore
-import bentoBoxMixin from "@/mixins/mimBentoDeposit";
 import BentoBoxItem from "@/components/myPositions/BentoBoxItem.vue";
 import DegenBentoPopup from "@/components/popups/DegenBentoPopup.vue";
 import { createBentoBoxDatas } from "@/helpers/bentoBox/createBentoBoxData";
@@ -60,8 +58,6 @@ type PopupData = {
 type ActiveChains = number[];
 
 export default {
-  mixins: [bentoBoxMixin],
-
   data() {
     return {
       popupData: { ...initialPopupData },

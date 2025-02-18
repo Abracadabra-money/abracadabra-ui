@@ -33,7 +33,6 @@
 
 <script>
 import axios from "axios";
-import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
 import { useAnimation } from "@/helpers/useAnimation/useAnimation";
 
@@ -65,12 +64,6 @@ export default {
         "Sevastopol",
       ],
     };
-  },
-
-  computed: {
-    ...mapGetters({
-      signer: "getSigner",
-    }),
   },
 
   methods: {

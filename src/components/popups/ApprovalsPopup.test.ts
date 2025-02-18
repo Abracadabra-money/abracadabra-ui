@@ -1,6 +1,4 @@
 import Vuex from "vuex";
-import { providers } from "ethers";
-import { defaultRpc } from "@/helpers/chains";
 import { shallowMount } from "@vue/test-utils";
 import { describe, it, expect, vi } from "vitest";
 import ApprovalsPopup from "@/components/popups/ApprovalsPopup.vue";
@@ -15,7 +13,6 @@ const store = new Vuex.Store({
       getters: {
         getChainId: (state) => state.chainId,
         getAccount: (state) => state.account,
-        getSigner: () => new providers.StaticJsonRpcProvider(defaultRpc[1]),
       },
     },
   },

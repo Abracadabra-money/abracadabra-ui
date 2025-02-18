@@ -1,11 +1,12 @@
 import { arrayify } from "ethers/lib/utils";
+import { signMessageHelper } from "@/helpers/walletClienHelper.ts";
 
 export default {
   getters: {
-    getNotifiSignMessage: (_state, rootState) => {
+    getNotifiSignMessage: (_state) => {
       return async (message) => {
         const stringMessage = new TextDecoder("utf-8").decode(message);
-        const result = await rootState.getSigner.signMessage(stringMessage);
+        const result = await signMessageHelper(stringMessage);
         return arrayify(result);
       };
     },
