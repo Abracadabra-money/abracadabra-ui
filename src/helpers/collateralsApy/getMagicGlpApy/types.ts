@@ -1,17 +1,15 @@
-import type { BigNumber } from "ethers";
-
 export type MagicGlpApy = {
   glpApy: number;
   magicGlpApy: number;
 };
 
 export type Prices = {
-  gmxPrice: BigNumber;
-  nativeTokenPrice: BigNumber;
+  gmxPrice: bigint;
+  nativeTokenPrice: bigint;
 };
 
 export type AdditionalInfo = {
-  aum: BigNumber;
-  glpSupply: BigNumber;
+  aum: bigint;
+  glpSupply: bigint;
   fees: Object;
 };
