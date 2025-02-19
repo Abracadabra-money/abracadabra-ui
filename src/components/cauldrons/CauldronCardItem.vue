@@ -18,7 +18,7 @@
         {{ cauldron.config.name }}
       </div>
 
-      <RewardInfo :cauldron="cauldron" small />
+      <RewardInfo :cauldron="cauldron" :aprsLoading="aprsLoading" small />
     </div>
 
     <div class="row">
@@ -77,6 +77,7 @@ export default {
       type: Object as () => CauldronListItem,
       required: true,
     },
+    aprsLoading: { type: Boolean, default: false },
   },
 
   data() {

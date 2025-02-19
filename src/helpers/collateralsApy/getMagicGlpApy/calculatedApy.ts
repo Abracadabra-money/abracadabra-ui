@@ -3,51 +3,49 @@ import {
   SECONDS_PER_YEAR,
   BASIS_POINTS_DIVISOR,
 } from "@/helpers/collateralsApy/getMagicGlpApy/constants";
-import { BigNumber, utils } from "ethers";
+import { formatUnits, parseUnits } from "viem";
 
-const precision = BigNumber.from(Math.pow(10, GLP_DECIMALS).toString());
-const zero = BigNumber.from(0);
+const precision = parseUnits("1", GLP_DECIMALS);
 
 export const calculatedApy = async (
   stakingData: any,
-  aum: BigNumber,
+  aum: bigint,
   prices: any,
-  glpSupply: BigNumber,
+  glpSupply: bigint,
   fees: any
 ) => {
   const glpPrice =
-    glpSupply && glpSupply.gt(0) ? aum.mul(precision).div(glpSupply) : zero;
+    glpSupply && glpSupply > 0n ? (aum * precision) / glpSupply : 0n;
 
-  const glpSupplyUsd = glpSupply.mul(glpPrice).div(precision);
+  const glpSupplyUsd = (glpPrice * glpSupply) / precision;
 
   const stakedGlpTrackerAnnualRewardsUsd =
-    stakingData.stakedGlpTracker.tokensPerInterval
-      .mul(SECONDS_PER_YEAR)
-      .mul(prices.gmxPrice)
-      .div(precision);
+    (stakingData.stakedGlpTracker.tokensPerInterval
+      * BigInt(SECONDS_PER_YEAR)
+      * prices.gmxPrice) / (precision);
 
   const glpAprForEsGmx =
-    glpSupplyUsd && glpSupplyUsd.gt(0)
-      ? stakedGlpTrackerAnnualRewardsUsd
-          .mul(BASIS_POINTS_DIVISOR)
-          .div(glpSupplyUsd)
-      : zero;
+    glpSupplyUsd && glpSupplyUsd > 0n
+      ? (stakedGlpTrackerAnnualRewardsUsd
+        * BigInt(BASIS_POINTS_DIVISOR))
+      / glpSupplyUsd
+      : 0n;
 
   const feeGlpTrackerAnnualRewardsUsd =
-    stakingData.feeGlpTracker.tokensPerInterval
-      .mul(SECONDS_PER_YEAR)
-      .mul(prices.nativeTokenPrice)
-      .div(precision);
+    (stakingData.feeGlpTracker.tokensPerInterval
+      * BigInt(SECONDS_PER_YEAR)
+      * prices.nativeTokenPrice)
+    / precision;
 
   const glpAprForNativeToken =
-    glpSupplyUsd && glpSupplyUsd.gt(0)
-      ? feeGlpTrackerAnnualRewardsUsd
-          .mul(BASIS_POINTS_DIVISOR)
-          .div(glpSupplyUsd)
-      : zero;
+    glpSupplyUsd && glpSupplyUsd > 0n
+      ? (feeGlpTrackerAnnualRewardsUsd
+        * BigInt(BASIS_POINTS_DIVISOR))
+      / glpSupplyUsd
+      : 0n;
 
-  const glpAprTotal = glpAprForNativeToken.add(glpAprForEsGmx);
-  const parseAmount = +utils.formatUnits(glpAprTotal, 2);
+  const glpAprTotal = glpAprForNativeToken + glpAprForEsGmx;
+  const parseAmount = Number(formatUnits(glpAprTotal, 2));
 
   const glpApy = parseAmount * (1 - fees.feePercent);
 

@@ -7,12 +7,13 @@ import aggregatorAbi from "@/helpers/collateralsApy/getMagicGlpApy/abi/AbraWsGlp
 import magicGlpHarvestorAbi from "@/helpers/collateralsApy/getMagicGlpApy/abi/MagicGlpHarvestor";
 import chainLinkAvaxAbi from "@/helpers/collateralsApy/getMagicGlpApy/abi/chainLinkAvax";
 import JoePairAbi from "@/helpers/collateralsApy/getMagicGlpApy/abi/JoePair";
+import type { ContractInfo } from "@/types/global";
 
 export const SECONDS_PER_YEAR = 31536000;
 export const BASIS_POINTS_DIVISOR = 10000;
 export const GLP_DECIMALS = 18;
 
-export const contracts = {
+export const contracts: Record<number, Record<string, ContractInfo>> = {
   42161: {
     glpManager: {
       address: "0x321F653eED006AD1C29D174e17d96351BDe22649",

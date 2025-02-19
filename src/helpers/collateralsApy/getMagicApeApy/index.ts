@@ -1,41 +1,41 @@
-import { Contract } from "ethers";
-import { formatToFixed } from "@/helpers/filters";
-import { MulticallWrapper } from "ethers-multicall-provider";
-import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
-import { config } from "@/helpers/collateralsApy/getMagicApeApy/config";
+// import { Contract } from "ethers";
+// import { formatToFixed } from "@/helpers/filters";
+// import { MulticallWrapper } from "ethers-multicall-provider";
+// import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
+// import { config } from "@/helpers/collateralsApy/getMagicApeApy/config";
 
+// distribution ended
 export const getMagicApeApy = async (chainId: number): Promise<number> => {
-  const provider = getEthersProvider(chainId);
+  // @ts-ignore
+  return "0.0";
 
-  const { magicApe, lens } = config;
-  const multicallProvider = MulticallWrapper.wrap(provider);
+  // const provider = getEthersProvider(chainId);
 
-  const magicApeContract = await new Contract(
-    magicApe.address,
-    JSON.stringify(magicApe.abi),
-    multicallProvider
-  );
+  // const { magicApe, lens } = config;
+  // const multicallProvider = MulticallWrapper.wrap(provider);
 
-  const magicApeLensContract = await new Contract(
-    lens.address,
-    JSON.stringify(lens.abi),
-    multicallProvider
-  );
+  // const magicApeContract = await new Contract(
+  //   magicApe.address,
+  //   JSON.stringify(magicApe.abi),
+  //   multicallProvider
+  // );
 
-  try {
-    const [feePercentBips, bips, apeCoinInfo] = await Promise.all([
-      magicApeContract.feePercentBips(),
-      magicApeContract.BIPS(),
-      magicApeLensContract.getApeCoinInfo(),
-    ]);
+  // const magicApeLensContract = await new Contract(
+  //   lens.address,
+  //   JSON.stringify(lens.abi),
+  //   multicallProvider
+  // );
 
-    const fee = feePercentBips / bips;
-    const apr = apeCoinInfo[0] / 100;
-    return +formatToFixed(
-      (Math.pow(1 + apr / 100 / 730, 730) - 1) * 100 * (1 - fee),
-      2
-    );
-  } catch (error) {
-    return +formatToFixed(0, 2);
-  }
+  // const [feePercentBips, bips, apeCoinInfo] = await Promise.all([
+  //   magicApeContract.feePercentBips(),
+  //   magicApeContract.BIPS(),
+  //   magicApeLensContract.getApeCoinInfo(),
+  // ]);
+
+  // const fee = feePercentBips / bips;
+  // const apr = apeCoinInfo[0] / 100;
+  // return +formatToFixed(
+  //   (Math.pow(1 + apr / 100 / 730, 730) - 1) * 100 * (1 - fee),
+  //   2
+  // );
 };
