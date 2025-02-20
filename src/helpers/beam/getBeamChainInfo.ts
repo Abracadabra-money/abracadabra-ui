@@ -2,16 +2,16 @@ import type { BeamInfo } from "@/helpers/beam/types";
 
 export const getBeamChainInfo = (
   beamInfo: BeamInfo,
-  fromChainId: number,
-  toChainId: number
+  fromChainId: number | null,
+  toChainId: number | null
 ) => {
-  const fromChainConfigs = beamInfo.beamConfigs.filter(
-    (chain) => chain.chainId === fromChainId
-  );
+  const fromChainConfigs = fromChainId
+    ? beamInfo.beamConfigs.filter((chain) => chain.chainId === fromChainId)
+    : [];
 
-  const toChainConfigs = beamInfo.beamConfigs.filter(
-    (chain) => chain.chainId === toChainId
-  );
+  const toChainConfigs = toChainId
+    ? beamInfo.beamConfigs.filter((chain) => chain.chainId === toChainId)
+    : [];
 
   const fromChainV2Config = fromChainConfigs.find(
     (chain) => chain.settings.lzVersion === 2
@@ -21,16 +21,27 @@ export const getBeamChainInfo = (
     (chain) => chain.settings.lzVersion === 2
   );
 
-  if (fromChainV2Config && toChainV2Config) {
-    return {
-      fromChain: fromChainV2Config,
-      toChain: toChainV2Config,
-    };
+  if(fromChainV2Config && toChainV2Config) return {
+    fromChain: fromChainV2Config,
+    toChain: toChainV2Config
+  }
+
+  const fromChainV1Config = fromChainConfigs.find(
+    (chain) => !chain.settings.lzVersion
+  );
+
+  const toChainV1Config = toChainConfigs.find(
+    (chain) => !chain.settings.lzVersion
+  );
+
+  if(fromChainV1Config && toChainV1Config) return {
+    fromChain: fromChainV1Config,
+    toChain: toChainV1Config
   }
 
   return {
-    fromChain: fromChainConfigs.find((chain) => !chain.settings?.lzVersion),
-    toChain: toChainConfigs.find((chain) => !chain.settings?.lzVersion),
+    fromChain: fromChainConfigs[0],
+    toChain: toChainConfigs[0],
   };
 };
 
