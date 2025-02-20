@@ -1,6 +1,5 @@
-import { Contract } from "ethers";
-import { MulticallWrapper } from "ethers-multicall-provider";
 import abiERC20 from "@/abis/zeroXSwap/abiERC20";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 
 const accountsList = {
   "0xb7638f0040f116668201fb822446c1857035a9a2": [
@@ -71,24 +70,31 @@ const accountsList = {
   ],
 };
 
-const getAllowanceDatas = async (account, provider) => {
+const getAllowanceDatas = async (account, chainId) => {
   const isUserInList = !!accountsList[account.toLowerCase()];
   if (!isUserInList) return false;
 
   const userInfo = accountsList[account.toLowerCase()];
-  const multicallProvider = MulticallWrapper.wrap(provider);
 
-  const allowanceArrResp = await Promise.all(
-    userInfo.map(({ token, spender }) => {
-      const tokenContract = new Contract(token, abiERC20, multicallProvider);
-      return tokenContract.allowance(account, spender);
-    })
-  );
+  const contracts = userInfo.map(({ token, spender }) => {
+    return {
+      address: token,
+      abi: abiERC20,
+      functionName: "allowance",
+      args: [account, spender],
+    };
+  });
+
+  const publicClient = getPublicClient(chainId);
+
+  const allowanceArrResp = await publicClient.multicall({
+    contracts,
+  });
 
   return userInfo.map((info, idx) => {
     return {
       ...info,
-      isStillApproved: allowanceArrResp[idx].gt(0),
+      isStillApproved: allowanceArrResp[idx].result > 0n,
     };
   });
 };

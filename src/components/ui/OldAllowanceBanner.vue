@@ -37,7 +37,6 @@ export default {
     ...mapGetters({
       account: "getAccount",
       chainId: "getChainId",
-      userSigner: "getSigner",
     }),
     showBanner() {
       return this.isStillApproved && !this.closeClicked;
@@ -67,7 +66,7 @@ export default {
     },
     async checkAccount(account) {
       if (account && this.chainId === 1) {
-        const allovanceData = await getAllowanceDatas(account, this.userSigner);
+        const allovanceData = await getAllowanceDatas(account, this.chainId);
         this.isMoreThanOneApproval = allovanceData
           ? allovanceData.filter((item) => item.isStillApproved).length > 0
           : false;

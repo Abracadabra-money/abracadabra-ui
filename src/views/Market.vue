@@ -141,7 +141,6 @@ export default {
   computed: {
     ...mapGetters({
       account: "getAccount",
-      signer: "getSigner",
       activeChainId: "getChainId",
     }),
 

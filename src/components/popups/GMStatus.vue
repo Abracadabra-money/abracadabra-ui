@@ -192,7 +192,6 @@ export default {
     ...mapGetters({
       chainId: "getChainId",
       account: "getAccount",
-      signer: "getSigner",
     }),
 
     provider() {
@@ -352,7 +351,10 @@ export default {
     },
     async runDeleverage() {
       this.deleverageinProgress = true;
-      await this.deleverageFromOrder(this.order, {...this.deleverageSuccessPayload, order: this.order});
+      await this.deleverageFromOrder(this.order, {
+        ...this.deleverageSuccessPayload,
+        order: this.order,
+      });
       this.deleverageinProgress = false;
     },
 

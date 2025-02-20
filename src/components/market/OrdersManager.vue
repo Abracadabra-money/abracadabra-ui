@@ -50,7 +50,6 @@ export default {
       chainId: "getChainId",
       account: "getAccount",
       provider: "getProvider",
-      signer: "getSigner",
     }),
   },
   watch: {

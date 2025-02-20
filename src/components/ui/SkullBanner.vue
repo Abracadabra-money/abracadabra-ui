@@ -56,11 +56,10 @@ export default {
     ...mapGetters({
       account: "getAccount",
       chainId: "getChainId",
-      userSigner: "getSigner",
       defaultProvider: "getProvider",
     }),
     contractProvider() {
-      return this.userSigner ? this.userSigner : this.defaultProvider;
+      return this.defaultProvider;
     },
     showPopup() {
       return this.isAffected && this.$route.name !== "Claim";

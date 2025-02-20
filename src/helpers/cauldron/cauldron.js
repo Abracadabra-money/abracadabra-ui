@@ -3,8 +3,6 @@ import {
   simulateContractHelper,
   waitForTransactionReceiptHelper,
 } from "@/helpers/walletClienHelper";
-import store from "@/store";
-import { Contract } from "ethers";
 import { createWalletClient, custom } from "viem";
 import { getAccountHelper } from "@/helpers/walletClienHelper";
 import { getChainConfig } from "@/helpers/chains/getChainsInfo";
@@ -88,25 +86,5 @@ const cookTenderly = async (cauldronObject, cookData, value) => {
     return await walletClient.writeContract(request);
   } catch (error) {
     console.log("error");
-
-    const signer = store.getters.getSigner;
-
-    const cauldronContract = new Contract(
-      cauldronObject.config.contract.address,
-      cauldronObject.config.contract.abi,
-      signer
-    );
-
-    const tx = await cauldronContract.cook(
-      cookData.events,
-      cookData.values,
-      cookData.datas,
-      {
-        value,
-        gasLimit: 5000000,
-      }
-    );
-
-    return await tx.wait();
   }
 };

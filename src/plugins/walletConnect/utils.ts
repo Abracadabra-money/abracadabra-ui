@@ -86,7 +86,6 @@ export const getJsonRpcSigner = async (
 export const commitWalletData = async (
   chainId: number,
   provider: providers.StaticJsonRpcProvider,
-  signer: providers.JsonRpcSigner | providers.StaticJsonRpcProvider,
   address: Address | null,
   ensName: string | null,
   setWalletConnection: boolean,
@@ -94,7 +93,6 @@ export const commitWalletData = async (
 ) => {
   store.commit("setChainId", chainId);
   store.commit("setProvider", provider);
-  store.commit("setSigner", signer);
   store.commit("setAccount", address);
   store.commit("setENSName", ensName);
   store.commit("setWalletConnection", setWalletConnection);

@@ -37,6 +37,7 @@ type CauldronSettings = {
   isNoDeleverage?: boolean;
   hasElixirPotions?: boolean;
   isUSD0?: boolean;
+  isAprExist?: boolean;
   isBeraDesign?: boolean;
   weight?: number;
   isMimHoney?: boolean // TODO: use cauldronType: string instead of individual keys

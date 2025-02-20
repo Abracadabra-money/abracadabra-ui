@@ -7,30 +7,14 @@ import { getVeloApy } from "@/helpers/collateralsApy/getVeloApy";
 import { getLUSDApy } from "@/helpers/collateralsApy/getLUSDApy";
 import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
 import { getElixirApy } from "@/helpers/collateralsApy/getElixirApy";
-import { getStargateApy } from "@/helpers/collateralsApy/getStargateApy";
 import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
-import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
-import { getYearnVaultsApy } from "@/helpers/collateralsApy/getYearnVaultsApy";
 import { getMaxLeverageMultiplierAlternative } from "@/helpers/cauldron/getMaxLeverageMultiplier.ts";
 import { getUsd0ppApy } from "./getUsd0ppApy";
 
-export const isApyCalcExist = (chainId, poolId) => {
-  let cauldronsIds = [];
-
-  if (chainId === 1) {
-    cauldronsIds = [
-      6, 7, 15, 16, 24, 25, 29, 30, 31, 32, 33, 34, 37, 38, 39, 43, 44, 45
-    ];
-  }
-
-  // if (chainId === 10) cauldronsIds = [1];
-
-  if (chainId === 42161) {
-    cauldronsIds = [2, 3, 4, 5, 6, 7, 8, 13, 14];
-  }
-
-  return cauldronsIds.indexOf(poolId) !== -1;
-};
+//NOTICE: check comments below
+// import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
+// import { getStargateApy } from "@/helpers/collateralsApy/getStargateApy";
+// import { getYearnVaultsApy } from "@/helpers/collateralsApy/getYearnVaultsApy";
 
 export const fetchTokenApy = async (pool, chainId, provider) => {
   if (!chainId || !provider) {
@@ -52,10 +36,8 @@ export const fetchTokenApy = async (pool, chainId, provider) => {
         "0x9d5c5e364d81dab193b72db9e9be9d8ee669b652",
         provider
       );
-    if (pool.config.id === 31 || pool.config.id === 32)
-      return await getStargateApy(pool, provider);
-
-    if (pool.config.id === 39) return await getMagicApeApy(chainId);
+    //doubleCheck distribution ended
+    // if (pool.config.id === 39) return await getMagicApeApy(chainId);
 
     if (pool.config.id === 43 || pool.config.id === 44) return getElixirApy();
 
@@ -78,8 +60,11 @@ export const fetchTokenApy = async (pool, chainId, provider) => {
       return await getGMApr(market, provider);
     }
   }
+  // NOTICE: Stargate returns 0, and Yearn throws an error due to api. Consider if theese are still relevant
+  // if (pool.config.id === 31 || pool.config.id === 32)
+  //   return await getStargateApy(pool, provider);
 
-  return await getYearnVaultsApy(pool);
+  // return await getYearnVaultsApy(pool);
 };
 
 const fetchCollateralApy = async (cauldron, chainId, address) => {
@@ -90,7 +75,7 @@ const fetchCollateralApy = async (cauldron, chainId, address) => {
   const localData = localStorage.getItem(APR_KEY);
   const parsedData = localData ? JSON.parse(localData) : {};
 
-  parsedData[address] = {
+  parsedData.aprs[address.toLowerCase] = {
     chainId,
     apr: Number(formatToFixed(apr, 2)),
     createdAt: new Date().getTime(),
@@ -113,23 +98,20 @@ const isAprOutdate = (localData, address) => {
   return minutes > allowedTime;
 };
 
-export const getCollateralApr = async (
-  cauldron
-) => {
-  const { chainId, id, contract } = cauldron.config;
-  const isApyExist = isApyCalcExist(chainId, id);
-
-  if (!isApyExist) return { value: 0, multiplier: 0 };
+export const getCollateralApr = async (cauldron) => {
+  const { chainId, contract } = cauldron.config;
+  const { isAprExist } = cauldron.config.cauldronSettings;
+  if (!isAprExist) return { value: 0, multiplier: 0 };
 
   const localApr = localStorage.getItem(APR_KEY);
   const parseLocalApr = localApr ? JSON.parse(localApr) : null;
 
   const isOutdated = isAprOutdate(parseLocalApr, contract.address);
   const collateralApy = !isOutdated
-    ? parseLocalApr[contract.address].apr
+    ? parseLocalApr.aprs[contract.address.toLowerCase()].apr
     : await fetchCollateralApy(cauldron, chainId, contract.address);
 
-  const multiplier = getMaxLeverageMultiplierAlternative(cauldron, true)
+  const multiplier = getMaxLeverageMultiplierAlternative(cauldron, true);
 
   return { value: collateralApy, multiplier };
 };
