@@ -1,3 +1,4 @@
+import { BERA_CHAIN_ID } from "@/constants/global";
 import { useImage } from "@/helpers/useImage";
 
 const configs = [
@@ -126,6 +127,13 @@ const configs = [
     href: "https://app.usual.money/",
     label: "Get USD0++ Token",
     icon: useImage(`assets/images/tokens/USD0pp.png`),
+  },
+  {
+    id: 1,
+    chain: BERA_CHAIN_ID,
+    href: "https://app.kodiak.finance/#/liquidity/pools/0x933b2e6a71edbf11bba75c5ad241d246b145e0b0?chain=berachain_mainnet",
+    label: "Get LP",
+    icon: useImage(`assets/images/get-lp-icons/kodiak.png`),
   },
 ];
 
