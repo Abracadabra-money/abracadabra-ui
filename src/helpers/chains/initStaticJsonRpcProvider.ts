@@ -1,6 +1,5 @@
 import { providers } from "ethers";
 import { defaultRpc } from "@/helpers/chains";
-import { checkUnSupportedChain } from "@/plugins/walletConnect/utils";
 import { checkUseTenderlyFork } from "@/helpers/tenderly/checkUseTenderlyFork";
 
 export const initStaticJsonRpcProvider = async (chainId: number) => {
@@ -25,23 +24,12 @@ export const initStaticJsonRpcProvider = async (chainId: number) => {
   }
 };
 
-// export const initStaticJsonRpcProvider = async (endpoints: any) => {
-//   let isAlive = null;
-//   let retries = 0;
+const checkUnSupportedChain = (chainId = 1) => {
+  const unsupportedChain = !defaultRpc[chainId as keyof typeof defaultRpc];
 
-//   while (!isAlive) {
-//     if (retries > endpoints.length) break;
+  if (unsupportedChain) {
+    localStorage.setItem("MAGIC_MONEY_CHAIN_ID", chainId.toString());
+  }
 
-//     try {
-//       const provider = new providers.StaticJsonRpcProvider(endpoints[retries]);
-//       const network = await provider.getNetwork();
-//       const blockNumber = await provider.getBlockNumber();
-//       isAlive = network && blockNumber;
-//       console.log("Create provider", network);
-//       return provider;
-//     } catch (error) {
-//       retries++;
-//       console.error("Error initialising provider");
-//     }
-//   }
-// };
+  return { unsupportedChain };
+};
