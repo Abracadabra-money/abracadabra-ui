@@ -98,7 +98,7 @@ import { approveTokenViem } from "@/helpers/approval";
 import actions from "@/helpers/stake/magicApe/actions/";
 import { dataRefresher } from "@/helpers/dataRefresher";
 import { mapGetters, mapActions, mapMutations } from "vuex";
-import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import { switchNetwork } from "@/helpers/connect/switchNetwork";
 import notification from "@/helpers/notification/notification";
 import { getStakeInfo } from "@/helpers/stake/magicApe/getStakeInfo";
 import type { MagicApeStakeInfo } from "@/helpers/stake/magicApe/types";

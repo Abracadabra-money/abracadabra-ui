@@ -98,7 +98,7 @@ import { useImage } from "@/helpers/useImage";
 // @ts-ignore
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 import { mapActions, mapGetters, mapMutations } from "vuex";
-import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import { switchNetwork } from "@/helpers/connect/switchNetwork";
 import notification from "@/helpers/notification/notification";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import potionPointRedeemerAbi from "@/abis/potionPointRedeemerAbi";

@@ -74,7 +74,7 @@ import { trimZeroDecimals } from "@/helpers/numbers";
 import { approveTokenViem } from "@/helpers/approval";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification";
-import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import { switchNetwork } from "@/helpers/connect/switchNetwork";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import { actionStatus } from "@/components/pools/pool/PoolActionBlock.vue";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";

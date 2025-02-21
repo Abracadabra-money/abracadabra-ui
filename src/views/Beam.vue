@@ -162,8 +162,8 @@ import { beamConfigs } from "@/configs/beam/beamConfigs";
 import { getBeamInfo } from "@/helpers/beam/getBeamInfo";
 import { Options } from "@layerzerolabs/lz-v2-utilities";
 import { mapGetters, mapActions, mapMutations } from "vuex";
-import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
+import { switchNetwork } from "@/helpers/connect/switchNetwork";
 import { quoteSendFee } from "@/helpers/beam/getEstimateSendFee";
 import {
   getBeamFromChainInfo,

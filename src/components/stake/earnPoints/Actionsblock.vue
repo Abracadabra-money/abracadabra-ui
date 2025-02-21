@@ -68,8 +68,8 @@ import { formatTokenBalance } from "@/helpers/filters";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { tokensChainLink } from "@/configs/chainLink/config";
 import notification from "@/helpers/notification/notification";
-import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { withdraw } from "@/helpers/blast/stake/actions/withdraw";
+import { switchNetwork } from "@/helpers/connect/switchNetwork";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 import { withdrawLocked } from "@/helpers/blast/stake/actions/withdrawLocked";
 

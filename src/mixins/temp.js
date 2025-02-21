@@ -7,7 +7,7 @@ import { approveToken } from "@/helpers/approval";
 import { WARNING_TYPES } from "@/helpers/cauldron/validators";
 import { getCookPayload } from "@/helpers/cauldron/getCookPayload";
 import { ACTION_TYPES } from "@/helpers/cauldron/getCookActionType";
-import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import { switchNetwork } from "@/helpers/connect/switchNetwork";
 
 import cooks from "@/helpers/cauldron/cook/cooks";
 

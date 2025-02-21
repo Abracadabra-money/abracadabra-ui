@@ -12,8 +12,14 @@
       />
     </div>
 
-    <StakingAprWrap :pool="pool" v-if="!rewardPointsType && !isDeprecatedFarm" />
-    <RewardPointsBannerWrap :rewardPointsType="rewardPointsType" v-else-if="rewardPointsType" />
+    <StakingAprWrap
+      :pool="pool"
+      v-if="!rewardPointsType && !isDeprecatedFarm"
+    />
+    <RewardPointsBannerWrap
+      :rewardPointsType="rewardPointsType"
+      v-else-if="rewardPointsType"
+    />
 
     <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
       {{ buttonText }}
@@ -33,7 +39,7 @@ import { trimZeroDecimals } from "@/helpers/numbers";
 import { formatTokenBalance } from "@/helpers/filters";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification";
-import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import { switchNetwork } from "@/helpers/connect/switchNetwork";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 
 export default {
@@ -59,7 +65,7 @@ export default {
       account: "getAccount",
     }),
 
-    isDeprecatedFarm(){
+    isDeprecatedFarm() {
       return this.pool.settings.isDeprecatedFarm;
     },
 

@@ -45,9 +45,9 @@ import { claim } from "@/helpers/bSpell/actions/claim";
 import type { BSpellInfo } from "@/helpers/bSpell/types";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification";
-import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import ErrorHandler from "@/helpers/errorHandler/ErrorHandler";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
+import { switchNetwork } from "@/helpers/connect/switchNetwork";
 
 export default {
   emits: ["updateBSpellInfo"],

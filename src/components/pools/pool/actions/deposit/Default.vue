@@ -88,7 +88,7 @@ import { previewAddLiquidity } from "@/helpers/pools/swap/liquidity";
 import { addLiquidity } from "@/helpers/pools/swap/actions/addLiquidity";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
-import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import { switchNetwork } from "@/helpers/connect/switchNetwork";
 import { actionStatus } from "@/components/pools/pool/PoolActionBlock.vue";
 
 export default {

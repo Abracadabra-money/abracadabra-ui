@@ -43,14 +43,14 @@
 
 <script lang="ts">
 import { formatUnits } from "viem";
+import type { PropType } from "vue";
 import degenIcon from "@/assets/images/degenbox.svg";
 import mimIcon from "@/assets/images/tokens/MIM.png";
 import bentoIcon from "@/assets/images/bento-box.jpeg";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
-import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
+import { switchNetwork } from "@/helpers/connect/switchNetwork";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
-import type { PropType } from "vue";
 
 export default {
   props: {

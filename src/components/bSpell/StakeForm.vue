@@ -69,6 +69,7 @@
 </template>
 
 <script lang="ts">
+import moment from "moment";
 import { formatUnits } from "viem";
 import type { PropType } from "vue";
 import { defineAsyncComponent } from "vue";
@@ -76,10 +77,9 @@ import { approveTokenViem } from "@/helpers/approval";
 import { stake } from "@/helpers/bSpell/actions/stake";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import ErrorHandler from "@/helpers/errorHandler/ErrorHandler";
-import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
 import type { AprInfo, BSpellInfo } from "@/helpers/bSpell/types";
-import moment from "moment";
+import { switchNetwork } from "@/helpers/connect/switchNetwork";
 
 export default {
   emits: ["updateBSpellInfo"],

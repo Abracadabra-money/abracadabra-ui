@@ -77,7 +77,7 @@ import { createFarmData, emptyFarmData } from "@/helpers/farm/createFarmData";
 import { parseUnits, formatUnits } from "viem";
 import { approveTokenViem } from "@/helpers/approval";
 import actions from "@/helpers/farm/actions";
-import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import { switchNetwork } from "@/helpers/connect/switchNetwork";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import type { FarmItem } from "@/configs/farms/types";
 

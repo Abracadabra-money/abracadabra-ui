@@ -36,7 +36,7 @@
 <script>
 import { mapGetters } from "vuex";
 import NetworkChip from "@/components/ui/NetworkChip.vue";
-import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import { switchNetwork } from "@/helpers/connect/switchNetwork";
 
 export default {
   name: "NetworksList",

@@ -36,9 +36,9 @@ import { defineAsyncComponent } from "vue";
 import type { BSpellInfo } from "@/helpers/bSpell/types";
 import { unStake } from "@/helpers/bSpell/actions/unStake";
 import { mapActions, mapGetters, mapMutations } from "vuex";
-import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
 import ErrorHandler from "@/helpers/errorHandler/ErrorHandler";
+import { switchNetwork } from "@/helpers/connect/switchNetwork";
 
 export default {
   emits: ["updateBSpellInfo"],
