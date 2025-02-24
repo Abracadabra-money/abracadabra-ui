@@ -50,7 +50,11 @@ export const getMainParams = async (
   ))];
   if (pythFeedIds.length > 0) {
     // Override the state with the Pyth feed data to get the latest price and avoid reverts
-    stateOverride.push(await getPythFeedStateOverride(chainId, pythFeedIds))
+    try {
+      stateOverride.push(await getPythFeedStateOverride(chainId, pythFeedIds))
+    } catch (error) {
+      console.log("Pyth state override error:", error);
+    }
   }
   const [contractExchangeRate, marketInfos] = await Promise.all([
     cauldron
@@ -72,14 +76,20 @@ export const getMainParams = async (
         } as const;
       }),
       stateOverride,
-      allowFailure: false,
     })
   ]);
 
-  return Promise.all(marketInfos.map(async (marketInfo, index) => {
-    const config = configs[index];
-    return getMarketMainParams(config, marketInfo, contractExchangeRate);
-  }));
+  return Promise.all(
+    marketInfos
+      .filter((marketInfo) => marketInfo.status === "success")
+      .map(async (marketInfo, index) =>
+        getMarketMainParams(
+          configs[index],
+          marketInfo.result,
+          contractExchangeRate
+        )
+      )
+  );
 };
 
 const getMarketMainParams = (config: CauldronConfig, marketInfo: MarketInfo, contractExchangeRate?: bigint): MainParams => {
