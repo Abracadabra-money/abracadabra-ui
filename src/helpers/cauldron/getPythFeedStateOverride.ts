@@ -1,7 +1,7 @@
 import { pad, type Hex, encodePacked, parseAbiParameters, type StateOverride, numberToHex } from "viem";
-import { getPythConfiguration } from "./getPythConfiguration";
-import { getPythFeedData } from "../pyth";
-import { getSolidityMappingSlot } from "../getSolidityMappingSlot";
+import { getPythConfiguration } from "@/helpers/cauldron/getPythConfiguration";
+import { getPythFeedData } from "@/helpers/pyth";
+import { getSolidityMappingSlot } from "@/helpers/getSolidityMappingSlot";
 
 export async function getPythFeedStateOverride<T extends Hex[]>(chainId: number, feedIds: [...T]): Promise<StateOverride[number]> {
   const { address, priceInfoSlot } = getPythConfiguration(chainId);

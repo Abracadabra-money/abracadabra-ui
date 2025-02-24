@@ -22,7 +22,7 @@ import { getLensAddress } from "@/helpers/cauldron/getLensAddress";
 import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
 import type { ExtendedContractInfo } from "@/configs/contracts/types";
 import { getAlternativePositionHealth } from "@/helpers/cauldron/utils";
-import { getPythFeedStateOverride } from "./getPythFeedStateOverride";
+import { getPythFeedStateOverride } from "@/helpers/cauldron/getPythFeedStateOverride";
 
 const emptyPosition: UserPositions = {
   oracleRate: BigNumber.from("0"),

@@ -5,7 +5,7 @@ import type { MainParams } from "@/helpers/cauldron/types";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { getLensAddress } from "@/helpers/cauldron/getLensAddress";
 import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
-import { getPythFeedStateOverride } from "./getPythFeedStateOverride";
+import { getPythFeedStateOverride } from "@/helpers/cauldron/getPythFeedStateOverride";
 
 interface MarketInfo {
   borrowFee: bigint;
