@@ -19,7 +19,7 @@ export const swapOogaBoogaRequest = async (
   buyToken: Address,
   sellToken: Address,
   slippage = 0,
-  amountSell: BigNumber | number = 0,
+  amountSell: BigNumber | bigint | number = 0,
   takerAddress: Address,
   chainId?: number
 ) => {
