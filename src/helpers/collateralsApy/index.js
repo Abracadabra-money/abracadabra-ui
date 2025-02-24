@@ -72,16 +72,22 @@ const fetchCollateralApy = async (cauldron, chainId, address) => {
 
   const apr = await fetchTokenApy(cauldron, chainId, provider);
 
-  const localData = localStorage.getItem(APR_KEY);
-  const parsedData = localData ? JSON.parse(localData) : {};
+  try {
+    const localData = localStorage.getItem(APR_KEY);
+    const parsedData = localData ? JSON.parse(localData) : {};
 
-  parsedData.aprs[address.toLowerCase] = {
-    chainId,
-    apr: Number(formatToFixed(apr, 2)),
-    createdAt: new Date().getTime(),
-  };
+    parsedData.aprs ||= {};
 
-  localStorage.setItem(APR_KEY, JSON.stringify(parsedData));
+    parsedData.aprs[address.toLowerCase()] = {
+      chainId,
+      apr: Number(formatToFixed(apr, 2)),
+      createdAt: new Date().getTime(),
+    };
+
+    localStorage.setItem(APR_KEY, JSON.stringify(parsedData));
+  } catch (error) {
+    console.log("[fetchCollateralApy] save to localStorage error:", error);
+  }
 
   return formatToFixed(apr, 2);
 };
@@ -107,9 +113,11 @@ export const getCollateralApr = async (cauldron) => {
   const parseLocalApr = localApr ? JSON.parse(localApr) : null;
 
   const isOutdated = isAprOutdate(parseLocalApr, contract.address);
-  const collateralApy = !isOutdated
-    ? parseLocalApr.aprs[contract.address.toLowerCase()].apr
-    : await fetchCollateralApy(cauldron, chainId, contract.address);
+
+  const collateralApy =
+    !isOutdated && localApr
+      ? parseLocalApr.aprs[contract.address.toLowerCase()].apr
+      : await fetchCollateralApy(cauldron, chainId, contract.address);
 
   const multiplier = getMaxLeverageMultiplierAlternative(cauldron, true);
 
