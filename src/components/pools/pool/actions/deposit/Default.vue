@@ -90,6 +90,7 @@ import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
 import { switchNetwork } from "@/helpers/connect/switchNetwork";
 import { actionStatus } from "@/components/pools/pool/PoolActionBlock.vue";
+import { openConnectPopup } from "@/helpers/connect/utils";
 
 export default {
   props: {
@@ -346,10 +347,7 @@ export default {
     async actionHandler() {
       if (this.isButtonDisabled) return false;
       if (!this.isProperNetwork) return switchNetwork(this.pool.chainId);
-      if (!this.account) {
-        // @ts-ignore
-        return this.$openWeb3modal();
-      }
+      if (!this.account) return openConnectPopup();
 
       this.isPreviewPopupOpened = true;
     },

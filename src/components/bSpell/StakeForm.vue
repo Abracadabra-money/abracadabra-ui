@@ -80,6 +80,7 @@ import ErrorHandler from "@/helpers/errorHandler/ErrorHandler";
 import notification from "@/helpers/notification/notification";
 import type { AprInfo, BSpellInfo } from "@/helpers/bSpell/types";
 import { switchNetwork } from "@/helpers/connect/switchNetwork";
+import { openConnectPopup } from "@/helpers/connect/utils";
 
 export default {
   emits: ["updateBSpellInfo"],
@@ -181,10 +182,7 @@ export default {
     async actionHandler() {
       if (this.isActionDisabled) return false;
 
-      if (!this.account && this.isUnsupportedChain) {
-        // @ts-ignore
-        return this.$openWeb3modal();
-      }
+      if (!this.account && this.isUnsupportedChain) return openConnectPopup();
 
       if (!this.isUnsupportedChain) {
         switchNetwork(this.selectedNetwork);

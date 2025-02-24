@@ -170,6 +170,7 @@ import {
   getBeamToChainInfo,
 } from "@/helpers/beam/getBeamChainInfo";
 import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFee";
+import { openConnectPopup } from "@/helpers/connect/utils";
 
 export default {
   data() {
@@ -579,10 +580,7 @@ export default {
     async actionHandler() {
       if (this.actionState.disable) return false;
 
-      if (!this.account) {
-        // @ts-ignore
-        return this.$openWeb3modal();
-      }
+      if (!this.account) return openConnectPopup();
 
       if (this.isWrongChain) {
         await switchNetwork(this.fromChainConfig!.chainId);

@@ -72,6 +72,7 @@ import { withdraw } from "@/helpers/blast/stake/actions/withdraw";
 import { switchNetwork } from "@/helpers/connect/switchNetwork";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 import { withdrawLocked } from "@/helpers/blast/stake/actions/withdrawLocked";
+import { openConnectPopup } from "@/helpers/connect/utils";
 
 const BLAST_CHAIN_ID = 81457;
 
@@ -263,10 +264,7 @@ export default {
     async actionHandler() {
       if (this.isActionDisabled) return false;
 
-      if (!this.account && this.isUnsupportedChain) {
-        // @ts-ignore
-        return this.$openWeb3modal();
-      }
+      if (!this.account && this.isUnsupportedChain) return openConnectPopup();
 
       if (!this.isUnsupportedChain) {
         switchNetwork(BLAST_CHAIN_ID);

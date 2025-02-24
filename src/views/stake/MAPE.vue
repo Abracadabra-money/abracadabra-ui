@@ -97,6 +97,7 @@ import { formatToFixed } from "@/helpers/filters";
 import { approveTokenViem } from "@/helpers/approval";
 import actions from "@/helpers/stake/magicApe/actions/";
 import { dataRefresher } from "@/helpers/dataRefresher";
+import { openConnectPopup } from "@/helpers/connect/utils";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { switchNetwork } from "@/helpers/connect/switchNetwork";
 import notification from "@/helpers/notification/notification";
@@ -334,10 +335,8 @@ export default {
     async actionHandler() {
       if (this.isActionDisabled) return false;
 
-      if (!this.account && this.isUnsupportedChain) {
-        // @ts-ignore
-        return this.$openWeb3modal();
-      }
+      if (!this.account && this.isUnsupportedChain) return openConnectPopup();
+
       if (!this.isUnsupportedChain) {
         switchNetwork(Number(this.selectedNetwork));
         return false;

@@ -46,6 +46,7 @@ import { removeLiquidity } from "@/helpers/pools/swap/actions/removeLiquidity";
 import { removeLiquidityOneSide } from "@/helpers/pools/swap/actions/removeLiquidityOneSide";
 import { formatTokenBalance } from "@/helpers/filters";
 import { switchNetwork } from "@/helpers/connect/switchNetwork";
+import { openConnectPopup } from "@/helpers/connect/utils";
 
 export default {
   props: {
@@ -294,10 +295,7 @@ export default {
     async actionHandler() {
       if (this.isButtonDisabled) return false;
       if (!this.isProperNetwork) return switchNetwork(this.pool.chainId);
-      if (!this.account) {
-        // @ts-ignore
-        return this.$openWeb3modal();
-      }
+      if (!this.account) return openConnectPopup();
 
       if (!this.isAllowed) return await this.approveHandler();
 

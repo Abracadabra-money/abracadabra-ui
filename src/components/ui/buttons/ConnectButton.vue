@@ -3,7 +3,7 @@
     class="connect-btn"
     :class="{ connected: !!account }"
     :disabled="isWalletCheckInProcess"
-    @click="walletBtnHandler"
+    @click="openConnectPopup"
   >
     <div class="account-image-wrap" v-if="walletBtnIcon">
       <img
@@ -26,6 +26,8 @@
 
 <script>
 import { mapGetters } from "vuex";
+import { openConnectPopup } from "@/helpers/connect/utils";
+
 export default {
   computed: {
     ...mapGetters({
@@ -62,6 +64,8 @@ export default {
   },
 
   methods: {
+    openConnectPopup,
+
     funnyGreeting(ensName) {
       let msg = "Glad to see you in this magical place!👀🔮";
       let title = `OMG!🧙`;
@@ -88,10 +92,6 @@ export default {
         discription,
         type: "info",
       });
-    },
-
-    async walletBtnHandler() {
-      await this.$openWeb3modal();
     },
   },
 };

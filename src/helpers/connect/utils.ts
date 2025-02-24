@@ -3,6 +3,7 @@ import store from "@/store";
 import { providers } from "ethers";
 import type { Address } from "viem";
 import type { Config } from "@wagmi/core";
+import { getAccountHelper } from "@/helpers/walletClienHelper";
 // @ts-ignore
 import { sanctionAbi } from "@/abis/sanctionAbi";
 import { walletConnect } from "@wagmi/connectors";
@@ -79,4 +80,10 @@ export const commitWalletData = async (
   store.commit("setENSName", ensName);
   store.commit("setWalletConnection", setWalletConnection);
   store.commit("setWagmiConfig", wagmiConfig);
+};
+
+export const openConnectPopup = () => {
+  const account = getAccountHelper();
+  if (account.isConnected) return;
+  store.commit("setPopupState", { type: "connect", isShow: true });
 };

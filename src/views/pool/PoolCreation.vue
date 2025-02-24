@@ -184,6 +184,7 @@ import {
   checkIdentity,
 } from "@/helpers/pools/poolCreation/createSimilarPoolsInfo";
 import { debounce } from "lodash";
+import { openConnectPopup } from "@/helpers/connect/utils";
 
 const emptyPoolCreationTokenInfo: PoolCreationTokenInfo = {
   config: {
@@ -602,8 +603,7 @@ export default {
       switch (this.validationData.method) {
         case "connectWallet":
           this.isActionProcessing = true;
-          // @ts-ignore
-          await this.$openWeb3modal();
+          openConnectPopup();
           this.isActionProcessing = true;
           break;
         case "switchNetwork":

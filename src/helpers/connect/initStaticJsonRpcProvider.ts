@@ -2,7 +2,7 @@ import { providers } from "ethers";
 import { MAINNET_CHAIN_ID } from "@/constants/global";
 import { getRpcByChainId } from "@/helpers/connect/configs";
 
-export const initStaticJsonRpcProvider = async (chainId: number) => {
+export const initStaticJsonRpcProvider = (chainId: number) => {
   try {
     return new providers.StaticJsonRpcProvider(getRpcByChainId(chainId));
   } catch (error) {

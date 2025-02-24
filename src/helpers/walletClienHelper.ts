@@ -1,14 +1,16 @@
 import store from "@/store";
 import {
+  connect,
   getAccount,
   switchChain,
+  signMessage,
+  signTypedData,
+  getConnectors,
   writeContract,
   getWalletClient,
   simulateContract,
   estimateFeesPerGas,
   waitForTransactionReceipt,
-  signTypedData,
-  signMessage,
 } from "@wagmi/core";
 
 export const getWalletClientHelper = async () => {
@@ -49,4 +51,14 @@ export const signTypedDataHelper = async (typedData: any) => {
 
 export const signMessageHelper = async (message: string) => {
   return await signMessage(store.getters.getWagmiConfig, { message });
+};
+
+export const connectorsHelper: any = () => {
+  return getConnectors(store.getters.getWagmiConfig);
+};
+
+export const connectHelper = async (connector: any) => {
+  return await connect(store.getters.getWagmiConfig, {
+    connector: connector,
+  });
 };
