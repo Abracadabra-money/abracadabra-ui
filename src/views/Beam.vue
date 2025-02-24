@@ -165,10 +165,7 @@ import { mapGetters, mapActions, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification";
 import { switchNetwork } from "@/helpers/connect/switchNetwork";
 import { quoteSendFee } from "@/helpers/beam/getEstimateSendFee";
-import {
-  getBeamFromChainInfo,
-  getBeamToChainInfo,
-} from "@/helpers/beam/getBeamChainInfo";
+import { getBeamChainInfo } from "@/helpers/beam/getBeamChainInfo";
 import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFee";
 import { openConnectPopup } from "@/helpers/connect/utils";
 
@@ -208,15 +205,22 @@ export default {
     }),
 
     fromChainConfig() {
-      return getBeamFromChainInfo(
+      const { fromChain } = getBeamChainInfo(
         this.beamInfoObject!,
-        this.fromChainId || this.chainId,
+        this.fromChainId,
         this.toChainId
       );
+
+      return fromChain;
     },
 
     toChainConfig() {
-      return getBeamToChainInfo(this.beamInfoObject!, this.toChainId);
+      const { toChain } = getBeamChainInfo(
+        this.beamInfoObject!,
+        this.fromChainId,
+        this.toChainId
+      );
+      return toChain;
     },
 
     toAddress() {
@@ -748,6 +752,7 @@ export default {
 
   async created() {
     await this.initBeamInfo(this.chainId);
+    this.fromChainId = this.chainId;
   },
 
   components: {
