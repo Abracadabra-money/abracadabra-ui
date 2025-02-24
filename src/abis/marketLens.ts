@@ -188,9 +188,21 @@ export default [
             "internalType": "uint256"
           },
           {
-            "name": "totalBorrowed",
-            "type": "uint256",
-            "internalType": "uint256"
+            "name": "totalBorrow",
+            "type": "tuple",
+            "internalType": "struct MarketLens.Borrow",
+            "components": [
+              {
+                "name": "part",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "amount",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
           },
           {
             "name": "oracleExchangeRate",
@@ -205,88 +217,25 @@ export default [
           {
             "name": "totalCollateral",
             "type": "tuple",
-            "internalType": "struct MarketLens.AmountValue",
+            "internalType": "struct MarketLens.Collateral",
             "components": [
+              {
+                "name": "token",
+                "type": "address",
+                "internalType": "contract IERC20"
+              },
               {
                 "name": "amount",
                 "type": "uint256",
                 "internalType": "uint256"
               },
               {
-                "name": "value",
+                "name": "share",
                 "type": "uint256",
                 "internalType": "uint256"
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getMarketInfoCauldronV2Pyth",
-    "inputs": [
-      {
-        "name": "cauldron",
-        "type": "address",
-        "internalType": "contract ICauldronV2"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "tuple",
-        "internalType": "struct MarketLens.MarketInfoPyth",
-        "components": [
-          {
-            "name": "cauldron",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "borrowFee",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "maximumCollateralRatio",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "liquidationFee",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "interestPerYear",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "marketMaxBorrow",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "userMaxBorrow",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "totalBorrowed",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "totalCollateral",
-            "type": "tuple",
-            "internalType": "struct MarketLens.Amount",
-            "components": [
+              },
               {
-                "name": "amount",
+                "name": "value",
                 "type": "uint256",
                 "internalType": "uint256"
               }
@@ -349,9 +298,21 @@ export default [
             "internalType": "uint256"
           },
           {
-            "name": "totalBorrowed",
-            "type": "uint256",
-            "internalType": "uint256"
+            "name": "totalBorrow",
+            "type": "tuple",
+            "internalType": "struct MarketLens.Borrow",
+            "components": [
+              {
+                "name": "part",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "amount",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
           },
           {
             "name": "oracleExchangeRate",
@@ -366,88 +327,25 @@ export default [
           {
             "name": "totalCollateral",
             "type": "tuple",
-            "internalType": "struct MarketLens.AmountValue",
+            "internalType": "struct MarketLens.Collateral",
             "components": [
+              {
+                "name": "token",
+                "type": "address",
+                "internalType": "contract IERC20"
+              },
               {
                 "name": "amount",
                 "type": "uint256",
                 "internalType": "uint256"
               },
               {
-                "name": "value",
+                "name": "share",
                 "type": "uint256",
                 "internalType": "uint256"
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getMarketInfoCauldronV3Pyth",
-    "inputs": [
-      {
-        "name": "cauldron",
-        "type": "address",
-        "internalType": "contract ICauldronV3"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "marketInfo",
-        "type": "tuple",
-        "internalType": "struct MarketLens.MarketInfoPyth",
-        "components": [
-          {
-            "name": "cauldron",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "borrowFee",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "maximumCollateralRatio",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "liquidationFee",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "interestPerYear",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "marketMaxBorrow",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "userMaxBorrow",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "totalBorrowed",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "totalCollateral",
-            "type": "tuple",
-            "internalType": "struct MarketLens.Amount",
-            "components": [
+              },
               {
-                "name": "amount",
+                "name": "value",
                 "type": "uint256",
                 "internalType": "uint256"
               }
@@ -619,8 +517,20 @@ export default [
     "outputs": [
       {
         "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
+        "type": "tuple",
+        "internalType": "struct MarketLens.Borrow",
+        "components": [
+          {
+            "name": "part",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "amount",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
       }
     ],
     "stateMutability": "view"
@@ -639,41 +549,25 @@ export default [
       {
         "name": "",
         "type": "tuple",
-        "internalType": "struct MarketLens.AmountValue",
+        "internalType": "struct MarketLens.Collateral",
         "components": [
+          {
+            "name": "token",
+            "type": "address",
+            "internalType": "contract IERC20"
+          },
           {
             "name": "amount",
             "type": "uint256",
             "internalType": "uint256"
           },
           {
-            "name": "value",
+            "name": "share",
             "type": "uint256",
             "internalType": "uint256"
-          }
-        ]
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getTotalCollateralAmount",
-    "inputs": [
-      {
-        "name": "cauldron",
-        "type": "address",
-        "internalType": "contract ICauldronV2"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "tuple",
-        "internalType": "struct MarketLens.Amount",
-        "components": [
+          },
           {
-            "name": "amount",
+            "name": "value",
             "type": "uint256",
             "internalType": "uint256"
           }
@@ -700,8 +594,20 @@ export default [
     "outputs": [
       {
         "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
+        "type": "tuple",
+        "internalType": "struct MarketLens.Borrow",
+        "components": [
+          {
+            "name": "part",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "amount",
+            "type": "uint256",
+            "internalType": "uint256"
+          }
+        ]
       }
     ],
     "stateMutability": "view"
@@ -725,10 +631,20 @@ export default [
       {
         "name": "",
         "type": "tuple",
-        "internalType": "struct MarketLens.AmountValue",
+        "internalType": "struct MarketLens.Collateral",
         "components": [
           {
+            "name": "token",
+            "type": "address",
+            "internalType": "contract IERC20"
+          },
+          {
             "name": "amount",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "share",
             "type": "uint256",
             "internalType": "uint256"
           },
@@ -856,17 +772,39 @@ export default [
             "internalType": "uint256"
           },
           {
-            "name": "borrowValue",
-            "type": "uint256",
-            "internalType": "uint256"
+            "name": "borrow",
+            "type": "tuple",
+            "internalType": "struct MarketLens.Borrow",
+            "components": [
+              {
+                "name": "part",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "amount",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
           },
           {
             "name": "collateral",
             "type": "tuple",
-            "internalType": "struct MarketLens.AmountValue",
+            "internalType": "struct MarketLens.Collateral",
             "components": [
               {
+                "name": "token",
+                "type": "address",
+                "internalType": "contract IERC20"
+              },
+              {
                 "name": "amount",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "share",
                 "type": "uint256",
                 "internalType": "uint256"
               },
@@ -879,52 +817,6 @@ export default [
           },
           {
             "name": "liquidationPrice",
-            "type": "uint256",
-            "internalType": "uint256"
-          }
-        ]
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getUserPositionData",
-    "inputs": [
-      {
-        "name": "cauldron",
-        "type": "address",
-        "internalType": "contract ICauldronV2"
-      },
-      {
-        "name": "account",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "tuple",
-        "internalType": "struct MarketLens.UserPositionData",
-        "components": [
-          {
-            "name": "borrowPart",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "borrowAmount",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "collateralShare",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "collateralAmount",
             "type": "uint256",
             "internalType": "uint256"
           }
@@ -975,17 +867,39 @@ export default [
             "internalType": "uint256"
           },
           {
-            "name": "borrowValue",
-            "type": "uint256",
-            "internalType": "uint256"
+            "name": "borrow",
+            "type": "tuple",
+            "internalType": "struct MarketLens.Borrow",
+            "components": [
+              {
+                "name": "part",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "amount",
+                "type": "uint256",
+                "internalType": "uint256"
+              }
+            ]
           },
           {
             "name": "collateral",
             "type": "tuple",
-            "internalType": "struct MarketLens.AmountValue",
+            "internalType": "struct MarketLens.Collateral",
             "components": [
               {
+                "name": "token",
+                "type": "address",
+                "internalType": "contract IERC20"
+              },
+              {
                 "name": "amount",
+                "type": "uint256",
+                "internalType": "uint256"
+              },
+              {
+                "name": "share",
                 "type": "uint256",
                 "internalType": "uint256"
               },

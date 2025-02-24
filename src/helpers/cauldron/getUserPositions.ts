@@ -1,4 +1,4 @@
-import { formatUnits } from "viem";
+import { formatUnits, type StateOverride } from "viem";
 import type { Address } from "viem";
 import orderAbi from "@/abis/gm/order";
 import type { PublicClient } from "viem";
@@ -22,6 +22,7 @@ import { getLensAddress } from "@/helpers/cauldron/getLensAddress";
 import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
 import type { ExtendedContractInfo } from "@/configs/contracts/types";
 import { getAlternativePositionHealth } from "@/helpers/cauldron/utils";
+import { getPythFeedStateOverride } from "./getPythFeedStateOverride";
 
 const emptyPosition: UserPositions = {
   oracleRate: BigNumber.from("0"),
@@ -61,14 +62,27 @@ export const getUserPositions = async (
   const lensAddress: Address = getLensAddress(chainId);
   const publicClient: PublicClient = getPublicClient(chainId);
 
+  const stateOverride: StateOverride = [];
+
+  const pythFeedIds = [...new Set(configs.flatMap((config) =>
+    config.cauldronSettings.oracleInfo?.kind === "PYTH"
+      ? config.cauldronSettings.oracleInfo.feedIds
+      : []
+  ))];
+  if (pythFeedIds.length > 0) {
+    // Override the state with the Pyth feed data to get the latest price and avoid reverts
+    stateOverride.push(await getPythFeedStateOverride(chainId, pythFeedIds))
+  }
+
   const userPositions = await publicClient.multicall({
     contracts: configs
       .map((config: CauldronConfig) => ({
         address: lensAddress,
         abi: lensAbi,
-        functionName: "getUserPositionData",
+        functionName: "getUserPosition",
         args: [config.contract.address, account],
       } as const)),
+    stateOverride,
     allowFailure: false,
   });
 
@@ -92,8 +106,8 @@ export const getUserPositions = async (
     const liquidationPrice = Number(
       utils.formatUnits(
         getLiquidationPrice(
-          BigNumber.from(userPosition.borrowAmount),
-          BigNumber.from(userPosition.collateralAmount).add(
+          BigNumber.from(userPosition.borrow.amount),
+          BigNumber.from(userPosition.collateral.amount).add(
             BigNumber.from(collaterallInOrders[index].amount)
           ),
           mcr,
@@ -102,8 +116,8 @@ export const getUserPositions = async (
       )
     );
     const bigintLiquidationPrice = getAlternativeLiquidationPrice(
-      userPosition.borrowAmount,
-      userPosition.collateralAmount +
+      userPosition.borrow.amount,
+      userPosition.collateral.amount +
       BigInt(collaterallInOrders[index].amount),
       mcr,
       decimals
@@ -115,7 +129,7 @@ export const getUserPositions = async (
       liquidationPrice,
       collateralPrice,
       config?.cauldronSettings.healthMultiplier,
-      Number(userPosition.borrowAmount),
+      Number(userPosition.borrow.amount),
       leftToDrop
     );
 
@@ -126,10 +140,10 @@ export const getUserPositions = async (
     );
 
     const userCollateralAmount = BigNumber.from(
-      userPosition.collateralAmount
+      userPosition.collateral.amount
     ).add(BigNumber.from(collaterallInOrders[index].amount));
 
-    const userBorrowAmount = BigNumber.from(userPosition.borrowAmount);
+    const userBorrowAmount = BigNumber.from(userPosition.borrow.amount);
 
     const collateralDeposited = Number(
       utils.formatUnits(userCollateralAmount, config?.collateralInfo.decimals)
@@ -141,14 +155,14 @@ export const getUserPositions = async (
 
     return {
       collateralInfo: {
-        userCollateralShare: BigNumber.from(userPosition.collateralShare).add(
+        userCollateralShare: BigNumber.from(userPosition.collateral.share).add(
           BigNumber.from(collaterallInOrder.share)
         ),
         userCollateralAmount,
       },
       borrowInfo: {
         userBorrowAmount,
-        userBorrowPart: BigNumber.from(userPosition.borrowPart),
+        userBorrowPart: BigNumber.from(userPosition.borrow.part),
       },
       oracleRate: BigNumber.from(oracleExchangeRate),
       liquidationPrice,
@@ -160,14 +174,14 @@ export const getUserPositions = async (
       alternativeData: {
         collateralInfo: {
           userCollateralShare:
-            userPosition.collateralShare + collaterallInOrder.alternativeData.share,
+            userPosition.collateral.share + collaterallInOrder.alternativeData.share,
           userCollateralAmount:
-            userPosition.collateralAmount +
+            userPosition.collateral.amount +
             collaterallInOrders[index].alternativeData.amount,
         },
         borrowInfo: {
-          userBorrowPart: userPosition.borrowPart,
-          userBorrowAmount: userPosition.borrowAmount,
+          userBorrowPart: userPosition.borrow.part,
+          userBorrowAmount: userPosition.borrow.amount,
         },
         liquidationPrice: bigintLiquidationPrice,
         oracleRate: oracleExchangeRate,

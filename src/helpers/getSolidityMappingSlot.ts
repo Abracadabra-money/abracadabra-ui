@@ -6,6 +6,7 @@ import {
   type AbiParameterKind,
   type AbiParameterToPrimitiveType,
   type Hex,
+  hexToBigInt,
 } from "viem";
 
 type AbiParametersToPrimitiveTypes<
@@ -27,14 +28,14 @@ type GetSolidityMappingSlotParams<TParams extends readonly AbiParameter[]> = {
 export function getSolidityMappingSlot<
   const TParams extends readonly AbiParameter[],
 >({ slot, params, values }: GetSolidityMappingSlotParams<TParams>
-): Hex {
+): bigint {
   if (params.length < 1) {
     throw Error("Bad params");
   }
   if (params.length !== values.length) {
     throw Error("Bad values");
   }
-  let ret: Hex = numberToHex(slot);
+  let ret: Hex = numberToHex(slot, { size: 32 });
   for (const index in params) {
     ret = keccak256(
       encodeAbiParameters(
@@ -43,5 +44,5 @@ export function getSolidityMappingSlot<
       )
     );
   }
-  return ret;
+  return hexToBigInt(ret);
 }

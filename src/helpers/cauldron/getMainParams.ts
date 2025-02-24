@@ -1,12 +1,11 @@
 import { BigNumber } from "ethers";
-import { type Address, type PublicClient, keccak256, encodeAbiParameters, parseAbiParameters, pad, encodePacked, type StateOverride } from "viem";
+import type { Address, PublicClient, StateOverride } from "viem";
 import lensAbi from "@/abis/marketLens";
 import type { MainParams } from "@/helpers/cauldron/types";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { getLensAddress } from "@/helpers/cauldron/getLensAddress";
 import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
-import { getPythFeedData } from "@/helpers/pyth";
-import { getPythConfiguration } from "@/helpers/cauldron/getPythConfiguration";
+import { getPythFeedStateOverride } from "./getPythFeedStateOverride";
 
 interface MarketInfo {
   borrowFee: bigint;
@@ -17,7 +16,10 @@ interface MarketInfo {
   marketMaxBorrow: bigint;
   maximumCollateralRatio: bigint;
   oracleExchangeRate: bigint;
-  totalBorrowed: bigint;
+  totalBorrow: {
+    amount: bigint;
+    part: bigint;
+  };
   totalCollateral: {
     amount: bigint;
     value: bigint;
@@ -48,15 +50,7 @@ export const getMainParams = async (
   ))];
   if (pythFeedIds.length > 0) {
     // Override the state with the Pyth feed data to get the latest price and avoid reverts
-    const pythConfiguration = getPythConfiguration(chainId);
-    const pythData = await getPythFeedData(pythFeedIds);
-    stateOverride.push({
-      address: pythConfiguration.address,
-      stateDiff: pythData.parsed.map(({ id, price }) => ({
-        slot: keccak256(encodeAbiParameters(parseAbiParameters('bytes32, uint256'), [id, pythConfiguration.priceInfoSlot])),
-        value: pad(encodePacked(['uint64', 'int64', 'int32', 'uint64'], [price.conf, price.price, price.expo, BigInt(price.publish_time)])),
-      }))
-    });
+    stateOverride.push(await getPythFeedStateOverride(chainId, pythFeedIds))
   }
   const [contractExchangeRate, marketInfos] = await Promise.all([
     cauldron
@@ -84,7 +78,7 @@ export const getMainParams = async (
 
   return Promise.all(marketInfos.map(async (marketInfo, index) => {
     const config = configs[index];
-    return getMarketMainParams(config, marketInfo as any as MarketInfo, contractExchangeRate);
+    return getMarketMainParams(config, marketInfo, contractExchangeRate);
   }));
 };
 
@@ -100,7 +94,7 @@ const getMarketMainParams = (config: CauldronConfig, marketInfo: MarketInfo, con
     mimLeftToBorrow: BigNumber.from(marketInfo.marketMaxBorrow),
     maximumCollateralRatio: BigNumber.from(marketInfo.maximumCollateralRatio),
     oracleExchangeRate: BigNumber.from(marketInfo.oracleExchangeRate),
-    totalBorrowed: BigNumber.from(marketInfo.totalBorrowed),
+    totalBorrowed: BigNumber.from(marketInfo.totalBorrow.amount),
     tvl: BigNumber.from(marketInfo.totalCollateral.value),
     userMaxBorrow: BigNumber.from(marketInfo.userMaxBorrow),
     updatePrice,
@@ -109,7 +103,7 @@ const getMarketMainParams = (config: CauldronConfig, marketInfo: MarketInfo, con
       mimLeftToBorrow: marketInfo.marketMaxBorrow,
       maximumCollateralRatio: marketInfo.maximumCollateralRatio,
       oracleExchangeRate: marketInfo.oracleExchangeRate,
-      totalBorrowed: marketInfo.totalBorrowed,
+      totalBorrowed: marketInfo.totalBorrow.amount,
       tvl: marketInfo.totalCollateral.value,
       userMaxBorrow: marketInfo.userMaxBorrow,
     },

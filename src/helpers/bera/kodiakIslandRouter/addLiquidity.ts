@@ -136,8 +136,8 @@ const getMimSlotInfo = (address: Address, spender: Address) => {
   });
 
   return {
-    balanceSlot: userBalanceSlot,
-    allowanceSlot: allowanceSlot,
+    balanceSlot: numberToHex(userBalanceSlot, { size: 32 }),
+    allowanceSlot: numberToHex(allowanceSlot, { size: 32 }),
   };
 };
 

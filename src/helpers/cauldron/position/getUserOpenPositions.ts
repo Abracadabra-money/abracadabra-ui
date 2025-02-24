@@ -24,8 +24,7 @@ export const getUserOpenPositions = async (
   const positions: UserOpenPosition[] = [];
 
   await Promise.all(
-    // TODO: Remove filter when marketlens is deployed on all chains
-    currentChains.filter((chainId) => chainId === "80094").map(async (chainId: string) => {
+    currentChains.map(async (chainId: string) => {
       const configs = cauldronsConfig.filter(
         (config) => config.chainId === Number(chainId)
       );
