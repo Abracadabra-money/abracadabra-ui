@@ -58,23 +58,28 @@ export const fetchCauldronsAprs = async (cauldrons: CauldronListItem[]) => {
 };
 
 const getLSAprsAndCheckForExpiration = () => {
-  const localApr = localStorage.getItem(APR_KEY);
-  const parsedLocalApr = localApr ? JSON.parse(localApr) : undefined;
-  if (!parsedLocalApr) return;
+  try {
+    const localApr = localStorage.getItem(APR_KEY);
+    const parsedLocalApr = localApr ? JSON.parse(localApr) : undefined;
+    if (!parsedLocalApr) return;
 
-  const createdAt = parsedLocalApr.timestamp;
+    const createdAt = parsedLocalApr.timestamp;
+    
+    if (checkIfExpired(createdAt) || !createdAt) return;
 
-  if (checkIfExpired(createdAt)) return;
+    const aprs = parsedLocalApr.aprs;
 
-  const aprs = parsedLocalApr.aprs;
-
-  return Object.keys(parsedLocalApr.aprs).reduce(
-    (acc: any, address: any) => ({
-      ...acc,
-      [address.toLowerCase()]: aprs[address.toLowerCase()].apr,
-    }),
-    {}
-  );
+    return Object.keys(parsedLocalApr.aprs).reduce(
+      (acc: any, address: any) => ({
+        ...acc,
+        [address.toLowerCase()]: aprs[address.toLowerCase()].apr,
+      }),
+      {}
+    );
+  } catch (error) {
+    console.log("[getLSAprsAndCheckForExpiration] error:", error);
+    return false;
+  }
 };
 
 const formatAprsAndSaveToLS = (aprs: any, cauldrons: CauldronListItem[]) => {
@@ -117,9 +122,7 @@ const checkIfExpired = (
   return minutes > expirationTimeInMinutes;
 };
 
-const filterCrvCauldronsAndGetAprs = async (
-  cauldrons: CauldronListItem[],
-) => {
+const filterCrvCauldronsAndGetAprs = async (cauldrons: CauldronListItem[]) => {
   const crvCauldronsIds = [16, 24, 25];
 
   const crvCauldrons = cauldrons.filter(
@@ -135,20 +138,20 @@ const filterCrvCauldronsAndGetAprs = async (
         if (cauldron.config.id === 16) {
           crvCauldronApr = await getCrvApy(
             cauldron,
-            "0x9d5c5e364d81dab193b72db9e9be9d8ee669b652",
+            "0x9d5c5e364d81dab193b72db9e9be9d8ee669b652"
           );
         } else {
           crvCauldronApr = await getCrvApy(
             cauldron,
-            "0x689440f2Ff927E1f24c72F1087E1FAF471eCe1c8",
+            "0x689440f2Ff927E1f24c72F1087E1FAF471eCe1c8"
           );
         }
 
         return crvCauldronApr
           ? {
-            [cauldron.config.contract.address.toLowerCase()]:
-              Number(crvCauldronApr),
-          }
+              [cauldron.config.contract.address.toLowerCase()]:
+                Number(crvCauldronApr),
+            }
           : undefined;
       })
     )
@@ -219,10 +222,10 @@ const getGmCauldronsAprs = async (
 
     return apr && cauldronContractAddress
       ? {
-        [cauldronContractAddress.toLowerCase()]: Number(
-          utils.formatUnits(apr, 2)
-        ),
-      }
+          [cauldronContractAddress.toLowerCase()]: Number(
+            utils.formatUnits(apr, 2)
+          ),
+        }
       : undefined;
   });
 };
