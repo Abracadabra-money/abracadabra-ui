@@ -64,8 +64,8 @@ const getLSAprsAndCheckForExpiration = () => {
     if (!parsedLocalApr) return;
 
     const createdAt = parsedLocalApr.timestamp;
-
-    if (checkIfExpired(createdAt)) return;
+    
+    if (checkIfExpired(createdAt) || !createdAt) return;
 
     const aprs = parsedLocalApr.aprs;
 
