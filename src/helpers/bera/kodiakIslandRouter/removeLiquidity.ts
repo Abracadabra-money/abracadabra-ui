@@ -24,7 +24,7 @@ const removeLiquidityPreview = async (
   const balanceSlotValue = numberToHex(lpAmount, { size: 32 });
 
   try {
-    const { result } = await publicClient.simulateContract({
+    const { result: [amount0, amount1, liquidityBurned] } = await publicClient.simulateContract({
       address: ISLAND_ROUTER_ADDRESS,
       abi: IslandRouterAbi,
       functionName: "removeLiquidity",
@@ -48,9 +48,9 @@ const removeLiquidityPreview = async (
     });
 
     const removeLiquidityResult = {
-      amount0: result[0],
-      amount1: result[1],
-      liquidityBurned: result[2],
+      amount0,
+      amount1,
+      liquidityBurned,
     };
 
     console.log(

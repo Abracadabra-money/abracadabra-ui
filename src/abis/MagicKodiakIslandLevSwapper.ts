@@ -71,8 +71,6 @@ export default [
   },
   {
     inputs: [
-      { internalType: "address", name: "", type: "address" },
-      { internalType: "address", name: "", type: "address" },
       { internalType: "address", name: "recipient", type: "address" },
       { internalType: "uint256", name: "shareToMin", type: "uint256" },
       { internalType: "uint256", name: "shareFrom", type: "uint256" },
@@ -100,4 +98,4 @@ export default [
     stateMutability: "view",
     type: "function",
   },
-];
+] as const;
