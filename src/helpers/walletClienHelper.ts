@@ -1,6 +1,7 @@
 import store from "@/store";
 import {
   connect,
+  disconnect,
   getAccount,
   switchChain,
   signMessage,
@@ -61,4 +62,8 @@ export const connectHelper = async (connector: any) => {
   return await connect(store.getters.getWagmiConfig, {
     connector: connector,
   });
+};
+
+export const disconnectHelper = async () => {
+  return await disconnect(store.getters.getWagmiConfig);
 };

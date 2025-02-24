@@ -107,7 +107,6 @@ export default {
   font-size: 14px;
   font-weight: 600;
   line-height: 22px;
-
   border: none;
   outline: transparent;
   text-align: center;
@@ -117,15 +116,15 @@ export default {
   cursor: pointer;
 }
 
-.connect-btn:hover {
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(20px);
-}
+// .connect-btn:hover {
+//   background: rgba(255, 255, 255, 0.06);
+//   backdrop-filter: blur(20px);
+// }
 
-.connected {
-  border-radius: 8px;
-  background: rgba(111, 111, 111, 0.06);
-}
+// .connected {
+//   border-radius: 8px;
+//   background: rgba(111, 111, 111, 0.06);
+// }
 
 .account-image-wrap {
   display: flex;
