@@ -1,9 +1,9 @@
 import Vuex from "vuex";
 import { ethers, providers } from "ethers";
-import { defaultRpc } from "@/helpers/chains";
 import { describe, it, expect } from "vitest";
 import { shallowMount } from "@vue/test-utils";
 import FarmListPopup from "@/components/farm/FarmListPopup.vue";
+import { DEFAULT_MAINNET_RPC } from "@/helpers/connect/rpsList";
 
 const store = new Vuex.Store({
   modules: {
@@ -15,7 +15,8 @@ const store = new Vuex.Store({
       getters: {
         getChainId: (state) => state.chainId,
         getAccount: (state) => state.account,
-        provider: () => new providers.StaticJsonRpcProvider(defaultRpc[1]),
+        provider: () =>
+          new providers.StaticJsonRpcProvider(DEFAULT_MAINNET_RPC),
       },
     },
   },

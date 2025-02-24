@@ -1,10 +1,10 @@
 import type { Address } from "viem";
-import { defaultRpc } from "@/helpers/chains";
 import cauldronsConfig from "@/configs/cauldrons";
 import { getMainParams } from "@/helpers/cauldron/getMainParams";
 import type { MainParams, UserPositions } from "@/helpers/cauldron/types";
 import { getUserPositions } from "@/helpers/cauldron/getUserPositions";
 import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
+import { getAvailableChainList } from "@/helpers/connect/configs";
 
 export type UserOpenPosition = {
   config: CauldronConfig;
@@ -19,12 +19,12 @@ export const getUserOpenPositions = async (
   account: string,
   chains = null
 ): Promise<UserOpenPosition[]> => {
-  const currentChains = chains ? chains : Object.keys(defaultRpc);
+  const currentChains = chains ? chains : getAvailableChainList();
 
   const positions: UserOpenPosition[] = [];
 
   await Promise.all(
-    currentChains.map(async (chainId: string) => {
+    currentChains.map(async (chainId) => {
       const configs = cauldronsConfig.filter(
         (config) => config.chainId === Number(chainId)
       );

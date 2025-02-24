@@ -1,3 +1,4 @@
+import { filterRpcUrls } from "@/helpers/connect/utils";
 import { moonriver, base, linea } from "@wagmi/core/chains";
 import { mainnet, arbitrum, blast, kava } from "@wagmi/core/chains";
 import { avalanche, optimism, fantom, bsc, polygon } from "@wagmi/core/chains";
@@ -25,7 +26,7 @@ export const DEFAULT_MOONRIVER_RPC =
 export const DEFAULT_BASE_RPC = "https://base.llamarpc.com";
 export const DEFAULT_LINEA_RPC = "https://linea-rpc.publicnode.com";
 
-// comment
+// Here we add rpc that we do not want to use or they are not working
 export const badRequestListRpc = [
   "https://mainnet.optimism.io",
   "https://mainnet.base.org",
@@ -127,6 +128,6 @@ export const rpsList = {
 };
 
 export const getRpcListByChainId = (chainId: number) => {
-  if (!rpsList[chainId]) return rpsList[MAINNET_CHAIN_ID];
-  return rpsList[chainId];
+  if (!rpsList[chainId]) return filterRpcUrls(rpsList[MAINNET_CHAIN_ID]);
+  return filterRpcUrls(rpsList[chainId]);
 };

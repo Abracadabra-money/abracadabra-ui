@@ -54,7 +54,10 @@ export const checkSanctionAddress = async (address: Address) => {
 
 export const getUserEnsName = async (wagmiConfig: Config, address: Address) => {
   try {
-    return await getEnsName(wagmiConfig, { address: address! });
+    return await getEnsName(wagmiConfig, {
+      address: address!,
+      chainId: MAINNET_CHAIN_ID,
+    });
   } catch (error) {
     return await new providers.StaticJsonRpcProvider(
       DEFAULT_MAINNET_RPC

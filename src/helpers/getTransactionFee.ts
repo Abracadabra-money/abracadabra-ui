@@ -1,6 +1,6 @@
 import { parseUnits, type Address } from "viem";
 import { ethers, providers, utils } from "ethers";
-import { getRpcByChainId } from "@/helpers/chains";
+import { getRpcByChainId } from "@/helpers/connect/configs";
 import { getGasPrice } from "@/helpers/gm/fee/getGasPrice";
 import BlastMIMSwapRouterAbi from "@/abis/BlastMIMSwapRouter";
 import { getSwapRouterByChain } from "@/configs/pools/routers";

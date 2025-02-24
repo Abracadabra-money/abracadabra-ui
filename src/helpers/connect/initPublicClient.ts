@@ -3,7 +3,7 @@ import { fallback, http } from "@wagmi/core";
 import { getConfigByChainId } from "@/helpers/connect/configs";
 import { getRpcListByChainId } from "@/helpers/connect/rpsList";
 
-export const initPublicClient: any = (chainId: number) => {
+export const initPublicClient = (chainId: number) => {
   const defaultRpc = getRpcListByChainId(chainId);
   const wagmiConfig = getConfigByChainId(chainId);
 

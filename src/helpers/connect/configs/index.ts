@@ -34,3 +34,7 @@ export const getRpcByChainId = (chainId: number): string => {
 
   return mainnet!.rpcUrls.default.http[0];
 };
+
+export const getAvailableChainList = () => {
+  return chains.map((chain) => chain.id);
+};
