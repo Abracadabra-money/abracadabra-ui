@@ -43,7 +43,9 @@ const config: Array<CauldronConfig> = [
         ],
       },
       isBeraDesign: true,
-      isMimHoney: true
+      isMimHoney: true,
+      isNew: true,
+      weight: 4
     },
     contract: {
       name: "CauldronV4",
