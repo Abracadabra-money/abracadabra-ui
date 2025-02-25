@@ -1,6 +1,6 @@
 // @ts-ignore
 import store from "@/store";
-import { createStorage } from "@wagmi/core";
+import { createStorage, getAccount } from "@wagmi/core";
 import { chains } from "@/helpers/connect/configs";
 import { createConnectors } from "@/helpers/connect/utils";
 import { createConnectTransport } from "@/helpers/connect/utils";
@@ -33,7 +33,10 @@ watchAccount(wagmiConfig, {
 
 watchChainId(wagmiConfig, {
   async onChange() {
-    await createOrUpdateConnectionInfo(wagmiConfig, true);
+    const { address } = getAccount(wagmiConfig);
+
+    if (!address) await createOrUpdateWithoutConnectInfo(wagmiConfig);
+    else await createOrUpdateConnectionInfo(wagmiConfig, true);
   },
 });
 

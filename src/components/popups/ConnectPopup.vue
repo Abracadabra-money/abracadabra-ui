@@ -13,6 +13,7 @@
       <div class="connectors-wrap">
         <div class="row">
           <h3 class="wallet-title">Wallets</h3>
+
           <img
             class="popup-close"
             @click="closePopup"
@@ -20,6 +21,12 @@
             alt="Close popup"
           />
         </div>
+
+        <p class="text">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+          minim veniam, quis nostrud exercitation ullamco laboris ni
+        </p>
 
         <div class="connectors">
           <button
@@ -85,19 +92,18 @@ export default {
 @include scrollbar;
 
 .popup {
-  max-width: 854px;
-  width: 100%;
   display: flex;
   max-width: 854px;
   width: 100%;
   max-height: 414px;
   height: 100%;
+  flex: content;
 }
 
 .descriptin-wrap {
   border-radius: 20px 0px 0px 20px;
   background: #161e2d;
-  max-width: 294px;
+  min-width: 294px;
   width: 100%;
   padding: 24px 20px;
   gap: 12px;
@@ -137,6 +143,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .row {
@@ -198,10 +205,34 @@ export default {
   height: 40px;
 }
 
+@media screen and (max-width: 900px) {
+  .popup {
+    flex-direction: column;
+    max-width: 560px;
+  }
+
+  .descriptin-wrap {
+    display: none;
+  }
+
+  .connectors-wrap {
+    border-radius: 20px;
+    max-width: 100%;
+  }
+}
+
 @media screen and (max-width: 600px) {
+  .connectors-wrap {
+    gap: 12px;
+  }
+
   .popup-close {
     width: 24px;
     height: 24px;
+  }
+
+  .connect-btn {
+    max-width: 100%;
   }
 }
 </style>

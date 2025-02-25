@@ -54,9 +54,11 @@ export const checkSanctionAddress = async (address: Address) => {
 };
 
 export const getUserEnsName = async (wagmiConfig: Config, address: Address) => {
+  if (!address) return null;
+
   try {
     return await getEnsName(wagmiConfig, {
-      address: address!,
+      address: address,
       chainId: MAINNET_CHAIN_ID,
     });
   } catch (error) {
