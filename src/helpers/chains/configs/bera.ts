@@ -19,8 +19,8 @@ const viemConfig = {
     },
   },
   blockExplorers: {
-    etherscan: { name: "Berascan", url: "https://berascan.com/" },
-    default: { name: "Berascan", url: "https://berascan.com/" },
+    etherscan: { name: "Berascan", url: "https://berascan.com" },
+    default: { name: "Berascan", url: "https://berascan.com" },
   },
   contracts: {
     multicall3: {

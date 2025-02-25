@@ -30,13 +30,14 @@ export const getUserOpenPositions = async (
       );
       if (!configs) return [];
 
+      const mainParams = await getMainParams(configs, Number(chainId));
+
       const userPositions = await getUserPositions(
         configs,
+        mainParams,
         account as Address,
         Number(chainId)
       );
-
-      const mainParams = await getMainParams(configs, Number(chainId));
 
       userPositions.forEach((position: UserPositions, idx: number) => {
         if (

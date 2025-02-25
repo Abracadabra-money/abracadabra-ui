@@ -53,6 +53,7 @@ export const getMarketList = async (
 
       const userPositions = await getUserPositions(
         filteredConfigs,
+        mainParams,
         account as Address,
         Number(chainId)
       );
