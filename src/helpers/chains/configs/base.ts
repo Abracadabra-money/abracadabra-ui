@@ -1,7 +1,11 @@
 import { base } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
+import { initPublicClient } from "@/helpers/connect/initPublicClient";
+
+const publicClient = initPublicClient(base.id);
 
 export const baseConfig = {
+  publicClient,
   viemConfig: base,
   chainId: base.id,
   chainName: "BASE",

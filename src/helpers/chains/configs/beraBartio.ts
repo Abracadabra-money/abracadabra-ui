@@ -1,7 +1,11 @@
 import { useImage } from "@/helpers/useImage";
 import { beraBartio } from "@/helpers/connect/configs/beraBartio";
+import { initPublicClient } from "@/helpers/connect/initPublicClient";
+
+const publicClient = initPublicClient(beraBartio.id);
 
 export const beraBartioConfig = {
+  publicClient,
   viemConfig: beraBartio,
   chainId: beraBartio.id,
   chainName: "Berachain Bartio",

@@ -1,7 +1,11 @@
 import { polygon } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
+import { initPublicClient } from "@/helpers/connect/initPublicClient";
+
+const publicClient = initPublicClient(polygon.id);
 
 export const polygonConfig = {
+  publicClient,
   viemConfig: polygon,
   chainId: polygon.id,
   chainName: "MATIC",

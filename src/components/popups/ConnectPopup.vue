@@ -132,7 +132,6 @@ export default {
 
 .connectors-wrap {
   border-radius: 0px 20px 20px 0px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
   background: #101622;
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
   backdrop-filter: blur(12.5px);

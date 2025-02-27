@@ -1,7 +1,11 @@
 import { useImage } from "@/helpers/useImage";
 import { beraChain } from "@/helpers/connect/configs/beraChain";
+import { initPublicClient } from "@/helpers/connect/initPublicClient";
+
+const publicClient = initPublicClient(beraChain.id);
 
 export const beraConfig = {
+  publicClient,
   viemConfig: beraChain,
   chainId: beraChain.id,
   chainName: "Berachain",

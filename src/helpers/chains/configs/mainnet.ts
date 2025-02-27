@@ -1,7 +1,11 @@
 import { mainnet } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
+import { initPublicClient } from "@/helpers/connect/initPublicClient";
+
+const publicClient = initPublicClient(mainnet.id);
 
 export const mainnetConfig = {
+  publicClient,
   viemConfig: mainnet,
   chainId: mainnet.id,
   chainName: "Ethereum",

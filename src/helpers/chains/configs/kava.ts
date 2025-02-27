@@ -1,7 +1,11 @@
 import { kava } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
+import { initPublicClient } from "@/helpers/connect/initPublicClient";
+
+const publicClient = initPublicClient(kava.id);
 
 export const kavaConfig = {
+  publicClient,
   viemConfig: kava,
   chainId: kava.id,
   chainName: "KAVA",

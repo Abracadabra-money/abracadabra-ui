@@ -1,7 +1,11 @@
 import { bsc } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
+import { initPublicClient } from "@/helpers/connect/initPublicClient";
+
+const publicClient = initPublicClient(bsc.id);
 
 export const binanceConfig = {
+  publicClient,
   viemConfig: bsc,
   chainId: bsc.id,
   chainName: "BNB Chain",

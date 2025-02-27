@@ -1,15 +1,16 @@
+import { MAINNET_CHAIN_ID } from "@/constants/global";
 import { chainsConfigs } from "@/helpers/chains/configs";
-import { initPublicClient } from "@/helpers/connect/initPublicClient";
 import { initStaticJsonRpcProvider } from "@/helpers/connect/initStaticJsonRpcProvider";
 
 export const getPublicClient = (chainId: number): any => {
-  return initPublicClient(chainId);
+  return chainsConfigs.find((chain) => chain.viemConfig.id === Number(chainId))
+    ?.publicClient;
 };
 
 export const getChainConfig = (chainId: number) => {
   return chainsConfigs.find((chain) => chain.viemConfig.id === Number(chainId));
 };
 
-export const getEthersProvider = (chainId = 1): any => {
+export const getEthersProvider = (chainId = MAINNET_CHAIN_ID): any => {
   return initStaticJsonRpcProvider(chainId);
 };

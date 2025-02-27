@@ -1,7 +1,11 @@
 import { useImage } from "@/helpers/useImage";
 import { moonriver } from "@wagmi/core/chains";
+import { initPublicClient } from "@/helpers/connect/initPublicClient";
+
+const publicClient = initPublicClient(moonriver.id);
 
 export const moonriverConfig = {
+  publicClient,
   viemConfig: moonriver,
   chainId: moonriver.id,
   chainName: "Moonriver",

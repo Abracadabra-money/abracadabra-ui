@@ -1,7 +1,11 @@
 import { linea } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
+import { initPublicClient } from "@/helpers/connect/initPublicClient";
+
+const publicClient = initPublicClient(linea.id);
 
 export const lineaConfig = {
+  publicClient,
   viemConfig: linea,
   chainId: linea.id,
   chainName: "Linea",

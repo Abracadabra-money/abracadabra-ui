@@ -1,7 +1,11 @@
 import { useImage } from "@/helpers/useImage";
 import { avalanche } from "@wagmi/core/chains";
+import { initPublicClient } from "@/helpers/connect/initPublicClient";
+
+const publicClient = initPublicClient(avalanche.id);
 
 export const avalancheConfig = {
+  publicClient,
   viemConfig: avalanche,
   chainId: avalanche.id,
   chainName: "Avalanche",

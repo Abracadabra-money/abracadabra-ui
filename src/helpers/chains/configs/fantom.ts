@@ -1,7 +1,11 @@
 import { fantom } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
+import { initPublicClient } from "@/helpers/connect/initPublicClient";
+
+const publicClient = initPublicClient(fantom.id);
 
 export const fantomConfig = {
+  publicClient,
   viemConfig: fantom,
   chainId: fantom.id,
   chainName: "Fantom",
