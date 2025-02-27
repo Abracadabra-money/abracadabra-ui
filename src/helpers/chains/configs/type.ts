@@ -1,7 +1,7 @@
-import { initPublicClient } from "@/helpers/connect/initPublicClient";
+import type { PublicClient } from "viem";
 
 export interface ChainConfig {
-  publicClient: ReturnType<typeof initPublicClient>;
+  publicClient: PublicClient;
   viemConfig: any;
   chainId: number;
   chainName: string;
