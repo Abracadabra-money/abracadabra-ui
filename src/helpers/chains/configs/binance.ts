@@ -1,12 +1,26 @@
 import { bsc } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
-import { initPublicClient } from "@/helpers/connect/initPublicClient";
+import { getRpcListByChainId } from "@/helpers/chains/utils";
+import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
-const publicClient = initPublicClient(bsc.id);
+const rpcList = getRpcListByChainId(bsc.id);
+
+const viemConfig = {
+  ...bsc,
+  rpcUrls: {
+    public: {
+      http: rpcList,
+    },
+    default: {
+      http: rpcList,
+    },
+  },
+};
+const publicClient = initPublicClient(bsc);
 
 export const binanceConfig = {
+  viemConfig,
   publicClient,
-  viemConfig: bsc,
   chainId: bsc.id,
   chainName: "BNB Chain",
   symbol: "BSC",

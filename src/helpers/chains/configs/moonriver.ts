@@ -1,12 +1,26 @@
 import { useImage } from "@/helpers/useImage";
 import { moonriver } from "@wagmi/core/chains";
-import { initPublicClient } from "@/helpers/connect/initPublicClient";
+import { getRpcListByChainId } from "@/helpers/chains/utils";
+import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
-const publicClient = initPublicClient(moonriver.id);
+const rpcList = getRpcListByChainId(moonriver.id);
+
+const viemConfig = {
+  ...moonriver,
+  rpcUrls: {
+    public: {
+      http: rpcList,
+    },
+    default: {
+      http: rpcList,
+    },
+  },
+};
+const publicClient = initPublicClient(moonriver);
 
 export const moonriverConfig = {
+  viemConfig,
   publicClient,
-  viemConfig: moonriver,
   chainId: moonriver.id,
   chainName: "Moonriver",
   symbol: "Moonriver",

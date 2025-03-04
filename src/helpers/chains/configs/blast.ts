@@ -1,12 +1,26 @@
 import { blast } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
-import { initPublicClient } from "@/helpers/connect/initPublicClient";
+import { getRpcListByChainId } from "@/helpers/chains/utils";
+import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
-const publicClient = initPublicClient(blast.id);
+const rpcList = getRpcListByChainId(blast.id);
+
+const viemConfig = {
+  ...blast,
+  rpcUrls: {
+    public: {
+      http: rpcList,
+    },
+    default: {
+      http: rpcList,
+    },
+  },
+};
+const publicClient = initPublicClient(blast);
 
 export const blastConfig = {
+  viemConfig,
   publicClient,
-  viemConfig: blast,
   chainId: blast.id,
   chainName: "Blast",
   symbol: "Blast",

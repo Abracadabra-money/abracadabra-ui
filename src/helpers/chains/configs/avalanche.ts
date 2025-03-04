@@ -1,12 +1,27 @@
 import { useImage } from "@/helpers/useImage";
 import { avalanche } from "@wagmi/core/chains";
-import { initPublicClient } from "@/helpers/connect/initPublicClient";
+import { getRpcListByChainId } from "@/helpers/chains/utils";
+import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
-const publicClient = initPublicClient(avalanche.id);
+const rpcList = getRpcListByChainId(avalanche.id);
+
+const viemConfig = {
+  ...avalanche,
+  rpcUrls: {
+    public: {
+      http: rpcList,
+    },
+    default: {
+      http: rpcList,
+    },
+  },
+};
+
+const publicClient = initPublicClient(avalanche);
 
 export const avalancheConfig = {
+  viemConfig,
   publicClient,
-  viemConfig: avalanche,
   chainId: avalanche.id,
   chainName: "Avalanche",
   symbol: "AVAX",

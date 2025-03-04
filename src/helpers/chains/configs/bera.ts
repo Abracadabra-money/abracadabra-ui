@@ -1,12 +1,27 @@
 import { useImage } from "@/helpers/useImage";
 import { beraChain } from "@/helpers/connect/configs/beraChain";
-import { initPublicClient } from "@/helpers/connect/initPublicClient";
+import { getRpcListByChainId } from "@/helpers/chains/utils";
+import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
-const publicClient = initPublicClient(beraChain.id);
+const rpcList = getRpcListByChainId(beraChain.id);
+
+const viemConfig = {
+  ...beraChain,
+  rpcUrls: {
+    public: {
+      http: rpcList,
+    },
+    default: {
+      http: rpcList,
+    },
+  },
+};
+
+const publicClient = initPublicClient(beraChain);
 
 export const beraConfig = {
+  viemConfig,
   publicClient,
-  viemConfig: beraChain,
   chainId: beraChain.id,
   chainName: "Berachain",
   symbol: "BERA",

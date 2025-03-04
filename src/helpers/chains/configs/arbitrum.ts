@@ -1,12 +1,27 @@
 import { arbitrum } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
-import { initPublicClient } from "@/helpers/connect/initPublicClient";
+import { getRpcListByChainId } from "@/helpers/chains/utils";
+import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
-const publicClient = initPublicClient(arbitrum.id);
+const rpcList = getRpcListByChainId(arbitrum.id);
+
+const viemConfig = {
+  ...arbitrum,
+  rpcUrls: {
+    public: {
+      http: rpcList,
+    },
+    default: {
+      http: rpcList,
+    },
+  },
+};
+
+const publicClient = initPublicClient(arbitrum);
 
 export const arbitrumConfig = {
+  viemConfig,
   publicClient,
-  viemConfig: arbitrum,
   chainId: arbitrum.id,
   chainName: "Arbitrum",
   symbol: "AETH",

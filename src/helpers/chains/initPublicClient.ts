@@ -1,6 +1,6 @@
+import type { Chain } from "viem";
 import { createPublicClient } from "viem";
 import { fallback, http } from "@wagmi/core";
-import { getConfigByChainId } from "@/helpers/connect/configs";
 import { getRpcListByChainId } from "@/helpers/connect/rpsList";
 
 const rankKonfig = {
@@ -13,9 +13,8 @@ const rankKonfig = {
   retryDelay: 1000,
 };
 
-export const initPublicClient = (chainId: number) => {
-  const defaultRpc = getRpcListByChainId(chainId);
-  const wagmiConfig = getConfigByChainId(chainId);
+export const initPublicClient = (viemConfig: Chain) => {
+  const defaultRpc = getRpcListByChainId(viemConfig.id);
 
   const transport = fallback(
     defaultRpc.map((rpc: string) => http(rpc)),
@@ -27,7 +26,7 @@ export const initPublicClient = (chainId: number) => {
   );
 
   return createPublicClient({
-    chain: wagmiConfig,
+    chain: viemConfig,
     transport: transport,
     batch: {
       multicall: true,

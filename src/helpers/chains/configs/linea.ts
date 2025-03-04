@@ -1,12 +1,26 @@
 import { linea } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
-import { initPublicClient } from "@/helpers/connect/initPublicClient";
+import { getRpcListByChainId } from "@/helpers/chains/utils";
+import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
-const publicClient = initPublicClient(linea.id);
+const rpcList = getRpcListByChainId(linea.id);
+
+const viemConfig = {
+  ...linea,
+  rpcUrls: {
+    public: {
+      http: rpcList,
+    },
+    default: {
+      http: rpcList,
+    },
+  },
+};
+const publicClient = initPublicClient(linea);
 
 export const lineaConfig = {
+  viemConfig,
   publicClient,
-  viemConfig: linea,
   chainId: linea.id,
   chainName: "Linea",
   symbol: "Linea",

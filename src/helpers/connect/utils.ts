@@ -12,8 +12,9 @@ import { fallback, getEnsName, http } from "@wagmi/core";
 import notification from "@/helpers/notification/notification";
 import { DEFAULT_MAINNET_RPC } from "@/helpers/connect/rpsList";
 import { SANCTIONS_LIST_ADDRESS } from "@/constants/tokensAddress";
-import { initPublicClient } from "@/helpers/connect/initPublicClient";
+import { initPublicClient } from "@/helpers/chains/initPublicClient";
 import { badRequestListRpc, rpsList } from "@/helpers/connect/rpsList";
+import { getViemConfigById } from "@/helpers/chains/getChainsInfo";
 
 export const filterRpcUrls = (rpcUrls: string[]) => {
   const uniqueRpcUrls = new Set(rpcUrls);
@@ -40,7 +41,8 @@ export const createConnectors = () => {
 };
 
 export const checkSanctionAddress = async (address: Address) => {
-  const publicClient = initPublicClient(MAINNET_CHAIN_ID);
+  const mainnet = getViemConfigById(MAINNET_CHAIN_ID);
+  const publicClient = initPublicClient(mainnet);
 
   const isSanctioned = await publicClient.readContract({
     address: SANCTIONS_LIST_ADDRESS,

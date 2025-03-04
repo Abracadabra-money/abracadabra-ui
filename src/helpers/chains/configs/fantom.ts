@@ -1,12 +1,26 @@
 import { fantom } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
-import { initPublicClient } from "@/helpers/connect/initPublicClient";
+import { getRpcListByChainId } from "@/helpers/chains/utils";
+import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
-const publicClient = initPublicClient(fantom.id);
+const rpcList = getRpcListByChainId(fantom.id);
+
+const viemConfig = {
+  ...fantom,
+  rpcUrls: {
+    public: {
+      http: rpcList,
+    },
+    default: {
+      http: rpcList,
+    },
+  },
+};
+const publicClient = initPublicClient(fantom);
 
 export const fantomConfig = {
+  viemConfig,
   publicClient,
-  viemConfig: fantom,
   chainId: fantom.id,
   chainName: "Fantom",
   symbol: "FTM",

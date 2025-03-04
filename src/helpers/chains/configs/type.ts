@@ -1,7 +1,5 @@
-import type { PublicClient } from "viem";
-
 export interface ChainConfig {
-  publicClient: PublicClient;
+  publicClient: any;
   viemConfig: any;
   chainId: number;
   chainName: string;

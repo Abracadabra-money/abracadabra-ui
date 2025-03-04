@@ -1,7 +1,7 @@
 // @ts-ignore
 import store from "@/store";
 import { switchChain } from "@wagmi/core";
-import { getConfigByChainId } from "@/helpers/connect/configs";
+import { getViemConfigById } from "@/helpers/chains/getChainsInfo";
 import { getWalletClientHelper } from "@/helpers/walletClienHelper";
 import { createOrUpdateWithoutConnectInfo } from "@/helpers/connect/createOrUpdateConnection";
 
@@ -15,7 +15,7 @@ export const switchNetwork = async (chainId: number) => {
       await switchChain(wagmiConfig, { chainId: Number(chainId) });
     } catch (error) {
       if (String(error).indexOf("Chain not configured") !== -1) {
-        await walletClient.addChain({ chain: getConfigByChainId(chainId) });
+        await walletClient.addChain({ chain: getViemConfigById(chainId) });
         await walletClient.switchChain({ id: chainId });
       }
     }

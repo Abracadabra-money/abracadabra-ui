@@ -12,7 +12,7 @@ import { moonriverConfig } from "@/helpers/chains/configs/moonriver";
 import { optimismConfig } from "@/helpers/chains/configs/optimism";
 import { polygonConfig } from "@/helpers/chains/configs/polygon";
 import { beraConfig } from "@/helpers/chains/configs/bera";
-import type { ChainConfig } from "./type";
+import type { ChainConfig } from "@/helpers/chains/configs/type";
 
 export const chainsConfigs: ChainConfig[] = [
   beraConfig,

@@ -22,12 +22,6 @@ export const chains: [Chain, ...Chain[]] = [
   beraBartio,
 ];
 
-export const getConfigByChainId = (chainId: number) => {
-  const chain = chains.find((chain) => chain.id === chainId);
-  if (chain) return chain;
-  return mainnet as Chain;
-};
-
 export const getRpcByChainId = (chainId: number): string => {
   const chain = chains.find((chain) => chain.id === chainId);
   if (chain) return chain!.rpcUrls.default.http[0];

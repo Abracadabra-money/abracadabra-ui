@@ -1,12 +1,26 @@
 import { optimism } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
-import { initPublicClient } from "@/helpers/connect/initPublicClient";
+import { getRpcListByChainId } from "@/helpers/chains/utils";
+import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
-const publicClient = initPublicClient(optimism.id);
+const rpcList = getRpcListByChainId(optimism.id);
+
+const viemConfig = {
+  ...optimism,
+  rpcUrls: {
+    public: {
+      http: rpcList,
+    },
+    default: {
+      http: rpcList,
+    },
+  },
+};
+const publicClient = initPublicClient(optimism);
 
 export const optimismConfig = {
+  viemConfig,
   publicClient,
-  viemConfig: optimism,
   chainId: optimism.id,
   chainName: "Optimism",
   symbol: "OP",

@@ -1,12 +1,26 @@
 import { mainnet } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
-import { initPublicClient } from "@/helpers/connect/initPublicClient";
+import { getRpcListByChainId } from "@/helpers/chains/utils";
+import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
-const publicClient = initPublicClient(mainnet.id);
+const rpcList = getRpcListByChainId(mainnet.id);
+
+const viemConfig = {
+  ...mainnet,
+  rpcUrls: {
+    public: {
+      http: rpcList,
+    },
+    default: {
+      http: rpcList,
+    },
+  },
+};
+const publicClient = initPublicClient(mainnet);
 
 export const mainnetConfig = {
+  viemConfig,
   publicClient,
-  viemConfig: mainnet,
   chainId: mainnet.id,
   chainName: "Ethereum",
   symbol: "ETH",
