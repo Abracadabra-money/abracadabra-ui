@@ -1,7 +1,7 @@
 import type { Chain } from "viem";
 import { createPublicClient } from "viem";
 import { fallback, http } from "@wagmi/core";
-import { getRpcListByChainId } from "@/helpers/connect/rpsList";
+import { getRpcListByChainId } from "@/helpers/chains/utils";
 
 const rankKonfig = {
   rank: {

@@ -33,7 +33,7 @@ export const badRequestListRpc = [
   "https://evm.kava.chainstacklabs.com",
 ];
 
-export const rpsList = {
+export const rpcList = {
   [BERA_CHAIN_ID]: [DEFAULT_BERA_RPC],
   [BERA_BARTIO_CHAIN_ID]: [DEFAULT_BERA_BARTIO_RPC],
   [MAINNET_CHAIN_ID]: [
@@ -125,9 +125,4 @@ export const rpsList = {
     "https://1rpc.io/linea",
     "https://linea.blockpi.network/v1/rpc/public",
   ],
-};
-
-export const getRpcListByChainId = (chainId: number) => {
-  if (!rpsList[chainId]) return filterRpcUrls(rpsList[MAINNET_CHAIN_ID]);
-  return filterRpcUrls(rpsList[chainId]);
 };

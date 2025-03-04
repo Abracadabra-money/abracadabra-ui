@@ -10,10 +10,10 @@ import { walletConnect } from "@wagmi/connectors";
 import { MAINNET_CHAIN_ID } from "@/constants/global";
 import { fallback, getEnsName, http } from "@wagmi/core";
 import notification from "@/helpers/notification/notification";
-import { DEFAULT_MAINNET_RPC } from "@/helpers/connect/rpsList";
+import { DEFAULT_MAINNET_RPC } from "@/helpers/chains/rpcList";
 import { SANCTIONS_LIST_ADDRESS } from "@/constants/tokensAddress";
 import { initPublicClient } from "@/helpers/chains/initPublicClient";
-import { badRequestListRpc, rpsList } from "@/helpers/connect/rpsList";
+import { badRequestListRpc, rpcList } from "@/helpers/chains/rpcList";
 import { getViemConfigById } from "@/helpers/chains/getChainsInfo";
 
 export const filterRpcUrls = (rpcUrls: string[]) => {
@@ -25,7 +25,7 @@ export const filterRpcUrls = (rpcUrls: string[]) => {
 
 export const createConnectTransport = () => {
   return Object.fromEntries(
-    Object.entries(rpsList).map(([chainId, urls]) => {
+    Object.entries(rpcList).map(([chainId, urls]) => {
       const filteredUrls = filterRpcUrls(urls);
       return [chainId, fallback(filteredUrls.map((url) => http(url)))];
     })

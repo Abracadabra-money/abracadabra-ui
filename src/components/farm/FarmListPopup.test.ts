@@ -3,7 +3,7 @@ import { ethers, providers } from "ethers";
 import { describe, it, expect } from "vitest";
 import { shallowMount } from "@vue/test-utils";
 import FarmListPopup from "@/components/farm/FarmListPopup.vue";
-import { DEFAULT_MAINNET_RPC } from "@/helpers/connect/rpsList";
+import { DEFAULT_MAINNET_RPC } from "@/helpers/chains/rpcList";
 
 const store = new Vuex.Store({
   modules: {
