@@ -17,7 +17,7 @@ const viemConfig = {
   },
 };
 
-const publicClient = initPublicClient(avalanche);
+const publicClient = initPublicClient(viemConfig);
 
 export const avalancheConfig = {
   viemConfig,

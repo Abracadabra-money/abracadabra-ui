@@ -1,8 +1,8 @@
 import { utils } from "ethers";
 import type { Address } from "viem";
 import cauldronsConfig from "@/configs/cauldrons";
+import { getAvailableChainList } from "@/helpers/chains/utils";
 import { getMainParams } from "@/helpers/cauldron/getMainParams";
-import { getAvailableChainList } from "@/helpers/connect/configs";
 import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
 import { getUserPositions } from "@/helpers/cauldron/getUserPositions";
 import type { MainParams, UserPositions } from "@/helpers/cauldron/types";

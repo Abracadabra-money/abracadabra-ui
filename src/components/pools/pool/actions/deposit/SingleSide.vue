@@ -63,7 +63,7 @@ import { approveTokenViem } from "@/helpers/approval";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
-import { switchNetwork } from "@/helpers/connect/switchNetwork";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { actionStatus } from "@/components/pools/pool/PoolActionBlock.vue";
 
 import { addLiquidityOneSideOptimal } from "@/helpers/pools/swap/addLiquidityOneSideOptimal";

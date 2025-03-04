@@ -79,7 +79,7 @@ import { mapActions, mapGetters, mapMutations } from "vuex";
 import ErrorHandler from "@/helpers/errorHandler/ErrorHandler";
 import notification from "@/helpers/notification/notification";
 import type { AprInfo, BSpellInfo } from "@/helpers/bSpell/types";
-import { switchNetwork } from "@/helpers/connect/switchNetwork";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { openConnectPopup } from "@/helpers/connect/utils";
 
 export default {

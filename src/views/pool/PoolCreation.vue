@@ -160,7 +160,7 @@ import type {
   PoolCreationTokenConfig,
   PoolCreationTokenInfo,
 } from "@/configs/pools/poolCreation/types";
-import { switchNetwork } from "@/helpers/connect/switchNetwork";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { approveTokenViem } from "@/helpers/approval";
 import notification from "@/helpers/notification/notification";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError";

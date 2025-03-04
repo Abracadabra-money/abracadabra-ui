@@ -190,7 +190,7 @@ import actions from "@/helpers/stake/spell/actions/";
 import { approveTokenViem } from "@/helpers/approval";
 import { dataRefresher } from "@/helpers/dataRefresher";
 import { mapGetters, mapActions, mapMutations } from "vuex";
-import { switchNetwork } from "@/helpers/connect/switchNetwork";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
 import { getStakeInfo } from "@/helpers/stake/spell/getStakeInfo";
 import { openConnectPopup } from "@/helpers/connect/utils";

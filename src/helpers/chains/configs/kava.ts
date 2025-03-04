@@ -16,7 +16,7 @@ const viemConfig = {
     },
   },
 };
-const publicClient = initPublicClient(kava);
+const publicClient = initPublicClient(viemConfig);
 
 export const kavaConfig = {
   viemConfig,

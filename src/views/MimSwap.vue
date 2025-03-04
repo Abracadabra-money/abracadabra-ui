@@ -126,7 +126,7 @@ import { mapActions, mapGetters, mapMutations } from "vuex";
 import { formatUnits, parseUnits, type Address } from "viem";
 import type { TokenInfo } from "@/helpers/pools/swap/tokens";
 import type { TokenPrice } from "@/helpers/prices/defiLlama";
-import { switchNetwork } from "@/helpers/connect/switchNetwork";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
 import { getAllUniqueTokens } from "@/helpers/pools/swap/tokens";
 import { getTokenListByPools } from "@/helpers/pools/swap/tokens";

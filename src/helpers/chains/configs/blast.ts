@@ -16,7 +16,7 @@ const viemConfig = {
     },
   },
 };
-const publicClient = initPublicClient(blast);
+const publicClient = initPublicClient(viemConfig);
 
 export const blastConfig = {
   viemConfig,

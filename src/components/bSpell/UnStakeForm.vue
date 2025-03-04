@@ -38,7 +38,7 @@ import { unStake } from "@/helpers/bSpell/actions/unStake";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification";
 import ErrorHandler from "@/helpers/errorHandler/ErrorHandler";
-import { switchNetwork } from "@/helpers/connect/switchNetwork";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { openConnectPopup } from "@/helpers/connect/utils";
 
 export default {

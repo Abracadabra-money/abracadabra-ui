@@ -16,7 +16,7 @@ const viemConfig = {
     },
   },
 };
-const publicClient = initPublicClient(bsc);
+const publicClient = initPublicClient(viemConfig);
 
 export const binanceConfig = {
   viemConfig,

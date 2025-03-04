@@ -16,7 +16,7 @@ const viemConfig = {
     },
   },
 };
-const publicClient = initPublicClient(fantom);
+const publicClient = initPublicClient(viemConfig);
 
 export const fantomConfig = {
   viemConfig,

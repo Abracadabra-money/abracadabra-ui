@@ -1,7 +1,7 @@
 // @ts-ignore
 import store from "@/store";
 import { createStorage, getAccount } from "@wagmi/core";
-import { chains } from "@/helpers/connect/configs";
+import { getConnectChains } from "@/helpers/chains/utils";
 import { createConnectors } from "@/helpers/connect/utils";
 import { createConnectTransport } from "@/helpers/connect/utils";
 import { createConfig, watchAccount, watchChainId } from "@wagmi/core";
@@ -9,7 +9,7 @@ import { createOrUpdateConnectionInfo } from "@/helpers/connect/createOrUpdateCo
 import { createOrUpdateWithoutConnectInfo } from "@/helpers/connect/createOrUpdateConnection";
 
 const wagmiConfig = createConfig({
-  chains,
+  chains: getConnectChains(),
   connectors: createConnectors(),
   transports: createConnectTransport(),
   storage: createStorage({ storage: window.localStorage }),

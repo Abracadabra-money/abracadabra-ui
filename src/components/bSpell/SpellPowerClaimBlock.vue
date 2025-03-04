@@ -42,7 +42,7 @@ import ErrorHandler from "@/helpers/errorHandler/ErrorHandler";
 import notification from "@/helpers/notification/notification";
 import { getRewards } from "@/helpers/bSpell/actions/getRewards";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
-import { switchNetwork } from "@/helpers/connect/switchNetwork";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { openConnectPopup } from "@/helpers/connect/utils";
 
 export default {

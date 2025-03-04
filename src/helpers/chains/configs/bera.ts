@@ -1,12 +1,12 @@
 import { useImage } from "@/helpers/useImage";
-import { beraChain } from "@/helpers/connect/configs/beraChain";
+import { berachain } from "@wagmi/core/chains";
 import { getRpcListByChainId } from "@/helpers/chains/utils";
 import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
-const rpcList = getRpcListByChainId(beraChain.id);
+const rpcList = getRpcListByChainId(berachain.id);
 
 const viemConfig = {
-  ...beraChain,
+  ...berachain,
   rpcUrls: {
     public: {
       http: rpcList,
@@ -17,12 +17,12 @@ const viemConfig = {
   },
 };
 
-const publicClient = initPublicClient(beraChain);
+const publicClient = initPublicClient(viemConfig);
 
 export const beraConfig = {
   viemConfig,
   publicClient,
-  chainId: beraChain.id,
+  chainId: berachain.id,
   chainName: "Berachain",
   symbol: "BERA",
   icon: useImage("assets/images/networks/bera.png"),

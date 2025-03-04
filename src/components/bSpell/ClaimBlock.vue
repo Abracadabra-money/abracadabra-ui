@@ -47,7 +47,7 @@ import { mapActions, mapGetters, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification";
 import ErrorHandler from "@/helpers/errorHandler/ErrorHandler";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
-import { switchNetwork } from "@/helpers/connect/switchNetwork";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { openConnectPopup } from "@/helpers/connect/utils";
 
 export default {

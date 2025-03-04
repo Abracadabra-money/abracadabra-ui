@@ -1,4 +1,3 @@
-import { filterRpcUrls } from "@/helpers/connect/utils";
 import { moonriver, base, linea } from "@wagmi/core/chains";
 import { mainnet, arbitrum, blast, kava } from "@wagmi/core/chains";
 import { avalanche, optimism, fantom, bsc, polygon } from "@wagmi/core/chains";

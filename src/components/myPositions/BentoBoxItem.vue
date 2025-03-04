@@ -49,7 +49,7 @@ import mimIcon from "@/assets/images/tokens/MIM.png";
 import bentoIcon from "@/assets/images/bento-box.jpeg";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
-import { switchNetwork } from "@/helpers/connect/switchNetwork";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 
 export default {

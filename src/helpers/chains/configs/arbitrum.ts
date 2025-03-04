@@ -17,7 +17,7 @@ const viemConfig = {
   },
 };
 
-const publicClient = initPublicClient(arbitrum);
+const publicClient = initPublicClient(viemConfig);
 
 export const arbitrumConfig = {
   viemConfig,

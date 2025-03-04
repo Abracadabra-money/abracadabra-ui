@@ -36,7 +36,7 @@ import { defineAsyncComponent } from "vue";
 import { RewardPointsTypes } from "@/configs/pools/types";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification";
-import { switchNetwork } from "@/helpers/connect/switchNetwork";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 import { previewRemoveLiquidity } from "@/helpers/pools/swap/liquidity";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";

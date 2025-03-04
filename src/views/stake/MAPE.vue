@@ -99,7 +99,7 @@ import actions from "@/helpers/stake/magicApe/actions/";
 import { dataRefresher } from "@/helpers/dataRefresher";
 import { openConnectPopup } from "@/helpers/connect/utils";
 import { mapGetters, mapActions, mapMutations } from "vuex";
-import { switchNetwork } from "@/helpers/connect/switchNetwork";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
 import { getStakeInfo } from "@/helpers/stake/magicApe/getStakeInfo";
 import type { MagicApeStakeInfo } from "@/helpers/stake/magicApe/types";

@@ -1,8 +1,8 @@
 // @ts-ignore
 import store from "@/store";
 import { markRaw } from "vue";
-import type { Config } from "@wagmi/core";
 import { getAccount } from "@wagmi/core";
+import type { Config } from "@wagmi/core";
 import { MAINNET_CHAIN_ID } from "@/constants/global";
 import { checkSanctionAddress } from "@/helpers/connect/utils";
 import { commitWalletData, getUserEnsName } from "@/helpers/connect/utils";

@@ -4,7 +4,7 @@ import { getMainParams } from "@/helpers/cauldron/getMainParams";
 import type { MainParams, UserPositions } from "@/helpers/cauldron/types";
 import { getUserPositions } from "@/helpers/cauldron/getUserPositions";
 import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
-import { getAvailableChainList } from "@/helpers/connect/configs";
+import { getAvailableChainList } from "@/helpers/chains/utils";
 
 export type UserOpenPosition = {
   config: CauldronConfig;

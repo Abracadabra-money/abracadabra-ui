@@ -16,7 +16,7 @@ const viemConfig = {
     },
   },
 };
-const publicClient = initPublicClient(polygon);
+const publicClient = initPublicClient(viemConfig);
 
 export const polygonConfig = {
   viemConfig,

@@ -16,7 +16,7 @@ const viemConfig = {
     },
   },
 };
-const publicClient = initPublicClient(optimism);
+const publicClient = initPublicClient(viemConfig);
 
 export const optimismConfig = {
   viemConfig,

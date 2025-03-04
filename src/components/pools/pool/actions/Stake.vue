@@ -35,7 +35,7 @@ import { approveTokenViem } from "@/helpers/approval";
 import { formatTokenBalance } from "@/helpers/filters";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification";
-import { switchNetwork } from "@/helpers/connect/switchNetwork";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { openConnectPopup } from "@/helpers/connect/utils";
 

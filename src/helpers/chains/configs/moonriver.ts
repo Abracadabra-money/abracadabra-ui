@@ -16,7 +16,7 @@ const viemConfig = {
     },
   },
 };
-const publicClient = initPublicClient(moonriver);
+const publicClient = initPublicClient(viemConfig);
 
 export const moonriverConfig = {
   viemConfig,

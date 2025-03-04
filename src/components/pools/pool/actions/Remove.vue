@@ -45,7 +45,7 @@ import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut"
 import { removeLiquidity } from "@/helpers/pools/swap/actions/removeLiquidity";
 import { removeLiquidityOneSide } from "@/helpers/pools/swap/actions/removeLiquidityOneSide";
 import { formatTokenBalance } from "@/helpers/filters";
-import { switchNetwork } from "@/helpers/connect/switchNetwork";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { openConnectPopup } from "@/helpers/connect/utils";
 
 export default {

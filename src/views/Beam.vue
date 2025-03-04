@@ -163,7 +163,7 @@ import { getBeamInfo } from "@/helpers/beam/getBeamInfo";
 import { Options } from "@layerzerolabs/lz-v2-utilities";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification";
-import { switchNetwork } from "@/helpers/connect/switchNetwork";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { quoteSendFee } from "@/helpers/beam/getEstimateSendFee";
 import { getBeamChainInfo } from "@/helpers/beam/getBeamChainInfo";
 import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFee";

@@ -3,31 +3,35 @@ import store from "@/store";
 import { providers } from "ethers";
 import type { Address } from "viem";
 import type { Config } from "@wagmi/core";
-import { getAccountHelper } from "@/helpers/walletClienHelper";
 // @ts-ignore
 import { sanctionAbi } from "@/abis/sanctionAbi";
 import { walletConnect } from "@wagmi/connectors";
+import { rpcList } from "@/helpers/chains/rpcList";
 import { MAINNET_CHAIN_ID } from "@/constants/global";
+import { filterRpcUrls } from "@/helpers/chains/utils";
 import { fallback, getEnsName, http } from "@wagmi/core";
+import { getAccountHelper } from "@/helpers/walletClienHelper";
 import notification from "@/helpers/notification/notification";
 import { DEFAULT_MAINNET_RPC } from "@/helpers/chains/rpcList";
 import { SANCTIONS_LIST_ADDRESS } from "@/constants/tokensAddress";
-import { initPublicClient } from "@/helpers/chains/initPublicClient";
-import { badRequestListRpc, rpcList } from "@/helpers/chains/rpcList";
 import { getViemConfigById } from "@/helpers/chains/getChainsInfo";
-
-export const filterRpcUrls = (rpcUrls: string[]) => {
-  const uniqueRpcUrls = new Set(rpcUrls);
-  return Array.from(uniqueRpcUrls).filter(
-    (rpc) => !badRequestListRpc.includes(rpc)
-  );
-};
+import { initPublicClient } from "@/helpers/chains/initPublicClient";
 
 export const createConnectTransport = () => {
   return Object.fromEntries(
     Object.entries(rpcList).map(([chainId, urls]) => {
       const filteredUrls = filterRpcUrls(urls);
-      return [chainId, fallback(filteredUrls.map((url) => http(url)))];
+      return [
+        chainId,
+        fallback(
+          filteredUrls.map((url) => http(url)),
+          {
+            rank: false,
+            retryCount: 0,
+            retryDelay: 1000000,
+          }
+        ),
+      ];
     })
   );
 };

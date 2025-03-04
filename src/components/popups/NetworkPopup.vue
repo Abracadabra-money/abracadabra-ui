@@ -38,7 +38,7 @@
 
 <script>
 import { defineAsyncComponent } from "vue";
-import { switchNetwork } from "@/helpers/connect/switchNetwork";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
 
 export default {
   props: {

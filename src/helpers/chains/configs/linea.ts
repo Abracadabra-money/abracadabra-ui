@@ -16,7 +16,7 @@ const viemConfig = {
     },
   },
 };
-const publicClient = initPublicClient(linea);
+const publicClient = initPublicClient(viemConfig);
 
 export const lineaConfig = {
   viemConfig,
