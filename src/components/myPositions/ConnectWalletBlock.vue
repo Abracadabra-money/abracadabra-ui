@@ -15,12 +15,12 @@
 
 <script lang="ts">
 import BaseButton from "@/components/base/BaseButton.vue";
+import { openConnectPopup } from "@/helpers/connect/utils";
 
 export default {
   methods: {
     connectWallet() {
-      //@ts-ignore
-      this.$openWeb3modal();
+      return openConnectPopup();
     },
   },
 

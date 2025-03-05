@@ -1,17 +1,11 @@
 import { arbitrum } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
-import { filterRpcUrls } from "@/helpers/chains/utils";
+import { getRpcListByChainId } from "@/helpers/chains/utils";
 import { initPublicClient } from "@/helpers/chains/initPublicClient";
-import { initStaticJsonRpcProvider } from "@/helpers/chains/initStaticJsonRpcProvider";
 
-const rpcList = filterRpcUrls(arbitrum, [
-  "https://arbitrum.llamarpc.com",
-  "https://1rpc.io/arb",
-  "https://arbitrum-one.public.blastapi.io",
-  "https://arbitrum.meowrpc.com",
-]);
+const rpcList = getRpcListByChainId(arbitrum.id);
 
-const viiemConfig = {
+const viemConfig = {
   ...arbitrum,
   rpcUrls: {
     public: {
@@ -23,13 +17,11 @@ const viiemConfig = {
   },
 };
 
-const publicClient = initPublicClient(viiemConfig);
-const ethersProvider = await initStaticJsonRpcProvider(arbitrum.id);
+const publicClient = initPublicClient(viemConfig);
 
 export const arbitrumConfig = {
+  viemConfig,
   publicClient,
-  ethersProvider,
-  viemConfig: viiemConfig,
   chainId: arbitrum.id,
   chainName: "Arbitrum",
   symbol: "AETH",

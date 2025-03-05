@@ -23,6 +23,9 @@ export const BLAST_CHAIN_ID = 81457;
 export const BASE_CHAIN_ID = 8453;
 export const LINEA_CHAIN_ID = 59144;
 export const BERA_CHAIN_ID = 80094;
+export const FANTOM_CHAIN_ID = 250;
+export const MOONRIVER_CHAIN_ID = 1285;
+export const POLIGON_CHAIN_ID = 137;
 
 export const MAX_ALLOWANCE_VALUE: any =
   "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
