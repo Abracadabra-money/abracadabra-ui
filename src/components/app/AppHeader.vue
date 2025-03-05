@@ -227,6 +227,7 @@ export default {
   }
 
   .user-actions {
+    gap: 12px;
     margin-left: auto;
 
     &::v-deep(.chain-button) {

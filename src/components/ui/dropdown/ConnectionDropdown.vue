@@ -9,7 +9,7 @@
       :class="{ 'active-dropdown': showDropdownList }"
       @click="toggleDropdown"
     >
-      <ConnectButton class="dropdown-title" />
+      <ConnectButton class="dropdown-title" isHide />
 
       <svg
         class="arrow"
@@ -31,25 +31,30 @@
 
     <TransitionWrapper animation-type="roll">
       <ul class="list" ref="dropdownList" v-show="showDropdownList">
-        <!-- <li class="list-item copy" @click="copyingHandler">
-          <img class="user-icon" src="@/assets/images/wallets/userIcon.svg" />
+        <li class="list-item copy" @click="copyingHandler">
+          <div class="account-image-wrap">
+            <img
+              class="user-icon"
+              src="@/assets/images/header/account-image.png"
+            />
+          </div>
           {{ buttonText }}
 
-          <img class="copy-icon" src="@/assets/images/copy-icon.svg" />
-        </li> -->
-
-        <li class="list-item" @click="disconnectHandler">
-          <!-- <img
-            class="disconnect-icon"
-            src="@/assets/images/disconnect-icon.svg"
-          /> -->
-          Disconnnect wallet
+          <img class="copy-icon" src="@/assets/images/connect/copy-icon.svg" />
         </li>
 
-        <!-- <a class="list-item" :href="scanLink" target="_blank">
-          <img class="link-icon" src="@/assets/images/link-icon.svg" />
+        <li class="list-item" @click="disconnectHandler">
+          Disconnnect wallet
+          <img
+            class="disconnect-icon"
+            src="@/assets/images/connect/disconnnect-icon.svg"
+          />
+        </li>
+
+        <a class="list-item" :href="scanLink" target="_blank">
           View on Explorer
-        </a> -->
+          <img class="link-icon" src="@/assets/images/connect/link-icon.svg" />
+        </a>
       </ul>
     </TransitionWrapper>
   </div>
@@ -60,6 +65,7 @@ import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
 import { adjustDropdownPosition } from "@/helpers/dropdown";
 import { disconnectHelper } from "@/helpers/walletClienHelper";
+import { getViemConfigById } from "@/helpers/chains/getChainsInfo";
 
 export default {
   data() {
@@ -72,16 +78,19 @@ export default {
   computed: {
     ...mapGetters({
       account: "getAccount",
+      chainId: "getChainId",
     }),
 
     buttonText() {
+      if (!this.account) return "Connect wallet";
       return this.isCopied
         ? "Copied"
         : `${this.account.slice(0, 5)}...${this.account.slice(-4)}`;
     },
 
     scanLink() {
-      return `https://arbiscan.io/address/${this.account}`;
+      const chainConfig = getViemConfigById(this.chainId);
+      return `${chainConfig.blockExplorers.default.url}/address/${this.account}`;
     },
   },
 
@@ -173,17 +182,19 @@ export default {
 .list {
   position: absolute;
   top: calc(100% + 12.5px);
+  right: 0;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  width: 100%;
-  padding: 11px 13px;
+  padding: 16px;
   gap: 16px;
   border-radius: 12px;
   background: #fff;
-  background: #0d1425;
-  box-shadow: 0px 4px 14.1px 0px rgba(0, 0, 0, 0.1);
+  background: #101622;
+  box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
+  backdrop-filter: blur(12.5px);
   overflow-y: hidden;
+  width: 233px;
 }
 
 .list-item {
@@ -191,11 +202,12 @@ export default {
   align-items: center;
   gap: 4px;
   width: 100%;
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 20.5px;
-  color: #fff;
   transition: all 0.3s;
+  color: #fff;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 22px;
 }
 
 .list-item:not(.copy):hover {
@@ -204,23 +216,57 @@ export default {
 
 .copy {
   gap: 6px;
-  padding: 0 0 8px 0;
-  border-bottom: 1px solid #0000001f;
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 20.5px;
+  color: var(--ffffff, #fff);
+  font-family: Poppins;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 22px; /* 157.143% */
+}
+
+.account-image-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 100%;
+  height: 100%;
+  padding: 0px 9px;
+  border-radius: 32px;
+  background: rgba(255, 255, 255, 0.06);
+  height: 24px;
+  width: 24px;
+  border-radius: 32px;
+}
+
+.user-icon {
+  width: 14px;
+  height: 14px;
+  border-radius: 32px;
 }
 
 .copy-icon {
+  width: 20px;
+  height: 20px;
   margin: 0 0 0 auto;
-}
-
-.copy-icon:hover {
-  margin: 0 0 0 auto;
-  cursor: pointer;
 }
 
 .active .arrow {
   transform: rotate(180deg);
+}
+
+.disconnect-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.link-icon {
+  width: 20px;
+  height: 20px;
+}
+
+@media screen and (max-width: 600px) {
+  .list {
+    left: -10px !important;
+  }
 }
 </style>

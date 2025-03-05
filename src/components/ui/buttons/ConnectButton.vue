@@ -18,7 +18,7 @@
         src="@/assets/images/header/connect-wallet-icon.svg"
       />
     </div>
-    <span class="btn-text">
+    <span :class="['btn-text', { 'hide-btn-text': isHide }]">
       {{ walletBtnText }}
     </span>
   </button>
@@ -29,6 +29,13 @@ import { mapGetters } from "vuex";
 import { openConnectPopup } from "@/helpers/connect/utils";
 
 export default {
+  props: {
+    isHide: {
+      type: Boolean,
+      default: false,
+    },
+  },
+
   computed: {
     ...mapGetters({
       chainId: "getChainId",
@@ -116,16 +123,6 @@ export default {
   cursor: pointer;
 }
 
-// .connect-btn:hover {
-//   background: rgba(255, 255, 255, 0.06);
-//   backdrop-filter: blur(20px);
-// }
-
-// .connected {
-//   border-radius: 8px;
-//   background: rgba(111, 111, 111, 0.06);
-// }
-
 .account-image-wrap {
   display: flex;
   justify-content: center;
@@ -150,6 +147,10 @@ export default {
 @media (max-width: 1200px) {
   .wallet-icon {
     display: flex;
+  }
+
+  .hide-btn-text {
+    display: none;
   }
 }
 
