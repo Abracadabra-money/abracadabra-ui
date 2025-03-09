@@ -76,7 +76,8 @@ const getRewardTokensInfo = async (
   if (tokensPrices) {
     rewardTokensPrices = tokensPrices.filter(({ address }) =>
       rewardTokens.some(
-        (token: TokenConfig) => token.contract.address === address
+        (token: TokenConfig) =>
+          token.contract.address.toLowerCase() === address.toLowerCase()
       )
     );
   } else {

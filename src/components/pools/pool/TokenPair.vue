@@ -38,7 +38,7 @@ import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 
 const quoteTokenOffsetCoefficient = 3.5;
-const borderRadiusCoefficient = 2.5;
+const borderRadiusCoefficient = 3;
 
 export default {
   props: {

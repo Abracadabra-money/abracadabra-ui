@@ -168,12 +168,14 @@ export const getLpInfo = async (
 
   const baseTokenPrice =
     tokensPrices.find(
-      ({ address }) => address === lp.baseToken.contract.address
+      ({ address }) =>
+        address.toLowerCase() === lp.baseToken.contract.address.toLowerCase()
     )?.price || 0;
 
   const quoteTokenPrice =
     tokensPrices.find(
-      ({ address }) => address === lp.quoteToken.contract.address
+      ({ address }) =>
+        address.toLowerCase() === lp.quoteToken.contract.address.toLowerCase()
     )?.price || 0;
 
   return {

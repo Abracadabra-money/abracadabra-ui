@@ -61,23 +61,23 @@ const coingeckoNativeTokensIds = {
 const coingeckoCoinsIds = [
   {
     id: "magic-internet-money",
-    addresses: ["0x76DA31D7C9CbEAE102aff34D3398bC450c8374c1"],
+    addresses: ["0x76DA31D7C9CbEAE102aff34D3398bC450c8374c1".toLowerCase()],
   },
   {
     id: "magic-internet-money",
-    addresses: ["0x471EE749bA270eb4c1165B5AD95E614947f6fCeb"],
+    addresses: ["0x471EE749bA270eb4c1165B5AD95E614947f6fCeb".toLowerCase()],
   },
   {
     id: "magic-internet-money",
-    addresses: ["0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A"],
+    addresses: ["0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A".toLowerCase()],
   },
   {
     id: "spell-token",
-    addresses: ["0x55be39c912621606683dee44c4ab2dde083bc925"],
+    addresses: ["0x55be39c912621606683dee44c4ab2dde083bc925".toLowerCase()],
   },
   {
     id: "spell-token",
-    addresses: ["0xd621b380daf82566b9d41ab71f29d5140a7595fa"],
+    addresses: ["0xd621b380daf82566b9d41ab71f29d5140a7595fa".toLowerCase()],
   },
 ];
 
@@ -110,7 +110,9 @@ export const getCoinsPrices = async (
   chainId: number,
   coins: Address[]
 ): Promise<TokenPrice[]> => {
-  const coinsString = getParsedRequestString(chainId, coins);
+  const preparedCoins = prepareCoinsArray(coins);
+
+  const coinsString = getParsedRequestString(chainId, preparedCoins);
 
   const finalUrl = `${domain}/prices/current/${coinsString}`;
 
@@ -118,7 +120,8 @@ export const getCoinsPrices = async (
     const response = await axios.get(finalUrl);
     const data: DefiLlamaPricesResponse | DefiLlamaPricesEmptyResponse =
       response.data;
-    const prices = parseResult(data, coins, chainId);
+    const prices = parseResult(data, preparedCoins, chainId);
+
     return prices;
   } catch (error) {
     console.log("getCoinsPrices error", error);
@@ -185,4 +188,14 @@ const parseResult = (
   });
 
   return prices;
+};
+
+const prepareCoinsArray = (coins: Address[]) => {
+  const formattedLowerCaseCoins = coins.map(
+    (coin) => coin.toLowerCase() as Address
+  );
+  const filteredDublicates = Array.from(
+    new Set(formattedLowerCaseCoins).values()
+  );
+  return filteredDublicates;
 };

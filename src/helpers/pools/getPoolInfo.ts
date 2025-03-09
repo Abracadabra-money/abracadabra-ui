@@ -50,7 +50,6 @@ export const getPoolInfo = async (
     poolInfo.stakeContract = poolConfig.lockContract;
   }
 
-
   if (poolConfig.stakeContract)
     poolInfo.poolAPR = await getPoolApr(poolChainId, poolInfo, tokensPrices);
 
@@ -73,8 +72,10 @@ const getTokensInfo = async (
 ) => {
   const compoundTokensPrices = tokensPrices.filter(
     ({ address }) =>
-      address === poolConfig.baseToken.contract.address ||
-      address === poolConfig.quoteToken.contract.address
+      address.toLowerCase() ===
+        poolConfig.baseToken.contract.address.toLowerCase() ||
+      address.toLowerCase() ===
+        poolConfig.quoteToken.contract.address.toLowerCase()
   );
 
   const tokens = await getPoolTokenInfo(
@@ -215,7 +216,7 @@ export const parseLockAsStake = (lockInfo: any) => {
     earned: 0,
     earnedInfo: [],
   };
-}
+};
 
 export const getUserLocks = async (
   account: Address,
