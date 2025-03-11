@@ -32,38 +32,13 @@
 </template>
 
 <script>
-import axios from "axios";
 import { defineAsyncComponent } from "vue";
 import { useAnimation } from "@/helpers/useAnimation/useAnimation";
+import { checkLocation } from "@/helpers/useLocation";
 
 export default {
   data() {
-    return {
-      country: [
-        "United States",
-        "Myanmar [Burma]",
-        "Ivory Coast",
-        "Cuba",
-        "Congo",
-        "Iran",
-        "Iraq",
-        "Libya",
-        "Mali",
-        "Nicaragua",
-        "North Korea",
-        "Somalia",
-        "Sudan",
-        "Syria",
-        "Yemen",
-        "Zimbabwe",
-      ],
-      region: [
-        "Crimea",
-        "Republic of Crimea",
-        "Bakhchysarai Raion",
-        "Sevastopol",
-      ],
-    };
+    return {};
   },
 
   methods: {
@@ -71,27 +46,9 @@ export default {
   },
 
   async beforeCreate() {
-    try {
-      const location = await axios.get(
-        `https://ipwhois.pro/?key=${
-          import.meta.env.VITE_APP_IPWHOIS_API_KEY
-        }&security=1`
-      );
-
-      if (!location.data.success)
-        throw new Error(
-          `Location fetching unsuccessful: ${location.data.message}`
-        );
-
-      // const isVPN = location.data.security?.vpn;
-
-      if (
-        this.country.includes(location.data.country) ||
-        this.region.includes(location.data.region)
-      )
-        document.location.href = "https://abracadabra.money/location";
-    } catch (error) {
-      console.log("VPN", error);
+    const isRestricted = await checkLocation();
+    if (isRestricted) {
+      document.location.href = "https://abracadabra.money/location";
     }
   },
 
