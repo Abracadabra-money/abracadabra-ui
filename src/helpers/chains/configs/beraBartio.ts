@@ -3,7 +3,11 @@ import { BERA_BARTIO_CHAIN_ID } from "@/constants/global";
 import { initPublicClient } from "@/helpers/chains/initPublicClient";
 import { initStaticJsonRpcProvider } from "@/helpers/chains/initStaticJsonRpcProvider";
 
-const rpcList = ["https://bartio.rpc.berachain.com/"];
+const rpcList = [
+  "https://berat2.lava.build",
+  "https://berachain-testnet-rpc.publicnode.com",
+  "https://bartio.rpc.berachain.com/",
+];
 
 const viemConfig = {
   id: BERA_BARTIO_CHAIN_ID,
