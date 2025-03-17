@@ -10,7 +10,7 @@ import blastCauldrons from "@/configs/cauldrons/blastCauldrons";
 
 export default [
   ...ethereumCauldrons,
-  ...fantomCauldrons,
+  // ...fantomCauldrons,
   ...avalancheCauldrons,
   ...arbitrumCauldrons,
   ...bscCauldrons,
