@@ -55,6 +55,7 @@ import USD0pp from "@/abis/tokensAbi/USD0pp";
 import ZRO from "@/abis/tokensAbi/ZRO";
 import ENA from "@/abis/tokensAbi/ENA";
 import bSPELL from "@/abis/tokensAbi/bSPELL";
+import BexWeightedPool from "@/abis/tokensAbi/WeightedPool";
 
 export default {
   ALCX,
@@ -114,4 +115,5 @@ export default {
   ZRO,
   ENA,
   bSPELL,
+  BexWeightedPool,
 };
