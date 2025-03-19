@@ -111,6 +111,7 @@ const config: Array<CauldronConfig> = [
         ],
       },
       isBeraDesign: true,
+      isBeraBex: true,
       isNew: true,
       weight: 4
     },
@@ -178,6 +179,7 @@ const config: Array<CauldronConfig> = [
         ],
       },
       isBeraDesign: true,
+      isBeraBex: true,
       isNew: true,
       weight: 4
     },

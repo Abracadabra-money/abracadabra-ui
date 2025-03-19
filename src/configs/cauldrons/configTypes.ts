@@ -41,6 +41,7 @@ type CauldronSettings = {
   isBeraDesign?: boolean;
   weight?: number;
   isMimHoney?: boolean // TODO: use cauldronType: string instead of individual keys
+  isBeraBex?: boolean;
 };
 
 type PythOracleInfo = {

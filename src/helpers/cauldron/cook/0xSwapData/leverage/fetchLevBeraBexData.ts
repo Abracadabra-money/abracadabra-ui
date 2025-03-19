@@ -5,23 +5,23 @@ import { encodeAbiParameters, type Address } from "viem";
 import { swapOogaBoogaRequest } from "@/helpers/oogaBooga";
 import { computeBexAddLiquidityProportion } from "@/helpers/bera/computeBexAddLiquidityProportion";
 
-const swapDataAbi = {
-  components: [
-    {
-      name: "to",
-      type: "address",
-    },
-    {
-      name: "swapData",
-      type: "bytes",
-    },
-  ],
-  name: "SwapInfo",
-  type: "tuple",
-} as const;
+// const swapDataAbi = {
+//   components: [
+//     {
+//       name: "to",
+//       type: "address",
+//     },
+//     {
+//       name: "swapData",
+//       type: "bytes",
+//     },
+//   ],
+//   name: "SwapInfo",
+//   type: "tuple",
+// } as const;
 
 // return swapData bytes
-const fetchLevMimHoneyData = async (
+const fetchLevBeraBexData = async (
   cauldronObject: CauldronInfo,
   amount: BigNumber,
   slippage: number
@@ -54,14 +54,15 @@ const fetchLevMimHoneyData = async (
   );
 
   const swapData = encodeAbiParameters(
-    [swapDataAbi, swapDataAbi],
+    [["address", "address"], ["bytes", "bytes"]],
+    //@ts-ignore
     [
-      { to: token0SwapResult!.to, swapData: token0SwapResult!.data },
-      { to: token1SwapResult!.to, swapData: token1SwapResult!.data },
+      [token0SwapResult!.to, token1SwapResult!.to],
+      [token0SwapResult!.data, token1SwapResult!.data],
     ]
   );
 
   return swapData;
 };
 
-export default fetchLevMimHoneyData;
+export default fetchLevBeraBexData;

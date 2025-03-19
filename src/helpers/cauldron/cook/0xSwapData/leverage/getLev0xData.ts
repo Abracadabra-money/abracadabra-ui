@@ -5,6 +5,7 @@ import { fetchLevOdosData } from "./fetchLevOdosData";
 import getVelodrome0xData from "./getVelodrome0xData";
 import fetchLevSdeusdSwapData from "./fetchLevSdeusdSwapData";
 import fetchLevMimHoneyData from "./fetchLevMimHoneyData";
+import fetchLevBeraBexData from "./fetchLevBeraBexData";
 
 const apeAddress = "0x4d224452801ACEd8B2F0aebE155379bb5D594381";
 const usdtAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
@@ -27,7 +28,8 @@ const getLev0xData = async (
     isCvx3pool,
     iStdeUSD,
     isUSD0,
-    isMimHoney
+    isMimHoney,
+    isBeraBex,
   } = cauldronObject.config.cauldronSettings;
 
   if (isVelodrome) return getVelodrome0xData();
@@ -76,8 +78,12 @@ const getLev0xData = async (
     );
   }
 
-  if(isMimHoney) {
-    return fetchLevMimHoneyData(cauldronObject, amount, slipage)
+  if (isMimHoney) {
+    return fetchLevMimHoneyData(cauldronObject, amount, slipage);
+  }
+
+  if (isBeraBex) {
+    return fetchLevBeraBexData(cauldronObject, amount, slipage);
   }
 
   return await fetchLev0xData(cauldronObject, amount, slipage);

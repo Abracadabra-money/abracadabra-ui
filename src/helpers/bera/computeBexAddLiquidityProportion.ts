@@ -52,6 +52,7 @@ export const computeBexAddLiquidityProportion = async (
   const poolTokensInfo = await publicClient.readContract({
     ...vaultContractInfo,
     functionName: "getPoolTokens",
+    //@ts-ignore
     args: [poolId.result],
   });
 
@@ -108,7 +109,7 @@ export const computeBexAddLiquidityProportion = async (
     token1ProportionAmount,
   };
 
-  console.log("[computeAddLiquidityProporti n] results: ", {
+  console.log("[computeBexAddLiquidityProportion] results: ", {
     token0Info,
     token1Info,
     token0ProportionPercent,
