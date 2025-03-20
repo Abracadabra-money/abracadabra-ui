@@ -135,6 +135,7 @@ export default {
       if (this.isClose) paylod.push(0, undefined, this.amount);
       else paylod.push(this.amount);
 
+      // @ts-ignore
       const { price }: any = await swap0xRequest(...paylod);
 
       this.isProfit = this.isClose ? price <= 1 : price >= 1;

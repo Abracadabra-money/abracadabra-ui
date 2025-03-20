@@ -45,6 +45,7 @@ export const fetchLev0xDataV2 = async (
     leverageSwapper!.address
   );
 
+  // @ts-ignore
   return swapResponse;
 };
 

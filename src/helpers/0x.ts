@@ -1,6 +1,7 @@
-import { BigNumber, utils } from "ethers";
 import axios from "axios";
+import type { Address } from "viem";
 import rateLimit from "axios-rate-limit";
+import { BigNumber, utils } from "ethers";
 
 // rate limit to avoid 429 error
 const http = rateLimit(axios.create(), {
@@ -22,21 +23,22 @@ const endpoints = {
   43114: "https://avalanche.api.0x.org",
 };
 
-const SWAP_PROXY_ENDPOINT = "https://api.0xdreamy.dev/functions/v1/zeroex/swap/allowance-holder/quote";
+const SWAP_PROXY_ENDPOINT =
+  "https://api.0xdreamy.dev/functions/v1/zeroex/swap/allowance-holder/quote";
 
 export const swap0xRequest = async (
-  chainId,
-  buyToken,
-  sellToken,
+  chainId: number | string,
+  buyToken: Address | string,
+  sellToken: Address | string,
   slippage = 0,
   amountSell = 0,
-  takerAddress,
+  takerAddress: Address | string,
   amountBuy = 0
 ) => {
   try {
     const slippagePercentage = slippage / 100;
 
-    const endpoint = endpoints[chainId];
+    const endpoint = endpoints[chainId as keyof typeof endpoints];
 
     let params;
 
@@ -100,18 +102,33 @@ export const swap0xRequest = async (
   }
 };
 
+export type Swap0xV2Response = {
+  buyAmount: BigNumber;
+  buyAmountWithSlippage: BigNumber;
+  buyToken: Address | string;
+  data: Address;
+  response: any;
+  sellAmount: BigNumber;
+  sellAmountWithSlippage: BigNumber;
+  sellToken: Address | string;
+  to: Address;
+};
+
 export const swap0xRequestV2 = async (
-  chainId,
-  buyToken,
-  sellToken,
+  chainId: number | string,
+  buyToken: Address | string,
+  sellToken: Address | string,
   slippage = 0,
   amountSell = 0,
-  takerAddress,
+  takerAddress: Address | string,
   amountBuy = 0
-) => {
+): Promise<Swap0xV2Response> => {
   try {
-    const slippageBN = utils.parseUnits(slippage, SLIPPAGE_DECIMALS);
-    const slippagePercentage = utils.formatUnits(slippageBN.div(100), SLIPPAGE_DECIMALS);
+    const slippageBN = utils.parseUnits(slippage.toString(), SLIPPAGE_DECIMALS);
+    const slippagePercentage = utils.formatUnits(
+      slippageBN.div(100),
+      SLIPPAGE_DECIMALS
+    );
 
     let params;
 
@@ -139,16 +156,13 @@ export const swap0xRequestV2 = async (
       };
     }
 
-    const response = await http.get(
-      SWAP_PROXY_ENDPOINT,
-      {
-        params: params,
-        headers: {
-          // "0x-api-key": import.meta.env.VITE_APP_0X_API_KEY,
-          // "0x-version": "v2",
-        },
-      }
-    );
+    const response = await http.get(SWAP_PROXY_ENDPOINT, {
+      params: params,
+      headers: {
+        // "0x-api-key": import.meta.env.VITE_APP_0X_API_KEY,
+        // "0x-version": "v2",
+      },
+    });
 
     const { transaction, buyAmount, sellAmount } = response.data;
 
@@ -163,20 +177,20 @@ export const swap0xRequestV2 = async (
       buyAmountWithSlippage: BigNumber.from(buyAmount)
         .mul(
           BigNumber.from(
-            SLIPPAGE_ACCURACY - slippagePercentage * SLIPPAGE_ACCURACY
+            SLIPPAGE_ACCURACY - Number(slippagePercentage) * SLIPPAGE_ACCURACY
           )
         )
         .div(BigNumber.from(SLIPPAGE_ACCURACY)),
       sellAmountWithSlippage: BigNumber.from(sellAmount)
         .mul(
           BigNumber.from(
-            SLIPPAGE_ACCURACY - slippagePercentage * SLIPPAGE_ACCURACY
+            SLIPPAGE_ACCURACY - Number(slippagePercentage) * SLIPPAGE_ACCURACY
           )
         )
         .div(BigNumber.from(SLIPPAGE_ACCURACY)),
     };
   } catch (error) {
-    console.log("swap0xRequest error:", error);
-    return error;
+    console.log("swap0xV2Request error:", error);
+    throw new Error(`${error}`);
   }
 };
