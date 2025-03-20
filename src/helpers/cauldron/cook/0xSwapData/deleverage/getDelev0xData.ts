@@ -1,5 +1,4 @@
 import getDelevVelodrome0xData from "./getDelevVelodrome0xData";
-import fetchDelevDefault0xData from "./fetchDelevDefault0xData";
 import fetchDelevMagicApe0xData from "./fetchDelevMagicApe0xData";
 import fetchDelevMagicGlp0xData from "./fetchDelevMagicGlp0xData";
 import fetchDelevStargateUSDT0xData from "./fetchDelevStargateUSDT0xData";
@@ -8,10 +7,11 @@ import fetchCvx3pool0xData from "./fetchCvx3pool";
 import fetchCvxTricrypto0xData from "./fetchCvxTricrypto0xData";
 import getDeUsd0xData from "./fetchDeUSD0xData";
 import fetchUSD0ppOdosData from "./fetchUSD0ppOdosData";
-
+import { fetchDelevDefault0xV2Data } from "@/helpers/cauldron/cook/0xSwapData/deleverage/fetchDelevDefault0xData";
+import fetchDelevDefault0xData from "@/helpers/cauldron/cook/0xSwapData/deleverage/fetchDelevDefault0xData";
 import type { CauldronInfo } from "@/helpers/cauldron/types";
 import type { BigNumber } from "ethers";
-import type { Address } from "viem";
+import { encodeAbiParameters, type Address } from "viem";
 
 const getDelev0xData = async (
   cauldronObject: CauldronInfo,
@@ -79,10 +79,26 @@ const getDelev0xData = async (
     return await fetchUSD0ppOdosData(cauldronObject, collateralAmount, slipage);
   }
 
-  return await fetchDelevDefault0xData(
+  // return await fetchDelevDefault0xData(
+  //   cauldronObject,
+  //   collateralAmount,
+  //   slipage
+  // );
+
+  const swapResponseData = await fetchDelevDefault0xV2Data(
     cauldronObject,
     collateralAmount,
     slipage
+  );
+
+  console.log("swapResponseData", swapResponseData);
+
+  return encodeAbiParameters(
+    [
+      { name: "to", type: "address" },
+      { name: "swapData", type: "bytes" },
+    ],
+    [swapResponseData.to, swapResponseData.data]
   );
 };
 

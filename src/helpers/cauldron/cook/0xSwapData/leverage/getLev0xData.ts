@@ -80,7 +80,17 @@ const getLev0xData = async (
     );
   }
 
-  return await fetchLev0xData(cauldronObject, amount, slipage);
+  //   return await fetchLev0xData(cauldronObject, amount, slipage);
+
+  const swapResponse = await fetchLev0xV2Data(cauldronObject, amount, slipage);
+
+  return encodeAbiParameters(
+    [
+      { name: "to", type: "address" },
+      { name: "swapData", type: "bytes" },
+    ],
+    [swapResponse.to, swapResponse.data]
+  );
 };
 
 export default getLev0xData;
