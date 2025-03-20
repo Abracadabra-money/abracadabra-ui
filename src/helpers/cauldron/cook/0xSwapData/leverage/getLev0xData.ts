@@ -1,16 +1,15 @@
 import { utils } from "ethers";
-import { fetchLev0xData, fetchLev0xDataV2 } from "./fetchLev0xData";
-import { fetchLevOdosData } from "./fetchLevOdosData";
-
-import getVelodrome0xData from "./getVelodrome0xData";
-import fetchLevSdeusdSwapData from "./fetchLevSdeusdSwapData";
+import type { BigNumber } from "ethers";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
+import { fetchLev0xData } from "@/helpers/cauldron/cook/0xSwapData/leverage/fetchLev0xData";
+import { fetchLevOdosData } from "@/helpers/cauldron/cook/0xSwapData/leverage/fetchLevOdosData";
+import getVelodrome0xData from "@/helpers/cauldron/cook/0xSwapData/leverage/getVelodrome0xData";
+import fetchLevSdeusdSwapData from "@/helpers/cauldron/cook/0xSwapData/leverage/fetchLevSdeusdSwapData";
+import { fetchLevCvxTricryptoSwapData } from "@/helpers/cauldron/cook/0xSwapData/leverage/fetchLevCvxTricryptoSwapData";
 
 const apeAddress = "0x4d224452801ACEd8B2F0aebE155379bb5D594381";
 const usdtAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
 const wethAddress = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
-
-import type { CauldronInfo } from "@/helpers/cauldron/types";
-import type { BigNumber } from "ethers";
 
 const getLev0xData = async (
   cauldronObject: CauldronInfo,
@@ -43,7 +42,10 @@ const getLev0xData = async (
     return await fetchLevSdeusdSwapData(cauldronObject, amount, slipage);
   }
 
-  if (isCvxTricrypto || isCvx3pool) {
+  if (isCvxTricrypto)
+    return await fetchLevCvxTricryptoSwapData(cauldronObject, amount, slipage);
+
+  if (isCvx3pool) {
     const swapResponseData = await fetchLev0xData(
       cauldronObject,
       amount,

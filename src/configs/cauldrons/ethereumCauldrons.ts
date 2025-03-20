@@ -610,11 +610,11 @@ const config: Array<CauldronConfig> = [
     },
     mimInfo,
     leverageInfo: {
-      address: "0x69D8fbD1343a7f9BF4216B9e7f09b38Bb9B26027",
+      address: "0x9B27081B3D5F0229356E4c8D2bc8FF7ffAC21673",
       abi: ConvexWrapperLevSwapper,
     },
     deleverageInfo: {
-      address: "0xB77f57FE82CDddB5d02bb0E32e70bee75Abb511a",
+      address: "0x9227B5d7a0edb837aa9AeEeB15aF06ee03182367",
       abi: ConvexWrapperSwapper,
     },
   },
