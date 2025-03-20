@@ -5,7 +5,7 @@ import { fetchLev0xV2Data } from "@/helpers/cauldron/cook/0xSwapData/leverage/fe
 
 const usdtAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
 
-export const fetchLevCvxTricryptoSwapData = async (
+export const fetchLevCvx3poolSwapData = async (
   cauldronObject: CauldronInfo,
   collateralAmount: BigNumber,
   slipage: number
@@ -17,7 +17,9 @@ export const fetchLevCvxTricryptoSwapData = async (
     usdtAddress
   );
 
-  const poolIndex = 0n;
+  console.log("swapResponseData", swapResponseData);
+
+  const poolIndex = 2n;
 
   return encodeAbiParameters(
     [
