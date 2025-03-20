@@ -1,5 +1,6 @@
 import type { Address } from "viem";
 import type { BigNumber } from "ethers";
+import { encodeAbiParameters } from "viem";
 import type { CauldronInfo } from "@/helpers/cauldron/types";
 import { swap0xRequest, swap0xRequestV2 } from "@/helpers/0x";
 
@@ -47,6 +48,28 @@ export const fetchLev0xDataV2 = async (
 
   // @ts-ignore
   return swapResponse;
+};
+
+export const fetchAndEncodeLev0xDataV2 = async (
+  cauldronObject: CauldronInfo,
+  amount: BigNumber,
+  slipage: number,
+  buyToken?: Address
+) => {
+  const swapResponse = await fetchLev0xDataV2(
+    cauldronObject,
+    amount,
+    slipage,
+    buyToken
+  );
+
+  return encodeAbiParameters(
+    [
+      { name: "to", type: "address" },
+      { name: "swapData", type: "bytes" },
+    ],
+    [swapResponse.to, swapResponse.data]
+  );
 };
 
 export default fetchLev0xData;

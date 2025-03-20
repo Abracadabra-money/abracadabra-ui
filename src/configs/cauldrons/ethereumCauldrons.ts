@@ -260,11 +260,11 @@ const config: Array<CauldronConfig> = [
     },
     mimInfo,
     leverageInfo: {
-      address: "0x5D611b10fd4D1702925d0A7B3dfBE08b2b69F560",
+      address: "0x63E44f1893E92897AF9756Da35fc5a01c3897F22",
       abi: YearnLevSwapper,
     },
     deleverageInfo: {
-      address: "0x1D369DF0B996453E538524C5cE6e1747FB8534F4",
+      address: "0x1a5767D9040fab7bbD80a102EfCE9F1199c8c7c7",
       abi: YearnSwapper,
     },
   },

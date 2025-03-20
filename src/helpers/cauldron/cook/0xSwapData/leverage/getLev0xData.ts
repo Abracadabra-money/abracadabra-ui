@@ -4,6 +4,7 @@ import type { CauldronInfo } from "@/helpers/cauldron/types";
 import { fetchLev0xData } from "@/helpers/cauldron/cook/0xSwapData/leverage/fetchLev0xData";
 import { fetchLevOdosData } from "@/helpers/cauldron/cook/0xSwapData/leverage/fetchLevOdosData";
 import getVelodrome0xData from "@/helpers/cauldron/cook/0xSwapData/leverage/getVelodrome0xData";
+import { fetchAndEncodeLev0xDataV2 } from "@/helpers/cauldron/cook/0xSwapData/leverage/fetchLev0xData";
 import fetchLevSdeusdSwapData from "@/helpers/cauldron/cook/0xSwapData/leverage/fetchLevSdeusdSwapData";
 import { fetchLevCvxTricryptoSwapData } from "@/helpers/cauldron/cook/0xSwapData/leverage/fetchLevCvxTricryptoSwapData";
 
@@ -36,7 +37,12 @@ const getLev0xData = async (
     return await fetchLev0xData(cauldronObject, amount, slipage, usdtAddress);
 
   if (isYvWethV2)
-    return await fetchLev0xData(cauldronObject, amount, slipage, wethAddress);
+    return await fetchAndEncodeLev0xDataV2(
+      cauldronObject,
+      amount,
+      slipage,
+      wethAddress
+    );
 
   if (iStdeUSD) {
     return await fetchLevSdeusdSwapData(cauldronObject, amount, slipage);
