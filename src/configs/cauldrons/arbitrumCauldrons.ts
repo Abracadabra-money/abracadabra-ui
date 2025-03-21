@@ -497,7 +497,6 @@ const config: Array<CauldronConfig> = [
     version: 4,
     cauldronSettings: {
       isNew: false,
-      is0xSwap: true,
       isSwappersActive: false,
       isDegenBox: true,
       strategyLink: false,
@@ -533,7 +532,6 @@ const config: Array<CauldronConfig> = [
     version: 4,
     cauldronSettings: {
       isNew: false,
-      is0xSwap: true,
       isSwappersActive: false,
       isDegenBox: true,
       strategyLink: false,
