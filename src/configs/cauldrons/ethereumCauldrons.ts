@@ -16,6 +16,8 @@ import YearnSwapper from "@/abis/YearnSwapper";
 import SDEUSDSwapper from "@/abis/SDEUSDSwapper";
 import { useImage } from "@/helpers/useImage";
 import { GNOSIS_SAFE_ADDRESS } from "@/constants/global";
+import stargateLPSwapper from "@/abis/stargateLPSwapper";
+import stargateLPLevSwapper from "@/abis/stargateLPLevSwapper";
 
 import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
 
@@ -1678,12 +1680,12 @@ const config: Array<CauldronConfig> = [
     },
     mimInfo,
     leverageInfo: {
-      address: "0x88650a9A0F8894C0bc0d6AE833A64f7E34644935",
-      abi: ERC4626LevSwapper,
+      address: "0x7B22ae0C771452344Dd11D10F659e134cD659279",
+      abi: stargateLPLevSwapper,
     },
     deleverageInfo: {
-      address: "0xa5564a2d1190a141CAC438c9fde686aC48a18A79",
-      abi: ERC4626LiqSwapper,
+      address: "0xF1BD2a9D96E041126f49CE3035E7beAC6A207e32",
+      abi: stargateLPSwapper,
     },
   },
   {
