@@ -1353,14 +1353,14 @@ const config: Array<CauldronConfig> = [
       abi: tokensAbi.LUSD,
     },
     mimInfo,
-    leverageInfo: {
-      address: "0x29CF1123Adc07FE5b23cf46Ab7247aFE9fBd20fF",
-      abi: zeroXLevSwapperAbi,
-    },
-    deleverageInfo: {
-      address: "0x6655bDefd9E03B552075Bc992c986E48294AED2b",
-      abi: zeroXLiqSwapperAbi,
-    },
+    // leverageInfo: {
+    //   address: "0x29CF1123Adc07FE5b23cf46Ab7247aFE9fBd20fF",
+    //   abi: zeroXLevSwapperAbi,
+    // },
+    // deleverageInfo: {
+    //   address: "0x6655bDefd9E03B552075Bc992c986E48294AED2b",
+    //   abi: zeroXLiqSwapperAbi,
+    // },
   },
   {
     icon: useImage(`assets/images/tokens/CRV.png`),
@@ -1563,14 +1563,14 @@ const config: Array<CauldronConfig> = [
         abi: degenBoxERC4626Wrapper,
       },
     },
-    leverageInfo: {
-      address: "0xF236c2e05296F7E086A218e0EfcD6c3Dc5C2f923",
-      abi: ERC4626LevSwapper,
-    },
-    deleverageInfo: {
-      address: "0x93Ef8EcF4d9cBc602806C85E0D990856775407CD",
-      abi: ERC4626LiqSwapper,
-    },
+    // leverageInfo: {
+    //   address: "0xF236c2e05296F7E086A218e0EfcD6c3Dc5C2f923",
+    //   abi: ERC4626LevSwapper,
+    // },
+    // deleverageInfo: {
+    //   address: "0x93Ef8EcF4d9cBc602806C85E0D990856775407CD",
+    //   abi: ERC4626LiqSwapper,
+    // },
   },
   {
     icon: useImage(`assets/images/tokens/CRV.png`),
