@@ -2,7 +2,6 @@ import type { BigNumber } from "ethers";
 import { encodeAbiParameters } from "viem";
 import type { CauldronInfo } from "@/helpers/cauldron/types";
 import { fetchLev0xData } from "@/helpers/cauldron/cook/0xSwapData/leverage/fetchLev0xData";
-import { fetchLev0xV2Data } from "@/helpers/cauldron/cook/0xSwapData/leverage/fetchLev0xData";
 import getVelodrome0xData from "@/helpers/cauldron/cook/0xSwapData/leverage/getVelodrome0xData";
 import { fetchLevUsd0Data } from "@/helpers/cauldron/cook/0xSwapData/leverage/fetchLevUsd0Data";
 import fetchLevSdeusdSwapData from "@/helpers/cauldron/cook/0xSwapData/leverage/fetchLevSdeusdSwapData";
@@ -11,8 +10,6 @@ import { fetchLevCvx3poolSwapData } from "@/helpers/cauldron/cook/0xSwapData/lev
 import { fetchLevStargateUsdtData } from "@/helpers/cauldron/cook/0xSwapData/leverage/fetchLevStargateUsdtData";
 import { fetchLevCvxTricryptoSwapData } from "@/helpers/cauldron/cook/0xSwapData/leverage/fetchLevCvxTricryptoSwapData";
 
-const apeAddress = "0x4d224452801ACEd8B2F0aebE155379bb5D594381";
-
 const getLev0xData = async (
   cauldronObject: CauldronInfo,
   amount: BigNumber,
@@ -20,7 +17,6 @@ const getLev0xData = async (
 ) => {
   const {
     isVelodrome,
-    isMagicApe,
     isStargateUSDT,
     isYvWethV2,
     isCvxTricrypto,
@@ -51,11 +47,7 @@ const getLev0xData = async (
     return await fetchLevSdeusdSwapData(cauldronObject, amount, slipage);
   }
 
-  // 0x v1
-  if (isMagicApe)
-    return await fetchLev0xData(cauldronObject, amount, slipage, apeAddress);
-
-  const swapResponse = await fetchLev0xV2Data(cauldronObject, amount, slipage);
+  const swapResponse = await fetchLev0xData(cauldronObject, amount, slipage);
 
   return encodeAbiParameters(
     [

@@ -1,7 +1,7 @@
 import type { BigNumber } from "ethers";
 import { encodeAbiParameters } from "viem";
 import type { CauldronInfo } from "@/helpers/cauldron/types";
-import { fetchLev0xV2Data } from "@/helpers/cauldron/cook/0xSwapData/leverage/fetchLev0xData";
+import { fetchLev0xData } from "@/helpers/cauldron/cook/0xSwapData/leverage/fetchLev0xData";
 
 const wethAddress = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
 
@@ -10,7 +10,7 @@ export const fetchLevYvWethV2Data = async (
   collateralAmount: BigNumber,
   slipage: number
 ) => {
-  const swapResponse = await fetchLev0xV2Data(
+  const swapResponse = await fetchLev0xData(
     cauldronObject,
     collateralAmount,
     slipage,
