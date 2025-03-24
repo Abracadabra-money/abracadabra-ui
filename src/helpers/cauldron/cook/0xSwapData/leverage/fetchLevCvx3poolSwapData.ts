@@ -17,8 +17,6 @@ export const fetchLevCvx3poolSwapData = async (
     usdtAddress
   );
 
-  console.log("swapResponseData", swapResponseData);
-
   const poolIndex = 2n;
 
   return encodeAbiParameters(
