@@ -8,7 +8,7 @@ import fetchDelevYvWeth0xData from "@/helpers/cauldron/cook/0xSwapData/deleverag
 import getDelevVelodrome0xData from "@/helpers/cauldron/cook/0xSwapData/deleverage/getDelevVelodrome0xData";
 import fetchCvxTricrypto0xData from "@/helpers/cauldron/cook/0xSwapData/deleverage/fetchCvxTricrypto0xData";
 import fetchDelevMagicGlp0xData from "@/helpers/cauldron/cook/0xSwapData/deleverage/fetchDelevMagicGlp0xData";
-import { fetchDelevDefault0xV2Data } from "@/helpers/cauldron/cook/0xSwapData/deleverage/fetchDelevDefault0xData";
+import { fetchDelevDefault0xData } from "@/helpers/cauldron/cook/0xSwapData/deleverage/fetchDelevDefault0xData";
 import fetchDelevStargateUSDT0xData from "@/helpers/cauldron/cook/0xSwapData/deleverage/fetchDelevStargateUSDT0xData";
 
 const getDelev0xData = async (
@@ -71,7 +71,7 @@ const getDelev0xData = async (
   if (iStdeUSD)
     return await getDeUsd0xData(cauldronObject, collateralAmount, slipage);
 
-  const swapResponseData = await fetchDelevDefault0xV2Data(
+  const swapResponseData = await fetchDelevDefault0xData(
     cauldronObject,
     collateralAmount,
     slipage
