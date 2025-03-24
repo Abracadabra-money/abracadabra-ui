@@ -1,6 +1,7 @@
 import store from "@/store";
 import { ethers } from "ethers";
-import { swap0xRequest } from "@/helpers/0x";
+import { encodeAbiParameters } from "viem";
+import { swap0xRequestV2 } from "@/helpers/0x";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 import { actions } from "@/helpers/cauldron/cook/actions";
 import { MulticallWrapper } from "ethers-multicall-provider";
@@ -70,13 +71,7 @@ const getWhitelistedTokens = async () => {
   return tokensInfo;
 };
 
-const getGlpLevData = async (
-  cookData,
-  pool,
-  sellAmount,
-  chainId,
-  slipage
-) => {
+const getGlpLevData = async (cookData, pool, sellAmount, chainId, slipage) => {
   store.commit("updateRouteData", []);
   store.commit("setPopupState", {
     type: "mglp-route",
@@ -88,19 +83,27 @@ const getGlpLevData = async (
   const tokensArr = (await getWhitelistedTokens()).filter(
     (info) => !info.maxAmountIn.eq(0)
   );
-  const initialRequestsArr = [];
 
-  for (let token of tokensArr) {
-    initialRequestsArr.push(
-      await swap0xRequest(
+  const result = await Promise.allSettled(
+    tokensArr.map(async (token) => {
+      return await swap0xRequestV2(
         chainId,
         token.address,
         mim.address,
         slipage,
-        sellAmount
-      )
-    );
-  }
+        sellAmount,
+        pool.config.leverageInfo.address
+      );
+    })
+  );
+
+  const initialRequestsArr = result
+    .map((response) => {
+      if (response.status === "fulfilled") {
+        return response.value;
+      }
+    })
+    .filter((value) => value !== undefined);
 
   const mintedGlpFromTokenInArr = await Promise.all(
     initialRequestsArr.map((resp) =>
@@ -140,12 +143,13 @@ const getGlpLevData = async (
       cookInfo.push(info);
     } else {
       const { data, buyAmount, sellAmount, buyAmountWithSlippage } =
-        await swap0xRequest(
+        await swap0xRequestV2(
           chainId,
           info.buyToken,
           mim.address,
           slipage,
-          awailableToSwap
+          awailableToSwap,
+          pool.config.leverageInfo.address
         );
 
       info.data = data;
@@ -198,9 +202,14 @@ const getGlpLevData = async (
   for (let info of cookInfo) {
     const swapAmount = info.sellAmount;
     const minExpected = info.minExpected;
-    const swapData = ethers.utils.defaultAbiCoder.encode(
-      ["bytes", "address"],
-      [info.data, info.buyToken]
+
+    const swapData = encodeAbiParameters(
+      [
+        { name: "token", type: "address" },
+        { name: "to", type: "address" },
+        { name: "swapData", type: "bytes" },
+      ],
+      [info.buyToken, info.to, info.data]
     );
 
     const swapStaticTx = await leverageSwapper.populateTransaction.swap(
@@ -250,28 +259,38 @@ const getGlpLiqData = async (pool, amount, chainId, slipage) => {
     )
   );
 
-  const respArr = [];
-
-  for (let token of tokensArr) {
-    respArr.push(
-      await swap0xRequest(
+  const result = await Promise.allSettled(
+    tokensArr.map(async (token) => {
+      return await swap0xRequestV2(
         chainId,
         mim.address,
         token.address,
         slipage,
-        tokenOutFromBurningGlpArr[tokensArr.indexOf(token)].amount
-      )
-    );
-  }
+        tokenOutFromBurningGlpArr[tokensArr.indexOf(token)].amount,
+        pool.config.deleverageInfo.address
+      );
+    })
+  );
+  const respArr = result
+    .map((response) => {
+      if (response.status === "fulfilled") {
+        return response.value;
+      }
+    })
+    .filter((value) => value !== undefined);
 
   const results = respArr.map((resp, idx) => {
     return {
       ...tokensArr[idx],
       ...resp,
       ...tokenOutFromBurningGlpArr[idx],
-      swapDataEncode: ethers.utils.defaultAbiCoder.encode(
-        ["bytes", "address"],
-        [resp.data, resp.sellToken]
+      swapDataEncode: encodeAbiParameters(
+        [
+          { name: "token", type: "address" },
+          { name: "to", type: "address" },
+          { name: "swapData", type: "bytes" },
+        ],
+        [resp.sellToken, resp.to, resp.data]
       ),
     };
   });
@@ -290,10 +309,7 @@ const getGlpLiqData = async (pool, amount, chainId, slipage) => {
       })
   );
 
-  const result = results.reduce(maxBuyAmount);
-
-  console.log("result", result);
-  return result;
+  return results.reduce(maxBuyAmount);
 };
 
 export { getGlpLevData, getGlpLiqData };

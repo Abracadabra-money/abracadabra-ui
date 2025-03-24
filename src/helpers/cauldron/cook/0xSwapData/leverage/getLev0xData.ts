@@ -47,15 +47,13 @@ const getLev0xData = async (
   // odos
   if (isUSD0) return await fetchLevUsd0Data(cauldronObject, amount, slipage);
 
-  // old
-  if (isMagicApe)
-    return await fetchLev0xData(cauldronObject, amount, slipage, apeAddress);
-
   if (iStdeUSD) {
     return await fetchLevSdeusdSwapData(cauldronObject, amount, slipage);
   }
 
-  //   return await fetchLev0xData(cauldronObject, amount, slipage);
+  // 0x v1
+  if (isMagicApe)
+    return await fetchLev0xData(cauldronObject, amount, slipage, apeAddress);
 
   const swapResponse = await fetchLev0xV2Data(cauldronObject, amount, slipage);
 
