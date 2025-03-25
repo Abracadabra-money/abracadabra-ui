@@ -22,6 +22,10 @@ export const WARNING_TYPES = {
   SSPELL_LOCKED: 12,
   CONNECTION: 13,
   ACTIVE_ORDER: 14,
+  
+  //
+  BLOCKED_REPAY: 15,
+  BLOCKED_BORROW: 16,
 };
 
 const WARNINGS_BTN_TEXT = {
@@ -40,6 +44,10 @@ const WARNINGS_BTN_TEXT = {
   [WARNING_TYPES.SSPELL_LOCKED]: "sSpell is locked",
   [WARNING_TYPES.CONNECTION]: "Connect wallet",
   [WARNING_TYPES.ACTIVE_ORDER]: "Close the active order",
+
+  //
+  [WARNING_TYPES.BLOCKED_REPAY]: "Repay",
+  [WARNING_TYPES.BLOCKED_BORROW]: "Borrow",
 };
 
 const ACTIONS_BTN_TEXT = {
@@ -279,6 +287,12 @@ const validateBorrow = (
   if (!userMaxBorrowCheck)
     validationErrors.push(WARNING_TYPES.USER_MAX_TO_BORROW);
 
+  const { isGMXMarket } = cauldron.config.cauldronSettings;
+  if (isGMXMarket) {
+    validationErrors.push(WARNING_TYPES.BLOCKED_BORROW);
+    return validationErrors;
+  }
+
   return validationErrors;
 };
 
@@ -384,6 +398,12 @@ const validateRepay = (
     validationErrors.push(WARNING_TYPES.REPAY_ALLOWANCE);
   if (!positionMaxRepayCheck)
     validationErrors.push(WARNING_TYPES.POSITION_MAX_TO_REPAY);
+
+  const { isGMXMarket } = cauldron.config.cauldronSettings;
+  if (isGMXMarket) {
+    validationErrors.push(WARNING_TYPES.BLOCKED_REPAY);
+    return validationErrors;
+  }
 
   return validationErrors;
 };
