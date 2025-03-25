@@ -185,7 +185,7 @@ const config: Array<CauldronConfig> = [
     borrowFee: 1,
     version: 4,
     cauldronSettings: {
-      isSwappersActive: true,
+      isSwappersActive: false,
       isDegenBox: true,
       strategyLink: false,
       isDepreciated: false,
@@ -230,7 +230,7 @@ const config: Array<CauldronConfig> = [
     borrowFee: 1,
     version: 4,
     cauldronSettings: {
-      isSwappersActive: true,
+      isSwappersActive: false,
       isDegenBox: true,
       strategyLink: false,
       isDepreciated: false,
@@ -275,7 +275,7 @@ const config: Array<CauldronConfig> = [
     borrowFee: 1,
     version: 4,
     cauldronSettings: {
-      isSwappersActive: true,
+      isSwappersActive: false,
       isDegenBox: true,
       strategyLink: false,
       isDepreciated: false,
@@ -320,7 +320,7 @@ const config: Array<CauldronConfig> = [
     borrowFee: 1,
     version: 4,
     cauldronSettings: {
-      isSwappersActive: true,
+      isSwappersActive: false,
       isDegenBox: true,
       strategyLink: false,
       isDepreciated: false,
@@ -365,7 +365,7 @@ const config: Array<CauldronConfig> = [
     borrowFee: 1,
     version: 4,
     cauldronSettings: {
-      isSwappersActive: true,
+      isSwappersActive: false,
       isDegenBox: true,
       strategyLink: false,
       isDepreciated: false,
@@ -569,7 +569,7 @@ const config: Array<CauldronConfig> = [
     version: 4,
     cauldronSettings: {
       isNew: true,
-      isSwappersActive: true,
+      isSwappersActive: false,
       isDegenBox: true,
       strategyLink: false,
       isDepreciated: false,
@@ -615,7 +615,7 @@ const config: Array<CauldronConfig> = [
     version: 4,
     cauldronSettings: {
       isNew: true,
-      isSwappersActive: true,
+      isSwappersActive: false,
       isDegenBox: true,
       strategyLink: false,
       isDepreciated: false,
