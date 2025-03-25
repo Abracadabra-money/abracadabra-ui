@@ -35,7 +35,7 @@
     <div class="banner-content">
       <p class="banner-text">
         Deleverage for the gmCauldrons is currently under maintenance, until
-        ready please deleverage your collaterall manually
+        ready please deleverage your collateral manually
       </p>
     </div>
   </div>
