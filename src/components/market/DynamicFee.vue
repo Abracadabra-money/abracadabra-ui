@@ -19,10 +19,11 @@
 <script lang="ts">
 import { utils } from "ethers";
 import { formatUnits } from "viem";
+import type { PropType } from "vue";
+import { defineAsyncComponent } from "vue";
 import { swap0xRequestV2 } from "@/helpers/0x";
-import { defineAsyncComponent, PropType } from "vue";
-import { CauldronInfo } from "@/helpers/cauldron/types";
 import { chainsUsdcConfigs } from "@/configs/tokens/usdc";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 import { normalizeDecimals } from "@/helpers/normalizeDecimals";
 
 export default {
