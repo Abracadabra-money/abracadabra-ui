@@ -10,7 +10,8 @@ import { MAINNET_CHAIN_ID, MOONRIVER_CHAIN_ID } from "@/constants/global";
 import { ARBITRUM_CHAIN_ID, AVALANCHE_CHAIN_ID } from "@/constants/global";
 
 export const DEFAULT_BERA_RPC = "https://rpc.berachain.com";
-export const DEFAULT_BERA_BARTIO_RPC = "https://bartio.rpc.berachain.com/";
+export const DEFAULT_BERA_BARTIO_RPC =
+  "https://berachain-testnet-rpc.publicnode.com";
 export const DEFAULT_MAINNET_RPC = "https://ethereum.publicnode.com";
 export const DEFAULT_ARBITRUM_RPC = "https://arb1.arbitrum.io/rpc";
 export const DEFAULT_BLAST_RPC = "https://rpc.blast.io";
@@ -34,7 +35,10 @@ export const badRequestListRpc = [
 
 export const rpcList = {
   [BERA_CHAIN_ID]: [DEFAULT_BERA_RPC],
-  [BERA_BARTIO_CHAIN_ID]: [DEFAULT_BERA_BARTIO_RPC],
+  [BERA_BARTIO_CHAIN_ID]: [
+    DEFAULT_BERA_BARTIO_RPC,
+    "https://berat2.lava.build",
+  ],
   [MAINNET_CHAIN_ID]: [
     ...mainnet.rpcUrls.default.http,
     DEFAULT_MAINNET_RPC,
