@@ -179,6 +179,10 @@ export default {
 }
 
 @media screen and (max-width: 600px) {
+    .banner {
+        padding: 20px;
+    }
+
   .bg-img-1,
   .bg-img-2,
   .bg-img-3 {
