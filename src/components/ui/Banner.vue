@@ -195,7 +195,7 @@ export default {
   }
 
   .banner-content {
-    max-width: 60%;
+    max-width: 240px;
   }
 }
 </style>
