@@ -118,8 +118,8 @@ export const swap0xRequestV2 = async (
   chainId: number | string,
   buyToken: Address | string,
   sellToken: Address | string,
-  slippage = 0,
-  amountSell = 0,
+  slippage = 0 as number | string,
+  amountSell = 0 as number | bigint,
   takerAddress: Address | string,
   amountBuy = 0
 ): Promise<Swap0xV2Response> => {
