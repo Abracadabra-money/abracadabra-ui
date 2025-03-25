@@ -26,6 +26,7 @@
   </div>
   <NotificationContainer />
   <PopupsWrapper />
+  <Banner />
   <SkullBanner />
   <OldAllowanceBanner />
   <TenderlyMod />
@@ -35,6 +36,7 @@
 import axios from "axios";
 import { defineAsyncComponent } from "vue";
 import { useAnimation } from "@/helpers/useAnimation/useAnimation";
+import Banner from "./components/ui/Banner.vue";
 
 export default {
   data() {
@@ -107,6 +109,9 @@ export default {
     ),
     MlpMigrationBanner: defineAsyncComponent(() =>
       import("@/components/ui/MlpMigrationBanner.vue")
+    ),
+    Banner: defineAsyncComponent(() =>
+      import("@/components/ui/Banner.vue")
     ),
     SkullBanner: defineAsyncComponent(() =>
       import("@/components/ui/SkullBanner.vue")
