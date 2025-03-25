@@ -3,16 +3,15 @@
     <div class="popup" @click.self="closePopup">
       <div class="descriptin-wrap">
         <img class="book-icon" src="@/assets/images/connect/book.png" alt="" />
-        <h3 class="title">Title</h3>
+        <h3 class="title">Connect your wallet</h3>
         <p class="text">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris ni
+          Select the prefered wallet fromthe options to access the app
+          functionality
         </p>
       </div>
       <div class="connectors-wrap">
         <div class="row">
-          <h3 class="wallet-title">Wallets</h3>
+          <h3 class="wallet-title">Available Wallets</h3>
 
           <img
             class="popup-close"
@@ -21,12 +20,6 @@
             alt="Close popup"
           />
         </div>
-
-        <p class="text">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris ni
-        </p>
 
         <div class="connectors">
           <button
@@ -72,7 +65,7 @@ export default {
       const iconPath = useImage(`assets/images/connect/${connector.id}.png`);
       if (!iconPath.includes("undefined")) return iconPath;
       if (connector.icon) return connector.icon;
-      else return useImage("assets/images/connect/default-wallet.jpg");
+      else return useImage("assets/images/connect/default-wallet.png");
     },
   },
 
