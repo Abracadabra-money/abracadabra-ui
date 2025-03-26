@@ -5,7 +5,6 @@ import { initPublicClient } from "@/helpers/chains/initPublicClient";
 import { initStaticJsonRpcProvider } from "@/helpers/chains/initStaticJsonRpcProvider";
 
 const rpcList = filterRpcUrls(base, [
-  "https://base.llamarpc.com",
   "https://base.drpc.org",
   "https://base-rpc.publicnode.com",
   "https://base.meowrpc.com",
