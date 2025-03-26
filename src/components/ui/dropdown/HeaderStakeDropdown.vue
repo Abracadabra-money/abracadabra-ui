@@ -63,9 +63,8 @@ import { mapGetters } from "vuex";
 import { formatPercent } from "@/helpers/filters";
 import BaseLoader from "@/components/base/BaseLoader.vue";
 import TransitionWrapper from "@/components/ui/TransitionWrapper.vue";
-import { ARBITRUM_CHAIN_ID, MAINNET_CHAIN_ID } from "@/constants/global";
+import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
-import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
 import { getSpellStakingApr } from "@/helpers/stake/spell/getSpellStakingApr";
 
 export default {
@@ -73,7 +72,6 @@ export default {
     return {
       spellApr: null as string | null,
       glpApr: null as number | null,
-      apeApr: null as number | null,
       showDropdownList: false,
     };
   },
@@ -94,10 +92,6 @@ export default {
       this.glpApr = glpAprs.magicGlpApy;
     },
 
-    async getApeApr() {
-      this.apeApr = await getMagicApeApy(MAINNET_CHAIN_ID);
-    },
-
     toggleDropdown() {
       this.showDropdownList = !this.showDropdownList;
     },
@@ -110,7 +104,6 @@ export default {
   async created() {
     this.getSpellApr();
     this.getGlpApr();
-    this.getApeApr();
   },
 
   components: {

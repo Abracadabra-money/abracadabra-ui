@@ -65,7 +65,6 @@ import { mapGetters } from "vuex";
 import { formatPercent } from "@/helpers/filters";
 import BaseLoader from "@/components/base/BaseLoader.vue";
 import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
-import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
 import { getSpellStakingApr } from "@/helpers/stake/spell/getSpellStakingApr";
 
 export default {
@@ -73,7 +72,6 @@ export default {
     return {
       spellApr: null,
       glpApr: null,
-      apeApr: null,
     };
   },
 
@@ -94,10 +92,6 @@ export default {
       this.glpApr = glpAprs.magicGlpApy;
     },
 
-    async getApeApr() {
-      this.apeApr = await getMagicApeApy(MAINNET_CHAIN_ID);
-    },
-
     closeDropdown() {
       this.showDropdownList = false;
     },
@@ -106,7 +100,6 @@ export default {
   async created() {
     this.getSpellApr();
     this.getGlpApr();
-    this.getApeApr();
   },
 
   components: {
