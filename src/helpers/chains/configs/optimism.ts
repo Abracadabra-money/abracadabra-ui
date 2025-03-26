@@ -5,7 +5,6 @@ import { initPublicClient } from "@/helpers/chains/initPublicClient";
 import { initStaticJsonRpcProvider } from "@/helpers/chains/initStaticJsonRpcProvider";
 
 const rpcList = filterRpcUrls(optimism, [
-  "https://optimism.llamarpc.com",
   "https://optimism-mainnet.public.blastapi.io",
   "https://rpc.ankr.com/optimism",
   "https://1rpc.io/op",

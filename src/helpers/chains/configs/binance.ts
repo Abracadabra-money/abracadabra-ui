@@ -8,7 +8,6 @@ const rpcList = filterRpcUrls(bsc, [
   "https://bsc-dataseed1.ninicoin.io",
   "https://bsc-dataseed2.ninicoin.io",
   "https://bsc-dataseed3.ninicoin.io",
-  "https://binance.llamarpc.com",
 ]);
 
 const viemConfig = {
