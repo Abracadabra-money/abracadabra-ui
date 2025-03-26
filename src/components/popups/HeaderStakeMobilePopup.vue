@@ -50,26 +50,6 @@
         </div>
         <p class="link-description">Stake GLP</p>
       </router-link>
-
-      <router-link
-        class="list-link"
-        :to="{ name: 'magicAPE' }"
-        @click="$emit('closeMobileMenu')"
-      >
-        <div class="link-title">
-          <span class="stake-token">
-            <img class="link-icon" src="@/assets/images/stake/tokens/APE.png" />
-            APE
-          </span>
-          <span class="apr" v-if="apeApr"
-            >APR: {{ formatPercent(apeApr) }}</span
-          >
-          <div class="loader-wrap" v-else>
-            <BaseLoader type="loader" />
-          </div>
-        </div>
-        <p class="link-description">Stake APE</p>
-      </router-link>
     </div>
   </div>
 </template>
