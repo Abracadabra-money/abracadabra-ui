@@ -72,6 +72,10 @@ const coingeckoCoinsIds = [
     addresses: ["0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A"],
   },
   {
+    id: "usdt0",
+    addresses: ["0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9"],
+  },
+  {
     id: "spell-token",
     addresses: ["0x55be39c912621606683dee44c4ab2dde083bc925"],
   },
