@@ -68,10 +68,11 @@ import { formatTokenBalance } from "@/helpers/filters";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { tokensChainLink } from "@/configs/chainLink/config";
 import notification from "@/helpers/notification/notification";
-import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { withdraw } from "@/helpers/blast/stake/actions/withdraw";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 import { withdrawLocked } from "@/helpers/blast/stake/actions/withdrawLocked";
+import { openConnectPopup } from "@/helpers/connect/utils";
 
 const BLAST_CHAIN_ID = 81457;
 
@@ -263,10 +264,7 @@ export default {
     async actionHandler() {
       if (this.isActionDisabled) return false;
 
-      if (!this.account && this.isUnsupportedChain) {
-        // @ts-ignore
-        return this.$openWeb3modal();
-      }
+      if (!this.account && this.isUnsupportedChain) return openConnectPopup();
 
       if (!this.isUnsupportedChain) {
         switchNetwork(BLAST_CHAIN_ID);

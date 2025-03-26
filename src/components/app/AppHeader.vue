@@ -32,7 +32,7 @@
         @toggleNotifiModal="toggleNotifiModal"
       />
 
-      <ConnectButton class="connect-button" />
+      <ConnectionDropdown />
 
       <MimTokenBlock />
     </div>
@@ -161,8 +161,8 @@ export default {
     BellButton: defineAsyncComponent(() =>
       import("@/components/notifi/BellButton.vue")
     ),
-    ConnectButton: defineAsyncComponent(() =>
-      import("@/components/ui/buttons/ConnectButton.vue")
+    ConnectionDropdown: defineAsyncComponent(() =>
+      import("@/components/ui/dropdown/ConnectionDropdown.vue")
     ),
     MimTokenBlock: defineAsyncComponent(() =>
       import("@/components/ui/MimTokenBlock.vue")
@@ -227,6 +227,7 @@ export default {
   }
 
   .user-actions {
+    gap: 12px;
     margin-left: auto;
 
     &::v-deep(.chain-button) {

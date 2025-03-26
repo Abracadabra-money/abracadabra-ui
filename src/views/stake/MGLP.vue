@@ -103,6 +103,7 @@ import notification from "@/helpers/notification/notification";
 import { getStakeInfo } from "@/helpers/stake/magicGlp/getStakeInfo";
 import type { MagicGlpStakeInfo } from "@/helpers/stake/magicGlp/types";
 import { getChartOptions } from "@/helpers/stake/magicGlp/getChartOptions";
+import { openConnectPopup } from "@/helpers/connect/utils";
 
 export default {
   data() {
@@ -333,10 +334,8 @@ export default {
     async actionHandler() {
       if (this.isActionDisabled) return false;
 
-      if (!this.account && this.isUnsupportedChain) {
-        // @ts-ignore
-        return this.$openWeb3modal();
-      }
+      if (!this.account && this.isUnsupportedChain) return openConnectPopup();
+
       if (!this.isUnsupportedChain) {
         switchNetwork(this.selectedNetwork);
         return false;

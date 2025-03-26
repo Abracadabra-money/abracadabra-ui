@@ -81,6 +81,7 @@ import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut"
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { addLiquidityImbalanced } from "@/helpers/pools/swap/actions/addLiquidityImbalanced";
 import { addLiquidityImbalancedOptimal } from "@/helpers/pools/swap/addLiquidityImbalancedOptimal";
+import { openConnectPopup } from "@/helpers/connect/utils";
 
 export default {
   props: {
@@ -360,10 +361,7 @@ export default {
     async actionHandler() {
       if (this.isButtonDisabled) return false;
       if (!this.isProperNetwork) return switchNetwork(this.pool.chainId);
-      if (!this.account) {
-        // @ts-ignore
-        return this.$openWeb3modal();
-      }
+      if (!this.account) return openConnectPopup();
 
       if (!this.isOneSide) {
         this.isPreviewPopupOpened = true;

@@ -1,16 +1,9 @@
 import { kava } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
-import { filterRpcUrls } from "@/helpers/chains/utils";
+import { getRpcListByChainId } from "@/helpers/chains/utils";
 import { initPublicClient } from "@/helpers/chains/initPublicClient";
-import { initStaticJsonRpcProvider } from "@/helpers/chains/initStaticJsonRpcProvider";
 
-const rpcList = filterRpcUrls(kava, [
-  "https://kava-evm-rpc.publicnode.com",
-  "https://evm.kava.io",
-  "https://evm.kava.chainstacklabs.com",
-  "https://kava-pokt.nodies.app",
-  "https://kava.drpc.org",
-]);
+const rpcList = getRpcListByChainId(kava.id);
 
 const viemConfig = {
   ...kava,
@@ -23,14 +16,11 @@ const viemConfig = {
     },
   },
 };
-
 const publicClient = initPublicClient(viemConfig);
-const ethersProvider = await initStaticJsonRpcProvider(kava.id);
 
 export const kavaConfig = {
+  viemConfig,
   publicClient,
-  ethersProvider,
-  viemConfig: viemConfig,
   chainId: kava.id,
   chainName: "KAVA",
   symbol: "Kava EVM",

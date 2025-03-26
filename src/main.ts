@@ -1,19 +1,23 @@
+import { createApp } from "vue";
+import { ethers } from "ethers";
+import VueTippy from "vue-tippy";
+import { WagmiPlugin } from "@wagmi/vue";
+import "@notifi-network/notifi-react-card/dist/index.css";
+// @ts-ignore
 import store from "./store";
+// @ts-ignore
 import App from "./App.vue";
 import router from "./router";
-import { ethers } from "ethers";
-import { createApp } from "vue";
-import connectWallet from "./plugins/walletConnect";
-import clickOutside from "./directives/clickOutside";
-import VueTippy from "vue-tippy";
 import { useImage } from "./helpers/useImage";
-import "@notifi-network/notifi-react-card/dist/index.css";
+// @ts-ignore
+import clickOutside from "./directives/clickOutside";
+import { wagmiConfig } from "./helpers/connect/initWalletConnect";
 
 const app = createApp(App);
 
 app.use(store);
 app.use(router);
-app.use(connectWallet);
+app.use(WagmiPlugin, { config: wagmiConfig });
 app.directive("click-outside", clickOutside);
 app.use(VueTippy, {
   directive: "tooltip",

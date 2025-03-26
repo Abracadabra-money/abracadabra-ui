@@ -1,14 +1,9 @@
 import { base } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
-import { filterRpcUrls } from "@/helpers/chains/utils";
+import { getRpcListByChainId } from "@/helpers/chains/utils";
 import { initPublicClient } from "@/helpers/chains/initPublicClient";
-import { initStaticJsonRpcProvider } from "@/helpers/chains/initStaticJsonRpcProvider";
 
-const rpcList = filterRpcUrls(base, [
-  "https://base.drpc.org",
-  "https://base-rpc.publicnode.com",
-  "https://base.meowrpc.com",
-]);
+const rpcList = getRpcListByChainId(base.id);
 
 const viemConfig = {
   ...base,
@@ -23,12 +18,10 @@ const viemConfig = {
 };
 
 const publicClient = initPublicClient(viemConfig);
-const ethersProvider = await initStaticJsonRpcProvider(base.id);
 
 export const baseConfig = {
+  viemConfig,
   publicClient,
-  ethersProvider,
-  viemConfig: viemConfig,
   chainId: base.id,
   chainName: "BASE",
   symbol: "Base",

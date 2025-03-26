@@ -1,28 +1,32 @@
-import { createPublicClient, fallback, http } from "viem";
-import { checkUseTenderlyFork } from "@/helpers/tenderly/checkUseTenderlyFork";
+import type { Chain } from "viem";
+import { createPublicClient } from "viem";
+import { fallback, http } from "@wagmi/core";
+import { getRpcListByChainId } from "@/helpers/chains/utils";
 
-export const initPublicClient: any = (chainConfig: any) => {
-  const defaultRpc: string[] = chainConfig.rpcUrls.default.http;
+const rankKonfig = {
+  rank: {
+    interval: 15000,
+    sampleCount: 10,
+    timeout: 500,
+  },
+  retryCount: 5,
+  retryDelay: 1000,
+};
 
-  const useForkRpc = checkUseTenderlyFork(chainConfig.id);
+export const initPublicClient = (viemConfig: Chain) => {
+  const defaultRpc = getRpcListByChainId(viemConfig.id);
 
-  const transport = useForkRpc
-    ? fallback([http(useForkRpc)])
-    : fallback(
-        defaultRpc.map((rpc: string) => http(rpc)),
-        {
-          rank: {
-            interval: 15000,
-            sampleCount: 10,
-            timeout: 500,
-          },
-          retryCount: 5,
-          retryDelay: 1000,
-        }
-      );
+  const transport = fallback(
+    defaultRpc.map((rpc: string) => http(rpc)),
+    {
+      rank: false,
+      retryCount: 0,
+      retryDelay: 1000000,
+    }
+  );
 
   return createPublicClient({
-    chain: chainConfig,
+    chain: viemConfig,
     transport: transport,
     batch: {
       multicall: true,

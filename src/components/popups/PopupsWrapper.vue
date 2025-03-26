@@ -6,6 +6,7 @@
         <SucessPopup v-if="popupActiveType === 'success'" />
         <RouteOptimisationPopup v-if="popupActiveType === 'mglp-route'" />
         <ApprovalsPopup v-if="popupActiveType === 'approvals'" />
+        <ConnectPopup v-if="popupActiveType === 'connect'" />
       </TransitionWrapper>
     </div>
   </div>
@@ -39,6 +40,9 @@ export default {
     ),
     ApprovalsPopup: defineAsyncComponent(() =>
       import("@/components/popups/ApprovalsPopup.vue")
+    ),
+    ConnectPopup: defineAsyncComponent(() =>
+      import("@/components/popups/ConnectPopup.vue")
     ),
   },
 };

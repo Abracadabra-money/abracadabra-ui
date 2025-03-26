@@ -105,6 +105,7 @@ import potionPointRedeemerAbi from "@/abis/potionPointRedeemerAbi";
 import potionPointsProofs from "@/configs/potionPointsProofs.json";
 import { formatTokenBalance, formatPercent } from "@/helpers/filters";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
+import { openConnectPopup } from "@/helpers/connect/utils";
 
 interface PotionPointItem {
   account: string;
@@ -217,10 +218,7 @@ export default {
     async actionHandler() {
       // if (this.isButtonDisabled) return false;
       if (!this.isProperNetwork) return switchNetwork(ARBITRUM_CHAIN_ID);
-      if (!this.account) {
-        // @ts-ignore
-        return this.$openWeb3modal();
-      }
+      if (!this.account) return openConnectPopup();
 
       await this.redeemWithProofs();
     },

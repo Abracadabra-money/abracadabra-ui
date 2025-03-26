@@ -1,6 +1,4 @@
 import Vuex from "vuex";
-import { providers } from "ethers";
-import { defaultRpc } from "@/helpers/chains";
 import { chainsConfigs } from "@/helpers/chains/configs";
 
 export const testStore = new Vuex.Store({
