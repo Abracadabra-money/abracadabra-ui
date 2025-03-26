@@ -68,7 +68,6 @@ const config: Array<CauldronConfig> = [
     version: 2,
     cauldronSettings: {
       isSwappersActive: true,
-      oracleAddress: "0xB099cC8Cd672646317c2da0414aEa7D3838eD258",
       isDegenBox: false,
       strategyLink: false,
       isDepreciated: true,
@@ -197,7 +196,6 @@ const config: Array<CauldronConfig> = [
     version: 2,
     cauldronSettings: {
       isSwappersActive: true,
-      oracleAddress: "0xB099cC8Cd672646317c2da0414aEa7D3838eD258",
       isDegenBox: false,
       strategyLink: false,
       isDepreciated: true,
