@@ -76,7 +76,7 @@
         </div>
 
         <ExpectedBlock
-          v-if="beamInfoObject"
+          v-if="beamInfoObject && fromChainConfig"
           :beamInfoObject="beamInfoObject"
           :dstChainConfig="toChainConfig!"
           :gasFee="estimateSendFee"
