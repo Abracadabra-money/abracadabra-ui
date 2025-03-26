@@ -1324,7 +1324,7 @@ const config: Array<CauldronConfig> = [
     borrowFee: 0,
     version: 3,
     cauldronSettings: {
-      isSwappersActive: true,
+      isSwappersActive: false,
       is0xSwap: true,
       executionPrice: true,
       isDegenBox: true,
@@ -1351,14 +1351,14 @@ const config: Array<CauldronConfig> = [
       abi: tokensAbi.LUSD,
     },
     mimInfo,
-    leverageInfo: {
-      address: "0x29CF1123Adc07FE5b23cf46Ab7247aFE9fBd20fF",
-      abi: zeroXLevSwapperAbi,
-    },
-    deleverageInfo: {
-      address: "0x6655bDefd9E03B552075Bc992c986E48294AED2b",
-      abi: zeroXLiqSwapperAbi,
-    },
+    // leverageInfo: {
+    //   address: "0x29CF1123Adc07FE5b23cf46Ab7247aFE9fBd20fF",
+    //   abi: zeroXLevSwapperAbi,
+    // },
+    // deleverageInfo: {
+    //   address: "0x6655bDefd9E03B552075Bc992c986E48294AED2b",
+    //   abi: zeroXLiqSwapperAbi,
+    // },
   },
   {
     icon: useImage(`assets/images/tokens/CRV.png`),
