@@ -263,41 +263,10 @@ export default {
       };
     },
 
-    // Alternative price impact calculation
-    priceImpactPair(): string | number {
-      const routeInfo: RouteInfo =
-        this.swapInfo.routes[this.swapInfo.routes.length - 1];
+    priceImpactPair(): number {
+      if (!this.swapInfo) return 0;
 
-      if (!routeInfo) return 0;
-
-      const isBase = routeInfo.lpInfo.baseToken === routeInfo.inputToken;
-
-      //@ts-ignore
-      const { midPrice } = routeInfo.lpInfo;
-
-      //@ts-ignore
-      const tokenAmountIn = this.swapInfo.inputAmount;
-      const tokenAmountOut = routeInfo.outputAmountWithoutFee;
-      if (!tokenAmountIn || !tokenAmountOut) return 0;
-
-      const parsedAmountIn = formatUnits(
-        tokenAmountIn,
-        this.actionConfig.fromToken.config.decimals
-      );
-
-      const parsedAmountOut = formatUnits(
-        tokenAmountOut,
-        this.actionConfig.toToken.config.decimals
-      );
-
-      const executionPrice = isBase
-        ? Number(parsedAmountOut) / Number(parsedAmountIn)
-        : Number(parsedAmountIn) / Number(parsedAmountOut);
-
-      const priceImpact =
-        Math.abs(midPrice - executionPrice) / Number(midPrice);
-
-      return Number(priceImpact * 100).toFixed(2);
+      return this.swapInfo.priceImpact;
     },
 
     differencePrice() {
