@@ -4,6 +4,7 @@ import type { TokenInfo } from "@/helpers/pools/swap/tokens";
 import type { MagicLPInfo } from "@/helpers/pools/swap/types";
 import { getSwapRouterByChain } from "@/configs/pools/routers";
 import { findBestRoutes } from "@/helpers/pools/swap/findBestRoutes";
+import { calculatePriceImpact } from "@/helpers/pools/swap/priceImpact";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
 
 export type ActionConfig = {
@@ -27,6 +28,7 @@ export type RouteInfo = {
   fees: bigint;
   lpInfo: MagicLPInfo;
   fromBase: boolean;
+  priceImpact: number;
 };
 
 export const getSwapInfo = async (
@@ -55,6 +57,8 @@ export const getSwapInfo = async (
     account
   );
 
+  const priceImpact = calculatePriceImpact(routes);
+
   return {
     routes,
     actionConfig,
@@ -62,6 +66,7 @@ export const getSwapInfo = async (
     outputAmount,
     outputAmountWithSlippage,
     transactionInfo,
+    priceImpact,
   };
 };
 
@@ -73,6 +78,7 @@ export const getSwapInfoEmptyState = (actionConfig: ActionConfig) => {
     actionConfig,
     outputAmount: fromInputValue,
     outputAmountWithSlippage: fromInputValue,
+    priceImpact: 0,
     transactionInfo: {
       methodName: "",
       payload: {},
