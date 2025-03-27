@@ -5,6 +5,7 @@ import DecimalMath from "@/helpers/pools/swap/libs/DecimalMath";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { querySellBase, querySellQuote } from "@/helpers/pools/swap/magicLp";
 import type { ActionConfig, RouteInfo } from "@/helpers/pools/swap/getSwapInfo";
+import { calculatePriceImpactSingleSwap } from "@/helpers/pools/swap/priceImpact";
 
 type Graph = Record<string, { token: string; weight: number; pair: string }[]>;
 
@@ -56,25 +57,13 @@ const fetchOutputAmount = async (
   if (!lpInfo || amount <= 0n) return { receiveAmount: 0n, mtFee: 0n };
 
   if (!account) {
-    if (sellBase) {
-      const response = querySellBase(amount, lpInfo, lpInfo.userInfo);
-      return {
-        receiveAmount: response.receiveQuoteAmount,
-        mtFee: response.mtFee,
-      };
-    } else {
-      const response = querySellQuote(amount, lpInfo, lpInfo.userInfo);
-      return {
-        receiveAmount: response.receiveBaseAmount,
-        mtFee: response.mtFee,
-      };
-    }
+    return getOutputAmountLocal(lpInfo, sellBase, amount);
   }
 
   const publicClient = getPublicClient(lpInfo.chainId);
 
   try {
-    const result = await publicClient.readContract({
+    const result: any = await publicClient.readContract({
       address: lpInfo.contract.address,
       abi: lpInfo.contract.abi,
       functionName: sellBase ? "querySellBase" : "querySellQuote",
@@ -91,40 +80,50 @@ const fetchOutputAmount = async (
   }
 };
 
-// Функція для розрахунку кількості токенів з урахуванням прослизання
-const calculateSlippage = (
-  balanceIn: bigint, // Баланс токену, який ми обмінюємо
-  balanceOut: bigint, // Баланс токену, який ми хочемо отримати
-  amountIn: bigint // Сума обміну
-): bigint => {
-  const k = balanceIn * balanceOut; // Постійна величина добутку
-  const newBalanceIn = balanceIn + amountIn; // Новий баланс після додавання суми
-  const newBalanceOut = k / newBalanceIn; // Новий баланс токену, який отримуємо
-  return balanceOut - newBalanceOut; // Отримана кількість токенів з урахуванням впливу
+const getOutputAmountLocal = (
+  lpInfo: MagicLPInfo,
+  sellBase = true,
+  amount: bigint
+) => {
+  if (!lpInfo || amount <= 0n) return { receiveAmount: 0n, mtFee: 0n };
+
+  if (sellBase) {
+    const response = querySellBase(amount, lpInfo, lpInfo.userInfo);
+    return {
+      receiveAmount: response.receiveQuoteAmount,
+      mtFee: response.mtFee,
+    };
+  } else {
+    const response = querySellQuote(amount, lpInfo, lpInfo.userInfo);
+    return {
+      receiveAmount: response.receiveBaseAmount,
+      mtFee: response.mtFee,
+    };
+  }
 };
 
 export const findBestSwapPath = (
   pairs: MagicLPInfo[],
   fromToken: Address,
   toToken: Address,
-  amountToSwap: bigint // Обсяг токенів, які ми хочемо обміняти
+  amountToSwap: bigint
 ) => {
   const graph: Graph = {};
   const visited = new Set();
   const bestCosts = { [fromToken.toLowerCase()]: 0 };
 
-  // Заповнюємо граф
+  // Filling the graph
   pairs.forEach(({ baseToken, quoteToken, lpFeeRate, totalSupply, id }) => {
-    const fees = Number(formatUnits(lpFeeRate, 18)); // Комісія
-    const tvl = Number(formatUnits(totalSupply, 18)); // Ліквідність
-    const weight = fees * (1 / tvl); // Вага ребра враховує комісію і ліквідність
+    const fees = Number(formatUnits(lpFeeRate, 18));
+    const tvl = Number(formatUnits(totalSupply, 18));
+    const weight = fees / tvl; // The weight of the rib takes into account Fees and TVL
+
     const baseTokenAddress = baseToken.toLowerCase();
     const quoteTokenAddress = quoteToken.toLowerCase();
 
-    if (!graph[baseTokenAddress as keyof typeof graph])
-      graph[baseTokenAddress] = [];
-    if (!graph[quoteTokenAddress as keyof typeof graph])
-      graph[quoteTokenAddress] = [];
+    if (!graph[baseTokenAddress]) graph[baseTokenAddress] = [];
+    if (!graph[quoteTokenAddress]) graph[quoteTokenAddress] = [];
+
     graph[baseTokenAddress].push({
       token: quoteTokenAddress,
       weight,
@@ -166,46 +165,34 @@ export const findBestSwapPath = (
 
       if (!poolInfo) return;
 
-      // Перевірка балансу токенів
-      const baseBalance = poolInfo.balances.baseBalance;
-      const quoteBalance = poolInfo.balances.quoteBalance;
-      const { baseToken, quoteToken } = poolInfo;
+      const { baseToken } = poolInfo;
 
-      let sufficientLiquidity = false;
-      let newAmountToSwap = currentAmount;
+      const fromBase = currentToken.toLowerCase() === baseToken.toLowerCase();
 
-      if (currentToken.toLowerCase() === baseToken.toLowerCase()) {
-        if (baseBalance >= currentAmount) {
-          sufficientLiquidity = true;
-        } else {
-          newAmountToSwap = calculateSlippage(
-            baseBalance,
-            quoteBalance,
-            currentAmount
-          );
-        }
-      } else if (currentToken.toLowerCase() === quoteToken.toLowerCase()) {
-        if (quoteBalance >= currentAmount) {
-          sufficientLiquidity = true;
-        } else {
-          newAmountToSwap = calculateSlippage(
-            quoteBalance,
-            baseBalance,
-            currentAmount
-          );
-        }
+      let newAmountToSwap = 0n;
+      let priceImpact = 100;
+
+      try {
+        newAmountToSwap = getOutputAmountLocal(
+          poolInfo,
+          fromBase,
+          currentAmount
+        ).receiveAmount;
+
+        priceImpact = calculatePriceImpactSingleSwap(
+          poolInfo,
+          currentAmount,
+          newAmountToSwap,
+          fromBase
+        );
+      } catch (error) {
+        console.error("Error fetching output amount:", error);
       }
 
-      const newCost = currentCost + weight;
+      const newCost = currentCost + weight + priceImpact; // Вартість із врахуванням fees, TVL та прослизання
 
-      // Вплив прослизання на пріоритет (зміна кількості токенів)
-      // Якщо кількість токенів після прослизання значно менша, це збільшує вартість шляху
-      const slippageImpact =
-        Number(currentAmount - newAmountToSwap) / Number(currentAmount);
-      const adjustedCost = newCost + slippageImpact; // Чим більше прослизання, тим більша вартість
-
-      if (!(neighbor in bestCosts) || adjustedCost < bestCosts[neighbor]) {
-        bestCosts[neighbor] = adjustedCost;
+      if (!(neighbor in bestCosts) || newCost < bestCosts[neighbor]) {
+        bestCosts[neighbor] = newCost;
 
         const newSwap = {
           pair: pair,
@@ -218,9 +205,9 @@ export const findBestSwapPath = (
           {
             token: neighbor,
             swaps: [...swaps, newSwap],
-            currentAmount: newAmountToSwap, // Оновлюємо кількість токенів після обміну з урахуванням прослизання
+            currentAmount: newAmountToSwap,
           },
-          adjustedCost // Враховуємо новий пріоритет з урахуванням прослизання
+          newCost
         );
       }
     });
@@ -258,8 +245,6 @@ export const findBestRoutes = async (
         previousReceiveAmount
       );
 
-      previousReceiveAmount = receiveAmount;
-
       const { lpFeeRate, mtFeeRate } = pool.userInfo.userFeeRate;
 
       const lpFeeAmount =
@@ -268,6 +253,15 @@ export const findBestRoutes = async (
           : DecimalMath.mulFloor(receiveAmount, lpFeeRate);
 
       const receiveAmountWithoutFee = receiveAmount + mtFee + lpFeeAmount;
+
+      const priceImpact = calculatePriceImpactSingleSwap(
+        pool,
+        previousReceiveAmount,
+        receiveAmount,
+        fromBase
+      );
+
+      previousReceiveAmount = receiveAmount;
 
       route.push({
         inputToken: fromToken,
@@ -280,6 +274,7 @@ export const findBestRoutes = async (
         fees: pool.lpFeeRate,
         lpInfo: pool,
         fromBase,
+        priceImpact,
       });
     }
 
