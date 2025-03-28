@@ -19,7 +19,11 @@
         </div>
         <h4 class="info-title">Price impact</h4>
       </div>
-      <RowSkeleton v-if="isLoading" max-width="100%" height="34px" />
+      <RowSkeleton
+        v-if="isLoading || isUpdatingSwapInfo"
+        max-width="100%"
+        height="34px"
+      />
       <div
         :class="['info-value', 'price-impact-value', { warning: isWarning }]"
         v-else
@@ -78,7 +82,11 @@
         </div>
         <h4 class="info-title">Fees</h4>
       </div>
-      <RowSkeleton v-if="isLoading" max-width="100%" height="34px" />
+      <RowSkeleton
+        v-if="isLoading || isUpdatingSwapInfo"
+        max-width="100%"
+        height="34px"
+      />
       <div class="info-value" v-else>{{ swapFees }}</div>
     </div>
   </div>
@@ -116,6 +124,7 @@ export default {
       required: true,
     },
     isLoading: Boolean,
+    isUpdatingSwapInfo: Boolean,
   },
 
   data() {
