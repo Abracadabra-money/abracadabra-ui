@@ -2,7 +2,17 @@ export default [
   {
     inputs: [
       { internalType: "contract IBentoBoxLite", name: "_box", type: "address" },
-      { internalType: "address", name: "_token", type: "address" },
+      {
+        internalType: "contract IStargatePool",
+        name: "_pool",
+        type: "address",
+      },
+      { internalType: "uint16", name: "_poolId", type: "uint16" },
+      {
+        internalType: "contract IStargateRouter",
+        name: "_stargateRouter",
+        type: "address",
+      },
       { internalType: "address", name: "_mim", type: "address" },
     ],
     stateMutability: "nonpayable",
@@ -26,7 +36,34 @@ export default [
     type: "function",
   },
   {
+    inputs: [],
+    name: "pool",
+    outputs: [
+      { internalType: "contract IStargatePool", name: "", type: "address" },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "poolId",
+    outputs: [{ internalType: "uint16", name: "", type: "uint16" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "stargateRouter",
+    outputs: [
+      { internalType: "contract IStargateRouter", name: "", type: "address" },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
+      { internalType: "address", name: "", type: "address" },
+      { internalType: "address", name: "", type: "address" },
       { internalType: "address", name: "recipient", type: "address" },
       { internalType: "uint256", name: "shareToMin", type: "uint256" },
       { internalType: "uint256", name: "shareFrom", type: "uint256" },
@@ -42,7 +79,7 @@ export default [
   },
   {
     inputs: [],
-    name: "token",
+    name: "underlyingToken",
     outputs: [{ internalType: "address", name: "", type: "address" }],
     stateMutability: "view",
     type: "function",
