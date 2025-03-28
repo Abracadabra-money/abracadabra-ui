@@ -1,17 +1,15 @@
-import getDelevVelodrome0xData from "./getDelevVelodrome0xData";
-import fetchDelevDefault0xData from "./fetchDelevDefault0xData";
-import fetchDelevMagicApe0xData from "./fetchDelevMagicApe0xData";
-import fetchDelevMagicGlp0xData from "./fetchDelevMagicGlp0xData";
-import fetchDelevStargateUSDT0xData from "./fetchDelevStargateUSDT0xData";
-import fetchDelevYvWeth0xData from "./fetchDelevYvWeth0xData";
-import fetchCvx3pool0xData from "./fetchCvx3pool";
-import fetchCvxTricrypto0xData from "./fetchCvxTricrypto0xData";
-import getDeUsd0xData from "./fetchDeUSD0xData";
-import fetchUSD0ppOdosData from "./fetchUSD0ppOdosData";
-
-import type { CauldronInfo } from "@/helpers/cauldron/types";
 import type { BigNumber } from "ethers";
-import type { Address } from "viem";
+import { encodeAbiParameters, type Address } from "viem";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
+import getDeUsd0xData from "@/helpers/cauldron/cook/0xSwapData/deleverage/fetchDeUSD0xData";
+import fetchCvx3pool0xData from "@/helpers/cauldron/cook/0xSwapData/deleverage/fetchCvx3pool";
+import fetchUSD0ppOdosData from "@/helpers/cauldron/cook/0xSwapData/deleverage/fetchUSD0ppOdosData";
+import fetchDelevYvWeth0xData from "@/helpers/cauldron/cook/0xSwapData/deleverage/fetchDelevYvWeth0xData";
+import getDelevVelodrome0xData from "@/helpers/cauldron/cook/0xSwapData/deleverage/getDelevVelodrome0xData";
+import fetchCvxTricrypto0xData from "@/helpers/cauldron/cook/0xSwapData/deleverage/fetchCvxTricrypto0xData";
+import fetchDelevMagicGlp0xData from "@/helpers/cauldron/cook/0xSwapData/deleverage/fetchDelevMagicGlp0xData";
+import { fetchDelevDefault0xData } from "@/helpers/cauldron/cook/0xSwapData/deleverage/fetchDelevDefault0xData";
+import fetchDelevStargateUSDT0xData from "@/helpers/cauldron/cook/0xSwapData/deleverage/fetchDelevStargateUSDT0xData";
 
 const getDelev0xData = async (
   cauldronObject: CauldronInfo,
@@ -22,7 +20,6 @@ const getDelev0xData = async (
   const {
     isMagicGLP,
     isVelodrome,
-    isMagicApe,
     isStargateUSDT,
     isYvWethV2,
     isCvxTricrypto,
@@ -33,20 +30,7 @@ const getDelev0xData = async (
 
   if (isVelodrome) return getDelevVelodrome0xData();
 
-  if (isMagicGLP)
-    return await fetchDelevMagicGlp0xData(
-      cauldronObject,
-      collateralAmount,
-      slipage
-    );
-
-  if (isMagicApe)
-    return await fetchDelevMagicApe0xData(
-      cauldronObject,
-      collateralAmount,
-      slipage
-    );
-
+  // 0x
   if (isStargateUSDT)
     return await fetchDelevStargateUSDT0xData(
       cauldronObject,
@@ -72,17 +56,33 @@ const getDelev0xData = async (
   if (isCvx3pool)
     return await fetchCvx3pool0xData(cauldronObject, collateralAmount, slipage);
 
+  if (isMagicGLP)
+    return await fetchDelevMagicGlp0xData(
+      cauldronObject,
+      collateralAmount,
+      slipage
+    );
+
+  // odos
+
+  if (isUSD0)
+    return await fetchUSD0ppOdosData(cauldronObject, collateralAmount, slipage);
+
   if (iStdeUSD)
     return await getDeUsd0xData(cauldronObject, collateralAmount, slipage);
 
-  if (isUSD0) {
-    return await fetchUSD0ppOdosData(cauldronObject, collateralAmount, slipage);
-  }
-
-  return await fetchDelevDefault0xData(
+  const swapResponseData = await fetchDelevDefault0xData(
     cauldronObject,
     collateralAmount,
     slipage
+  );
+
+  return encodeAbiParameters(
+    [
+      { name: "to", type: "address" },
+      { name: "swapData", type: "bytes" },
+    ],
+    [swapResponseData.to, swapResponseData.data]
   );
 };
 
