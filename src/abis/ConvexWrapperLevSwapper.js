@@ -2,7 +2,7 @@ export default [
   {
     inputs: [
       {
-        internalType: "contract IBentoBoxV1",
+        internalType: "contract IBentoBoxLite",
         name: "_bentoBox",
         type: "address",
       },
@@ -20,7 +20,6 @@ export default [
       { internalType: "address", name: "_curvePool", type: "address" },
       { internalType: "address", name: "_curvePoolDepositor", type: "address" },
       { internalType: "address[]", name: "_poolTokens", type: "address[]" },
-      { internalType: "address", name: "_zeroXExchangeProxy", type: "address" },
     ],
     stateMutability: "nonpayable",
     type: "constructor",
@@ -30,9 +29,9 @@ export default [
   { inputs: [], name: "ErrUnsupportedCurvePoolLength", type: "error" },
   {
     inputs: [],
-    name: "bentoBox",
+    name: "box",
     outputs: [
-      { internalType: "contract IBentoBoxV1", name: "", type: "address" },
+      { internalType: "contract IBentoBoxLite", name: "", type: "address" },
     ],
     stateMutability: "view",
     type: "function",
@@ -102,13 +101,6 @@ export default [
     outputs: [
       { internalType: "contract IConvexWrapper", name: "", type: "address" },
     ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "zeroXExchangeProxy",
-    outputs: [{ internalType: "address", name: "", type: "address" }],
     stateMutability: "view",
     type: "function",
   },

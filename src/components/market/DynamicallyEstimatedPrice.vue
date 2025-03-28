@@ -6,6 +6,7 @@
       :isClose="isClose"
       :mimAddress="cauldron.config.mimInfo.address"
       :chainId="cauldron.config.chainId"
+      :cauldron="cauldron"
     />
 
     <DynamicApr
