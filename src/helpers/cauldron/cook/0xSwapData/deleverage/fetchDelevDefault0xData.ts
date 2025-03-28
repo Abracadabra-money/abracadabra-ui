@@ -1,20 +1,18 @@
-import { swap0xRequest } from "@/helpers/0x";
-
-import type { CauldronInfo } from "@/helpers/cauldron/types";
 import type { BigNumber } from "ethers";
+import { swap0xRequestV2 } from "@/helpers/0x";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 
-const fetchDelevDefault0xData = async (
+export const fetchDelevDefault0xData = async (
   cauldronObject: CauldronInfo,
   collateralAmount: BigNumber,
   slipage: number
 ) => {
-  //@ts-ignore
   const { collateral, liquidationSwapper, mim } = cauldronObject.contracts;
 
   const selToken = collateral.address;
   const selAmount = collateralAmount;
 
-  const response = await swap0xRequest(
+  return await swap0xRequestV2(
     cauldronObject.config.chainId,
     mim.address,
     selToken,
@@ -23,9 +21,4 @@ const fetchDelevDefault0xData = async (
     selAmount,
     liquidationSwapper!.address
   );
-
-  // @ts-ignore
-  return response.data;
 };
-
-export default fetchDelevDefault0xData;
