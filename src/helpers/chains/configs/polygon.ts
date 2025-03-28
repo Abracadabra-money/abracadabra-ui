@@ -5,7 +5,6 @@ import { initPublicClient } from "@/helpers/chains/initPublicClient";
 import { initStaticJsonRpcProvider } from "@/helpers/chains/initStaticJsonRpcProvider";
 
 const rpcList = filterRpcUrls(polygon, [
-  "https://polygon.llamarpc.com",
   "https://endpoints.omniatech.io/v1/matic/mainnet/public",
   // "https://rpc-mainnet.maticvigil.com",
   "https://polygon-rpc.com",

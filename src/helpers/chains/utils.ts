@@ -3,6 +3,12 @@ import type { Chain } from "viem";
 const badRequestListRpc = [
   "https://mainnet.optimism.io",
   "https://mainnet.base.org",
+  "https://arbitrum.llamarpc.com",
+  "https://base.llamarpc.com",
+  "https://binance.llamarpc.com",
+  "https://eth.llamarpc.com",
+  "https://optimism.llamarpc.com",
+  "https://polygon.llamarpc.com",
 ];
 
 export const filterRpcUrls = (config: Chain, rpcUrls: string[]) => {

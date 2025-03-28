@@ -5,7 +5,6 @@ import { initPublicClient } from "@/helpers/chains/initPublicClient";
 import { initStaticJsonRpcProvider } from "@/helpers/chains/initStaticJsonRpcProvider";
 
 const rpcList = filterRpcUrls(mainnet, [
-  "https://eth.llamarpc.com",
   "https://ethereum.publicnode.com",
   "https://eth.drpc.org",
   "https://rpc.ankr.com/eth",
