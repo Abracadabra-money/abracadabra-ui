@@ -47,7 +47,7 @@ import moment from "moment";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
 import { type Address, formatUnits, parseUnits } from "viem";
-import { approveTokenViem } from "@/helpers/approval";
+import { approveToken } from "@/helpers/approval";
 import { formatToFixed } from "@/helpers/filters";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import type { PoolConfig } from "@/configs/pools/types";
@@ -388,7 +388,7 @@ export default {
       }
 
       try {
-        await approveTokenViem(tokenContract, MAX_ALLOWANCE_VALUE);
+        await approveToken(tokenContract, this.pool!.swapRouter);
         await this.getPoolInfo();
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.success);

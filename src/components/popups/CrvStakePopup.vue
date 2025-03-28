@@ -50,7 +50,7 @@ import { formatToFixed } from "@/helpers/filters";
 import { defineAsyncComponent } from "vue";
 import { parseUnits, formatUnits } from "viem";
 import actions from "@/helpers/stake/crv/actions/";
-import { approveTokenViem } from "@/helpers/approval";
+import { approveToken } from "@/helpers/approval";
 import { mapGetters, mapMutations, mapActions } from "vuex";
 import notification from "@/helpers/notification/notification";
 import { getCrvStakeInfo } from "@/helpers/stake/crv/getCrvStakeInfo";
@@ -178,7 +178,7 @@ export default {
         notification.approvePending
       );
 
-      const approve = await approveTokenViem(
+      const approve = await approveToken(
         this.stakeToken.contract,
         this.mainToken.contract.address
       );

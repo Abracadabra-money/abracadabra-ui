@@ -187,7 +187,7 @@ import { useImage } from "@/helpers/useImage";
 import { parseUnits, formatUnits } from "viem";
 import { ZERO_VALUE } from "@/constants/global";
 import actions from "@/helpers/stake/spell/actions/";
-import { approveTokenViem } from "@/helpers/approval";
+import { approveToken } from "@/helpers/approval";
 import { dataRefresher } from "@/helpers/dataRefresher";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
@@ -535,7 +535,7 @@ export default {
         notification.approvePending
       );
 
-      const approve = await approveTokenViem(
+      const approve = await approveToken(
         this.stakeToken.contract,
         this.mainToken!.contract.address,
         this.inputAmount

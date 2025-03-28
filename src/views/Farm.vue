@@ -75,7 +75,7 @@ import { notificationErrorMsg } from "@/helpers/notification/notificationError.j
 import notification from "@/helpers/notification/notification";
 import { createFarmData, emptyFarmData } from "@/helpers/farm/createFarmData";
 import { parseUnits, formatUnits } from "viem";
-import { approveTokenViem } from "@/helpers/approval";
+import { approveToken } from "@/helpers/approval";
 import actions from "@/helpers/farm/actions";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { trimZeroDecimals } from "@/helpers/numbers";
@@ -355,7 +355,7 @@ export default {
       );
 
       try {
-        await approveTokenViem(
+        await approveToken(
           this.selectedFarm!.stakingToken.contractInfo,
           this.selectedFarm!.contractInfo.address
         );

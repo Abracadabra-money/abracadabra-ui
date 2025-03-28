@@ -63,7 +63,7 @@
 <script lang="ts">
 import { formatUnits, parseUnits } from "viem";
 import { defineAsyncComponent } from "vue";
-import { approveTokenViem } from "@/helpers/approval";
+import { approveToken } from "@/helpers/approval";
 import { formatTokenBalance } from "@/helpers/filters";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { tokensChainLink } from "@/configs/chainLink/config";
@@ -249,7 +249,7 @@ export default {
         notification.approvePending
       );
 
-      const approve = await approveTokenViem(
+      const approve = await approveToken(
         this.fromToken.contract,
         this.stakeInfo.config.contract.address
       );

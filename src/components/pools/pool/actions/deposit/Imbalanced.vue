@@ -71,7 +71,7 @@ import { formatUnits } from "viem";
 import debounce from "lodash.debounce";
 import { defineAsyncComponent } from "vue";
 import { trimZeroDecimals } from "@/helpers/numbers";
-import { approveTokenViem } from "@/helpers/approval";
+import { approveToken } from "@/helpers/approval";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
@@ -297,7 +297,7 @@ export default {
       );
 
       try {
-        await approveTokenViem(
+        await approveToken(
           token.config.contract,
           this.pool.swapRouter,
           valueToApprove
