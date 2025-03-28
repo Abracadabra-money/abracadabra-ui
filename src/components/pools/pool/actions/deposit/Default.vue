@@ -82,7 +82,7 @@ import { mapActions, mapGetters, mapMutations } from "vuex";
 import { formatUnits, parseUnits } from "viem";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification";
-import { approveTokenViem } from "@/helpers/approval";
+import { approveToken } from "@/helpers/approval";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import { previewAddLiquidity } from "@/helpers/pools/swap/liquidity";
 import { addLiquidity } from "@/helpers/pools/swap/actions/addLiquidity";
@@ -287,7 +287,7 @@ export default {
       );
 
       try {
-        await approveTokenViem(
+        await approveToken(
           token.config.contract,
           this.pool.swapRouter,
           valueToApprove

@@ -55,7 +55,7 @@ import { formatUnits } from "viem";
 import type { PropType } from "vue";
 import { defineAsyncComponent } from "vue";
 import { mint } from "@/helpers/bSpell/actions/mint";
-import { approveTokenViem } from "@/helpers/approval";
+import { approveToken } from "@/helpers/approval";
 import type { BSpellInfo } from "@/helpers/bSpell/types";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
@@ -140,7 +140,7 @@ export default {
         notification.approvePending
       );
 
-      const approve = await approveTokenViem(
+      const approve = await approveToken(
         this.bSpellInfo!.spell.contract,
         this.bSpellInfo!.tokenBank.address,
         this.inputAmount

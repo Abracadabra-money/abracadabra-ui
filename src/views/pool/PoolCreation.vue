@@ -161,7 +161,7 @@ import type {
   PoolCreationTokenInfo,
 } from "@/configs/pools/poolCreation/types";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
-import { approveTokenViem } from "@/helpers/approval";
+import { approveToken } from "@/helpers/approval";
 import notification from "@/helpers/notification/notification";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError";
 import type { ContractInfo } from "@/types/global";
@@ -545,7 +545,7 @@ export default {
         notification.approvePending
       );
 
-      const approve = await approveTokenViem(
+      const approve = await approveToken(
         contract,
         this.routerAddress,
         valueToApprove
