@@ -1,5 +1,4 @@
-import { ARBITRUM_CHAIN_ID, MAINNET_CHAIN_ID } from "@/constants/global";
-import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
+import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
 import { getSpellStakingApr } from "@/helpers/stake/spell/getSpellStakingApr";
 
@@ -13,12 +12,7 @@ const getGlpApr = async () => {
   return glpAprs.magicGlpApy;
 };
 
-const getApeApr = async () => {
-  return await getMagicApeApy(MAINNET_CHAIN_ID);
-};
-
 export const stakeAPRGetters = {
   magicGLP: getGlpApr,
   StakeSpell: getSpellApr,
-  magicAPE: getApeApr,
 };
