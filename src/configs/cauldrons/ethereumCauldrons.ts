@@ -16,6 +16,8 @@ import YearnSwapper from "@/abis/YearnSwapper";
 import SDEUSDSwapper from "@/abis/SDEUSDSwapper";
 import { useImage } from "@/helpers/useImage";
 import { GNOSIS_SAFE_ADDRESS } from "@/constants/global";
+import stargateLPSwapper from "@/abis/stargateLPSwapper";
+import stargateLPLevSwapper from "@/abis/stargateLPLevSwapper";
 
 import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
 
@@ -260,11 +262,11 @@ const config: Array<CauldronConfig> = [
     },
     mimInfo,
     leverageInfo: {
-      address: "0x5D611b10fd4D1702925d0A7B3dfBE08b2b69F560",
+      address: "0x63E44f1893E92897AF9756Da35fc5a01c3897F22",
       abi: YearnLevSwapper,
     },
     deleverageInfo: {
-      address: "0x1D369DF0B996453E538524C5cE6e1747FB8534F4",
+      address: "0x1a5767D9040fab7bbD80a102EfCE9F1199c8c7c7",
       abi: YearnSwapper,
     },
   },
@@ -610,11 +612,11 @@ const config: Array<CauldronConfig> = [
     },
     mimInfo,
     leverageInfo: {
-      address: "0x69D8fbD1343a7f9BF4216B9e7f09b38Bb9B26027",
+      address: "0x9B27081B3D5F0229356E4c8D2bc8FF7ffAC21673",
       abi: ConvexWrapperLevSwapper,
     },
     deleverageInfo: {
-      address: "0xB77f57FE82CDddB5d02bb0E32e70bee75Abb511a",
+      address: "0x9227B5d7a0edb837aa9AeEeB15aF06ee03182367",
       abi: ConvexWrapperSwapper,
     },
   },
@@ -962,11 +964,11 @@ const config: Array<CauldronConfig> = [
     },
     mimInfo,
     leverageInfo: {
-      address: "0x5ceD842a0FD7F215D7D8151BC70a8CddA038a0C8",
+      address: "0x6421Ff3400FdE6955000EE89a3779d95543D6AD5",
       abi: ConvexWrapperLevSwapper,
     },
     deleverageInfo: {
-      address: "0xdBd587b076EE117043AD16b319F733aA33aDEb2b",
+      address: "0xFce52F14C092932db32D678eeA5EEaF7344688C2",
       abi: ConvexWrapperSwapper,
     },
   },
@@ -1351,14 +1353,14 @@ const config: Array<CauldronConfig> = [
       abi: tokensAbi.LUSD,
     },
     mimInfo,
-    leverageInfo: {
-      address: "0x29CF1123Adc07FE5b23cf46Ab7247aFE9fBd20fF",
-      abi: zeroXLevSwapperAbi,
-    },
-    deleverageInfo: {
-      address: "0x6655bDefd9E03B552075Bc992c986E48294AED2b",
-      abi: zeroXLiqSwapperAbi,
-    },
+    // leverageInfo: {
+    //   address: "0x29CF1123Adc07FE5b23cf46Ab7247aFE9fBd20fF",
+    //   abi: zeroXLevSwapperAbi,
+    // },
+    // deleverageInfo: {
+    //   address: "0x6655bDefd9E03B552075Bc992c986E48294AED2b",
+    //   abi: zeroXLiqSwapperAbi,
+    // },
   },
   {
     icon: useImage(`assets/images/tokens/CRV.png`),
@@ -1619,12 +1621,12 @@ const config: Array<CauldronConfig> = [
     },
     mimInfo,
     leverageInfo: {
-      address: "0x88650a9A0F8894C0bc0d6AE833A64f7E34644935",
-      abi: ERC4626LevSwapper,
+      address: "0x7B22ae0C771452344Dd11D10F659e134cD659279",
+      abi: stargateLPLevSwapper,
     },
     deleverageInfo: {
-      address: "0xa5564a2d1190a141CAC438c9fde686aC48a18A79",
-      abi: ERC4626LiqSwapper,
+      address: "0xF1BD2a9D96E041126f49CE3035E7beAC6A207e32",
+      abi: stargateLPSwapper,
     },
   },
   {

@@ -2,7 +2,7 @@ export default [
   {
     inputs: [
       {
-        internalType: "contract IBentoBoxV1",
+        internalType: "contract IBentoBoxLite",
         name: "_bentoBox",
         type: "address",
       },
@@ -11,8 +11,7 @@ export default [
         name: "_wrapper",
         type: "address",
       },
-      { internalType: "contract IERC20", name: "_mim", type: "address" },
-      { internalType: "address", name: "_zeroXExchangeProxy", type: "address" },
+      { internalType: "address", name: "_mim", type: "address" },
     ],
     stateMutability: "nonpayable",
     type: "constructor",
@@ -22,7 +21,7 @@ export default [
     inputs: [],
     name: "bentoBox",
     outputs: [
-      { internalType: "contract IBentoBoxV1", name: "", type: "address" },
+      { internalType: "contract IBentoBoxLite", name: "", type: "address" },
     ],
     stateMutability: "view",
     type: "function",
@@ -30,7 +29,7 @@ export default [
   {
     inputs: [],
     name: "mim",
-    outputs: [{ internalType: "contract IERC20", name: "", type: "address" }],
+    outputs: [{ internalType: "address", name: "", type: "address" }],
     stateMutability: "view",
     type: "function",
   },
@@ -41,7 +40,7 @@ export default [
       { internalType: "address", name: "recipient", type: "address" },
       { internalType: "uint256", name: "shareToMin", type: "uint256" },
       { internalType: "uint256", name: "shareFrom", type: "uint256" },
-      { internalType: "bytes", name: "swapData", type: "bytes" },
+      { internalType: "bytes", name: "data", type: "bytes" },
     ],
     name: "swap",
     outputs: [
@@ -54,7 +53,7 @@ export default [
   {
     inputs: [],
     name: "underlyingToken",
-    outputs: [{ internalType: "contract IERC20", name: "", type: "address" }],
+    outputs: [{ internalType: "address", name: "", type: "address" }],
     stateMutability: "view",
     type: "function",
   },
@@ -64,13 +63,6 @@ export default [
     outputs: [
       { internalType: "contract IYearnVault", name: "", type: "address" },
     ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "zeroXExchangeProxy",
-    outputs: [{ internalType: "address", name: "", type: "address" }],
     stateMutability: "view",
     type: "function",
   },

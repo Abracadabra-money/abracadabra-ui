@@ -18,11 +18,13 @@
 
 <script lang="ts">
 import { utils } from "ethers";
-import { mapGetters } from "vuex";
+import { formatUnits } from "viem";
+import type { PropType } from "vue";
 import { defineAsyncComponent } from "vue";
-// @ts-ignore
-import { swap0xRequest } from "@/helpers/0x";
+import { swap0xRequestV2 } from "@/helpers/0x";
 import { chainsUsdcConfigs } from "@/configs/tokens/usdc";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
+import { normalizeDecimals } from "@/helpers/normalizeDecimals";
 
 export default {
   props: {
@@ -44,6 +46,10 @@ export default {
     chainId: {
       type: Number,
       default: 1,
+    },
+    cauldron: {
+      type: Object as PropType<CauldronInfo>,
+      required: true,
     },
   },
 
@@ -99,17 +105,30 @@ export default {
         : "Dynamic Fees may vary depending on current $MIM liquidity and it is not collected by the protocol. The closer $MIM is trading to $1, the lower the fee.";
     },
 
+    mimToken() {
+      return {
+        address: this.mimAddress,
+        decimals: 18,
+      };
+    },
+
+    usdcToken() {
+      return {
+        address:
+          chainsUsdcConfigs[this.chainId as keyof typeof chainsUsdcConfigs]
+            .address,
+        decimals: 6,
+      };
+    },
+
     buyToken() {
-      if (!this.isClose)
-        return chainsUsdcConfigs[this.chainId as keyof typeof chainsUsdcConfigs]
-          .address;
-      return this.mimAddress;
+      if (!this.isClose) return this.usdcToken;
+      return this.mimToken;
     },
 
     sellToken() {
-      if (!this.isClose) return this.mimAddress;
-      return chainsUsdcConfigs[this.chainId as keyof typeof chainsUsdcConfigs]
-        .address;
+      if (!this.isClose) return this.mimToken;
+      return this.usdcToken;
     },
   },
 
@@ -122,24 +141,47 @@ export default {
   methods: {
     async getPrice() {
       if (this.isFetching) return false;
-
       this.isFetching = true;
 
-      const paylod: any = [
+      const leverageInfo = this.cauldron.config.leverageInfo;
+      const deleverageInfo = this.cauldron.config.deleverageInfo;
+
+      if (!leverageInfo || !deleverageInfo) return false;
+
+      const takerAddress = this.isClose
+        ? deleverageInfo!.address
+        : leverageInfo!.address;
+
+      const normalizedAmount = this.isClose
+        ? normalizeDecimals(
+            this.amount.toBigInt(),
+            this.buyToken.decimals,
+            this.sellToken.decimals
+          )
+        : this.amount;
+
+      const swapResponse = await swap0xRequestV2(
         this.chainId,
-        this.buyToken,
-        this.sellToken,
+        this.buyToken.address,
+        this.sellToken.address,
         this.slippage,
-      ];
+        normalizedAmount,
+        takerAddress
+      );
 
-      if (this.isClose) paylod.push(0, undefined, this.amount);
-      else paylod.push(this.amount);
+      const buyAmount = Number(
+        formatUnits(swapResponse.buyAmount.toBigInt(), this.buyToken.decimals)
+      );
 
-      const { price }: any = await swap0xRequest(...paylod);
+      const sellAmount = Number(
+        formatUnits(swapResponse.sellAmount.toBigInt(), this.sellToken.decimals)
+      );
 
-      this.isProfit = this.isClose ? price <= 1 : price >= 1;
+      this.price = this.isClose
+        ? sellAmount / buyAmount
+        : buyAmount / sellAmount;
+      this.isProfit = this.isClose ? this.price <= 1 : this.price >= 1;
 
-      this.price = price;
       this.isFetching = false;
     },
   },
