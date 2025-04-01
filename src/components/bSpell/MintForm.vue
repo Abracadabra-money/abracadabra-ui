@@ -58,9 +58,10 @@ import { mint } from "@/helpers/bSpell/actions/mint";
 import { approveTokenViem } from "@/helpers/approval";
 import type { BSpellInfo } from "@/helpers/bSpell/types";
 import { mapActions, mapGetters, mapMutations } from "vuex";
-import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
 import ErrorHandler from "@/helpers/errorHandler/ErrorHandler";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import { openConnectPopup } from "@/helpers/connect/utils";
 
 export default {
   emits: ["updateBSpellInfo"],
@@ -156,10 +157,7 @@ export default {
     async actionHandler() {
       if (this.isActionDisabled) return false;
 
-      if (!this.account && this.isUnsupportedChain) {
-        // @ts-ignore
-        return this.$openWeb3modal();
-      }
+      if (!this.account && this.isUnsupportedChain) return openConnectPopup();
 
       if (!this.isUnsupportedChain) {
         return switchNetwork(this.selectedNetwork);

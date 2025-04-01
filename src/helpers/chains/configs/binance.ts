@@ -1,14 +1,9 @@
 import { bsc } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
-import { filterRpcUrls } from "@/helpers/chains/utils";
+import { getRpcListByChainId } from "@/helpers/chains/utils";
 import { initPublicClient } from "@/helpers/chains/initPublicClient";
-import { initStaticJsonRpcProvider } from "@/helpers/chains/initStaticJsonRpcProvider";
 
-const rpcList = filterRpcUrls(bsc, [
-  "https://bsc-dataseed1.ninicoin.io",
-  "https://bsc-dataseed2.ninicoin.io",
-  "https://bsc-dataseed3.ninicoin.io",
-]);
+const rpcList = getRpcListByChainId(bsc.id);
 
 const viemConfig = {
   ...bsc,
@@ -21,14 +16,11 @@ const viemConfig = {
     },
   },
 };
-
 const publicClient = initPublicClient(viemConfig);
-const ethersProvider = await initStaticJsonRpcProvider(bsc.id);
 
 export const binanceConfig = {
+  viemConfig,
   publicClient,
-  ethersProvider,
-  viemConfig: viemConfig,
   chainId: bsc.id,
   chainName: "BNB Chain",
   symbol: "BSC",
