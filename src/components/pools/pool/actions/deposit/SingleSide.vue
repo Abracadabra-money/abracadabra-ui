@@ -68,6 +68,7 @@ import { actionStatus } from "@/components/pools/pool/PoolActionBlock.vue";
 
 import { addLiquidityOneSideOptimal } from "@/helpers/pools/swap/addLiquidityOneSideOptimal";
 import { addLiquidityOneSide } from "@/helpers/pools/swap/actions/addLiquidityOneSide";
+import { openConnectPopup } from "@/helpers/connect/utils";
 
 export default {
   props: {
@@ -293,10 +294,7 @@ export default {
     async actionHandler() {
       if (this.isButtonDisabled) return false;
       if (!this.isProperNetwork) return switchNetwork(this.pool.chainId);
-      if (!this.account) {
-        // @ts-ignore
-        return this.$openWeb3modal();
-      }
+      if (!this.account) return openConnectPopup();
 
       if (!this.isAllowed) return await this.approveHandler();
 

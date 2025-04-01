@@ -8,6 +8,7 @@ import { WARNING_TYPES } from "@/helpers/cauldron/validators";
 import { getCookPayload } from "@/helpers/cauldron/getCookPayload";
 import { ACTION_TYPES } from "@/helpers/cauldron/getCookActionType";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import { openConnectPopup } from "@/helpers/connect/utils";
 
 import cooks from "@/helpers/cauldron/cook/cooks";
 
@@ -85,8 +86,7 @@ export default {
       const isConnect =
         this.cookValidationData.errorType === WARNING_TYPES.CONNECTION;
 
-      // @ts-ignore
-      if (isConnect) return this.$openWeb3modal();
+      if (isConnect) return openConnectPopup();
 
       if (this.useNoDeleverageConfirmationPopup) {
         this.isDeleverageInfoPopupOpened = true;

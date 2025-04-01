@@ -4,7 +4,7 @@ const configs = [
   {
     id: 8,
     chain: 43114,
-    href: "https://app.sushi.com/add/ETH/0x130966628846BFd36ff31a822705796e8cb8C18D",
+    href: "https://www.sushi.com/avalanche/pool/v2/0xcBb424fd93cDeC0EF330d8A8C985E8b147F62339/add",
     label: "Get SLP Tokens",
     icon: useImage(`assets/images/get-lp-icons/sushi.png`),
   },

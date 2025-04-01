@@ -193,6 +193,7 @@ import { mapGetters, mapActions, mapMutations } from "vuex";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
 import { getStakeInfo } from "@/helpers/stake/spell/getStakeInfo";
+import { openConnectPopup } from "@/helpers/connect/utils";
 
 export default {
   data() {
@@ -550,10 +551,8 @@ export default {
     async actionHandler() {
       if (this.isActionDisabled) return false;
 
-      if (!this.account && this.isUnsupportedChain) {
-        // @ts-ignore
-        return this.$openWeb3modal();
-      }
+      if (!this.account && this.isUnsupportedChain) return openConnectPopup();
+
       if (!this.isUnsupportedChain) {
         switchNetwork(this.selectedNetwork);
         return false;

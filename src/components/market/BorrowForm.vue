@@ -2,7 +2,7 @@
   <div class="borrow-form">
     <!-- TODO: MOVE TO MARKET -->
     <OrdersManager
-      v-if="cauldron && cauldron.config.cauldronSettings.isGMXMarket"
+      v-if="cauldron && cauldron.config.cauldronSettings.isGMXMarket && account"
       :cauldronObject="cauldron"
       :recoverLeverage="gmRecoverLeverageOrder"
       :deleverageFromOrder="gmDeleverageFromOrder"
@@ -110,6 +110,7 @@ import { defineAsyncComponent } from "vue";
 import type { DepositAmounts, SwapAmounts } from "@/helpers/cauldron/types";
 //@ts-ignore
 import tempMixin from "@/mixins/temp";
+import { mapGetters } from "vuex";
 
 export default {
   emits: ["updateToggle", "updateAmounts", "onUpdateMaxToBorrow"],
@@ -130,6 +131,10 @@ export default {
     };
   },
   computed: {
+    ...mapGetters({
+      account: "getAccount",
+    }),
+
     isLeverageAllowed() {
       const { isSwappersActive } = this.cauldron.config.cauldronSettings;
 
