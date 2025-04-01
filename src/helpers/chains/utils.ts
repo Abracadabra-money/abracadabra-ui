@@ -1,24 +1,32 @@
 import type { Chain } from "viem";
+import { MAINNET_CHAIN_ID } from "@/constants/global";
+import { chainsConfigs } from "@/helpers/chains/configs";
+import { badRequestListRpc, rpcList } from "@/helpers/chains/rpcList";
 
-const badRequestListRpc = [
-  "https://mainnet.optimism.io",
-  "https://mainnet.base.org",
-  "https://arbitrum.llamarpc.com",
-  "https://base.llamarpc.com",
-  "https://binance.llamarpc.com",
-  "https://eth.llamarpc.com",
-  "https://optimism.llamarpc.com",
-  "https://polygon.llamarpc.com",
-];
+export const filterRpcUrls = (rpcUrls: string[]) => {
+  const uniqueRpcUrls = new Set(rpcUrls);
+  return Array.from(uniqueRpcUrls).filter(
+    (rpc) => !badRequestListRpc.includes(rpc)
+  );
+};
 
-export const filterRpcUrls = (config: Chain, rpcUrls: string[]) => {
-  const { http } = config.rpcUrls.default || { http: [] };
+export const getRpcListByChainId = (chainId: number) => {
+  if (!rpcList[chainId]) return filterRpcUrls(rpcList[MAINNET_CHAIN_ID]);
+  return filterRpcUrls(rpcList[chainId]);
+};
 
-  for (let i = 0; i < http.length; i++) {
-    const defaultRpc = http[i];
-    if (badRequestListRpc.includes(defaultRpc)) continue;
-    rpcUrls.find((rpc) => rpc === defaultRpc) || rpcUrls.push(defaultRpc);
-  }
+export const getConnectChains = (): [Chain, ...Chain[]] => {
+  const chains = chainsConfigs.map((chain) => chain.viemConfig);
+  return [chains[0], ...chains.slice(1)] as [Chain, ...Chain[]];
+};
 
-  return rpcUrls;
+export const getRpcByChainId = (chainId: number): string => {
+  const chain = chainsConfigs.find((chain) => chain.chainId === chainId);
+  if (chain) return chain.viemConfig.rpcUrls.default.http[0];
+
+  return rpcList[MAINNET_CHAIN_ID][0];
+};
+
+export const getAvailableChainList = () => {
+  return chainsConfigs.map((chain) => chain.chainId);
 };

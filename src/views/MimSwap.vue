@@ -130,6 +130,7 @@ import { getAllPoolsByChain } from "@/helpers/pools/swap/magicLp";
 import type { ActionConfig, RouteInfo } from "@/helpers/pools/swap/getSwapInfo";
 import { validationActions } from "@/helpers/validators/swap/validationActions";
 import { getPoolConfigsByChains } from "@/helpers/pools/configs/getOrCreatePairsConfigs";
+import { openConnectPopup } from "@/helpers/connect/utils";
 
 const emptyTokenInfo: TokenInfo = {
   config: {
@@ -503,8 +504,7 @@ export default {
       // @ts-ignore
       switch (this.actionValidationData && this.actionValidationData.method) {
         case "connectWallet":
-          // @ts-ignore
-          await this.$openWeb3modal();
+          openConnectPopup();
           break;
         case "switchNetwork":
           await switchNetwork(this.selectedNetwork); //todo

@@ -1,22 +1,21 @@
-import { swap0xRequest } from "@/helpers/0x";
+import type { BigNumber } from "ethers";
+import { encodeAbiParameters } from "viem";
+import { swap0xRequestV2 } from "@/helpers/0x";
+import type { CauldronInfo } from "@/helpers/cauldron/types";
 
 const usdtAddress = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
-
-import type { CauldronInfo } from "@/helpers/cauldron/types";
-import type { BigNumber } from "ethers";
 
 const fetchDelevStargateUSDT0xData = async (
   cauldronObject: CauldronInfo,
   collateralAmount: BigNumber,
   slipage: number
 ) => {
-  //@ts-ignore
   const { liquidationSwapper, mim } = cauldronObject.contracts;
 
   const selAmount = collateralAmount;
   const selToken = usdtAddress;
 
-  const response = await swap0xRequest(
+  const swapResponse = await swap0xRequestV2(
     cauldronObject.config.chainId,
     mim.address,
     selToken,
@@ -26,8 +25,13 @@ const fetchDelevStargateUSDT0xData = async (
     liquidationSwapper!.address
   );
 
-  // @ts-ignore
-  return response.data;
+  return encodeAbiParameters(
+    [
+      { name: "to", type: "address" },
+      { name: "swapData", type: "bytes" },
+    ],
+    [swapResponse.to, swapResponse.data]
+  );
 };
 
 export default fetchDelevStargateUSDT0xData;

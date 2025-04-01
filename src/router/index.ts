@@ -62,11 +62,6 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/views/stake/MGLP.vue"),
   },
   {
-    path: "/magicAPE",
-    name: "magicAPE",
-    component: () => import("@/views/stake/MAPE.vue"),
-  },
-  {
     path: "/my-positions",
     name: "MyPositions",
     component: () => import("@/views/MyPositions.vue"),

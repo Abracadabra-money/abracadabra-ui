@@ -38,11 +38,12 @@ import { formatUnits } from "viem";
 import type { PropType } from "vue";
 import type { BSpellInfo } from "@/helpers/bSpell/types";
 import { mapActions, mapGetters, mapMutations } from "vuex";
-import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import ErrorHandler from "@/helpers/errorHandler/ErrorHandler";
 import notification from "@/helpers/notification/notification";
 import { getRewards } from "@/helpers/bSpell/actions/getRewards";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import { openConnectPopup } from "@/helpers/connect/utils";
 
 export default {
   emits: ["updateBSpellInfo"],
@@ -114,10 +115,7 @@ export default {
     async actionHandler() {
       if (this.isActionDisabled) return false;
 
-      if (!this.account && this.isUnsupportedChain) {
-        // @ts-ignore
-        return this.$openWeb3modal();
-      }
+      if (!this.account && this.isUnsupportedChain) return openConnectPopup();
 
       if (!this.isUnsupportedChain) {
         switchNetwork(this.selectedNetwork);

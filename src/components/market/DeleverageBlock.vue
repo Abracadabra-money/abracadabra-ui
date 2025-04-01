@@ -39,6 +39,7 @@
         :amount="deleverageAmounts.amountToMin"
         :mimAddress="cauldron.config.mimInfo.address"
         :chainId="cauldron.config.chainId"
+        :cauldron="cauldron"
       />
 
       <GmPriceImpact
@@ -56,7 +57,7 @@
       "
       v-if="showDeleverageWarning"
     >
-    Liquidity-Dependent Action
+      Liquidity-Dependent Action
     </Warning>
   </div>
 </template>
