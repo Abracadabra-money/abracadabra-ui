@@ -12,8 +12,14 @@
       />
     </div>
 
-    <StakingAprWrap :pool="pool" v-if="!rewardPointsType && !isDeprecatedFarm" />
-    <RewardPointsBannerWrap :rewardPointsType="rewardPointsType" v-else-if="rewardPointsType" />
+    <StakingAprWrap
+      :pool="pool"
+      v-if="!rewardPointsType && !isDeprecatedFarm"
+    />
+    <RewardPointsBannerWrap
+      :rewardPointsType="rewardPointsType"
+      v-else-if="rewardPointsType"
+    />
 
     <BaseButton primary @click="actionHandler" :disabled="isButtonDisabled">
       {{ buttonText }}
@@ -35,6 +41,7 @@ import { mapActions, mapGetters, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
+import { openConnectPopup } from "@/helpers/connect/utils";
 
 export default {
   props: {
@@ -59,7 +66,7 @@ export default {
       account: "getAccount",
     }),
 
-    isDeprecatedFarm(){
+    isDeprecatedFarm() {
       return this.pool.settings.isDeprecatedFarm;
     },
 
@@ -180,10 +187,7 @@ export default {
     async actionHandler() {
       if (this.isButtonDisabled) return false;
       if (!this.isProperNetwork) return switchNetwork(this.pool.chainId);
-      if (!this.account) {
-        // @ts-ignore
-        return this.$openWeb3modal();
-      }
+      if (!this.account) return openConnectPopup();
 
       this.isActionProcessing = true;
 

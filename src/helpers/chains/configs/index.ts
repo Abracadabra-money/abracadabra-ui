@@ -1,7 +1,7 @@
 import { arbitrumConfig } from "@/helpers/chains/configs/arbitrum";
 import { avalancheConfig } from "@/helpers/chains/configs/avalanche";
 import { baseConfig } from "@/helpers/chains/configs/base";
-import { beraBartioConfig } from "@/helpers/chains/configs/beraBartio";
+// import { beraBartioConfig } from "@/helpers/chains/configs/beraBartio";
 import { binanceConfig } from "@/helpers/chains/configs/binance";
 import { blastConfig } from "@/helpers/chains/configs/blast";
 import { fantomConfig } from "@/helpers/chains/configs/fantom";
@@ -12,8 +12,9 @@ import { moonriverConfig } from "@/helpers/chains/configs/moonriver";
 import { optimismConfig } from "@/helpers/chains/configs/optimism";
 import { polygonConfig } from "@/helpers/chains/configs/polygon";
 import { beraConfig } from "@/helpers/chains/configs/bera";
+import type { ChainConfig } from "@/helpers/chains/configs/type";
 
-export const chainsConfigs = [
+export const chainsConfigs: ChainConfig[] = [
   beraConfig,
   mainnetConfig,
   arbitrumConfig,
@@ -27,5 +28,5 @@ export const chainsConfigs = [
   moonriverConfig,
   baseConfig,
   lineaConfig,
-  beraBartioConfig,
+  // beraBartioConfig,
 ];

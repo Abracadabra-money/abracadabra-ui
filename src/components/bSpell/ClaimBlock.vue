@@ -45,9 +45,10 @@ import { claim } from "@/helpers/bSpell/actions/claim";
 import type { BSpellInfo } from "@/helpers/bSpell/types";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification";
-import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import ErrorHandler from "@/helpers/errorHandler/ErrorHandler";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import { openConnectPopup } from "@/helpers/connect/utils";
 
 export default {
   emits: ["updateBSpellInfo"],
@@ -105,10 +106,7 @@ export default {
     }),
 
     async actionHandler() {
-      if (!this.account && this.isUnsupportedChain) {
-        // @ts-ignore
-        return this.$openWeb3modal();
-      }
+      if (!this.account && this.isUnsupportedChain) return openConnectPopup();
 
       if (!this.isUnsupportedChain) return switchNetwork(this.selectedNetwork);
       await this.claimHandler();

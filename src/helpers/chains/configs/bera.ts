@@ -1,15 +1,12 @@
 import { useImage } from "@/helpers/useImage";
-import { BERA_CHAIN_ID } from "@/constants/global";
+import { berachain } from "@wagmi/core/chains";
+import { getRpcListByChainId } from "@/helpers/chains/utils";
 import { initPublicClient } from "@/helpers/chains/initPublicClient";
-import { initStaticJsonRpcProvider } from "@/helpers/chains/initStaticJsonRpcProvider";
 
-const rpcList = ["https://rpc.berachain.com"];
+const rpcList = getRpcListByChainId(berachain.id);
 
 const viemConfig = {
-  id: BERA_CHAIN_ID,
-  name: "Berachain Bartio",
-  network: "berachain",
-  nativeCurrency: { name: "Berachain", symbol: "BERA", decimals: 18 },
+  ...berachain,
   rpcUrls: {
     public: {
       http: rpcList,
@@ -18,26 +15,14 @@ const viemConfig = {
       http: rpcList,
     },
   },
-  blockExplorers: {
-    etherscan: { name: "Berascan", url: "https://berascan.com/" },
-    default: { name: "Berascan", url: "https://berascan.com/" },
-  },
-  contracts: {
-    multicall3: {
-      address: "0xcA11bde05977b3631167028862bE2a173976CA11",
-      blockCreated: 0,
-    },
-  },
 };
 
 const publicClient = initPublicClient(viemConfig);
-const ethersProvider = await initStaticJsonRpcProvider(BERA_CHAIN_ID);
 
 export const beraConfig = {
+  viemConfig,
   publicClient,
-  ethersProvider,
-  viemConfig: viemConfig,
-  chainId: BERA_CHAIN_ID,
+  chainId: berachain.id,
   chainName: "Berachain",
   symbol: "BERA",
   icon: useImage("assets/images/networks/bera.png"),

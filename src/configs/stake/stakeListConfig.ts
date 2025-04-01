@@ -82,30 +82,4 @@ export const stakeListConfig: StakeListItemConfig[] = [
       },
     ],
   },
-  {
-    name: "Magic APE",
-    description:
-      "Stake your SPELL into mSPELL! No impermanent loss, no loss of governance rights. Protocol Fee 1% ",
-    backgroundImage: useImage(
-      "assets/images/stake/stake-list/background-images/magic-ape.png"
-    ),
-    routerLinkName: "magicAPE",
-    mainToken: {
-      name: "magic APE",
-      symbol: "mAPE",
-      icon: useImage("assets/images/tokens/mAPE.png"),
-    },
-    stakeToken: {
-      name: "APE",
-      symbol: "APE",
-      icon: useImage("assets/images/tokens/APE.png"),
-    },
-    rewardTokens: [
-      {
-        name: "APE",
-        symbol: "APE",
-        icon: useImage("assets/images/tokens/APE.png"),
-      },
-    ],
-  },
 ];
