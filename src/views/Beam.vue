@@ -751,8 +751,8 @@ export default {
   },
 
   async created() {
-    await this.initBeamInfo(this.chainId);
-    this.fromChainId = this.chainId;
+    this.fromChainId =
+      (await this.initBeamInfo(this.chainId)) || MAINNET_CHAIN_ID;
   },
 
   components: {

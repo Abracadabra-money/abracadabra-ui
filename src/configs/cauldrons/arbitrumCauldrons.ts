@@ -57,11 +57,11 @@ const config: Array<CauldronConfig> = [
     },
     mimInfo,
     leverageInfo: {
-      address: "0xa116565cDF0Aa5f1fE36f82A9c8F0dc1dfc82cf0",
+      address: "0x7724E9A2015Ac9Eb8A75fa43Cc1358C9df9d5733",
       abi: zeroXLevSwapperAbi,
     },
     deleverageInfo: {
-      address: "0x16310c0fe8844EDE84d766dA9fFe24DFf1aFb4ff",
+      address: "0x0a3B95B04Fd629a900b6c83f0B5dfb77df057665",
       abi: zeroXLiqSwapperAbi,
     },
   },
@@ -167,11 +167,11 @@ const config: Array<CauldronConfig> = [
       },
     },
     leverageInfo: {
-      address: "0xDe36DEf82F9da4493925407e37E6548d5D9bd7eD",
+      address: "0xeA06aC85984AFCbD4B6C6d0E46dBEb06f11313a6",
       abi: magicGlpLevSwapperAbi,
     },
     deleverageInfo: {
-      address: "0xeB07b275dCe4b32FA3bbF505104C26E9A3B478d9",
+      address: "0xa919730e82d8D2EF8459115b72Fa42D6292f65e9",
       abi: magicGlpSwapperAbi,
     },
   },
@@ -429,14 +429,14 @@ const config: Array<CauldronConfig> = [
       abi: tokensAbi.WBTC,
     },
     mimInfo,
-    leverageInfo: {
-      address: "0xE8B450e761Ef727e4ccc7751AA23A2F6E01C6716",
-      abi: zeroXLevSwapperAbi,
-    },
-    deleverageInfo: {
-      address: "0x05803a6B250333e07eCFfceF317a7079100184CC",
-      abi: zeroXLiqSwapperAbi,
-    },
+    // leverageInfo: {
+    //   address: "0xE8B450e761Ef727e4ccc7751AA23A2F6E01C6716",
+    //   abi: zeroXLevSwapperAbi,
+    // },
+    // deleverageInfo: {
+    //   address: "0x05803a6B250333e07eCFfceF317a7079100184CC",
+    //   abi: zeroXLiqSwapperAbi,
+    // },
   },
   {
     icon: useImage(`assets/images/tokens/WETH.png`),
@@ -472,14 +472,14 @@ const config: Array<CauldronConfig> = [
       abi: tokensAbi.wETH,
     },
     mimInfo,
-    leverageInfo: {
-      address: "0x46C49eC4a9671Ba7B872AB97c0F3bCc8B7433801",
-      abi: zeroXLevSwapperAbi,
-    },
-    deleverageInfo: {
-      address: "0xad633c68D26754DC4De277AA1E2106ed00882395",
-      abi: zeroXLiqSwapperAbi,
-    },
+    // leverageInfo: {
+    //   address: "0x46C49eC4a9671Ba7B872AB97c0F3bCc8B7433801",
+    //   abi: zeroXLevSwapperAbi,
+    // },
+    // deleverageInfo: {
+    //   address: "0xad633c68D26754DC4De277AA1E2106ed00882395",
+    //   abi: zeroXLiqSwapperAbi,
+    // },
   },
   {
     icon: useImage(`assets/images/tokens/ZRO.png`),
@@ -492,7 +492,6 @@ const config: Array<CauldronConfig> = [
     version: 4,
     cauldronSettings: {
       isNew: false,
-      is0xSwap: true,
       isSwappersActive: false,
       isDegenBox: true,
       strategyLink: false,
@@ -528,7 +527,6 @@ const config: Array<CauldronConfig> = [
     version: 4,
     cauldronSettings: {
       isNew: false,
-      is0xSwap: true,
       isSwappersActive: false,
       isDegenBox: true,
       strategyLink: false,
