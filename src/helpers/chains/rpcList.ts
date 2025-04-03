@@ -19,7 +19,7 @@ export const DEFAULT_KAVA_RPC = "https://evm.kava.io";
 export const DEFAULT_AVALANCHE_RPC = "https://avalanche.drpc.org";
 export const DEFAULT_OPTIMISM_RPC = "https://optimism-rpc.publicnode.com";
 export const DEFAULT_FANTOM_RPC = "https://fantom-rpc.publicnode.com";
-export const DEFAULT_BSC_RPC = "https://bsc-dataseed.binance.org/";
+export const DEFAULT_BSC_RPC = "https://bsc-pokt.nodies.app";
 export const DEFAULT_POLYGON_RPC = "https://polygon-rpc.com";
 export const DEFAULT_MOONRIVER_RPC =
   "https://rpc.api.moonriver.moonbeam.network";
