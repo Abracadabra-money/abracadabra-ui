@@ -80,6 +80,7 @@ import actions from "@/helpers/farm/actions";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import type { FarmItem } from "@/configs/farms/types";
+import { openConnectPopup } from "@/helpers/connect/utils";
 
 export default {
   props: {
@@ -269,10 +270,7 @@ export default {
     async actionHandler() {
       if (this.isButtonDisabled || !this.selectedFarm) return false;
       if (!this.isProperNetwork) return switchNetwork(Number(this.farmChainId));
-      if (!this.account) {
-        // @ts-ignore
-        return this.$openWeb3modal();
-      }
+      if (!this.account) return openConnectPopup();
 
       this.isActionProcessing = true;
 

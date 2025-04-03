@@ -58,7 +58,6 @@ import { defineAsyncComponent } from "vue";
 // import { ANALYTICS_URK } from "@/constants/global";
 import { MIM_PRICE, ONE_ETHER_VIEM } from "@/constants/global";
 import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
-import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
 import type { MainTokenInfo, StakeTokenInfo } from "@/helpers/stake/types";
 
 export default {
@@ -123,7 +122,6 @@ export default {
     async fetchApeApy() {
       if (!this.selectedNetwork) return false;
       this.apr = 0;
-      this.apr = await getMagicApeApy(this.selectedNetwork);
     },
 
     async fetchApr() {

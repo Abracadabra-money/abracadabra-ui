@@ -1,17 +1,9 @@
 import { linea } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
-import { filterRpcUrls } from "@/helpers/chains/utils";
+import { getRpcListByChainId } from "@/helpers/chains/utils";
 import { initPublicClient } from "@/helpers/chains/initPublicClient";
-import { initStaticJsonRpcProvider } from "@/helpers/chains/initStaticJsonRpcProvider";
 
-const rpcList = filterRpcUrls(linea, [
-  "https://linea-rpc.publicnode.com",
-  "https://rpc.linea.build",
-  "https://linea.decubate.com",
-  "https://linea.drpc.org",
-  "https://1rpc.io/linea",
-  "https://linea.blockpi.network/v1/rpc/public",
-]);
+const rpcList = getRpcListByChainId(linea.id);
 
 const viemConfig = {
   ...linea,
@@ -24,14 +16,11 @@ const viemConfig = {
     },
   },
 };
-
 const publicClient = initPublicClient(viemConfig);
-const ethersProvider = await initStaticJsonRpcProvider(linea.id);
 
 export const lineaConfig = {
+  viemConfig,
   publicClient,
-  ethersProvider,
-  viemConfig: viemConfig,
   chainId: linea.id,
   chainName: "Linea",
   symbol: "Linea",

@@ -16,7 +16,7 @@ const ethereumFarms: FarmConfig[] = [
       name: "SLP",
       type: "SLP",
       decimals: 18,
-      link: "https://app.sushi.com/add/ETH/0x090185f2135308BaD17527004364eBcC2D37e5F6",
+      link: "https://www.sushi.com/ethereum/pool/v2/0xb5De0C3753b6E1B4dBA616Db82767F17513E6d4E/add",
       abi: erc20Abi,
     },
     earnedToken: {
@@ -49,7 +49,7 @@ const ethereumFarms: FarmConfig[] = [
       name: "SLP",
       type: "SLP",
       decimals: 18,
-      link: "https://app.sushi.com/add/ETH/0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3",
+      link: "https://www.sushi.com/ethereum/pool/v2/0x07D5695a24904CC1B6e3bd57cC7780B90618e3c4/add",
       abi: erc20Abi,
     },
     earnedToken: {

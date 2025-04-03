@@ -1,19 +1,24 @@
+import type { Address } from "viem";
+import type { BigNumber } from "ethers";
 import { swapOdosRequest } from "@/helpers/odos";
 import type { CauldronInfo } from "@/helpers/cauldron/types";
-import type { BigNumber } from "ethers";
-import type { Address } from "viem";
+
+type OdosSwapResponse = {
+  to: Address;
+  data: Address;
+};
+
 export const fetchLevOdosData = async (
   cauldronObject: CauldronInfo,
   amount: BigNumber,
   slipage: number,
   buyToken: Address
-) => {
-  //@ts-ignore
+): Promise<OdosSwapResponse> => {
   const { collateral, mim, leverageSwapper } = cauldronObject.contracts;
 
   const swapResponse = await swapOdosRequest(
     cauldronObject.config.chainId,
-    buyToken ? buyToken : collateral.address as Address,
+    buyToken ? buyToken : (collateral.address as Address),
     mim.address as Address,
     slipage,
     //@ts-ignore
@@ -21,9 +26,7 @@ export const fetchLevOdosData = async (
     leverageSwapper!.address
   );
 
-  console.log(swapResponse);
-
-  return swapResponse;
+  return swapResponse as OdosSwapResponse;
 };
 
 export default fetchLevOdosData;
