@@ -93,7 +93,7 @@ const config: Array<CauldronConfig> = [
     version: 4,
     cauldronSettings: {
       is0xSwap: true,
-      isSwappersActive: false, // TEST,
+      isSwappersActive: true, // TEST,
       isDegenBox: true,
       strategyLink: false,
       isDepreciated: false,
@@ -161,7 +161,7 @@ const config: Array<CauldronConfig> = [
     version: 4,
     cauldronSettings: {
       is0xSwap: true,
-      isSwappersActive: false, // TEST
+      isSwappersActive: true, // TEST
       isDegenBox: true,
       strategyLink: false,
       isDepreciated: false,

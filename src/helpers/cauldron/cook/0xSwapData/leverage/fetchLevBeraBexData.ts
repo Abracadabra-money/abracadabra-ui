@@ -4,21 +4,11 @@ import { BigNumber } from "ethers";
 import { encodeAbiParameters, type Address } from "viem";
 import { swapOogaBoogaRequest } from "@/helpers/oogaBooga";
 import { computeBexAddLiquidityProportion } from "@/helpers/bera/computeBexAddLiquidityProportion";
-
-// const swapDataAbi = {
-//   components: [
-//     {
-//       name: "to",
-//       type: "address",
-//     },
-//     {
-//       name: "swapData",
-//       type: "bytes",
-//     },
-//   ],
-//   name: "SwapInfo",
-//   type: "tuple",
-// } as const;
+import { utils } from "ethers";
+const swapDataAbi = [
+  { name: "to", type: "address[]" }, 
+  { name: "swapData", type: "bytes[]" }
+] as const;
 
 // return swapData bytes
 const fetchLevBeraBexData = async (
@@ -53,14 +43,22 @@ const fetchLevBeraBexData = async (
     leverageSwapper!.address as Address
   );
 
-  const swapData = encodeAbiParameters(
-    [["address", "address"], ["bytes", "bytes"]],
-    //@ts-ignore
+  const swapData = utils.defaultAbiCoder.encode(
+    ["address[]", "bytes[]"],
     [
       [token0SwapResult!.to, token1SwapResult!.to],
       [token0SwapResult!.data, token1SwapResult!.data],
     ]
-  );
+  )
+
+  // const swapData = encodeAbiParameters(
+  //   swapDataAbi.map(({ type }) => type),
+  //   //@ts-ignore
+  //   [
+  //     [token0SwapResult!.to, token1SwapResult!.to],
+  //     [token0SwapResult!.data, token1SwapResult!.data],
+  //   ]
+  // );
 
   return swapData;
 };

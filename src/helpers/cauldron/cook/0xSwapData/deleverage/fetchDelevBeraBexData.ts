@@ -3,6 +3,7 @@ import type { BigNumber } from "ethers";
 import { encodeAbiParameters, type Address } from "viem";
 import { swapOogaBoogaRequest } from "@/helpers/oogaBooga";
 import exitPool from "@/helpers/bera/bex/exitPool";
+import { utils } from "ethers";
 
 const fetchDelevBeraBexData = async (
   cauldronObject: CauldronInfo,
@@ -35,17 +36,25 @@ const fetchDelevBeraBexData = async (
     liquidationSwapper!.address as Address
   );
 
-  const swapData = encodeAbiParameters(
-    [
-      ["address", "address"],
-      ["bytes", "bytes"],
-    ],
-    //@ts-ignore
+  const swapData = utils.defaultAbiCoder.encode(
+    ["address[]", "bytes[]"],
     [
       [token0SwapResult!.to, token1SwapResult!.to],
       [token0SwapResult!.data, token1SwapResult!.data],
     ]
   );
+
+  // const swapData = encodeAbiParameters(
+  //   [
+  //     ["address", "address"],
+  //     ["bytes", "bytes"],
+  //   ],
+  //   //@ts-ignore
+  //   [
+  //     [token0SwapResult!.to, token1SwapResult!.to],
+  //     [token0SwapResult!.data, token1SwapResult!.data],
+  //   ]
+  // );
 
   return swapData;
 };
