@@ -18,7 +18,7 @@ export default {
 
   computed: {
     goToPage() {
-      if (this.isClassicHeader) return "Pools";
+      if (this.isClassicHeader) return "MimSwap";
       return "Home";
     },
 
