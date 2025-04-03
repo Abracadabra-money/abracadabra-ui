@@ -37,6 +37,7 @@ export const badRequestListRpc = [
   "https://eth.llamarpc.com",
   "https://optimism.llamarpc.com",
   "https://polygon.llamarpc.com",
+  "https://rpc.ankr.com/bsc"
 ];
 
 export const rpcList = {
