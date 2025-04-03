@@ -1,6 +1,6 @@
 import type { CauldronInfo } from "@/helpers/cauldron/types";
 import type { BigNumber } from "ethers";
-import { encodeAbiParameters, type Address } from "viem";
+import { type Address } from "viem";
 import { swapOogaBoogaRequest } from "@/helpers/oogaBooga";
 import exitPool from "@/helpers/bera/bex/exitPool";
 import { utils } from "ethers";

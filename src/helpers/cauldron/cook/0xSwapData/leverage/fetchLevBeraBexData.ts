@@ -1,14 +1,10 @@
 import type { CauldronInfo } from "@/helpers/cauldron/types";
 
 import { BigNumber } from "ethers";
-import { encodeAbiParameters, type Address } from "viem";
+import { type Address } from "viem";
 import { swapOogaBoogaRequest } from "@/helpers/oogaBooga";
 import { computeBexAddLiquidityProportion } from "@/helpers/bera/computeBexAddLiquidityProportion";
 import { utils } from "ethers";
-const swapDataAbi = [
-  { name: "to", type: "address[]" }, 
-  { name: "swapData", type: "bytes[]" }
-] as const;
 
 // return swapData bytes
 const fetchLevBeraBexData = async (

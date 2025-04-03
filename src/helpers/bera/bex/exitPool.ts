@@ -11,8 +11,8 @@ import {
 
 import BexWeightedPoolAbi from "@/abis/tokensAbi/WeightedPool";
 
-const BALANCE_STORAGE_SLOT = 0;
-const ALLOWANCE_STORAGE_SLOT = 1;
+const BALANCE_STORAGE_SLOT = 0n;
+const ALLOWANCE_STORAGE_SLOT = 1n;
 
 import { BALANSER_QUERIES_ADDRESS } from "./constants";
 import BalancerQueriesAbi from "@/abis/BalancerQueries";
@@ -131,7 +131,7 @@ const exitPool = async (
   };
 };
 
-const getBalanceSlot = (account: string): `0x${string}` => {
+const getBalanceSlot = (account: Address): `0x${string}` => {
   return keccak256(
     encodeAbiParameters(parseAbiParameters("address, uint256"), [
       account,
@@ -140,7 +140,7 @@ const getBalanceSlot = (account: string): `0x${string}` => {
   );
 };
 
-const getAllowanceSlot = (owner: string, spender: string): `0x${string}` => {
+const getAllowanceSlot = (owner: Address, spender: Address): `0x${string}` => {
   const ownerSlot = keccak256(
     encodeAbiParameters(parseAbiParameters("address, uint256"), [
       owner,
@@ -151,6 +151,7 @@ const getAllowanceSlot = (owner: string, spender: string): `0x${string}` => {
   return keccak256(
     encodeAbiParameters(parseAbiParameters("address, uint256"), [
       spender,
+      //@ts-ignore
       ownerSlot,
     ])
   );
