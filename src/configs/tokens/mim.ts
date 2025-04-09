@@ -42,16 +42,16 @@ export default <MimInfo[]>[
     image:
       "https://fra1.digitaloceanspaces.com/static.popsicle.finance/mimlogopng.png",
   },
-  {
-    name: "MIM",
-    symbol: "MIM",
-    chainId: 250,
-    decimals: 18,
-    address: "0x82f0B8B456c1A451378467398982d4834b6829c1",
-    abi: tokensAbi.MIM,
-    image:
-      "https://fra1.digitaloceanspaces.com/static.popsicle.finance/mimlogopng.png",
-  },
+  // {
+  //   name: "MIM",
+  //   symbol: "MIM",
+  //   chainId: 250,
+  //   decimals: 18,
+  //   address: "0x82f0B8B456c1A451378467398982d4834b6829c1",
+  //   abi: tokensAbi.MIM,
+  //   image:
+  //     "https://fra1.digitaloceanspaces.com/static.popsicle.finance/mimlogopng.png",
+  // },
   {
     name: "MIM",
     symbol: "MIM",

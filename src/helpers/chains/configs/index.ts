@@ -4,7 +4,7 @@ import { baseConfig } from "@/helpers/chains/configs/base";
 // import { beraBartioConfig } from "@/helpers/chains/configs/beraBartio";
 import { binanceConfig } from "@/helpers/chains/configs/binance";
 import { blastConfig } from "@/helpers/chains/configs/blast";
-import { fantomConfig } from "@/helpers/chains/configs/fantom";
+// import { fantomConfig } from "@/helpers/chains/configs/fantom";
 import { kavaConfig } from "@/helpers/chains/configs/kava";
 import { lineaConfig } from "@/helpers/chains/configs/linea";
 import { mainnetConfig } from "@/helpers/chains/configs/mainnet";
@@ -22,7 +22,7 @@ export const chainsConfigs: ChainConfig[] = [
   kavaConfig,
   avalancheConfig,
   optimismConfig,
-  fantomConfig,
+  // fantomConfig,
   binanceConfig,
   polygonConfig,
   moonriverConfig,

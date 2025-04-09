@@ -115,7 +115,7 @@ export default {
 
   data() {
     return {
-      chainsOrder: [1, 42161, 2222, 43114, 10, 250, 56],
+      chainsOrder: [1, 42161, 2222, 43114, 10, 56],
       showDropdownList: false,
     };
   },
