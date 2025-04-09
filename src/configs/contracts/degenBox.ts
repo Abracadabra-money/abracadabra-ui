@@ -22,13 +22,13 @@ export default <ExtendedContractInfo[]>[
     address: "0x090185f2135308BaD17527004364eBcC2D37e5F6",
     abi: degenBoxAbi,
   },
-  {
-    chainId: 250,
-    name: "DegenBox",
-    contractChain: "0xfa",
-    address: "0x74A0BcA2eeEdf8883cb91E37e9ff49430f20a616",
-    abi: degenBoxAbi,
-  },
+  // {
+  //   chainId: 250,
+  //   name: "DegenBox",
+  //   contractChain: "0xfa",
+  //   address: "0x74A0BcA2eeEdf8883cb91E37e9ff49430f20a616",
+  //   abi: degenBoxAbi,
+  // },
   {
     chainId: 2222,
     name: "DegenBox",
@@ -50,17 +50,17 @@ export default <ExtendedContractInfo[]>[
     address: "0x1fC83f75499b7620d53757f0b01E2ae626aAE530",
     abi: degenBoxAbi,
   },
-  {
-    chainId: 80084,
-    name: "DegenBox",
-    address: "0xB734c264F83E39Ef6EC200F99550779998cC812d",
-    abi: degenBoxAbi,
-  },
+  // {
+  //   chainId: 80084,
+  //   name: "DegenBox",
+  //   address: "0xB734c264F83E39Ef6EC200F99550779998cC812d",
+  //   abi: degenBoxAbi,
+  // },
   {
     chainId: 81457,
     name: "DegenBox",
     contractChain: "0x13e31",
     address: "0xC8f5Eb8A632f9600D1c7BC91e97dAD5f8B1e3748",
     abi: degenBoxAbi,
-  }
+  },
 ];
