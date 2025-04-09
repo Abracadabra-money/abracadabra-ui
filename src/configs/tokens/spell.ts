@@ -29,13 +29,13 @@ export default [
     abi: tokensAbi.SPELL,
     image: useImage("assets/images/tokens/SPELL.png"),
   },
-  {
-    name: "Spell",
-    chainId: 250,
-    address: "0x55BE39c912621606683DEe44C4ab2Dde083Bc925",
-    symbol: "SPELL",
-    decimals: 18,
-    abi: tokensAbi.SPELL,
-    image: useImage("assets/images/tokens/SPELL.png"),
-  },
+  // {
+  //   name: "Spell",
+  //   chainId: 250,
+  //   address: "0x55BE39c912621606683DEe44C4ab2Dde083Bc925",
+  //   symbol: "SPELL",
+  //   decimals: 18,
+  //   abi: tokensAbi.SPELL,
+  //   image: useImage("assets/images/tokens/SPELL.png"),
+  // },
 ];
