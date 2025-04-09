@@ -10,6 +10,8 @@ import fetchCvxTricrypto0xData from "@/helpers/cauldron/cook/0xSwapData/delevera
 import fetchDelevMagicGlp0xData from "@/helpers/cauldron/cook/0xSwapData/deleverage/fetchDelevMagicGlp0xData";
 import { fetchDelevDefault0xData } from "@/helpers/cauldron/cook/0xSwapData/deleverage/fetchDelevDefault0xData";
 import fetchDelevStargateUSDT0xData from "@/helpers/cauldron/cook/0xSwapData/deleverage/fetchDelevStargateUSDT0xData";
+import fetchDelevMimHoneyData from "./fetchDelevMimHoneyData";
+import fetchDelevBeraBexData from "./fetchDelevBeraBexData";
 
 const getDelev0xData = async (
   cauldronObject: CauldronInfo,
@@ -26,6 +28,8 @@ const getDelev0xData = async (
     isCvx3pool,
     iStdeUSD,
     isUSD0,
+    isMimHoney,
+    isBeraBex,
   } = cauldronObject.config.cauldronSettings;
 
   if (isVelodrome) return getDelevVelodrome0xData();
@@ -70,6 +74,24 @@ const getDelev0xData = async (
 
   if (iStdeUSD)
     return await getDeUsd0xData(cauldronObject, collateralAmount, slipage);
+
+  if (isMimHoney) {
+    return await fetchDelevMimHoneyData(
+      cauldronObject,
+      collateralAmount,
+      slipage,
+      to
+    );
+  }
+
+  if (isBeraBex) {
+    return await fetchDelevBeraBexData(
+      cauldronObject,
+      collateralAmount,
+      slipage,
+      to
+    );
+  }
 
   const swapResponseData = await fetchDelevDefault0xData(
     cauldronObject,
