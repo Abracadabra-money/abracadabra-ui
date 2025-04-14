@@ -15,75 +15,75 @@ const mimInfo = {
 };
 
 const config: Array<CauldronConfig> = [
+  // {
+  //   icon: useImage(`assets/images/tokens/Kodiak-MIM-Honey.png`),
+  //   name: "MIM/HONEY",
+  //   chainId: 80094,
+  //   id: 1,
+  //   liquidationFee: 5,
+  //   mcr: 90,
+  //   borrowFee: 0.5,
+  //   version: 4,
+  //   cauldronSettings: {
+  //     is0xSwap: true,
+  //     isSwappersActive: true,
+  //     isDegenBox: true,
+  //     strategyLink: false,
+  //     isDepreciated: false,
+  //     acceptUseDefaultBalance: false,
+  //     healthMultiplier: 1,
+  //     hasAccountBorrowLimit: false,
+  //     hasWithdrawableLimit: false,
+  //     localBorrowAmountLimit: false,
+  //     hasCrvClaimLogic: false,
+  //     oracleInfo: {
+  //       kind: "PYTH",
+  //       feedIds: [
+  //         "0xf67b033925d73d43ba4401e00308d9b0f26ab4fbd1250e8b5407b9eaade7e1f4",
+  //       ],
+  //     },
+  //     isBeraDesign: true,
+  //     isMimHoney: true,
+  //     isNew: true,
+  //     weight: 4
+  //   },
+  //   contract: {
+  //     name: "CauldronV4",
+  //     address: "0xFc4de12E0C25e442E10260dE575a7994e5E68E20",
+  //     abi: poolsAbi.CauldronV4,
+  //   },
+  //   collateralInfo: {
+  //     name: "MagicKodiak Vault",
+  //     decimals: 18,
+  //     address: "0x548eAf30BAD1B4f697fBAC88712fc8148Dc0aA75",
+  //     abi: tokensAbi.MagicKodiakVault,
+  //   },
+  //   mimInfo,
+  //   wrapInfo: {
+  //     isHiddenWrap: true,
+  //     useUnwrappedByDefault: true,
+  //     unwrappedToken: {
+  //       name: "MIM/HONEY LP",
+  //       icon: useImage(`assets/images/tokens/MIM-HONEY.png`),
+  //       address: "0x933b2e6a71edBF11BBA75C5Ad241D246b145E0b0",
+  //       abi: tokensAbi.MagicKodiakVault,
+  //     },
+  //     wrapper: {
+  //       address: "0x6D1EAAdeD97DC9d49BCb08Bdcd15EAcb08da42e4",
+  //       abi: degenBoxERC4626Wrapper,
+  //     },
+  //   },
+  //   leverageInfo: {
+  //     address: "0xA3372CD2178c52fdCB1f6e4c4E93014B4dB3B20d",
+  //     abi: MagicKodiakIslandLevSwapperAbi,
+  //   },
+  //   deleverageInfo: {
+  //     address: "0x6E4358c889bb7871061904Be31Fe47C3B8b7F442",
+  //     abi: MagicKodiakIslandSwapperAbi,
+  //   },
+  // },
   {
-    icon: useImage(`assets/images/tokens/Kodiak-MIM-Honey.png`),
-    name: "MIM/HONEY",
-    chainId: 80094,
-    id: 1,
-    liquidationFee: 5,
-    mcr: 90,
-    borrowFee: 0.5,
-    version: 4,
-    cauldronSettings: {
-      is0xSwap: true,
-      isSwappersActive: true,
-      isDegenBox: true,
-      strategyLink: false,
-      isDepreciated: false,
-      acceptUseDefaultBalance: false,
-      healthMultiplier: 1,
-      hasAccountBorrowLimit: false,
-      hasWithdrawableLimit: false,
-      localBorrowAmountLimit: false,
-      hasCrvClaimLogic: false,
-      oracleInfo: {
-        kind: "PYTH",
-        feedIds: [
-          "0xf67b033925d73d43ba4401e00308d9b0f26ab4fbd1250e8b5407b9eaade7e1f4",
-        ],
-      },
-      isBeraDesign: true,
-      isMimHoney: true,
-      isNew: true,
-      weight: 4
-    },
-    contract: {
-      name: "CauldronV4",
-      address: "0xFc4de12E0C25e442E10260dE575a7994e5E68E20",
-      abi: poolsAbi.CauldronV4,
-    },
-    collateralInfo: {
-      name: "MagicKodiak Vault",
-      decimals: 18,
-      address: "0x548eAf30BAD1B4f697fBAC88712fc8148Dc0aA75",
-      abi: tokensAbi.MagicKodiakVault,
-    },
-    mimInfo,
-    wrapInfo: {
-      isHiddenWrap: true,
-      useUnwrappedByDefault: true,
-      unwrappedToken: {
-        name: "MIM/HONEY LP",
-        icon: useImage(`assets/images/tokens/MIM-HONEY.png`),
-        address: "0x933b2e6a71edBF11BBA75C5Ad241D246b145E0b0",
-        abi: tokensAbi.MagicKodiakVault,
-      },
-      wrapper: {
-        address: "0x6D1EAAdeD97DC9d49BCb08Bdcd15EAcb08da42e4",
-        abi: degenBoxERC4626Wrapper,
-      },
-    },
-    leverageInfo: {
-      address: "0xA3372CD2178c52fdCB1f6e4c4E93014B4dB3B20d",
-      abi: MagicKodiakIslandLevSwapperAbi,
-    },
-    deleverageInfo: {
-      address: "0x6E4358c889bb7871061904Be31Fe47C3B8b7F442",
-      abi: MagicKodiakIslandSwapperAbi,
-    },
-  },
-  {
-    icon: useImage(`assets/images/tokens/Kodiak-MIM-Honey.png`),
+    icon: useImage(`assets/images/tokens/BEX_WBERA_WETH.png`),
     name: "WETH/BERA",
     chainId: 80094,
     id: 2,
@@ -93,7 +93,7 @@ const config: Array<CauldronConfig> = [
     version: 4,
     cauldronSettings: {
       is0xSwap: true,
-      isSwappersActive: true, // TEST,
+      isSwappersActive: true,
       isDegenBox: true,
       strategyLink: false,
       isDepreciated: false,
@@ -151,7 +151,7 @@ const config: Array<CauldronConfig> = [
     },
   },
   {
-    icon: useImage(`assets/images/tokens/Kodiak-MIM-Honey.png`),
+    icon: useImage(`assets/images/tokens/BEX_WBERA_WBTC.png`),
     name: "WBTC/BERA",
     chainId: 80094,
     id: 3,
@@ -161,7 +161,7 @@ const config: Array<CauldronConfig> = [
     version: 4,
     cauldronSettings: {
       is0xSwap: true,
-      isSwappersActive: true, // TEST
+      isSwappersActive: true,
       isDegenBox: true,
       strategyLink: false,
       isDepreciated: false,
