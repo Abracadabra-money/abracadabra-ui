@@ -231,12 +231,12 @@ export default {
   async created() {
     this.isFarmsLoading = true;
     this.checkLocalData();
-    this.farms = await getFarmsList(this.account);
+    this.farms = await getFarmsList();
     this.isFarmsLoading = false;
     this.setFarmList(this.farms);
     this.selectedChains = this.getActiveChain();
     this.farmsInterval = setInterval(async () => {
-      this.farms = await getFarmsList(this.account);
+      this.farms = await getFarmsList();
     }, 60000);
   },
 
