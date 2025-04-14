@@ -10,6 +10,10 @@ import { fetchLevCvx3poolSwapData } from "@/helpers/cauldron/cook/0xSwapData/lev
 import { fetchLevStargateUsdtData } from "@/helpers/cauldron/cook/0xSwapData/leverage/fetchLevStargateUsdtData";
 import { fetchLevCvxTricryptoSwapData } from "@/helpers/cauldron/cook/0xSwapData/leverage/fetchLevCvxTricryptoSwapData";
 
+import fetchLevMimHoneyData from "./fetchLevMimHoneyData";
+import fetchLevBeraBexData from "./fetchLevBeraBexData";
+
+
 const getLev0xData = async (
   cauldronObject: CauldronInfo,
   amount: BigNumber,
@@ -23,6 +27,8 @@ const getLev0xData = async (
     isCvx3pool,
     iStdeUSD,
     isUSD0,
+    isMimHoney,
+    isBeraBex,
   } = cauldronObject.config.cauldronSettings;
 
   if (isVelodrome) return getVelodrome0xData();
@@ -45,6 +51,14 @@ const getLev0xData = async (
 
   if (iStdeUSD) {
     return await fetchLevSdeusdSwapData(cauldronObject, amount, slipage);
+  }
+
+  if (isMimHoney) {
+    return fetchLevMimHoneyData(cauldronObject, amount, slipage);
+  }
+
+  if (isBeraBex) {
+    return fetchLevBeraBexData(cauldronObject, amount, slipage);
   }
 
   const swapResponse = await fetchLev0xData(cauldronObject, amount, slipage);
