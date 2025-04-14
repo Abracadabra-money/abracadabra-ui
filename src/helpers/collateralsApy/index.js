@@ -10,6 +10,7 @@ import { getElixirApy } from "@/helpers/collateralsApy/getElixirApy";
 import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
 import { getMaxLeverageMultiplierAlternative } from "@/helpers/cauldron/getMaxLeverageMultiplier.ts";
 import { getUsd0ppApy } from "./getUsd0ppApy";
+import { getBerachainValutById } from "./getBerachainValutById";
 
 //NOTICE: check comments below
 // import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
@@ -60,6 +61,16 @@ export const fetchTokenApy = async (pool, chainId, provider) => {
       return await getGMApr(market, provider);
     }
   }
+
+  if (chainId === 80094) {
+    const bexIds = [2, 3];
+    if (bexIds.includes(pool.config.id))
+      return await getBerachainValutById(
+        pool.config.id,
+        pool.config.wrapInfo.unwrappedToken.address
+      );
+  }
+
   // NOTICE: Stargate returns 0, and Yearn throws an error due to api. Consider if theese are still relevant
   // if (pool.config.id === 31 || pool.config.id === 32)
   //   return await getStargateApy(pool, provider);

@@ -135,6 +135,20 @@ const configs = [
     label: "Get LP",
     icon: useImage(`assets/images/get-lp-icons/kodiak.png`),
   },
+  {
+    id: 2,
+    chain: BERA_CHAIN_ID,
+    href: "https://hub.berachain.com/pools/0xdd70a5ef7d8cfe5c5134b5f9874b09fb5ce812b4000200000000000000000003/details/",
+    label: "Get WETH/BERA LP Token",
+    icon: useImage(`assets/images/get-lp-icons/bex.png`),
+  },
+  {
+    id: 3,
+    chain: BERA_CHAIN_ID,
+    href: "https://hub.berachain.com/pools/0x38fdd999fe8783037db1bbfe465759e312f2d809000200000000000000000004/details/",
+    label: "Get WBTC/BERA LP Token",
+    icon: useImage(`assets/images/get-lp-icons/bex.png`),
+  },
 ];
 
 export const getTokenLinkData = (cauldronId: number, chainId: number) => {

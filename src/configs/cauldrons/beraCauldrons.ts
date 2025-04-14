@@ -113,7 +113,8 @@ const config: Array<CauldronConfig> = [
       isBeraDesign: true,
       isBeraBex: true,
       isNew: true,
-      weight: 4
+      weight: 4,
+      isAprExist: true,
     },
     contract: {
       name: "CauldronV4",
@@ -132,7 +133,7 @@ const config: Array<CauldronConfig> = [
       useUnwrappedByDefault: true,
       unwrappedToken: {
         name: "WETH/BERA LP",
-        icon: useImage(`assets/images/tokens/MIM-HONEY.png`),
+        icon: useImage(`assets/images/tokens/BEX_WBERA_WETH.png`),
         address: "0xDd70A5eF7d8CfE5C5134b5f9874b09Fb5Ce812b4",
         abi: tokensAbi.BexWeightedPool,
       },
@@ -181,7 +182,8 @@ const config: Array<CauldronConfig> = [
       isBeraDesign: true,
       isBeraBex: true,
       isNew: true,
-      weight: 4
+      weight: 4,
+      isAprExist: true,
     },
     contract: {
       name: "CauldronV4",
@@ -200,7 +202,7 @@ const config: Array<CauldronConfig> = [
       useUnwrappedByDefault: true,
       unwrappedToken: {
         name: "WBTC/BERA LP",
-        icon: useImage(`assets/images/tokens/MIM-HONEY.png`),
+        icon: useImage(`assets/images/tokens/BEX_WBERA_WBTC.png`),
         address: "0x38fdD999Fe8783037dB1bBFE465759e312f2d809",
         abi: tokensAbi.BexWeightedPool,
       },
