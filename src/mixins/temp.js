@@ -3,7 +3,7 @@ import { getCookTypeByAction } from "@/helpers/cauldron/getCookActionType";
 import { validateCookByAction } from "@/helpers/cauldron/validators";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification";
-import { approveTokenViem } from "@/helpers/approval";
+import { approveToken } from "@/helpers/approval";
 import { WARNING_TYPES } from "@/helpers/cauldron/validators";
 import { getCookPayload } from "@/helpers/cauldron/getCookPayload";
 import { ACTION_TYPES } from "@/helpers/cauldron/getCookActionType";
@@ -123,7 +123,7 @@ export default {
               abi: this.cauldron.config.mimInfo.abi,
             };
 
-      const approve = await approveTokenViem(contractInfo, bentoBox.address);
+      const approve = await approveToken(contractInfo, bentoBox.address);
 
       if (approve) this.$emit("updateMarket"); //await this.createCauldronInfo();
       this.deleteNotification(notificationId);

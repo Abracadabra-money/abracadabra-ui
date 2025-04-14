@@ -94,7 +94,7 @@ import type {
 import { defineAsyncComponent } from "vue";
 import { formatUnits, parseUnits } from "viem";
 import { formatToFixed } from "@/helpers/filters";
-import { approveTokenViem } from "@/helpers/approval";
+import { approveToken } from "@/helpers/approval";
 import actions from "@/helpers/stake/magicGlp/actions/";
 import { dataRefresher } from "@/helpers/dataRefresher";
 import { mapGetters, mapActions, mapMutations } from "vuex";
@@ -319,7 +319,7 @@ export default {
         notification.approvePending
       );
 
-      const approve = await approveTokenViem(
+      const approve = await approveToken(
         this.stakeToken.contract,
         this.mainToken.contract.address,
         this.inputAmount
