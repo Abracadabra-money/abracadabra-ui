@@ -122,6 +122,14 @@ export default {
     farms() {
       this.selectedChains = this.getActiveChain();
     },
+
+    async account() {
+      this.farms = await getFarmsList(this.account);
+    },
+
+    async chainId() {
+      this.farms = await getFarmsList(this.account);
+    },
   },
 
   methods: {
@@ -223,12 +231,12 @@ export default {
   async created() {
     this.isFarmsLoading = true;
     this.checkLocalData();
-    this.farms = await getFarmsList();
+    this.farms = await getFarmsList(this.account);
     this.isFarmsLoading = false;
     this.setFarmList(this.farms);
     this.selectedChains = this.getActiveChain();
     this.farmsInterval = setInterval(async () => {
-      this.farms = await getFarmsList();
+      this.farms = await getFarmsList(this.account);
     }, 60000);
   },
 
