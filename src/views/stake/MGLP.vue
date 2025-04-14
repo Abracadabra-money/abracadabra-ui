@@ -97,6 +97,7 @@ import { formatToFixed } from "@/helpers/filters";
 import { approveTokenViem } from "@/helpers/approval";
 import actions from "@/helpers/stake/magicGlp/actions/";
 import { dataRefresher } from "@/helpers/dataRefresher";
+import type { RefresherInfo } from "@/helpers/dataRefresher";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
@@ -118,11 +119,11 @@ export default {
       isMobile: false,
       chartToggle: false,
       refresherInfo: {
-        refresher: null as any,
+        refresher: null as unknown as dataRefresher<MagicGlpStakeInfo[]>,
         remainingTime: 0,
         isLoading: false,
         intervalTime: 60,
-      },
+      } as RefresherInfo<MagicGlpStakeInfo[]>,
     };
   },
 

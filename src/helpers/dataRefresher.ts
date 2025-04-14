@@ -2,6 +2,13 @@ type OnUpdateTimeCallback = (remainingTime: number) => void;
 type OnLoadingCallback = (isLoading: boolean) => void;
 type OnDataUpdateCallback<T> = (data: T) => void;
 
+export interface RefresherInfo<T> {
+  refresher: dataRefresher<T>;
+  remainingTime: number;
+  isLoading: boolean;
+  intervalTime: number;
+}
+
 export class dataRefresher<T> {
   private updateFunction: Function;
   private updateInterval: number;

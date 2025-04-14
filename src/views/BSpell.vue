@@ -42,6 +42,7 @@ import { mapGetters, mapMutations } from "vuex";
 import type { AprInfo } from "@/helpers/bSpell/types";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 import { dataRefresher } from "@/helpers/dataRefresher";
+import type { RefresherInfo } from "@/helpers/dataRefresher";
 import type { BSpellInfo } from "@/helpers/bSpell/types";
 import { getBSpellInfo } from "@/helpers/bSpell/getLockInfo";
 import { getBSpellApr } from "@/helpers/bSpell/getBSpellAPR";
@@ -53,11 +54,11 @@ export default {
       activeTab: "BSpellBlock",
       bSpellInfoArr: [] as BSpellInfo[] | null,
       refresherInfo: {
-        refresher: null as any,
+        refresher: null as unknown as dataRefresher<BSpellInfo[]>,
         remainingTime: 0,
         isLoading: false,
         intervalTime: 60,
-      },
+      } as RefresherInfo<BSpellInfo[]>,
       selectedNetwork: ARBITRUM_CHAIN_ID,
       availableNetworks: [ARBITRUM_CHAIN_ID],
       aprInfo: null as AprInfo | null,
@@ -193,6 +194,10 @@ export default {
     this.refresherInfo.refresher.start();
 
     await this.getAprInfo();
+  },
+
+  beforeUnmount() {
+    this.refresherInfo.refresher.stop();
   },
 
   components: {
