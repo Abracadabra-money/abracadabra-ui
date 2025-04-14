@@ -81,6 +81,8 @@ import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import type { FarmItem } from "@/configs/farms/types";
 import { openConnectPopup } from "@/helpers/connect/utils";
+import { dataRefresher } from "@/helpers/dataRefresher";
+import type { RefresherInfo } from "@/helpers/dataRefresher";
 
 export default {
   props: {
@@ -97,9 +99,14 @@ export default {
       inputValue: "",
       selectedTab: "stake",
       items: ["stake", "unstake"],
-      farmTimer: null as NodeJS.Timeout | null,
       selectedFarm: emptyFarmData as FarmItem,
       isActionProcessing: false,
+      refresherInfo: {
+        refresher: null as unknown as dataRefresher<FarmItem>,
+        remainingTime: 0,
+        isLoading: false,
+        intervalTime: 60,
+      } as RefresherInfo<FarmItem>,
     };
   },
 
@@ -373,9 +380,19 @@ export default {
       }
     },
 
-    async getSelectedFarm() {
-      console.log("getSelectedFarm");
+    createDataRefresher() {
+      this.refresherInfo.refresher = new dataRefresher(
+        () => createFarmData(this.id, this.farmChainId, this.account),
+        this.refresherInfo.intervalTime,
+        (time) => (this.refresherInfo.remainingTime = time),
+        (loading) => (this.refresherInfo.isLoading = loading),
+        (updatedData: FarmItem) => {
+          this.selectedFarm = updatedData;
+        }
+      );
+    },
 
+    async getSelectedFarm() {
       this.selectedFarm = await createFarmData(
         this.id,
         this.farmChainId,
@@ -396,14 +413,12 @@ export default {
 
   async created() {
     await this.getSelectedFarm();
-
-    this.farmTimer = setInterval(async () => {
-      await this.getSelectedFarm();
-    }, 60000);
+    this.createDataRefresher();
+    this.refresherInfo.refresher.start();
   },
 
   beforeUnmount() {
-    if (this.farmTimer) clearInterval(this.farmTimer);
+    this.refresherInfo.refresher.stop();
   },
 
   components: {

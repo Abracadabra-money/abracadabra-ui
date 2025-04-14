@@ -67,18 +67,25 @@ import { mapGetters, mapMutations } from "vuex";
 import { getFarmsList } from "@/helpers/farm/list/getFarmsList";
 import type { FarmItem } from "@/configs/farms/types";
 import type { SortOrder } from "@/types/sorting";
+import { dataRefresher } from "@/helpers/dataRefresher";
+import type { RefresherInfo } from "@/helpers/dataRefresher";
 
 export default {
   data() {
     return {
       search: "",
-      farmsInterval: null as NodeJS.Timeout | null,
       isActiveMarkets: true,
       isMyPositions: false,
       aprOrder: null as SortOrder,
       farms: [] as FarmItem[],
       selectedChains: [] as number[],
       isFarmsLoading: false,
+      refresherInfo: {
+        refresher: null as unknown as dataRefresher<FarmItem[]>,
+        remainingTime: 0,
+        isLoading: false,
+        intervalTime: 60,
+      } as RefresherInfo<FarmItem[]>,
     };
   },
 
@@ -218,6 +225,19 @@ export default {
         this.isFarmsLoading = false;
       }
     },
+
+    createDataRefresher() {
+      this.refresherInfo.refresher = new dataRefresher(
+        getFarmsList,
+        this.refresherInfo.intervalTime,
+        (time) => (this.refresherInfo.remainingTime = time),
+        (loading) => (this.refresherInfo.isLoading = loading),
+        (updatedData: FarmItem[]) => {
+          this.farms = updatedData;
+          this.setFarmList(updatedData);
+        }
+      );
+    },
   },
 
   async created() {
@@ -227,15 +247,12 @@ export default {
     this.isFarmsLoading = false;
     this.setFarmList(this.farms);
     this.selectedChains = this.getActiveChain();
-    this.farmsInterval = setInterval(async () => {
-      this.farms = await getFarmsList();
-    }, 60000);
+    this.createDataRefresher();
+    this.refresherInfo.refresher.start();
   },
 
   beforeUnmount() {
-    if (this.farmsInterval) {
-      clearInterval(this.farmsInterval);
-    }
+    this.refresherInfo.refresher.stop();
   },
 
   components: {
