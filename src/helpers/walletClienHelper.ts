@@ -39,7 +39,9 @@ export const waitForTransactionReceiptHelper = async (hash: any) => {
 };
 
 export const getAccountHelper = () => {
-  return getAccount(store.getters.getWagmiConfig);
+  return store?.getters?.getWagmiConfig
+    ? getAccount(store.getters.getWagmiConfig)
+    : { address: undefined, isConnected: false };
 };
 
 export const estimateFeesPerGasHelper = async () => {
