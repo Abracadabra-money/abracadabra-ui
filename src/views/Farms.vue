@@ -38,21 +38,28 @@
           </div>
 
           <div class="farms-list">
-            <template v-if="filteredFarms.length">
+            <div
+              class="loader-wrap"
+              v-if="refresherInfo.isLoading || showEmptyBlock"
+            >
+              <BaseLoader
+                v-if="refresherInfo.isLoading"
+                medium
+                text="Loading Farms"
+              />
+              <BaseSearchEmpty
+                v-if="showEmptyBlock"
+                text="There are no Farms"
+              />
+            </div>
+
+            <template v-else>
               <FarmItem
                 v-for="farm in filteredFarms"
                 :key="`${farm.id}-${farm.chainId}`"
                 :farm="farm"
               />
             </template>
-
-            <div class="loader-wrap" v-if="isFarmsLoading || showEmptyBlock">
-              <BaseLoader v-if="isFarmsLoading" medium text="Loading Farms" />
-              <BaseSearchEmpty
-                v-if="showEmptyBlock"
-                text="There are no Farms"
-              />
-            </div>
           </div>
         </div>
       </div>
@@ -79,7 +86,6 @@ export default {
       aprOrder: null as SortOrder,
       farms: [] as FarmItem[],
       selectedChains: [] as number[],
-      isFarmsLoading: false,
       refresherInfo: {
         refresher: null as unknown as dataRefresher<FarmItem[]>,
         remainingTime: 0,
@@ -101,7 +107,7 @@ export default {
     },
 
     showEmptyBlock() {
-      return !this.isFarmsLoading && !this.filteredFarms.length;
+      return !this.refresherInfo.isLoading && !this.filteredFarms.length;
     },
 
     currentPools(): FarmItem[] {
@@ -128,6 +134,14 @@ export default {
   watch: {
     farms() {
       this.selectedChains = this.getActiveChain();
+    },
+
+    async account() {
+      this.refresherInfo.refresher.manualUpdate();
+    },
+
+    async chainId() {
+      this.refresherInfo.refresher.manualUpdate();
     },
   },
 
@@ -222,13 +236,12 @@ export default {
     checkLocalData() {
       if (this.localFarmList.isCreated) {
         this.farms = this.localFarmList.data;
-        this.isFarmsLoading = false;
       }
     },
 
     createDataRefresher() {
-      this.refresherInfo.refresher = new dataRefresher(
-        getFarmsList,
+      this.refresherInfo.refresher = new dataRefresher<FarmItem[]>(
+        () => getFarmsList(this.account),
         this.refresherInfo.intervalTime,
         (time) => (this.refresherInfo.remainingTime = time),
         (loading) => (this.refresherInfo.isLoading = loading),
@@ -241,10 +254,6 @@ export default {
   },
 
   async created() {
-    this.isFarmsLoading = true;
-    this.checkLocalData();
-    this.farms = await getFarmsList();
-    this.isFarmsLoading = false;
     this.setFarmList(this.farms);
     this.selectedChains = this.getActiveChain();
     this.createDataRefresher();

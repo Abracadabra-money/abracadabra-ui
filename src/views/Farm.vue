@@ -71,7 +71,7 @@
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
 import { mapGetters, mapMutations, mapActions } from "vuex";
-import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError";
 import notification from "@/helpers/notification/notification";
 import { createFarmData, emptyFarmData } from "@/helpers/farm/createFarmData";
 import { parseUnits, formatUnits } from "viem";
@@ -92,13 +92,13 @@ export default {
 
   data() {
     return {
-      activeNetworks: [1, 43114, 42161],
+      activeNetworks: [1, 43114, 42161] as number[],
       isFarmsPopupOpened: false,
       isMyPositionPopupOpened: false,
       inputAmount: 0n as bigint,
       inputValue: "",
       selectedTab: "stake",
-      items: ["stake", "unstake"],
+      items: ["stake", "unstake"] as string[],
       selectedFarm: emptyFarmData as FarmItem,
       isActionProcessing: false,
       refresherInfo: {
@@ -207,14 +207,18 @@ export default {
     account: {
       immediate: true,
       async handler() {
-        await this.getSelectedFarm();
+        if (this.refresherInfo.refresher) {
+          this.refresherInfo.refresher.update();
+        }
       },
     },
 
     id: {
       immediate: true,
       async handler() {
-        await this.getSelectedFarm();
+        if (this.refresherInfo.refresher) {
+          this.refresherInfo.refresher.update();
+        }
         const action = this.$route.redirectedFrom?.query.action;
         if (action) this.selectTab(action.toString());
       },
@@ -223,14 +227,18 @@ export default {
     farmChainId: {
       immediate: true,
       async handler() {
-        await this.getSelectedFarm();
+        if (this.refresherInfo.refresher) {
+          this.refresherInfo.refresher.update();
+        }
         const action = this.$route.redirectedFrom?.query.action;
         if (action) this.selectTab(action.toString());
       },
     },
 
     async chainId() {
-      await this.getSelectedFarm();
+      if (this.refresherInfo.refresher) {
+        this.refresherInfo.refresher.update();
+      }
     },
 
     max() {
