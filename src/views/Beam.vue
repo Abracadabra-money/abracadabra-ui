@@ -307,9 +307,9 @@ export default {
       if (this.dstAddressError)
         return { disable: true, text: "Set destination address" };
 
-      // if (!this.isTokenApproved) return { disable: false, text: "Approve" };
+      if (!this.isTokenApproved) return { disable: false, text: "Approve" };
 
-      // if (this.isApproving) return { disable: true, text: "Approving" };
+      if (this.isApproving) return { disable: true, text: "Approving" };
 
       if (this.isBeaming) return { disable: true, text: "Beaming" };
 
@@ -639,8 +639,6 @@ export default {
       try {
         const { fees, params } = await this.getEstimatedFees(true);
 
-        console.log("this.toAddressBytes", this.toAddressBytes)
-
         const payload = {
           fees,
           params,
@@ -686,7 +684,7 @@ export default {
 
     async seendBeamV2(notificationId: number) {
       this.isBeaming = true;
-      console.log("this.toAddressBytes", this.toAddressBytes)
+
       try {
         const fees = await this.getEstimatedFees(true);
 
