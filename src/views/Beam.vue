@@ -600,33 +600,33 @@ export default {
         notification.pending
       );
 
-      // if (!this.isTokenApproved) {
-      //   this.isApproving = true;
+      if (!this.isTokenApproved) {
+        this.isApproving = true;
 
-      //   this.updateNotification({
-      //     title: "1/2: Approve MIM",
-      //     id: notificationId,
-      //   });
+        this.updateNotification({
+          title: "1/2: Approve MIM",
+          id: notificationId,
+        });
 
-      //   const isTokenApproved = await approveTokenViem(
-      //     tokenContract,
-      //     this.fromChainConfig!.contract.address,
-      //     this.inputAmount
-      //   );
+        const isTokenApproved = await approveTokenViem(
+          tokenContract,
+          this.fromChainConfig!.contract.address,
+          this.inputAmount
+        );
 
-      //   this.isApproving = false;
+        this.isApproving = false;
 
-      //   if (!isTokenApproved) {
-      //     this.deleteNotification(notificationId);
-      //     await this.createNotification(notification.approveError);
-      //     return false;
-      //   }
+        if (!isTokenApproved) {
+          this.deleteNotification(notificationId);
+          await this.createNotification(notification.approveError);
+          return false;
+        }
 
-      //   this.updateNotification({
-      //     title: "Step 2/2: Confirm Beam",
-      //     id: notificationId,
-      //   });
-      // }
+        this.updateNotification({
+          title: "Step 2/2: Confirm Beam",
+          id: notificationId,
+        });
+      }
 
       if (this.isLzVersion2) {
         await this.seendBeamV2(notificationId);
