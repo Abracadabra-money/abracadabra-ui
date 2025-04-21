@@ -239,7 +239,7 @@ export default {
       if (this.isLzVersion2) {
         return ethers.utils.defaultAbiCoder.encode(
           ["bytes32"],
-          [ethers.utils.hexZeroPad(this.account, 32)]
+          [ethers.utils.hexZeroPad(this.toAddress, 32)]
         );
       }
 
