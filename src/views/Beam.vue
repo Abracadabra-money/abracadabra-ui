@@ -239,7 +239,7 @@ export default {
       if (this.isLzVersion2) {
         return ethers.utils.defaultAbiCoder.encode(
           ["bytes32"],
-          [ethers.utils.hexZeroPad(this.account, 32)]
+          [ethers.utils.hexZeroPad(this.toAddress, 32)]
         );
       }
 
@@ -307,9 +307,9 @@ export default {
       if (this.dstAddressError)
         return { disable: true, text: "Set destination address" };
 
-      if (!this.isTokenApproved) return { disable: false, text: "Approve" };
+      // if (!this.isTokenApproved) return { disable: false, text: "Approve" };
 
-      if (this.isApproving) return { disable: true, text: "Approving" };
+      // if (this.isApproving) return { disable: true, text: "Approving" };
 
       if (this.isBeaming) return { disable: true, text: "Beaming" };
 
@@ -600,33 +600,33 @@ export default {
         notification.pending
       );
 
-      if (!this.isTokenApproved) {
-        this.isApproving = true;
+      // if (!this.isTokenApproved) {
+      //   this.isApproving = true;
 
-        this.updateNotification({
-          title: "1/2: Approve MIM",
-          id: notificationId,
-        });
+      //   this.updateNotification({
+      //     title: "1/2: Approve MIM",
+      //     id: notificationId,
+      //   });
 
-        const isTokenApproved = await approveTokenViem(
-          tokenContract,
-          this.fromChainConfig!.contract.address,
-          this.inputAmount
-        );
+      //   const isTokenApproved = await approveTokenViem(
+      //     tokenContract,
+      //     this.fromChainConfig!.contract.address,
+      //     this.inputAmount
+      //   );
 
-        this.isApproving = false;
+      //   this.isApproving = false;
 
-        if (!isTokenApproved) {
-          this.deleteNotification(notificationId);
-          await this.createNotification(notification.approveError);
-          return false;
-        }
+      //   if (!isTokenApproved) {
+      //     this.deleteNotification(notificationId);
+      //     await this.createNotification(notification.approveError);
+      //     return false;
+      //   }
 
-        this.updateNotification({
-          title: "Step 2/2: Confirm Beam",
-          id: notificationId,
-        });
-      }
+      //   this.updateNotification({
+      //     title: "Step 2/2: Confirm Beam",
+      //     id: notificationId,
+      //   });
+      // }
 
       if (this.isLzVersion2) {
         await this.seendBeamV2(notificationId);
@@ -638,6 +638,8 @@ export default {
 
       try {
         const { fees, params } = await this.getEstimatedFees(true);
+
+        console.log("this.toAddressBytes", this.toAddressBytes)
 
         const payload = {
           fees,
@@ -684,7 +686,7 @@ export default {
 
     async seendBeamV2(notificationId: number) {
       this.isBeaming = true;
-
+      console.log("this.toAddressBytes", this.toAddressBytes)
       try {
         const fees = await this.getEstimatedFees(true);
 
