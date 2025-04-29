@@ -1,30 +1,16 @@
-import {
-  BERA_MIM_ADDRESS,
-  BERA_HONEY_ADDRESS,
-} from "./kodiakIslandRouter/constants";
+import type { Address, PublicClient } from "viem";
 import { BERA_CHAIN_ID } from "@/constants/global";
-import {
-  type Address,
-  type PublicClient,
-  formatUnits,
-  parseUnits,
-  parseAbi,
-} from "viem";
-
-import { getPublicClient } from "@/helpers/chains/getChainsInfo";
-
+import { formatUnits, parseUnits, parseAbi } from "viem";
 import { getCoinsPrices } from "@/helpers/prices/defiLlama";
 import type { TokenPrice } from "@/helpers/prices/defiLlama";
+import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 
 const PERCENT_TARGET = 1000000n;
 const PERCENT_PRESITION = 4;
 
-// NOTICE: only for MIM/HONEY LP (MIM -> HONEY), may be updated in the future
-// NOTICE: TEST - calculations using the price will not be as accurate as possible
 const computeAddLiquidityProportion = async (
   lpAddress: Address,
-  token0Amount: bigint,
-  token1Amount: bigint
+  amount: bigint
 ) => {
   const publicClient: PublicClient = getPublicClient(BERA_CHAIN_ID);
 
@@ -32,29 +18,72 @@ const computeAddLiquidityProportion = async (
     address: lpAddress,
     abi: parseAbi([
       "function getUnderlyingBalances() view returns (uint256 amount0Current, uint256 amount1Current)",
+      "function token0() view returns (address token0)",
+      "function token1() view returns (address token1)",
     ]),
   };
 
-  const [amount0Current, amount1Current] = await publicClient.readContract({
-    ...lpContractInfo,
-    functionName: "getUnderlyingBalances",
-    args: [],
+  const [
+    { result: underlyingBalances },
+    { result: token0Address },
+    { result: token1Address },
+  ] = await publicClient.multicall({
+    contracts: [
+      {
+        ...lpContractInfo,
+        functionName: "getUnderlyingBalances",
+        args: [],
+      },
+      {
+        ...lpContractInfo,
+        functionName: "token0",
+        args: [],
+      },
+      {
+        ...lpContractInfo,
+        functionName: "token1",
+        args: [],
+      },
+    ],
   });
 
+  const [decimals0, decimals1] = await publicClient.multicall({
+    contracts: [
+      {
+        address: token0Address as Address,
+        abi: parseAbi(["function decimals() view returns (uint256 decimals)"]),
+        functionName: "decimals",
+        args: [],
+      },
+      {
+        address: token1Address as Address,
+        abi: parseAbi(["function decimals() view returns (uint256 decimals)"]),
+        functionName: "decimals",
+        args: [],
+      },
+    ],
+  });
+
+  const amount0Current = !!underlyingBalances ? underlyingBalances[0] : 0n;
+  const amount1Current = !!underlyingBalances ? underlyingBalances[1] : 0n;
+
   const tokensPrices = await getCoinsPrices(BERA_CHAIN_ID, [
-    BERA_MIM_ADDRESS,
-    BERA_HONEY_ADDRESS,
+    token0Address!,
+    token1Address!,
   ]);
 
   const token0Info = getTokenInfo(
-    BERA_MIM_ADDRESS,
+    token0Address!,
     amount0Current,
-    tokensPrices
+    tokensPrices,
+    Number(decimals0.result)
   );
+
   const token1Info = getTokenInfo(
-    BERA_HONEY_ADDRESS,
+    token1Address!,
     amount1Current,
-    tokensPrices
+    tokensPrices,
+    Number(decimals1.result)
   );
 
   const tvl = token0Info.balanceUSD + token1Info.balanceUSD;
@@ -67,8 +96,8 @@ const computeAddLiquidityProportion = async (
   const token1ProportionPercent = PERCENT_TARGET - token0ProportionPercent;
 
   const token0ProportionAmount =
-    (token0Amount * token0ProportionPercent) / PERCENT_TARGET;
-  const token1ProportionAmount = token0Amount - token0ProportionAmount; // MIM to sell
+    (amount * token0ProportionPercent) / PERCENT_TARGET;
+  const token1ProportionAmount = amount - token0ProportionAmount; // MIM to sell
 
   const proportions = {
     token0ProportionAmount,
@@ -83,7 +112,7 @@ const computeAddLiquidityProportion = async (
     proportions,
   });
 
-  return proportions;
+  return { proportions, token0Info, token1Info };
 };
 
 export const getTokenInfo = (
