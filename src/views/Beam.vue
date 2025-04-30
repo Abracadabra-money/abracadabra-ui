@@ -76,7 +76,7 @@
         </div>
 
         <ExpectedBlock
-          v-if="beamInfoObject"
+          v-if="beamInfoObject && fromChainConfig"
           :beamInfoObject="beamInfoObject"
           :dstChainConfig="toChainConfig!"
           :gasFee="estimateSendFee"
@@ -162,11 +162,12 @@ import { beamConfigs } from "@/configs/beam/beamConfigs";
 import { getBeamInfo } from "@/helpers/beam/getBeamInfo";
 import { Options } from "@layerzerolabs/lz-v2-utilities";
 import { mapGetters, mapActions, mapMutations } from "vuex";
-import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
+import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { quoteSendFee } from "@/helpers/beam/getEstimateSendFee";
 import { getBeamChainInfo } from "@/helpers/beam/getBeamChainInfo";
 import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFee";
+import { openConnectPopup } from "@/helpers/connect/utils";
 
 export default {
   data() {
@@ -238,7 +239,7 @@ export default {
       if (this.isLzVersion2) {
         return ethers.utils.defaultAbiCoder.encode(
           ["bytes32"],
-          [ethers.utils.hexZeroPad(this.account, 32)]
+          [ethers.utils.hexZeroPad(this.toAddress, 32)]
         );
       }
 
@@ -583,10 +584,7 @@ export default {
     async actionHandler() {
       if (this.actionState.disable) return false;
 
-      if (!this.account) {
-        // @ts-ignore
-        return this.$openWeb3modal();
-      }
+      if (!this.account) return openConnectPopup();
 
       if (this.isWrongChain) {
         await switchNetwork(this.fromChainConfig!.chainId);
@@ -753,8 +751,8 @@ export default {
   },
 
   async created() {
-    await this.initBeamInfo(this.chainId);
-    this.fromChainId = this.chainId;
+    this.fromChainId =
+      (await this.initBeamInfo(this.chainId)) || MAINNET_CHAIN_ID;
   },
 
   components: {

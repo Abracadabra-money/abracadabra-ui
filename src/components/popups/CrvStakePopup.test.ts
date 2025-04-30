@@ -1,6 +1,5 @@
 import Vuex from "vuex";
-import { ethers, providers } from "ethers";
-import { defaultRpc } from "@/helpers/chains";
+import { ethers } from "ethers";
 import { shallowMount } from "@vue/test-utils";
 import { describe, it, expect, vi } from "vitest";
 import CrvStakePopup from "@/components/popups/CrvStakePopup.vue";

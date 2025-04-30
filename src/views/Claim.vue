@@ -159,6 +159,7 @@ import BaseTokenIcon from "@/components/base/BaseTokenIcon.vue";
 import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 import { getApprovalEncode } from "@/helpers/getRevokeApprovalSignature";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
+import { openConnectPopup } from "@/helpers/connect/utils";
 
 const ethPrivilegedMasterContract =
   "0xb2EBF227188E44ac268565C73e0fCd82D4Bfb1E3";
@@ -327,7 +328,7 @@ export default {
     formatTokenBalance,
 
     async actionHandler() {
-      if (!this.account) await this.$openWeb3modal();
+      if (!this.account) return openConnectPopup();
       else {
         if (this.isApproveMasterContracts) {
           const arr = this.isEthChain

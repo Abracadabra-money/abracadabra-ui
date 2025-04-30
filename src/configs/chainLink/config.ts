@@ -28,10 +28,10 @@ export const nativeTokenschainLink = {
     chainId: 137,
     address: "0xab594600376ec9fd91f8e885dadf0ce036862de0",
   },
-  250: {
-    chainId: 250,
-    address: "0xf4766552d15ae4d256ad41b6cf2933482b0680dc",
-  },
+  // 250: {
+  //   chainId: 250,
+  //   address: "0xf4766552d15ae4d256ad41b6cf2933482b0680dc",
+  // },
   1285: {
     chainId: 1285,
     address: "0x3f8bfbdc1e79777511c00ad8591cef888c2113c1",

@@ -24,10 +24,10 @@ export const holdersConfig = {
     "0xe7804c37c13166ff0b37f5ae0bb07a3aebb6e245",
     "0xf89d7b9c864f589bbf53a82105107622b35eaa40",
   ],
-  250: [
-    "0x20dd72ed959b6147912c2e529f0a0c651c33c9ce",
-    "0xb4ad8B57Bd6963912c80FCbb6Baea99988543c1c",
-  ],
+  // 250: [
+  //   "0x20dd72ed959b6147912c2e529f0a0c651c33c9ce",
+  //   "0xb4ad8B57Bd6963912c80FCbb6Baea99988543c1c",
+  // ],
   42161: [
     "0xc01de756ee31c4ce3252c5d1be4aceb62f4ae807",
     "0x489ee077994b6658eafa855c308275ead8097c4a",
