@@ -221,7 +221,7 @@ const config: Array<CauldronConfig> = [
     },
   },
   {
-    icon: useImage(`assets/images/tokens/Kodiak-MIM-Honey.png`),
+    icon: useImage(`assets/images/tokens/Kodiak-WBERA-HONEY.png`),
     name: "WBERA/HONEY",
     chainId: 80094,
     id: 4,
@@ -289,7 +289,7 @@ const config: Array<CauldronConfig> = [
     },
   },
   {
-    icon: useImage(`assets/images/tokens/Kodiak-MIM-Honey.png`),
+    icon: useImage(`assets/images/tokens/Kodiak-WBERA-WBTC.png`),
     name: "WBTC/WBERA",
     chainId: 80094,
     id: 5,
@@ -357,7 +357,7 @@ const config: Array<CauldronConfig> = [
     },
   },
   {
-    icon: useImage(`assets/images/tokens/Kodiak-MIM-Honey.png`),
+    icon: useImage(`assets/images/tokens/Kodiak-WBERA-WETH.png`),
     name: "WETH/WBERA",
     chainId: 80094,
     id: 6,
