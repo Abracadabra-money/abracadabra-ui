@@ -4,8 +4,10 @@ import type { CauldronInfo } from "@/helpers/cauldron/types";
 import { fetchLev0xData } from "@/helpers/cauldron/cook/0xSwapData/leverage/fetchLev0xData";
 import getVelodrome0xData from "@/helpers/cauldron/cook/0xSwapData/leverage/getVelodrome0xData";
 import { fetchLevUsd0Data } from "@/helpers/cauldron/cook/0xSwapData/leverage/fetchLevUsd0Data";
+import fetchLevBeraBexData from "@/helpers/cauldron/cook/0xSwapData/leverage/fetchLevBeraBexData";
 import fetchLevSdeusdSwapData from "@/helpers/cauldron/cook/0xSwapData/leverage/fetchLevSdeusdSwapData";
 import { fetchLevYvWethV2Data } from "@/helpers/cauldron/cook/0xSwapData/leverage/fetchLevYvWethV2Data";
+import { fetchLevKodiakIslandData } from "@/helpers/cauldron/cook/0xSwapData/leverage/fetchLevKodiakIslandData";
 import { fetchLevCvx3poolSwapData } from "@/helpers/cauldron/cook/0xSwapData/leverage/fetchLevCvx3poolSwapData";
 import { fetchLevStargateUsdtData } from "@/helpers/cauldron/cook/0xSwapData/leverage/fetchLevStargateUsdtData";
 import { fetchLevCvxTricryptoSwapData } from "@/helpers/cauldron/cook/0xSwapData/leverage/fetchLevCvxTricryptoSwapData";
@@ -23,6 +25,8 @@ const getLev0xData = async (
     isCvx3pool,
     iStdeUSD,
     isUSD0,
+    isKodiakIsland,
+    isBeraBex,
   } = cauldronObject.config.cauldronSettings;
 
   if (isVelodrome) return getVelodrome0xData();
@@ -45,6 +49,14 @@ const getLev0xData = async (
 
   if (iStdeUSD) {
     return await fetchLevSdeusdSwapData(cauldronObject, amount, slipage);
+  }
+
+  if (isKodiakIsland) {
+    return fetchLevKodiakIslandData(cauldronObject, amount, slipage);
+  }
+
+  if (isBeraBex) {
+    return fetchLevBeraBexData(cauldronObject, amount, slipage);
   }
 
   const swapResponse = await fetchLev0xData(cauldronObject, amount, slipage);

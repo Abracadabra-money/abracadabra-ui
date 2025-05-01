@@ -1,5 +1,5 @@
 import { formatUnits } from "viem";
-import lensAbi from "@/abis/marketLens.js";
+import lensAbi from "@/abis/marketLens";
 import cauldronsConfig from "@/configs/cauldrons";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { getLensAddress } from "@/helpers/cauldron/getLensAddress";
