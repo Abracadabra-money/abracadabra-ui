@@ -25,6 +25,8 @@ import { ABRA_FEES } from "@/helpers/collateralsApy/getGMApr";
 import { getEthersProvider } from "../chains/getChainsInfo";
 import { formatToFixed } from "../filters";
 import { getBerachainValutById } from "./getBerachainValutById";
+import { getKodiakIslandsVaultById } from "@/helpers/collateralsApy/getKodiakIslandsVaultById";
+
 const LUSD_CAULDRON_ADDRESS = "0x8227965A7f42956549aFaEc319F4E444aa438Df5";
 const USD0_CAULDRON_ADDRESS = "0xE8ed7455fa1b2a3D8959cD2D59c7f136a45BF341";
 
@@ -41,6 +43,7 @@ export const fetchCauldronsAprs = async (cauldrons: CauldronListItem[]) => {
     getAndFormatGlpAprs(),
     getGmCauldronsAprs(cauldrons, arb_provider),
     getBeraBexAprs(cauldrons),
+    getBeraKodiakAprs(cauldrons),
   ];
 
   const results = (
@@ -251,6 +254,27 @@ const getBeraBexAprs = async (cauldrons: CauldronListItem[]) => {
   const result = await Promise.all(
     berachainCauldrons.map(async (cauldron) => {
       const apr = await getBerachainValutById(cauldron.config.id);
+      return { [cauldron.config.contract.address.toLowerCase()]: apr };
+    })
+  );
+
+  return result;
+};
+
+const getBeraKodiakAprs = async (cauldrons: CauldronListItem[]) => {
+  const berachainCauldrons = cauldrons.filter(
+    ({ config }) => config.cauldronSettings.isKodiakIsland
+  );
+
+  const result = await Promise.all(
+    berachainCauldrons.map(async (cauldron) => {
+      if (!cauldron.config.wrapInfo?.unwrappedToken.address)
+        return { [cauldron.config.contract.address.toLowerCase()]: "0.00" };
+
+      const apr = await getKodiakIslandsVaultById(
+        cauldron.config.wrapInfo.unwrappedToken.address.toLowerCase()
+      );
+
       return { [cauldron.config.contract.address.toLowerCase()]: apr };
     })
   );

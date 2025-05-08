@@ -7,10 +7,11 @@ import { getVeloApy } from "@/helpers/collateralsApy/getVeloApy";
 import { getLUSDApy } from "@/helpers/collateralsApy/getLUSDApy";
 import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
 import { getElixirApy } from "@/helpers/collateralsApy/getElixirApy";
+import { getUsd0ppApy } from "@/helpers/collateralsApy/getUsd0ppApy";
 import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
+import { getBerachainValutById } from "@/helpers/collateralsApy/getBerachainValutById";
+import { getKodiakIslandsVaultById } from "@/helpers/collateralsApy/getKodiakIslandsVaultById";
 import { getMaxLeverageMultiplierAlternative } from "@/helpers/cauldron/getMaxLeverageMultiplier.ts";
-import { getUsd0ppApy } from "./getUsd0ppApy";
-import { getBerachainValutById } from "./getBerachainValutById";
 
 //NOTICE: check comments below
 // import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
@@ -69,6 +70,14 @@ export const fetchTokenApy = async (pool, chainId, provider) => {
         pool.config.id,
         pool.config.wrapInfo.unwrappedToken.address
       );
+
+    const kodiakIds = [4, 5, 6];
+
+    if (kodiakIds.includes(pool.config.id)) {
+      return getKodiakIslandsVaultById(
+        pool.config.wrapInfo.unwrappedToken.address
+      );
+    }
   }
 
   // NOTICE: Stargate returns 0, and Yearn throws an error due to api. Consider if theese are still relevant

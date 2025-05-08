@@ -149,6 +149,27 @@ const configs = [
     label: "Get WBTC/BERA LP Token",
     icon: useImage(`assets/images/get-lp-icons/bex.png`),
   },
+  {
+    id: 4,
+    chain: BERA_CHAIN_ID,
+    href: "https://app.kodiak.finance/#/liquidity/pools/0x4a254b11810b8ebb63c5468e438fc561cb1bb1da?chain=berachain_mainnet",
+    label: "Get WBERA/HONEY LP Token",
+    icon: useImage(`assets/images/get-lp-icons/kodiak.png`),
+  },
+  {
+    id: 5,
+    chain: BERA_CHAIN_ID,
+    href: "https://app.kodiak.finance/#/liquidity/pools/0xf06ea29fcf4765200742d29e685973a1870eac98?chain=berachain_mainnet",
+    label: "Get WBTC/WBERA LP Token",
+    icon: useImage(`assets/images/get-lp-icons/kodiak.png`),
+  },
+  {
+    id: 6,
+    chain: BERA_CHAIN_ID,
+    href: "https://app.kodiak.finance/#/liquidity/pools/0x9659dc8c1565e0bd82627267e3b4eed1a377ebe6?chain=berachain_mainnet",
+    label: "Get WETH/WBERA LP Token",
+    icon: useImage(`assets/images/get-lp-icons/kodiak.png`),
+  },
 ];
 
 export const getTokenLinkData = (cauldronId: number, chainId: number) => {

@@ -1,4 +1,4 @@
-import type { Address } from "viem";
+import axios from "axios";
 import { formatToFixed } from "@/helpers/filters";
 import { gql, ApolloClient, InMemoryCache } from "@apollo/client";
 
@@ -18,7 +18,7 @@ type ResponseData = {
   networkStatus: number;
 };
 
-export const getKodiakIslandsVaultById = async (id: Address) => {
+export const getKodiakIslandsVaultById = async (id: string) => {
   try {
     const graphClient = new ApolloClient({
       uri: subgraphUrl,
@@ -43,7 +43,19 @@ export const getKodiakIslandsVaultById = async (id: Address) => {
 
     return formatToFixed(data.kodiakVault.apr.averageApr, 2);
   } catch (error) {
-    console.log("GetKodiakIslandsValutById Error:", error);
+    return await getKodiakIslandsApr(id);
+  }
+};
+
+const getKodiakIslandsApr = async (id: string) => {
+  try {
+    const { data } = await axios.get(
+      `https://backend.kodiak.finance/vaults/${id}`
+    );
+
+    return data.apr;
+  } catch (error) {
+    console.log("Error fetch Kodiak Islands APR:", error);
     return "0.00";
   }
 };

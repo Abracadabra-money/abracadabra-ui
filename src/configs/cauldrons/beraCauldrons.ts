@@ -252,6 +252,7 @@ const config: Array<CauldronConfig> = [
       isKodiakIsland: true,
       isNew: true,
       weight: 4,
+      isAprExist: true,
     },
     contract: {
       name: "CauldronV4",
@@ -320,6 +321,7 @@ const config: Array<CauldronConfig> = [
       isKodiakIsland: true,
       isNew: true,
       weight: 4,
+      isAprExist: true,
     },
     contract: {
       name: "CauldronV4",
@@ -388,6 +390,7 @@ const config: Array<CauldronConfig> = [
       isKodiakIsland: true,
       isNew: true,
       weight: 4,
+      isAprExist: true,
     },
     contract: {
       name: "CauldronV4",
