@@ -39,7 +39,7 @@ const configs = [
   {
     id: 1,
     chain: 2222,
-    href: "https://curve.fi/#/kava/pools/factory-v2-17/deposit",
+    href: "https://curve.finance/#/kava/pools/factory-v2-17/deposit",
     label: "Get Curve Token",
     icon: useImage(`assets/images/get-lp-icons/curve.png`),
   },
