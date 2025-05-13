@@ -45,7 +45,7 @@ export const mimConfigsV2: BeamConfigV2[] = [
     settings: {
       contractVersion: 1,
       disabledDestinationChains: [
-        42161, 2222, 43114, 10, 56, 137, 1285, 8453, 59144, 81457, 6900,
+        42161, 2222, 43114, 10, 56, 137, 1285, 8453, 59144, 81457,
       ],
       lzChainId: 30362,
       lzVersion: 2,
@@ -75,7 +75,7 @@ export const mimConfigsV2: BeamConfigV2[] = [
     settings: {
       contractVersion: 1,
       disabledDestinationChains: [
-        42161, 2222, 43114, 10, 56, 137, 1285, 8453, 59144, 81457, 80094,
+        42161, 2222, 43114, 10, 56, 137, 1285, 8453, 59144, 81457,
       ],
       lzChainId: 30369,
       lzVersion: 2,
