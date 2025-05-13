@@ -105,13 +105,20 @@ export const getBeamInfo = async (
         ? 0n
         : results[index * 2]?.result || 0n;
 
-      const dstConfigLookupResult = isLzVersion2
-        ? !!results[index * 2]?.result
-          ? results[index * 2]?.result[3]
-          : 0n
-        : results[index * 2 + 1]?.result
-        ? results[index * 2 + 1]?.result[0]
-        : 0n;
+      let dstConfigLookupResult = 0n;
+      if (isLzVersion2) {
+        if (!!results[index * 2]?.result) {
+          dstConfigLookupResult = results[index * 2]?.result[3];
+        } else {
+          dstConfigLookupResult = !!results[index * 2 - 1]?.result
+            ? results[index * 2 - 1]?.result[3]
+            : 0n;
+        }
+      } else {
+        if (results[index * 2 + 1]?.result) {
+          dstConfigLookupResult = results[index * 2 + 1]?.result[0];
+        }
+      }
 
       return {
         chainConfig,

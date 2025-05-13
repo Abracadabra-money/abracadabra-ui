@@ -45,12 +45,43 @@ export const mimConfigsV2: BeamConfigV2[] = [
     settings: {
       contractVersion: 1,
       disabledDestinationChains: [
-        42161, 2222, 43114, 10, 56, 137, 1285, 8453, 59144, 81457,
+        42161, 2222, 43114, 10, 56, 137, 1285, 8453, 59144, 81457, 6900,
       ],
       lzChainId: 30362,
       lzVersion: 2,
     },
     defaultValue: {
+      10: "0.000000587209028",
+      56: "0.000548",
+      137: "0.12769615656648925",
+      1285: "0.01774",
+      2222: "0.32",
+      42161: "0.000197125401096902",
+      43114: "0.007909505245705214",
+      8453: "0.000197125401096902",
+      81457: "0.000197125401096902",
+    },
+  },
+  {
+    chainId: 6900,
+    icon: getChainIcon(6900),
+    chainName: "Nibiru",
+    contract: {
+      address: "0xfCfc58685101e2914cBCf7551B432500db84eAa8",
+      abi: abi.transparentUpgradeableProxy,
+    },
+    outboundProofType: 2,
+    executor: "0x6A02D83e8d433304bba74EF1c427913958187142",
+    settings: {
+      contractVersion: 1,
+      disabledDestinationChains: [
+        42161, 2222, 43114, 10, 56, 137, 1285, 8453, 59144, 81457, 80094,
+      ],
+      lzChainId: 30369,
+      lzVersion: 2,
+    },
+    defaultValue: {
+      1: "0.008858578698816767",
       10: "0.000000587209028",
       56: "0.000548",
       137: "0.12769615656648925",
