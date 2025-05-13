@@ -13,6 +13,7 @@ import { optimismConfig } from "@/helpers/chains/configs/optimism";
 import { polygonConfig } from "@/helpers/chains/configs/polygon";
 import { beraConfig } from "@/helpers/chains/configs/bera";
 import type { ChainConfig } from "@/helpers/chains/configs/type";
+import { nibiruConfig } from "@/helpers/chains/configs/nibiru";
 
 export const chainsConfigs: ChainConfig[] = [
   beraConfig,
@@ -29,4 +30,5 @@ export const chainsConfigs: ChainConfig[] = [
   baseConfig,
   lineaConfig,
   // beraBartioConfig,
+  nibiruConfig,
 ];
