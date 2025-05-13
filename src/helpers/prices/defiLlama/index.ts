@@ -41,6 +41,7 @@ const defiLlamaChainsKeys = {
   80094: "berachain-bera",
   81457: "blast",
   168587773: "blast",
+  6900: "nibiru",
 };
 
 const coingeckoNativeTokensIds = {
@@ -57,6 +58,7 @@ const coingeckoNativeTokensIds = {
   59144: "ethereum",
   81457: "ethereum",
   80094: "berachain-bera",
+  6900: "nibiru",
 };
 
 // this config is used to get coin prices if there no results by chainId
