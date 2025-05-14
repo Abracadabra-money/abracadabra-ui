@@ -39,7 +39,7 @@
         </router-link>
 
         <a
-          href="https://curve.fi/#/ethereum/pools/mim/swap"
+          href="https://curve.finance/#/ethereum/pools/mim/swap"
           class="list-link"
           target="_blank"
           ><div class="link-title">

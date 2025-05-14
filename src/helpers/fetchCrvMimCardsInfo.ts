@@ -7,7 +7,7 @@ export const fetchCrvMimCardsInfo = async () => {
   if (cachedData) return cachedData;
 
   const curveData = await axios.get(
-    `https://api.curve.fi/api/getPools/arbitrum/factory-stable-ng`
+    `https://api.curve.finance/api/getPools/arbitrum/factory-stable-ng`
   );
 
   const poolData = curveData.data.data.poolData.find(

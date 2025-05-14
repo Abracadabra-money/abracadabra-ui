@@ -1,7 +1,7 @@
 <template>
   <a
     class="card"
-    href="https://curve.fi/#/arbitrum/pools/factory-stable-ng-11/deposit"
+    href="https://curve.finance/#/arbitrum/pools/factory-stable-ng-11/deposit"
     target="_blank"
     rel="noreferrer noopener"
   >
