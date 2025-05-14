@@ -105,20 +105,11 @@ export const getBeamInfo = async (
         ? 0n
         : results[index * 2]?.result || 0n;
 
-      let dstConfigLookupResult = 0n;
-      if (isLzVersion2) {
-        if (!!results[index * 2]?.result) {
-          dstConfigLookupResult = results[index * 2]?.result[3];
-        } else {
-          dstConfigLookupResult = !!results[index * 2 - 1]?.result
-            ? results[index * 2 - 1]?.result[3]
-            : 0n;
-        }
-      } else {
-        if (results[index * 2 + 1]?.result) {
-          dstConfigLookupResult = results[index * 2 + 1]?.result[0];
-        }
-      }
+      const dstConfigLookupResult = getDstConfigLookupResult(
+        index,
+        isLzVersion2,
+        results
+      );
 
       return {
         chainConfig,
@@ -244,4 +235,20 @@ const filterDestinationChains = (
 
     return !isFromChain && !isDisabled;
   });
+};
+
+const resultAt = (i: number, results: any) => results[i]?.result;
+
+const getDstConfigLookupResult = (
+  index: number,
+  isV2: boolean,
+  results: any
+): bigint => {
+  if (isV2) {
+    const primary = resultAt(index * 2, results);
+    const fallback = resultAt(index * 2 - 1, results);
+    return primary?.[3] ?? fallback?.[3] ?? 0n;
+  } else {
+    return resultAt(index * 2 + 1, results)?.[0] ?? 0n;
+  }
 };
