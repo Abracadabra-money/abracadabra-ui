@@ -55,7 +55,7 @@ const nibiruPools: Array<PoolConfig | AdditionalPoolConfig> = [
     icon: useImage(`assets/images/tokens/MIM-USDT.png`),
     decimals: 18,
     contract: {
-      address: "0x099c9bA29F57C2F4fC8d1d8431942121C87aB507",
+      address: "0x9fcc214DDD8aBb02e401e63d12872A84E504d77B",
       abi: BlastMagicLpAbi,
     },
     baseToken: {
