@@ -5,6 +5,7 @@ import {
 } from "@/helpers/walletClienHelper";
 import type { Address } from "viem";
 import BlastMIMSwapRouterAbi from "@/abis/BlastMIMSwapRouter";
+import { ZERO_ADDRESS } from "@/constants/gm";
 
 export type ActionConfig = {
   baseToken: Address;
@@ -73,9 +74,9 @@ export const createPoolNative = async (
     protocolOwnedPool,
   } = payload;
 
-  const value = useTokenAsQuote ? quoteInAmount : baseInAmount;
-  const token = useTokenAsQuote ? baseToken : quoteToken;
-  const tokenInAmount = useTokenAsQuote ? baseInAmount : quoteInAmount;
+  const value = useTokenAsQuote ? baseInAmount : quoteInAmount;
+  const token = useTokenAsQuote ? quoteToken : baseToken;
+  const tokenInAmount = useTokenAsQuote ? quoteInAmount : baseInAmount;
 
   const { request } = await simulateContractHelper({
     address: swapRouterAddress,
@@ -87,9 +88,9 @@ export const createPoolNative = async (
       lpFeeRate,
       I,
       K,
+      ZERO_ADDRESS,
       to,
       tokenInAmount,
-      protocolOwnedPool,
     ],
     value,
   });

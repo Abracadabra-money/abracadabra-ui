@@ -11,11 +11,17 @@ export const createSimilarPoolsInfo = async (
     .filter(
       (config): config is NonNullable<typeof config> => config !== undefined
     )
-    .filter(
-      ({ baseToken, quoteToken }) =>
-        baseToken.contract.address === actionConfig.baseToken &&
-        quoteToken.contract.address === actionConfig.quoteToken
-    );
+    .filter(({ baseToken, quoteToken }) => {
+      const baseAddress = baseToken.contract.address.toLowerCase();
+      const quoteAddress = quoteToken.contract.address.toLowerCase();
+      const actionBase = actionConfig.baseToken.toLowerCase();
+      const actionQuote = actionConfig.quoteToken.toLowerCase();
+
+      return (
+        (baseAddress === actionBase && quoteAddress === actionQuote) ||
+        (baseAddress === actionQuote && quoteAddress === actionBase)
+      );
+    });
 
   const similarPools = await getPoolsList(account, similarConfigs);
 
@@ -32,5 +38,5 @@ export const checkIdentity = (
 ) => {
   const { K: poolK, lpFeeRate: poolFeeRate } = pool.initialParameters;
   const { K, lpFeeRate } = actionConfig;
-  return K === poolK && lpFeeRate === poolFeeRate;
+  return K === BigInt(poolK) && lpFeeRate === BigInt(poolFeeRate);
 };

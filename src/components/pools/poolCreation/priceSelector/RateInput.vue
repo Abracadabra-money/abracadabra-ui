@@ -37,26 +37,34 @@ export default {
     return {
       inputValue: this.value,
       tooltip: "",
+      inputChangedProgrammatically: false,
     };
   },
 
   watch: {
     inputValue(value, oldValue) {
-      if (!value) {
-        this.$emit("updateInputValue", null);
-        return;
-      }
-
       if (isNaN(value)) {
         this.inputValue = oldValue;
         return false;
       }
 
-      this.updateInputValue(value, this.decimals);
+      if (!this.inputChangedProgrammatically) {
+        this.updateInputValue(value, this.decimals);
+      }
+
+      this.inputChangedProgrammatically = false;
     },
 
     value(value) {
+      this.inputChangedProgrammatically = true;
       this.inputValue = value;
+    },
+
+    disabled(value) {
+      if (value) {
+        this.inputChangedProgrammatically = true;
+        this.inputValue = this.value;
+      }
     },
   },
 

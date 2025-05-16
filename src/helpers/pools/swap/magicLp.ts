@@ -255,8 +255,9 @@ export const getUserLpInfo = async (
     allowance: allowance.result,
     balance: balance.result,
     userFeeRate: {
-      lpFeeRate: userFeeRate.result[0],
-      mtFeeRate: userFeeRate.result[1],
+      //todo: update for mimswapV2
+      lpFeeRate: userFeeRate.result ? userFeeRate.result[0] : 0n,
+      mtFeeRate: userFeeRate.result ? userFeeRate.result[1] : 0n,
     },
   };
 };
