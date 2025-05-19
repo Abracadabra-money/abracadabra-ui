@@ -73,7 +73,9 @@
             </p>
             <p class="item-tooltip-text">Gas cost: {{ formatUSD(gasCost) }}</p>
             <p class="item-tooltip-text">Pool fee: {{ formatUSD(poolFee) }}</p>
-            <p>Protocol comission: {{ formatUSD(protocolComission) }}</p>
+            <p v-if="isVisibilityProtocolFee">
+              Protocol comission: {{ formatUSD(protocolFee) }}
+            </p>
           </div>
         </div>
         <h4 class="info-title">Fees</h4>
@@ -137,64 +139,65 @@ export default {
     poolFee() {
       if (!this.swapInfo.routes.length) return 0;
 
-      const routeInfo: RouteInfo =
-        this.swapInfo.routes[this.swapInfo.routes.length - 1];
-      const toTokenPrice = this.actionConfig!.toToken.price;
-      const toTokenDecimals = this.actionConfig!.toToken.config.decimals;
-      return (
-        Number(formatUnits(routeInfo.lpFee, toTokenDecimals)) * toTokenPrice
-      );
+      return this.swapInfo.routes.reduce((acc: number, route: any) => {
+        const isBaseToken =
+          route.outputToken.toLowerCase() ===
+          route.lpInfo.baseToken.toLowerCase();
+
+        const toTokenPrice = isBaseToken
+          ? route.lpInfo.baseTokenPrice
+          : route.lpInfo.quoteTokenPrice;
+
+        const toTokenDecimals = isBaseToken
+          ? route.lpInfo.tokens.baseToken.config.decimals
+          : route.lpInfo.tokens.quoteToken.config.decimals;
+
+        if (route.mlmVersion === 2) {
+          const fee = Number(formatUnits(route.fee, toTokenDecimals));
+          return (acc += fee * toTokenPrice);
+        } else {
+          const lpFee = Number(formatUnits(route.lpFee, toTokenDecimals));
+
+          return (acc += lpFee * toTokenPrice);
+        }
+      }, 0);
     },
 
-    protocolComission() {
+    protocolFee() {
       if (!this.swapInfo.routes.length) return 0;
 
-      const routeInfo: RouteInfo =
-        this.swapInfo.routes[this.swapInfo.routes.length - 1];
-      const toTokenPrice = this.actionConfig!.toToken.price;
-      const toTokenDecimals = this.actionConfig!.toToken.config.decimals;
-      return (
-        Number(formatUnits(routeInfo.mtFee, toTokenDecimals)) * toTokenPrice
-      );
+      return this.swapInfo.routes.reduce((acc: number, route: any) => {
+        const isBaseToken =
+          route.outputToken.toLowerCase() ===
+          route.lpInfo.baseToken.toLowerCase();
+
+        const toTokenPrice = isBaseToken
+          ? route.lpInfo.baseTokenPrice
+          : route.lpInfo.quoteTokenPrice;
+
+        const toTokenDecimals = isBaseToken
+          ? route.lpInfo.tokens.baseToken.config.decimals
+          : route.lpInfo.tokens.quoteToken.config.decimals;
+
+        const mtFee = Number(formatUnits(route.mtFee, toTokenDecimals));
+        return (acc += mtFee * toTokenPrice);
+      }, 0);
     },
 
-    feesByCategory() {
-      if (!this.swapInfo.routes.length)
-        return {
-          poolFee: 0,
-          protocolComission: 0,
-        };
+    isVisibilityProtocolFee() {
+      if (!this.swapInfo.routes.length) return true;
 
       const routeInfo: RouteInfo =
         this.swapInfo.routes[this.swapInfo.routes.length - 1];
 
-      const toTokenPrice = this.actionConfig!.toToken.price;
-      const toTokenDecimals = this.actionConfig!.toToken.config.decimals;
-
-      return {
-        poolFee: formatUSD(
-          Number(formatUnits(routeInfo.lpFee, toTokenDecimals)) * toTokenPrice
-        ),
-        protocolComission: formatUSD(
-          Number(formatUnits(routeInfo.mtFee, toTokenDecimals)) * toTokenPrice
-        ),
-      };
+      if (routeInfo.mlmVersion === 2) return false;
+      return true;
     },
 
     swapFees() {
       if (!this.swapInfo.routes.length) return 0;
 
-      const routeInfo: RouteInfo =
-        this.swapInfo.routes[this.swapInfo.routes.length - 1];
-
-      return formatUSD(
-        +formatUnits(
-          routeInfo.lpFee + routeInfo.mtFee,
-          this.actionConfig!.toToken.config.decimals
-        ) *
-          this.actionConfig!.toToken.price +
-          this.gasCost
-      );
+      return formatUSD(this.poolFee + this.protocolFee);
     },
 
     swapSlippage() {
