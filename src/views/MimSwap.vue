@@ -109,6 +109,7 @@ import {
   BLAST_CHAIN_ID,
   ARBITRUM_CHAIN_ID,
   MAINNET_CHAIN_ID,
+  NIBIRU_CHAIN_ID,
 } from "@/constants/global";
 import {
   getSwapInfo,
@@ -185,6 +186,7 @@ export default {
         KAVA_CHAIN_ID,
         BLAST_CHAIN_ID,
         MAINNET_CHAIN_ID,
+        NIBIRU_CHAIN_ID,
       ], // TODO: get from configs
       isApproving: false,
       nativeTokenPrice: [] as { chainId: number; price: number }[],

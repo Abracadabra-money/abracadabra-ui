@@ -24,6 +24,8 @@ export type RouteInfo = {
   outputAmountWithoutFee: bigint;
   mtFee: bigint;
   lpFee: bigint;
+  fee: bigint;
+  mlmVersion: number;
   fees: bigint;
   lpInfo: MagicLPInfo;
   fromBase: boolean;
