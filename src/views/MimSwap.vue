@@ -268,16 +268,22 @@ export default {
     },
 
     priceImpactPair(): string | number {
-      const priceImpact = this.swapInfo.routes.reduce((acc, route: any) => {
-        const routeImpact = calculatePriceImpactSingleSwap(
-          route.lpInfo,
-          route.inputAmount,
-          route.outputAmount,
-          route.fromBase
-        );
+      let amount = 0n;
+      const priceImpact = this.swapInfo.routes.reduce(
+        (acc, route: any, index) => {
+          if (index === 0) amount = route.inputAmount;
 
-        return (acc += routeImpact);
-      }, 0);
+          const routeImpact = calculatePriceImpactSingleSwap(
+            route.lpInfo,
+            amount,
+            route.outputAmount,
+            route.fromBase
+          );
+          amount = route.outputAmount;
+          return (acc += routeImpact);
+        },
+        0
+      );
 
       return priceImpact.toFixed(2);
     },
