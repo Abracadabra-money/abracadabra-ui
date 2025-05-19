@@ -9,4 +9,8 @@ export const whiteListedPools = {
     "0x6f9f9ea9c06c7d928a2ffbbcc5542b18188488e9",
   ],
   2222: ["0x10c9fcda1655b7a55250adcee06f0b6e83f473c1"],
+  6900: [
+    "0x9fcc214DDD8aBb02e401e63d12872A84E504d77B",
+    "0xF63fCFcd000af6401dc1848E7e147AeDf56f9355",
+  ],
 };

@@ -3,6 +3,7 @@ import {
   BLAST_CHAIN_ID,
   KAVA_CHAIN_ID,
   MAINNET_CHAIN_ID,
+  NIBIRU_CHAIN_ID,
 } from "@/constants/global";
 import type {
   GraphPairConfig,
@@ -26,6 +27,7 @@ const poolChains = [
   KAVA_CHAIN_ID,
   ARBITRUM_CHAIN_ID,
   BLAST_CHAIN_ID,
+  NIBIRU_CHAIN_ID,
 ];
 
 export const getPoolConfigsByChains = async (chainsArr: number[] = []) => {
