@@ -136,6 +136,7 @@ import type { ActionConfig, RouteInfo } from "@/helpers/pools/swap/getSwapInfo";
 import { validationActions } from "@/helpers/validators/swap/validationActions";
 import { getPoolConfigsByChains } from "@/helpers/pools/configs/getOrCreatePairsConfigs";
 import { openConnectPopup } from "@/helpers/connect/utils";
+import { calculatePriceImpactSingleSwap } from "@/helpers/pools/priceImpact";
 
 const emptyTokenInfo: TokenInfo = {
   config: {
@@ -266,41 +267,19 @@ export default {
       };
     },
 
-    // Alternative price impact calculation
     priceImpactPair(): string | number {
-      const routeInfo: RouteInfo =
-        this.swapInfo.routes[this.swapInfo.routes.length - 1];
+      const priceImpact = this.swapInfo.routes.reduce((acc, route: any) => {
+        const routeImpact = calculatePriceImpactSingleSwap(
+          route.lpInfo,
+          route.inputAmount,
+          route.outputAmount,
+          route.fromBase
+        );
 
-      if (!routeInfo) return 0;
+        return (acc += routeImpact);
+      }, 0);
 
-      const isBase = routeInfo.lpInfo.baseToken === routeInfo.inputToken;
-
-      //@ts-ignore
-      const { midPrice } = routeInfo.lpInfo;
-
-      //@ts-ignore
-      const tokenAmountIn = this.swapInfo.inputAmount;
-      const tokenAmountOut = routeInfo.outputAmountWithoutFee;
-      if (!tokenAmountIn || !tokenAmountOut) return 0;
-
-      const parsedAmountIn = formatUnits(
-        tokenAmountIn,
-        this.actionConfig.fromToken.config.decimals
-      );
-
-      const parsedAmountOut = formatUnits(
-        tokenAmountOut,
-        this.actionConfig.toToken.config.decimals
-      );
-
-      const executionPrice = isBase
-        ? Number(parsedAmountOut) / Number(parsedAmountIn)
-        : Number(parsedAmountIn) / Number(parsedAmountOut);
-
-      const priceImpact =
-        Math.abs(midPrice - executionPrice) / Number(midPrice);
-
-      return Number(priceImpact * 100).toFixed(2);
+      return priceImpact.toFixed(2);
     },
 
     differencePrice() {
