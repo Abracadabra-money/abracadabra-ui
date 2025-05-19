@@ -356,6 +356,8 @@ export const findBestRoutes = async (
         previousReceiveAmount
       );
 
+      previousReceiveAmount = outputAmount;
+
       route.push({
         inputToken: fromToken,
         outputToken: toToken as Address,
