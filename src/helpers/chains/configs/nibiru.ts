@@ -1,4 +1,4 @@
-import { defineChain } from "viem";
+import { type Address, defineChain } from "viem";
 import { useImage } from "@/helpers/useImage";
 import { NIBIRU_CHAIN_ID } from "@/constants/global";
 import { getRpcListByChainId } from "@/helpers/chains/utils";
@@ -43,5 +43,7 @@ export const nibiruConfig = {
   icon: useImage("assets/images/networks/nibiru.svg"),
   baseTokenIcon: useImage("assets/images/networks/nibiru.svg"),
   baseTokenSymbol: "NIBI",
+  wrappedNativeTokenAddress:
+    "0x1429B38e58b97de646ACd65fdb8a4502c2131484" as Address,
   networkIcon: useImage("assets/images/networks/nibiru.svg"),
 };

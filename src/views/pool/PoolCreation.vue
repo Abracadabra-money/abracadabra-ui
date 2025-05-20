@@ -311,6 +311,20 @@ export default {
   watch: {
     actionConfig: {
       async handler() {
+        //TODO:DELETE
+        // const baseScale = 10 ** (18 + this.quoteToken.config.decimals);
+        // const quoteScale = 10 ** this.baseToken.config.decimals;
+
+        // const basePriceInUSD = this.baseToken.price || 1;
+        // const quotePriceInUSD = this.quoteToken.price || 1;
+
+        // const basePriceInUSD_BN = BigInt(basePriceInUSD * baseScale);
+        // const quotePriceInUSD_BN = BigInt(quotePriceInUSD * quoteScale);
+
+        // console.log(this.actionConfig.I);
+        // console.log(basePriceInUSD_BN / quotePriceInUSD_BN);
+        //DELETE
+
         const { K, lpFeeRate } = this.actionConfig;
         if (this.tokensSelected && K > 0n && lpFeeRate > 0n)
           await this.createSimilarPoolsInfo();
@@ -596,6 +610,8 @@ export default {
       );
 
       try {
+        console.log("actionConfig", this.actionConfig);
+
         if (this.nativeTokenIndicator.isNative) {
           await createPoolNative(
             this.routerAddress,
@@ -826,6 +842,13 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+.warning-wrap {
+  padding: 16px 22px 19px 12px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  font-weight: 400;
 }
 
 .pool-creation-info-wrap {

@@ -198,7 +198,7 @@ export default {
       ).toString();
 
       this.inputValue = "";
-      // Затем в следующем тике устанавливаем нужное значение
+
       await this.$nextTick();
       this.inputValue = newValue;
     },

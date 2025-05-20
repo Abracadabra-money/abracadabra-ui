@@ -6,6 +6,7 @@ import {
 import type { Address } from "viem";
 import BlastMIMSwapRouterAbi from "@/abis/BlastMIMSwapRouter";
 import { ZERO_ADDRESS } from "@/constants/gm";
+import MIMSwapRouterAbi from "@/abis/MIMSwapRouterAbi";
 
 export type ActionConfig = {
   baseToken: Address;
@@ -37,7 +38,7 @@ export const createPool = async (
 
   const { request } = await simulateContractHelper({
     address: swapRouterAddress,
-    abi: BlastMIMSwapRouterAbi,
+    abi: MIMSwapRouterAbi,
     functionName: "createPool",
     args: [
       baseToken,

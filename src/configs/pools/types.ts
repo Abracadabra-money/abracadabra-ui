@@ -42,6 +42,7 @@ type PoolSettings = {
   rewardPointsType?: RewardPointsTypes;
   isLockAsStake?: boolean;
   isDeprecatedFarm?: boolean;
+  mlpVersion?: number;
 };
 
 type InitialParameters = {
