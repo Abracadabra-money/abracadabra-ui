@@ -321,8 +321,10 @@ export default {
         // const basePriceInUSD_BN = BigInt(basePriceInUSD * baseScale);
         // const quotePriceInUSD_BN = BigInt(quotePriceInUSD * quoteScale);
 
+        // console.log("custom calc");
         // console.log(this.actionConfig.I);
         // console.log(basePriceInUSD_BN / quotePriceInUSD_BN);
+        // console.log("check by example");
         //DELETE
 
         const { K, lpFeeRate } = this.actionConfig;
@@ -610,8 +612,6 @@ export default {
       );
 
       try {
-        console.log("actionConfig", this.actionConfig);
-
         if (this.nativeTokenIndicator.isNative) {
           await createPoolNative(
             this.routerAddress,
