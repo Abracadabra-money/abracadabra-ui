@@ -72,8 +72,10 @@
               profitability for liquidity providers as well as network fee
             </p>
             <p class="item-tooltip-text">Gas cost: {{ formatUSD(gasCost) }}</p>
-            <p class="item-tooltip-text">Pool fee: {{ formatUSD(poolFee) }}</p>
-            <p v-if="isVisibilityProtocolFee">
+            <p class="item-tooltip-text">
+              {{ feeTitle }} {{ formatUSD(poolFee) }}
+            </p>
+            <p v-if="!isMlpV2">
               Protocol comission: {{ formatUSD(protocolFee) }}
             </p>
           </div>
@@ -184,14 +186,19 @@ export default {
       }, 0);
     },
 
-    isVisibilityProtocolFee() {
-      if (!this.swapInfo.routes.length) return true;
+    isMlpV2() {
+      if (!this.swapInfo.routes.length) return false;
 
       const routeInfo: RouteInfo =
         this.swapInfo.routes[this.swapInfo.routes.length - 1];
 
-      if (routeInfo.mlmVersion === 2) return false;
-      return true;
+      if (routeInfo.mlmVersion === 2) return true;
+      return false;
+    },
+
+    feeTitle() {
+      if (this.isMlpV2) return "Fees:";
+      return "Pool fee:";
     },
 
     swapFees() {
