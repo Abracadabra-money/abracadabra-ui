@@ -15,6 +15,7 @@ export type ActionConfig = {
   slippage: bigint;
   deadline: bigint;
   fromInputAmount?: string;
+  priceImpact: number;
 };
 
 export type RouteInfo = {

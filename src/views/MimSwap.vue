@@ -46,7 +46,7 @@
         <SwapInfoBlock
           :swapInfo="swapInfo"
           :actionConfig="actionConfig"
-          :priceImpact="priceImpactPair"
+          :priceImpact="actionConfig.priceImpact"
           :selectedNetwork="selectedNetwork"
           :nativeTokenPrice="nativeTokenPrice"
           :isLoading="isLoading"
@@ -95,7 +95,7 @@
       <ConfirmationPopup
         :actionConfig="actionConfig"
         :swapInfo="swapInfo"
-        :priceImpact="priceImpactPair"
+        :priceImpact="actionConfig.priceImpact"
         :currentPriceInfo="currentPriceInfo"
         @confirm="closeConfirmationPopup"
       />
@@ -123,6 +123,7 @@ import { defineAsyncComponent } from "vue";
 import type { ContractInfo } from "@/types/global";
 import { approveTokenViem } from "@/helpers/approval";
 import type { PoolConfig } from "@/configs/pools/types";
+import { openConnectPopup } from "@/helpers/connect/utils";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { formatUnits, parseUnits, type Address } from "viem";
 import type { TokenInfo } from "@/helpers/pools/swap/tokens";
@@ -135,8 +136,6 @@ import { getAllPoolsByChain } from "@/helpers/pools/swap/magicLp";
 import type { ActionConfig, RouteInfo } from "@/helpers/pools/swap/getSwapInfo";
 import { validationActions } from "@/helpers/validators/swap/validationActions";
 import { getPoolConfigsByChains } from "@/helpers/pools/configs/getOrCreatePairsConfigs";
-import { openConnectPopup } from "@/helpers/connect/utils";
-import { calculatePriceImpactSingleSwap } from "@/helpers/pools/priceImpact";
 
 const emptyTokenInfo: TokenInfo = {
   config: {
@@ -169,6 +168,7 @@ export default {
         toInputValue: 0n,
         slippage: 20n,
         deadline: 500n,
+        priceImpact: 0,
         fromInputAmount: "0",
       } as ActionConfig,
       updateInterval: null as any,
@@ -200,8 +200,8 @@ export default {
     ...mapGetters({ chainId: "getChainId", account: "getAccount" }),
 
     isWarningBtn() {
-      if (!this.priceImpactPair) return false;
-      return +this.priceImpactPair <= -15;
+      if (!this.actionConfig.priceImpact) return false;
+      return this.actionConfig.priceImpact <= -15;
     },
 
     actionValidationData() {
@@ -267,27 +267,6 @@ export default {
       };
     },
 
-    priceImpactPair(): string | number {
-      let amount = 0n;
-      const priceImpact = this.swapInfo.routes.reduce(
-        (acc, route: any, index) => {
-          if (index === 0) amount = route.inputAmount;
-
-          const routeImpact = calculatePriceImpactSingleSwap(
-            route.lpInfo,
-            amount,
-            route.outputAmount,
-            route.fromBase
-          );
-          amount = route.outputAmount;
-          return (acc += routeImpact);
-        },
-        0
-      );
-
-      return priceImpact.toFixed(2);
-    },
-
     differencePrice() {
       const { fromToken, toToken, fromInputValue, toInputValue }: any =
         this.actionConfig;
@@ -348,6 +327,13 @@ export default {
 
     account() {
       this.createSwapInfo();
+    },
+
+    "swapInfo.priceImpact": {
+      handler(newPriceImpact) {
+        this.actionConfig.priceImpact = newPriceImpact;
+      },
+      deep: true,
     },
 
     actionConfig: {
