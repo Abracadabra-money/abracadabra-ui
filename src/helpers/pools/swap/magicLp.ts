@@ -160,10 +160,11 @@ export const getLpInfo = async (
   }
 
   const userInfo = await getUserLpInfo(
-    lp.contract.address,
+    lp,
     getSwapRouterByChain(chainId),
     account,
-    chainId
+    chainId,
+    lpFeeRate?.result || 0n
   );
 
   const baseTokenPrice =
@@ -210,10 +211,11 @@ export const getLpInfo = async (
 };
 
 export const getUserLpInfo = async (
-  lp: Address,
+  lp: PoolConfig,
   blastMIMSwapRouter: Address, // NOTICE
   account: Address | undefined,
-  chainId: number
+  chainId: number,
+  lpFeeRate: bigint
 ): Promise<any> => {
   if (!account) {
     return {
@@ -228,47 +230,60 @@ export const getUserLpInfo = async (
 
   const publicClient = getPublicClient(chainId);
 
-  const [allowance, balance, userFeeRate]: any = await publicClient.multicall({
-    contracts: [
-      {
-        address: lp,
-        abi: BlastMagicLPAbi as any,
-        functionName: "allowance",
-        args: [account, blastMIMSwapRouter],
-      },
-      {
-        address: lp,
-        abi: BlastMagicLPAbi as any,
-        functionName: "balanceOf",
-        args: [account],
-      },
-      {
-        address: lp,
-        abi: BlastMagicLPAbi as any,
-        functionName: "getUserFeeRate",
-        args: [account],
-      },
-    ],
+  const contracts = [
+    {
+      address: lp.contract.address,
+      abi: lp.contract.abi,
+      functionName: "allowance",
+      args: [account, blastMIMSwapRouter],
+    },
+    {
+      address: lp.contract.address,
+      abi: lp.contract.abi,
+      functionName: "balanceOf",
+      args: [account],
+    },
+  ];
+
+  if (!lp.settings?.mlpVersion) {
+    contracts.push({
+      address: lp.contract.address,
+      abi: lp.contract.abi,
+      functionName: "getUserFeeRate",
+      args: [account],
+    });
+  }
+
+  const [allowance, balance, userFeeRates]: any = await publicClient.multicall({
+    contracts,
   });
+
+  const userFeeRate = {
+    lpFeeRate: lpFeeRate,
+    mtFeeRate: 0n,
+  };
+
+  if (userFeeRates?.result) {
+    userFeeRate.lpFeeRate = userFeeRates.result[0];
+    userFeeRate.mtFeeRate = userFeeRates.result[1];
+  }
 
   return {
     allowance: allowance.result,
     balance: balance.result,
-    userFeeRate: {
-      //todo: update for mimswapV2
-      lpFeeRate: userFeeRate.result ? userFeeRate.result[0] : 0n,
-      mtFeeRate: userFeeRate.result ? userFeeRate.result[1] : 0n,
-    },
+    userFeeRate,
   };
 };
 
 export const querySellBase = (
-  // trader: Address,
   payBaseAmount: bigint,
   lpInfo: MagicLPInfo,
   userLpInfo: MagicLPInfoUserInfo
 ) => {
-  const { PMMState } = lpInfo;
+  const { PMMState, settings } = lpInfo;
+
+  if (settings.mlpVersion === 2) return querySellBaseV2(payBaseAmount, lpInfo);
+
   const { receiveQuoteAmount, newR } = PMMPricing.sellBaseToken(
     PMMState,
     payBaseAmount
@@ -277,23 +292,47 @@ export const querySellBase = (
   const { mtFeeRate, lpFeeRate } = userLpInfo.userFeeRate;
 
   const mtFee = DecimalMath.mulFloor(receiveQuoteAmount, mtFeeRate);
-  const receiveQuoteAmountAfterFee =
-    receiveQuoteAmount -
-    DecimalMath.mulFloor(receiveQuoteAmount, lpFeeRate) -
-    mtFee;
+  const lpFee = DecimalMath.mulFloor(receiveQuoteAmount, lpFeeRate);
+  const receiveQuoteAmountAfterFee = receiveQuoteAmount - lpFee - mtFee;
   const newBaseTarget = PMMState.B0;
 
   return {
+    mtFee,
+    lpFee,
+    fee: 0n,
+    newBaseTarget,
+    newRState: newR,
     receiveQuoteAmount: receiveQuoteAmountAfterFee,
     feeAmount: receiveQuoteAmount - receiveQuoteAmountAfterFee,
-    mtFee,
-    newRState: newR,
+  };
+};
+
+export const querySellBaseV2 = (payBaseAmount: bigint, lpInfo: MagicLPInfo) => {
+  const { PMMState, lpFeeRate } = lpInfo;
+
+  const { receiveQuoteAmount, newR } = PMMPricing.sellBaseToken(
+    PMMState,
+    payBaseAmount
+  );
+
+  const fee = DecimalMath.mulFloor(receiveQuoteAmount, lpFeeRate);
+
+  const receiveQuoteAmountAfterFee = receiveQuoteAmount - fee;
+
+  const newBaseTarget = PMMState.B0;
+
+  return {
+    fee,
+    mtFee: 0n,
+    lpFee: 0n,
     newBaseTarget,
+    newRState: newR,
+    receiveQuoteAmount: receiveQuoteAmountAfterFee,
+    feeAmount: receiveQuoteAmount - receiveQuoteAmountAfterFee,
   };
 };
 
 export const querySellQuote = (
-  // trader: Address,
   payQuoteAmount: bigint,
   lpInfo: MagicLPInfo,
   userLpInfo: MagicLPInfoUserInfo
@@ -307,16 +346,43 @@ export const querySellQuote = (
   const { mtFeeRate, lpFeeRate } = userLpInfo.userFeeRate;
 
   const mtFee = DecimalMath.mulFloor(receiveBaseAmount, mtFeeRate);
-  const receiveBaseAmountAfterFee =
-    receiveBaseAmount -
-    DecimalMath.mulFloor(receiveBaseAmount, lpFeeRate) -
-    mtFee;
+  const lpFee = DecimalMath.mulFloor(receiveBaseAmount, lpFeeRate);
+
+  const receiveBaseAmountAfterFee = receiveBaseAmount - lpFee - mtFee;
   const newQuoteTarget = PMMState.Q0;
 
   return {
+    mtFee,
+    lpFee,
+    fee: 0n,
+    newQuoteTarget,
+    newRState: newR,
     receiveBaseAmount: receiveBaseAmountAfterFee,
     feeAmount: receiveBaseAmount - receiveBaseAmountAfterFee,
-    mtFee,
+  };
+};
+
+export const querySellQuoteV2 = (
+  payQuoteAmount: bigint,
+  lpInfo: MagicLPInfo
+) => {
+  const { PMMState, lpFeeRate } = lpInfo;
+  const { receiveBaseAmount, newR } = PMMPricing.sellQuoteToken(
+    PMMState,
+    payQuoteAmount
+  );
+
+  const fee = DecimalMath.mulFloor(receiveBaseAmount, lpFeeRate);
+
+  const receiveBaseAmountAfterFee = receiveBaseAmount - fee;
+  const newQuoteTarget = PMMState.Q0;
+
+  return {
+    fee,
+    lpFee: 0n,
+    mtFee: 0n,
+    receiveBaseAmount: receiveBaseAmountAfterFee,
+    feeAmount: receiveBaseAmount - receiveBaseAmountAfterFee,
     newRState: newR,
     newQuoteTarget,
   };
