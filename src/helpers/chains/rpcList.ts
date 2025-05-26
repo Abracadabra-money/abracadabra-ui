@@ -53,10 +53,10 @@ export const rpcList = {
     "https://berat2.lava.build",
   ],
   [MAINNET_CHAIN_ID]: [
-    ...mainnet.rpcUrls.default.http,
     DEFAULT_MAINNET_RPC,
     "https://eth.drpc.org",
     "https://rpc.ankr.com/eth",
+    ...mainnet.rpcUrls.default.http,
   ],
   [ARBITRUM_CHAIN_ID]: [
     ...arbitrum.rpcUrls.default.http,
