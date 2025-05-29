@@ -4,7 +4,7 @@ import type { TokenInfo } from "@/helpers/pools/swap/tokens";
 import type { RouteInfo } from "@/helpers/pools/swap/getSwapInfo";
 
 export type RoutesInfo = {
-  address: Address | undefined;
+  address: Address | string | undefined;
   icon: string | undefined;
   percent: string;
 };
@@ -17,11 +17,7 @@ export const getRoutesInfo = (
 ): RoutesInfo[] => {
   if (!tokensList?.length || !routes?.length) return [];
 
-  const path: {
-    address: Address | undefined;
-    icon: string | undefined;
-    percent: string;
-  }[] = [];
+  const path: RoutesInfo[] = [];
 
   routes?.forEach((route: RouteInfo) => {
     const inputTokenInfo = tokensList?.find(
@@ -54,11 +50,7 @@ export const getRoutesInfo = (
 };
 
 export const getChunkedRoutesInfo = (routes: RouteInfo[] | undefined) => {
-  const routesInfo: Array<{
-    address: string;
-    icon: string;
-    percent: string;
-  }> = [];
+  const routesInfo: RoutesInfo[] = [];
 
   routes?.forEach((route: RouteInfo) => {
     const inputTokenIcon = route.fromBase

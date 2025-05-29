@@ -160,10 +160,11 @@ export const getLpInfo = async (
   }
 
   const userInfo = await getUserLpInfo(
-    lp.contract.address,
+    lp,
     getSwapRouterByChain(chainId),
     account,
-    chainId
+    chainId,
+    lpFeeRate?.result || 0n
   );
 
   const baseTokenPrice =
@@ -210,10 +211,11 @@ export const getLpInfo = async (
 };
 
 export const getUserLpInfo = async (
-  lp: Address,
+  lp: PoolConfig,
   blastMIMSwapRouter: Address, // NOTICE
   account: Address | undefined,
-  chainId: number
+  chainId: number,
+  lpFeeRate: bigint
 ): Promise<any> => {
   if (!account) {
     return {
@@ -228,95 +230,47 @@ export const getUserLpInfo = async (
 
   const publicClient = getPublicClient(chainId);
 
-  const [allowance, balance, userFeeRate]: any = await publicClient.multicall({
-    contracts: [
-      {
-        address: lp,
-        abi: BlastMagicLPAbi as any,
-        functionName: "allowance",
-        args: [account, blastMIMSwapRouter],
-      },
-      {
-        address: lp,
-        abi: BlastMagicLPAbi as any,
-        functionName: "balanceOf",
-        args: [account],
-      },
-      {
-        address: lp,
-        abi: BlastMagicLPAbi as any,
-        functionName: "getUserFeeRate",
-        args: [account],
-      },
-    ],
+  const contracts = [
+    {
+      address: lp.contract.address,
+      abi: lp.contract.abi,
+      functionName: "allowance",
+      args: [account, blastMIMSwapRouter],
+    },
+    {
+      address: lp.contract.address,
+      abi: lp.contract.abi,
+      functionName: "balanceOf",
+      args: [account],
+    },
+  ];
+
+  if (!lp.settings?.mlpVersion) {
+    contracts.push({
+      address: lp.contract.address,
+      abi: lp.contract.abi,
+      functionName: "getUserFeeRate",
+      args: [account],
+    });
+  }
+
+  const [allowance, balance, userFeeRates]: any = await publicClient.multicall({
+    contracts,
   });
+
+  const userFeeRate = {
+    lpFeeRate: lpFeeRate,
+    mtFeeRate: 0n,
+  };
+
+  if (userFeeRates?.result) {
+    userFeeRate.lpFeeRate = userFeeRates.result[0];
+    userFeeRate.mtFeeRate = userFeeRates.result[1];
+  }
 
   return {
     allowance: allowance.result,
     balance: balance.result,
-    userFeeRate: {
-      lpFeeRate: userFeeRate.result[0],
-      mtFeeRate: userFeeRate.result[1],
-    },
-  };
-};
-
-export const querySellBase = (
-  // trader: Address,
-  payBaseAmount: bigint,
-  lpInfo: MagicLPInfo,
-  userLpInfo: MagicLPInfoUserInfo
-) => {
-  const { PMMState } = lpInfo;
-  const { receiveQuoteAmount, newR } = PMMPricing.sellBaseToken(
-    PMMState,
-    payBaseAmount
-  );
-
-  const { mtFeeRate, lpFeeRate } = userLpInfo.userFeeRate;
-
-  const mtFee = DecimalMath.mulFloor(receiveQuoteAmount, mtFeeRate);
-  const receiveQuoteAmountAfterFee =
-    receiveQuoteAmount -
-    DecimalMath.mulFloor(receiveQuoteAmount, lpFeeRate) -
-    mtFee;
-  const newBaseTarget = PMMState.B0;
-
-  return {
-    receiveQuoteAmount: receiveQuoteAmountAfterFee,
-    feeAmount: receiveQuoteAmount - receiveQuoteAmountAfterFee,
-    mtFee,
-    newRState: newR,
-    newBaseTarget,
-  };
-};
-
-export const querySellQuote = (
-  // trader: Address,
-  payQuoteAmount: bigint,
-  lpInfo: MagicLPInfo,
-  userLpInfo: MagicLPInfoUserInfo
-) => {
-  const { PMMState } = lpInfo;
-  const { receiveBaseAmount, newR } = PMMPricing.sellQuoteToken(
-    PMMState,
-    payQuoteAmount
-  );
-
-  const { mtFeeRate, lpFeeRate } = userLpInfo.userFeeRate;
-
-  const mtFee = DecimalMath.mulFloor(receiveBaseAmount, mtFeeRate);
-  const receiveBaseAmountAfterFee =
-    receiveBaseAmount -
-    DecimalMath.mulFloor(receiveBaseAmount, lpFeeRate) -
-    mtFee;
-  const newQuoteTarget = PMMState.Q0;
-
-  return {
-    receiveBaseAmount: receiveBaseAmountAfterFee,
-    feeAmount: receiveBaseAmount - receiveBaseAmountAfterFee,
-    mtFee,
-    newRState: newR,
-    newQuoteTarget,
+    userFeeRate,
   };
 };

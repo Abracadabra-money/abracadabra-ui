@@ -7,6 +7,7 @@ export const routers = {
   // 42161: "0xE6b710c2c1657938D0b6443ac14e593BAcA43E6A" as Address,
   2222: "0x526a17c623809792c033c9816Ae9a6fA80aCDfdd" as Address,
   1: "0x7202B7ca846fc93467E95fa279bC6085F2d5b6FE" as Address,
+  6900: "0x6C0fB20908Bb1AE089Af7b2dE774968Add8fD5b7" as Address,
 };
 
 export const getSwapRouterByChain = (chainId: number): Address => {
@@ -21,6 +22,8 @@ export const getSwapRouterByChain = (chainId: number): Address => {
       return routers[2222];
     case 1:
       return routers[1];
+    case 6900:
+      return routers[6900];
     default:
       throw new Error("ChainId not supported");
   }
