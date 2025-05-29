@@ -15,7 +15,6 @@ export type ActionConfig = {
   slippage: bigint;
   deadline: bigint;
   fromInputAmount?: string;
-  priceImpact: number;
 };
 
 export type RouteInfo = {
@@ -27,7 +26,6 @@ export type RouteInfo = {
   mtFee: bigint;
   lpFee: bigint;
   fee: bigint;
-  mlmVersion: number;
   fees: bigint;
   lpInfo: MagicLPInfo;
   fromBase: boolean;
@@ -86,6 +84,7 @@ export const getSwapInfoEmptyState = (actionConfig: ActionConfig) => {
       payload: {},
       swapRouterAddress: "",
     },
+    priceImpact: 0,
   };
 };
 

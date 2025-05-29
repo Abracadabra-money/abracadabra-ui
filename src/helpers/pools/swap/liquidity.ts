@@ -1,6 +1,6 @@
-import type { MagicLPInfo } from "./types";
+import type { MagicLPInfo } from "@/helpers/pools/swap/types";
+import { localQuerySell } from "@/helpers/pools/swap/querySell";
 import DecimalMath, { divFloor, mulFloor, mulCeil } from "./libs/DecimalMath";
-import { querySellQuote, querySellBase } from "@/helpers/pools/swap/magicLp";
 
 export const previewAddLiquidity = (
   baseInAmount: bigint,
@@ -246,20 +246,12 @@ export const previewAddLiquiditySingleSide = (
   // base -> quote
   if (inAmountIsBase) {
     baseAmount = inAmount - inAmountToSwap;
-    quoteAmount = querySellBase(
-      inAmountToSwap,
-      lpInfo,
-      lpInfo.userInfo
-    ).receiveQuoteAmount;
+    quoteAmount = localQuerySell(inAmountToSwap, lpInfo).outputAmount;
   }
   // quote -> base
   else {
     quoteAmount = inAmount - inAmountToSwap;
-    baseAmount = querySellQuote(
-      inAmountToSwap,
-      lpInfo,
-      lpInfo.userInfo
-    ).receiveBaseAmount;
+    baseAmount = localQuerySell(inAmountToSwap, lpInfo, false).outputAmount;
   }
 
   const previewAddLiquidityResult = previewAddLiquidity(
@@ -298,11 +290,10 @@ export const previewAddLiquidityImbalancedTest = (
   if (remainingAmountToSwapIsBase) {
     baseAdjustedInAmount +=
       baseInAmount - baseAdjustedInAmount - remainingAmountToSwap;
-    quoteAdjustedInAmount += querySellBase(
+    quoteAdjustedInAmount += localQuerySell(
       remainingAmountToSwap,
-      lpInfo,
-      lpInfo.userInfo
-    ).receiveQuoteAmount;
+      lpInfo
+    ).outputAmount;
 
     updatedLpInfo.balances.baseBalance += remainingAmountToSwap;
     updatedLpInfo.balances.quoteBalance -= quoteAdjustedInAmount;
@@ -312,11 +303,11 @@ export const previewAddLiquidityImbalancedTest = (
   }
   // quote -> base
   else {
-    baseAdjustedInAmount += querySellQuote(
+    baseAdjustedInAmount += localQuerySell(
       remainingAmountToSwap,
       lpInfo,
-      lpInfo.userInfo
-    ).receiveBaseAmount;
+      false
+    ).outputAmount;
     quoteAdjustedInAmount +=
       quoteInAmount - quoteAdjustedInAmount - remainingAmountToSwap;
 
@@ -364,11 +355,11 @@ export const previewAddLiquidityImbalanced = (
     baseAddLiquidityInAmount = baseInAmount - remainingAmountToSwap;
 
     ({
-      receiveQuoteAmount: swapOutAmount,
+      outputAmount: swapOutAmount,
       feeAmount: swapFeeAmount,
       newRState: updatedLpInfo.PMMState.R,
-      newBaseTarget: updatedLpInfo.PMMState.B0,
-    } = querySellBase(remainingAmountToSwap, lpInfo, lpInfo.userInfo));
+      newTarget: updatedLpInfo.PMMState.B0,
+    } = localQuerySell(remainingAmountToSwap, lpInfo));
 
     quoteAddLiquidityInAmount = quoteInAmount + swapOutAmount;
 
@@ -382,11 +373,11 @@ export const previewAddLiquidityImbalanced = (
     quoteAddLiquidityInAmount = quoteInAmount - remainingAmountToSwap;
 
     ({
-      receiveBaseAmount: swapOutAmount,
+      outputAmount: swapOutAmount,
       feeAmount: swapFeeAmount,
       newRState: updatedLpInfo.PMMState.R,
-      newQuoteTarget: updatedLpInfo.PMMState.Q0,
-    } = querySellQuote(remainingAmountToSwap, lpInfo, lpInfo.userInfo));
+      newTarget: updatedLpInfo.PMMState.Q0,
+    } = localQuerySell(remainingAmountToSwap, lpInfo, false));
 
     baseAddLiquidityInAmount = baseInAmount + swapOutAmount;
 
@@ -433,12 +424,10 @@ export const previewRemoveLiquidityOneSide = (
   const quoteAmount = previewRemoveLiquidityResult.quoteAmountOut;
 
   const baseAmountOut =
-    baseAmount +
-    querySellQuote(quoteAmount, lpInfo, lpInfo.userInfo).receiveBaseAmount;
+    baseAmount + localQuerySell(quoteAmount, lpInfo, false).outputAmount;
 
   const quoteAmountOut =
-    quoteAmount +
-    querySellBase(baseAmount, lpInfo, lpInfo.userInfo).receiveQuoteAmount;
+    quoteAmount + localQuerySell(baseAmount, lpInfo).outputAmount;
 
   return { baseAmountOut, quoteAmountOut };
 };

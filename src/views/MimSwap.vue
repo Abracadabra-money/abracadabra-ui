@@ -46,7 +46,7 @@
         <SwapInfoBlock
           :swapInfo="swapInfo"
           :actionConfig="actionConfig"
-          :priceImpact="actionConfig.priceImpact"
+          :priceImpact="swapInfo.priceImpact"
           :selectedNetwork="selectedNetwork"
           :nativeTokenPrice="nativeTokenPrice"
           :isLoading="isLoading"
@@ -95,7 +95,7 @@
       <ConfirmationPopup
         :actionConfig="actionConfig"
         :swapInfo="swapInfo"
-        :priceImpact="actionConfig.priceImpact"
+        :priceImpact="swapInfo.priceImpact"
         :currentPriceInfo="currentPriceInfo"
         @confirm="closeConfirmationPopup"
       />
@@ -168,7 +168,6 @@ export default {
         toInputValue: 0n,
         slippage: 20n,
         deadline: 500n,
-        priceImpact: 0,
         fromInputAmount: "0",
       } as ActionConfig,
       updateInterval: null as any,
@@ -200,8 +199,8 @@ export default {
     ...mapGetters({ chainId: "getChainId", account: "getAccount" }),
 
     isWarningBtn() {
-      if (!this.actionConfig.priceImpact) return false;
-      return this.actionConfig.priceImpact <= -15;
+      if (!this.swapInfo.priceImpact) return false;
+      return this.swapInfo.priceImpact <= -15;
     },
 
     actionValidationData() {
@@ -327,13 +326,6 @@ export default {
 
     account() {
       this.createSwapInfo();
-    },
-
-    "swapInfo.priceImpact": {
-      handler(newPriceImpact) {
-        this.actionConfig.priceImpact = newPriceImpact;
-      },
-      deep: true,
     },
 
     actionConfig: {
