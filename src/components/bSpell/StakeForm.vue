@@ -73,7 +73,7 @@ import moment from "moment";
 import { formatUnits } from "viem";
 import type { PropType } from "vue";
 import { defineAsyncComponent } from "vue";
-import { approveTokenViem } from "@/helpers/approval";
+import { approveToken } from "@/helpers/approval";
 import { stake } from "@/helpers/bSpell/actions/stake";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import ErrorHandler from "@/helpers/errorHandler/ErrorHandler";
@@ -166,7 +166,7 @@ export default {
         notification.approvePending
       );
 
-      const approve = await approveTokenViem(
+      const approve = await approveToken(
         this.bSpellInfo!.bSpell.contract,
         this.bSpellInfo!.stakeInfo!.contract.address,
         this.inputAmount
