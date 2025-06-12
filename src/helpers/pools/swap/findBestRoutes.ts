@@ -1,11 +1,7 @@
 import type { Address } from "viem";
 import { formatUnits, parseAbi, parseUnits } from "viem";
 import type { MagicLPInfo } from "@/helpers/pools/swap/types";
-import { querySellBaseV2 } from "@/helpers/pools/swap/magicLp";
-import { querySellQuoteV2 } from "@/helpers/pools/swap/magicLp";
-import DecimalMath from "@/helpers/pools/swap/libs/DecimalMath";
-import { getPublicClient } from "@/helpers/chains/getChainsInfo";
-import { querySellBase, querySellQuote } from "@/helpers/pools/swap/magicLp";
+import { localQuerySell, querySell } from "@/helpers/pools/swap/querySell";
 import { calculatePriceImpactSingleSwap } from "@/helpers/pools/priceImpact";
 import type { ActionConfig, RouteInfo } from "@/helpers/pools/swap/getSwapInfo";
 
@@ -72,115 +68,11 @@ const fetchOutputAmount = async (
       mtFee: 0n,
       lpFee: 0n,
       outputAmount: 0n,
-      mlmVersion: lpInfo.config?.settings?.mlpVersion || 1,
       outputAmountWithoutFee: 0n,
     };
 
-  if (!account) return localQuerySell(sellBase, amount, lpInfo);
-
-  const isV2 = lpInfo.config.settings?.mlpVersion === 2;
-
-  const payload = isV2 ? [lpInfo.PMMState, account, amount] : [account, amount];
-  const abi = isV2 ? querySellV2Abi : querySellAbi;
-
-  const publicClient = getPublicClient(lpInfo.chainId);
-
-  const result = await publicClient.readContract({
-    address: lpInfo.contract.address,
-    abi: abi,
-    functionName: sellBase ? "querySellBase" : "querySellQuote",
-    args: [...payload],
-  });
-
-  const mtFee = isV2 ? 0n : result[1];
-  const outputAmount = result[0] || 0n;
-
-  if (!isV2) {
-    const { lpFeeRate, mtFeeRate } = lpInfo.userInfo.userFeeRate;
-    const lpFeeAmount = DecimalMath.mulFloor(result[0], lpFeeRate);
-    const lpFee = mtFeeRate === lpFeeRate ? mtFee : lpFeeAmount;
-    const outputAmountWithoutFee = outputAmount + mtFee + lpFee;
-
-    return {
-      fee: 0n,
-      mtFee,
-      lpFee,
-      outputAmount,
-      mlmVersion: 1,
-      outputAmountWithoutFee,
-    };
-  }
-
-  const fee = result[1];
-  const outputAmountWithoutFee = outputAmount + fee;
-
-  return {
-    fee,
-    mtFee,
-    lpFee: 0n,
-    outputAmount,
-    mlmVersion: 2,
-    outputAmountWithoutFee,
-  };
-};
-
-const localQuerySell = (
-  sellBase = true,
-  amount: bigint,
-  lpInfo: MagicLPInfo
-) => {
-  const mlpVersion = lpInfo.config.settings?.mlpVersion;
-  const isV2 = mlpVersion === 2;
-
-  if (sellBase) {
-    let response;
-    switch (mlpVersion) {
-      case 2:
-        response = querySellBaseV2(amount, lpInfo);
-      default:
-        response = querySellBase(amount, lpInfo, lpInfo.userInfo);
-    }
-
-    const { fee, mtFee, lpFee } = response;
-    const outputAmount = response.receiveQuoteAmount;
-
-    const outputAmountWithoutFee = isV2
-      ? outputAmount + fee
-      : outputAmount + mtFee + lpFee;
-
-    return {
-      fee,
-      mtFee,
-      lpFee,
-      outputAmount,
-      mlmVersion: mlpVersion ? mlpVersion : 1,
-      outputAmountWithoutFee,
-    };
-  } else {
-    let response;
-    switch (mlpVersion) {
-      case 2:
-        response = querySellQuoteV2(amount, lpInfo);
-      default:
-        response = querySellQuote(amount, lpInfo, lpInfo.userInfo);
-    }
-
-    const { fee, mtFee, lpFee } = response;
-    const outputAmount = response.receiveBaseAmount;
-
-    const outputAmountWithoutFee = isV2
-      ? outputAmount + fee
-      : outputAmount + mtFee + lpFee;
-
-    return {
-      fee,
-      mtFee,
-      lpFee,
-      outputAmount,
-      mlmVersion: mlpVersion ? mlpVersion : 1,
-      outputAmountWithoutFee,
-    };
-  }
+  if (!account) return localQuerySell(amount, lpInfo, sellBase);
+  return querySell(lpInfo, account, sellBase, amount);
 };
 
 const filterLiquidPools = (
@@ -190,8 +82,6 @@ const filterLiquidPools = (
 ) => {
   return pairs.filter((config) => {
     try {
-      const mlpVersion = config.config.settings?.mlpVersion;
-
       const sellBase =
         fromToken.toLowerCase() === config.baseToken.toLowerCase();
 
@@ -203,40 +93,13 @@ const filterLiquidPools = (
         ? amountToSwap
         : parseUnits("1", fromTokenDecimals);
 
-      if (sellBase) {
-        let response;
-        switch (mlpVersion) {
-          case 2:
-            querySellBaseV2(sellAmount, config);
-          default:
-            querySellBase(sellAmount, config, config.userInfo);
-        }
-      } else {
-        switch (mlpVersion) {
-          case 2:
-            querySellQuoteV2(sellAmount, config);
-          default:
-            querySellQuote(sellAmount, config, config.userInfo);
-        }
-      }
+      localQuerySell(sellAmount, config, sellBase);
 
       return true;
     } catch (error) {
       return false;
     }
   });
-};
-
-// Функція для розрахунку кількості токенів з урахуванням прослизання
-const calculateSlippage = (
-  balanceIn: bigint, // Баланс токену, який ми обмінюємо
-  balanceOut: bigint, // Баланс токену, який ми хочемо отримати
-  amountIn: bigint // Сума обміну
-): bigint => {
-  const k = balanceIn * balanceOut; // Постійна величина добутку
-  const newBalanceIn = balanceIn + amountIn; // Новий баланс після додавання суми
-  const newBalanceOut = k / newBalanceIn; // Новий баланс токену, який отримуємо
-  return balanceOut - newBalanceOut; // Отримана кількість токенів з урахуванням впливу
 };
 
 export const findBestSwapPath = (
@@ -315,9 +178,9 @@ export const findBestSwapPath = (
 
       try {
         newAmountToSwap = localQuerySell(
-          fromBase,
           currentAmount,
-          poolInfo
+          poolInfo,
+          fromBase
         ).outputAmount;
 
         priceImpact = calculatePriceImpactSingleSwap(
@@ -379,19 +242,8 @@ export const findBestRoutes = async (
       const pool = pools.find((p) => p.id === pair);
       if (!pool) continue;
 
-      const {
-        fee,
-        mtFee,
-        lpFee,
-        outputAmount,
-        mlmVersion,
-        outputAmountWithoutFee,
-      } = await fetchOutputAmount(
-        pool,
-        account,
-        fromBase,
-        previousReceiveAmount
-      );
+      const { fee, mtFee, lpFee, outputAmount, outputAmountWithoutFee } =
+        await fetchOutputAmount(pool, account, fromBase, previousReceiveAmount);
 
       const priceImpact = calculatePriceImpactSingleSwap(
         pool,
@@ -411,7 +263,6 @@ export const findBestRoutes = async (
         mtFee,
         fee,
         lpFee,
-        mlmVersion,
         fees: pool.lpFeeRate,
         lpInfo: pool,
         fromBase,

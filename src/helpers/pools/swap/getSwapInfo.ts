@@ -27,7 +27,6 @@ export type RouteInfo = {
   mtFee: bigint;
   lpFee: bigint;
   fee: bigint;
-  mlmVersion: number;
   fees: bigint;
   lpInfo: MagicLPInfo;
   fromBase: boolean;
@@ -86,6 +85,7 @@ export const getSwapInfoEmptyState = (actionConfig: ActionConfig) => {
       payload: {},
       swapRouterAddress: "",
     },
+    priceImpact: 0,
   };
 };
 

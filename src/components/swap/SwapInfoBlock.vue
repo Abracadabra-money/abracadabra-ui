@@ -75,7 +75,7 @@
             <p class="item-tooltip-text">
               {{ feeTitle }} {{ formatUSD(poolFee) }}
             </p>
-            <p v-if="!isMlpV2">
+            <p v-if="isProtocolComission">
               Protocol comission: {{ formatUSD(protocolFee) }}
             </p>
           </div>
@@ -101,6 +101,7 @@ import type { Prop, PropType } from "vue";
 import { encodeFunctionData } from "viem";
 import { defineAsyncComponent } from "vue";
 import { KAVA_CHAIN_ID } from "@/constants/global";
+import { NIBIRU_CHAIN_ID } from "@/constants/global";
 // @ts-ignore
 import BlastMIMSwapRouterAbi from "@/abis/BlastMIMSwapRouter";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
@@ -154,7 +155,7 @@ export default {
           ? route.lpInfo.tokens.baseToken.config.decimals
           : route.lpInfo.tokens.quoteToken.config.decimals;
 
-        if (route.mlmVersion === 2) {
+        if (!route.mtFee) {
           const fee = Number(formatUnits(route.fee, toTokenDecimals));
           return (acc += fee * toTokenPrice);
         } else {
@@ -186,18 +187,12 @@ export default {
       }, 0);
     },
 
-    isMlpV2() {
-      if (!this.swapInfo.routes.length) return false;
-
-      const routeInfo: RouteInfo =
-        this.swapInfo.routes[this.swapInfo.routes.length - 1];
-
-      if (routeInfo.mlmVersion === 2) return true;
-      return false;
+    isProtocolComission() {
+      return this.selectedNetwork != NIBIRU_CHAIN_ID;
     },
 
     feeTitle() {
-      if (this.isMlpV2) return "Fees:";
+      if (this.isProtocolComission) return "Fees:";
       return "Pool fee:";
     },
 

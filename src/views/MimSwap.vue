@@ -46,7 +46,7 @@
         <SwapInfoBlock
           :swapInfo="swapInfo"
           :actionConfig="actionConfig"
-          :priceImpact="actionConfig.priceImpact"
+          :priceImpact="swapInfo.priceImpact"
           :selectedNetwork="selectedNetwork"
           :nativeTokenPrice="nativeTokenPrice"
           :isLoading="isLoading"
@@ -95,7 +95,7 @@
       <ConfirmationPopup
         :actionConfig="actionConfig"
         :swapInfo="swapInfo"
-        :priceImpact="actionConfig.priceImpact"
+        :priceImpact="swapInfo.priceImpact"
         :currentPriceInfo="currentPriceInfo"
         @confirm="closeConfirmationPopup"
       />
@@ -200,8 +200,8 @@ export default {
     ...mapGetters({ chainId: "getChainId", account: "getAccount" }),
 
     isWarningBtn() {
-      if (!this.actionConfig.priceImpact) return false;
-      return this.actionConfig.priceImpact <= -15;
+      if (!this.swapInfo.priceImpact) return false;
+      return this.swapInfo.priceImpact <= -15;
     },
 
     actionValidationData() {
