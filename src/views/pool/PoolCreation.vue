@@ -189,6 +189,7 @@ import {
   calculateQuoteAndBaseAmounts,
   invertIValueBasedOnUpdatedDecimals,
 } from "@/helpers/pools/poolCreation/utils";
+import ErrorHandler from "@/helpers/errorHandler/ErrorHandler";
 
 const emptyPoolCreationTokenInfo: PoolCreationTokenInfo = {
   config: {
@@ -311,7 +312,6 @@ export default {
   watch: {
     actionConfig: {
       async handler() {
-
         const { K, lpFeeRate } = this.actionConfig;
         if (this.tokensSelected && K > 0n && lpFeeRate > 0n)
           await this.createSimilarPoolsInfo();
@@ -615,16 +615,19 @@ export default {
         await this.createNotification(notification.success);
 
         this.resetInputs();
-      } catch (error) {
+      } catch (error: any) {
         console.log("create pool err:", error);
 
-        const errorNotification = {
-          msg: await notificationErrorMsg(error),
-          type: "error",
-        };
-
         await this.deleteNotification(notificationId);
-        await this.createNotification(errorNotification);
+
+        const isLiquidityTooLow = error.message?.includes("0xa8459894");
+
+        if (isLiquidityTooLow)
+          ErrorHandler.handleError({
+            name: "LiquidityTooLow",
+            message: "CUSTOM_LIQUIDITY_TOO_LOW",
+          });
+        else ErrorHandler.handleError(error);
       }
     },
 

@@ -2,7 +2,7 @@ type AbraError = {
   template: string;
   isDevOnly?: boolean;
   isShowToUser?: boolean;
-}
+};
 
 export const errorRegistry = {
   GENERIC_ERROR: {
@@ -13,6 +13,9 @@ export const errorRegistry = {
   CUSTOM_TEST_ERROR: {
     template: "Example of custom errors.",
   },
+  CUSTOM_LIQUIDITY_TOO_LOW: {
+    template: "Initial liquidity amount is too low, please, add more",
+  },
   //_________________________________
 
   VIEM_ERROR: {
@@ -21,5 +24,5 @@ export const errorRegistry = {
 
   AXIOS_ERROR: {
     template: "Axios error",
-  }
+  },
 };
