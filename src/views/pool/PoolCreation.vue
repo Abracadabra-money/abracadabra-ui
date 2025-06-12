@@ -298,8 +298,8 @@ export default {
     },
 
     identicalPool() {
-      return this.similarPools.find((pool) =>
-        checkIdentity(pool, this.actionConfig)
+      return this.similarPools.find((pool: any) =>
+        checkIdentity(pool.config, this.actionConfig)
       );
     },
 
@@ -311,21 +311,6 @@ export default {
   watch: {
     actionConfig: {
       async handler() {
-        //TODO:DELETE
-        // const baseScale = 10 ** (18 + this.quoteToken.config.decimals);
-        // const quoteScale = 10 ** this.baseToken.config.decimals;
-
-        // const basePriceInUSD = this.baseToken.price || 1;
-        // const quotePriceInUSD = this.quoteToken.price || 1;
-
-        // const basePriceInUSD_BN = BigInt(basePriceInUSD * baseScale);
-        // const quotePriceInUSD_BN = BigInt(quotePriceInUSD * quoteScale);
-
-        // console.log("custom calc");
-        // console.log(this.actionConfig.I);
-        // console.log(basePriceInUSD_BN / quotePriceInUSD_BN);
-        // console.log("check by example");
-        //DELETE
 
         const { K, lpFeeRate } = this.actionConfig;
         if (this.tokensSelected && K > 0n && lpFeeRate > 0n)
@@ -702,7 +687,8 @@ export default {
       this.isActionProcessing = true;
       this.similarPools = await createSimilarPoolsInfo(
         this.actionConfig,
-        this.account
+        this.account,
+        this.selectedNetwork
       );
       this.isActionProcessing = false;
     }, 500),
