@@ -13,13 +13,13 @@ export default {
     getNotifiCardId: (_state, rootState) => {
       switch (rootState.getChainId) {
         case 1:
-          return "eb0d573373194bbcbda52bda19221c71";
-        case 43114:
-          return "f2e2cf212b204257b056fa9fb550c354";
+          return "0197538567c276b28848e2c4dd4bf497";
+        case 43114: 
+          return "019753874ef8758baf463de44988503a";
         case 56:
-          return "4316dbeb5917458f98b7a4adca95f6a0";
+          return "01975386bbde701f8b2910680f2cbc0a";
         case 42161:
-          return "b0049e6173a04727adb0e8ed13396fcf";
+          return "0197538624c97075bf179ef9b2284530";
         default:
           return null;
       }

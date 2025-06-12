@@ -18,14 +18,29 @@
     #85bbf2 100%
   );
 }
-.NotifiSubscriptionCard__container {
+
+.notifi-target-state-banner-verify-cta {
+  background: var(--notifi-lineart-gradient-dark) !important;
+}
+
+.notifi-card-modal {
   font-family: Prompt, Helvetica, Arial, sans-serif !important;
   width: 370px;
-  height: 620px;
+  height: unset !important;
+  // height: 620px;
   border-radius: 22px !important;
   background-color: var(--notifi-color-card) !important;
   border: solid 1px rgba(255, 255, 255, 0.1) !important;
   overflow: hidden !important;
+}
+
+.notifi-connect {
+  height: 373px !important;
+}
+
+.notifi-inbox,
+.notifi-ftu {
+  height: 620px !important;
 }
 
 .NotifiInputSeparator__content {

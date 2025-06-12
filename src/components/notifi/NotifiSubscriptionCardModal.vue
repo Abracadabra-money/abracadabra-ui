@@ -4,52 +4,33 @@
     v-if="isOpenNotifiModal && !!account"
     @click="toggleNotifiModal"
   ></div>
-  <div class="notifi-modal-container">
+  <div class="notifi-modal-container"> 
     <div class="notifi-card">
       <Context
-        v-if="isOpenNotifiModal && !!account"
-        dappAddress="abracadabra"
+        :key="`${account}-${notifiCardId}-${notifiWalletBlockchain}`"
+        tenantId="4zfoga0vjqh90ahg8apd"
         env="Production"
-        :walletPublicKey="account"
-        :walletBlockchain="notifiWalletBlockchain"
+        :walletPublicKey="account ?? '0x'"
+        :walletBlockchain="notifiWalletBlockchain ?? 'ETHEREUM'"
         :signMessage="signMessage"
+        :cardId="notifiCardId" 
+        :inputs="{ walletAddress: [{ label: '', value: account }] }"
       >
-        <Card
-          :cardId="notifiCardId"
-          :darkMode="true"
-          :inputs="{ userWallet: account }"
-          :copy="{
-            FetchedStateCard: {
-              SubscriptionCardV1: {
-                EditCard: {
-                  AlertListPreview: {
-                    description:
-                      'Get real-time alerts to the destinations of your choice',
-                  },
-                },
-              },
-            },
-          }"
-          :inputSeparators="{
-            smsSeparator: {
-              content: 'OR',
-            },
-            telegramSeparator: {
-              content: 'OR',
-            },
-          }"
-        />
+        <Card v-if="isOpenNotifiModal && !!account" :darkMode="true" />
       </Context>
     </div>
   </div>
 </template>
 
 <script>
+// TODO: ⬆ Replace tenantId with "abracadabra"
+// TODO: ⬆ Replace walletBlockchain with `:walletBlockchain="notifiWalletBlockchain"`
+// TODO: ⬆ Make sure the input key must be `walletAddress` instead of legacy `userWallet`
 import { mapGetters } from "vuex";
 import {
-  NotifiSubscriptionCard,
-  NotifiContext,
-} from "@notifi-network/notifi-react-card";
+  NotifiContextProvider,
+  NotifiCardModal,
+} from "@notifi-network/notifi-react";
 import { applyReactInVue, applyPureReactInVue } from "veaury";
 
 export default {
@@ -63,9 +44,11 @@ export default {
   computed: {
     ...mapGetters({
       account: "getAccount",
-      notifiCardId: "getNotifiCardId",
+      notifiCardId: "getNotifiCardId", // TODO: ⬆ Use this to replace dummy card ID `cardId="019743e6bae573129355b7ddc6a11b49"` -> `:cardId="notifiCardId"`
       notifiWalletBlockchain: "getNotifiWalletBlockchain",
       signMessage: "getNotifiSignMessage",
+      walletConnection: "getWalletIsConnected",
+      wagmiConfig: "getWagmiConfig",
     }),
   },
   methods: {
@@ -74,8 +57,8 @@ export default {
     },
   },
   components: {
-    Card: applyPureReactInVue(NotifiSubscriptionCard),
-    Context: applyReactInVue(NotifiContext),
+    Card: applyPureReactInVue(NotifiCardModal),
+    Context: applyReactInVue(NotifiContextProvider),
   },
 };
 </script>
@@ -93,6 +76,12 @@ export default {
   position: absolute;
   z-index: 10;
 }
+
+.notifi-card:has(.notifi-connect) {
+  transform: translateX(-63%) translateY(30%);
+}
+
+
 .notifi-card-overlay {
   width: 100vw;
   height: 100vh;
@@ -107,6 +96,10 @@ export default {
     position: fixed;
     left: 50%;
     top: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .notifi-card:has(.notifi-connect),
+  .notifi-card:has(.notifi-ftu) {
     transform: translate(-50%, -50%);
   }
 }
