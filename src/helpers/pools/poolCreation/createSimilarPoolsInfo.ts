@@ -12,6 +12,8 @@ import {
   fetchPendingPoolsData,
 } from "./fetchPoolsFromFabric";
 import type { GraphPairConfig } from "@/helpers/pools/configs/fetchPairsList";
+import { blackListedPools } from "@/helpers/pools/configs/blackList";
+import { whiteListedPools } from "@/helpers/pools/configs/whiteList";
 
 const getSimilarConfigs = async (actionConfig: ActionConfig) => {
   const similarConfigs = (await getPoolConfigsByChains())
@@ -48,16 +50,32 @@ const getSortedSimilarPools = async (
 
 const getPendingPoolsAddresses = (
   factoryPools: Address[],
-  similarConfigs: PoolConfig[]
+  similarConfigs: PoolConfig[],
+  chainId: number
 ) => {
   const similarPoolsAddresses: Address[] = similarConfigs.map(
     (config) => config.contract.address.toLowerCase() as Address
   );
 
-  return factoryPools.filter(
-    (address) =>
-      !similarPoolsAddresses.includes(address.toLowerCase() as Address)
+  const blackListSet = new Set(
+    blackListedPools[chainId as keyof typeof blackListedPools]?.map(
+      (id: string) => id.toLowerCase()
+    ) || []
   );
+  const whiteListSet = new Set(
+    whiteListedPools[chainId as keyof typeof whiteListedPools]?.map(
+      (id: string) => id.toLowerCase()
+    ) || []
+  );
+
+  return factoryPools.filter((address) => {
+    const lowerAddress = address.toLowerCase() as Address;
+    return (
+      !similarPoolsAddresses.includes(lowerAddress) &&
+      !blackListSet.has(lowerAddress) &&
+      whiteListSet.has(lowerAddress)
+    );
+  });
 };
 
 export const createSimilarPoolsInfo = async (
@@ -66,7 +84,6 @@ export const createSimilarPoolsInfo = async (
   chainId: number
 ) => {
   const similarConfigs = await getSimilarConfigs(actionConfig);
-
   // Check if there's an identical pool among similarConfigs
   const hasIdenticalPool = similarConfigs.some((config) =>
     checkIdentity(config, actionConfig)
@@ -82,10 +99,10 @@ export const createSimilarPoolsInfo = async (
     actionConfig.baseToken,
     actionConfig.quoteToken
   );
-
   const pendingPoolsAddresses = getPendingPoolsAddresses(
     factoryPools,
-    similarConfigs
+    similarConfigs,
+    chainId
   );
   // Get data for pending pools
   const pendingPoolsData = await fetchPendingPoolsData(
