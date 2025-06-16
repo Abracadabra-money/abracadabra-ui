@@ -1,4 +1,5 @@
 import abi from "@/abis/beam";
+import { NIBIRU_CHAIN_ID } from "@/constants/global";
 import type { BeamConfigV2 } from "@/helpers/beam/types";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 
@@ -76,6 +77,37 @@ export const spellConfigs: BeamConfigV2[] = [
         42161, 2222, 43114, 10, 56, 137, 1285, 8453, 59144, 81457,
       ],
       lzChainId: 30362,
+      lzVersion: 2,
+    },
+    defaultValue: {
+      1: "0.008858578698816767",
+      10: "0.00000285787311",
+      56: "0.0032258135959937",
+      137: "0.12769615656648925",
+      1285: "0.01774",
+      2222: "0.32",
+      43114: "0.007487999650150403",
+      8453: "0.008858578698816767",
+      59144: "0.008858578698816767",
+      81457: "0.000197125401096902",
+    },
+  },
+  {
+    chainId: NIBIRU_CHAIN_ID,
+    icon: getChainIcon(NIBIRU_CHAIN_ID),
+    chainName: "Nibiru",
+    contract: {
+      address: "0x1D63c9409bb41b2Ab43259b843fF32c839A9ffa2",
+      abi: abi.transparentUpgradeableProxy,
+    },
+    outboundProofType: 2,
+    executor: "0x6A02D83e8d433304bba74EF1c427913958187142",
+    settings: {
+      contractVersion: 1,
+      disabledDestinationChains: [
+        42161, 2222, 43114, 10, 56, 137, 1285, 8453, 59144, 81457,
+      ],
+      lzChainId: 30369,
       lzVersion: 2,
     },
     defaultValue: {
