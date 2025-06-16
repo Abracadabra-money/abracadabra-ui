@@ -4,9 +4,14 @@ import type { BeamInfo, BeamConfig } from "./types";
 const MESSAGE_VERSION: number = 2;
 
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
+import { NIBIRU_CHAIN_ID } from "@/constants/global";
+
+type Fee = {
+  nativeFee: bigint;
+  lzTokenFee: bigint;
+};
 
 export const getEstimateSendFee = async (
-
   fromChainInfo: any,
   dstChainInfo: any,
   address: string,
@@ -19,7 +24,6 @@ export const getEstimateSendFee = async (
     ["uint16", "uint256", "uint256", "address"],
     [MESSAGE_VERSION, minGas, dstNativeAmount, address]
   );
-
 
   const itsV2 = fromChainInfo.settings?.contractVersion === 2;
 
@@ -62,12 +66,21 @@ export const quoteSendFee = async (
   try {
     const publicClient = getPublicClient(fromChainConfig.chainId);
 
-    return await publicClient.readContract({
+    const fee: Fee = await publicClient.readContract({
       address: fromChainConfig.contract.address,
       abi: fromChainConfig.contract.abi,
       functionName: "quoteSend",
       args: [sendParam, false],
     });
+
+    if (fromChainConfig.chainId === NIBIRU_CHAIN_ID) {
+      return {
+        nativeFee: (fee.nativeFee / 100n) * 105n,
+        lzTokenFee: fee.lzTokenFee,
+      };
+    }
+
+    return fee;
   } catch (error) {
     console.error("Error quoteSendFee:", error);
     return { nativeFee: 0n, lzTokenFee: 0n };

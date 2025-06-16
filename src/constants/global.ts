@@ -26,6 +26,7 @@ export const BERA_CHAIN_ID = 80094;
 export const FANTOM_CHAIN_ID = 250;
 export const MOONRIVER_CHAIN_ID = 1285;
 export const POLIGON_CHAIN_ID = 137;
+export const NIBIRU_CHAIN_ID = 6900;
 
 export const MAX_ALLOWANCE_VALUE: any =
   "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";

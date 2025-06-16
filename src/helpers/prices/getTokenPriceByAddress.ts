@@ -11,6 +11,7 @@ const coinGeckoIds = {
   2222: "kava",
   42161: "arbitrum-one",
   43114: "avalanche",
+  6900: "nibiru",
 };
 
 export const getTokenPriceByAddress = async (
