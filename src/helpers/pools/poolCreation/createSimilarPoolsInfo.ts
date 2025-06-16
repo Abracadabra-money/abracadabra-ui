@@ -13,7 +13,6 @@ import {
 } from "./fetchPoolsFromFabric";
 import type { GraphPairConfig } from "@/helpers/pools/configs/fetchPairsList";
 import { blackListedPools } from "@/helpers/pools/configs/blackList";
-import { whiteListedPools } from "@/helpers/pools/configs/whiteList";
 
 const getSimilarConfigs = async (actionConfig: ActionConfig) => {
   const similarConfigs = (await getPoolConfigsByChains())
@@ -62,18 +61,12 @@ const getPendingPoolsAddresses = (
       (id: string) => id.toLowerCase()
     ) || []
   );
-  const whiteListSet = new Set(
-    whiteListedPools[chainId as keyof typeof whiteListedPools]?.map(
-      (id: string) => id.toLowerCase()
-    ) || []
-  );
 
   return factoryPools.filter((address) => {
     const lowerAddress = address.toLowerCase() as Address;
     return (
       !similarPoolsAddresses.includes(lowerAddress) &&
-      !blackListSet.has(lowerAddress) &&
-      whiteListSet.has(lowerAddress)
+      !blackListSet.has(lowerAddress)
     );
   });
 };
