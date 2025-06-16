@@ -77,14 +77,15 @@ export const getSwapInfoEmptyState = (actionConfig: ActionConfig) => {
   return {
     routes: [],
     actionConfig,
+    inputAmount: fromInputValue,
     outputAmount: fromInputValue,
     outputAmountWithSlippage: fromInputValue,
+    priceImpact: 0,
     transactionInfo: {
       methodName: "",
       payload: {},
-      swapRouterAddress: "",
+      swapRouterAddress: "0x00",
     },
-    priceImpact: 0,
   };
 };
 
@@ -107,8 +108,7 @@ const getTransactionInfo = (
 
 const getMethodName = (routes: RouteInfo[], actionConfig: ActionConfig) => {
   if (routes.length === 1) {
-    const { address: fromTokenAddress } =
-      actionConfig.fromToken.config.contract;
+    const fromTokenAddress = actionConfig.fromToken.config.contract.address;
     const { baseToken, quoteToken } = routes[0].lpInfo;
 
     switch (fromTokenAddress) {
@@ -184,9 +184,9 @@ const sellQuoteTokensForTokensPayload = (
 function encodeDirections(directionsArray: number[]): number {
   let encodedDirections = 0;
 
-  // Ітеруємо масив і використовуємо побітовий зсув для кодування
+  // Iterate over the array and use bitwise shift to encode
   for (let i = 0; i < directionsArray.length; i++) {
-    // Зсуваємо біт на відповідну позицію і додаємо до результату
+    // We shift the bit to the appropriate position and add it to the result
     encodedDirections |= directionsArray[i] << i;
   }
 

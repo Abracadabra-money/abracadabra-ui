@@ -1,9 +1,11 @@
 import type { Address } from "viem";
-import { formatUnits, parseAbi, parseUnits } from "viem";
+import { formatUnits, parseUnits } from "viem";
 import type { MagicLPInfo } from "@/helpers/pools/swap/types";
 import { localQuerySell, querySell } from "@/helpers/pools/swap/querySell";
 import { calculatePriceImpactSingleSwap } from "@/helpers/pools/priceImpact";
 import type { ActionConfig, RouteInfo } from "@/helpers/pools/swap/getSwapInfo";
+
+const FEES_DECIMALS = 18;
 
 type Graph = Record<string, { token: string; weight: number; pair: string }[]>;
 
@@ -96,7 +98,7 @@ export const findBestSwapPath = (
   pairs: MagicLPInfo[],
   fromToken: Address,
   toToken: Address,
-  amountToSwap: bigint // Обсяг токенів, які ми хочемо обміняти
+  amountToSwap: bigint // The volume of tokens we want to exchange
 ) => {
   const graph: Graph = {};
   const visited = new Set();
@@ -104,12 +106,12 @@ export const findBestSwapPath = (
 
   const filteredPairs = filterLiquidPools(pairs, fromToken, amountToSwap);
 
-  // Заповнюємо граф
+  // Fill in the graph
   filteredPairs.forEach(
     ({ baseToken, quoteToken, lpFeeRate, totalSupply, id }) => {
-      const fees = Number(formatUnits(lpFeeRate, 18)); // Комісія
-      const tvl = Number(formatUnits(totalSupply, 18)); // Ліквідність
-      const weight = fees / tvl; // Вага ребра враховує комісію і ліквідність
+      const fees = Number(formatUnits(lpFeeRate, FEES_DECIMALS)); // Commission
+      const tvl = Number(formatUnits(totalSupply, FEES_DECIMALS)); // Liquidity
+      const weight = fees / tvl; // The weight of the rib takes into account commission and liquidity
 
       const baseTokenAddress = baseToken.toLowerCase();
       const quoteTokenAddress = quoteToken.toLowerCase();
@@ -183,7 +185,7 @@ export const findBestSwapPath = (
         console.error("Error fetching output amount:", error);
       }
 
-      const newCost = currentCost + weight + priceImpact; // Вар тість із врахуванням fees, TVL та прослизання
+      const newCost = currentCost + weight + priceImpact; // Cost including fees, TVL and slippage
 
       if (!(neighbor in bestCosts) || newCost < bestCosts[neighbor]) {
         bestCosts[neighbor] = newCost;

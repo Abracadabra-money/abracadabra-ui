@@ -5,7 +5,7 @@
     <span
       >1 {{ fromTokenName }} = {{ tokensRateToShow }} {{ toTokenName }}</span
     >
-    <span class="value-usd">({{ price }})</span>
+    <span class="value-usd" v-if="showTokensRate">({{ price }})</span>
   </div>
   <div class="empty" v-else></div>
 </template>
@@ -103,6 +103,10 @@ export default {
       return this.toggle
         ? formatUSD((1 / this.tokensRate) * this.fromToken.price)
         : formatUSD(this.tokensRate * this.toToken.price);
+    },
+
+    showTokensRate() {
+      return this.toggle ? !!this.fromToken.price : !!this.toToken.price;
     },
   },
 
