@@ -98,6 +98,7 @@ export default {
       );
       await frontendClient.initialize();
       if (frontendClient.userState.status !== "authenticated") {
+        this.unreadNotificationCount = 0;
         this.isSignedUp = false;
         return;
       }

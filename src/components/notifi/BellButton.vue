@@ -133,8 +133,8 @@ export default {
 
 .unreadCount-number {
   position: absolute;
-  top: 8px;
-  left: 23px;
+  top: 3px;
+  left: 29px;
   width: 12px;
   height: 12px;
   border-radius: 50%;
@@ -152,6 +152,7 @@ export default {
 .unreadCount-number.big-number {
   width: 18px;
   border-radius: 10px;
+  left: 23px !important;
 }
 
 .signup-cta-overlay {

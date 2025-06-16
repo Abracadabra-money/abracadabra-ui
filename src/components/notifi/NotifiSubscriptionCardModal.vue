@@ -24,7 +24,6 @@
 
 <script>
 // TODO: ⬆ Replace tenantId with "abracadabra"
-// TODO: ⬆ Replace walletBlockchain with `:walletBlockchain="notifiWalletBlockchain"`
 // TODO: ⬆ Make sure the input key must be `walletAddress` instead of legacy `userWallet`
 import { mapGetters } from "vuex";
 import {
@@ -44,7 +43,7 @@ export default {
   computed: {
     ...mapGetters({
       account: "getAccount",
-      notifiCardId: "getNotifiCardId", // TODO: ⬆ Use this to replace dummy card ID `cardId="019743e6bae573129355b7ddc6a11b49"` -> `:cardId="notifiCardId"`
+      notifiCardId: "getNotifiCardId",
       notifiWalletBlockchain: "getNotifiWalletBlockchain",
       signMessage: "getNotifiSignMessage",
       walletConnection: "getWalletIsConnected",

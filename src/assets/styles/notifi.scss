@@ -33,7 +33,8 @@
 }
 
 .notifi-connect-button, 
-.notifi-ftu-target-list-button {
+.notifi-ftu-target-list-button,
+.notifi-ftu-alert-edit-button {
   background: var(--notifi-color-button) !important; 
   color: white !important; 
   border-radius: 16px !important; 
@@ -198,9 +199,12 @@
 
 @media screen and (max-width: 1024px) {
   .notifi-card-modal {
-    width: 365px;
     top: 40px;
     max-height: 580px;
-    max-width: 350px;
+    max-width: 360px;
+  }
+  .notifi-inbox,
+  .notifi-ftu {
+    height: 580px !important;
   }
 }
