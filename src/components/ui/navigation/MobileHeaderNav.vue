@@ -38,7 +38,7 @@
       </li>
 
       <li @click="$emit('close-popup')">
-        <MobileHeaderLink href="https://curve.fi/#/ethereum/pools/mim/swap">
+        <MobileHeaderLink href="https://curve.finance/#/ethereum/pools/mim/swap">
           <img src="@/assets/images/header/dropdown/more/swap-icon.svg" />
           Swap
         </MobileHeaderLink>

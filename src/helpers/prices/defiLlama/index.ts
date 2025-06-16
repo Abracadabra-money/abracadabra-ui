@@ -38,8 +38,10 @@ const defiLlamaChainsKeys = {
   43120: "moonriver",
   59144: "linea",
   80084: "berachain",
+  80094: "berachain-bera",
   81457: "blast",
   168587773: "blast",
+  6900: "nibiru",
 };
 
 const coingeckoNativeTokensIds = {
@@ -55,6 +57,8 @@ const coingeckoNativeTokensIds = {
   8453: "ethereum",
   59144: "ethereum",
   81457: "ethereum",
+  80094: "berachain-bera",
+  6900: "nibiru",
 };
 
 // this config is used to get coin prices if there no results by chainId
@@ -82,6 +86,18 @@ const coingeckoCoinsIds = [
   {
     id: "spell-token",
     addresses: ["0xd621b380daf82566b9d41ab71f29d5140a7595fa"],
+  },
+  {
+    id: "usd-coin",
+    addresses: ["0x0829F361A05D993d5CEb035cA6DF3446b060970b"],
+  },
+  {
+    id: "magic-internet-money",
+    addresses: ["0xfCfc58685101e2914cBCf7551B432500db84eAa8"],
+  },
+  {
+    id: "nibiru",
+    addresses: ["0x1429B38e58b97de646ACd65fdb8a4502c2131484"],
   },
 ];
 

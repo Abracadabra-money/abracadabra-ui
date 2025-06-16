@@ -122,6 +122,14 @@ export default {
     farms() {
       this.selectedChains = this.getActiveChain();
     },
+
+    async account() {
+      this.farms = await getFarmsList(this.account);
+    },
+
+    async chainId() {
+      this.farms = await getFarmsList(this.account);
+    },
   },
 
   methods: {
