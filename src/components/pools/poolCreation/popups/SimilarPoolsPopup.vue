@@ -76,7 +76,7 @@ export default {
   computed: {
     similarPoolsToRender() {
       return this.similarPools.filter(
-        (pool) => !checkIdentity(pool, this.actionConfig)
+        (pool) => !checkIdentity(pool.config, this.actionConfig)
       );
     },
 
