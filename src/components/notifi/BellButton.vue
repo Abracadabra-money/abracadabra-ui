@@ -183,7 +183,7 @@ export default {
   border-right: 10px solid transparent;
   border-bottom: 10px solid #2b2b3b;
 }
-// TODO: consolidate with .signup-cta-popover pseudo element after being approved
+
 .signup-cta-popover::before {
   content: "";
   position: absolute;

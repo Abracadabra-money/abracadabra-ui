@@ -8,10 +8,10 @@
     <div class="notifi-card">
       <Context
         :key="`${account}-${notifiCardId}-${notifiWalletBlockchain}`"
-        tenantId="4zfoga0vjqh90ahg8apd"
+        tenantId="abracadabra"
         env="Production"
-        :walletPublicKey="account ?? '0x'"
-        :walletBlockchain="notifiWalletBlockchain ?? 'ETHEREUM'"
+        :walletPublicKey="account"
+        :walletBlockchain="notifiWalletBlockchain"
         :signMessage="signMessage"
         :cardId="notifiCardId" 
         :inputs="{ walletAddress: [{ label: '', value: account }] }"
@@ -23,8 +23,6 @@
 </template>
 
 <script>
-// TODO: ⬆ Replace tenantId with "abracadabra"
-// TODO: ⬆ Make sure the input key must be `walletAddress` instead of legacy `userWallet`
 import { mapGetters } from "vuex";
 import {
   NotifiContextProvider,
@@ -46,8 +44,6 @@ export default {
       notifiCardId: "getNotifiCardId",
       notifiWalletBlockchain: "getNotifiWalletBlockchain",
       signMessage: "getNotifiSignMessage",
-      walletConnection: "getWalletIsConnected",
-      wagmiConfig: "getWagmiConfig",
     }),
   },
   methods: {

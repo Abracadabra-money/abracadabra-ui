@@ -90,7 +90,7 @@ export default {
   methods: {
     async updateUnreadNotificationCount() {
       const frontendClient = instantiateFrontendClient(
-        "4zfoga0vjqh90ahg8apd", // TODO: Replace with "abracadabra" tenant ID
+          "abracadabra",
         {
           walletBlockchain: this.notifiWalletBlockchain,
           walletPublicKey: this.account,

@@ -15,10 +15,9 @@ export default defineConfig({
     }),
     vue(),
   ],
-  // TODO: enable before opening PR
-  // esbuild: {
-  //   drop: ["console", "debugger"], // warn: to comment in dev mode to show logs in .ts files
-  // },
+  esbuild: {
+    drop: ["console", "debugger"], // warn: to comment in dev mode to show logs in .ts files
+  },
   build: {
     target: "esnext",
     rollupOptions: {
