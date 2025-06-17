@@ -45,7 +45,7 @@
       <FarmPosition
         :selectedFarm="selectedFarm"
         :isProperNetwork="isProperNetwork"
-        @updateFarmData="getSelectedFarm()"
+        @updateFarmData="refresherInfo.refresher.update()"
         v-if="isUserPositionOpen"
       />
     </div>
@@ -54,7 +54,7 @@
       :selectedFarm="selectedFarm"
       :isProperNetwork="isProperNetwork"
       :isOpened="isUserPositionOpen && isMyPositionPopupOpened"
-      @updateFarmData="getSelectedFarm()"
+      @updateFarmData="refresherInfo.refresher.update()"
       @closePopup="isMyPositionPopupOpened = false"
     />
 
@@ -312,7 +312,7 @@ export default {
               this.inputAmount
             );
 
-        await this.getSelectedFarm();
+        await this.refresherInfo.refresher.update();
 
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.success);
@@ -345,7 +345,7 @@ export default {
           ? await actions.exit(this.selectedFarm!.contractInfo)
           : await actions.withdraw(this.selectedFarm!.contractInfo, args);
 
-        await this.getSelectedFarm();
+        await this.refresherInfo.refresher.update();
 
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.success);
@@ -372,7 +372,7 @@ export default {
           this.selectedFarm!.stakingToken.contractInfo,
           this.selectedFarm!.contractInfo.address
         );
-        await this.getSelectedFarm();
+        await this.refresherInfo.refresher.update();
 
         await this.deleteNotification(notificationId);
       } catch (error) {
@@ -400,16 +400,6 @@ export default {
       );
     },
 
-    async getSelectedFarm() {
-      this.selectedFarm = await createFarmData(
-        this.id,
-        this.farmChainId,
-        this.account
-      );
-
-      console.log("getSelectedFarm", this.selectedFarm);
-    },
-
     openFarmsPopup() {
       this.isFarmsPopupOpened = true;
     },
@@ -420,9 +410,8 @@ export default {
   },
 
   async created() {
-    await this.getSelectedFarm();
     this.createDataRefresher();
-    this.refresherInfo.refresher.start();
+    await this.refresherInfo.refresher.initialize();
   },
 
   beforeUnmount() {

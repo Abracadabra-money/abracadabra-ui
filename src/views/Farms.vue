@@ -38,15 +38,8 @@
           </div>
 
           <div class="farms-list">
-            <div
-              class="loader-wrap"
-              v-if="refresherInfo.isLoading || showEmptyBlock"
-            >
-              <BaseLoader
-                v-if="refresherInfo.isLoading"
-                medium
-                text="Loading Farms"
-              />
+            <div class="loader-wrap" v-if="showLoader || showEmptyBlock">
+              <BaseLoader v-if="showLoader" medium text="Loading Farms" />
               <BaseSearchEmpty
                 v-if="showEmptyBlock"
                 text="There are no Farms"
@@ -110,6 +103,10 @@ export default {
       return !this.refresherInfo.isLoading && !this.filteredFarms.length;
     },
 
+    showLoader() {
+      return this.refresherInfo.isLoading && !this.filteredFarms.length;
+    },
+
     currentPools(): FarmItem[] {
       return this.farms || [];
     },
@@ -137,11 +134,11 @@ export default {
     },
 
     async account() {
-      this.refresherInfo.refresher.manualUpdate();
+      this.refresherInfo.refresher.update();
     },
 
     async chainId() {
-      this.refresherInfo.refresher.manualUpdate();
+      this.refresherInfo.refresher.update();
     },
   },
 
@@ -254,10 +251,11 @@ export default {
   },
 
   async created() {
+    this.checkLocalData();
     this.setFarmList(this.farms);
     this.selectedChains = this.getActiveChain();
     this.createDataRefresher();
-    this.refresherInfo.refresher.start();
+    this.refresherInfo.refresher.initialize();
   },
 
   beforeUnmount() {

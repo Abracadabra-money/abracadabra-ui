@@ -41,7 +41,7 @@
 
       <div class="beam-actions" v-if="!isOpenNetworkPopup && !isSettingsOpened">
         <ChainsWrap
-          :toChain="toChainConfig!"
+          :toChain="toChainConfig"
           :fromChain="fromChainConfig"
           :tokenType="tokenType"
           :isChainsDisabled="refresherInfo.isLoading || tokenType === 1"
@@ -78,9 +78,9 @@
         <ExpectedBlock
           v-if="beamInfoObject && fromChainConfig"
           :beamInfoObject="beamInfoObject"
-          :dstChainConfig="toChainConfig!"
+          :dstChainConfig="toChainConfig"
           :gasFee="estimateSendFee"
-          :fromChain="fromChainConfig!"
+          :fromChain="fromChainConfig"
           :dstNativeTokenAmount="dstTokenAmount"
           :isLoading="isUpdateFeesData"
         />
@@ -110,7 +110,7 @@
         :popupType="popupType"
         :beamInfoObject="beamInfoObject"
         :selectedFromChain="fromChainConfig"
-        :selectedToChain="toChainConfig!"
+        :selectedToChain="toChainConfig"
         @closePopup="closeNetworkPopup"
         @changeChain="changeChain"
       />
@@ -121,7 +121,7 @@
         :dstChainInfo="toChainConfig"
         :dstNativeTokenAmount="dstTokenAmount"
         :mimAmount="inputAmount"
-        :fromChain="fromChainConfig!"
+        :fromChain="fromChainConfig"
         @onUpdateAmount="updateDstNativeTokenAmount"
         @closeSettings="isSettingsOpened = false"
       />
@@ -385,7 +385,7 @@ export default {
         this.fromChainConfig!.chainId !== value.chainId
       ) {
         this.clearData();
-        this.createNewRefresher(value);
+        this.refresherInfo.refresher.update();
       }
     },
 
@@ -397,33 +397,28 @@ export default {
 
     account() {
       this.clearData();
-      this.createNewRefresher(this.chainId || MAINNET_CHAIN_ID);
+      this.refresherInfo.refresher.update();
     },
 
     chainId(value) {
       if (this.fromChainId !== value) {
         this.clearData();
-        this.createNewRefresher(value);
+        this.refresherInfo.refresher.update();
       }
     },
 
     // todo spell
     async tokenType() {
-      const fromChainId = this.fromChainConfig?.chainId || 1;
-
       this.isOpenNetworkPopup = false;
       this.isShowDstAddress = false;
       this.isSettingsOpened = false;
 
-      const currentChain = this.beamInfoObject
-        ? this.beamInfoObject.fromChainConfig.chainId
-        : this.chainId;
       this.clearData();
       if (this.tokenType === SPELL_ID) {
         return;
       }
 
-      this.createNewRefresher(currentChain);
+      this.refresherInfo.refresher.update();
     },
   },
 
@@ -434,16 +429,10 @@ export default {
       updateNotification: "notifications/updateTitle",
     }),
 
-    createNewRefresher(chainId: number) {
-      if (this.refresherInfo.refresher) {
-        this.refresherInfo.refresher.stop();
-      }
-
+    createDataRefresher() {
       this.refresherInfo.refresher = new dataRefresher<BeamInfo>(
         async () => {
-          console.log("dataRefresher function", chainId);
-
-          return await this.initBeamInfo(chainId);
+          return await this.initBeamInfo(this.fromChainId ?? this.chainId);
         },
         this.refresherInfo.intervalTime,
         (remainingTime) => {
@@ -457,9 +446,6 @@ export default {
           this.fromChainId = data?.fromChainConfig.chainId;
         }
       );
-
-      this.refresherInfo.refresher.update();
-      this.refresherInfo.refresher.start();
     },
 
     changeTokenType(type: number) {
@@ -751,7 +737,8 @@ export default {
   },
 
   async created() {
-    this.createNewRefresher(this.chainId || MAINNET_CHAIN_ID);
+    this.createDataRefresher();
+    await this.refresherInfo.refresher.initialize();
     if (this.beamInfoObject) {
       this.fromChainId = this.beamInfoObject.fromChainConfig.chainId;
     }

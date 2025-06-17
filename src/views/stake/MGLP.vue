@@ -408,7 +408,7 @@ export default {
     await this.createOrUpdateInfo();
     this.setMagicGlpStakeData(this.stakeInfoArr);
     this.createDataRefresher();
-    this.refresherInfo.refresher.start();
+    this.refresherInfo.refresher.initialize();
   },
 
   beforeUnmount() {

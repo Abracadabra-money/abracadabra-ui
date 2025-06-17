@@ -627,7 +627,7 @@ export default {
     await this.createOrUpdateInfo();
     this.setSpellStakeData(this.stakeInfoArr);
     this.createDataRefresher();
-    this.refresherInfo.refresher.start();
+    this.refresherInfo.refresher.initialize();
   },
 
   beforeUnmount() {

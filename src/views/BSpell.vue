@@ -191,7 +191,7 @@ export default {
     await this.createOrUpdateInfo();
     this.setBSpellStakeData(this.bSpellInfoArr);
     this.createDataRefresher();
-    this.refresherInfo.refresher.start();
+    this.refresherInfo.refresher.initialize();
 
     await this.getAprInfo();
   },
