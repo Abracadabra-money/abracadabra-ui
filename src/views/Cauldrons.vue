@@ -23,7 +23,7 @@
 
         <CauldronsTable
           :cauldrons="cauldrons"
-          :cauldronsLoading="cauldronsLoading"
+          :cauldronsLoading="refresherInfo.isLoading"
           :aprsLoading="aprsLoading"
           :tableKeys="tableKeys"
           @openMobileFiltersPopup="openMobileFiltersPopup"
@@ -49,16 +49,16 @@ import { getMarketList } from "@/helpers/cauldron/lists/getMarketList";
 import type { CauldronListItem } from "@/helpers/cauldron/lists/getMarketList";
 import { getMaxLeverageMultiplierAlternative } from "@/helpers/cauldron/getMaxLeverageMultiplier";
 import { fetchCauldronsAprs } from "@/helpers/collateralsApy/fetchCauldronsAprs";
+import { dataRefresher } from "@/helpers/dataRefresher";
+import type { RefresherInfo } from "@/helpers/dataRefresher";
 
 type Data = {
   cauldrons: any;
-  cauldronsLoading: boolean;
-  updateInterval: null | NodeJS.Timeout;
-  timerInterval: number;
-  isFiltersPopupOpened: boolean;
-  tableKeys: any;
   aprs: any;
   aprsLoading: boolean;
+  isFiltersPopupOpened: boolean;
+  tableKeys: any;
+  refresherInfo: RefresherInfo<any[]>;
 };
 
 type AprInfo = { [key: string]: AprInfo };
@@ -67,11 +67,8 @@ export default {
   data(): Data {
     return {
       cauldrons: [],
-      cauldronsLoading: true,
       aprs: {},
       aprsLoading: true,
-      updateInterval: null,
-      timerInterval: 60000,
       isFiltersPopupOpened: false,
       tableKeys: [
         {
@@ -103,6 +100,12 @@ export default {
           isSortingCriterion: true,
         },
       ],
+      refresherInfo: {
+        refresher: null as unknown as dataRefresher<any[]>,
+        remainingTime: 0,
+        isLoading: false,
+        intervalTime: 60,
+      },
     };
   },
 
@@ -114,8 +117,10 @@ export default {
   },
 
   watch: {
-    async account() {
-      await this.createCaulldronsInfo();
+    account() {
+      if (this.refresherInfo.refresher) {
+        this.refresherInfo.refresher.update();
+      }
     },
   },
 
@@ -159,33 +164,42 @@ export default {
     checkLocalData(): void {
       if (this.localCauldronsList.isCreated) {
         this.cauldrons = this.localCauldronsList.data;
-        this.cauldronsLoading = false;
       }
     },
 
-    async createCaulldronsInfo(): Promise<void> {
+    async fetchCauldronsData() {
       const cauldrons = await getMarketList(this.account);
-
-      this.cauldrons = await this.getCollateralsApr(cauldrons);
-
-      this.cauldronsLoading = false;
+      const cauldronsWithApr = await this.getCollateralsApr(cauldrons);
       this.aprsLoading = false;
-      this.setCauldronsList(this.cauldrons);
+      return cauldronsWithApr;
+    },
+
+    createDataRefresher() {
+      this.refresherInfo.refresher = new dataRefresher<any[]>(
+        async () => {
+          return await this.fetchCauldronsData();
+        },
+        this.refresherInfo.intervalTime,
+        (time) => (this.refresherInfo.remainingTime = time),
+        (loading) => (this.refresherInfo.isLoading = loading),
+        (updatedData: any[]) => {
+          this.cauldrons = updatedData;
+          this.setCauldronsList(updatedData);
+        }
+      );
     },
   },
 
   async created() {
     this.checkLocalData();
-    await this.createCaulldronsInfo();
-
-    this.updateInterval = setInterval(async () => {
-      await this.createCaulldronsInfo();
-      console.log("update cauldrons");
-    }, this.timerInterval);
+    this.createDataRefresher();
+    await this.refresherInfo.refresher.initialize();
   },
 
   beforeUnmount() {
-    clearInterval(this.updateInterval as any);
+    if (this.refresherInfo.refresher) {
+      this.refresherInfo.refresher.stop();
+    }
   },
 
   components: {
