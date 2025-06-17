@@ -5,7 +5,7 @@
 
       <PoolFarmsTable
         :pools="pools"
-        :poolsLoading="poolsLoading"
+        :poolsLoading="refresherInfo.isLoading"
         :tableKeys="tableKeys"
         ref="poolFarmsTable"
         @openMobileFiltersPopup="isFiltersPopupOpened = true"
@@ -26,12 +26,13 @@ import { mapGetters, mapMutations } from "vuex";
 import type { PoolConfig } from "@/configs/pools/types";
 import { getPoolsList } from "@/helpers/pools/getPoolsList";
 import { getPoolConfigsByChains } from "@/helpers/pools/configs/getOrCreatePairsConfigs";
+import { dataRefresher } from "@/helpers/dataRefresher";
+import type { RefresherInfo } from "@/helpers/dataRefresher";
 
 export default {
   data() {
     return {
       pools: [] as any[],
-      poolsLoading: true,
       poolConfigs: [] as PoolConfig[],
       tableKeys: [
         {
@@ -55,18 +56,26 @@ export default {
         },
       ],
       isFiltersPopupOpened: false,
-      updateInterval: null as NodeJS.Timeout | null,
+      refresherInfo: {
+        refresher: null as unknown as dataRefresher<any[]>,
+        remainingTime: 0,
+        isLoading: false,
+        intervalTime: 60,
+      } as RefresherInfo<any[]>,
     };
   },
 
   computed: {
     ...mapGetters({
       account: "getAccount",
+      chainId: "getChainId",
       localPoolsList: "getPoolFarmsList",
     }),
 
     poolFarmsConfigs() {
-      return this.poolConfigs.filter(({ stakeContract, lockContract }) => stakeContract || lockContract);
+      return this.poolConfigs.filter(
+        ({ stakeContract, lockContract }) => stakeContract || lockContract
+      );
     },
   },
 
@@ -78,15 +87,28 @@ export default {
     checkLocalData(): void {
       if (this.localPoolsList.isCreated) {
         this.pools = this.localPoolsList.data;
-        this.poolsLoading = false;
       }
     },
 
-    async createPoolsInfo(): Promise<void> {
-      this.pools = await getPoolsList(this.account, this.poolFarmsConfigs);
-      this.poolsLoading = false;
+    async fetchPoolsData() {
+      this.poolConfigs = await getPoolConfigsByChains();
+      const pools = await getPoolsList(this.account, this.poolFarmsConfigs);
+      return pools;
+    },
 
-      this.setPoolFarmsList(this.pools);
+    createDataRefresher() {
+      this.refresherInfo.refresher = new dataRefresher<any[]>(
+        async () => {
+          return await this.fetchPoolsData();
+        },
+        this.refresherInfo.intervalTime,
+        (time) => (this.refresherInfo.remainingTime = time),
+        (loading) => (this.refresherInfo.isLoading = loading),
+        (updatedData: any[]) => {
+          this.pools = updatedData;
+          this.setPoolFarmsList(updatedData);
+        }
+      );
     },
 
     updateSortKeys(key: any, order: any) {
@@ -94,18 +116,29 @@ export default {
     },
   },
 
+  watch: {
+    account() {
+      if (this.refresherInfo.refresher) {
+        this.refresherInfo.refresher.update();
+      }
+    },
+    chainId() {
+      if (this.refresherInfo.refresher) {
+        this.refresherInfo.refresher.update();
+      }
+    },
+  },
+
   async created() {
     this.checkLocalData();
-    this.poolConfigs = await getPoolConfigsByChains();
-    await this.createPoolsInfo();
-
-    this.updateInterval = setInterval(async () => {
-      this.pools = await getPoolsList(this.account, this.poolFarmsConfigs);
-    }, 60000);
+    this.createDataRefresher();
+    await this.refresherInfo.refresher.initialize();
   },
 
   beforeUnmount() {
-    clearInterval(Number(this.updateInterval));
+    if (this.refresherInfo.refresher) {
+      this.refresherInfo.refresher.stop();
+    }
   },
 
   components: {
