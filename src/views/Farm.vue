@@ -90,7 +90,7 @@ export default {
 
   data() {
     return {
-      activeNetworks: [1, 250, 43114, 42161],
+      activeNetworks: [1, 43114, 42161],
       isFarmsPopupOpened: false,
       isMyPositionPopupOpened: false,
       inputAmount: 0n as bigint,

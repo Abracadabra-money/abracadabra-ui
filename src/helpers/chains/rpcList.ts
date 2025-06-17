@@ -8,6 +8,7 @@ import { OPTIMISM_CHAIN_ID, POLIGON_CHAIN_ID } from "@/constants/global";
 import { BASE_CHAIN_ID, BERA_BARTIO_CHAIN_ID } from "@/constants/global";
 import { MAINNET_CHAIN_ID, MOONRIVER_CHAIN_ID } from "@/constants/global";
 import { ARBITRUM_CHAIN_ID, AVALANCHE_CHAIN_ID } from "@/constants/global";
+import { NIBIRU_CHAIN_ID } from "@/constants/global";
 
 export const DEFAULT_BERA_RPC = "https://rpc.berachain.com";
 export const DEFAULT_BERA_BARTIO_RPC =
@@ -19,12 +20,13 @@ export const DEFAULT_KAVA_RPC = "https://evm.kava.io";
 export const DEFAULT_AVALANCHE_RPC = "https://avalanche.drpc.org";
 export const DEFAULT_OPTIMISM_RPC = "https://optimism-rpc.publicnode.com";
 export const DEFAULT_FANTOM_RPC = "https://fantom-rpc.publicnode.com";
-export const DEFAULT_BSC_RPC = "https://bsc-dataseed.binance.org/";
+export const DEFAULT_BSC_RPC = "https://bsc-pokt.nodies.app";
 export const DEFAULT_POLYGON_RPC = "https://polygon-rpc.com";
 export const DEFAULT_MOONRIVER_RPC =
   "https://rpc.api.moonriver.moonbeam.network";
 export const DEFAULT_BASE_RPC = "https://base-rpc.publicnode.com";
 export const DEFAULT_LINEA_RPC = "https://linea-rpc.publicnode.com";
+export const DEFAULT_NIBIRU_RPC = "https://evm-rpc.nibiru.fi";
 
 // Here we add rpc that we do not want to use or they are not working
 export const badRequestListRpc = [
@@ -37,6 +39,7 @@ export const badRequestListRpc = [
   "https://eth.llamarpc.com",
   "https://optimism.llamarpc.com",
   "https://polygon.llamarpc.com",
+  "https://rpc.ankr.com/bsc",
 ];
 
 export const rpcList = {
@@ -50,10 +53,10 @@ export const rpcList = {
     "https://berat2.lava.build",
   ],
   [MAINNET_CHAIN_ID]: [
-    ...mainnet.rpcUrls.default.http,
     DEFAULT_MAINNET_RPC,
     "https://eth.drpc.org",
     "https://rpc.ankr.com/eth",
+    ...mainnet.rpcUrls.default.http,
   ],
   [ARBITRUM_CHAIN_ID]: [
     ...arbitrum.rpcUrls.default.http,
@@ -142,4 +145,5 @@ export const rpcList = {
     "https://1rpc.io/linea",
     "https://linea.blockpi.network/v1/rpc/public",
   ],
+  [NIBIRU_CHAIN_ID]: [DEFAULT_NIBIRU_RPC],
 };

@@ -13,7 +13,6 @@
       </button>
 
       <button
-        v-if="tokenType === 0"
         :class="[
           'switch-chain-button',
           { 'switch-disabled': isSwitchChainsDisabled || isChainsDisabled },
@@ -28,12 +27,12 @@
         />
       </button>
 
-      <img
+      <!-- <img
         class="migrate-arrow"
         v-else
         src="@/assets/images/beam/migrate-arrow.png"
         alt=""
-      />
+      /> -->
 
       <button
         :class="['select-item', { disabled: isChainsDisabled }]"
@@ -82,9 +81,10 @@ export default {
     ...mapGetters({ account: "getAccount" }),
 
     title() {
-      if (this.tokenType === 0) return "Select Networks";
+      return "Select Networks";
+      // if (this.tokenType === 0) return "Select Networks";
 
-      return "Migrate to OFT V2 Spell";
+      // return "Migrate to OFT V2 Spell";
     },
 
     fromChainInfo() {

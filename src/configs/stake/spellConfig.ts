@@ -4,7 +4,7 @@ import type { ContractInfo } from "@/types/global";
 
 export type SpellStakeConfigs = {
   1: SpellStakeConfig;
-  250: SpellStakeConfig;
+  // 250: SpellStakeConfig;
   42161: SpellStakeConfig;
   43114: SpellStakeConfig;
 };
@@ -63,23 +63,23 @@ export const spellStakeConfig: SpellStakeConfigs = {
       },
     },
   },
-  250: {
-    spell: {
-      name: "SPELL",
-      decimals: 18,
-      icon: useImage("assets/images/tokens/SPELL.png"),
-      abi: tokensAbi.SPELL,
-    },
-    mSpell: {
-      name: "mSPELL",
-      decimals: 18,
-      icon: useImage("assets/images/tokens/mSPELL.png"),
-      contract: {
-        address: "0xa668762fb20bcd7148Db1bdb402ec06Eb6DAD569",
-        abi: tokensAbi.mSPELL,
-      },
-    },
-  },
+  // 250: {
+  //   spell: {
+  //     name: "SPELL",
+  //     decimals: 18,
+  //     icon: useImage("assets/images/tokens/SPELL.png"),
+  //     abi: tokensAbi.SPELL,
+  //   },
+  //   mSpell: {
+  //     name: "mSPELL",
+  //     decimals: 18,
+  //     icon: useImage("assets/images/tokens/mSPELL.png"),
+  //     contract: {
+  //       address: "0xa668762fb20bcd7148Db1bdb402ec06Eb6DAD569",
+  //       abi: tokensAbi.mSPELL,
+  //     },
+  //   },
+  // },
   42161: {
     spell: {
       name: "SPELL",

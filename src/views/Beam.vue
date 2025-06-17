@@ -1,10 +1,10 @@
 <template>
   <div class="beam-view" v-if="beamInfoObject">
     <div class="beam">
-      <div class="spell-message" v-if="tokenType === SPELL_ID">
+      <!-- <div class="spell-message" v-if="tokenType === SPELL_ID">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
         tempor incididunt ut lab
-      </div>
+      </div> -->
 
       <div class="beam-header">
         <div class="title-desc">
@@ -27,7 +27,7 @@
         </div>
       </div>
 
-      <!-- <div class="tabs">
+      <div class="tabs">
         <button
           :class="['tab-item', { active: tokenType === tab.id }]"
           v-for="tab in tabsInfo"
@@ -37,14 +37,14 @@
           <img class="tab-icon" :src="tab.icon" alt="" />
           {{ tab.name }}
         </button>
-      </div> -->
+      </div>
 
       <div class="beam-actions" v-if="!isOpenNetworkPopup && !isSettingsOpened">
         <ChainsWrap
           :toChain="toChainConfig!"
           :fromChain="fromChainConfig"
           :tokenType="tokenType"
-          :isChainsDisabled="isLoadingBeamInfo || tokenType === 1"
+          :isChainsDisabled="isLoadingBeamInfo"
           @onChainSelectClick="openNetworkPopup"
           @switchChains="switchChains"
         />
@@ -239,7 +239,7 @@ export default {
       if (this.isLzVersion2) {
         return ethers.utils.defaultAbiCoder.encode(
           ["bytes32"],
-          [ethers.utils.hexZeroPad(this.account, 32)]
+          [ethers.utils.hexZeroPad(this.toAddress, 32)]
         );
       }
 
@@ -380,12 +380,9 @@ export default {
         if (isDisabled) this.toChainId = null;
       }
 
-      if (
-        this.beamInfoObject &&
-        this.fromChainConfig!.chainId !== value.chainId
-      ) {
+      if (this.beamInfoObject && this.fromChainConfig!.chainId !== value) {
         this.clearData();
-        this.initBeamInfo(value.chainId);
+        this.initBeamInfo(value);
       }
     },
 

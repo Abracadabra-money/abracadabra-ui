@@ -207,7 +207,7 @@ export default {
       activeTab: "stake",
       tabItems: ["stake", "unstake"],
       selectedNetwork: 1,
-      mSpellNetworks: [1, 250, 42161, 43114],
+      mSpellNetworks: [1, 42161, 43114],
       sSpelleNetworks: [1],
       stakeInfoArr: null as null | SpellStakeInfo[],
       inputAmount: BigInt(0),

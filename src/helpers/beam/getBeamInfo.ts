@@ -93,45 +93,32 @@ export const getBeamInfo = async (
       .flat(2),
   });
 
-  const beraPublicClient = getPublicClient(80094);
-
-  const beraResult = await beraPublicClient.readContract({
-    address: "0x4208D6E27538189bB48E603D6123A94b8Abe0A0b",
-    abi: executorAbi,
-    functionName: "dstConfig",
-    args: [30101],
-  });
-
   const prices = await getNativeTokensPrice(
     configs.map((config: BeamConfig) => config.chainId)
   );
 
   const destinationChainsInfo = destinationChainsConfig.map(
     (chainConfig: BeamConfig, index: number) => {
-      if (fromChainConfig.chainId === 80094) {
-        return {
-          chainConfig,
-          minDstGasLookupResult: 0n,
-          dstConfigLookupResult: beraResult[3],
-          nativePrice:
-            prices.find((info) => info.chainId === chainConfig.chainId)
-              ?.price || 0,
-        };
-      }
-
       const isLzVersion2 = chainConfig.settings?.lzVersion === 2;
 
       const minDstGasLookupResult = isLzVersion2
         ? 0n
         : results[index * 2]?.result || 0n;
 
-      const dstConfigLookupResult = isLzVersion2
-        ? !!results[index * 2]?.result
-          ? results[index * 2]?.result[3]
-          : 0n
-        : results[index * 2 + 1]?.result
-        ? results[index * 2 + 1]?.result[0]
-        : 0n;
+      let dstConfigLookupResult = 0n;
+      if (isLzVersion2) {
+        if (!!results[index * 2]?.result) {
+          dstConfigLookupResult = results[index * 2]?.result[3];
+        } else {
+          dstConfigLookupResult = !!results[index * 2 - 1]?.result
+            ? results[index * 2 - 1]?.result[3]
+            : 0n;
+        }
+      } else {
+        if (results[index * 2 + 1]?.result) {
+          dstConfigLookupResult = results[index * 2 + 1]?.result[0];
+        }
+      }
 
       return {
         chainConfig,

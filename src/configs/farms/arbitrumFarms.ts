@@ -16,7 +16,7 @@ const arbitrumFarms: FarmConfig[] = [
       name: "MIM-2Crv",
       type: "LP",
       decimals: 18,
-      link: "https://arbitrum.curve.fi/factory/0/deposit",
+      link: "https://arbitrum.curve.finance/factory/0/deposit",
       abi: crvStakeTokenAbi,
     },
     earnedToken: {
@@ -41,7 +41,7 @@ const arbitrumFarms: FarmConfig[] = [
       name: "MIM-2Crv",
       type: "LP",
       decimals: 18,
-      link: "https://curve.fi/#/arbitrum/pools/factory-v2-0/deposit",
+      link: "https://curve.finance/#/arbitrum/pools/factory-v2-0/deposit",
       address: "0x30dF229cefa463e991e29D42DB0bae2e122B2AC7",
       abi: crvStakeTokenAbi,
     },

@@ -46,7 +46,7 @@
         <SwapInfoBlock
           :swapInfo="swapInfo"
           :actionConfig="actionConfig"
-          :priceImpact="priceImpactPair"
+          :priceImpact="swapInfo.priceImpact"
           :selectedNetwork="selectedNetwork"
           :nativeTokenPrice="nativeTokenPrice"
           :isLoading="isLoading"
@@ -95,7 +95,7 @@
       <ConfirmationPopup
         :actionConfig="actionConfig"
         :swapInfo="swapInfo"
-        :priceImpact="priceImpactPair"
+        :priceImpact="swapInfo.priceImpact"
         :currentPriceInfo="currentPriceInfo"
         @confirm="closeConfirmationPopup"
       />
@@ -109,6 +109,7 @@ import {
   BLAST_CHAIN_ID,
   ARBITRUM_CHAIN_ID,
   MAINNET_CHAIN_ID,
+  NIBIRU_CHAIN_ID,
 } from "@/constants/global";
 import {
   getSwapInfo,
@@ -122,6 +123,7 @@ import { defineAsyncComponent } from "vue";
 import type { ContractInfo } from "@/types/global";
 import { approveToken } from "@/helpers/approval";
 import type { PoolConfig } from "@/configs/pools/types";
+import { openConnectPopup } from "@/helpers/connect/utils";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import { formatUnits, parseUnits, type Address } from "viem";
 import type { TokenInfo } from "@/helpers/pools/swap/tokens";
@@ -134,7 +136,6 @@ import { getAllPoolsByChain } from "@/helpers/pools/swap/magicLp";
 import type { ActionConfig, RouteInfo } from "@/helpers/pools/swap/getSwapInfo";
 import { validationActions } from "@/helpers/validators/swap/validationActions";
 import { getPoolConfigsByChains } from "@/helpers/pools/configs/getOrCreatePairsConfigs";
-import { openConnectPopup } from "@/helpers/connect/utils";
 
 const emptyTokenInfo: TokenInfo = {
   config: {
@@ -185,6 +186,7 @@ export default {
         KAVA_CHAIN_ID,
         BLAST_CHAIN_ID,
         MAINNET_CHAIN_ID,
+        NIBIRU_CHAIN_ID,
       ], // TODO: get from configs
       isApproving: false,
       nativeTokenPrice: [] as { chainId: number; price: number }[],
@@ -197,8 +199,8 @@ export default {
     ...mapGetters({ chainId: "getChainId", account: "getAccount" }),
 
     isWarningBtn() {
-      if (!this.priceImpactPair) return false;
-      return +this.priceImpactPair <= -15;
+      if (!this.swapInfo.priceImpact) return false;
+      return this.swapInfo.priceImpact <= -15;
     },
 
     actionValidationData() {
@@ -262,43 +264,6 @@ export default {
         amounts,
         fromBase,
       };
-    },
-
-    // Alternative price impact calculation
-    priceImpactPair(): string | number {
-      const routeInfo: RouteInfo =
-        this.swapInfo.routes[this.swapInfo.routes.length - 1];
-
-      if (!routeInfo) return 0;
-
-      const isBase = routeInfo.lpInfo.baseToken === routeInfo.inputToken;
-
-      //@ts-ignore
-      const { midPrice } = routeInfo.lpInfo;
-
-      //@ts-ignore
-      const tokenAmountIn = this.swapInfo.inputAmount;
-      const tokenAmountOut = routeInfo.outputAmountWithoutFee;
-      if (!tokenAmountIn || !tokenAmountOut) return 0;
-
-      const parsedAmountIn = formatUnits(
-        tokenAmountIn,
-        this.actionConfig.fromToken.config.decimals
-      );
-
-      const parsedAmountOut = formatUnits(
-        tokenAmountOut,
-        this.actionConfig.toToken.config.decimals
-      );
-
-      const executionPrice = isBase
-        ? Number(parsedAmountOut) / Number(parsedAmountIn)
-        : Number(parsedAmountIn) / Number(parsedAmountOut);
-
-      const priceImpact =
-        Math.abs(midPrice - executionPrice) / Number(midPrice);
-
-      return Number(priceImpact * 100).toFixed(2);
     },
 
     differencePrice() {

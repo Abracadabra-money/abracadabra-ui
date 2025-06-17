@@ -3,6 +3,7 @@ import type { Address } from "viem";
 import type { TokenInfo } from "@/helpers/pools/swap/tokens";
 import type { MagicLPInfo } from "@/helpers/pools/swap/types";
 import { getSwapRouterByChain } from "@/configs/pools/routers";
+import { calculatePriceImpact } from "@/helpers/pools/priceImpact";
 import { findBestRoutes } from "@/helpers/pools/swap/findBestRoutes";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
 
@@ -24,9 +25,11 @@ export type RouteInfo = {
   outputAmountWithoutFee: bigint;
   mtFee: bigint;
   lpFee: bigint;
+  fee: bigint;
   fees: bigint;
   lpInfo: MagicLPInfo;
   fromBase: boolean;
+  priceImpact: number;
 };
 
 export const getSwapInfo = async (
@@ -55,6 +58,8 @@ export const getSwapInfo = async (
     account
   );
 
+  const priceImpact = calculatePriceImpact(routes);
+
   return {
     routes,
     actionConfig,
@@ -62,6 +67,7 @@ export const getSwapInfo = async (
     outputAmount,
     outputAmountWithSlippage,
     transactionInfo,
+    priceImpact,
   };
 };
 
@@ -78,6 +84,7 @@ export const getSwapInfoEmptyState = (actionConfig: ActionConfig) => {
       payload: {},
       swapRouterAddress: "",
     },
+    priceImpact: 0,
   };
 };
 

@@ -22,13 +22,13 @@ export default <ExtendedContractInfo[]>[
     address: "0x0319000133d3AdA02600f0875d2cf03D442C3367",
     abi: bentoBoxAbi,
   },
-  {
-    chainId: 250,
-    name: "BentoBoxV1",
-    contractChain: "0xfa",
-    address: "0xF5BCE5077908a1b7370B9ae04AdC565EBd643966",
-    abi: bentoBoxAbi,
-  },
+  // {
+  //   chainId: 250,
+  //   name: "BentoBoxV1",
+  //   contractChain: "0xfa",
+  //   address: "0xF5BCE5077908a1b7370B9ae04AdC565EBd643966",
+  //   abi: bentoBoxAbi,
+  // },
   {
     chainId: 42161,
     name: "BentoBoxV1",

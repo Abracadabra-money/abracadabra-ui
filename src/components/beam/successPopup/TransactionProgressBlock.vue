@@ -1,6 +1,6 @@
 <template>
   <div class="progress-wrap">
-    <div class="title-wrap">
+    <div class="title-wrap" v-if="!isV2Endpoint">
       <h2 class="title">Transaction status</h2>
       <span :class="['progress-indicator', transactionText]">
         {{ transactionText }}
@@ -28,6 +28,10 @@ export default {
   },
 
   computed: {
+    isV2Endpoint() {
+      return this.successData?.originChain?.settings?.lzVersion === 2;
+    },
+
     isTxComplete() {
       return !this.lzTxInfo || this.lzTxInfo?.status === "INFLIGHT"
         ? false
