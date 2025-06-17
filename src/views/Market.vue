@@ -19,7 +19,7 @@
             v-if="isBorrowTab"
             :cauldron="cauldron"
             :actionConfig="actionConfig"
-            @updateMarket="createCauldronInfo"
+            @updateMarket="refresherInfo.refresher.update()"
             @updateToggle="onUpdateToggle"
             @updateAmounts="onUpdateAmounts"
             @onUpdateMaxToBorrow="onUpdateMaxToBorrow"
@@ -32,7 +32,7 @@
             :actionConfig="actionConfig"
             @updateToggle="onUpdateToggle"
             @updateAmounts="onUpdateAmounts"
-            @updateMarket="createCauldronInfo"
+            @updateMarket="refresherInfo.refresher.update()"
             @clearData="resetAmounts"
           />
         </div>
@@ -52,7 +52,11 @@
     </template>
 
     <div class="loader-wrap" v-else>
-      <BaseLoader large text="Loading market" />
+      <BaseLoader
+        large
+        text="Loading market"
+        :loading="refresherInfo.isLoading"
+      />
     </div>
   </div>
 
@@ -77,6 +81,8 @@ import { BigNumber, utils } from "ethers";
 import { useImage } from "@/helpers/useImage";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
 import { getCauldronInfo } from "@/helpers/cauldron/getCauldronInfo";
+import { dataRefresher } from "@/helpers/dataRefresher";
+import type { RefresherInfo } from "@/helpers/dataRefresher";
 
 export default {
   data() {
@@ -84,7 +90,6 @@ export default {
       chainId: null as any,
       cauldronId: null as any,
       cauldron: null as any,
-      updateInterval: null as any,
       actionConfig: {
         useLeverage: false,
         useDeleverage: false,
@@ -135,6 +140,12 @@ export default {
         },
       ],
       mobileMode: false,
+      refresherInfo: {
+        refresher: null as unknown as dataRefresher<any>,
+        remainingTime: 0,
+        isLoading: false,
+        intervalTime: 60,
+      } as RefresherInfo<any>,
     };
   },
 
@@ -190,12 +201,16 @@ export default {
   },
 
   watch: {
-    async account() {
-      await this.createCauldronInfo();
+    account() {
+      if (this.refresherInfo.refresher) {
+        this.refresherInfo.refresher.update();
+      }
     },
 
-    async activeChainId() {
-      await this.createCauldronInfo();
+    activeChainId() {
+      if (this.refresherInfo.refresher) {
+        this.refresherInfo.refresher.update();
+      }
     },
   },
 
@@ -320,15 +335,28 @@ export default {
       else this.mobileMode = false;
     },
 
-    async createCauldronInfo() {
-      if (!this.routeChainId || !this.routeCauldronId) return false;
-
+    async fetchCauldronData() {
+      if (!this.routeChainId || !this.routeCauldronId) return null;
       this.checkAndSetQuerySettings();
-
-      this.cauldron = await getCauldronInfo(
+      const cauldron = await getCauldronInfo(
         this.routeCauldronId,
         this.routeChainId,
         this.account
+      );
+      return cauldron;
+    },
+
+    createDataRefresher() {
+      this.refresherInfo.refresher = new dataRefresher<any>(
+        async () => {
+          return await this.fetchCauldronData();
+        },
+        this.refresherInfo.intervalTime,
+        (time) => (this.refresherInfo.remainingTime = time),
+        (loading) => (this.refresherInfo.isLoading = loading),
+        (updatedData: any) => {
+          this.cauldron = updatedData;
+        }
       );
     },
   },
@@ -338,21 +366,20 @@ export default {
   },
 
   beforeUnmount() {
-    clearInterval(this.updateInterval);
+    if (this.refresherInfo.refresher) {
+      this.refresherInfo.refresher.stop();
+    }
     window.removeEventListener("resize", this.getWindowSize);
   },
 
   async created() {
-    await this.createCauldronInfo();
+    this.createDataRefresher();
+    await this.refresherInfo.refresher.initialize();
     this.getWindowSize();
     window.addEventListener("resize", this.getWindowSize, false);
 
     this.actionConfig.withdrawUnwrapToken = this.isHiddenWrap;
     this.actionConfig.useUnwrapToken = this.isHiddenWrap;
-
-    this.updateInterval = setInterval(async () => {
-      await this.createCauldronInfo();
-    }, 60000);
   },
 
   components: {
