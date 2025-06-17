@@ -377,18 +377,26 @@ export default {
         abi: [],
       };
 
+      let valueToApprove = 0n;
+
       if (!this.isBaseTokenApproved) {
         const { address, abi } = this.pool.tokens.baseToken.config.contract;
         tokenContract.address = address;
         tokenContract.abi = abi;
+        valueToApprove = this.baseInputAmount;
       } else {
         const { address, abi } = this.pool.tokens.quoteToken.config.contract;
         tokenContract.address = address;
         tokenContract.abi = abi;
+        valueToApprove = this.quoteInputAmount;
       }
 
       try {
-        await approveToken(tokenContract, this.pool!.swapRouter);
+        await approveToken(
+          tokenContract,
+          this.pool!.swapRouter,
+          valueToApprove
+        );
         await this.getPoolInfo();
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.success);

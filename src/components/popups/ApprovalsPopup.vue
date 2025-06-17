@@ -31,11 +31,6 @@
 </template>
 
 <script>
-import {
-  writeContractHelper,
-  simulateContractHelper,
-  waitForTransactionReceiptHelper,
-} from "@/helpers/walletClienHelper";
 import { mapGetters } from "vuex";
 import abiERC20 from "@/abis/zeroXSwap/abiERC20";
 import { approveToken } from "@/helpers/approval";

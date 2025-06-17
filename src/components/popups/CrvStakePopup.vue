@@ -180,7 +180,8 @@ export default {
 
       const approve = await approveToken(
         this.stakeToken.contract,
-        this.mainToken.contract.address
+        this.mainToken.contract.address,
+        this.inputAmount
       );
 
       if (approve) await this.createStakeInfo();

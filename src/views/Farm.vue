@@ -355,7 +355,8 @@ export default {
       try {
         await approveToken(
           this.selectedFarm!.stakingToken.contractInfo,
-          this.selectedFarm!.contractInfo.address
+          this.selectedFarm!.contractInfo.address,
+          this.inputAmount
         );
         await this.getSelectedFarm();
 
