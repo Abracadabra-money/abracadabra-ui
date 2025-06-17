@@ -31,13 +31,9 @@
 </template>
 
 <script>
-import {
-  writeContractHelper,
-  simulateContractHelper,
-  waitForTransactionReceiptHelper,
-} from "@/helpers/walletClienHelper";
 import { mapGetters } from "vuex";
 import abiERC20 from "@/abis/zeroXSwap/abiERC20";
+import { approveToken } from "@/helpers/approval";
 import BaseButton from "@/components/base/BaseButton.vue";
 import notification from "@/helpers/notification/notification";
 import { getAllowanceDatas } from "@/helpers/oldCauldronsAllowance.js";
@@ -81,16 +77,11 @@ export default {
           userData.map(async (info) => {
             if (!info.isStillApproved) return false;
 
-            const { request } = await simulateContractHelper({
-              adress: info.token,
-              abi: abiERC20,
-              functionName: "approve",
-              args: [info.spender, 0],
-            });
-
-            const hash = await writeContractHelper(request);
-
-            return waitForTransactionReceiptHelper(hash);
+            return await approveToken(
+              { address: info.token, abi: abiERC20 },
+              info.spender,
+              0
+            );
           })
         );
 

@@ -61,20 +61,19 @@
 </template>
 
 <script lang="ts">
-import { formatUnits, parseUnits } from "viem";
 import { defineAsyncComponent } from "vue";
-import { approveTokenViem } from "@/helpers/approval";
+import { formatUnits, parseUnits } from "viem";
+import { approveToken } from "@/helpers/approval";
+import { BLAST_CHAIN_ID } from "@/constants/global";
 import { formatTokenBalance } from "@/helpers/filters";
+import { openConnectPopup } from "@/helpers/connect/utils";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { tokensChainLink } from "@/configs/chainLink/config";
 import notification from "@/helpers/notification/notification";
-import { withdraw } from "@/helpers/blast/stake/actions/withdraw";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
+import { withdraw } from "@/helpers/blast/stake/actions/withdraw";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 import { withdrawLocked } from "@/helpers/blast/stake/actions/withdrawLocked";
-import { openConnectPopup } from "@/helpers/connect/utils";
-
-const BLAST_CHAIN_ID = 81457;
 
 export default {
   emits: ["updateStakeInfo"],
@@ -250,9 +249,10 @@ export default {
         notification.approvePending
       );
 
-      const approve = await approveTokenViem(
+      const approve = await approveToken(
         this.fromToken.contract,
-        this.stakeInfo.config.contract.address
+        this.stakeInfo.config.contract.address,
+        this.inputAmount
       );
 
       if (approve) this.$emit("updateStakeInfo");
