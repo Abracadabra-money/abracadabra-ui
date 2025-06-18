@@ -529,7 +529,7 @@ export default {
         ) !== -1 ||
         String(error).indexOf("insufficient funds") !== -1 ||
         String(error?.message).indexOf("insufficient funds") !== -1 ||
-        String(error).includes("insufficient balance") !== -1
+        String(error).includes("insufficient balance")
       ) {
         errorNotification.msg = "Insufficient balance for transfer";
       }
