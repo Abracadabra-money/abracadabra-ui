@@ -9,7 +9,9 @@ import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut"
 
 export type ActionConfig = {
   fromToken: TokenInfo;
+  fromTokenAddress: Address;
   toToken: TokenInfo;
+  toTokenAddress: Address;
   fromInputValue: bigint;
   toInputValue: bigint;
   slippage: bigint;
