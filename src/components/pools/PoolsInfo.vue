@@ -5,14 +5,14 @@
       <h4 class="subtitle">{{ text.description }}</h4>
     </div>
 
-    <BaseButton
+    <!-- <BaseButton
       class="pool-creation-link-button"
       @click="goToPoolCreation"
       v-if="!isFarms"
     >
       <img src="@/assets/images/pools/plus.svg" />
       Create new pool
-    </BaseButton>
+    </BaseButton> -->
 
     <!-- 
     <div class="cards-wrap">
@@ -180,17 +180,17 @@ export default {
       });
     },
 
-    goToPoolCreation() {
-      this.$router.push({
-        name: "PoolCreation",
-      });
-    },
+    // goToPoolCreation() {
+    //   this.$router.push({
+    //     name: "PoolCreation",
+    //   });
+    // },
   },
 
   components: {
-    BaseButton: defineAsyncComponent(
-      () => import("@/components/base/BaseButton.vue")
-    ),
+    // BaseButton: defineAsyncComponent(
+    //   () => import("@/components/base/BaseButton.vue")
+    // ),
   },
 
   async created() {
