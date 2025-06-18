@@ -31,7 +31,7 @@ import moment from "moment";
 import { formatUnits } from "viem";
 import { defineAsyncComponent } from "vue";
 import { trimZeroDecimals } from "@/helpers/numbers";
-import { approveTokenViem } from "@/helpers/approval";
+import { approveToken } from "@/helpers/approval";
 import { formatTokenBalance } from "@/helpers/filters";
 import { mapActions, mapGetters, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification";
@@ -150,7 +150,7 @@ export default {
         : this.pool.stakeContract;
 
       try {
-        await approveTokenViem(
+        await approveToken(
           this.pool.contract,
           contract.address,
           this.inputAmount

@@ -121,7 +121,7 @@ import {
 } from "@/helpers/prices/defiLlama";
 import { defineAsyncComponent } from "vue";
 import type { ContractInfo } from "@/types/global";
-import { approveTokenViem } from "@/helpers/approval";
+import { approveToken } from "@/helpers/approval";
 import type { PoolConfig } from "@/configs/pools/types";
 import { openConnectPopup } from "@/helpers/connect/utils";
 import { mapActions, mapGetters, mapMutations } from "vuex";
@@ -495,7 +495,7 @@ export default {
         notification.approvePending
       );
 
-      const approve = await approveTokenViem(
+      const approve = await approveToken(
         contract,
         // @ts-ignore
         this.swapInfo.transactionInfo.swapRouterAddress,

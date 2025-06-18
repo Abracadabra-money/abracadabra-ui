@@ -59,7 +59,7 @@ import { mapActions, mapGetters, mapMutations } from "vuex";
 import { formatUnits } from "viem";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification";
-import { approveTokenViem } from "@/helpers/approval";
+import { approveToken } from "@/helpers/approval";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import { formatTokenBalance, formatUSD } from "@/helpers/filters";
 import { applySlippageToMinOutBigInt } from "@/helpers/gm/applySlippageToMinOut";
@@ -236,7 +236,7 @@ export default {
       );
 
       try {
-        await approveTokenViem(
+        await approveToken(
           this.activeToken.config.contract,
           this.pool.swapRouter
         );
