@@ -168,7 +168,6 @@ export default {
         toInputValue: 0n,
         slippage: 20n,
         deadline: 500n,
-        priceImpact: 0,
         fromInputAmount: "0",
       } as ActionConfig,
       updateInterval: null as any,
@@ -327,13 +326,6 @@ export default {
 
     account() {
       this.createSwapInfo();
-    },
-
-    "swapInfo.priceImpact": {
-      handler(newPriceImpact) {
-        this.actionConfig.priceImpact = newPriceImpact;
-      },
-      deep: true,
     },
 
     actionConfig: {

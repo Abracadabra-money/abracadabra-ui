@@ -1,20 +1,9 @@
 import type { Address } from "viem";
-import { formatUnits, parseAbi, parseUnits } from "viem";
+import { formatUnits, parseUnits } from "viem";
 import type { MagicLPInfo } from "@/helpers/pools/swap/types";
 import { localQuerySell, querySell } from "@/helpers/pools/swap/querySell";
 import { calculatePriceImpactSingleSwap } from "@/helpers/pools/priceImpact";
 import type { ActionConfig, RouteInfo } from "@/helpers/pools/swap/getSwapInfo";
-
-const querySellAbi = parseAbi([
-  "function querySellBase(address trader, uint256 payBaseAmount) view returns (uint256 receiveQuoteAmount, uint256 mtFee, uint8 newRState, uint256 newBaseTarget)",
-  "function querySellQuote(address trader, uint256 payQuoteAmount) view returns (uint256 receiveBaseAmount, uint256 mtFee, uint8 newRState, uint256 newQuoteTarget)",
-]);
-
-const querySellV2Abi = parseAbi([
-  "function querySellBase((uint256 i, uint256 K, uint256 B, uint256 Q, uint256 B0, uint256 Q0, uint8 R) state, address trader, uint256 payBaseAmount) view returns (uint256 receiveQuoteAmount, uint256 fee, uint8 newRState, uint256 newBaseTarget)",
-  "function querySellQuote((uint256 i, uint256 K, uint256 B, uint256 Q, uint256 B0, uint256 Q0, uint8 R) state, address trader, uint256 payQuoteAmount) view returns (uint256 receiveBaseAmount, uint256 fee, uint8 newRState, uint256 newQuoteTarget)",
-]);
-
 type Graph = Record<string, { token: string; weight: number; pair: string }[]>;
 
 type Swaps = {
