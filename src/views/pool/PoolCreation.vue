@@ -17,8 +17,8 @@
             :quoteToken="quoteToken"
             :baseTokenAmount="actionConfig.baseInAmount"
             :quoteTokenAmount="actionConfig.quoteInAmount"
-            :isAutoPricingEnabled="isAutoPricingEnabled"
             :isLoading="refresherInfo.isLoading"
+            :disableInputs="disableInputs"
             @updateTokenInputAmount="updateTokenInputAmount"
             @openTokensPopup="openTokensPopup"
           />
@@ -161,9 +161,8 @@ import type {
   PoolCreationTokenInfo,
 } from "@/configs/pools/poolCreation/types";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
-import { approveTokenViem } from "@/helpers/approval";
+import { approveToken } from "@/helpers/approval";
 import notification from "@/helpers/notification/notification";
-import { notificationErrorMsg } from "@/helpers/notification/notificationError";
 import type { ContractInfo } from "@/types/global";
 import { getSwapRouterByChain } from "@/configs/pools/routers";
 import {
@@ -176,7 +175,6 @@ import {
   STANDARD_K_VALUE,
   SAFE_PEGGED_K_VALUE,
   RATE_DECIMALS,
-  RATE_PRECISION,
 } from "@/constants/pools/poolCreation";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 import {
@@ -187,6 +185,11 @@ import { debounce } from "lodash";
 import { openConnectPopup } from "@/helpers/connect/utils";
 import { dataRefresher } from "@/helpers/dataRefresher";
 import type { RefresherInfo } from "@/helpers/dataRefresher";
+import {
+  calculateQuoteAndBaseAmounts,
+  invertIValueBasedOnUpdatedDecimals,
+} from "@/helpers/pools/poolCreation/utils";
+import ErrorHandler from "@/helpers/errorHandler/ErrorHandler";
 
 const emptyPoolCreationTokenInfo: PoolCreationTokenInfo = {
   config: {
@@ -295,14 +298,18 @@ export default {
     nativeTokenIndicator() {
       const isNative =
         this.baseToken.config.isNative || this.quoteToken.config.isNative;
-      const useTokenAsQuote = !!this.quoteToken.config.isNative;
+      const useTokenAsQuote = !!this.baseToken.config.isNative;
       return { isNative, useTokenAsQuote };
     },
 
     identicalPool() {
-      return this.similarPools.find((pool) =>
-        checkIdentity(pool, this.actionConfig)
+      return this.similarPools.find((pool: any) =>
+        checkIdentity(pool.config, this.actionConfig)
       );
+    },
+
+    disableInputs() {
+      return !this.actionConfig.I;
     },
   },
 
@@ -360,18 +367,43 @@ export default {
 
     IValueDecimals(newDecimals: number, oldDecimals: number) {
       const currentI = this.actionConfig.I;
-      this.actionConfig.I =
-        (currentI * parseUnits("1", newDecimals)) /
-        parseUnits("1", oldDecimals);
+      this.actionConfig.I = invertIValueBasedOnUpdatedDecimals(
+        currentI,
+        newDecimals,
+        oldDecimals
+      );
     },
 
     async chainId() {
+      this.similarPools = [];
       await this.refresherInfo.refresher.update();
+      this.baseToken =
+        this.tokenList.find(
+          (token: PoolCreationTokenInfo) =>
+            token.config.symbol === this.baseToken.config.symbol
+        ) || emptyPoolCreationTokenInfo;
+
+      this.quoteToken =
+        this.tokenList.find(
+          (token: PoolCreationTokenInfo) =>
+            token.config.symbol === this.quoteToken.config.symbol
+        ) || emptyPoolCreationTokenInfo;
     },
 
     async account(address: Address) {
       this.actionConfig.to = address;
       await this.refresherInfo.refresher.update();
+      this.baseToken =
+        this.tokenList.find(
+          (token: PoolCreationTokenInfo) =>
+            token.config.symbol === this.baseToken.config.symbol
+        ) || emptyPoolCreationTokenInfo;
+
+      this.quoteToken =
+        this.tokenList.find(
+          (token: PoolCreationTokenInfo) =>
+            token.config.symbol === this.quoteToken.config.symbol
+        ) || emptyPoolCreationTokenInfo;
     },
   },
 
@@ -385,37 +417,17 @@ export default {
       const baseDecimals = this.baseToken.config.decimals;
       const quoteDecimals = this.quoteToken.config.decimals;
 
-      const isBaseDecimalsGreater = baseDecimals > quoteDecimals;
-
-      const tokenDecimalsDifference = Math.abs(baseDecimals - quoteDecimals);
-      const tokensDecimalsDifferencePrecision = parseUnits(
-        "1",
-        tokenDecimalsDifference
+      const { baseInAmount, quoteInAmount } = calculateQuoteAndBaseAmounts(
+        amount,
+        type,
+        this.IforCalc,
+        baseDecimals,
+        quoteDecimals
       );
 
-      if (type == TokenTypes.Base) {
-        this.actionConfig.baseInAmount = amount;
-
-        const baseAdjustedRatePrecision = isBaseDecimalsGreater
-          ? RATE_PRECISION / tokensDecimalsDifferencePrecision
-          : RATE_PRECISION * tokensDecimalsDifferencePrecision;
-
-        this.actionConfig.quoteInAmount =
-          (amount * baseAdjustedRatePrecision) / this.IforCalc;
-      } else {
-        this.actionConfig.quoteInAmount = amount;
-
-        const baseAmountWithPrecision = isBaseDecimalsGreater
-          ? RATE_PRECISION / tokensDecimalsDifferencePrecision
-          : RATE_PRECISION * tokensDecimalsDifferencePrecision;
-
-        this.actionConfig.baseInAmount = amount
-          ? (amount * this.IforCalc + baseAmountWithPrecision) /
-            baseAmountWithPrecision
-          : 0n;
-      }
+      this.actionConfig.baseInAmount = baseInAmount;
+      this.actionConfig.quoteInAmount = quoteInAmount;
     },
-
     openTokensPopup(type: TokenTypes) {
       this.tokenType = type;
       this.isTokensPopupOpened = true;
@@ -470,12 +482,13 @@ export default {
       this.actionConfig.K = kValue;
     },
 
-    toggleAutopricing() {
-      if (this.isAutoPricingEnabled) {
+    toggleAutopricing(newAutopricingMode: boolean, useConfirmation = false) {
+      if (this.isAutoPricingEnabled && useConfirmation) {
         this.isAutoPricingWarnPopupOpened = true;
         return;
       }
-      this.isAutoPricingEnabled = !this.isAutoPricingEnabled;
+
+      this.isAutoPricingEnabled = newAutopricingMode;
     },
 
     autoPricingPopupConfirmation() {
@@ -484,7 +497,13 @@ export default {
     },
 
     updateTokensRate(I: bigint) {
-      this.IforCalc = I;
+      if (I === 0n) {
+        this.actionConfig.I = I;
+        this.actionConfig.baseInAmount = 0n;
+        this.actionConfig.quoteInAmount = 0n;
+        return;
+      }
+
       const decimalsDifferense = Math.abs(RATE_DECIMALS - this.IValueDecimals);
       const differencePrecision = parseUnits("1", decimalsDifferense);
       this.actionConfig.I =
@@ -492,20 +511,24 @@ export default {
           ? I / differencePrecision
           : I * differencePrecision;
 
-      this.updateTokenInputAmount(
-        TokenTypes.Base,
-        this.actionConfig.baseInAmount
-      );
+      if (I !== this.IforCalc) {
+        this.IforCalc = I;
+        this.updateTokenInputAmount(
+          TokenTypes.Base,
+          this.actionConfig.baseInAmount
+        );
+      }
     },
 
     async updateTokenAllowance(contract: ContractInfo) {
-      const isBaseToken = (this.baseToken.config.address = contract.address);
-
+      if (!this.account) return;
+      const isBaseToken = this.baseToken.config.address == contract.address;
       this[`${isBaseToken ? "base" : "quote"}Token`].userInfo.allowance =
-        await getTokenAllowance(contract, this.chainId, this.account);
+        await getTokenAllowance(contract, this.chainId!, this.account);
     },
 
     async updateTokenUserInfo(tokenConfig: PoolCreationTokenConfig) {
+      if (!this.account) return;
       const isBaseToken = (this.baseToken.config.address = tokenConfig.address);
 
       this[`${isBaseToken ? "base" : "quote"}Token`].userInfo =
@@ -549,7 +572,7 @@ export default {
         notification.approvePending
       );
 
-      const approve = await approveTokenViem(
+      const approve = await approveToken(
         contract,
         this.routerAddress,
         valueToApprove
@@ -587,16 +610,19 @@ export default {
         await this.createNotification(notification.success);
 
         this.resetInputs();
-      } catch (error) {
+      } catch (error: any) {
         console.log("create pool err:", error);
 
-        const errorNotification = {
-          msg: await notificationErrorMsg(error),
-          type: "error",
-        };
-
         await this.deleteNotification(notificationId);
-        await this.createNotification(errorNotification);
+
+        const isLiquidityTooLow = error.message?.includes("0xa8459894");
+
+        if (isLiquidityTooLow)
+          ErrorHandler.handleError({
+            name: "LiquidityTooLow",
+            message: "CUSTOM_LIQUIDITY_TOO_LOW",
+          });
+        else ErrorHandler.handleError(error);
       }
     },
 
@@ -674,7 +700,8 @@ export default {
       this.isActionProcessing = true;
       this.similarPools = await createSimilarPoolsInfo(
         this.actionConfig,
-        this.account
+        this.account,
+        this.selectedNetwork
       );
       this.isActionProcessing = false;
     }, 500),
@@ -813,6 +840,13 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+.warning-wrap {
+  padding: 16px 22px 19px 12px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  font-weight: 400;
 }
 
 .pool-creation-info-wrap {

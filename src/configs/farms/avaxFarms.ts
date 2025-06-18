@@ -15,7 +15,7 @@ const avaxFarms: FarmConfig[] = [
       name: "3PoolV2",
       type: "LP",
       decimals: 18,
-      link: "https://avax.curve.fi/factory/4/deposit",
+      link: "https://avax.curve.finance/factory/4/deposit",
       abi: crvStakeTokenAbi,
     },
     earnedToken: {

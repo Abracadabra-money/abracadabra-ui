@@ -3,6 +3,7 @@ import {
   BLAST_CHAIN_ID,
   KAVA_CHAIN_ID,
   MAINNET_CHAIN_ID,
+  NIBIRU_CHAIN_ID,
 } from "@/constants/global";
 import type {
   GraphPairConfig,
@@ -18,14 +19,15 @@ import type { PoolConfig } from "@/configs/pools/types";
 import { tokenConfigs } from "@/configs/pools/tokenConfigs";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { blackListedPools } from "@/helpers/pools/configs/blackList";
-import { whiteListedPools } from "@/helpers/pools/configs/whiteList";
 import { fetchPairsList } from "@/helpers/pools/configs/fetchPairsList";
+import { fetchPendingPoolsData } from "../poolCreation/fetchPoolsFromFabric";
 
 const poolChains = [
   MAINNET_CHAIN_ID,
   KAVA_CHAIN_ID,
   ARBITRUM_CHAIN_ID,
   BLAST_CHAIN_ID,
+  NIBIRU_CHAIN_ID,
 ];
 
 export const getPoolConfigsByChains = async (chainsArr: number[] = []) => {
@@ -34,10 +36,8 @@ export const getPoolConfigsByChains = async (chainsArr: number[] = []) => {
   const result = await Promise.allSettled(
     iteratedChains.flatMap(async (chainId) => {
       const pairsList = (await fetchPairsList(chainId)) as GraphPairsConfigs;
-
       if (pairsList) {
         const filterPools = filterBlacklistPools(pairsList, chainId);
-
         return Promise.all(
           filterPools.map((pool: GraphPairConfig) =>
             findOrCreatePoolConfig(pool, chainId)
@@ -61,16 +61,30 @@ export const getPoolConfig = async (
   chainId: number,
   poolId: string
 ): Promise<PoolConfig | null> => {
+  // First try to get pool config from GraphQL and local configs
   const poolConfig = (await fetchPairsList(chainId, poolId)) as {
     pair: GraphPairConfig;
   };
 
-  if (!poolConfig) {
-    router.push({ name: "Pools" });
-    return null;
+  if (poolConfig) {
+    return await findOrCreatePoolConfig(poolConfig.pair, chainId);
   }
 
-  return await findOrCreatePoolConfig(poolConfig.pair, chainId);
+  // If GraphQL query failed, try to fetch pool data directly from contract
+  try {
+    const pendingPoolsData = await fetchPendingPoolsData(chainId, [
+      poolId as Address,
+    ]);
+
+    if (pendingPoolsData.length > 0) {
+      return await findOrCreatePoolConfig(pendingPoolsData[0], chainId);
+    }
+  } catch (error) {
+    console.error("Failed to fetch pending pool data from contract:", error);
+  }
+
+  router.push({ name: "Pools" });
+  return null;
 };
 
 const filterBlacklistPools = (
@@ -79,23 +93,18 @@ const filterBlacklistPools = (
 ) => {
   const blackListArr =
     blackListedPools[chainId as keyof typeof blackListedPools];
-  const whiteListArr =
-    whiteListedPools[chainId as keyof typeof whiteListedPools];
 
   const blackListSet = new Set(
     blackListArr?.map((id) => id.toLocaleLowerCase()) || []
   );
-  const whiteListSet = new Set(
-    whiteListArr?.map((id) => id.toLocaleLowerCase()) || []
-  );
 
   return pairsList.pairs.filter((pool: any) => {
     const poolId = pool.id.toLocaleLowerCase();
-    return !blackListSet.has(poolId) && whiteListSet.has(poolId);
+    return !blackListSet.has(poolId);
   });
 };
 
-const findOrCreatePoolConfig = async (
+export const findOrCreatePoolConfig = async (
   pool: GraphPairConfig,
   chainId: number
 ): Promise<PoolConfig> => {

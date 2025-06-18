@@ -17,13 +17,7 @@
 
     <div class="item-header">
       <div class="token-info">
-        <TokenChainIcon
-          :icon="pool.icon"
-          :name="pool.name"
-          :chainId="pool.chainId"
-          size="32px"
-        />
-        <span class="token-name">{{ pool.name }}</span>
+        <TokenPair :pool="pool" :iconSize="38" chainIcon />
       </div>
     </div>
 
@@ -93,8 +87,7 @@ export default {
     },
 
     isIdentical() {
-      //todo consider I factor
-      return checkIdentity(this.pool, this.actionConfig);
+      return checkIdentity(this.pool.config, this.actionConfig);
     },
   },
 
@@ -119,6 +112,9 @@ export default {
     ),
     TokenChainIcon: defineAsyncComponent(
       () => import("@/components/ui/icons/TokenChainIcon.vue")
+    ),
+    TokenPair: defineAsyncComponent(
+      () => import("@/components/pools/pool/TokenPair.vue")
     ),
   },
 };

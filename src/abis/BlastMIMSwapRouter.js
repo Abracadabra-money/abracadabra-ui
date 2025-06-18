@@ -197,10 +197,10 @@ export default [
       { internalType: "uint256", name: "lpFeeRate", type: "uint256" },
       { internalType: "uint256", name: "i", type: "uint256" },
       { internalType: "uint256", name: "k", type: "uint256" },
+      { internalType: "address", name: "oracle", type: "address" },
       { internalType: "address", name: "to", type: "address" },
       { internalType: "uint256", name: "baseInAmount", type: "uint256" },
       { internalType: "uint256", name: "quoteInAmount", type: "uint256" },
-      { internalType: "bool", name: "protocolOwnedPool", type: "bool" },
     ],
     name: "createPool",
     outputs: [
@@ -217,9 +217,9 @@ export default [
       { internalType: "uint256", name: "lpFeeRate", type: "uint256" },
       { internalType: "uint256", name: "i", type: "uint256" },
       { internalType: "uint256", name: "k", type: "uint256" },
+      { internalType: "address", name: "oracle", type: "address" },
       { internalType: "address", name: "to", type: "address" },
       { internalType: "uint256", name: "tokenInAmount", type: "uint256" },
-      { internalType: "bool", name: "protocolOwnedPool", type: "bool" },
     ],
     name: "createPoolETH",
     outputs: [

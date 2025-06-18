@@ -1,10 +1,10 @@
 <template>
   <div class="beam-view" v-if="beamInfoObject">
     <div class="beam">
-      <div class="spell-message" v-if="tokenType === SPELL_ID">
+      <!-- <div class="spell-message" v-if="tokenType === SPELL_ID">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
         tempor incididunt ut lab
-      </div>
+      </div> -->
 
       <div class="beam-header">
         <div class="title-desc">
@@ -27,7 +27,7 @@
         </div>
       </div>
 
-      <!-- <div class="tabs">
+      <div class="tabs">
         <button
           :class="['tab-item', { active: tokenType === tab.id }]"
           v-for="tab in tabsInfo"
@@ -37,7 +37,7 @@
           <img class="tab-icon" :src="tab.icon" alt="" />
           {{ tab.name }}
         </button>
-      </div> -->
+      </div>
 
       <div class="beam-actions" v-if="!isOpenNetworkPopup && !isSettingsOpened">
         <ChainsWrap
@@ -152,7 +152,7 @@ import { sendFrom } from "@/helpers/beam/sendFrom";
 import { sendLzV2 } from "@/helpers/beam/sendLzV2";
 import { MIM_ID, SPELL_ID } from "@/constants/beam";
 import { trimZeroDecimals } from "@/helpers/numbers";
-import { approveTokenViem } from "@/helpers/approval";
+import { approveToken } from "@/helpers/approval";
 import { removeDust } from "@/helpers/beam/removeDust";
 import { beamConfigs } from "@/configs/beam/beamConfigs";
 import { getBeamInfo } from "@/helpers/beam/getBeamInfo";
@@ -239,7 +239,7 @@ export default {
       if (this.isLzVersion2) {
         return ethers.utils.defaultAbiCoder.encode(
           ["bytes32"],
-          [ethers.utils.hexZeroPad(this.account, 32)]
+          [ethers.utils.hexZeroPad(this.toAddress, 32)]
         );
       }
 
@@ -380,10 +380,7 @@ export default {
         if (isDisabled) this.toChainId = null;
       }
 
-      if (
-        this.beamInfoObject &&
-        this.fromChainConfig!.chainId !== value.chainId
-      ) {
+      if (this.beamInfoObject && this.fromChainConfig!.chainId !== value) {
         this.clearData();
         this.refresherInfo.refresher.update();
       }
@@ -600,7 +597,7 @@ export default {
           id: notificationId,
         });
 
-        const isTokenApproved = await approveTokenViem(
+        const isTokenApproved = await approveToken(
           tokenContract,
           this.fromChainConfig!.contract.address,
           this.inputAmount

@@ -101,11 +101,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import("@/views/pool/PoolFarm.vue"),
     props: true,
   },
-  // {
-  //   path: "/pool-creation",
-  //   name: "PoolCreation",
-  //   component: () => import("@/views/pool/PoolCreation.vue"),
-  // },
+  {
+    path: "/pool-creation",
+    name: "PoolCreation",
+    component: () => import("@/views/pool/PoolCreation.vue"),
+  },
   {
     path: "/mim-swap",
     name: "MimSwap",

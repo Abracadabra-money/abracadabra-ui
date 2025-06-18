@@ -76,7 +76,7 @@ export default {
   computed: {
     similarPoolsToRender() {
       return this.similarPools.filter(
-        (pool) => !checkIdentity(pool, this.actionConfig)
+        (pool) => !checkIdentity(pool.config, this.actionConfig)
       );
     },
 
@@ -182,5 +182,12 @@ export default {
   flex-direction: column;
   gap: 20px;
   width: 100%;
+}
+
+.warning-wrap {
+  padding: 16px 22px 19px 12px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  font-weight: 400;
 }
 </style>

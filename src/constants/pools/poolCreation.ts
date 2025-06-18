@@ -1,6 +1,7 @@
 import { parseUnits } from "viem";
+import { ARBITRUM_CHAIN_ID, NIBIRU_CHAIN_ID } from "../global";
 
-export const SUPPORTED_CHAINS = [42161];
+export const SUPPORTED_CHAINS = [ARBITRUM_CHAIN_ID, NIBIRU_CHAIN_ID];
 
 export const K_VALUE_DECIMALS = 18;
 export const FEE_TIER_DECIMALS = 16;

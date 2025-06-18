@@ -72,8 +72,12 @@
               profitability for liquidity providers as well as network fee
             </p>
             <p class="item-tooltip-text">Gas cost: {{ formatUSD(gasCost) }}</p>
-            <p class="item-tooltip-text">Pool fee: {{ formatUSD(poolFee) }}</p>
-            <p>Protocol comission: {{ formatUSD(protocolComission) }}</p>
+            <p class="item-tooltip-text">
+              {{ feeTitle }} {{ formatUSD(poolFee) }}
+            </p>
+            <p v-if="isProtocolComission">
+              Protocol comission: {{ formatUSD(protocolFee) }}
+            </p>
           </div>
         </div>
         <h4 class="info-title">Fees</h4>
@@ -97,6 +101,7 @@ import type { Prop, PropType } from "vue";
 import { encodeFunctionData } from "viem";
 import { defineAsyncComponent } from "vue";
 import { KAVA_CHAIN_ID } from "@/constants/global";
+import { NIBIRU_CHAIN_ID } from "@/constants/global";
 // @ts-ignore
 import BlastMIMSwapRouterAbi from "@/abis/BlastMIMSwapRouter";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
@@ -137,64 +142,64 @@ export default {
     poolFee() {
       if (!this.swapInfo.routes.length) return 0;
 
-      const routeInfo: RouteInfo =
-        this.swapInfo.routes[this.swapInfo.routes.length - 1];
-      const toTokenPrice = this.actionConfig!.toToken.price;
-      const toTokenDecimals = this.actionConfig!.toToken.config.decimals;
-      return (
-        Number(formatUnits(routeInfo.lpFee, toTokenDecimals)) * toTokenPrice
-      );
+      return this.swapInfo.routes.reduce((acc: number, route: any) => {
+        const isBaseToken =
+          route.outputToken.toLowerCase() ===
+          route.lpInfo.baseToken.toLowerCase();
+
+        const toTokenPrice = isBaseToken
+          ? route.lpInfo.baseTokenPrice
+          : route.lpInfo.quoteTokenPrice;
+
+        const toTokenDecimals = isBaseToken
+          ? route.lpInfo.tokens.baseToken.config.decimals
+          : route.lpInfo.tokens.quoteToken.config.decimals;
+
+        if (!route.mtFee) {
+          const fee = Number(formatUnits(route.fee, toTokenDecimals));
+          return (acc += fee * toTokenPrice);
+        } else {
+          const lpFee = Number(formatUnits(route.lpFee, toTokenDecimals));
+
+          return (acc += lpFee * toTokenPrice);
+        }
+      }, 0);
     },
 
-    protocolComission() {
+    protocolFee() {
       if (!this.swapInfo.routes.length) return 0;
 
-      const routeInfo: RouteInfo =
-        this.swapInfo.routes[this.swapInfo.routes.length - 1];
-      const toTokenPrice = this.actionConfig!.toToken.price;
-      const toTokenDecimals = this.actionConfig!.toToken.config.decimals;
-      return (
-        Number(formatUnits(routeInfo.mtFee, toTokenDecimals)) * toTokenPrice
-      );
+      return this.swapInfo.routes.reduce((acc: number, route: any) => {
+        const isBaseToken =
+          route.outputToken.toLowerCase() ===
+          route.lpInfo.baseToken.toLowerCase();
+
+        const toTokenPrice = isBaseToken
+          ? route.lpInfo.baseTokenPrice
+          : route.lpInfo.quoteTokenPrice;
+
+        const toTokenDecimals = isBaseToken
+          ? route.lpInfo.tokens.baseToken.config.decimals
+          : route.lpInfo.tokens.quoteToken.config.decimals;
+
+        const mtFee = Number(formatUnits(route.mtFee, toTokenDecimals));
+        return (acc += mtFee * toTokenPrice);
+      }, 0);
     },
 
-    feesByCategory() {
-      if (!this.swapInfo.routes.length)
-        return {
-          poolFee: 0,
-          protocolComission: 0,
-        };
+    isProtocolComission() {
+      return this.selectedNetwork != NIBIRU_CHAIN_ID;
+    },
 
-      const routeInfo: RouteInfo =
-        this.swapInfo.routes[this.swapInfo.routes.length - 1];
-
-      const toTokenPrice = this.actionConfig!.toToken.price;
-      const toTokenDecimals = this.actionConfig!.toToken.config.decimals;
-
-      return {
-        poolFee: formatUSD(
-          Number(formatUnits(routeInfo.lpFee, toTokenDecimals)) * toTokenPrice
-        ),
-        protocolComission: formatUSD(
-          Number(formatUnits(routeInfo.mtFee, toTokenDecimals)) * toTokenPrice
-        ),
-      };
+    feeTitle() {
+      if (this.isProtocolComission) return "Fees:";
+      return "Pool fee:";
     },
 
     swapFees() {
       if (!this.swapInfo.routes.length) return 0;
 
-      const routeInfo: RouteInfo =
-        this.swapInfo.routes[this.swapInfo.routes.length - 1];
-
-      return formatUSD(
-        +formatUnits(
-          routeInfo.lpFee + routeInfo.mtFee,
-          this.actionConfig!.toToken.config.decimals
-        ) *
-          this.actionConfig!.toToken.price +
-          this.gasCost
-      );
+      return formatUSD(this.poolFee + this.protocolFee);
     },
 
     swapSlippage() {
