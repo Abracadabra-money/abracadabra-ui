@@ -582,6 +582,16 @@ export default {
       }
     },
 
+    checkChainFromQueryParams() {
+      const chainParam = this.$route.query.chainId;
+      if (chainParam) {
+        const chainId = parseInt(chainParam as string);
+        if (!isNaN(chainId) && this.availableNetworks.includes(chainId)) {
+          this.changeNetwork(chainId);
+        }
+      }
+    },
+
     updatedTokenInfo() {
       if (this.actionConfig.fromToken.config.contract.address === "0x") return;
       if (this.actionConfig.toToken.config.contract.address === "0x") return;
@@ -609,6 +619,7 @@ export default {
     this.poolConfigs = await getPoolConfigsByChains();
     this.nativeTokenPrice = await getNativeTokensPrice(this.availableNetworks);
     this.checkAndSetSelectedChain();
+    this.checkChainFromQueryParams();
     await this.createSwapInfo();
     this.selectBaseTokens();
     this.isLoading = false;
