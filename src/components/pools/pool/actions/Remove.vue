@@ -35,7 +35,7 @@ import { mapActions, mapGetters, mapMutations } from "vuex";
 import { formatUnits } from "viem";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import notification from "@/helpers/notification/notification";
-import { approveTokenViem } from "@/helpers/approval";
+import { approveToken } from "@/helpers/approval";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import {
   previewRemoveLiquidity,
@@ -138,7 +138,9 @@ export default {
         return false;
       }
 
-      this.inputValue = trimZeroDecimals(formatUnits(value, 18));
+      this.inputValue = trimZeroDecimals(
+        formatUnits(value, this.pool.decimals)
+      );
     },
   },
 
@@ -202,7 +204,7 @@ export default {
       );
 
       try {
-        await approveTokenViem(
+        await approveToken(
           this.pool.contract,
           this.pool.swapRouter,
           this.inputAmount

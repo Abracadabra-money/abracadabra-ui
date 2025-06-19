@@ -115,8 +115,8 @@ import { debounce } from "lodash";
 import { defineAsyncComponent } from "vue";
 import { formatUnits, type Address } from "viem";
 import type { ContractInfo } from "@/types/global";
-import { approveTokenViem } from "@/helpers/approval";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
+import { approveToken } from "@/helpers/approval";
 import type { PoolConfig } from "@/configs/pools/types";
 import { openConnectPopup } from "@/helpers/connect/utils";
 import { mapActions, mapGetters, mapMutations } from "vuex";
@@ -476,7 +476,7 @@ export default {
         notification.approvePending
       );
 
-      const approve = await approveTokenViem(
+      const approve = await approveToken(
         contract,
         this.swapInfo.transactionInfo.swapRouterAddress as Address,
         valueToApprove

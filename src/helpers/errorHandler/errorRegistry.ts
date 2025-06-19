@@ -2,7 +2,7 @@ type AbraError = {
   template: string;
   isDevOnly?: boolean;
   isShowToUser?: boolean;
-}
+};
 
 export const errorRegistry = {
   GENERIC_ERROR: {
@@ -19,7 +19,11 @@ export const errorRegistry = {
     template: "{message}",
   },
 
+  VIEM_BALANCE_ERROR: {
+    template: "Insufficient balance for transfer",
+  },
+
   AXIOS_ERROR: {
     template: "Axios error",
-  }
+  },
 };
