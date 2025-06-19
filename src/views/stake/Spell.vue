@@ -490,7 +490,7 @@ export default {
       const refresher = this.refresherInfo?.refresher;
       try {
         if (!refresher) this.stakeInfoArr = await this.createStakeInfo();
-        else refresher.update();
+        else refresher.manualUpdate();
       } catch (error) {
         this.stakeInfoArr = await this.createStakeInfo();
       }
@@ -627,7 +627,7 @@ export default {
     await this.createOrUpdateInfo();
     this.setSpellStakeData(this.stakeInfoArr);
     this.createDataRefresher();
-    this.refresherInfo.refresher.initialize();
+    this.refresherInfo.refresher.start();
   },
 
   beforeUnmount() {

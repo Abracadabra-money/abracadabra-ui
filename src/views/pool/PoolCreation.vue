@@ -351,7 +351,7 @@ export default {
 
     async selectedNetwork() {
       this.similarPools = [];
-      await this.refresherInfo.refresher.update();
+      await this.refresherInfo.refresher.manualUpdate();
       this.baseToken =
         this.tokenList.find(
           (token: PoolCreationTokenInfo) =>
@@ -376,7 +376,7 @@ export default {
 
     async chainId() {
       this.similarPools = [];
-      await this.refresherInfo.refresher.update();
+      await this.refresherInfo.refresher.manualUpdate();
       this.baseToken =
         this.tokenList.find(
           (token: PoolCreationTokenInfo) =>
@@ -392,7 +392,7 @@ export default {
 
     async account(address: Address) {
       this.actionConfig.to = address;
-      await this.refresherInfo.refresher.update();
+      await this.refresherInfo.refresher.manualUpdate();
       this.baseToken =
         this.tokenList.find(
           (token: PoolCreationTokenInfo) =>
@@ -581,7 +581,7 @@ export default {
       await this.deleteNotification(notificationId);
       if (!approve) await this.createNotification(notification.approveError);
       await this.updateTokenAllowance(contract);
-      await this.refresherInfo.refresher.update();
+      await this.refresherInfo.refresher.manualUpdate();
     },
 
     async createPoolHandler() {
@@ -605,7 +605,7 @@ export default {
         await this.deleteNotification(notificationId);
 
         await this.updateTokensUserInfo();
-        await this.refresherInfo.refresher.update();
+        await this.refresherInfo.refresher.manualUpdate();
 
         await this.createNotification(notification.success);
 
@@ -709,7 +709,7 @@ export default {
 
   async created() {
     this.createDataRefresher();
-    await this.refresherInfo.refresher.initialize();
+    await this.refresherInfo.refresher.start();
     this.getWindowSize();
     window.addEventListener("resize", this.getWindowSize, false);
     this.actionConfig.to = this.account || "0x";

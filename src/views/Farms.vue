@@ -134,11 +134,11 @@ export default {
     },
 
     async account() {
-      this.refresherInfo.refresher.update();
+      this.refresherInfo.refresher.manualUpdate();
     },
 
     async chainId() {
-      this.refresherInfo.refresher.update();
+      this.refresherInfo.refresher.manualUpdate();
     },
   },
 
@@ -255,7 +255,7 @@ export default {
     this.setFarmList(this.farms);
     this.selectedChains = this.getActiveChain();
     this.createDataRefresher();
-    this.refresherInfo.refresher.initialize();
+    this.refresherInfo.refresher.start();
   },
 
   beforeUnmount() {

@@ -45,7 +45,7 @@
       <FarmPosition
         :selectedFarm="selectedFarm"
         :isProperNetwork="isProperNetwork"
-        @updateFarmData="refresherInfo.refresher.update()"
+        @updateFarmData="refresherInfo.refresher.manualUpdate()"
         v-if="isUserPositionOpen"
       />
     </div>
@@ -54,7 +54,7 @@
       :selectedFarm="selectedFarm"
       :isProperNetwork="isProperNetwork"
       :isOpened="isUserPositionOpen && isMyPositionPopupOpened"
-      @updateFarmData="refresherInfo.refresher.update()"
+      @updateFarmData="refresherInfo.refresher.manualUpdate()"
       @closePopup="isMyPositionPopupOpened = false"
     />
 
@@ -208,7 +208,7 @@ export default {
       immediate: true,
       async handler() {
         if (this.refresherInfo.refresher) {
-          this.refresherInfo.refresher.update();
+          this.refresherInfo.refresher.manualUpdate();
         }
       },
     },
@@ -217,7 +217,7 @@ export default {
       immediate: true,
       async handler() {
         if (this.refresherInfo.refresher) {
-          this.refresherInfo.refresher.update();
+          this.refresherInfo.refresher.manualUpdate();
         }
         const action = this.$route.redirectedFrom?.query.action;
         if (action) this.selectTab(action.toString());
@@ -228,7 +228,7 @@ export default {
       immediate: true,
       async handler() {
         if (this.refresherInfo.refresher) {
-          this.refresherInfo.refresher.update();
+          this.refresherInfo.refresher.manualUpdate();
         }
         const action = this.$route.redirectedFrom?.query.action;
         if (action) this.selectTab(action.toString());
@@ -237,7 +237,7 @@ export default {
 
     async chainId() {
       if (this.refresherInfo.refresher) {
-        this.refresherInfo.refresher.update();
+        this.refresherInfo.refresher.manualUpdate();
       }
     },
 
@@ -312,7 +312,7 @@ export default {
               this.inputAmount
             );
 
-        await this.refresherInfo.refresher.update();
+        await this.refresherInfo.refresher.manualUpdate();
 
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.success);
@@ -345,7 +345,7 @@ export default {
           ? await actions.exit(this.selectedFarm!.contractInfo)
           : await actions.withdraw(this.selectedFarm!.contractInfo, args);
 
-        await this.refresherInfo.refresher.update();
+        await this.refresherInfo.refresher.manualUpdate();
 
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.success);
@@ -373,7 +373,7 @@ export default {
           this.selectedFarm!.contractInfo.address,
           this.inputAmount
         );
-        await this.refresherInfo.refresher.update();
+        await this.refresherInfo.refresher.manualUpdate();
 
         await this.deleteNotification(notificationId);
       } catch (error) {
@@ -412,7 +412,7 @@ export default {
 
   async created() {
     this.createDataRefresher();
-    await this.refresherInfo.refresher.initialize();
+    await this.refresherInfo.refresher.start();
   },
 
   beforeUnmount() {

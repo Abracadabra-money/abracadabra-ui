@@ -119,7 +119,7 @@ export default {
   watch: {
     account() {
       if (this.refresherInfo.refresher) {
-        this.refresherInfo.refresher.update();
+        this.refresherInfo.refresher.manualUpdate();
       }
     },
   },
@@ -193,7 +193,7 @@ export default {
   async created() {
     this.checkLocalData();
     this.createDataRefresher();
-    await this.refresherInfo.refresher.initialize();
+    await this.refresherInfo.refresher.start();
   },
 
   beforeUnmount() {

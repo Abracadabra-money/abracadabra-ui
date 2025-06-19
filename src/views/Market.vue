@@ -19,7 +19,7 @@
             v-if="isBorrowTab"
             :cauldron="cauldron"
             :actionConfig="actionConfig"
-            @updateMarket="refresherInfo.refresher.update()"
+            @updateMarket="refresherInfo.refresher.manualUpdate()"
             @updateToggle="onUpdateToggle"
             @updateAmounts="onUpdateAmounts"
             @onUpdateMaxToBorrow="onUpdateMaxToBorrow"
@@ -32,7 +32,7 @@
             :actionConfig="actionConfig"
             @updateToggle="onUpdateToggle"
             @updateAmounts="onUpdateAmounts"
-            @updateMarket="refresherInfo.refresher.update()"
+            @updateMarket="refresherInfo.refresher.manualUpdate()"
             @clearData="resetAmounts"
           />
         </div>
@@ -203,13 +203,13 @@ export default {
   watch: {
     account() {
       if (this.refresherInfo.refresher) {
-        this.refresherInfo.refresher.update();
+        this.refresherInfo.refresher.manualUpdate();
       }
     },
 
     activeChainId() {
       if (this.refresherInfo.refresher) {
-        this.refresherInfo.refresher.update();
+        this.refresherInfo.refresher.manualUpdate();
       }
     },
   },
@@ -374,7 +374,7 @@ export default {
 
   async created() {
     this.createDataRefresher();
-    await this.refresherInfo.refresher.initialize();
+    await this.refresherInfo.refresher.start();
     this.getWindowSize();
     window.addEventListener("resize", this.getWindowSize, false);
 

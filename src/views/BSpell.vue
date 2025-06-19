@@ -123,7 +123,7 @@ export default {
       const refresher = this.refresherInfo?.refresher;
       try {
         if (!refresher) this.bSpellInfoArr = await this.createBSpellInfo();
-        else refresher.update();
+        else refresher.manualUpdate();
       } catch (error) {
         this.bSpellInfoArr = await this.createBSpellInfo();
       }
@@ -191,7 +191,7 @@ export default {
     await this.createOrUpdateInfo();
     this.setBSpellStakeData(this.bSpellInfoArr);
     this.createDataRefresher();
-    this.refresherInfo.refresher.initialize();
+    this.refresherInfo.refresher.start();
 
     await this.getAprInfo();
   },

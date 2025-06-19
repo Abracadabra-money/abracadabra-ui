@@ -382,7 +382,7 @@ export default {
 
       if (this.beamInfoObject && this.fromChainConfig!.chainId !== value) {
         this.clearData();
-        this.refresherInfo.refresher.update();
+        this.refresherInfo.refresher.manualUpdate();
       }
     },
 
@@ -394,13 +394,13 @@ export default {
 
     account() {
       this.clearData();
-      this.refresherInfo.refresher.update();
+      this.refresherInfo.refresher.manualUpdate();
     },
 
     chainId(value) {
       if (this.fromChainId !== value) {
         this.clearData();
-        this.refresherInfo.refresher.update();
+        this.refresherInfo.refresher.manualUpdate();
       }
     },
 
@@ -415,7 +415,7 @@ export default {
         return;
       }
 
-      this.refresherInfo.refresher.update();
+      this.refresherInfo.refresher.manualUpdate();
     },
   },
 
@@ -735,7 +735,7 @@ export default {
 
   async created() {
     this.createDataRefresher();
-    await this.refresherInfo.refresher.initialize();
+    await this.refresherInfo.refresher.start();
     if (this.beamInfoObject) {
       this.fromChainId = this.beamInfoObject.fromChainConfig.chainId;
     }

@@ -37,7 +37,9 @@ export class dataRefresher<T> {
   }
 
   // Starts the countdown timer, which will call update() when the time runs out.
-  start() {
+  async start() {
+    await this.update();
+
     if (this.intervalId !== null) {
       clearInterval(this.intervalId);
     }
@@ -54,7 +56,7 @@ export class dataRefresher<T> {
   }
 
   // Performs the data update and manages loading state.
-  async update() {
+  private async update() {
     if (this.isLoading) return;
 
     this.isLoading = true;
@@ -73,17 +75,9 @@ export class dataRefresher<T> {
     }
   }
 
-  // Performs the initial data update and starts the countdown timer.
-  async initialize() {
-    await this.update();
-    this.start();
-  }
-
   // Forces data update and restarts the countdown timer.
-  // Clears the current timer before re-initializing (unlike initialize).
   async manualUpdate() {
-    if (this.intervalId !== null) clearInterval(this.intervalId);
-    await this.initialize();
+    await this.start();
   }
 
   stop() {

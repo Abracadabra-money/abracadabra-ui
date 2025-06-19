@@ -79,6 +79,19 @@ export default {
     },
   },
 
+  watch: {
+    account() {
+      if (this.refresherInfo.refresher) {
+        this.refresherInfo.refresher.manualUpdate();
+      }
+    },
+    chainId() {
+      if (this.refresherInfo.refresher) {
+        this.refresherInfo.refresher.manualUpdate();
+      }
+    },
+  },
+
   methods: {
     ...mapMutations({
       setPoolFarmsList: "setPoolFarmsList",
@@ -116,23 +129,10 @@ export default {
     },
   },
 
-  watch: {
-    account() {
-      if (this.refresherInfo.refresher) {
-        this.refresherInfo.refresher.update();
-      }
-    },
-    chainId() {
-      if (this.refresherInfo.refresher) {
-        this.refresherInfo.refresher.update();
-      }
-    },
-  },
-
   async created() {
     this.checkLocalData();
     this.createDataRefresher();
-    await this.refresherInfo.refresher.initialize();
+    await this.refresherInfo.refresher.start();
   },
 
   beforeUnmount() {
