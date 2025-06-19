@@ -307,7 +307,6 @@ export default {
       this.resetActionConfig();
       await this.createOrUpdateTokensInfo();
       this.selectBaseTokens();
-      this.stopLoadingWithDelay();
     },
 
     account() {
@@ -366,6 +365,7 @@ export default {
 
       this.actionConfig.toInputValue = this.swapInfo.outputAmount;
       this.isUpdatingSwapInfo = false;
+      this.isLoading = false;
     }, DEBOUNCE_DELAY),
 
     successNotification(notificationId: number) {
@@ -595,12 +595,6 @@ export default {
 
       if (toToken) this.actionConfig.toToken = toToken;
     },
-
-    stopLoadingWithDelay() {
-      setTimeout(() => {
-        this.isLoading = false;
-      }, DEBOUNCE_DELAY);
-    },
   },
 
   async created() {
@@ -615,7 +609,6 @@ export default {
     this.checkAndSetSelectedChain();
     await this.createOrUpdateTokensInfo();
     this.selectBaseTokens();
-    this.stopLoadingWithDelay();
 
     this.updateInterval = setInterval(async () => {
       await this.createOrUpdateTokensInfo();
