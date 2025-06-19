@@ -264,8 +264,10 @@ export default {
         (item) => item.chainId === this.selectedNetwork
       );
 
+      if (!nativeToken || !nativeToken?.price) return (this.gasCost = 0);
+
       this.gasCost =
-        Number(formatUnits(gas * gasPrice, 18)) * nativeToken!.price;
+        Number(formatUnits(gas * gasPrice, 18)) * nativeToken.price;
     },
 
     encodeTransactionData(methodName: string, payload: any) {
