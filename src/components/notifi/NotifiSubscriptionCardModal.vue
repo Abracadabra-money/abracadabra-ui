@@ -72,7 +72,8 @@ export default {
   z-index: 10;
 }
 
-.notifi-card:has(.notifi-connect) {
+.notifi-card:has(.notifi-connect),
+.notifi-card:has(.notifi-error-global) {
   transform: translateX(-63%) translateY(30%);
 }
 
@@ -94,7 +95,8 @@ export default {
     transform: translate(-50%, -50%);
   }
   .notifi-card:has(.notifi-connect),
-  .notifi-card:has(.notifi-ftu) {
+  .notifi-card:has(.notifi-ftu),
+  .notifi-card:has(.notifi-error-global) {
     transform: translate(-50%, -50%);
   }
 }
