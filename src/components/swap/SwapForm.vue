@@ -20,7 +20,7 @@
     </button>
 
     <BaseTokenInput
-      v-if="toToken && !isLoading"
+      v-if="toToken && !isLoading && !isUpdatingSwapInfo"
       :disabled="true"
       :value="toInputValue"
       :name="toToken.config.name"
@@ -52,6 +52,7 @@ export default {
     toTokenPrice: { type: Number, default: 0 },
     differencePrice: { type: Number, default: 0 },
     isLoading: { type: Boolean, default: false },
+    isUpdatingSwapInfo: { type: Boolean, default: false },
   },
 
   data() {

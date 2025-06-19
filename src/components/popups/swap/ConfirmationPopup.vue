@@ -71,7 +71,7 @@ export default {
       type: Object,
       required: true,
     },
-    priceImpact: { type: [String, Number], default: 0 },
+    priceImpact: { type: Number, default: 0 },
     currentPriceInfo: {
       default: () => ({
         midPrice: 0,
