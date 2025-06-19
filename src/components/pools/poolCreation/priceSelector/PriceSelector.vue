@@ -5,7 +5,7 @@
 
       <template v-if="!isPriceSelectorDisabled">
         <BaseCheckBox
-          :chosen="isAutoPricingEnabled"
+          :checked="isAutoPricingEnabled"
           :disabled="isPriceSelectorDisabled"
           @update="$emit('toggleAutopricing')"
           v-if="isAutoPricingPossible"
