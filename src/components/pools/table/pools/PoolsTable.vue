@@ -201,17 +201,7 @@ export default {
 
   watch: {
     pools() {
-      const updatedActiveChains = this.getActiveChain();
-
-      const validSelectedChains = this.selectedChains.filter((chain) =>
-        updatedActiveChains.includes(chain)
-      );
-
-      if (validSelectedChains.length > 0) {
-        this.selectedChains = validSelectedChains;
-      } else {
-        this.selectedChains = updatedActiveChains;
-      }
+      this.selectedChains = this.getActiveChain();
     },
   },
 
@@ -413,16 +403,6 @@ export default {
         : [...this.feeTierOptions];
       this.selectedFeeTiers = updatedSelectedOptions;
     },
-
-    checkChainFromQueryParams() {
-      const chainParam = this.$route.query.chainId;
-      if (chainParam) {
-        const chainId = parseInt(chainParam as string);
-        if (!isNaN(chainId) && this.activeChains.includes(chainId)) {
-          this.selectedChains = [chainId];
-        }
-      }
-    },
   },
 
   components: {
@@ -455,7 +435,6 @@ export default {
 
   created() {
     this.selectedChains = this.getActiveChain();
-    this.checkChainFromQueryParams();
   },
 
   expose: ["updateSortKeys", "updatePoolTypeFilter", "updateFeeTierFilter"],
