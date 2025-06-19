@@ -37,8 +37,11 @@ class ErrorHandler {
   }
 
   static identifyViemError(error: any) {
-    if (error.version?.includes("viem")) return "VIEM_ERROR";
-    return null;
+    const isViemError = String(error).includes("viem");
+    if (!isViemError) return null;
+    const isBalanceError = String(error).includes("insufficient balance");
+    if (isBalanceError) return "VIEM_BALANCE_ERROR";
+    return "VIEM_ERROR";
   }
 
   static identifyAxiosError(error: any) {
