@@ -156,7 +156,7 @@ import { sendFrom } from "@/helpers/beam/sendFrom";
 import { sendLzV2 } from "@/helpers/beam/sendLzV2";
 import { MIM_ID, SPELL_ID } from "@/constants/beam";
 import { trimZeroDecimals } from "@/helpers/numbers";
-import { approveTokenViem } from "@/helpers/approval";
+import { approveToken } from "@/helpers/approval";
 import { removeDust } from "@/helpers/beam/removeDust";
 import { beamConfigs } from "@/configs/beam/beamConfigs";
 import { getBeamInfo } from "@/helpers/beam/getBeamInfo";
@@ -606,7 +606,7 @@ export default {
           id: notificationId,
         });
 
-        const isTokenApproved = await approveTokenViem(
+        const isTokenApproved = await approveToken(
           tokenContract,
           this.fromChainConfig!.contract.address,
           this.inputAmount

@@ -7,7 +7,7 @@ import type { Address } from "viem";
 import type { ContractInfo } from "@/types/global";
 import { MAX_ALLOWANCE_VALUE } from "@/constants/global";
 
-export const approveTokenViem = async (
+export const approveToken = async (
   contract: ContractInfo,
   spender: Address,
   allowanceValue: bigint = MAX_ALLOWANCE_VALUE
