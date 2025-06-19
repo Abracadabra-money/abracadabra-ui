@@ -1,6 +1,6 @@
 <template>
   <div :class="['base-checkbox-wrap', { disabled }]" @click="updateCheckbox">
-    <img src="@/assets/images/blast/checkbox-active.svg" v-if="checked" />
+    <img src="@/assets/images/blast/checkbox-active.svg" v-if="chosen" />
     <img src="@/assets/images/blast/checkbox-default.svg" v-else />
 
     <slot></slot>
@@ -10,7 +10,7 @@
 <script lang="ts">
 export default {
   props: {
-    checked: {
+    chosen: {
       type: Boolean,
     },
     disabled: {
