@@ -129,16 +129,20 @@ export default {
   },
 
   watch: {
-    farms() {
-      this.selectedChains = this.getActiveChain();
+    farms: {
+      handler() {
+        this.selectedChains = this.getActiveChain();
+        if (this.farms) this.setFarmList(this.farms);
+      },
+      deep: true,
     },
 
     async account() {
-      this.refresherInfo.refresher.manualUpdate();
+      await this.createOrUpdateInfo();
     },
 
     async chainId() {
-      this.refresherInfo.refresher.manualUpdate();
+      await this.createOrUpdateInfo();
     },
   },
 
@@ -236,6 +240,20 @@ export default {
       }
     },
 
+    async createOrUpdateInfo() {
+      const refresher = this.refresherInfo?.refresher;
+      try {
+        if (!refresher) {
+          this.createDataRefresher();
+          this.refresherInfo.refresher.start();
+        } else {
+          refresher.manualUpdate();
+        }
+      } catch (error) {
+        console.error("Error creating or updating Farms info:", error);
+      }
+    },
+
     createDataRefresher() {
       this.refresherInfo.refresher = new dataRefresher<FarmItem[]>(
         () => getFarmsList(this.account),
@@ -244,7 +262,6 @@ export default {
         (loading) => (this.refresherInfo.isLoading = loading),
         (updatedData: FarmItem[]) => {
           this.farms = updatedData;
-          this.setFarmList(updatedData);
         }
       );
     },
@@ -252,10 +269,8 @@ export default {
 
   async created() {
     this.checkLocalData();
-    this.setFarmList(this.farms);
     this.selectedChains = this.getActiveChain();
-    this.createDataRefresher();
-    this.refresherInfo.refresher.start();
+    await this.createOrUpdateInfo();
   },
 
   beforeUnmount() {

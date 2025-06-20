@@ -207,18 +207,14 @@ export default {
     account: {
       immediate: true,
       async handler() {
-        if (this.refresherInfo.refresher) {
-          this.refresherInfo.refresher.manualUpdate();
-        }
+        await this.createOrUpdateInfo();
       },
     },
 
     id: {
       immediate: true,
       async handler() {
-        if (this.refresherInfo.refresher) {
-          this.refresherInfo.refresher.manualUpdate();
-        }
+        await this.createOrUpdateInfo();
         const action = this.$route.redirectedFrom?.query.action;
         if (action) this.selectTab(action.toString());
       },
@@ -227,18 +223,14 @@ export default {
     farmChainId: {
       immediate: true,
       async handler() {
-        if (this.refresherInfo.refresher) {
-          this.refresherInfo.refresher.manualUpdate();
-        }
+        await this.createOrUpdateInfo();
         const action = this.$route.redirectedFrom?.query.action;
         if (action) this.selectTab(action.toString());
       },
     },
 
     async chainId() {
-      if (this.refresherInfo.refresher) {
-        this.refresherInfo.refresher.manualUpdate();
-      }
+      await this.createOrUpdateInfo();
     },
 
     max() {
@@ -312,7 +304,7 @@ export default {
               this.inputAmount
             );
 
-        await this.refresherInfo.refresher.manualUpdate();
+        await this.createOrUpdateInfo();
 
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.success);
@@ -345,7 +337,7 @@ export default {
           ? await actions.exit(this.selectedFarm!.contractInfo)
           : await actions.withdraw(this.selectedFarm!.contractInfo, args);
 
-        await this.refresherInfo.refresher.manualUpdate();
+        await this.createOrUpdateInfo();
 
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.success);
@@ -373,7 +365,7 @@ export default {
           this.selectedFarm!.contractInfo.address,
           this.inputAmount
         );
-        await this.refresherInfo.refresher.manualUpdate();
+        await this.createOrUpdateInfo();
 
         await this.deleteNotification(notificationId);
       } catch (error) {
@@ -401,6 +393,20 @@ export default {
       );
     },
 
+    async createOrUpdateInfo() {
+      const refresher = this.refresherInfo?.refresher;
+      try {
+        if (!refresher) {
+          this.createDataRefresher();
+          this.refresherInfo.refresher.start();
+        } else {
+          refresher.manualUpdate();
+        }
+      } catch (error) {
+        console.error("Error creating or updating Farm info:", error);
+      }
+    },
+
     openFarmsPopup() {
       this.isFarmsPopupOpened = true;
     },
@@ -411,8 +417,7 @@ export default {
   },
 
   async created() {
-    this.createDataRefresher();
-    await this.refresherInfo.refresher.start();
+    await this.createOrUpdateInfo();
   },
 
   beforeUnmount() {
