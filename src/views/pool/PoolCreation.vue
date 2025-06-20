@@ -12,13 +12,16 @@
 
       <div class="actions-block" v-show="showSecondStep">
         <div class="action-form">
-          <TokensSelector :baseToken="baseToken" :quoteToken="quoteToken"
-          :baseTokenAmount="actionConfig.baseInAmount"
-          :quoteTokenAmount="actionConfig.quoteInAmount" <<<<<<< HEAD
-          :isLoading="refresherInfo.isLoading" ======= :isLoading="isLoading"
-          >>>>>>> main :disableInputs="disableInputs"
-          @updateTokenInputAmount="updateTokenInputAmount"
-          @openTokensPopup="openTokensPopup" />
+          <TokensSelector
+            :baseToken="baseToken"
+            :quoteToken="quoteToken"
+            :baseTokenAmount="actionConfig.baseInAmount"
+            :quoteTokenAmount="actionConfig.quoteInAmount"
+            :isLoading="refresherInfo.isLoading"
+            :disableInputs="disableInputs"
+            @updateTokenInputAmount="updateTokenInputAmount"
+            @openTokensPopup="openTokensPopup"
+          />
 
           <PriceSelector
             :baseToken="baseToken"
@@ -348,7 +351,7 @@ export default {
 
     async selectedNetwork() {
       this.similarPools = [];
-      await this.refresherInfo.refresher.manualUpdate();
+      await this.createOrUpdateInfo();
       this.baseToken =
         this.tokenList.find(
           (token: PoolCreationTokenInfo) =>
@@ -373,7 +376,7 @@ export default {
 
     async chainId() {
       this.similarPools = [];
-      await this.refresherInfo.refresher.manualUpdate();
+      await this.createOrUpdateInfo();
       this.baseToken =
         this.tokenList.find(
           (token: PoolCreationTokenInfo) =>
@@ -389,7 +392,7 @@ export default {
 
     async account(address: Address) {
       this.actionConfig.to = address;
-      await this.refresherInfo.refresher.manualUpdate();
+      await this.createOrUpdateInfo();
       this.baseToken =
         this.tokenList.find(
           (token: PoolCreationTokenInfo) =>
@@ -578,7 +581,7 @@ export default {
       await this.deleteNotification(notificationId);
       if (!approve) await this.createNotification(notification.approveError);
       await this.updateTokenAllowance(contract);
-      await this.refresherInfo.refresher.manualUpdate();
+      await this.createOrUpdateInfo();
     },
 
     async createPoolHandler() {
@@ -602,7 +605,7 @@ export default {
         await this.deleteNotification(notificationId);
 
         await this.updateTokensUserInfo();
-        await this.refresherInfo.refresher.manualUpdate();
+        await this.createOrUpdateInfo();
 
         await this.createNotification(notification.success);
 
@@ -702,11 +705,24 @@ export default {
       );
       this.isActionProcessing = false;
     }, 500),
+
+    async createOrUpdateInfo() {
+      const refresher = this.refresherInfo?.refresher;
+      try {
+        if (!refresher) {
+          this.createDataRefresher();
+          await this.refresherInfo.refresher.start();
+        } else {
+          await refresher.manualUpdate();
+        }
+      } catch (error) {
+        console.error("Error creating or updating PoolCreation info:", error);
+      }
+    },
   },
 
   async created() {
-    this.createDataRefresher();
-    await this.refresherInfo.refresher.start();
+    await this.createOrUpdateInfo();
     this.getWindowSize();
     window.addEventListener("resize", this.getWindowSize, false);
     this.actionConfig.to = this.account || "0x";
