@@ -11,7 +11,7 @@
           :pool="pool"
           :isUserPositionOpen="isUserPositionOpen"
           isFarm
-          @updatePoolInfo="refresherInfo.refresher.update()"
+          @updatePoolInfo="createOrUpdateInfo"
           @openPositionPopup="isMyPositionPopupOpened = true"
         />
       </div>
@@ -22,7 +22,7 @@
           :isUserPositionOpen="isUserPositionOpen"
           :isMyPositionPopupOpened="isMyPositionPopupOpened"
           @closePopup="isMyPositionPopupOpened = false"
-          @updateInfo="refresherInfo.refresher.update()"
+          @updateInfo="createOrUpdateInfo"
           isFarm
           v-if="account"
         />
@@ -82,18 +82,14 @@ export default {
     account: {
       immediate: true,
       async handler() {
-        if (this.refresherInfo.refresher) {
-          this.refresherInfo.refresher.update();
-        }
+        await this.createOrUpdateInfo();
       },
     },
 
     chainId: {
       immediate: true,
       async handler() {
-        if (this.refresherInfo.refresher) {
-          this.refresherInfo.refresher.update();
-        }
+        await this.createOrUpdateInfo();
       },
     },
   },
@@ -109,6 +105,20 @@ export default {
       );
       this.chartOption = await getPoolStakeTvlPieChartOption(pool);
       return pool;
+    },
+
+    async createOrUpdateInfo() {
+      const refresher = this.refresherInfo?.refresher;
+      try {
+        if (!refresher) {
+          this.createDataRefresher();
+          await this.refresherInfo.refresher.start();
+        } else {
+          await refresher.manualUpdate();
+        }
+      } catch (error) {
+        console.error("Error creating or updating PoolFarm info:", error);
+      }
     },
 
     createDataRefresher() {
@@ -127,8 +137,7 @@ export default {
   },
 
   async created() {
-    this.createDataRefresher();
-    await this.refresherInfo.refresher.initialize();
+    await this.createOrUpdateInfo();
   },
 
   beforeUnmount() {

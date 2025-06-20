@@ -81,14 +81,17 @@ export default {
 
   watch: {
     account() {
-      if (this.refresherInfo.refresher) {
-        this.refresherInfo.refresher.manualUpdate();
-      }
+      this.createOrUpdateInfo();
     },
     chainId() {
-      if (this.refresherInfo.refresher) {
-        this.refresherInfo.refresher.manualUpdate();
-      }
+      this.createOrUpdateInfo();
+    },
+
+    pools: {
+      handler() {
+        if (this.pools) this.setPoolFarmsList(this.pools);
+      },
+      deep: true,
     },
   },
 
@@ -109,6 +112,20 @@ export default {
       return pools;
     },
 
+    async createOrUpdateInfo() {
+      const refresher = this.refresherInfo?.refresher;
+      try {
+        if (!refresher) {
+          this.createDataRefresher();
+          await this.refresherInfo.refresher.start();
+        } else {
+          await refresher.manualUpdate();
+        }
+      } catch (error) {
+        console.error("Error creating or updating PoolFarms info:", error);
+      }
+    },
+
     createDataRefresher() {
       this.refresherInfo.refresher = new dataRefresher<any[]>(
         async () => {
@@ -119,7 +136,6 @@ export default {
         (loading) => (this.refresherInfo.isLoading = loading),
         (updatedData: any[]) => {
           this.pools = updatedData;
-          this.setPoolFarmsList(updatedData);
         }
       );
     },
@@ -131,8 +147,7 @@ export default {
 
   async created() {
     this.checkLocalData();
-    this.createDataRefresher();
-    await this.refresherInfo.refresher.start();
+    await this.createOrUpdateInfo();
   },
 
   beforeUnmount() {
