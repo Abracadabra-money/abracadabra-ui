@@ -382,7 +382,7 @@ export default {
 
       if (this.beamInfoObject && this.fromChainConfig!.chainId !== value) {
         this.clearData();
-        this.refresherInfo.refresher.manualUpdate();
+        this.createOrUpdateInfo();
       }
     },
 
@@ -394,13 +394,13 @@ export default {
 
     account() {
       this.clearData();
-      this.refresherInfo.refresher.manualUpdate();
+      this.createOrUpdateInfo();
     },
 
     chainId(value) {
       if (this.fromChainId !== value) {
         this.clearData();
-        this.refresherInfo.refresher.manualUpdate();
+        this.createOrUpdateInfo();
       }
     },
 
@@ -415,7 +415,7 @@ export default {
         return;
       }
 
-      this.refresherInfo.refresher.manualUpdate();
+      this.createOrUpdateInfo();
     },
   },
 
@@ -731,11 +731,24 @@ export default {
         console.log("Beam Info Error:", error);
       }
     },
+
+    async createOrUpdateInfo() {
+      const refresher = this.refresherInfo?.refresher;
+      try {
+        if (!refresher) {
+          this.createDataRefresher();
+          await this.refresherInfo.refresher.start();
+        } else {
+          await refresher.manualUpdate();
+        }
+      } catch (error) {
+        console.error("Error creating or updating Beam info:", error);
+      }
+    },
   },
 
   async created() {
-    this.createDataRefresher();
-    await this.refresherInfo.refresher.start();
+    await this.createOrUpdateInfo();
     if (this.beamInfoObject) {
       this.fromChainId = this.beamInfoObject.fromChainConfig.chainId;
     }
