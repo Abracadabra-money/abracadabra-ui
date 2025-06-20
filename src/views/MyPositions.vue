@@ -79,6 +79,8 @@ import type { PositionsSortKey, SorterData, SortOrder } from "@/types/sorting";
 import axios from "axios";
 import { ELIXIR_POTIONS_URL } from "@/constants/global";
 import { LS_ELIXIR_RARE_KEY } from "@/helpers/dataStore";
+import { dataRefresher } from "@/helpers/dataRefresher";
+import type { RefresherInfo } from "@/helpers/dataRefresher";
 
 export type LocalAPRData = {
   chainId: number;
@@ -90,7 +92,6 @@ export default {
   data() {
     return {
       selectedChains: [] as number[],
-      updateInterval: null as NodeJS.Timeout | null,
       cauldrons: [] as unknown as UserOpenPosition[],
       positionsIsLoading: true,
       totalAssets: null as unknown as UserTotalAssets | null,
@@ -99,6 +100,12 @@ export default {
       isFiltersPopupOpened: false,
       userElixirInfo: null as any,
       elixirRate: 0,
+      refresherInfo: {
+        refresher: null as unknown as dataRefresher<UserOpenPosition[]>,
+        remainingTime: 0,
+        isLoading: false,
+        intervalTime: 60,
+      } as RefresherInfo<UserOpenPosition[]>,
     };
   },
 
@@ -205,13 +212,17 @@ export default {
         this.positionsIsLoading = true;
         await this.getElixirInfo();
         this.checkLocalData();
-        await this.createOpenPositions();
+        await this.createOrUpdateInfo();
         this.positionsIsLoading = false;
       }
     },
 
     cauldrons() {
       this.selectedChains = this.getActiveChain() || [];
+      if (this.cauldrons) {
+        this.setUserPositions(this.cauldrons);
+        this.setUserTotalAssets(this.totalAssets);
+      }
     },
   },
 
@@ -278,13 +289,6 @@ export default {
       return cauldrons.filter((cauldron) => {
         return selectedChains.includes(cauldron.config?.chainId);
       });
-    },
-
-    async createOpenPositions() {
-      if (!this.account) return false;
-      this.cauldrons = await getUserOpenPositions(this.account);
-      await this.getCollateralsApr();
-      this.totalAssets = getUsersTotalAssets(this.cauldrons);
     },
 
     async fetchCollateralApy(
@@ -418,6 +422,38 @@ export default {
         this.elixirRate = Number(lsElixirRate);
       }
     },
+
+    async createOrUpdateInfo() {
+      const refresher = this.refresherInfo?.refresher;
+      try {
+        if (!refresher) {
+          this.createDataRefresher();
+          await this.refresherInfo.refresher.start();
+        } else {
+          await refresher.manualUpdate();
+        }
+      } catch (error) {
+        console.error("Error creating or updating MyPositions info:", error);
+      }
+    },
+
+    createDataRefresher() {
+      this.refresherInfo.refresher = new dataRefresher<UserOpenPosition[]>(
+        async () => {
+          if (!this.account) return [];
+          const positions = await getUserOpenPositions(this.account);
+          await this.getCollateralsApr();
+          this.totalAssets = getUsersTotalAssets(positions);
+          return positions;
+        },
+        this.refresherInfo.intervalTime,
+        (time) => (this.refresherInfo.remainingTime = time),
+        (loading) => (this.refresherInfo.isLoading = loading),
+        (updatedData: UserOpenPosition[]) => {
+          this.cauldrons = updatedData;
+        }
+      );
+    },
   },
 
   async created() {
@@ -429,24 +465,17 @@ export default {
 
     this.positionsIsLoading = true;
     this.checkLocalData();
-    await this.createOpenPositions();
+    await this.createOrUpdateInfo();
 
     this.positionsIsLoading = false;
-
-    if (this.account) {
-      this.setUserPositions(this.cauldrons);
-      this.setUserTotalAssets(this.totalAssets);
-    }
-
-    this.updateInterval = setInterval(async () => {
-      await this.createOpenPositions();
-    }, 60000);
 
     this.selectedChains = this.getActiveChain() || [];
   },
 
   beforeUnmount() {
-    if (this.updateInterval) clearInterval(this.updateInterval);
+    if (this.refresherInfo?.refresher) {
+      this.refresherInfo.refresher.stop();
+    }
   },
 
   components: {
