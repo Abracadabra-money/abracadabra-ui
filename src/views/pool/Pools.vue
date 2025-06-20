@@ -5,7 +5,7 @@
 
       <PoolsTable
         :pools="pools"
-        :poolsLoading="poolsLoading"
+        :poolsLoading="refresherInfo.isLoading"
         :tableKeys="tableKeys"
         ref="poolsTable"
         @openMobileFiltersPopup="isFiltersPopupOpened = true"
@@ -35,6 +35,8 @@ import {
 } from "@/constants/pools/poolCreation";
 import { formatUnits } from "viem";
 import { formatPercent } from "@/helpers/filters";
+import { dataRefresher } from "@/helpers/dataRefresher";
+import type { RefresherInfo } from "@/helpers/dataRefresher";
 
 export default {
   data() {
@@ -68,7 +70,12 @@ export default {
         },
       ],
       isFiltersPopupOpened: false,
-      updateInterval: null as NodeJS.Timeout | null,
+      refresherInfo: {
+        refresher: null as unknown as dataRefresher<any[]>,
+        remainingTime: 0,
+        isLoading: false,
+        intervalTime: 60,
+      } as RefresherInfo<any[]>,
     };
   },
 
@@ -98,6 +105,22 @@ export default {
     },
   },
 
+  watch: {
+    account() {
+      this.createOrUpdateInfo();
+    },
+    chainId() {
+      this.createOrUpdateInfo();
+    },
+
+    pools: {
+      handler() {
+        if (this.pools) this.setPoolsList(this.pools);
+      },
+      deep: true,
+    },
+  },
+
   methods: {
     ...mapMutations({
       setPoolsList: "setPoolsList",
@@ -110,11 +133,39 @@ export default {
       }
     },
 
-    async createPoolsInfo(): Promise<void> {
-      this.pools = await getPoolsList(this.account, this.poolConfigs);
-      this.poolsLoading = false;
+    async fetchPoolsData() {
+      this.poolConfigs = await getPoolConfigsByChains();
+      const pools = await getPoolsList(this.account, this.poolConfigs);
+      return pools;
+    },
 
-      this.setPoolsList(this.pools);
+    async createOrUpdateInfo() {
+      const refresher = this.refresherInfo?.refresher;
+      try {
+        if (!refresher) {
+          this.createDataRefresher();
+          await this.refresherInfo.refresher.start();
+        } else {
+          await refresher.manualUpdate();
+        }
+      } catch (error) {
+        console.error("Error creating or updating Pools info:", error);
+      }
+    },
+
+    createDataRefresher() {
+      this.refresherInfo.refresher = new dataRefresher<any[]>(
+        async () => {
+          return await this.fetchPoolsData();
+        },
+        this.refresherInfo.intervalTime,
+        (time) => (this.refresherInfo.remainingTime = time),
+        (loading) => (this.refresherInfo.isLoading = loading),
+        (updatedData: any[]) => {
+          this.pools = updatedData;
+          this.poolsLoading = false;
+        }
+      );
     },
 
     updateSortKeys(key: any, order: any) {
@@ -132,16 +183,13 @@ export default {
 
   async created() {
     this.checkLocalData();
-    this.poolConfigs = await getPoolConfigsByChains();
-    await this.createPoolsInfo();
-
-    this.updateInterval = setInterval(async () => {
-      this.pools = await getPoolsList(this.account, this.poolConfigs);
-    }, 60000);
+    await this.createOrUpdateInfo();
   },
 
   beforeUnmount() {
-    clearInterval(Number(this.updateInterval));
+    if (this.refresherInfo.refresher) {
+      this.refresherInfo.refresher.stop();
+    }
   },
 
   components: {

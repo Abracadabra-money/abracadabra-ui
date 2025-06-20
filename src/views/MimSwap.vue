@@ -166,6 +166,7 @@ export default {
         toInputValue: 0n,
         slippage: 20n,
         deadline: 500n,
+        priceImpact: 0,
         fromInputAmount: "0",
       } as ActionConfig,
       updateInterval: null as any,

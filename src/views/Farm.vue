@@ -45,7 +45,7 @@
       <FarmPosition
         :selectedFarm="selectedFarm"
         :isProperNetwork="isProperNetwork"
-        @updateFarmData="getSelectedFarm()"
+        @updateFarmData="createOrUpdateInfo"
         v-if="isUserPositionOpen"
       />
     </div>
@@ -54,7 +54,7 @@
       :selectedFarm="selectedFarm"
       :isProperNetwork="isProperNetwork"
       :isOpened="isUserPositionOpen && isMyPositionPopupOpened"
-      @updateFarmData="getSelectedFarm()"
+      @updateFarmData="createOrUpdateInfo"
       @closePopup="isMyPositionPopupOpened = false"
     />
 
@@ -71,7 +71,7 @@
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
 import { mapGetters, mapMutations, mapActions } from "vuex";
-import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
+import { notificationErrorMsg } from "@/helpers/notification/notificationError";
 import notification from "@/helpers/notification/notification";
 import { createFarmData, emptyFarmData } from "@/helpers/farm/createFarmData";
 import { parseUnits, formatUnits } from "viem";
@@ -81,6 +81,8 @@ import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import type { FarmItem } from "@/configs/farms/types";
 import { openConnectPopup } from "@/helpers/connect/utils";
+import { dataRefresher } from "@/helpers/dataRefresher";
+import type { RefresherInfo } from "@/helpers/dataRefresher";
 
 export default {
   props: {
@@ -90,16 +92,21 @@ export default {
 
   data() {
     return {
-      activeNetworks: [1, 43114, 42161],
+      activeNetworks: [1, 43114, 42161] as number[],
       isFarmsPopupOpened: false,
       isMyPositionPopupOpened: false,
       inputAmount: 0n as bigint,
       inputValue: "",
       selectedTab: "stake",
-      items: ["stake", "unstake"],
-      farmTimer: null as NodeJS.Timeout | null,
+      items: ["stake", "unstake"] as string[],
       selectedFarm: emptyFarmData as FarmItem,
       isActionProcessing: false,
+      refresherInfo: {
+        refresher: null as unknown as dataRefresher<FarmItem>,
+        remainingTime: 0,
+        isLoading: false,
+        intervalTime: 60,
+      } as RefresherInfo<FarmItem>,
     };
   },
 
@@ -200,14 +207,14 @@ export default {
     account: {
       immediate: true,
       async handler() {
-        await this.getSelectedFarm();
+        await this.createOrUpdateInfo();
       },
     },
 
     id: {
       immediate: true,
       async handler() {
-        await this.getSelectedFarm();
+        await this.createOrUpdateInfo();
         const action = this.$route.redirectedFrom?.query.action;
         if (action) this.selectTab(action.toString());
       },
@@ -216,14 +223,14 @@ export default {
     farmChainId: {
       immediate: true,
       async handler() {
-        await this.getSelectedFarm();
+        await this.createOrUpdateInfo();
         const action = this.$route.redirectedFrom?.query.action;
         if (action) this.selectTab(action.toString());
       },
     },
 
     async chainId() {
-      await this.getSelectedFarm();
+      await this.createOrUpdateInfo();
     },
 
     max() {
@@ -297,7 +304,7 @@ export default {
               this.inputAmount
             );
 
-        await this.getSelectedFarm();
+        await this.createOrUpdateInfo();
 
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.success);
@@ -330,7 +337,7 @@ export default {
           ? await actions.exit(this.selectedFarm!.contractInfo)
           : await actions.withdraw(this.selectedFarm!.contractInfo, args);
 
-        await this.getSelectedFarm();
+        await this.createOrUpdateInfo();
 
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.success);
@@ -358,7 +365,7 @@ export default {
           this.selectedFarm!.contractInfo.address,
           this.inputAmount
         );
-        await this.getSelectedFarm();
+        await this.createOrUpdateInfo();
 
         await this.deleteNotification(notificationId);
       } catch (error) {
@@ -374,16 +381,30 @@ export default {
       }
     },
 
-    async getSelectedFarm() {
-      console.log("getSelectedFarm");
-
-      this.selectedFarm = await createFarmData(
-        this.id,
-        this.farmChainId,
-        this.account
+    createDataRefresher() {
+      this.refresherInfo.refresher = new dataRefresher(
+        () => createFarmData(this.id, this.farmChainId, this.account),
+        this.refresherInfo.intervalTime,
+        (time) => (this.refresherInfo.remainingTime = time),
+        (loading) => (this.refresherInfo.isLoading = loading),
+        (updatedData: FarmItem) => {
+          this.selectedFarm = updatedData;
+        }
       );
+    },
 
-      console.log("getSelectedFarm", this.selectedFarm);
+    async createOrUpdateInfo() {
+      const refresher = this.refresherInfo?.refresher;
+      try {
+        if (!refresher) {
+          this.createDataRefresher();
+          await this.refresherInfo.refresher.start();
+        } else {
+          await refresher.manualUpdate();
+        }
+      } catch (error) {
+        console.error("Error creating or updating Farm info:", error);
+      }
     },
 
     openFarmsPopup() {
@@ -396,15 +417,11 @@ export default {
   },
 
   async created() {
-    await this.getSelectedFarm();
-
-    this.farmTimer = setInterval(async () => {
-      await this.getSelectedFarm();
-    }, 60000);
+    await this.createOrUpdateInfo();
   },
 
   beforeUnmount() {
-    if (this.farmTimer) clearInterval(this.farmTimer);
+    this.refresherInfo.refresher.stop();
   },
 
   components: {

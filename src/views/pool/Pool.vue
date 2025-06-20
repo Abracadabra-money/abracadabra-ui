@@ -10,7 +10,7 @@
         <PoolActionBlock
           :pool="pool"
           :isUserPositionOpen="isUserPositionOpen"
-          @updatePoolInfo="getPoolInfo"
+          @updatePoolInfo="createOrUpdateInfo"
           @openPositionPopup="isMyPositionPopupOpened = true"
         />
       </div>
@@ -21,12 +21,17 @@
           :isUserPositionOpen="isUserPositionOpen"
           :isMyPositionPopupOpened="isMyPositionPopupOpened"
           @closePopup="isMyPositionPopupOpened = false"
-          @updateInfo="getPoolInfo"
+          @updateInfo="createOrUpdateInfo"
           v-if="account"
         />
       </div>
     </div>
-    <BaseLoader v-else large text="Loading Pool" />
+    <BaseLoader
+      v-else
+      :large="true"
+      :text="'Loading Pool'"
+      :loading="refresherInfo.isLoading"
+    />
   </div>
 </template>
 
@@ -36,7 +41,7 @@ import { defineAsyncComponent } from "vue";
 import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
 import { getPoolConfig } from "@/helpers/pools/configs/getOrCreatePairsConfigs";
 import { getPoolTvlPieChartOption } from "@/helpers/pools/charts/getPoolTvlPieChartOption";
-import { debounce } from "lodash";
+import { dataRefresher } from "@/helpers/dataRefresher";
 
 export default {
   props: {
@@ -48,9 +53,14 @@ export default {
     return {
       pool: null,
       isMyPositionPopupOpened: false,
-      poolsTimer: null,
       chartOption: null,
       poolConfig: null,
+      refresherInfo: {
+        refresher: null,
+        remainingTime: 0,
+        isLoading: false,
+        intervalTime: 60,
+      },
     };
   },
 
@@ -74,47 +84,68 @@ export default {
     account: {
       immediate: true,
       async handler() {
-        await this.getPoolInfoDebounce();
+        await this.createOrUpdateInfo();
       },
     },
 
     chainId: {
       immediate: true,
       async handler() {
-        await this.getPoolInfoDebounce();
+        await this.createOrUpdateInfo();
       },
     },
   },
 
   methods: {
-    getPoolInfoDebounce: debounce(async function () {
-      await this.getPoolInfo();
-    }, 500),
-
-    async getPoolInfo() {
-      this.pool = await getPoolInfo(
+    async fetchPoolData() {
+      this.poolConfig = await getPoolConfig(Number(this.poolChainId), this.id);
+      const pool = await getPoolInfo(
         Number(this.poolChainId),
         this.poolConfig,
         undefined,
         this.account
       );
+      this.chartOption = await getPoolTvlPieChartOption(pool);
+      return pool;
+    },
+
+    async createOrUpdateInfo() {
+      const refresher = this.refresherInfo?.refresher;
+      try {
+        if (!refresher) {
+          this.createDataRefresher();
+          await this.refresherInfo.refresher.start();
+        } else {
+          await refresher.manualUpdate();
+        }
+      } catch (error) {
+        console.error("Error creating or updating Pool info:", error);
+      }
+    },
+
+    createDataRefresher() {
+      this.refresherInfo.refresher = new dataRefresher(
+        async () => {
+          return await this.fetchPoolData();
+        },
+        this.refresherInfo.intervalTime,
+        (time) => (this.refresherInfo.remainingTime = time),
+        (loading) => (this.refresherInfo.isLoading = loading),
+        (updatedData) => {
+          this.pool = updatedData;
+        }
+      );
     },
   },
 
   async created() {
-    this.poolConfig = await getPoolConfig(Number(this.poolChainId), this.id);
-
-    await this.getPoolInfo();
-
-    this.chartOption = await getPoolTvlPieChartOption(this.pool);
-
-    this.poolsTimer = setInterval(async () => {
-      await this.getPoolInfoDebounce();
-    }, 60000);
+    await this.createOrUpdateInfo();
   },
 
   beforeUnmount() {
-    clearInterval(this.poolsTimer);
+    if (this.refresherInfo.refresher) {
+      this.refresherInfo.refresher.stop();
+    }
   },
 
   components: {

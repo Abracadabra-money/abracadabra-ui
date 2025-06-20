@@ -42,6 +42,7 @@ import { mapGetters, mapMutations } from "vuex";
 import type { AprInfo } from "@/helpers/bSpell/types";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 import { dataRefresher } from "@/helpers/dataRefresher";
+import type { RefresherInfo } from "@/helpers/dataRefresher";
 import type { BSpellInfo } from "@/helpers/bSpell/types";
 import { getBSpellInfo } from "@/helpers/bSpell/getLockInfo";
 import { getBSpellApr } from "@/helpers/bSpell/getBSpellAPR";
@@ -53,11 +54,11 @@ export default {
       activeTab: "BSpellBlock",
       bSpellInfoArr: [] as BSpellInfo[] | null,
       refresherInfo: {
-        refresher: null as any,
+        refresher: null as unknown as dataRefresher<BSpellInfo[]>,
         remainingTime: 0,
         isLoading: false,
         intervalTime: 60,
-      },
+      } as RefresherInfo<BSpellInfo[]>,
       selectedNetwork: ARBITRUM_CHAIN_ID,
       availableNetworks: [ARBITRUM_CHAIN_ID],
       aprInfo: null as AprInfo | null,
@@ -96,8 +97,18 @@ export default {
       await this.createOrUpdateInfo();
     },
 
-    async bSpellInfo() {
-      await this.getAprInfo();
+    bSpellInfo: {
+      handler() {
+        this.getAprInfo();
+      },
+      deep: true,
+    },
+
+    bSpellInfoArr: {
+      handler() {
+        if (this.bSpellInfoArr) this.setBSpellStakeData(this.bSpellInfoArr);
+      },
+      deep: true,
     },
   },
 
@@ -121,10 +132,14 @@ export default {
     async createOrUpdateInfo() {
       const refresher = this.refresherInfo?.refresher;
       try {
-        if (!refresher) this.bSpellInfoArr = await this.createBSpellInfo();
-        else refresher.update();
+        if (!refresher) {
+          this.createDataRefresher();
+          this.refresherInfo.refresher.start();
+        } else {
+          refresher.manualUpdate();
+        }
       } catch (error) {
-        this.bSpellInfoArr = await this.createBSpellInfo();
+        console.error("Error creating or updating BSpell info:", error);
       }
     },
 
@@ -188,11 +203,10 @@ export default {
   async created() {
     this.checkLocalData();
     await this.createOrUpdateInfo();
-    this.setBSpellStakeData(this.bSpellInfoArr);
-    this.createDataRefresher();
-    this.refresherInfo.refresher.start();
+  },
 
-    await this.getAprInfo();
+  beforeUnmount() {
+    this.refresherInfo.refresher.stop();
   },
 
   components: {
