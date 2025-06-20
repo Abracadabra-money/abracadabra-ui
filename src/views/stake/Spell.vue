@@ -436,6 +436,13 @@ export default {
     async activeToken() {
       await this.updateActiveNetwork();
     },
+
+    stakeInfoArr: {
+      handler() {
+        if (this.stakeInfoArr) this.setSpellStakeData(this.stakeInfoArr);
+      },
+      deep: true,
+    },
   },
 
   methods: {
@@ -489,10 +496,14 @@ export default {
     async createOrUpdateInfo() {
       const refresher = this.refresherInfo?.refresher;
       try {
-        if (!refresher) this.stakeInfoArr = await this.createStakeInfo();
-        else refresher.manualUpdate();
+        if (!refresher) {
+          this.createDataRefresher();
+          this.refresherInfo.refresher.start();
+        } else {
+          refresher.manualUpdate();
+        }
       } catch (error) {
-        this.stakeInfoArr = await this.createStakeInfo();
+        console.error("Error creating or updating Spell stake info:", error);
       }
     },
 
@@ -626,8 +637,6 @@ export default {
     this.checkLocalData();
     await this.createOrUpdateInfo();
     this.setSpellStakeData(this.stakeInfoArr);
-    this.createDataRefresher();
-    this.refresherInfo.refresher.start();
   },
 
   beforeUnmount() {

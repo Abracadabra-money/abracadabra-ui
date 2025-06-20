@@ -97,8 +97,18 @@ export default {
       await this.createOrUpdateInfo();
     },
 
-    async bSpellInfo() {
-      await this.getAprInfo();
+    bSpellInfo: {
+      handler() {
+        this.getAprInfo();
+      },
+      deep: true,
+    },
+
+    bSpellInfoArr: {
+      handler() {
+        if (this.bSpellInfoArr) this.setBSpellStakeData(this.bSpellInfoArr);
+      },
+      deep: true,
     },
   },
 
@@ -122,10 +132,14 @@ export default {
     async createOrUpdateInfo() {
       const refresher = this.refresherInfo?.refresher;
       try {
-        if (!refresher) this.bSpellInfoArr = await this.createBSpellInfo();
-        else refresher.manualUpdate();
+        if (!refresher) {
+          this.createDataRefresher();
+          this.refresherInfo.refresher.start();
+        } else {
+          refresher.manualUpdate();
+        }
       } catch (error) {
-        this.bSpellInfoArr = await this.createBSpellInfo();
+        console.error("Error creating or updating BSpell info:", error);
       }
     },
 
@@ -189,11 +203,6 @@ export default {
   async created() {
     this.checkLocalData();
     await this.createOrUpdateInfo();
-    this.setBSpellStakeData(this.bSpellInfoArr);
-    this.createDataRefresher();
-    this.refresherInfo.refresher.start();
-
-    await this.getAprInfo();
   },
 
   beforeUnmount() {
