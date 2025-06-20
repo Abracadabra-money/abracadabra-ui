@@ -45,7 +45,7 @@
       <FarmPosition
         :selectedFarm="selectedFarm"
         :isProperNetwork="isProperNetwork"
-        @updateFarmData="refresherInfo.refresher.manualUpdate()"
+        @updateFarmData="createOrUpdateInfo"
         v-if="isUserPositionOpen"
       />
     </div>
@@ -54,7 +54,7 @@
       :selectedFarm="selectedFarm"
       :isProperNetwork="isProperNetwork"
       :isOpened="isUserPositionOpen && isMyPositionPopupOpened"
-      @updateFarmData="refresherInfo.refresher.manualUpdate()"
+      @updateFarmData="createOrUpdateInfo"
       @closePopup="isMyPositionPopupOpened = false"
     />
 
