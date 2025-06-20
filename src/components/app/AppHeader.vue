@@ -49,7 +49,7 @@
 <script>
 import { mapGetters } from "vuex";
 import { defineAsyncComponent } from "vue";
-import { newFrontendClient } from "@notifi-network/notifi-frontend-client";
+import { instantiateFrontendClient } from "@notifi-network/notifi-frontend-client";
 
 export default {
   data() {
@@ -90,23 +90,22 @@ export default {
 
   methods: {
     async updateUnreadNotificationCount() {
-      const configInput = {
-        account: {
-          publicKey: this.account,
+      const frontendClient = instantiateFrontendClient(
+          "abracadabra",
+        {
+          walletBlockchain: this.notifiWalletBlockchain,
+          walletPublicKey: this.account,
         },
-        tenantId: "abracadabra",
-        walletBlockchain: this.notifiWalletBlockchain,
-        env: "Production",
-      };
-      const frontendClient = newFrontendClient(configInput);
+      );
       await frontendClient.initialize();
       if (frontendClient.userState.status !== "authenticated") {
+        this.unreadNotificationCount = 0;
         this.isSignedUp = false;
         return;
       }
       this.isSignedUp = true;
       const { count } =
-        await frontendClient.getUnreadNotificationHistoryCount();
+        await frontendClient.getUnreadNotificationHistoryCount(this.notifiCardId);        
       this.unreadNotificationCount = count;
     },
 

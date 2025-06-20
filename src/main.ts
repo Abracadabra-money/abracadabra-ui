@@ -2,7 +2,7 @@ import { createApp } from "vue";
 import { ethers } from "ethers";
 import VueTippy from "vue-tippy";
 import { WagmiPlugin } from "@wagmi/vue";
-import "@notifi-network/notifi-react-card/dist/index.css";
+import "@notifi-network/notifi-react/dist/index.css";
 // @ts-ignore
 import store from "./store";
 // @ts-ignore
