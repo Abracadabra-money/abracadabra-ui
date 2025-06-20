@@ -2,6 +2,8 @@ type OnUpdateTimeCallback = (remainingTime: number) => void;
 type OnLoadingCallback = (isLoading: boolean) => void;
 type OnDataUpdateCallback<T> = (data: T) => void;
 
+const FORCE_UPDATE = true;
+
 export interface RefresherInfo<T> {
   refresher: dataRefresher<T>;
   remainingTime: number;
@@ -39,7 +41,41 @@ export class dataRefresher<T> {
   // Starts the countdown timer, which will call update() when the time runs out.
   async start() {
     await this.update();
+    this.resetInterval();
+  }
 
+  // Forces data update and restarts the countdown timer.
+  async manualUpdate() {
+    await this.update(FORCE_UPDATE);
+    this.resetInterval();
+  }
+
+  // Performs the data update and manages loading state.
+  private async update(force: boolean = false) {
+    console.log("update called");
+
+    if (this.isLoading && !force) return;
+    console.log("isLoading check passsed");
+
+    this.isLoading = true;
+    this.onLoading(true);
+    console.log("update begins");
+    try {
+      const data = await this.updateFunction();
+      this.onDataUpdate(data);
+      console.log("update success", data);
+    } catch (error) {
+      console.error("Error updating data:", error);
+    } finally {
+      this.isLoading = false;
+      this.onLoading(false);
+      this.remainingTime = this.updateInterval;
+      this.onUpdateTime(this.remainingTime);
+      console.log("update ends");
+    }
+  }
+
+  private resetInterval() {
     if (this.intervalId !== null) {
       clearInterval(this.intervalId);
     }
@@ -53,31 +89,6 @@ export class dataRefresher<T> {
         this.update();
       }
     }, 1000);
-  }
-
-  // Performs the data update and manages loading state.
-  private async update() {
-    if (this.isLoading) return;
-
-    this.isLoading = true;
-    this.onLoading(true);
-
-    try {
-      const data = await this.updateFunction();
-      this.onDataUpdate(data);
-    } catch (error) {
-      console.error("Error updating data:", error);
-    } finally {
-      this.isLoading = false;
-      this.onLoading(false);
-      this.remainingTime = this.updateInterval;
-      this.onUpdateTime(this.remainingTime);
-    }
-  }
-
-  // Forces data update and restarts the countdown timer.
-  async manualUpdate() {
-    await this.start();
   }
 
   stop() {
