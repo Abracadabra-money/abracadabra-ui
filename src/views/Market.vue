@@ -19,7 +19,7 @@
             v-if="isBorrowTab"
             :cauldron="cauldron"
             :actionConfig="actionConfig"
-            @updateMarket="refresherInfo.refresher.manualUpdate()"
+            @updateMarket="createOrUpdateInfo"
             @updateToggle="onUpdateToggle"
             @updateAmounts="onUpdateAmounts"
             @onUpdateMaxToBorrow="onUpdateMaxToBorrow"
@@ -32,7 +32,7 @@
             :actionConfig="actionConfig"
             @updateToggle="onUpdateToggle"
             @updateAmounts="onUpdateAmounts"
-            @updateMarket="refresherInfo.refresher.manualUpdate()"
+            @updateMarket="createOrUpdateInfo"
             @clearData="resetAmounts"
           />
         </div>
@@ -202,15 +202,11 @@ export default {
 
   watch: {
     account() {
-      if (this.refresherInfo.refresher) {
-        this.refresherInfo.refresher.manualUpdate();
-      }
+      this.createOrUpdateInfo();
     },
 
     activeChainId() {
-      if (this.refresherInfo.refresher) {
-        this.refresherInfo.refresher.manualUpdate();
-      }
+      this.createOrUpdateInfo();
     },
   },
 
@@ -346,6 +342,20 @@ export default {
       return cauldron;
     },
 
+    async createOrUpdateInfo() {
+      const refresher = this.refresherInfo?.refresher;
+      try {
+        if (!refresher) {
+          this.createDataRefresher();
+          await this.refresherInfo.refresher.start();
+        } else {
+          await refresher.manualUpdate();
+        }
+      } catch (error) {
+        console.error("Error creating or updating Market info:", error);
+      }
+    },
+
     createDataRefresher() {
       this.refresherInfo.refresher = new dataRefresher<any>(
         async () => {
@@ -373,8 +383,7 @@ export default {
   },
 
   async created() {
-    this.createDataRefresher();
-    await this.refresherInfo.refresher.start();
+    await this.createOrUpdateInfo();
     this.getWindowSize();
     window.addEventListener("resize", this.getWindowSize, false);
 

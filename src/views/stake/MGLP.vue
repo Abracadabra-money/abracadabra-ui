@@ -306,9 +306,9 @@ export default {
       try {
         if (!refresher) {
           this.createDataRefresher();
-          this.refresherInfo.refresher.start();
+          await this.refresherInfo.refresher.start();
         } else {
-          refresher.manualUpdate();
+          await refresher.manualUpdate();
         }
       } catch (error) {
         console.error("Error creating or updating MagicGLP stake info:", error);
