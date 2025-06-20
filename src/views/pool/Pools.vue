@@ -107,14 +107,17 @@ export default {
 
   watch: {
     account() {
-      if (this.refresherInfo.refresher) {
-        this.refresherInfo.refresher.manualUpdate();
-      }
+      this.createOrUpdateInfo();
     },
     chainId() {
-      if (this.refresherInfo.refresher) {
-        this.refresherInfo.refresher.manualUpdate();
-      }
+      this.createOrUpdateInfo();
+    },
+
+    pools: {
+      handler() {
+        if (this.pools) this.setPoolsList(this.pools);
+      },
+      deep: true,
     },
   },
 
@@ -136,6 +139,20 @@ export default {
       return pools;
     },
 
+    async createOrUpdateInfo() {
+      const refresher = this.refresherInfo?.refresher;
+      try {
+        if (!refresher) {
+          this.createDataRefresher();
+          this.refresherInfo.refresher.start();
+        } else {
+          refresher.manualUpdate();
+        }
+      } catch (error) {
+        console.error("Error creating or updating Pools info:", error);
+      }
+    },
+
     createDataRefresher() {
       this.refresherInfo.refresher = new dataRefresher<any[]>(
         async () => {
@@ -147,7 +164,6 @@ export default {
         (updatedData: any[]) => {
           this.pools = updatedData;
           this.poolsLoading = false;
-          this.setPoolsList(updatedData);
         }
       );
     },
@@ -167,8 +183,7 @@ export default {
 
   async created() {
     this.checkLocalData();
-    this.createDataRefresher();
-    await this.refresherInfo.refresher.start();
+    await this.createOrUpdateInfo();
   },
 
   beforeUnmount() {
