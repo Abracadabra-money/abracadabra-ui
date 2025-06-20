@@ -1,5 +1,5 @@
-import type { MagicLPInfo } from "@/helpers/pools/swap/types";
 import { formatUnits } from "viem";
+import type { MagicLPInfo } from "@/helpers/pools/swap/types";
 
 export const calculatePriceImpactSingleSwap = (
   pool: MagicLPInfo,
@@ -41,19 +41,20 @@ export const calculatePriceImpactSingleSwap = (
 };
 
 export const calculatePriceImpact = (
-  routesInfo: any[] = [] //
+  routesInfo: { priceImpact: number }[] = []
 ): number => {
-  if (!routesInfo.length) {
-    return 0;
-  }
+  if (!routesInfo.length) return 0;
 
-  let totalImpact = 0;
+  const combined = routesInfo.reduce((acc, step) => {
+    const impact = (step.priceImpact ?? 0) / 100;
+    if (!impact) return acc;
 
-  routesInfo.forEach((step) => {
-    totalImpact += step.priceImpact;
-  });
+    return acc * (1 - impact);
+  }, 1);
 
-  console.log(`\nTotal Price impact: ${totalImpact.toFixed(2)}%`);
+  const totalImpact = 1 - combined;
 
-  return totalImpact;
+  console.log(`\nTotal Price impact: ${(totalImpact * 100).toFixed(2)}%`);
+
+  return totalImpact * 100;
 };

@@ -22,6 +22,10 @@ export const errorRegistry = {
     template: "{message}",
   },
 
+  VIEM_BALANCE_ERROR: {
+    template: "Insufficient balance for transfer",
+  },
+
   AXIOS_ERROR: {
     template: "Axios error",
   },

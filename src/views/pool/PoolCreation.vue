@@ -12,16 +12,13 @@
 
       <div class="actions-block" v-show="showSecondStep">
         <div class="action-form">
-          <TokensSelector
-            :baseToken="baseToken"
-            :quoteToken="quoteToken"
-            :baseTokenAmount="actionConfig.baseInAmount"
-            :quoteTokenAmount="actionConfig.quoteInAmount"
-            :isLoading="refresherInfo.isLoading"
-            :disableInputs="disableInputs"
-            @updateTokenInputAmount="updateTokenInputAmount"
-            @openTokensPopup="openTokensPopup"
-          />
+          <TokensSelector :baseToken="baseToken" :quoteToken="quoteToken"
+          :baseTokenAmount="actionConfig.baseInAmount"
+          :quoteTokenAmount="actionConfig.quoteInAmount" <<<<<<< HEAD
+          :isLoading="refresherInfo.isLoading" ======= :isLoading="isLoading"
+          >>>>>>> main :disableInputs="disableInputs"
+          @updateTokenInputAmount="updateTokenInputAmount"
+          @openTokensPopup="openTokensPopup" />
 
           <PriceSelector
             :baseToken="baseToken"
