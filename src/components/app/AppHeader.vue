@@ -65,6 +65,7 @@ export default {
         "Pool",
         "PoolFarm",
         "PotionPoints",
+        "PoolCreation",
       ],
       exception: ["Blast", "PointsDashboard"],
       isClassicHeader: true,

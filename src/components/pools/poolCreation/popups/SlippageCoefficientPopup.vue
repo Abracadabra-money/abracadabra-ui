@@ -51,9 +51,9 @@
         </li>
       </ul>
 
-      <BaseButton primary :disabled="!!error" @click="selectKvalue"
-        >Select</BaseButton
-      >
+      <BaseButton primary :disabled="!!error" @click="selectKvalue">
+        Select
+      </BaseButton>
     </div>
   </div>
 </template>
@@ -226,6 +226,7 @@ export default {
   background: #101622;
   box-shadow: 0px 4px 32px 0px rgba(103, 103, 103, 0.14);
   backdrop-filter: blur(12.5px);
+  overflow-y: auto;
 }
 
 .popup-header {
@@ -329,6 +330,10 @@ export default {
   font-family: Prompt;
   font-size: 14px;
   font-weight: 400;
+}
+
+.default-button {
+  min-height: fit-content;
 }
 
 @media (max-width: 600px) {

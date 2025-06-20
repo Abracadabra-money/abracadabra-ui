@@ -13,6 +13,9 @@ export const errorRegistry = {
   CUSTOM_TEST_ERROR: {
     template: "Example of custom errors.",
   },
+  CUSTOM_LIQUIDITY_TOO_LOW: {
+    template: "Initial liquidity amount is too low, please, add more",
+  },
   //_________________________________
 
   VIEM_ERROR: {
