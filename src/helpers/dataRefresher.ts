@@ -52,18 +52,13 @@ export class dataRefresher<T> {
 
   // Performs the data update and manages loading state.
   private async update(force: boolean = false) {
-    console.log("update called");
-
     if (this.isLoading && !force) return;
-    console.log("isLoading check passsed");
 
     this.isLoading = true;
     this.onLoading(true);
-    console.log("update begins");
     try {
       const data = await this.updateFunction();
       this.onDataUpdate(data);
-      console.log("update success", data);
     } catch (error) {
       console.error("Error updating data:", error);
     } finally {
@@ -71,7 +66,6 @@ export class dataRefresher<T> {
       this.onLoading(false);
       this.remainingTime = this.updateInterval;
       this.onUpdateTime(this.remainingTime);
-      console.log("update ends");
     }
   }
 
