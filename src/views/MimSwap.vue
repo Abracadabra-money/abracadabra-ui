@@ -130,6 +130,7 @@ import { getAllPoolsByChain } from "@/helpers/pools/swap/magicLp";
 import type { ActionConfig, RouteInfo } from "@/helpers/pools/swap/getSwapInfo";
 import { validationActions } from "@/helpers/validators/swap/validationActions";
 import { getPoolConfigsByChains } from "@/helpers/pools/configs/getOrCreatePairsConfigs";
+import { getChainConfig } from "@/helpers/chains/getChainsInfo";
 
 const emptyTokenInfo: TokenInfo = {
   config: {
@@ -294,6 +295,21 @@ export default {
           );
         }
       );
+    },
+
+    availableNetworksQueryNames() {
+      const availableNetworksQueryNames = {} as Record<number, string>;
+
+      this.availableNetworks.forEach((chainId) => {
+        const chainConfig = getChainConfig(chainId);
+
+        if (chainConfig)
+          availableNetworksQueryNames[chainId] = chainConfig.chainName
+            .toLowerCase()
+            .replace(/\s+/g, "-"); // replace all spaces with hyphens
+      });
+
+      return availableNetworksQueryNames;
     },
   },
 
@@ -551,6 +567,7 @@ export default {
 
     changeNetwork(network: number) {
       this.selectedNetwork = network;
+      this.setCurrentNetworkParam();
     },
 
     selectBaseTokens() {
@@ -575,14 +592,32 @@ export default {
       }
     },
 
-    checkChainFromQueryParams() {
-      const chainParam = this.$route.query.chainId;
-      if (chainParam) {
-        const chainId = parseInt(chainParam as string);
-        if (!isNaN(chainId) && this.availableNetworks.includes(chainId)) {
-          this.changeNetwork(chainId);
-        }
+    checkAndSetChainFromQueryParams() {
+      const chainParam = this.$route.query.chain;
+
+      if (!chainParam) {
+        this.setCurrentNetworkParam();
+        return;
       }
+
+      const chainName = (chainParam as string).toLowerCase();
+      const chainId = Object.keys(this.availableNetworksQueryNames).find(
+        (key) => this.availableNetworksQueryNames[Number(key)] === chainName
+      );
+
+      if (chainId && this.availableNetworks.includes(Number(chainId))) {
+        this.changeNetwork(Number(chainId));
+      } else {
+        this.setCurrentNetworkParam();
+      }
+    },
+
+    setCurrentNetworkParam() {
+      this.$router.push({
+        query: {
+          chain: this.availableNetworksQueryNames[this.selectedNetwork],
+        },
+      });
     },
 
     updatedTokenInfo() {
@@ -618,13 +653,23 @@ export default {
     this.nativeTokenPrice = await getNativeTokensPrice(this.availableNetworks);
     this.checkAndSetSelectedChain();
 
-    this.checkChainFromQueryParams();
+    this.checkAndSetChainFromQueryParams();
     await this.createOrUpdateTokensInfo();
     this.selectBaseTokens();
 
     this.updateInterval = setInterval(async () => {
       await this.createOrUpdateTokensInfo();
     }, 10000);
+  },
+
+  beforeUnmount() {
+    const query = { ...this.$route.query };
+    delete query.chain;
+    this.$router.replace({ query });
+
+    if (this.updateInterval) {
+      clearInterval(this.updateInterval);
+    }
   },
 
   components: {
