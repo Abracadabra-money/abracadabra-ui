@@ -24,11 +24,11 @@ import { fetchPairsList } from "@/helpers/pools/configs/fetchPairsList";
 import { fetchPendingPoolsData } from "../poolCreation/fetchPoolsFromFabric";
 
 const poolChains = [
+  NIBIRU_CHAIN_ID,
   MAINNET_CHAIN_ID,
   KAVA_CHAIN_ID,
   ARBITRUM_CHAIN_ID,
   BLAST_CHAIN_ID,
-  NIBIRU_CHAIN_ID,
 ];
 
 export const getPoolConfigsByChains = async (chainsArr: number[] = []) => {
