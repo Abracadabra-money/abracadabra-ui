@@ -138,7 +138,9 @@ export default {
         return false;
       }
 
-      this.inputValue = trimZeroDecimals(formatUnits(value, 18));
+      this.inputValue = trimZeroDecimals(
+        formatUnits(value, this.pool.decimals)
+      );
     },
   },
 

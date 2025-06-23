@@ -1,18 +1,13 @@
-import type {
-  MagicLPInfo,
-  MagicLPInfoUserInfo,
-} from "@/helpers/pools/swap/types";
 import { formatUnits } from "viem";
 import type { Address } from "viem";
-//@ts-ignore
-import BlastMagicLPAbi from "@/abis/BlastMagicLpAbi";
+import magicLpAbi from "@/abis/magicLpAbi";
 import type { PoolConfig } from "@/configs/pools/types";
 import { getPoolInfo } from "@/helpers/pools/getPoolInfo";
+import type { TokenPrice } from "@/helpers/prices/defiLlama";
+import type { MagicLPInfo } from "@/helpers/pools/swap/types";
 import PMMPricing from "@/helpers/pools/swap/libs/PMMPricing";
 import { getSwapRouterByChain } from "@/configs/pools/routers";
-import DecimalMath from "@/helpers/pools/swap/libs/DecimalMath";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
-import type { TokenPrice } from "@/helpers/prices/defiLlama";
 import { getTokenPricesByChain } from "@/helpers/pools/getPoolsTokensPrices";
 
 export const getAllPoolsByChain = async (
@@ -26,15 +21,19 @@ export const getAllPoolsByChain = async (
 
   const tokensPrices = await getTokenPricesByChain(poolConfigsOnChain, chainId);
 
-  const pools = await Promise.all(
-    poolsConfig
-      .filter((config: PoolConfig) => config.chainId === chainId)
-      .map(async (config: PoolConfig) => {
-        return getPoolInfo(chainId, config, tokensPrices, account);
-      })
+  const pools = await Promise.allSettled(
+    poolConfigsOnChain.map(async (config: PoolConfig) => {
+      return getPoolInfo(chainId, config, tokensPrices, account);
+    })
   );
 
-  return pools;
+  return pools
+    .map((response) => {
+      if (response.status === "fulfilled") {
+        return response.value;
+      }
+    })
+    .filter((value) => value !== undefined);
 };
 
 export const getLpInfo = async (
@@ -62,68 +61,68 @@ export const getLpInfo = async (
       //testnet method
       {
         address: lp.contract.address,
-        abi: BlastMagicLPAbi as any,
+        abi: magicLpAbi,
         functionName: "getVaultReserve",
         args: [],
       },
       //mainnet method
       {
         address: lp.contract.address,
-        abi: BlastMagicLPAbi as any,
+        abi: magicLpAbi,
         functionName: "getReserves",
         args: [],
       },
       {
         address: lp.contract.address,
-        abi: BlastMagicLPAbi as any,
+        abi: magicLpAbi,
         functionName: "totalSupply",
         args: [],
       },
       {
         address: lp.contract.address,
-        abi: BlastMagicLPAbi as any,
+        abi: magicLpAbi,
         functionName: "MAX_I",
         args: [],
       },
       {
         address: lp.contract.address,
-        abi: BlastMagicLPAbi as any,
+        abi: magicLpAbi,
         functionName: "MAX_K",
         args: [],
       },
       {
         address: lp.contract.address,
-        abi: BlastMagicLPAbi as any,
+        abi: magicLpAbi,
         functionName: "getPMMState",
         args: [],
       },
       {
         address: lp.contract.address,
-        abi: BlastMagicLPAbi as any,
+        abi: magicLpAbi,
         functionName: "_BASE_TOKEN_",
         args: [],
       },
       {
         address: lp.contract.address,
-        abi: BlastMagicLPAbi as any,
+        abi: magicLpAbi,
         functionName: "_QUOTE_TOKEN_",
         args: [],
       },
       {
         address: lp.contract.address,
-        abi: BlastMagicLPAbi as any,
+        abi: magicLpAbi,
         functionName: "_LP_FEE_RATE_",
         args: [],
       },
       {
         address: lp.baseToken.contract.address,
-        abi: lp.baseToken.contract.abi as any,
+        abi: lp.baseToken.contract.abi,
         functionName: "balanceOf",
         args: [lp.contract.address],
       },
       {
         address: lp.quoteToken.contract.address,
-        abi: lp.quoteToken.contract.abi as any,
+        abi: lp.quoteToken.contract.abi,
         functionName: "balanceOf",
         args: [lp.contract.address],
       },
@@ -134,24 +133,23 @@ export const getLpInfo = async (
   if (lp.stakeContract?.address) {
     stakedTotalSupply = await publicClient.readContract({
       address: lp.stakeContract.address,
-      abi: lp.stakeContract.abi as any,
+      abi: lp.stakeContract.abi,
       functionName: "totalSupply",
       args: [],
     });
   }
 
-  //
   if (lp.lockContract?.address) {
     const lockedSupply = await publicClient.readContract({
       address: lp.lockContract.address,
-      abi: lp.lockContract.abi as any,
+      abi: lp.lockContract.abi,
       functionName: "lockedSupply",
       args: [],
     });
 
     const unlockedSupply = await publicClient.readContract({
       address: lp.lockContract.address,
-      abi: lp.lockContract.abi as any,
+      abi: lp.lockContract.abi,
       functionName: "unlockedSupply",
       args: [],
     });
@@ -177,21 +175,20 @@ export const getLpInfo = async (
       ({ address }) => address === lp.quoteToken.contract.address
     )?.price || 0;
 
+  const iValueDecimals = 18 + lp.quoteToken.decimals - lp.baseToken.decimals;
+
   return {
     ...lp,
     // TODO
     config: lp,
     contract: {
       address: lp.contract.address,
-      abi: BlastMagicLPAbi as any,
+      abi: magicLpAbi,
     },
     vaultReserve: vaultReserve.result || reserves.result,
     totalSupply: totalSupply.result,
     midPrice: Number(
-      formatUnits(
-        PMMPricing.getMidPrice(PMMState.result),
-        lp.quoteToken.decimals
-      )
+      formatUnits(PMMPricing.getMidPrice(PMMState.result), iValueDecimals)
     ),
     MAX_I: MAX_I.result,
     MAX_K: MAX_K.result,
@@ -212,7 +209,7 @@ export const getLpInfo = async (
 
 export const getUserLpInfo = async (
   lp: PoolConfig,
-  blastMIMSwapRouter: Address, // NOTICE
+  swapRouterAddress: Address, // NOTICE
   account: Address | undefined,
   chainId: number,
   lpFeeRate: bigint
@@ -235,7 +232,7 @@ export const getUserLpInfo = async (
       address: lp.contract.address,
       abi: lp.contract.abi,
       functionName: "allowance",
-      args: [account, blastMIMSwapRouter],
+      args: [account, swapRouterAddress],
     },
     {
       address: lp.contract.address,

@@ -13,6 +13,7 @@
         :value="baseTokenValue"
         allowSelectToken
         :isGradientSelector="!checkIsTokenSelected(baseToken)"
+        :disabled="disableInputs"
         @onSelectClick="$emit('openTokensPopup', TokenTypes.Base)"
         @updateInputValue="updateBaseTokenInputAmount"
         v-show="!isLoading"
@@ -38,6 +39,7 @@
         :value="quoteTokenValue"
         allowSelectToken
         :isGradientSelector="!checkIsTokenSelected(quoteToken)"
+        :disabled="disableInputs"
         @onSelectClick="$emit('openTokensPopup', TokenTypes.Quote)"
         @updateInputValue="updateQuoteTokenInputAmount"
         v-show="!isLoading"
@@ -65,6 +67,7 @@ export default {
     },
     baseTokenAmount: BigInt as Prop<bigint>,
     quoteTokenAmount: BigInt as Prop<bigint>,
+    disableInputs: Boolean,
     isLoading: Boolean,
   },
 

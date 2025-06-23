@@ -52,7 +52,9 @@
                 )
               }}
             </div>
-            <div class="token-balance-usd">{{ getTokenBalance(token) }}</div>
+            <div class="token-balance-usd" v-if="token.price">
+              {{ getTokenBalance(token) }}
+            </div>
           </div>
         </div>
       </div>
