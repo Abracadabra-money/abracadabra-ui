@@ -51,7 +51,7 @@
 <script lang="ts">
 import { formatUnits } from "viem";
 import type { PropType } from "vue";
-// import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent } from "vue";
 import { formatLargeSum, formatTokenBalance } from "@/helpers/filters";
 import { getChainIcon } from "@/helpers/chains/getChainIcon";
 import type { MagicLPInfo } from "@/helpers/pools/swap/types";
@@ -180,18 +180,18 @@ export default {
       });
     },
 
-    goToPoolCreation() {
-      this.$router.push({
-        name: "PoolCreation",
-      });
-    },
+    // goToPoolCreation() {
+    //   this.$router.push({
+    //     name: "PoolCreation",
+    //   });
+    // },
   },
 
-  // components: {
-  //   BaseButton: defineAsyncComponent(
-  //     () => import("@/components/base/BaseButton.vue")
-  //   ),
-  // },
+  components: {
+    // BaseButton: defineAsyncComponent(
+    //   () => import("@/components/base/BaseButton.vue")
+    // ),
+  },
 
   async created() {
     this.kavaRewardData = await this.getRewardData();

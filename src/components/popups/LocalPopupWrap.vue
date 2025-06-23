@@ -17,7 +17,7 @@
   </TransitionWrapper>
 </template>
 
-<script>
+<script lang="ts">
 import { defineAsyncComponent } from "vue";
 
 export default {
@@ -44,8 +44,8 @@ export default {
   },
 
   components: {
-    TransitionWrapper: defineAsyncComponent(() =>
-      import("@/components/ui/TransitionWrapper.vue")
+    TransitionWrapper: defineAsyncComponent(
+      () => import("@/components/ui/TransitionWrapper.vue")
     ),
   },
 };

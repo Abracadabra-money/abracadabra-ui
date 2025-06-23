@@ -4,41 +4,19 @@
     v-if="isOpenNotifiModal && !!account"
     @click="toggleNotifiModal"
   ></div>
-  <div class="notifi-modal-container">
+  <div class="notifi-modal-container"> 
     <div class="notifi-card">
       <Context
-        v-if="isOpenNotifiModal && !!account"
-        dappAddress="abracadabra"
+        :key="`${account}-${notifiCardId}-${notifiWalletBlockchain}`"
+        tenantId="abracadabra"
         env="Production"
         :walletPublicKey="account"
         :walletBlockchain="notifiWalletBlockchain"
         :signMessage="signMessage"
+        :cardId="notifiCardId" 
+        :inputs="{ walletAddress: [{ label: '', value: account }] }"
       >
-        <Card
-          :cardId="notifiCardId"
-          :darkMode="true"
-          :inputs="{ userWallet: account }"
-          :copy="{
-            FetchedStateCard: {
-              SubscriptionCardV1: {
-                EditCard: {
-                  AlertListPreview: {
-                    description:
-                      'Get real-time alerts to the destinations of your choice',
-                  },
-                },
-              },
-            },
-          }"
-          :inputSeparators="{
-            smsSeparator: {
-              content: 'OR',
-            },
-            telegramSeparator: {
-              content: 'OR',
-            },
-          }"
-        />
+        <Card v-if="isOpenNotifiModal && !!account" :darkMode="true" />
       </Context>
     </div>
   </div>
@@ -47,9 +25,9 @@
 <script>
 import { mapGetters } from "vuex";
 import {
-  NotifiSubscriptionCard,
-  NotifiContext,
-} from "@notifi-network/notifi-react-card";
+  NotifiContextProvider,
+  NotifiCardModal,
+} from "@notifi-network/notifi-react";
 import { applyReactInVue, applyPureReactInVue } from "veaury";
 
 export default {
@@ -74,8 +52,8 @@ export default {
     },
   },
   components: {
-    Card: applyPureReactInVue(NotifiSubscriptionCard),
-    Context: applyReactInVue(NotifiContext),
+    Card: applyPureReactInVue(NotifiCardModal),
+    Context: applyReactInVue(NotifiContextProvider),
   },
 };
 </script>
@@ -93,6 +71,13 @@ export default {
   position: absolute;
   z-index: 10;
 }
+
+.notifi-card:has(.notifi-connect),
+.notifi-card:has(.notifi-error-global) {
+  transform: translateX(-63%) translateY(30%);
+}
+
+
 .notifi-card-overlay {
   width: 100vw;
   height: 100vh;
@@ -107,6 +92,11 @@ export default {
     position: fixed;
     left: 50%;
     top: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .notifi-card:has(.notifi-connect),
+  .notifi-card:has(.notifi-ftu),
+  .notifi-card:has(.notifi-error-global) {
     transform: translate(-50%, -50%);
   }
 }

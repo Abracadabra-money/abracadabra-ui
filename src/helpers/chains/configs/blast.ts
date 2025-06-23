@@ -2,6 +2,7 @@ import { blast } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
 import { getRpcListByChainId } from "@/helpers/chains/utils";
 import { initPublicClient } from "@/helpers/chains/initPublicClient";
+import type { Address } from "viem";
 
 const rpcList = getRpcListByChainId(blast.id);
 
@@ -27,6 +28,8 @@ export const blastConfig = {
   icon: useImage("assets/images/networks/blast.png"),
   baseTokenIcon: useImage("assets/images/tokens/ETH.png"),
   baseTokenSymbol: "ETH",
+  wrappedNativeTokenAddress:
+    "0x4300000000000000000000000000000000000004" as Address,
   networkIcon: useImage(`assets/images/networks/blast.png`),
   lzChainId: 243,
 };

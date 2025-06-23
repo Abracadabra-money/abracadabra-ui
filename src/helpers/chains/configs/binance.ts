@@ -2,6 +2,7 @@ import { bsc } from "@wagmi/core/chains";
 import { useImage } from "@/helpers/useImage";
 import { getRpcListByChainId } from "@/helpers/chains/utils";
 import { initPublicClient } from "@/helpers/chains/initPublicClient";
+import type { Address } from "viem";
 
 const rpcList = getRpcListByChainId(bsc.id);
 
@@ -27,6 +28,8 @@ export const binanceConfig = {
   icon: useImage("assets/images/networks/binance-icon.svg"),
   baseTokenIcon: useImage("assets/images/tokens/BNB.png"),
   baseTokenSymbol: "BNB",
+  wrappedNativeTokenAddress:
+    "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c" as Address,
   networkIcon: useImage(`assets/images/networks/binance.svg`),
   lzChainId: 102,
 };

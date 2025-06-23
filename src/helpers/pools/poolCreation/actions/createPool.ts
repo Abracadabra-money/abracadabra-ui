@@ -4,7 +4,7 @@ import {
   waitForTransactionReceiptHelper,
 } from "@/helpers/walletClienHelper";
 import type { Address } from "viem";
-import BlastMIMSwapRouterAbi from "@/abis/BlastMIMSwapRouter";
+import { getPoolAbiAndPayloadHandler } from "../utils/createPoolAbisAndPayloadHandler";
 
 export type ActionConfig = {
   baseToken: Address;
@@ -22,37 +22,9 @@ export const createPool = async (
   swapRouterAddress: Address,
   payload: ActionConfig
 ) => {
-  const {
-    baseToken,
-    quoteToken,
-    lpFeeRate,
-    I,
-    K,
-    to,
-    baseInAmount,
-    quoteInAmount,
-    protocolOwnedPool,
-  } = payload;
-
-  const { request } = await simulateContractHelper({
-    address: swapRouterAddress,
-    abi: BlastMIMSwapRouterAbi,
-    functionName: "createPool",
-    args: [
-      baseToken,
-      quoteToken,
-      lpFeeRate,
-      I,
-      K,
-      to,
-      baseInAmount,
-      quoteInAmount,
-      protocolOwnedPool,
-    ],
-  });
-
+  const handler = getPoolAbiAndPayloadHandler(swapRouterAddress);
+  const { request } = await simulateContractHelper(handler.createPool(payload));
   const hash = await writeContractHelper(request);
-
   return await waitForTransactionReceiptHelper({ hash });
 };
 
@@ -61,40 +33,11 @@ export const createPoolNative = async (
   payload: ActionConfig,
   useTokenAsQuote: boolean
 ) => {
-  const {
-    baseToken,
-    quoteToken,
-    lpFeeRate,
-    I,
-    K,
-    to,
-    baseInAmount,
-    quoteInAmount,
-    protocolOwnedPool,
-  } = payload;
+  const handler = getPoolAbiAndPayloadHandler(swapRouterAddress);
 
-  const value = useTokenAsQuote ? quoteInAmount : baseInAmount;
-  const token = useTokenAsQuote ? baseToken : quoteToken;
-  const tokenInAmount = useTokenAsQuote ? baseInAmount : quoteInAmount;
-
-  const { request } = await simulateContractHelper({
-    address: swapRouterAddress,
-    abi: BlastMIMSwapRouterAbi,
-    functionName: "createPoolETH",
-    args: [
-      token,
-      useTokenAsQuote,
-      lpFeeRate,
-      I,
-      K,
-      to,
-      tokenInAmount,
-      protocolOwnedPool,
-    ],
-    value,
-  });
-
+  const { request } = await simulateContractHelper(
+    handler.createPoolETH(payload, useTokenAsQuote)
+  );
   const hash = await writeContractHelper(request);
-
   return await waitForTransactionReceiptHelper({ hash });
 };

@@ -163,7 +163,7 @@ const _RAboveSellQuoteToken = (state: PMMState, payQuoteAmount: bigint) => {
 };
 
 export const getMidPrice = (state: PMMState) => {
-  if (state.R == RState.BELOW_ONE) {
+  if (state?.R == RState.BELOW_ONE) {
     let R = DecimalMath.divFloor((state.Q0 * state.Q0) / state.Q, state.Q);
     R = DecimalMath.ONE - state.K + DecimalMath.mulFloor(state.K, R);
     return DecimalMath.divFloor(state.i, R);

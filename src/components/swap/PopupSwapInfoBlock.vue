@@ -35,7 +35,6 @@ import {
   formatPercent,
   formatToFixed,
   formatTokenBalance,
-  formatUSD,
 } from "@/helpers/filters";
 import { formatUnits } from "viem";
 import { defineAsyncComponent, type Prop } from "vue";
@@ -81,11 +80,6 @@ export default {
     swapPriceImpact() {
       return formatPercent(formatToFixed(this.priceImpact, 2));
     },
-  },
-
-  methods: {
-    formatUSD,
-    formatPercent,
   },
 
   components: {
