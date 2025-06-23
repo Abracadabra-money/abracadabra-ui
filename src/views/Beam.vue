@@ -137,11 +137,6 @@
 </template>
 
 <script lang="ts">
-import type {
-  BeamInfo,
-  BeamConfig,
-  DestinationChainInfo,
-} from "@/helpers/beam/types";
 import {
   BASE_CHAIN_ID,
   LINEA_CHAIN_ID,
@@ -151,23 +146,25 @@ import { ethers, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
 import { formatUnits, type Address } from "viem";
+import { approveToken } from "@/helpers/approval";
 import type { ContractInfo } from "@/types/global";
 import { sendFrom } from "@/helpers/beam/sendFrom";
 import { sendLzV2 } from "@/helpers/beam/sendLzV2";
 import { MIM_ID, SPELL_ID } from "@/constants/beam";
 import { trimZeroDecimals } from "@/helpers/numbers";
-import { approveToken } from "@/helpers/approval";
+import type { BeamInfo } from "@/helpers/beam/types";
 import { removeDust } from "@/helpers/beam/removeDust";
 import { beamConfigs } from "@/configs/beam/beamConfigs";
 import { getBeamInfo } from "@/helpers/beam/getBeamInfo";
 import { Options } from "@layerzerolabs/lz-v2-utilities";
+import { openConnectPopup } from "@/helpers/connect/utils";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import notification from "@/helpers/notification/notification";
+import ErrorHandler from "@/helpers/errorHandler/ErrorHandler";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { quoteSendFee } from "@/helpers/beam/getEstimateSendFee";
 import { getBeamChainInfo } from "@/helpers/beam/getBeamChainInfo";
 import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFee";
-import { openConnectPopup } from "@/helpers/connect/utils";
 
 export default {
   data() {
@@ -515,28 +512,6 @@ export default {
       }
     },
 
-    // todo Error handler
-    async errorTransaction(error: any, notificationId: any) {
-      const errorNotification = {
-        msg: "Transaction encountered an Error",
-        type: "error",
-      };
-
-      if (
-        String(error?.data?.message).indexOf("insufficient funds") !== -1 ||
-        String(error?.data?.message).indexOf(
-          "insufficient balance for transfer"
-        ) !== -1 ||
-        String(error).indexOf("insufficient funds") !== -1 ||
-        String(error?.message).indexOf("insufficient funds") !== -1
-      ) {
-        errorNotification.msg = "Insufficient balance for transfer";
-      }
-
-      this.deleteNotification(notificationId);
-      await this.createNotification(errorNotification);
-    },
-
     async updateDstNativeTokenAmount(value: bigint) {
       this.dstTokenAmount = value;
       this.estimateSendFee = await this.getEstimatedFees();
@@ -674,8 +649,7 @@ export default {
       } catch (error) {
         console.log("Seend Beam Error:", error);
         this.isBeaming = false;
-        // todo Error handler
-        this.errorTransaction(error, notificationId);
+        ErrorHandler.handleError(error as Error);
       }
     },
 
@@ -723,8 +697,7 @@ export default {
       } catch (error) {
         console.log("Seend Beam Error:", error);
         this.isBeaming = false;
-        // todo Error handler
-        this.errorTransaction(error, notificationId);
+        ErrorHandler.handleError(error as Error);
       }
     },
 
