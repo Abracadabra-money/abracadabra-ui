@@ -269,7 +269,7 @@ const validateBorrow = (
   const mimToBorrow = useLeverage ? leverageAmounts.amountFrom : borrowAmount;
 
   const cauldronMimLeftCheck = mimToBorrow.lte(BigNumber.from(mimLeftToBorrow));
-  const userMaxBorrowCheck = mimToBorrow.lte(userMaxBorrow);
+  const userMaxBorrowCheck = mimToBorrow.lte(BigNumber.from(userMaxBorrow));
   const positionMaxToBorrowCheck = mimToBorrow.lte(maxBorrowAmount);
 
   if (!positionMaxToBorrowCheck)

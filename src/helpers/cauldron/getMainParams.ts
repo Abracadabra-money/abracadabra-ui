@@ -84,11 +84,8 @@ export const getMainParams = async (
       oracleExchangeRate: result.oracleExchangeRate,
       totalBorrowed: result.totalBorrowed,
       tvl: result.totalCollateral.value,
-      userMaxBorrow: BigNumber.from(result.userMaxBorrow),
+      userMaxBorrow: result.userMaxBorrow,
       updatePrice,
-      alternativeData: {
-        userMaxBorrow: result.userMaxBorrow,
-      },
     };
   });
 };

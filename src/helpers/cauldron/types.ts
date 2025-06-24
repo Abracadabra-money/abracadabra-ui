@@ -42,11 +42,8 @@ export type MainParams = {
   oracleExchangeRate: bigint;
   totalBorrowed: bigint;
   tvl: bigint;
-  userMaxBorrow: BigNumber;
+  userMaxBorrow: bigint;
   updatePrice: boolean;
-  alternativeData: {
-    userMaxBorrow: bigint;
-  };
 };
 
 export type UserTokensInfo = {
