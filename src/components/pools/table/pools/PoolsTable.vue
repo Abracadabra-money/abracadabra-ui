@@ -201,7 +201,14 @@ export default {
 
   watch: {
     pools() {
-      this.selectedChains = this.getActiveChain();
+      const activeChains = this.getActiveChain();
+      this.selectedChains = this.selectedChains.filter((chainId) =>
+        activeChains.includes(chainId)
+      );
+
+      if (this.selectedChains.length === 0) {
+        this.selectedChains = [...activeChains];
+      }
     },
   },
 
