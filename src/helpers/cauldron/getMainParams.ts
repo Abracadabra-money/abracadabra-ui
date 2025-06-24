@@ -78,7 +78,7 @@ export const getMainParams = async (
       borrowFee: Number(result.borrowFee) / 100,
       interest,
       liquidationFee: Number(result.liquidationFee) / 100,
-      collateralPrice: BigNumber.from(result.collateralPrice),
+      collateralPrice: result.collateralPrice,
       mimLeftToBorrow: BigNumber.from(result.marketMaxBorrow),
       maximumCollateralRatio: BigNumber.from(result.maximumCollateralRatio),
       oracleExchangeRate: BigNumber.from(result.oracleExchangeRate),
@@ -87,7 +87,6 @@ export const getMainParams = async (
       userMaxBorrow: BigNumber.from(result.userMaxBorrow),
       updatePrice,
       alternativeData: {
-        collateralPrice: result.collateralPrice,
         mimLeftToBorrow: result.marketMaxBorrow,
         maximumCollateralRatio: result.maximumCollateralRatio,
         oracleExchangeRate: result.oracleExchangeRate,
