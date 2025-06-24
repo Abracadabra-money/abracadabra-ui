@@ -158,8 +158,18 @@ export default {
   },
 
   watch: {
-    cauldronsLoading() {
-      if (!this.cauldronsLoading) this.selectedChains = this.getActiveChain();
+    cauldrons: {
+      handler() {
+        const activeChains = this.getActiveChain();
+        this.selectedChains = this.selectedChains.filter((chainId) =>
+          activeChains.includes(chainId)
+        );
+
+        if (this.selectedChains.length === 0) {
+          this.selectedChains = [...activeChains];
+        }
+      },
+      deep: true,
     },
   },
 
