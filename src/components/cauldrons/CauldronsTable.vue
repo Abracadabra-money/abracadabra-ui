@@ -301,8 +301,7 @@ export default {
       if (key === "TVL") return cauldron.mainParams.alternativeData.tvl;
       if (key === "TMB")
         return cauldron.mainParams.alternativeData.totalBorrowed;
-      if (key === "MIMS LB")
-        return cauldron.mainParams.alternativeData.mimLeftToBorrow;
+      if (key === "MIMS LB") return cauldron.mainParams.mimLeftToBorrow;
       if (key === "Interest") return cauldron.mainParams.interest;
       if (key === "APR") return +cauldron.apr.value;
     },

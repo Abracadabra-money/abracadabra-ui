@@ -5,6 +5,7 @@ import { expandDecimals } from "../gm/fee/expandDecials";
 import { getMaxToBorrow, getMaxCollateralToRemove } from "./utils";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
 import type { Address } from "viem";
+import { BigNumber } from "ethers";
 
 export const WARNING_TYPES = {
   DEPOSIT_ALLOWANCE: 0,
@@ -268,7 +269,7 @@ const validateBorrow = (
 
   const mimToBorrow = useLeverage ? leverageAmounts.amountFrom : borrowAmount;
 
-  const cauldronMimLeftCheck = mimToBorrow.lte(mimLeftToBorrow);
+  const cauldronMimLeftCheck = mimToBorrow.lte(BigNumber.from(mimLeftToBorrow));
   const userMaxBorrowCheck = mimToBorrow.lte(userMaxBorrow);
   const positionMaxToBorrowCheck = mimToBorrow.lte(maxBorrowAmount);
 

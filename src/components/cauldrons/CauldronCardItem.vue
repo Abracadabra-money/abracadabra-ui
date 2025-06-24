@@ -41,9 +41,7 @@
       <div>
         <h3 class="title">MIMS LB</h3>
         <div class="value">
-          {{
-            formatLargeSum(cauldron.mainParams.alternativeData.mimLeftToBorrow)
-          }}
+          {{ formatLargeSum(cauldron.mainParams.mimLeftToBorrow) }}
         </div>
       </div>
 

@@ -27,7 +27,7 @@
     </div>
 
     <div class="column">
-      {{ formatLargeSum(cauldron.mainParams.alternativeData.mimLeftToBorrow) }}
+      {{ formatLargeSum(cauldron.mainParams.mimLeftToBorrow) }}
     </div>
 
     <div class="column">{{ cauldron.mainParams.interest }}%</div>
