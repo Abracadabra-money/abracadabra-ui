@@ -210,8 +210,19 @@ export default {
       }
     },
 
-    cauldrons() {
-      this.selectedChains = this.getActiveChain() || [];
+    cauldrons: {
+      handler(newVal, oldVal) {
+        const activeChains = this.getActiveChain() || [];
+
+        if (!oldVal || oldVal.length === 0) {
+          this.selectedChains = [...activeChains];
+        } else {
+          this.selectedChains = this.selectedChains.filter((chainId) =>
+            activeChains.includes(chainId)
+          );
+        }
+      },
+      deep: true,
     },
   },
 

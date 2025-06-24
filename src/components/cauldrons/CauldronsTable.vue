@@ -159,14 +159,15 @@ export default {
 
   watch: {
     cauldrons: {
-      handler() {
+      handler(newVal, oldVal) {
         const activeChains = this.getActiveChain();
-        this.selectedChains = this.selectedChains.filter((chainId) =>
-          activeChains.includes(chainId)
-        );
 
-        if (this.selectedChains.length === 0) {
+        if (!oldVal || oldVal.length === 0) {
           this.selectedChains = [...activeChains];
+        } else {
+          this.selectedChains = this.selectedChains.filter((chainId) =>
+            activeChains.includes(chainId)
+          );
         }
       },
       deep: true,
