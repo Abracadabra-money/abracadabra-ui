@@ -82,12 +82,11 @@ export const getMainParams = async (
       mimLeftToBorrow: result.marketMaxBorrow,
       maximumCollateralRatio: result.maximumCollateralRatio, // NOTICE nod used except test files
       oracleExchangeRate: result.oracleExchangeRate,
-      totalBorrowed: BigNumber.from(result.totalBorrowed),
+      totalBorrowed: result.totalBorrowed,
       tvl: BigNumber.from(result.totalCollateral.value),
       userMaxBorrow: BigNumber.from(result.userMaxBorrow),
       updatePrice,
       alternativeData: {
-        totalBorrowed: result.totalBorrowed,
         tvl: result.totalCollateral.value,
         userMaxBorrow: result.userMaxBorrow,
       },

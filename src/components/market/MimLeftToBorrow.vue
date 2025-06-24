@@ -55,9 +55,7 @@ export default {
     },
 
     totalMimToBorrow(): string {
-      const { totalBorrowed } = this.cauldron!.mainParams.alternativeData;
-
-      const { mimLeftToBorrow } = this.cauldron!.mainParams;
+      const { mimLeftToBorrow, totalBorrowed } = this.cauldron!.mainParams;
 
       return formatLargeSum(
         formatUnits(mimLeftToBorrow + totalBorrowed, MIM_DECIMALS)
@@ -65,9 +63,7 @@ export default {
     },
 
     currentFrame(): number {
-      const { totalBorrowed } = this.cauldron!.mainParams.alternativeData;
-
-      const { mimLeftToBorrow } = this.cauldron!.mainParams;
+      const { mimLeftToBorrow, totalBorrowed } = this.cauldron!.mainParams;
 
       const expandDecimals = parseUnits("1", MIM_DECIMALS);
       const totalMimToBorrow = mimLeftToBorrow + totalBorrowed;

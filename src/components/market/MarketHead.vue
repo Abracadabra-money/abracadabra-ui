@@ -102,7 +102,7 @@ export default {
 
     totalMimBorrowed() {
       return formatLargeSum(
-        formatUnits(this.cauldron.mainParams.alternativeData.totalBorrowed, 18)
+        formatUnits(this.cauldron.mainParams.totalBorrowed, 18)
       );
     },
 

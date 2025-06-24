@@ -23,7 +23,7 @@
     </div>
 
     <div class="column">
-      {{ formatLargeSum(cauldron.mainParams.alternativeData.totalBorrowed) }}
+      {{ formatLargeSum(cauldron.mainParams.totalBorrowed) }}
     </div>
 
     <div class="column">
