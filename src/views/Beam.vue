@@ -44,7 +44,7 @@
           :toChain="toChainConfig"
           :fromChain="fromChainConfig"
           :tokenType="tokenType"
-          :isChainsDisabled="refresherInfo.isLoading"
+          :isChainsDisabled="tokenTypeChangeLoading"
           @onChainSelectClick="openNetworkPopup"
           @switchChains="switchChains"
         />
@@ -53,7 +53,7 @@
           <div>
             <h4 class="input-label">{{ tokenSymbol }} to Beam</h4>
 
-            <div class="row-skeleton" v-if="refresherInfo.isLoading"></div>
+            <div class="row-skeleton" v-if="tokenTypeChangeLoading"></div>
 
             <BaseTokenInput
               v-else
@@ -187,6 +187,7 @@ export default {
       isShowDstAddress: false,
       estimateSendFee: 0n,
       tokenType: MIM_ID,
+      tokenTypeChangeLoading: false,
       fromChainId: null as null | number,
       toChainId: null as null | number,
       refresherInfo: {
@@ -411,7 +412,9 @@ export default {
 
       this.clearData();
 
-      this.createOrUpdateInfo();
+      this.tokenTypeChangeLoading = true;
+      await this.createOrUpdateInfo();
+      this.tokenTypeChangeLoading = false;
     },
   },
 
