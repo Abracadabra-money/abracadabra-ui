@@ -44,7 +44,7 @@
           :toChain="toChainConfig"
           :fromChain="fromChainConfig"
           :tokenType="tokenType"
-          :isChainsDisabled="refresherInfo.isLoading || tokenType === 1"
+          :isChainsDisabled="refresherInfo.isLoading"
           @onChainSelectClick="openNetworkPopup"
           @switchChains="switchChains"
         />
@@ -404,16 +404,12 @@ export default {
       }
     },
 
-    // todo spell
     async tokenType() {
       this.isOpenNetworkPopup = false;
       this.isShowDstAddress = false;
       this.isSettingsOpened = false;
 
       this.clearData();
-      if (this.tokenType === SPELL_ID) {
-        return;
-      }
 
       this.createOrUpdateInfo();
     },
