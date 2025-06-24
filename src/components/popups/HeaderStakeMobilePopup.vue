@@ -21,9 +21,11 @@
             />
             Spell
           </span>
-          <span class="apr" v-if="spellApr"
-            >APR: {{ formatPercent(spellApr) }}</span
-          >
+          <span class="apr" v-if="spellApr !== null">
+            <span v-if="Number(spellApr) > 0"
+              >APR: {{ formatPercent(spellApr) }}</span
+            >
+          </span>
           <div class="loader-wrap" v-else>
             <BaseLoader type="loader" />
           </div>
@@ -41,9 +43,11 @@
             <img class="link-icon" src="@/assets/images/stake/tokens/GLP.png" />
             GLP
           </span>
-          <span class="apr" v-if="glpApr"
-            >APR: {{ formatPercent(glpApr) }}</span
-          >
+          <span class="apr" v-if="glpApr !== null">
+            <span v-if="Number(glpApr) > 0"
+              >APR: {{ formatPercent(glpApr) }}</span
+            >
+          </span>
           <div class="loader-wrap" v-else>
             <BaseLoader type="loader" />
           </div>

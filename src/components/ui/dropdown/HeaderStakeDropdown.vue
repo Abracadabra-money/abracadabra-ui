@@ -16,7 +16,10 @@
 
     <TransitionWrapper animation-type="roll">
       <div class="list" v-show="showDropdownList">
-        <router-link class="list-link" :to="{ name: 'StakeSpell', query: { token: 'mSpell' } }">
+        <router-link
+          class="list-link"
+          :to="{ name: 'StakeSpell', query: { token: 'mSpell' } }"
+        >
           <div class="link-title">
             <span class="stake-token">
               <img
@@ -25,9 +28,11 @@
               />
               Spell
             </span>
-            <span class="apr" v-if="spellApr"
-              >APR: {{ formatPercent(spellApr) }}</span
-            >
+            <span class="apr" v-if="spellApr !== null">
+              <span v-if="Number(spellApr) > 0"
+                >APR: {{ formatPercent(spellApr) }}</span
+              >
+            </span>
             <div class="loader-wrap" v-else>
               <BaseLoader type="loader" />
             </div>
@@ -44,9 +49,12 @@
               />
               GLP
             </span>
-            <span class="apr" v-if="glpApr"
-              >APR: {{ formatPercent(glpApr) }}</span
-            >
+            <span class="apr" v-if="glpApr !== null">
+              <span v-if="Number(glpApr) > 0"
+                >APR: {{ formatPercent(glpApr) }}</span
+              >
+            </span>
+
             <div class="loader-wrap" v-else>
               <BaseLoader type="loader" />
             </div>
