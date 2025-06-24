@@ -18,9 +18,7 @@
       </div>
     </div>
 
-    <div class="column">
-      ${{ formatLargeSum(cauldron.mainParams.alternativeData.tvl) }}
-    </div>
+    <div class="column">${{ formatLargeSum(cauldron.mainParams.tvl) }}</div>
 
     <div class="column">
       {{ formatLargeSum(cauldron.mainParams.totalBorrowed) }}

@@ -24,9 +24,7 @@
     <div class="row">
       <div>
         <h3 class="title">TVL</h3>
-        <div class="value">
-          ${{ formatLargeSum(cauldron.mainParams.alternativeData.tvl) }}
-        </div>
+        <div class="value">${{ formatLargeSum(cauldron.mainParams.tvl) }}</div>
       </div>
 
       <div>

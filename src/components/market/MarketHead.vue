@@ -107,9 +107,7 @@ export default {
     },
 
     totalValueLocked() {
-      return formatLargeSum(
-        formatUnits(this.cauldron.mainParams.alternativeData.tvl, 18)
-      );
+      return formatLargeSum(formatUnits(this.cauldron.mainParams.tvl, 18));
     },
 
     cauldronScanUrl() {

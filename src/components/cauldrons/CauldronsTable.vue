@@ -298,7 +298,7 @@ export default {
     },
 
     getSortKey(cauldron, key) {
-      if (key === "TVL") return cauldron.mainParams.alternativeData.tvl;
+      if (key === "TVL") return cauldron.mainParams.tvl;
       if (key === "TMB") return cauldron.mainParams.totalBorrowed;
       if (key === "MIMS LB") return cauldron.mainParams.mimLeftToBorrow;
       if (key === "Interest") return cauldron.mainParams.interest;

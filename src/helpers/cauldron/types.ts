@@ -41,11 +41,10 @@ export type MainParams = {
   maximumCollateralRatio: bigint;
   oracleExchangeRate: bigint;
   totalBorrowed: bigint;
-  tvl: BigNumber;
+  tvl: bigint;
   userMaxBorrow: BigNumber;
   updatePrice: boolean;
   alternativeData: {
-    tvl: bigint;
     userMaxBorrow: bigint;
   };
 };
