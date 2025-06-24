@@ -112,7 +112,7 @@ export default {
         userCollateralAmount,
         expectedBorrowAmount,
         mcr,
-        oracleExchangeRate
+        BigNumber.from(oracleExchangeRate)
       );
 
       if (maxToRemove.gt(userCollateralAmount)) return userCollateralAmount;

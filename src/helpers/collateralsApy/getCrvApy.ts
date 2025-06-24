@@ -10,34 +10,40 @@ import type { CauldronListItem } from "../cauldron/lists/getMarketList";
 const NORMAL_DECIMALS = 18;
 const ONE_IN_NORMAL_DECIMALS = ONE_ETHER_VIEM;
 
-const getCrvApy = async (pool: CauldronListItem, baseRewardPoolAddress: Address) => {
+const getCrvApy = async (
+  pool: CauldronListItem,
+  baseRewardPoolAddress: Address
+) => {
   try {
-    const publicClient = getPublicClient(MAINNET_CHAIN_ID)
+    const publicClient = getPublicClient(MAINNET_CHAIN_ID);
 
     const [rewardRate, totalSupply] = await publicClient.multicall({
       contracts: [
         {
           address: baseRewardPoolAddress,
           abi: crvRewardPoolAbi,
-          functionName: "rewardRate"
+          functionName: "rewardRate",
         },
         {
           address: baseRewardPoolAddress,
           abi: crvRewardPoolAbi,
-          functionName: "totalSupply"
+          functionName: "totalSupply",
         },
-      ]
-    })
+      ],
+    });
 
     const rewardRateBigint = rewardRate.result as bigint;
     const totalSupplyBigint = totalSupply.result as bigint;
 
-    const tokenIn1000Usd = 1000n * pool.mainParams.alternativeData.oracleExchangeRate;
+    const tokenIn1000Usd = 1000n * pool.mainParams.oracleExchangeRate;
 
     const secondsPerYear = 31536000n;
 
     const crvReward =
-      ((rewardRateBigint * ONE_IN_NORMAL_DECIMALS / totalSupplyBigint) * tokenIn1000Usd * secondsPerYear) / ONE_IN_NORMAL_DECIMALS;
+      (((rewardRateBigint * ONE_IN_NORMAL_DECIMALS) / totalSupplyBigint) *
+        tokenIn1000Usd *
+        secondsPerYear) /
+      ONE_IN_NORMAL_DECIMALS;
 
     const cvxReward = await convertCrvToCvx(crvReward, publicClient);
 
@@ -52,9 +58,11 @@ const getCrvApy = async (pool: CauldronListItem, baseRewardPoolAddress: Address)
       getTokenPriceByChain(
         tokensChainLink.cvx.chainId,
         tokensChainLink.cvx.address
-      )]);
+      ),
+    ]);
 
-    const apy = (formattedCrvReward * crvPrice + formattedCvxReward * cvxPrice) / 10;
+    const apy =
+      (formattedCrvReward * crvPrice + formattedCvxReward * cvxPrice) / 10;
     return apy;
   } catch (e) {
     console.log("getCrvToCvx err", e);
@@ -63,38 +71,36 @@ const getCrvApy = async (pool: CauldronListItem, baseRewardPoolAddress: Address)
 
 const convertCrvToCvx = async (amount: bigint, publicClient: PublicClient) => {
   try {
-    const cvxTokenContract =
-    {
+    const cvxTokenContract = {
       address: "0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b" as Address,
-      abi: tokenCVXAbi
+      abi: tokenCVXAbi,
     };
-
 
     const [
       supplyResponse,
       reductionPerCliffResponse,
       totalCliffsResponse,
-      maxSupplyResponse
+      maxSupplyResponse,
     ] = await publicClient.multicall({
       contracts: [
         {
           ...cvxTokenContract,
-          functionName: "totalSupply"
+          functionName: "totalSupply",
         },
         {
           ...cvxTokenContract,
-          functionName: "reductionPerCliff"
+          functionName: "reductionPerCliff",
         },
         {
           ...cvxTokenContract,
-          functionName: "totalCliffs"
+          functionName: "totalCliffs",
         },
         {
           ...cvxTokenContract,
-          functionName: "maxSupply"
+          functionName: "maxSupply",
         },
-      ]
-    })
+      ],
+    });
     const supply = supplyResponse.result as bigint;
     const reductionPerCliff = reductionPerCliffResponse.result as bigint;
     const totalCliffs = totalCliffsResponse.result as bigint;
@@ -105,7 +111,7 @@ const convertCrvToCvx = async (amount: bigint, publicClient: PublicClient) => {
       //for reduction% take inverse of current cliff
       const reduction = totalCliffs - cliff;
       //reduce
-      amount = amount * reduction / totalCliffs;
+      amount = (amount * reduction) / totalCliffs;
       //supply cap check
       const amtTillMax = maxSupply - supply;
 

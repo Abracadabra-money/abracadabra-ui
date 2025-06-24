@@ -182,7 +182,7 @@ export default {
 
       const { status } = getPositionHealth(
         this.expectedLiquidationPrice,
-        oracleExchangeRate,
+        BigNumber.from(oracleExchangeRate),
         decimals
       );
 
@@ -226,7 +226,7 @@ export default {
       const deleverageAmounts = getDeleverageAmounts(
         value,
         this.slippage!,
-        oracleExchangeRate
+        BigNumber.from(oracleExchangeRate)
       );
 
       this.$emit("updateDeleverageAmounts", deleverageAmounts);

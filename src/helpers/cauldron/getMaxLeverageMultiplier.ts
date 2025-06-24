@@ -23,7 +23,9 @@ export const getMaxLeverageMultiplier = (
   const { userBorrowAmount } = userPosition.borrowInfo;
   const { userCollateralAmount } = userPosition.collateralInfo;
 
-  const exchangeRate = +utils.formatUnits(oracleExchangeRate, decimals);
+  const exchangeRate = Number(
+    utils.formatUnits(BigNumber.from(oracleExchangeRate), decimals)
+  );
   const borrowAmount = !ignoreUserPosition
     ? +utils.formatUnits(userBorrowAmount)
     : 0;
@@ -74,7 +76,7 @@ export const getMaxLeverageMultiplierAlternative = (
   { mainParams, config, userPosition }: any,
   ignoreUserPosition = true,
   depositAmount: BigNumber = BigNumber.from(0),
-  slippage: BigNumber = expandDecimals(1, 2),
+  slippage: BigNumber = expandDecimals(1, 2)
 ) => {
   const { mcr } = config;
   const { oracleExchangeRate } = mainParams;
@@ -94,7 +96,7 @@ export const getMaxLeverageMultiplierAlternative = (
     : utils.parseUnits("10", decimals);
 
   const collateralPrice = expandDecimals(1, 18 + decimals).div(
-    oracleExchangeRate
+    BigNumber.from(oracleExchangeRate)
   );
 
   let multiplier = 2;
@@ -112,7 +114,7 @@ export const getMaxLeverageMultiplierAlternative = (
       multiplierParsed,
       //@ts-ignore
       slippage,
-      oracleExchangeRate
+      BigNumber.from(oracleExchangeRate)
     );
 
     const finalCollateralAmount = testCollateral.add(
@@ -172,7 +174,7 @@ export const getBorrowAmountByMultiplier = (
   // We return the borrowed amount, scaled according to the oracle and the correct format
   return collateralToSwap
     .mul(BigNumber.from(10).pow(MIM_DECIMALS))
-    .div(oracleExchangeRate);
+    .div(BigNumber.from(oracleExchangeRate));
 };
 
 export const getLeverageMultiplierByBorrowAmount = (

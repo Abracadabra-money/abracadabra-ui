@@ -167,9 +167,8 @@ const validatePosition = (
 
   const { liquidationPrice } = expectPosition;
 
-  // TODO: get from CauldronInfo
   const collateralPrice = expandDecimals(1, 18 + decimals).div(
-    oracleExchangeRate
+    BigNumber.from(oracleExchangeRate)
   );
 
   const liquidationCheck = liquidationPrice.lt(collateralPrice);
@@ -253,7 +252,7 @@ const validateBorrow = (
     expectedPosition.collateralAmount,
     userBorrowAmount,
     mcr,
-    oracleExchangeRate
+    BigNumber.from(oracleExchangeRate)
   );
 
   const maxToBorrowByMultiplier =
@@ -353,7 +352,7 @@ const validateRemoveCollateral = (
     expectedCollateralAmount,
     expectPosition.mimAmount,
     mcr,
-    oracleExchangeRate
+    BigNumber.from(oracleExchangeRate)
   );
 
   const positionMaxToRemoveCheck = withdrawAmount.lte(maxToRemove);
