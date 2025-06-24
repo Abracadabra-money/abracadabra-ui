@@ -38,14 +38,13 @@ export type MainParams = {
   liquidationFee: number;
   collateralPrice: bigint;
   mimLeftToBorrow: bigint;
-  maximumCollateralRatio: BigNumber;
+  maximumCollateralRatio: bigint;
   oracleExchangeRate: BigNumber;
   totalBorrowed: BigNumber;
   tvl: BigNumber;
   userMaxBorrow: BigNumber;
   updatePrice: boolean;
   alternativeData: {
-    maximumCollateralRatio: bigint;
     oracleExchangeRate: bigint;
     totalBorrowed: bigint;
     tvl: bigint;
