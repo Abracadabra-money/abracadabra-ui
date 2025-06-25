@@ -4,7 +4,7 @@
 import type { ActionConfig, CauldronInfo } from "@/helpers/cauldron/types";
 import { getCookTypeByAction, ACTION_TYPES } from "./getCookActionType";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
-import { utils } from "ethers";
+import { BigNumber, utils } from "ethers";
 import type { Address } from "viem";
 
 export const getCookPayload = async (
@@ -115,7 +115,7 @@ const getRepayPayload = (
   const { userBorrowAmount } = cauldron.userPosition.borrowInfo;
   const { repayAmount } = actionConfig.amounts;
 
-  const itsMax = repayAmount.eq(userBorrowAmount);
+  const itsMax = repayAmount.eq(BigNumber.from(userBorrowAmount));
 
   const payload = {
     amount: repayAmount,
@@ -141,9 +141,9 @@ const getRemoveCollateralPayload = async (
   const { withdrawAmount } = actionConfig.amounts;
   const { userCollateralAmount } = cauldron.userPosition.collateralInfo;
 
-  const itsMax = userCollateralAmount.lte(withdrawAmount); // TODO: make it eq
+  const itsMax = BigNumber.from(userCollateralAmount).lte(withdrawAmount); // TODO: make it eq
 
-  const amount = itsMax ? userCollateralAmount : withdrawAmount;
+  const amount = itsMax ? BigNumber.from(userCollateralAmount) : withdrawAmount;
 
   const share = await bentoBox.toShare(address, amount, true);
 
@@ -176,10 +176,12 @@ const getRemoveCollateralAndRepayPayload = async (
   const { userCollateralAmount } = cauldron.userPosition.collateralInfo;
   const { userBorrowAmount } = cauldron.userPosition.borrowInfo;
 
-  const itsMaxRemove = userCollateralAmount.lte(withdrawAmount); // TODO: make it eq
-  const itsMaxRepay = repayAmount.eq(userBorrowAmount);
+  const itsMaxRemove = BigNumber.from(userCollateralAmount).lte(withdrawAmount); // TODO: make it eq
+  const itsMaxRepay = repayAmount.eq(BigNumber.from(userBorrowAmount));
 
-  const amount = itsMaxRemove ? userCollateralAmount : withdrawAmount;
+  const amount = itsMaxRemove
+    ? BigNumber.from(userCollateralAmount)
+    : withdrawAmount;
 
   const share = await bentoBox.toShare(address, amount, true);
 
@@ -254,10 +256,12 @@ const getDeleveragePayload = async (
 
   const { userBorrowAmount } = cauldron.userPosition.borrowInfo;
 
-  const isMaxRepay = userBorrowAmount.lte(deleverageAmounts.amountToMin);
+  const isMaxRepay = BigNumber.from(userBorrowAmount).lte(
+    deleverageAmounts.amountToMin
+  );
 
   const repayAmount = isMaxRepay
-    ? userBorrowAmount
+    ? BigNumber.from(userBorrowAmount)
     : deleverageAmounts.amountToMin;
 
   const shareFrom = await bentoBox.toShare(

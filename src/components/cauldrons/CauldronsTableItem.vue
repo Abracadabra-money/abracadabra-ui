@@ -62,8 +62,8 @@ export default {
 
   computed: {
     isOpenPosition(): boolean {
-      const { collateralInfo, borrowInfo } =
-        this.cauldron.userPosition.alternativeData;
+      const { collateralInfo, borrowInfo } = this.cauldron.userPosition;
+
       return !!(collateralInfo.userCollateralShare + borrowInfo.userBorrowPart);
     },
 

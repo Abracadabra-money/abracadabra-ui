@@ -138,7 +138,7 @@ export default {
 
     maxToRepay() {
       const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
-      return userBorrowAmount;
+      return BigNumber.from(userBorrowAmount);
     },
 
     expectedBorrowAmount() {
@@ -146,7 +146,8 @@ export default {
 
       const { amountToMin } = this.deleverageAmounts;
 
-      const expectedBorrowAmount = userBorrowAmount.sub(amountToMin);
+      const expectedBorrowAmount =
+        BigNumber.from(userBorrowAmount).sub(amountToMin);
 
       return expectedBorrowAmount.lt(0)
         ? BigNumber.from(0)
@@ -158,7 +159,7 @@ export default {
         this.cauldron.userPosition.collateralInfo;
       const { amountFrom } = this.deleverageAmounts;
 
-      const expectedCollateralAmount = userCollateralAmount
+      const expectedCollateralAmount = BigNumber.from(userCollateralAmount)
         .sub(amountFrom)
         .sub(this.withdrawAmount);
 

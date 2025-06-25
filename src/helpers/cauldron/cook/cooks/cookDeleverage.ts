@@ -9,6 +9,7 @@ import { repayEncodeHandler } from "@/helpers/cauldron/cook/degenBoxHelper/actio
 
 import type { CookData, PayloadDeleverage } from "./types";
 import type { CauldronInfo } from "@/helpers/cauldron/types";
+import { BigNumber } from "ethers";
 
 const cookDeleverage = async (
   {
@@ -64,7 +65,7 @@ const cookDeleverage = async (
     cookData = await repayEncodeHandler(
       cookData,
       cauldronObject,
-      userBorrowPart,
+      BigNumber.from(userBorrowPart),
       to
     );
   } else {

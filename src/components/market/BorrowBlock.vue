@@ -87,16 +87,16 @@ export default {
 
       return getMaxToBorrow(
         this.expectedCollateralAmount,
-        userBorrowAmount,
+        BigNumber.from(userBorrowAmount),
         mcr,
         oracleExchangeRate
       );
     },
 
     expectedCollateralAmount() {
-      return this.cauldron.userPosition.collateralInfo.userCollateralAmount.add(
-        this.collateralTokenAmount
-      );
+      return BigNumber.from(
+        this.cauldron.userPosition.collateralInfo.userCollateralAmount
+      ).add(this.collateralTokenAmount || BigNumber.from(0));
     },
 
     expectedBorrowAmount() {
@@ -105,7 +105,7 @@ export default {
 
       //@ts-ignore
       return applyBorrowFee(this.inputAmount, borrowFee * 1000).add(
-        userBorrowAmount
+        BigNumber.from(userBorrowAmount)
       );
     },
 
@@ -177,7 +177,7 @@ export default {
         ltv,
         mcr,
         this.expectedCollateralAmount,
-        userBorrowAmount,
+        BigNumber.from(userBorrowAmount),
         this.cauldron.mainParams.oracleExchangeRate
       );
 

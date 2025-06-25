@@ -225,10 +225,10 @@ export default {
       if (this.sortOrder === null || this.cauldrons.length < 2)
         return this.cauldrons;
       const sortedByKey = [...cauldrons].sort((a, b) => {
-        const prev = (key === "positionHealth" ? a[key].percent : a[key]) || 0;
-        const cur = (key === "positionHealth" ? b[key].percent : b[key]) || 0;
+        const prev = (key === "positionHealth" ? b[key].percent : a[key]) || 0;
+        const cur = (key === "positionHealth" ? a[key].percent : b[key]) || 0;
 
-        return cur - prev;
+        return Number(cur) - Number(prev);
       });
 
       if (this.sortOrder == "up") return sortedByKey;

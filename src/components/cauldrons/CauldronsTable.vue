@@ -230,8 +230,8 @@ export default {
       if (this.showMyPositions) {
         return cauldrons.filter(({ userPosition }) => {
           return (
-            userPosition.collateralInfo.userCollateralShare.gt(0) ||
-            userPosition.borrowInfo.userBorrowPart.gt(0)
+            userPosition.collateralInfo.userCollateralShare > 0n ||
+            userPosition.borrowInfo.userBorrowPart > 0n
           );
         });
       }

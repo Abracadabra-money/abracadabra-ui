@@ -63,7 +63,7 @@ export default {
     }),
 
     isHiddenWrap() {
-      return this.cauldron.config.wrapInfo?.isHiddenWrap
+      return this.cauldron.config.wrapInfo?.isHiddenWrap;
     },
 
     expectedTokenAmount() {
@@ -106,16 +106,19 @@ export default {
       const { oracleExchangeRate } = this.cauldron.mainParams;
 
       const mcr = expandDecimals(this.cauldron.config.mcr, PERCENT_PRESITION);
-      const expectedBorrowAmount = userBorrowAmount.sub(this.repayAmount);
+      const expectedBorrowAmount = BigNumber.from(userBorrowAmount).sub(
+        this.repayAmount || BigNumber.from(0)
+      );
 
       const maxToRemove = getMaxCollateralToRemove(
-        userCollateralAmount,
+        BigNumber.from(userCollateralAmount),
         expectedBorrowAmount,
         mcr,
         oracleExchangeRate
       );
 
-      if (maxToRemove.gt(userCollateralAmount)) return userCollateralAmount;
+      if (maxToRemove.gt(BigNumber.from(userCollateralAmount)))
+        return BigNumber.from(userCollateralAmount);
 
       return maxToRemove;
     },

@@ -2,9 +2,7 @@
   <div
     :class="[
       'position',
-      isDeprecated
-        ? 'deprecated'
-        : cauldron.alternativeData.positionHealth.status,
+      isDeprecated ? 'deprecated' : cauldron.positionHealth.status,
     ]"
   >
     <div class="status-flag" v-if="isDeprecated">Deprecated</div>
@@ -56,7 +54,7 @@
 
         <PositionIndicator
           tooltip="Collateral Price at which your deposited collateral is eligible for liquidation."
-          :positionRisk="cauldron.alternativeData.positionHealth.status"
+          :positionRisk="cauldron.positionHealth.status"
           :value="cauldron.liquidationPrice"
         >
           Liquidation Price
@@ -80,11 +78,9 @@
       </ul>
       <HealthProgress
         :positionHealth="
-          formatPercent(
-            100 - Number(cauldron.alternativeData.positionHealth.percent) / 100
-          )
+          formatPercent(100 - Number(cauldron.positionHealth.percent) / 100)
         "
-        :positionRisk="cauldron.alternativeData.positionHealth.status"
+        :positionRisk="cauldron.positionHealth.status"
         :key="`${cauldron.config.id} - ${cauldron.config.chainId}`"
       />
     </div>
@@ -105,6 +101,7 @@ import mimIcon from "@/assets/images/tokens/MIM.png";
 import { defineAsyncComponent, type PropType } from "vue";
 import type { AssetInfo } from "@/components/myPositions/PositionAssets.vue";
 import type { UserOpenPosition } from "@/helpers/cauldron/position/getUserOpenPositions";
+import { formatUnits } from "viem";
 
 type ElixirInfo = Record<
   string,
@@ -138,7 +135,7 @@ export default {
 
     oracleRate() {
       return Number(
-        ethers.utils.formatUnits(
+        formatUnits(
           this.cauldron.oracleRate,
           this.cauldron.config?.collateralInfo.decimals
         )
@@ -150,12 +147,12 @@ export default {
     },
 
     leftToDrop() {
-      return +this.collateralPrice - +this.cauldron.liquidationPrice;
+      return this.collateralPrice - Number(this.cauldron.liquidationPrice);
     },
 
     userCollateralAmount() {
       return Number(
-        ethers.utils.formatUnits(
+        formatUnits(
           this.cauldron.collateralInfo.userCollateralAmount,
           this.cauldron.config.collateralInfo.decimals
         )
@@ -167,7 +164,7 @@ export default {
     },
 
     userBorrowAmount() {
-      return ethers.utils.formatUnits(
+      return formatUnits(
         this.cauldron.borrowInfo.userBorrowAmount,
         this.cauldron.config.mimInfo.decimals
       );

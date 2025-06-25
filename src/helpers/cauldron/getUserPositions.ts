@@ -7,15 +7,8 @@ import lensAbi from "@/abis/marketLens.js";
 import { ZERO_ADDRESS } from "@/constants/gm";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 import degenBoxInfo from "@/configs/contracts/degenBox";
-import type {
-  PositionHealth,
-  PositionHealthStatus,
-  UserPositions,
-} from "@/helpers/cauldron/types";
-import {
-  getAlternativeLiquidationPrice,
-  getLiquidationPrice,
-} from "@/helpers/cauldron/utils";
+import type { UserPositions } from "@/helpers/cauldron/types";
+import { getAlternativeLiquidationPrice } from "@/helpers/cauldron/utils";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { getLensAddress } from "@/helpers/cauldron/getLensAddress";
 import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
@@ -23,30 +16,21 @@ import type { ExtendedContractInfo } from "@/configs/contracts/types";
 import { getAlternativePositionHealth } from "@/helpers/cauldron/utils";
 
 const emptyPosition: UserPositions = {
-  oracleRate: BigNumber.from("0"),
+  oracleRate: 0n,
   collateralInfo: {
-    userCollateralShare: BigNumber.from("0"),
-    userCollateralAmount: BigNumber.from("0"),
+    userCollateralShare: 0n,
+    userCollateralAmount: 0n,
   },
   borrowInfo: {
-    userBorrowAmount: BigNumber.from("0"),
-    userBorrowPart: BigNumber.from("0"),
+    userBorrowAmount: 0n,
+    userBorrowPart: 0n,
   },
-  liquidationPrice: "0",
-  positionHealth: { percent: 0, status: "high" },
-  alternativeData: {
-    collateralInfo: {
-      userCollateralShare: 0n,
-      userCollateralAmount: 0n,
-    },
-    borrowInfo: {
-      userBorrowPart: 0n,
-      userBorrowAmount: 0n,
-    },
-    oracleRate: 0n,
-    liquidationPrice: 0n,
-    positionHealth: { percent: 0n, status: "high" },
-  },
+  liquidationPrice: 0,
+  positionHealth: { percent: 0n, status: "high" },
+  collateralDeposited: 0,
+  collateralDepositedUsd: 0,
+  mimBorrowed: 0,
+  hasActiveGmOrder: false,
 };
 
 export const getUserPositions = async (
@@ -121,19 +105,7 @@ export const getUserPositions = async (
     const collateralPrice =
       1 / Number(formatUnits(oracleExchangeRate, decimals));
 
-    const liquidationPrice = Number(
-      utils.formatUnits(
-        getLiquidationPrice(
-          BigNumber.from(userPosition.borrowValue),
-          BigNumber.from(userPosition.collateral.amount).add(
-            BigNumber.from(collaterallInOrders[index].amount)
-          ),
-          mcr,
-          decimals
-        )
-      )
-    );
-    const bigintLiquidationPrice = getAlternativeLiquidationPrice(
+    const liquidationPrice = getAlternativeLiquidationPrice(
       userPosition.borrowValue,
       userPosition.collateral.amount +
         BigInt(collaterallInOrders[index].amount),
@@ -141,27 +113,16 @@ export const getUserPositions = async (
       decimals
     );
 
-    const leftToDrop = collateralPrice - liquidationPrice;
-
-    const positionHealth = calculatePositionHealth(
+    const positionHealth = getAlternativePositionHealth(
       liquidationPrice,
-      collateralPrice,
-      config?.cauldronSettings.healthMultiplier,
-      Number(userPosition.borrowValue),
-      leftToDrop
-    );
-
-    const alternativePositionHealth = getAlternativePositionHealth(
-      bigintLiquidationPrice,
       oracleExchangeRate,
       decimals
     );
 
-    const userCollateralAmount = BigNumber.from(
-      userPosition.collateral.amount
-    ).add(BigNumber.from(collaterallInOrders[index].amount));
+    const userCollateralAmount =
+      userPosition.collateral.amount + collaterallInOrders[index].amount;
 
-    const userBorrowAmount = BigNumber.from(userPosition.borrowValue);
+    const userBorrowAmount = userPosition.borrowValue;
 
     const collateralDeposited = Number(
       utils.formatUnits(userCollateralAmount, config?.collateralInfo.decimals)
@@ -169,42 +130,26 @@ export const getUserPositions = async (
 
     const collateralDepositedUsd = collateralDeposited * collateralPrice;
 
-    const mimBorrowed = Number(utils.formatUnits(userBorrowAmount));
+    const mimBorrowed = Number(
+      formatUnits(userBorrowAmount, config?.mimInfo.decimals)
+    );
 
     return {
       collateralInfo: {
-        userCollateralShare: BigNumber.from(userCollateralShare).add(
-          BigNumber.from(collaterallInOrder.share)
-        ),
+        userCollateralShare: userCollateralShare + collaterallInOrder.share,
         userCollateralAmount,
       },
       borrowInfo: {
         userBorrowAmount,
-        userBorrowPart: BigNumber.from(userBorrowPart),
+        userBorrowPart,
       },
-      oracleRate: BigNumber.from(oracleExchangeRate),
-      liquidationPrice,
-      positionHealth,
+      oracleRate: oracleExchangeRate,
+      liquidationPrice: Number(formatUnits(liquidationPrice, 18)),
+      positionHealth: positionHealth,
       collateralDeposited,
       collateralDepositedUsd,
       mimBorrowed,
       hasActiveGmOrder: collaterallInOrder.activeOrder,
-      alternativeData: {
-        collateralInfo: {
-          userCollateralShare:
-            userCollateralShare + collaterallInOrder.alternativeData.share,
-          userCollateralAmount:
-            userPosition.collateral.amount +
-            collaterallInOrders[index].alternativeData.amount,
-        },
-        borrowInfo: {
-          userBorrowPart,
-          userBorrowAmount: userPosition.borrowValue,
-        },
-        liquidationPrice: bigintLiquidationPrice,
-        oracleRate: oracleExchangeRate,
-        positionHealth: alternativePositionHealth,
-      },
     };
   });
 };
@@ -218,12 +163,8 @@ const getOrdersCollateralBalance = async (
   if (chainId !== ARBITRUM_CHAIN_ID || !account) {
     return configs.map(() => {
       return {
-        share: BigNumber.from(0),
-        amount: BigNumber.from(0),
-        alternativeData: {
-          amount: 0n,
-          share: 0n,
-        },
+        amount: 0n,
+        share: 0n,
       };
     });
   }
@@ -271,44 +212,9 @@ const getOrdersCollateralBalance = async (
   });
 
   return collaterallInOrders.map((response: any, index: number) => {
-    const activeOrder =
-      orders[index]?.error || orders[index]?.result.includes(ZERO_ADDRESS)
-        ? false
-        : orders[index]?.result;
-
     return {
-      amount: response?.error
-        ? BigNumber.from(0)
-        : BigNumber.from(response?.result),
-      share: BigNumber.from(collaterallInShare[index].result),
-      activeOrder,
-      alternativeData: {
-        amount: response?.error ? 0n : response?.result,
-        share: collaterallInShare[index]?.result || 0n,
-      },
+      amount: response?.error ? 0n : response?.result,
+      share: collaterallInShare[index]?.result || 0n,
     };
   });
-};
-
-const calculatePositionHealth = (
-  liquidationPrice: number,
-  collateralPrice: number,
-  healthMultiplier: any,
-  userBorrowAmount: number,
-  leftToDrop: number
-): PositionHealth => {
-  if (userBorrowAmount.toString() === "0" || isNaN(+liquidationPrice))
-    return { percent: 100, status: "high" };
-
-  const priceToDrop = leftToDrop * healthMultiplier;
-  let percent = (priceToDrop / collateralPrice) * 100;
-  if (percent > 100) percent = 100;
-  if (percent < 0) percent = 0;
-
-  let status: PositionHealthStatus = "high";
-
-  if (percent >= 0 && percent <= 70) status = "safe";
-  if (percent > 70 && percent <= 90) status = "medium";
-
-  return { percent, status };
 };

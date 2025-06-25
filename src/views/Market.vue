@@ -170,9 +170,8 @@ export default {
 
     isOpenPosition() {
       return (
-        this.cauldron.userPosition.alternativeData.collateralInfo
-          .userCollateralShare ||
-        this.cauldron.userPosition.alternativeData.borrowInfo.userBorrowPart
+        this.cauldron.userPosition.collateralInfo.userCollateralShare ||
+        this.cauldron.userPosition.borrowInfo.userBorrowPart
       );
     },
 

@@ -144,7 +144,8 @@ export default {
       //@ts-ignore
       const { amountToMin } = this.actionConfig.amounts.deleverageAmounts;
 
-      const expectedBorrowAmount = userBorrowAmount.sub(amountToMin);
+      const expectedBorrowAmount =
+        BigNumber.from(userBorrowAmount).sub(amountToMin);
 
       return expectedBorrowAmount.lt(0)
         ? BigNumber.from(0)
@@ -162,7 +163,8 @@ export default {
       const mcr = expandDecimals(this.cauldron.config.mcr, PERCENT_PRESITION);
 
       // after swap
-      const expectedCollateralAmount = userCollateralAmount.sub(amountFrom);
+      const expectedCollateralAmount =
+        BigNumber.from(userCollateralAmount).sub(amountFrom);
       const maxToRemove = getMaxCollateralToRemove(
         expectedCollateralAmount,
         this.expectedBorrowAmount,
@@ -170,7 +172,8 @@ export default {
         oracleExchangeRate
       );
 
-      if (maxToRemove.gt(userCollateralAmount)) return userCollateralAmount;
+      if (maxToRemove.gt(BigNumber.from(userCollateralAmount)))
+        return BigNumber.from(userCollateralAmount);
 
       return maxToRemove;
     },
@@ -178,8 +181,8 @@ export default {
     hasOpenPosition() {
       const { collateralInfo, borrowInfo } = this.cauldron.userPosition;
       return (
-        collateralInfo.userCollateralShare.gt(0) ||
-        borrowInfo.userBorrowPart.gt(0)
+        collateralInfo.userCollateralShare > 0n ||
+        borrowInfo.userBorrowPart > 0n
       );
     },
 
@@ -195,7 +198,8 @@ export default {
       const { borrowInfo } = this.cauldron.userPosition;
 
       return (
-        this.hasOpenPosition && mimBalance.gte(borrowInfo.userBorrowAmount)
+        this.hasOpenPosition &&
+        mimBalance.gte(BigNumber.from(borrowInfo.userBorrowAmount))
       );
     },
 
@@ -267,7 +271,7 @@ export default {
       const { slippage } = this.actionConfig.amounts;
 
       const deleverageAmounts = getDeleverageAmounts(
-        borrowInfo.userBorrowAmount,
+        BigNumber.from(borrowInfo.userBorrowAmount),
         slippage!,
         oracleExchangeRate
       );
@@ -284,8 +288,10 @@ export default {
     maxRemoveAndRepay() {
       const { collateralInfo, borrowInfo } = this.cauldron.userPosition;
 
-      this.onUpdateRepayAmount(borrowInfo.userBorrowAmount);
-      this.onUpdateWithdrawAmount(collateralInfo.userCollateralAmount);
+      this.onUpdateRepayAmount(BigNumber.from(borrowInfo.userBorrowAmount));
+      this.onUpdateWithdrawAmount(
+        BigNumber.from(collateralInfo.userCollateralAmount)
+      );
       this.actionHandler();
     },
   },

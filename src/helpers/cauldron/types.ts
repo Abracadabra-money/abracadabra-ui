@@ -2,34 +2,25 @@ import type { BigNumber, Contract } from "ethers";
 import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
 
 export type UserBorrowInfo = {
-  userBorrowPart: BigNumber;
-  userBorrowAmount: BigNumber;
+  userBorrowPart: bigint;
+  userBorrowAmount: bigint;
 };
 
 export type UserCollateralInfo = {
-  userCollateralShare: BigNumber;
-  userCollateralAmount: BigNumber;
+  userCollateralShare: bigint;
+  userCollateralAmount: bigint;
 };
 
 export type UserPositions = {
   collateralInfo: UserCollateralInfo;
   borrowInfo: UserBorrowInfo;
-  oracleRate: BigNumber;
-  liquidationPrice: string | number;
-  positionHealth: PositionHealth;
-  alternativeData: {
-    collateralInfo: {
-      userCollateralShare: bigint;
-      userCollateralAmount: bigint;
-    };
-    borrowInfo: {
-      userBorrowPart: bigint;
-      userBorrowAmount: bigint;
-    };
-    oracleRate: bigint;
-    liquidationPrice: bigint;
-    positionHealth: AlternativePositionHealth;
-  };
+  oracleRate: bigint;
+  liquidationPrice: number | string;
+  positionHealth: AlternativePositionHealth;
+  collateralDeposited: number;
+  collateralDepositedUsd: number;
+  mimBorrowed: number;
+  hasActiveGmOrder: boolean;
 };
 
 export type MainParams = {
@@ -83,14 +74,6 @@ export type CauldronInfo = {
   userPosition: UserPositions;
   userTokensInfo: UserTokensInfo;
   additionalInfo: AdditionalInfo;
-};
-
-export type CauldronPositionItem = {
-  config: CauldronConfig;
-  oracleRate: BigNumber;
-  collateralInfo: UserCollateralInfo;
-  borrowInfo: UserBorrowInfo;
-  liquidationPrice: number | string;
 };
 
 export type AdditionalInfo = {

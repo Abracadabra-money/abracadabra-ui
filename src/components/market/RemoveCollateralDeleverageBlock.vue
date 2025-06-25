@@ -96,11 +96,11 @@ export default {
       const mcr = expandDecimals(this.cauldron.config.mcr, PERCENT_PRESITION);
 
       // after swap
-      let expectedCollateralAmount = userCollateralAmount
+      let expectedCollateralAmount = BigNumber.from(userCollateralAmount)
         .sub(amountFrom)
         .lt(BigNumber.from(0))
         ? BigNumber.from(0)
-        : userCollateralAmount.sub(amountFrom);
+        : BigNumber.from(userCollateralAmount).sub(amountFrom);
 
       const maxToRemove = getMaxCollateralToRemove(
         expectedCollateralAmount,
@@ -109,7 +109,8 @@ export default {
         oracleExchangeRate
       );
 
-      if (maxToRemove.gt(userCollateralAmount)) return userCollateralAmount;
+      if (maxToRemove.gt(BigNumber.from(userCollateralAmount)))
+        return BigNumber.from(userCollateralAmount);
 
       return maxToRemove;
     },
@@ -120,7 +121,9 @@ export default {
       //@ts-ignore
       const { amountToMin } = this.deleverageAmounts;
 
-      const expectedBorrowAmount = userBorrowAmount.sub(amountToMin);
+      const expectedBorrowAmount = BigNumber.from(userBorrowAmount).sub(
+        amountToMin || BigNumber.from(0)
+      );
 
       return expectedBorrowAmount.lt(0)
         ? BigNumber.from(0)
@@ -133,7 +136,7 @@ export default {
       //@ts-ignore
       const { amountFrom } = this.deleverageAmounts;
 
-      const expectedCollateralAmount = userCollateralAmount
+      const expectedCollateralAmount = BigNumber.from(userCollateralAmount)
         .sub(amountFrom)
         .sub(this.withdrawAmount);
 

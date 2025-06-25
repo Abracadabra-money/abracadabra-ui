@@ -48,8 +48,9 @@ export default {
       const { mcr } = this.cauldron.config;
       const { decimals } = this.cauldron.config.collateralInfo;
       const { oracleExchangeRate } = this.cauldron.mainParams.alternativeData;
-      const { borrowInfo, collateralInfo } =
-        this.cauldron.userPosition.alternativeData;
+      const { borrowInfo } = this.cauldron.userPosition;
+
+      const { collateralInfo } = this.cauldron.userPosition;
 
       const expectedLiquidationPrice = getAlternativeLiquidationPrice(
         borrowInfo.userBorrowAmount,

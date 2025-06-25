@@ -10,9 +10,6 @@ export type UserOpenPosition = {
   config: CauldronConfig;
   mainParams: MainParams;
   apr?: number;
-  collateralDepositedUsd?: number;
-  mimBorrowed?: number;
-  hasActiveGmOrder?: boolean;
 } & UserPositions;
 
 export const getUserOpenPositions = async (
@@ -40,8 +37,8 @@ export const getUserOpenPositions = async (
 
       userPositions.forEach((position: UserPositions, idx: number) => {
         if (
-          position.collateralInfo.userCollateralShare.gt(0) ||
-          position.borrowInfo.userBorrowPart.gt(0)
+          position.collateralInfo.userCollateralShare > 0n ||
+          position.borrowInfo.userBorrowPart > 0n
         ) {
           positions.push({
             config: configs[idx],

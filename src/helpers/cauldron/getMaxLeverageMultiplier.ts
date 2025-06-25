@@ -6,6 +6,7 @@ import {
 import { BigNumber, utils } from "ethers";
 import type { CauldronInfo } from "@/helpers/cauldron/types";
 import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
+import { formatUnits } from "viem";
 
 const MIM_DECIMALS = 18;
 
@@ -25,10 +26,10 @@ export const getMaxLeverageMultiplier = (
 
   const exchangeRate = +utils.formatUnits(oracleExchangeRate, decimals);
   const borrowAmount = !ignoreUserPosition
-    ? +utils.formatUnits(userBorrowAmount)
+    ? Number(formatUnits(userBorrowAmount, config?.mimInfo.decimals))
     : 0;
   const depositAmount = !ignoreUserPosition
-    ? +utils.formatUnits(userCollateralAmount, decimals)
+    ? +utils.formatUnits(BigNumber.from(userCollateralAmount), decimals)
     : 0;
   const rate = +utils.formatUnits(tokensRate, decimals);
 
@@ -74,14 +75,17 @@ export const getMaxLeverageMultiplierAlternative = (
   { mainParams, config, userPosition }: any,
   ignoreUserPosition = true,
   depositAmount: BigNumber = BigNumber.from(0),
-  slippage: BigNumber = expandDecimals(1, 2),
+  slippage: BigNumber = expandDecimals(1, 2)
 ) => {
   const { mcr } = config;
   const { oracleExchangeRate } = mainParams;
   const { decimals } = config.collateralInfo;
-  let userBorrowAmount = userPosition.borrowInfo.userBorrowAmount;
+  let userBorrowAmount = BigNumber.from(
+    userPosition.borrowInfo.userBorrowAmount
+  );
   const { userCollateralAmount } = userPosition.collateralInfo;
-  let positionExpectedCollateral = userCollateralAmount.add(depositAmount);
+  let positionExpectedCollateral =
+    BigNumber.from(userCollateralAmount).add(depositAmount);
 
   if (ignoreUserPosition) {
     positionExpectedCollateral = utils.parseUnits("10", decimals);
@@ -153,7 +157,7 @@ export const getBorrowAmountByMultiplier = (
   const { userCollateralAmount } = cauldron.userPosition.collateralInfo;
 
   // Expected new security amount (current + additional security amount)
-  const positionExpectedCollateral = userCollateralAmount.add(
+  const positionExpectedCollateral = BigNumber.from(userCollateralAmount).add(
     depositCollateralAmount
   );
 

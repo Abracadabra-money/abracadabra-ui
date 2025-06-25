@@ -127,12 +127,14 @@ export default {
     },
 
     expectedCollateralAmount() {
-      return this.cauldron.userPosition.collateralInfo.userCollateralAmount
+      return BigNumber.from(
+        this.cauldron.userPosition.collateralInfo.userCollateralAmount
+      )
         .add(
           //@ts-ignore
           this.leverageAmounts.amountToMin
         )
-        .add(this.depositCollateralAmount);
+        .add(this.depositCollateralAmount || BigNumber.from(0));
     },
 
     expectedBorrowAmount() {
@@ -143,7 +145,7 @@ export default {
         //@ts-ignore
         this.leverageAmounts.amountFrom,
         borrowFee * 1000
-      ).add(userBorrowAmount);
+      ).add(BigNumber.from(userBorrowAmount));
     },
 
     expectedLiquidationPrice() {
@@ -239,9 +241,9 @@ export default {
         PERCENT_PRESITION
       );
 
-      const positionExpectedCollateral = userCollateralAmount.add(
-        this.depositCollateralAmount
-      );
+      const positionExpectedCollateral = BigNumber.from(
+        userCollateralAmount
+      ).add(this.depositCollateralAmount || BigNumber.from(0));
 
       const leverageAmounts = getLeverageAmounts(
         //@ts-ignore

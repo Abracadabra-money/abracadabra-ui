@@ -69,11 +69,11 @@ const cookDeleverageFromOrder = async (
   const { userBorrowPart, userBorrowAmount } =
     cauldronObject.userPosition.borrowInfo;
 
-  if (itsMax || deleverageData.buyAmount.gt(userBorrowAmount)) {
+  if (itsMax || deleverageData.buyAmount.gt(BigNumber.from(userBorrowAmount))) {
     cookData = await repayEncodeHandler(
       cookData,
       cauldronObject,
-      userBorrowPart,
+      BigNumber.from(userBorrowPart),
       to
     );
   } else {

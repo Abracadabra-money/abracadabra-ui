@@ -5,6 +5,7 @@ import { expandDecimals } from "../gm/fee/expandDecials";
 import { getMaxToBorrow, getMaxCollateralToRemove } from "./utils";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
 import type { Address } from "viem";
+import { BigNumber } from "ethers";
 
 export const WARNING_TYPES = {
   DEPOSIT_ALLOWANCE: 0,
@@ -250,7 +251,7 @@ const validateBorrow = (
 
   const maxToBorrow = getMaxToBorrow(
     expectedPosition.collateralAmount,
-    userBorrowAmount,
+    BigNumber.from(userBorrowAmount),
     mcr,
     oracleExchangeRate
   );
@@ -345,8 +346,8 @@ const validateRemoveCollateral = (
   }
 
   const expectedCollateralAmount = useDeleverage
-    ? userCollateralAmount.sub(deleverageAmounts.amountFrom)
-    : userCollateralAmount;
+    ? BigNumber.from(userCollateralAmount).sub(deleverageAmounts.amountFrom)
+    : BigNumber.from(userCollateralAmount);
 
   const maxToRemove = getMaxCollateralToRemove(
     expectedCollateralAmount,
@@ -377,7 +378,9 @@ const validateRepay = (
 
   const repayBalanceCheck = repayAmount.lte(mimBalance);
   const repayAllowanceCheck = repayAmount.lte(mimAllowance);
-  const positionMaxRepayCheck = repayAmount.lte(userBorrowAmount);
+  const positionMaxRepayCheck = repayAmount.lte(
+    BigNumber.from(userBorrowAmount)
+  );
 
   if (!repayBalanceCheck) validationErrors.push(WARNING_TYPES.REPAY_BALANCE);
   if (!repayAllowanceCheck)
