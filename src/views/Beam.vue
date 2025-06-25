@@ -137,11 +137,7 @@
 </template>
 
 <script lang="ts">
-import {
-  BASE_CHAIN_ID,
-  LINEA_CHAIN_ID,
-  MAINNET_CHAIN_ID,
-} from "@/constants/global";
+import { BASE_CHAIN_ID, LINEA_CHAIN_ID } from "@/constants/global";
 import { ethers, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
