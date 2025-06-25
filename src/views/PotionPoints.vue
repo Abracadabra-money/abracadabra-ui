@@ -106,12 +106,19 @@ import potionPointsProofs from "@/configs/potionPointsProofs.json";
 import { formatTokenBalance, formatPercent } from "@/helpers/filters";
 import { notificationErrorMsg } from "@/helpers/notification/notificationError.js";
 import { openConnectPopup } from "@/helpers/connect/utils";
+import { dataRefresher } from "@/helpers/dataRefresher";
+import type { RefresherInfo } from "@/helpers/dataRefresher";
 
 interface PotionPointItem {
   account: string;
   amount: string;
   proof: string[];
 }
+
+type ClaimInfo = {
+  initialized: boolean;
+  amount: bigint;
+};
 
 export default {
   data() {
@@ -123,11 +130,16 @@ export default {
       totalUsd: 111000,
       potionPointRedeemerAddress: "0x2258590ACDbea77dcc9C974CEB0B22b9329E6BBc",
       isActionProcessing: false,
-      fetching: false,
       claimInfo: {
         initialized: false,
         amount: 0n,
-      },
+      } as ClaimInfo,
+      refresherInfo: {
+        refresher: null as unknown as dataRefresher<ClaimInfo>,
+        remainingTime: 0,
+        isLoading: false,
+        intervalTime: 60,
+      } as RefresherInfo<ClaimInfo>,
     };
   },
 
@@ -135,7 +147,7 @@ export default {
     ...mapGetters({ account: "getAccount", chainId: "getChainId" }),
 
     userInfo() {
-      if (!this.account || this.fetching)
+      if (!this.account || this.refresherInfo.isLoading)
         return { proof: [], claimAmount: 0n, amount: 0 };
 
       const userInfo = potionPointsProofs.items.find(
@@ -186,7 +198,7 @@ export default {
 
   watch: {
     account() {
-      this.fetchUserInfo();
+      this.createOrUpdateInfo();
     },
   },
 
@@ -196,10 +208,11 @@ export default {
     ...mapActions({ createNotification: "notifications/new" }),
     ...mapMutations({ deleteNotification: "notifications/delete" }),
 
-    async fetchUserInfo() {
-      if (!this.account) return;
+    async fetchUserInfo(): Promise<ClaimInfo> {
+      if (!this.account) {
+        return { initialized: false, amount: 0n };
+      }
 
-      this.fetching = true;
       const publicClient = getPublicClient(ARBITRUM_CHAIN_ID);
 
       const response = await publicClient.readContract({
@@ -209,10 +222,36 @@ export default {
         args: [this.account],
       });
 
-      this.claimInfo.initialized = response[0];
-      this.claimInfo.amount = response[1];
+      return {
+        initialized: response[0],
+        amount: response[1],
+      };
+    },
 
-      this.fetching = false;
+    createDataRefresher() {
+      this.refresherInfo.refresher = new dataRefresher<ClaimInfo>(
+        this.fetchUserInfo,
+        this.refresherInfo.intervalTime,
+        (time) => (this.refresherInfo.remainingTime = time),
+        (loading) => (this.refresherInfo.isLoading = loading),
+        (updatedData: ClaimInfo) => {
+          this.claimInfo = updatedData || { initialized: false, amount: 0n };
+        }
+      );
+    },
+
+    async createOrUpdateInfo() {
+      const refresher = this.refresherInfo?.refresher;
+      try {
+        if (!refresher) {
+          this.createDataRefresher();
+          await this.refresherInfo.refresher.start();
+        } else {
+          await refresher.manualUpdate();
+        }
+      } catch (error) {
+        console.error("Error creating or updating PotionPoints info:", error);
+      }
     },
 
     async actionHandler() {
@@ -246,7 +285,7 @@ export default {
           hash,
         });
 
-        await this.fetchUserInfo();
+        await this.createOrUpdateInfo();
 
         await this.deleteNotification(notificationId);
         await this.createNotification(notification.success);
@@ -268,7 +307,13 @@ export default {
   },
 
   async created() {
-    await this.fetchUserInfo();
+    await this.createOrUpdateInfo();
+  },
+
+  beforeUnmount() {
+    if (this.refresherInfo.refresher) {
+      this.refresherInfo.refresher.stop();
+    }
   },
 
   components: {

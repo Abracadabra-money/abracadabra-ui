@@ -75,12 +75,9 @@
           />
         </div>
 
-        <div class="loader-wrap">
-          <BaseLoader v-if="poolsLoading" medium text="Loading pools" />
-          <BaseSearchEmpty
-            v-if="showEmptyBlock && !poolsLoading"
-            text="There are no pools"
-          />
+        <div class="loader-wrap" v-if="showLoader || showEmptyBlock">
+          <BaseLoader v-if="showLoader" medium text="Loading pools" />
+          <BaseSearchEmpty v-if="showEmptyBlock" text="There are no pools" />
         </div>
 
         <div class="btn-wrap" v-if="showDeprecatedButton">
@@ -151,6 +148,10 @@ export default {
       return !this.poolsLoading && !this.poolsToRender.length;
     },
 
+    showLoader() {
+      return this.poolsLoading && !this.poolsToRender.length;
+    },
+
     poolsToRender() {
       const filteredByChain = this.filterByChain(
         this.pools,
@@ -200,8 +201,18 @@ export default {
   },
 
   watch: {
-    pools() {
-      this.selectedChains = this.getActiveChain();
+    pools: {
+      handler(newVal, oldVal) {
+        const activeChains = this.getActiveChain();
+        if (!oldVal || oldVal.length === 0) {
+          this.selectedChains = [...activeChains];
+        } else {
+          this.selectedChains = this.selectedChains.filter((chainId) =>
+            activeChains.includes(chainId)
+          );
+        }
+      },
+      deep: true,
     },
   },
 

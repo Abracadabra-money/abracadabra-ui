@@ -44,10 +44,10 @@
           />
         </div>
 
-        <div class="loader-wrap">
-          <BaseLoader v-if="cauldronsLoading" medium text="Loading Cauldrons" />
+        <div class="loader-wrap" v-if="showLoader || showEmptyBlock">
+          <BaseLoader medium text="Loading Cauldrons" v-if="showLoader" />
           <BaseSearchEmpty
-            v-if="showEmptyBlock && !cauldronsLoading"
+            v-if="showEmptyBlock"
             text="There are no Cauldrons"
           />
         </div>
@@ -98,6 +98,10 @@ export default {
 
     showEmptyBlock() {
       return !this.cauldronsLoading && !this.cauldronsToRender.length;
+    },
+
+    showLoader() {
+      return this.cauldronsLoading && !this.cauldronsToRender.length;
     },
 
     cauldronsToRender() {
@@ -158,8 +162,19 @@ export default {
   },
 
   watch: {
-    cauldronsLoading() {
-      if (!this.cauldronsLoading) this.selectedChains = this.getActiveChain();
+    cauldrons: {
+      handler(newVal, oldVal) {
+        const activeChains = this.getActiveChain();
+
+        if (!oldVal || oldVal.length === 0) {
+          this.selectedChains = [...activeChains];
+        } else {
+          this.selectedChains = this.selectedChains.filter((chainId) =>
+            activeChains.includes(chainId)
+          );
+        }
+      },
+      deep: true,
     },
   },
 
