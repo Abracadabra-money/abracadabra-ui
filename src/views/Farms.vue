@@ -38,21 +38,21 @@
           </div>
 
           <div class="farms-list">
-            <template v-if="filteredFarms.length">
+            <div class="loader-wrap" v-if="showLoader || showEmptyBlock">
+              <BaseLoader v-if="showLoader" medium text="Loading Farms" />
+              <BaseSearchEmpty
+                v-if="showEmptyBlock"
+                text="There are no Farms"
+              />
+            </div>
+
+            <template v-else>
               <FarmItem
                 v-for="farm in filteredFarms"
                 :key="`${farm.id}-${farm.chainId}`"
                 :farm="farm"
               />
             </template>
-
-            <div class="loader-wrap" v-if="isFarmsLoading || showEmptyBlock">
-              <BaseLoader v-if="isFarmsLoading" medium text="Loading Farms" />
-              <BaseSearchEmpty
-                v-if="showEmptyBlock"
-                text="There are no Farms"
-              />
-            </div>
           </div>
         </div>
       </div>
@@ -67,18 +67,24 @@ import { mapGetters, mapMutations } from "vuex";
 import { getFarmsList } from "@/helpers/farm/list/getFarmsList";
 import type { FarmItem } from "@/configs/farms/types";
 import type { SortOrder } from "@/types/sorting";
+import { dataRefresher } from "@/helpers/dataRefresher";
+import type { RefresherInfo } from "@/helpers/dataRefresher";
 
 export default {
   data() {
     return {
       search: "",
-      farmsInterval: null as NodeJS.Timeout | null,
       isActiveMarkets: true,
       isMyPositions: false,
       aprOrder: null as SortOrder,
       farms: [] as FarmItem[],
       selectedChains: [] as number[],
-      isFarmsLoading: false,
+      refresherInfo: {
+        refresher: null as unknown as dataRefresher<FarmItem[]>,
+        remainingTime: 0,
+        isLoading: false,
+        intervalTime: 60,
+      } as RefresherInfo<FarmItem[]>,
     };
   },
 
@@ -94,7 +100,11 @@ export default {
     },
 
     showEmptyBlock() {
-      return !this.isFarmsLoading && !this.filteredFarms.length;
+      return !this.refresherInfo.isLoading && !this.filteredFarms.length;
+    },
+
+    showLoader() {
+      return this.refresherInfo.isLoading && !this.filteredFarms.length;
     },
 
     currentPools(): FarmItem[] {
@@ -135,11 +145,11 @@ export default {
     },
 
     async account() {
-      this.farms = await getFarmsList(this.account);
+      await this.createOrUpdateInfo();
     },
 
     async chainId() {
-      this.farms = await getFarmsList(this.account);
+      await this.createOrUpdateInfo();
     },
   },
 
@@ -234,27 +244,44 @@ export default {
     checkLocalData() {
       if (this.localFarmList.isCreated) {
         this.farms = this.localFarmList.data;
-        this.isFarmsLoading = false;
       }
+    },
+
+    async createOrUpdateInfo() {
+      const refresher = this.refresherInfo?.refresher;
+      try {
+        if (!refresher) {
+          this.createDataRefresher();
+          await this.refresherInfo.refresher.start();
+        } else {
+          await refresher.manualUpdate();
+        }
+      } catch (error) {
+        console.error("Error creating or updating Farms info:", error);
+      }
+    },
+
+    createDataRefresher() {
+      this.refresherInfo.refresher = new dataRefresher<FarmItem[]>(
+        () => getFarmsList(this.account),
+        this.refresherInfo.intervalTime,
+        (time) => (this.refresherInfo.remainingTime = time),
+        (loading) => (this.refresherInfo.isLoading = loading),
+        (updatedData: FarmItem[]) => {
+          this.farms = updatedData;
+        }
+      );
     },
   },
 
   async created() {
-    this.isFarmsLoading = true;
     this.checkLocalData();
-    this.farms = await getFarmsList();
-    this.isFarmsLoading = false;
-    this.setFarmList(this.farms);
     this.selectedChains = this.getActiveChain();
-    this.farmsInterval = setInterval(async () => {
-      this.farms = await getFarmsList();
-    }, 60000);
+    await this.createOrUpdateInfo();
   },
 
   beforeUnmount() {
-    if (this.farmsInterval) {
-      clearInterval(this.farmsInterval);
-    }
+    this.refresherInfo.refresher.stop();
   },
 
   components: {

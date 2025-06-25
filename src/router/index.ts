@@ -7,8 +7,6 @@ function removeQueryParams(
   from: RouteLocationNormalized,
   next: NavigationGuardNext
 ) {
-  console.log(to);
-
   if (Object.keys(to.query).length)
     next({ path: to.path, query: {}, hash: to.hash });
   else next();

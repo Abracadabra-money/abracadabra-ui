@@ -2,6 +2,15 @@ type OnUpdateTimeCallback = (remainingTime: number) => void;
 type OnLoadingCallback = (isLoading: boolean) => void;
 type OnDataUpdateCallback<T> = (data: T) => void;
 
+const FORCE_UPDATE = true;
+
+export interface RefresherInfo<T> {
+  refresher: dataRefresher<T>;
+  remainingTime: number;
+  isLoading: boolean;
+  intervalTime: number;
+}
+
 export class dataRefresher<T> {
   private updateFunction: Function;
   private updateInterval: number;
@@ -29,28 +38,24 @@ export class dataRefresher<T> {
     this.isLoading = false;
   }
 
-  start() {
-    if (this.intervalId !== null) {
-      clearInterval(this.intervalId);
-    }
-
-    this.remainingTime = this.updateInterval;
-    this.intervalId = setInterval(() => {
-      this.remainingTime--;
-      this.onUpdateTime(this.remainingTime);
-
-      if (this.remainingTime <= 0) {
-        this.update();
-      }
-    }, 1000);
+  // Starts the countdown timer, which will call update() when the time runs out.
+  async start() {
+    await this.update();
+    this.resetInterval();
   }
 
-  async update() {
-    if (this.isLoading) return;
+  // Forces data update and restarts the countdown timer.
+  async manualUpdate() {
+    await this.update(FORCE_UPDATE);
+    this.resetInterval();
+  }
+
+  // Performs the data update and manages loading state.
+  private async update(force: boolean = false) {
+    if (this.isLoading && !force) return;
 
     this.isLoading = true;
     this.onLoading(true);
-
     try {
       const data = await this.updateFunction();
       this.onDataUpdate(data);
@@ -64,10 +69,20 @@ export class dataRefresher<T> {
     }
   }
 
-  manualUpdate() {
-    if (this.intervalId !== null) clearInterval(this.intervalId);
-    this.update();
-    this.start();
+  private resetInterval() {
+    if (this.intervalId !== null) {
+      clearInterval(this.intervalId);
+    }
+
+    this.remainingTime = this.updateInterval;
+    this.intervalId = setInterval(() => {
+      this.remainingTime--;
+      this.onUpdateTime(this.remainingTime);
+
+      if (this.remainingTime <= 0) {
+        this.update();
+      }
+    }, 1000);
   }
 
   stop() {

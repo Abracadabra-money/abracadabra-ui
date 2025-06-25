@@ -160,6 +160,7 @@ import { formatUSD, formatTokenBalance } from "@/helpers/filters";
 import { getApprovalEncode } from "@/helpers/getRevokeApprovalSignature";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 import { openConnectPopup } from "@/helpers/connect/utils";
+import { dataRefresher } from "@/helpers/dataRefresher";
 
 const ethPrivilegedMasterContract =
   "0xb2EBF227188E44ac268565C73e0fCd82D4Bfb1E3";
@@ -196,6 +197,12 @@ export default {
       mimBalance: null,
       mimBalanceUsd: 0,
       isClaimed: null,
+      refresherInfo: {
+        refresher: null,
+        remainingTime: 0,
+        isLoading: false,
+        intervalTime: 60,
+      },
     };
   },
 
@@ -323,9 +330,58 @@ export default {
     },
   },
 
+  watch: {
+    account() {
+      this.createOrUpdateInfo();
+    },
+    chainId() {
+      this.createOrUpdateInfo();
+    },
+  },
+
   methods: {
     formatUSD,
     formatTokenBalance,
+
+    async fetchClaimData() {
+      if (!this.account || (!this.isEthChain && !this.isAETHChain)) {
+        return;
+      }
+
+      await this.createDegenboxContract();
+
+      if (this.isEthChain) {
+        await this.createEthClaimLogic();
+      } else if (this.isAETHChain) {
+        await this.createAethClaimLogic();
+      }
+    },
+
+    createDataRefresher() {
+      this.refresherInfo.refresher = new dataRefresher(
+        this.fetchClaimData,
+        this.refresherInfo.intervalTime,
+        (time) => (this.refresherInfo.remainingTime = time),
+        (loading) => (this.refresherInfo.isLoading = loading),
+        () => {
+          console.log("Claim data refreshed");
+        }
+      );
+    },
+
+    async createOrUpdateInfo() {
+      const refresher = this.refresherInfo?.refresher;
+      try {
+        if (!refresher) {
+          this.createDataRefresher();
+          await this.refresherInfo.refresher.start();
+        } else {
+          await refresher.manualUpdate();
+        }
+      } catch (error) {
+        console.error("Error creating or updating Claim info:", error);
+      }
+    },
 
     async actionHandler() {
       if (!this.account) return openConnectPopup();
@@ -335,13 +391,22 @@ export default {
             ? this.mainnetMasterContract
             : this.aethMasterContract;
 
-          arr.forEach(async (masterContract) => {
-            await this.revokeMasterContract(masterContract);
-          });
+          for (const masterContract of arr) {
+            const result = await this.revokeMasterContract(masterContract);
+            if (result) {
+              await this.createOrUpdateInfo();
+            }
+          }
         }
 
         if (this.isClaimedEth || this.isClaimedAeth) {
-          this.claimContract.claim();
+          try {
+            const tx = await this.claimContract.claim();
+            await tx.wait();
+            await this.createOrUpdateInfo();
+          } catch (error) {
+            console.error("Claim error:", error);
+          }
           return false;
         }
       }
@@ -495,10 +560,12 @@ export default {
   },
 
   async created() {
-    if (this.account && (this.isEthChain || this.isAETHChain)) {
-      await this.createDegenboxContract();
-      if (this.isEthChain) await this.createEthClaimLogic();
-      if (this.isAETHChain) await this.createAethClaimLogic();
+    await this.createOrUpdateInfo();
+  },
+
+  beforeUnmount() {
+    if (this.refresherInfo.refresher) {
+      this.refresherInfo.refresher.stop();
     }
   },
 

@@ -97,6 +97,7 @@ import { formatToFixed } from "@/helpers/filters";
 import { approveToken } from "@/helpers/approval";
 import actions from "@/helpers/stake/magicGlp/actions/";
 import { dataRefresher } from "@/helpers/dataRefresher";
+import type { RefresherInfo } from "@/helpers/dataRefresher";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
@@ -118,11 +119,11 @@ export default {
       isMobile: false,
       chartToggle: false,
       refresherInfo: {
-        refresher: null as any,
+        refresher: null as unknown as dataRefresher<MagicGlpStakeInfo[]>,
         remainingTime: 0,
         isLoading: false,
         intervalTime: 60,
-      },
+      } as RefresherInfo<MagicGlpStakeInfo[]>,
     };
   },
 
@@ -267,6 +268,13 @@ export default {
     async chainId() {
       await this.createOrUpdateInfo();
     },
+
+    stakeInfoArr: {
+      handler() {
+        if (this.stakeInfoArr) this.setMagicGlpStakeData(this.stakeInfoArr);
+      },
+      deep: true,
+    },
   },
 
   methods: {
@@ -296,10 +304,14 @@ export default {
     async createOrUpdateInfo() {
       const refresher = this.refresherInfo?.refresher;
       try {
-        if (!refresher) this.stakeInfoArr = await this.createStakeInfo();
-        else refresher.update();
+        if (!refresher) {
+          this.createDataRefresher();
+          await this.refresherInfo.refresher.start();
+        } else {
+          await refresher.manualUpdate();
+        }
       } catch (error) {
-        this.stakeInfoArr = await this.createStakeInfo();
+        console.error("Error creating or updating MagicGLP stake info:", error);
       }
     },
 
@@ -405,9 +417,6 @@ export default {
 
     this.checkLocalData();
     await this.createOrUpdateInfo();
-    this.setMagicGlpStakeData(this.stakeInfoArr);
-    this.createDataRefresher();
-    this.refresherInfo.refresher.start();
   },
 
   beforeUnmount() {

@@ -17,7 +17,7 @@
             :quoteToken="quoteToken"
             :baseTokenAmount="actionConfig.baseInAmount"
             :quoteTokenAmount="actionConfig.quoteInAmount"
-            :isLoading="isLoading"
+            :isLoading="refresherInfo.isLoading"
             :disableInputs="disableInputs"
             @updateTokenInputAmount="updateTokenInputAmount"
             @openTokensPopup="openTokensPopup"
@@ -163,7 +163,6 @@ import type {
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { approveToken } from "@/helpers/approval";
 import notification from "@/helpers/notification/notification";
-import { notificationErrorMsg } from "@/helpers/notification/notificationError";
 import type { ContractInfo } from "@/types/global";
 import { getSwapRouterByChain } from "@/configs/pools/routers";
 import {
@@ -176,7 +175,6 @@ import {
   STANDARD_K_VALUE,
   SAFE_PEGGED_K_VALUE,
   RATE_DECIMALS,
-  RATE_PRECISION,
 } from "@/constants/pools/poolCreation";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 import {
@@ -185,6 +183,8 @@ import {
 } from "@/helpers/pools/poolCreation/createSimilarPoolsInfo";
 import { debounce } from "lodash";
 import { openConnectPopup } from "@/helpers/connect/utils";
+import { dataRefresher } from "@/helpers/dataRefresher";
+import type { RefresherInfo } from "@/helpers/dataRefresher";
 import {
   calculateQuoteAndBaseAmounts,
   invertIValueBasedOnUpdatedDecimals,
@@ -237,8 +237,12 @@ export default {
       isAutoPricingWarnPopupOpened: false,
       isSimilarPoolsPopupOpened: false,
       isActionProcessing: false,
-      isLoading: false,
-      updateInterval: null as NodeJS.Timeout | null,
+      refresherInfo: {
+        refresher: null as unknown as dataRefresher<any[]>,
+        remainingTime: 0,
+        isLoading: false,
+        intervalTime: 60,
+      } as RefresherInfo<PoolCreationTokenInfo[]>,
       currentMobileTab: 0,
       mobileMode: false,
     };
@@ -347,8 +351,7 @@ export default {
 
     async selectedNetwork() {
       this.similarPools = [];
-      this.isLoading = true;
-      await this.createTokenList();
+      await this.createOrUpdateInfo();
       this.baseToken =
         this.tokenList.find(
           (token: PoolCreationTokenInfo) =>
@@ -360,8 +363,6 @@ export default {
           (token: PoolCreationTokenInfo) =>
             token.config.symbol === this.quoteToken.config.symbol
         ) || emptyPoolCreationTokenInfo;
-
-      this.isLoading = false;
     },
 
     IValueDecimals(newDecimals: number, oldDecimals: number) {
@@ -375,8 +376,7 @@ export default {
 
     async chainId() {
       this.similarPools = [];
-      this.isLoading = true;
-      await this.createTokenList();
+      await this.createOrUpdateInfo();
       this.baseToken =
         this.tokenList.find(
           (token: PoolCreationTokenInfo) =>
@@ -388,14 +388,11 @@ export default {
           (token: PoolCreationTokenInfo) =>
             token.config.symbol === this.quoteToken.config.symbol
         ) || emptyPoolCreationTokenInfo;
-
-      this.isLoading = false;
     },
 
     async account(address: Address) {
       this.actionConfig.to = address;
-      this.isLoading = true;
-      await this.createTokenList();
+      await this.createOrUpdateInfo();
       this.baseToken =
         this.tokenList.find(
           (token: PoolCreationTokenInfo) =>
@@ -407,8 +404,6 @@ export default {
           (token: PoolCreationTokenInfo) =>
             token.config.symbol === this.quoteToken.config.symbol
         ) || emptyPoolCreationTokenInfo;
-
-      this.isLoading = false;
     },
   },
 
@@ -586,7 +581,7 @@ export default {
       await this.deleteNotification(notificationId);
       if (!approve) await this.createNotification(notification.approveError);
       await this.updateTokenAllowance(contract);
-      await this.createTokenList();
+      await this.createOrUpdateInfo();
     },
 
     async createPoolHandler() {
@@ -610,7 +605,7 @@ export default {
         await this.deleteNotification(notificationId);
 
         await this.updateTokensUserInfo();
-        await this.createTokenList();
+        await this.createOrUpdateInfo();
 
         await this.createNotification(notification.success);
 
@@ -681,8 +676,23 @@ export default {
       this.isActionProcessing = false;
     },
 
-    async createTokenList() {
-      this.tokenList = await getTokenList(this.selectedNetwork, this.account);
+    async fetchTokenList() {
+      const tokens = await getTokenList(this.selectedNetwork, this.account);
+      return tokens;
+    },
+
+    createDataRefresher() {
+      this.refresherInfo.refresher = new dataRefresher<any[]>(
+        async () => {
+          return await this.fetchTokenList();
+        },
+        this.refresherInfo.intervalTime,
+        (time) => (this.refresherInfo.remainingTime = time),
+        (loading) => (this.refresherInfo.isLoading = loading),
+        (updatedData: any[]) => {
+          this.tokenList = updatedData;
+        }
+      );
     },
 
     createSimilarPoolsInfo: debounce(async function (this: any) {
@@ -695,21 +705,33 @@ export default {
       );
       this.isActionProcessing = false;
     }, 500),
+
+    async createOrUpdateInfo() {
+      const refresher = this.refresherInfo?.refresher;
+      try {
+        if (!refresher) {
+          this.createDataRefresher();
+          await this.refresherInfo.refresher.start();
+        } else {
+          await refresher.manualUpdate();
+        }
+      } catch (error) {
+        console.error("Error creating or updating PoolCreation info:", error);
+      }
+    },
   },
 
   async created() {
+    await this.createOrUpdateInfo();
     this.getWindowSize();
     window.addEventListener("resize", this.getWindowSize, false);
-
-    await this.createTokenList();
     this.actionConfig.to = this.account || "0x";
-    this.updateInterval = setInterval(async () => {
-      await this.createTokenList();
-    }, 60000);
   },
 
   beforeUnmount() {
-    if (this.updateInterval) clearInterval(this.updateInterval);
+    if (this.refresherInfo.refresher) {
+      this.refresherInfo.refresher.stop();
+    }
     window.removeEventListener("resize", this.getWindowSize);
   },
 
