@@ -18,16 +18,14 @@
       </div>
     </div>
 
+    <div class="column">${{ formatLargeSum(cauldron.mainParams.tvl) }}</div>
+
     <div class="column">
-      ${{ formatLargeSum(cauldron.mainParams.alternativeData.tvl) }}
+      {{ formatLargeSum(cauldron.mainParams.totalBorrowed) }}
     </div>
 
     <div class="column">
-      {{ formatLargeSum(cauldron.mainParams.alternativeData.totalBorrowed) }}
-    </div>
-
-    <div class="column">
-      {{ formatLargeSum(cauldron.mainParams.alternativeData.mimLeftToBorrow) }}
+      {{ formatLargeSum(cauldron.mainParams.mimLeftToBorrow) }}
     </div>
 
     <div class="column">{{ cauldron.mainParams.interest }}%</div>

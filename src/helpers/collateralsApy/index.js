@@ -7,9 +7,9 @@ import { getVeloApy } from "@/helpers/collateralsApy/getVeloApy";
 import { getLUSDApy } from "@/helpers/collateralsApy/getLUSDApy";
 import { getEthersProvider } from "@/helpers/chains/getChainsInfo";
 import { getElixirApy } from "@/helpers/collateralsApy/getElixirApy";
+import { getUsd0ppApy } from "@/helpers/collateralsApy/getUsd0ppApy";
 import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
-import { getMaxLeverageMultiplierAlternative } from "@/helpers/cauldron/getMaxLeverageMultiplier.ts";
-import { getUsd0ppApy } from "./getUsd0ppApy";
+import { getMaxLeverageMultiplier } from "@/helpers/cauldron/getMaxLeverageMultiplier";
 
 //NOTICE: check comments below
 // import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
@@ -119,7 +119,7 @@ export const getCollateralApr = async (cauldron) => {
       ? parseLocalApr.aprs[contract.address.toLowerCase()].apr
       : await fetchCollateralApy(cauldron, chainId, contract.address);
 
-  const multiplier = getMaxLeverageMultiplierAlternative(cauldron, true);
+  const multiplier = getMaxLeverageMultiplier(cauldron, true);
 
   return { value: collateralApy, multiplier };
 };

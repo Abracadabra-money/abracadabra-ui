@@ -47,6 +47,7 @@
 
 <script lang="ts">
 import { mapGetters } from "vuex";
+import { formatUnits } from "viem";
 import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { trimZeroDecimals } from "@/helpers/numbers";
@@ -137,7 +138,7 @@ export default {
       const { collateralPrice } = mainParams;
       const { tokensRate } = additionalInfo;
 
-      const price = collateralPrice
+      const price = BigNumber.from(collateralPrice)
         .mul(expandDecimals(1, decimals))
         .div(tokensRate);
 
@@ -161,7 +162,7 @@ export default {
       const { collateralPrice } = mainParams;
       const { tokensRate } = additionalInfo;
 
-      const price = collateralPrice
+      const price = BigNumber.from(collateralPrice)
         .mul(expandDecimals(1, decimals))
         .div(tokensRate);
 
@@ -190,7 +191,7 @@ export default {
         decimals,
         allowance: collateralAllowance,
         contract: this.cauldron.contracts?.collateral,
-        price: utils.formatUnits(collateralPrice, decimals),
+        price: formatUnits(collateralPrice, decimals),
       };
     },
   },

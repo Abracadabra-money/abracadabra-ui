@@ -43,8 +43,8 @@ import {
   PERCENT_PRESITION,
 } from "@/helpers/cauldron/utils";
 import {
+  getMaxLeverageMultiplier,
   getBorrowAmountByMultiplier,
-  getMaxLeverageMultiplierAlternative,
   getLeverageMultiplierByBorrowAmount,
 } from "@/helpers/cauldron/getMaxLeverageMultiplier";
 import { mapGetters } from "vuex";
@@ -161,7 +161,7 @@ export default {
 
       const { status } = getPositionHealth(
         this.expectedLiquidationPrice,
-        oracleExchangeRate,
+        BigNumber.from(oracleExchangeRate),
         decimals
       );
 
@@ -249,14 +249,14 @@ export default {
         multiplier,
         //@ts-ignore
         this.slippage,
-        oracleExchangeRate
+        BigNumber.from(oracleExchangeRate)
       );
 
       this.$emit("updateLeverageAmounts", leverageAmounts);
     },
 
     getMaxLeverageMultiplier() {
-      const maxMultiplier = getMaxLeverageMultiplierAlternative(
+      const maxMultiplier = getMaxLeverageMultiplier(
         this.cauldron,
         false,
         //@ts-ignore

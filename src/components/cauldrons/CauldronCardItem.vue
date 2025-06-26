@@ -24,26 +24,20 @@
     <div class="row">
       <div>
         <h3 class="title">TVL</h3>
-        <div class="value">
-          ${{ formatLargeSum(cauldron.mainParams.alternativeData.tvl) }}
-        </div>
+        <div class="value">${{ formatLargeSum(cauldron.mainParams.tvl) }}</div>
       </div>
 
       <div>
         <h3 class="title">TMB</h3>
         <div class="value">
-          {{
-            formatLargeSum(cauldron.mainParams.alternativeData.totalBorrowed)
-          }}
+          {{ formatLargeSum(cauldron.mainParams.totalBorrowed) }}
         </div>
       </div>
 
       <div>
         <h3 class="title">MIMS LB</h3>
         <div class="value">
-          {{
-            formatLargeSum(cauldron.mainParams.alternativeData.mimLeftToBorrow)
-          }}
+          {{ formatLargeSum(cauldron.mainParams.mimLeftToBorrow) }}
         </div>
       </div>
 
