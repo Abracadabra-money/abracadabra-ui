@@ -27,23 +27,14 @@ export type MainParams = {
   borrowFee: number;
   interest: number;
   liquidationFee: number;
-  collateralPrice: BigNumber;
-  mimLeftToBorrow: BigNumber;
-  maximumCollateralRatio: BigNumber;
-  oracleExchangeRate: BigNumber;
-  totalBorrowed: BigNumber;
-  tvl: BigNumber;
-  userMaxBorrow: BigNumber;
+  collateralPrice: bigint;
+  mimLeftToBorrow: bigint;
+  maximumCollateralRatio: bigint;
+  oracleExchangeRate: bigint;
+  totalBorrowed: bigint;
+  tvl: bigint;
+  userMaxBorrow: bigint;
   updatePrice: boolean;
-  alternativeData: {
-    collateralPrice: bigint;
-    mimLeftToBorrow: bigint;
-    maximumCollateralRatio: bigint;
-    oracleExchangeRate: bigint;
-    totalBorrowed: bigint;
-    tvl: bigint;
-    userMaxBorrow: bigint;
-  };
 };
 
 export type UserTokensInfo = {

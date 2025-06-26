@@ -89,7 +89,7 @@ export default {
         this.expectedCollateralAmount,
         BigNumber.from(userBorrowAmount),
         mcr,
-        oracleExchangeRate
+        BigNumber.from(oracleExchangeRate)
       );
     },
 
@@ -124,7 +124,7 @@ export default {
         getUserLtv(
           this.expectedCollateralAmount,
           this.expectedBorrowAmount,
-          this.cauldron.mainParams.oracleExchangeRate
+          BigNumber.from(this.cauldron.mainParams.oracleExchangeRate)
         ),
         PERCENT_PRESITION
       );
@@ -145,7 +145,7 @@ export default {
 
       const { status } = getPositionHealth(
         expectedLiquidationPrice,
-        oracleExchangeRate,
+        BigNumber.from(oracleExchangeRate),
         decimals
       );
 
@@ -178,7 +178,7 @@ export default {
         mcr,
         this.expectedCollateralAmount,
         BigNumber.from(userBorrowAmount),
-        this.cauldron.mainParams.oracleExchangeRate
+        BigNumber.from(this.cauldron.mainParams.oracleExchangeRate)
       );
 
       this.inputValue = utils.formatUnits(mimToBorrow);

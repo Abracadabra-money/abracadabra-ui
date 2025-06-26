@@ -55,7 +55,7 @@ export const getExpectedPostition = (
 
   const positionHealth = getPositionHealth(
     liquidationPrice,
-    cauldron.mainParams.oracleExchangeRate,
+    BigNumber.from(cauldron.mainParams.oracleExchangeRate),
     //@ts-ignore
     cauldron.config!.collateralInfo.decimals
   );
@@ -75,7 +75,8 @@ export const getAlternativeExpectedPostition = (
 ) => {
   const { userPosition, mainParams, config } = cauldron;
   const { borrowFee } = mainParams;
-  const { oracleExchangeRate } = mainParams.alternativeData;
+
+  const { oracleExchangeRate } = mainParams;
   const { userBorrowAmount } = userPosition.borrowInfo;
   const { userCollateralAmount } = userPosition.collateralInfo;
 

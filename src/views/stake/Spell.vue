@@ -189,6 +189,7 @@ import { ZERO_VALUE } from "@/constants/global";
 import actions from "@/helpers/stake/spell/actions/";
 import { approveToken } from "@/helpers/approval";
 import { dataRefresher } from "@/helpers/dataRefresher";
+import type { RefresherInfo } from "@/helpers/dataRefresher";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import notification from "@/helpers/notification/notification";
@@ -215,11 +216,11 @@ export default {
       isMobile: false,
       isAdditionalInfo: false,
       refresherInfo: {
-        refresher: null as any,
+        refresher: null as unknown as dataRefresher<SpellStakeInfo[]>,
         remainingTime: 0,
         isLoading: false,
         intervalTime: 60,
-      },
+      } as RefresherInfo<SpellStakeInfo[]>,
     };
   },
 
@@ -435,6 +436,13 @@ export default {
     async activeToken() {
       await this.updateActiveNetwork();
     },
+
+    stakeInfoArr: {
+      handler() {
+        if (this.stakeInfoArr) this.setSpellStakeData(this.stakeInfoArr);
+      },
+      deep: true,
+    },
   },
 
   methods: {
@@ -488,10 +496,14 @@ export default {
     async createOrUpdateInfo() {
       const refresher = this.refresherInfo?.refresher;
       try {
-        if (!refresher) this.stakeInfoArr = await this.createStakeInfo();
-        else refresher.update();
+        if (!refresher) {
+          this.createDataRefresher();
+          await this.refresherInfo.refresher.start();
+        } else {
+          await refresher.manualUpdate();
+        }
       } catch (error) {
-        this.stakeInfoArr = await this.createStakeInfo();
+        console.error("Error creating or updating Spell stake info:", error);
       }
     },
 
@@ -625,12 +637,10 @@ export default {
     this.checkLocalData();
     await this.createOrUpdateInfo();
     this.setSpellStakeData(this.stakeInfoArr);
-    this.createDataRefresher();
-    this.refresherInfo.refresher.start();
   },
 
   beforeUnmount() {
-    if (this.refresherInfo.refresher) this.refresherInfo.refresher.stop();
+    this.refresherInfo.refresher.stop();
     window.removeEventListener("resize", this.getWindowSize);
   },
 

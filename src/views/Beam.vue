@@ -41,10 +41,10 @@
 
       <div class="beam-actions" v-if="!isOpenNetworkPopup && !isSettingsOpened">
         <ChainsWrap
-          :toChain="toChainConfig!"
+          :toChain="toChainConfig"
           :fromChain="fromChainConfig"
           :tokenType="tokenType"
-          :isChainsDisabled="isLoadingBeamInfo"
+          :isChainsDisabled="tokenTypeChangeLoading"
           @onChainSelectClick="openNetworkPopup"
           @switchChains="switchChains"
         />
@@ -53,7 +53,7 @@
           <div>
             <h4 class="input-label">{{ tokenSymbol }} to Beam</h4>
 
-            <div class="row-skeleton" v-if="isLoadingBeamInfo"></div>
+            <div class="row-skeleton" v-if="tokenTypeChangeLoading"></div>
 
             <BaseTokenInput
               v-else
@@ -78,9 +78,9 @@
         <ExpectedBlock
           v-if="beamInfoObject && fromChainConfig"
           :beamInfoObject="beamInfoObject"
-          :dstChainConfig="toChainConfig!"
+          :dstChainConfig="toChainConfig"
           :gasFee="estimateSendFee"
-          :fromChain="fromChainConfig!"
+          :fromChain="fromChainConfig"
           :dstNativeTokenAmount="dstTokenAmount"
           :isLoading="isUpdateFeesData"
         />
@@ -110,7 +110,7 @@
         :popupType="popupType"
         :beamInfoObject="beamInfoObject"
         :selectedFromChain="fromChainConfig"
-        :selectedToChain="toChainConfig!"
+        :selectedToChain="toChainConfig"
         @closePopup="closeNetworkPopup"
         @changeChain="changeChain"
       />
@@ -121,7 +121,7 @@
         :dstChainInfo="toChainConfig"
         :dstNativeTokenAmount="dstTokenAmount"
         :mimAmount="inputAmount"
-        :fromChain="fromChainConfig!"
+        :fromChain="fromChainConfig"
         @onUpdateAmount="updateDstNativeTokenAmount"
         @closeSettings="isSettingsOpened = false"
       />
@@ -137,11 +137,7 @@
 </template>
 
 <script lang="ts">
-import {
-  BASE_CHAIN_ID,
-  LINEA_CHAIN_ID,
-  MAINNET_CHAIN_ID,
-} from "@/constants/global";
+import { BASE_CHAIN_ID, LINEA_CHAIN_ID } from "@/constants/global";
 import { ethers, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { useImage } from "@/helpers/useImage";
@@ -165,6 +161,7 @@ import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { quoteSendFee } from "@/helpers/beam/getEstimateSendFee";
 import { getBeamChainInfo } from "@/helpers/beam/getBeamChainInfo";
 import { getEstimateSendFee } from "@/helpers/beam/getEstimateSendFee";
+import { dataRefresher, type RefresherInfo } from "@/helpers/dataRefresher";
 
 export default {
   data() {
@@ -174,10 +171,8 @@ export default {
       dstAddressError: false,
       popupType: "to" as "to" | "from",
       isOpenNetworkPopup: false,
-      updateInterval: null,
       isSettingsOpened: false,
       isOpenSuccessPopup: false,
-      tx: null,
       successData: null as any,
       isApproving: false,
       isBeaming: false,
@@ -189,9 +184,15 @@ export default {
       isShowDstAddress: false,
       estimateSendFee: 0n,
       tokenType: MIM_ID,
-      isLoadingBeamInfo: false,
+      tokenTypeChangeLoading: false,
       fromChainId: null as null | number,
       toChainId: null as null | number,
+      refresherInfo: {
+        refresher: null as unknown as dataRefresher<BeamInfo>,
+        remainingTime: 0,
+        isLoading: false,
+        intervalTime: 60,
+      } as RefresherInfo<BeamInfo>,
     };
   },
 
@@ -379,7 +380,7 @@ export default {
 
       if (this.beamInfoObject && this.fromChainConfig!.chainId !== value) {
         this.clearData();
-        this.initBeamInfo(value);
+        this.createOrUpdateInfo();
       }
     },
 
@@ -391,52 +392,26 @@ export default {
 
     account() {
       this.clearData();
-      this.initBeamInfo(this.chainId || MAINNET_CHAIN_ID);
+      this.createOrUpdateInfo();
     },
 
     chainId(value) {
       if (this.fromChainId !== value) {
         this.clearData();
-        this.initBeamInfo(value);
+        this.createOrUpdateInfo();
       }
     },
 
-    // todo spell
     async tokenType() {
-      const fromChainId = this.fromChainConfig?.chainId || 1;
-
-      // this.fromChain = undefined;
-
-      // this.toChain = undefined;
       this.isOpenNetworkPopup = false;
       this.isShowDstAddress = false;
       this.isSettingsOpened = false;
 
-      const currentChain = this.beamInfoObject
-        ? this.beamInfoObject.fromChainConfig.chainId
-        : this.chainId;
       this.clearData();
-      this.isLoadingBeamInfo = true;
-      await this.initBeamInfo(currentChain);
 
-      const chainConfig = this.beamInfoObject!.beamConfigs.find(
-        (chain) => chain.chainId === fromChainId
-      );
-
-      if (this.tokenType === SPELL_ID) {
-        // this.fromChain = this.beamInfoObject!.beamConfigs[0];
-        // this.toChain = this.beamInfoObject!.beamConfigs[1];
-        this.isLoadingBeamInfo = false;
-        return;
-      }
-
-      // if (!chainConfig) {
-      //   this.fromChain = this.beamInfoObject!.beamConfigs[0];
-      // } else {
-      //   this.fromChain = chainConfig;
-      // }
-
-      this.isLoadingBeamInfo = false;
+      this.tokenTypeChangeLoading = true;
+      await this.createOrUpdateInfo();
+      this.tokenTypeChangeLoading = false;
     },
   },
 
@@ -446,6 +421,25 @@ export default {
       deleteNotification: "notifications/delete",
       updateNotification: "notifications/updateTitle",
     }),
+
+    createDataRefresher() {
+      this.refresherInfo.refresher = new dataRefresher<BeamInfo>(
+        async () => {
+          return await this.initBeamInfo(this.fromChainId ?? this.chainId);
+        },
+        this.refresherInfo.intervalTime,
+        (remainingTime) => {
+          this.refresherInfo.remainingTime = remainingTime;
+        },
+        (isLoading) => {
+          this.refresherInfo.isLoading = isLoading;
+        },
+        (data) => {
+          this.beamInfoObject = data;
+          this.fromChainId = data?.fromChainConfig.chainId;
+        }
+      );
+    },
 
     changeTokenType(type: number) {
       this.tokenType = type;
@@ -528,7 +522,6 @@ export default {
       this.clearData();
     },
 
-    // todo chainIds params
     async switchChains() {
       if (this.toChainConfig?.settings?.disabledFrom) return;
 
@@ -539,8 +532,6 @@ export default {
       this.toChainId = fromChainId;
 
       this.clearData();
-
-      await this.initBeamInfo(this.fromChainId);
     },
 
     clearData() {
@@ -701,28 +692,44 @@ export default {
       }
     },
 
-    async initBeamInfo(chainId: number): Promise<number | undefined> {
+    async initBeamInfo(chainId: number): Promise<BeamInfo | undefined> {
       try {
         const configs = beamConfigs[this.tokenType as keyof typeof beamConfigs];
         const isChainIdValid = configs.some((item) => item.chainId === chainId);
         const beamChainId = isChainIdValid ? chainId : configs[0].chainId;
 
-        this.beamInfoObject = await getBeamInfo(
-          beamChainId,
-          this.account,
-          this.tokenType
-        );
-
-        return this.beamInfoObject.fromChainConfig.chainId;
+        return await getBeamInfo(beamChainId, this.account, this.tokenType);
       } catch (error) {
         console.log("Beam Info Error:", error);
+      }
+    },
+
+    async createOrUpdateInfo() {
+      const refresher = this.refresherInfo?.refresher;
+      try {
+        if (!refresher) {
+          this.createDataRefresher();
+          await this.refresherInfo.refresher.start();
+        } else {
+          await refresher.manualUpdate();
+        }
+      } catch (error) {
+        console.error("Error creating or updating Beam info:", error);
       }
     },
   },
 
   async created() {
-    this.fromChainId =
-      (await this.initBeamInfo(this.chainId)) || MAINNET_CHAIN_ID;
+    await this.createOrUpdateInfo();
+    if (this.beamInfoObject) {
+      this.fromChainId = this.beamInfoObject.fromChainConfig.chainId;
+    }
+  },
+
+  beforeUnmount() {
+    if (this.refresherInfo.refresher) {
+      this.refresherInfo.refresher.stop();
+    }
   },
 
   components: {

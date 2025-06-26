@@ -102,14 +102,12 @@ export default {
 
     totalMimBorrowed() {
       return formatLargeSum(
-        formatUnits(this.cauldron.mainParams.alternativeData.totalBorrowed, 18)
+        formatUnits(this.cauldron.mainParams.totalBorrowed, 18)
       );
     },
 
     totalValueLocked() {
-      return formatLargeSum(
-        formatUnits(this.cauldron.mainParams.alternativeData.tvl, 18)
-      );
+      return formatLargeSum(formatUnits(this.cauldron.mainParams.tvl, 18));
     },
 
     cauldronScanUrl() {

@@ -69,14 +69,14 @@ export default {
     expectedTokenAmount() {
       const price = 100000;
       const { decimals } = this.cauldron.config.collateralInfo;
-      const { collateralPrice } = this.cauldron.mainParams.alternativeData;
+      const { collateralPrice } = this.cauldron.mainParams;
 
       const precision =
         Number(formatUnits(collateralPrice, decimals)) > price ? 6 : 2;
 
       return formatToFixed(
-        +this.inputValue *
-          +utils.formatUnits(this.cauldron.additionalInfo.tokensRate),
+        Number(this.inputValue) *
+          Number(utils.formatUnits(this.cauldron.additionalInfo.tokensRate)),
         precision
       );
     },
@@ -95,7 +95,7 @@ export default {
         decimals,
         allowance: collateralAllowance,
         contract: this.cauldron.contracts?.collateral,
-        price: utils.formatUnits(collateralPrice, decimals),
+        price: formatUnits(collateralPrice, decimals),
       };
     },
 
@@ -114,7 +114,7 @@ export default {
         BigNumber.from(userCollateralAmount),
         expectedBorrowAmount,
         mcr,
-        oracleExchangeRate
+        BigNumber.from(oracleExchangeRate)
       );
 
       if (maxToRemove.gt(BigNumber.from(userCollateralAmount)))

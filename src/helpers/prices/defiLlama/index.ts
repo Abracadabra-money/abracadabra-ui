@@ -64,16 +64,20 @@ const coingeckoNativeTokensIds = {
 // this config is used to get coin prices if there no results by chainId
 const coingeckoCoinsIds = [
   {
-    id: "magic-internet-money",
+    id: "magic-internet-money-arbitrum",
     addresses: ["0x76DA31D7C9CbEAE102aff34D3398bC450c8374c1"],
   },
   {
-    id: "magic-internet-money",
+    id: "magic-internet-money-arbitrum",
     addresses: ["0x471EE749bA270eb4c1165B5AD95E614947f6fCeb"],
   },
   {
-    id: "magic-internet-money",
+    id: "magic-internet-money-arbitrum",
     addresses: ["0xFEa7a6a0B346362BF88A9e4A88416B77a57D6c2A"],
+  },
+  {
+    id: "magic-internet-money-arbitrum",
+    addresses: ["0xfCfc58685101e2914cBCf7551B432500db84eAa8"],
   },
   {
     id: "usdt0",
@@ -90,10 +94,6 @@ const coingeckoCoinsIds = [
   {
     id: "usd-coin",
     addresses: ["0x0829F361A05D993d5CEb035cA6DF3446b060970b"],
-  },
-  {
-    id: "magic-internet-money",
-    addresses: ["0xfCfc58685101e2914cBCf7551B432500db84eAa8"],
   },
   {
     id: "nibiru",

@@ -47,7 +47,7 @@ export default {
     positionHealth() {
       const { mcr } = this.cauldron.config;
       const { decimals } = this.cauldron.config.collateralInfo;
-      const { oracleExchangeRate } = this.cauldron.mainParams.alternativeData;
+      const { oracleExchangeRate } = this.cauldron.mainParams;
       const { borrowInfo } = this.cauldron.userPosition;
 
       const { collateralInfo } = this.cauldron.userPosition;

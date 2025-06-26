@@ -167,9 +167,8 @@ const validatePosition = (
 
   const { liquidationPrice } = expectPosition;
 
-  // TODO: get from CauldronInfo
   const collateralPrice = expandDecimals(1, 18 + decimals).div(
-    oracleExchangeRate
+    BigNumber.from(oracleExchangeRate)
   );
 
   const liquidationCheck = liquidationPrice.lt(collateralPrice);
@@ -253,7 +252,7 @@ const validateBorrow = (
     expectedPosition.collateralAmount,
     BigNumber.from(userBorrowAmount),
     mcr,
-    oracleExchangeRate
+    BigNumber.from(oracleExchangeRate)
   );
 
   const maxToBorrowByMultiplier =
@@ -269,8 +268,8 @@ const validateBorrow = (
 
   const mimToBorrow = useLeverage ? leverageAmounts.amountFrom : borrowAmount;
 
-  const cauldronMimLeftCheck = mimToBorrow.lte(mimLeftToBorrow);
-  const userMaxBorrowCheck = mimToBorrow.lte(userMaxBorrow);
+  const cauldronMimLeftCheck = mimToBorrow.lte(BigNumber.from(mimLeftToBorrow));
+  const userMaxBorrowCheck = mimToBorrow.lte(BigNumber.from(userMaxBorrow));
   const positionMaxToBorrowCheck = mimToBorrow.lte(maxBorrowAmount);
 
   if (!positionMaxToBorrowCheck)
@@ -353,7 +352,7 @@ const validateRemoveCollateral = (
     expectedCollateralAmount,
     expectPosition.mimAmount,
     mcr,
-    oracleExchangeRate
+    BigNumber.from(oracleExchangeRate)
   );
 
   const positionMaxToRemoveCheck = withdrawAmount.lte(maxToRemove);

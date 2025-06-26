@@ -6,72 +6,10 @@ import {
 import { BigNumber, utils } from "ethers";
 import type { CauldronInfo } from "@/helpers/cauldron/types";
 import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
-import { formatUnits } from "viem";
 
 const MIM_DECIMALS = 18;
 
 export const getMaxLeverageMultiplier = (
-  { mainParams, config, userPosition, additionalInfo }: any,
-  collateralAmount = 10,
-  useOtherToken = false,
-  slippage = 1,
-  ignoreUserPosition = false
-) => {
-  const { mcr } = config;
-  const { tokensRate } = additionalInfo;
-  const { oracleExchangeRate } = mainParams;
-  const { decimals } = config.collateralInfo;
-  const { userBorrowAmount } = userPosition.borrowInfo;
-  const { userCollateralAmount } = userPosition.collateralInfo;
-
-  const exchangeRate = +utils.formatUnits(oracleExchangeRate, decimals);
-  const borrowAmount = !ignoreUserPosition
-    ? Number(formatUnits(userBorrowAmount, config?.mimInfo.decimals))
-    : 0;
-  const depositAmount = !ignoreUserPosition
-    ? +utils.formatUnits(BigNumber.from(userCollateralAmount), decimals)
-    : 0;
-  const rate = +utils.formatUnits(tokensRate, decimals);
-
-  const instantLiquidationPrice = 1 / exchangeRate;
-  const liquidationMultiplier = mcr / 100;
-  const testCollateralAmount = useOtherToken
-    ? collateralAmount / rate
-    : collateralAmount;
-
-  const testSlippage = slippage;
-  let multiplier = 2;
-  let isLiquidation = false;
-
-  while (!isLiquidation) {
-    const expectedAmount =
-      testCollateralAmount * multiplier - testCollateralAmount;
-    const slippageAmount = (expectedAmount / 100) * testSlippage;
-    const minExpected = expectedAmount - slippageAmount;
-    const leverageCollateralAmount = testCollateralAmount + minExpected;
-    const leverageBorrowPart = expectedAmount / exchangeRate;
-
-    const finalBorrowPart = leverageBorrowPart + borrowAmount;
-
-    const finalCollateralAmount = +leverageCollateralAmount + depositAmount;
-
-    const liquidationPrice =
-      finalBorrowPart / finalCollateralAmount / liquidationMultiplier || 0;
-
-    if (+liquidationPrice >= instantLiquidationPrice) {
-      isLiquidation = true;
-      break;
-    }
-
-    multiplier += 0.1;
-  }
-
-  const result = Math.min(multiplier, 100);
-
-  return +parseFloat(result.toString()).toFixed(2);
-};
-
-export const getMaxLeverageMultiplierAlternative = (
   { mainParams, config, userPosition }: any,
   ignoreUserPosition = true,
   depositAmount: BigNumber = BigNumber.from(0),
@@ -98,7 +36,7 @@ export const getMaxLeverageMultiplierAlternative = (
     : utils.parseUnits("10", decimals);
 
   const collateralPrice = expandDecimals(1, 18 + decimals).div(
-    oracleExchangeRate
+    BigNumber.from(oracleExchangeRate)
   );
 
   let multiplier = 2;
@@ -116,7 +54,7 @@ export const getMaxLeverageMultiplierAlternative = (
       multiplierParsed,
       //@ts-ignore
       slippage,
-      oracleExchangeRate
+      BigNumber.from(oracleExchangeRate)
     );
 
     const finalCollateralAmount = testCollateral.add(
@@ -176,7 +114,7 @@ export const getBorrowAmountByMultiplier = (
   // We return the borrowed amount, scaled according to the oracle and the correct format
   return collateralToSwap
     .mul(BigNumber.from(10).pow(MIM_DECIMALS))
-    .div(oracleExchangeRate);
+    .div(BigNumber.from(oracleExchangeRate));
 };
 
 export const getLeverageMultiplierByBorrowAmount = (

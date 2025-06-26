@@ -14,16 +14,61 @@
 import { defineAsyncComponent } from "vue";
 import type { StakeListItem } from "@/types/stake/stakeList";
 import { getStakeList } from "@/helpers/stake/stakeList/getStakeList";
+import { dataRefresher, type RefresherInfo } from "@/helpers/dataRefresher";
 
 export default {
   data() {
     return {
       stakeList: [] as StakeListItem[],
+      refresherInfo: {
+        refresher: null as unknown as dataRefresher<StakeListItem[]>,
+        remainingTime: 0,
+        isLoading: false,
+        intervalTime: 60,
+      } as RefresherInfo<StakeListItem[]>,
     };
   },
 
+  methods: {
+    fetchStakeListData: async function (): Promise<StakeListItem[]> {
+      return getStakeList();
+    },
+
+    createDataRefresher() {
+      this.refresherInfo.refresher = new dataRefresher<StakeListItem[]>(
+        this.fetchStakeListData.bind(this),
+        this.refresherInfo.intervalTime,
+        (time) => (this.refresherInfo.remainingTime = time),
+        (loading) => (this.refresherInfo.isLoading = loading),
+        (updatedData: StakeListItem[]) => {
+          this.stakeList = updatedData;
+        }
+      );
+    },
+
+    async createOrUpdateInfo() {
+      const refresher = this.refresherInfo?.refresher;
+      try {
+        if (!refresher) {
+          this.createDataRefresher();
+          await this.refresherInfo.refresher.start();
+        } else {
+          await refresher.manualUpdate();
+        }
+      } catch (error) {
+        console.error("Error creating or updating StakeList info:", error);
+      }
+    },
+  },
+
   async created() {
-    this.stakeList = getStakeList();
+    await this.createOrUpdateInfo();
+  },
+
+  beforeUnmount() {
+    if (this.refresherInfo.refresher) {
+      this.refresherInfo.refresher.stop();
+    }
   },
 
   components: {

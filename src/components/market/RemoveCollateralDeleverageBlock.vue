@@ -106,7 +106,7 @@ export default {
         expectedCollateralAmount,
         this.expectedBorrowAmount,
         mcr,
-        oracleExchangeRate
+        BigNumber.from(oracleExchangeRate)
       );
 
       if (maxToRemove.gt(BigNumber.from(userCollateralAmount)))
@@ -179,7 +179,7 @@ export default {
     rangePrecision() {
       const price = 100000;
       const { decimals } = this.cauldron.config.collateralInfo;
-      const { collateralPrice } = this.cauldron.mainParams.alternativeData;
+      const { collateralPrice } = this.cauldron.mainParams;
       return Number(formatUnits(collateralPrice, decimals)) > price ? 6 : 4;
     },
   },
