@@ -63,17 +63,13 @@
 </template>
 
 <script lang="ts">
-import {
-  getLiquidationPrice,
-  getPositionHealth,
-  getDeleverageAmounts,
-} from "@/helpers/cauldron/utils";
 import { mapGetters } from "vuex";
 import type { PropType } from "vue";
 import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import type { CauldronInfo } from "@/helpers/cauldron/types";
+import { getDeleverageAmounts } from "@/helpers/cauldron/utils";
 import { BERA_BARTIO_CHAIN_ID, KAVA_CHAIN_ID } from "@/constants/global";
 
 export default {
@@ -139,54 +135,6 @@ export default {
     maxToRepay() {
       const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
       return userBorrowAmount;
-    },
-
-    expectedBorrowAmount() {
-      const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
-
-      const { amountToMin } = this.deleverageAmounts;
-
-      const expectedBorrowAmount = userBorrowAmount.sub(amountToMin);
-
-      return expectedBorrowAmount.lt(0)
-        ? BigNumber.from(0)
-        : expectedBorrowAmount;
-    },
-
-    expectedCollateralAmount() {
-      const { userCollateralAmount } =
-        this.cauldron.userPosition.collateralInfo;
-      const { amountFrom } = this.deleverageAmounts;
-
-      const expectedCollateralAmount = userCollateralAmount
-        .sub(amountFrom)
-        .sub(this.withdrawAmount);
-
-      return expectedCollateralAmount.lt(0)
-        ? BigNumber.from(0)
-        : expectedCollateralAmount;
-    },
-
-    expectedLiquidationPrice() {
-      return getLiquidationPrice(
-        this.expectedBorrowAmount,
-        this.expectedCollateralAmount,
-        this.cauldron.config.mcr,
-        this.cauldron.config.collateralInfo.decimals
-      );
-    },
-
-    positionHealth() {
-      const { oracleExchangeRate } = this.cauldron.mainParams;
-      const { decimals } = this.cauldron.config.collateralInfo;
-
-      const { status } = getPositionHealth(
-        this.expectedLiquidationPrice,
-        BigNumber.from(oracleExchangeRate),
-        decimals
-      );
-
-      return status;
     },
 
     showDeleverageWarning() {
