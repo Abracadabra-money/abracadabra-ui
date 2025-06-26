@@ -95,7 +95,7 @@ export default {
         decimals,
         allowance: collateralAllowance,
         contract: this.cauldron.contracts?.collateral,
-        price: utils.formatUnits(BigNumber.from(collateralPrice), decimals),
+        price: formatUnits(collateralPrice, decimals),
       };
     },
 

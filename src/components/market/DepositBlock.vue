@@ -47,6 +47,7 @@
 
 <script lang="ts">
 import { mapGetters } from "vuex";
+import { formatUnits } from "viem";
 import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { trimZeroDecimals } from "@/helpers/numbers";
@@ -190,7 +191,7 @@ export default {
         decimals,
         allowance: collateralAllowance,
         contract: this.cauldron.contracts?.collateral,
-        price: utils.formatUnits(BigNumber.from(collateralPrice), decimals),
+        price: formatUnits(collateralPrice, decimals),
       };
     },
   },
