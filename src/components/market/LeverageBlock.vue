@@ -43,8 +43,8 @@ import {
   PERCENT_PRESITION,
 } from "@/helpers/cauldron/utils";
 import {
+  getMaxLeverageMultiplier,
   getBorrowAmountByMultiplier,
-  getMaxLeverageMultiplierAlternative,
   getLeverageMultiplierByBorrowAmount,
 } from "@/helpers/cauldron/getMaxLeverageMultiplier";
 import { mapGetters } from "vuex";
@@ -256,7 +256,7 @@ export default {
     },
 
     getMaxLeverageMultiplier() {
-      const maxMultiplier = getMaxLeverageMultiplierAlternative(
+      const maxMultiplier = getMaxLeverageMultiplier(
         this.cauldron,
         false,
         //@ts-ignore

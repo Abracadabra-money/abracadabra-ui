@@ -47,7 +47,7 @@ import { mapGetters, mapMutations } from "vuex";
 // @ts-ignore
 import { getMarketList } from "@/helpers/cauldron/lists/getMarketList";
 import type { CauldronListItem } from "@/helpers/cauldron/lists/getMarketList";
-import { getMaxLeverageMultiplierAlternative } from "@/helpers/cauldron/getMaxLeverageMultiplier";
+import { getMaxLeverageMultiplier } from "@/helpers/cauldron/getMaxLeverageMultiplier";
 import { fetchCauldronsAprs } from "@/helpers/collateralsApy/fetchCauldronsAprs";
 import { dataRefresher } from "@/helpers/dataRefresher";
 import type { RefresherInfo } from "@/helpers/dataRefresher";
@@ -146,7 +146,7 @@ export default {
             cauldron.config.contract.address.toLowerCase() as keyof typeof this.aprs
           ];
 
-        const multiplier = getMaxLeverageMultiplierAlternative(cauldron, true);
+        const multiplier = getMaxLeverageMultiplier(cauldron, true);
 
         cauldron.apr = apr
           ? {
