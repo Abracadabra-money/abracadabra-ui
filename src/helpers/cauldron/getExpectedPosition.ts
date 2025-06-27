@@ -23,8 +23,10 @@ export const getExpectedPostition = (
   const { userPosition } = cauldron;
   const { borrowFee } = cauldron.mainParams;
 
-  let collateralAmount = userPosition.collateralInfo.userCollateralAmount;
-  let mimAmount = userPosition.borrowInfo.userBorrowAmount;
+  let collateralAmount = BigNumber.from(
+    userPosition.collateralInfo.userCollateralAmount
+  );
+  let mimAmount = BigNumber.from(userPosition.borrowInfo.userBorrowAmount);
 
   if (action === "borrow") {
     collateralAmount = expectedBorrowCollateralAmount(
@@ -73,9 +75,10 @@ export const getAlternativeExpectedPostition = (
 ) => {
   const { userPosition, mainParams, config } = cauldron;
   const { borrowFee } = mainParams;
+
   const { oracleExchangeRate } = mainParams;
-  const { userBorrowAmount } = userPosition.alternativeData.borrowInfo;
-  const { userCollateralAmount } = userPosition.alternativeData.collateralInfo;
+  const { userBorrowAmount } = userPosition.borrowInfo;
+  const { userCollateralAmount } = userPosition.collateralInfo;
 
   let mimAmount = userBorrowAmount;
   let collateralAmount = userCollateralAmount;
@@ -135,8 +138,10 @@ const expectedRepayCollateralAmount = (
   const { withdrawAmount, deleverageAmounts } = actionConfig.amounts;
 
   const expectedCollateralAmount = actionConfig.useDeleverage
-    ? userCollateralAmount.sub(withdrawAmount).sub(deleverageAmounts.amountFrom)
-    : userCollateralAmount.sub(withdrawAmount);
+    ? BigNumber.from(userCollateralAmount)
+        .sub(withdrawAmount)
+        .sub(deleverageAmounts.amountFrom)
+    : BigNumber.from(userCollateralAmount).sub(withdrawAmount);
 
   return expectedCollateralAmount.lt(0)
     ? BigNumber.from(0)
@@ -171,8 +176,8 @@ const expectedRepayMimAmount = (
   const { repayAmount, deleverageAmounts } = actionConfig.amounts;
 
   const expectedMimAmount = actionConfig.useDeleverage
-    ? userBorrowAmount.sub(deleverageAmounts.amountToMin)
-    : userBorrowAmount.sub(repayAmount);
+    ? BigNumber.from(userBorrowAmount).sub(deleverageAmounts.amountToMin)
+    : BigNumber.from(userBorrowAmount).sub(repayAmount);
 
   return expectedMimAmount.lt(0) ? BigNumber.from(0) : expectedMimAmount;
 };
@@ -206,11 +211,13 @@ const expectedBorrowCollateralAmount = (
   const { depositAmounts, leverageAmounts } = actionConfig.amounts;
 
   if (actionConfig.useLeverage)
-    return userCollateralAmount
+    return BigNumber.from(userCollateralAmount)
       .add(depositAmounts.collateralTokenAmount)
       .add(leverageAmounts.amountToMin);
 
-  return userCollateralAmount.add(depositAmounts.collateralTokenAmount);
+  return BigNumber.from(userCollateralAmount).add(
+    depositAmounts.collateralTokenAmount
+  );
 };
 
 const expectedAlternativeBorrowCollateralAmount = (
@@ -242,10 +249,12 @@ const expectedBorrowMimAmount = (
 
   if (actionConfig.useLeverage)
     return applyBorrowFee(leverageAmounts.amountFrom, borrowFee * 1000).add(
-      userBorrowAmount
+      BigNumber.from(userBorrowAmount)
     );
 
-  return applyBorrowFee(borrowAmount, borrowFee * 1000).add(userBorrowAmount);
+  return applyBorrowFee(borrowAmount, borrowFee * 1000).add(
+    BigNumber.from(userBorrowAmount)
+  );
 };
 
 export const expectedAlternativeBorrowMimAmount = (

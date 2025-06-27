@@ -250,7 +250,7 @@ const validateBorrow = (
 
   const maxToBorrow = getMaxToBorrow(
     expectedPosition.collateralAmount,
-    userBorrowAmount,
+    BigNumber.from(userBorrowAmount),
     mcr,
     BigNumber.from(oracleExchangeRate)
   );
@@ -345,8 +345,8 @@ const validateRemoveCollateral = (
   }
 
   const expectedCollateralAmount = useDeleverage
-    ? userCollateralAmount.sub(deleverageAmounts.amountFrom)
-    : userCollateralAmount;
+    ? BigNumber.from(userCollateralAmount).sub(deleverageAmounts.amountFrom)
+    : BigNumber.from(userCollateralAmount);
 
   const maxToRemove = getMaxCollateralToRemove(
     expectedCollateralAmount,
@@ -377,7 +377,9 @@ const validateRepay = (
 
   const repayBalanceCheck = repayAmount.lte(mimBalance);
   const repayAllowanceCheck = repayAmount.lte(mimAllowance);
-  const positionMaxRepayCheck = repayAmount.lte(userBorrowAmount);
+  const positionMaxRepayCheck = repayAmount.lte(
+    BigNumber.from(userBorrowAmount)
+  );
 
   if (!repayBalanceCheck) validationErrors.push(WARNING_TYPES.REPAY_BALANCE);
   if (!repayAllowanceCheck)

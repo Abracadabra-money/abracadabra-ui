@@ -134,11 +134,10 @@ export default {
 
     maxToRepay() {
       const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
-      return userBorrowAmount;
+      return BigNumber.from(userBorrowAmount);
     },
 
     showDeleverageWarning() {
-      console.log(this.cauldron);
       const cauldronAddress = this.cauldron.config.contract.address;
 
       return (

@@ -63,7 +63,7 @@ export default {
     formattedAmountToRepay() {
       const { userPosition, mainParams } = this.cauldron;
       const { borrowFee } = mainParams;
-      const { userBorrowAmount } = userPosition.alternativeData.borrowInfo;
+      const { userBorrowAmount } = userPosition.borrowInfo;
 
       const expectedRepayAmount = expectedAlternativeBorrowMimAmount(
         userBorrowAmount,
@@ -142,8 +142,8 @@ export default {
 
 @media (max-width: 768px) {
   .popup-content {
-  gap: 15px;
-}
+    gap: 15px;
+  }
 
   .notification-image {
     width: 20px;

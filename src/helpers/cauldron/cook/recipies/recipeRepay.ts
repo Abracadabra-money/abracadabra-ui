@@ -3,6 +3,7 @@ import {
   repayEncodeHandler,
 } from "@/helpers/cauldron/cook/degenBoxHelper/actionHandlers.js";
 import { actions } from "@/helpers/cauldron/cook/actions";
+import { BigNumber } from "ethers";
 
 const recipeRepay = async (
   cookData: any,
@@ -42,7 +43,10 @@ const recipeRepay = async (
     return cookData;
   }
 
-  cookData = await actions.getRepayShare(cookData, userBorrowPart);
+  cookData = await actions.getRepayShare(
+    cookData,
+    BigNumber.from(userBorrowPart)
+  );
   cookData = await bentoDepositEncodeHandler(
     cookData,
     cauldronObject,
@@ -58,7 +62,7 @@ const recipeRepay = async (
   cookData = await repayEncodeHandler(
     cookData,
     cauldronObject,
-    userBorrowPart,
+    BigNumber.from(userBorrowPart),
     to
   );
 

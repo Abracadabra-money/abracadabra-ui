@@ -18,9 +18,12 @@ export const getMaxLeverageMultiplier = (
   const { mcr } = config;
   const { oracleExchangeRate } = mainParams;
   const { decimals } = config.collateralInfo;
-  let userBorrowAmount = userPosition.borrowInfo.userBorrowAmount;
+  let userBorrowAmount = BigNumber.from(
+    userPosition.borrowInfo.userBorrowAmount
+  );
   const { userCollateralAmount } = userPosition.collateralInfo;
-  let positionExpectedCollateral = userCollateralAmount.add(depositAmount);
+  let positionExpectedCollateral =
+    BigNumber.from(userCollateralAmount).add(depositAmount);
 
   if (ignoreUserPosition) {
     positionExpectedCollateral = utils.parseUnits("10", decimals);
@@ -92,7 +95,7 @@ export const getBorrowAmountByMultiplier = (
   const { userCollateralAmount } = cauldron.userPosition.collateralInfo;
 
   // Expected new security amount (current + additional security amount)
-  const positionExpectedCollateral = userCollateralAmount.add(
+  const positionExpectedCollateral = BigNumber.from(userCollateralAmount).add(
     depositCollateralAmount
   );
 
