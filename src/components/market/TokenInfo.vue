@@ -35,7 +35,7 @@ export default {
   computed: {
     collateralToUsd() {
       const { decimals } = this.cauldron.config.collateralInfo;
-      const { oracleExchangeRate } = this.cauldron.mainParams.alternativeData;
+      const { oracleExchangeRate } = this.cauldron.mainParams;
       const expandDecimals = parseUnits("1", decimals);
       const tokenToMim = (ONE_ETHER_VIEM * expandDecimals) / oracleExchangeRate;
 

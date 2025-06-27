@@ -167,7 +167,7 @@ export default {
         expectedCollateralAmount,
         this.expectedBorrowAmount,
         mcr,
-        oracleExchangeRate
+        BigNumber.from(oracleExchangeRate)
       );
 
       if (maxToRemove.gt(userCollateralAmount)) return userCollateralAmount;
@@ -269,7 +269,7 @@ export default {
       const deleverageAmounts = getDeleverageAmounts(
         borrowInfo.userBorrowAmount,
         slippage!,
-        oracleExchangeRate
+        BigNumber.from(oracleExchangeRate)
       );
 
       this.onUpdateDeleverageAmounts(deleverageAmounts);

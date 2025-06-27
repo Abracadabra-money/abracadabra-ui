@@ -177,12 +177,12 @@ export default {
     },
 
     collateralPrice(): bigint {
-      return this.cauldron.mainParams.alternativeData.collateralPrice;
+      return this.cauldron.mainParams.collateralPrice;
     },
 
     expectedCollateralInUsd(): bigint {
       return (
-        (this.expectedPosition.collateralAmount * this.collateralPrice) /
+        BigInt(this.expectedPosition.collateralAmount * this.collateralPrice) /
         parseUnits("1", this.collateralDecimals)
       );
     },

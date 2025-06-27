@@ -78,23 +78,14 @@ export const getMainParams = async (
       borrowFee: Number(result.borrowFee) / 100,
       interest,
       liquidationFee: Number(result.liquidationFee) / 100,
-      collateralPrice: BigNumber.from(result.collateralPrice),
-      mimLeftToBorrow: BigNumber.from(result.marketMaxBorrow),
-      maximumCollateralRatio: BigNumber.from(result.maximumCollateralRatio),
-      oracleExchangeRate: BigNumber.from(result.oracleExchangeRate),
-      totalBorrowed: BigNumber.from(result.totalBorrowed),
-      tvl: BigNumber.from(result.totalCollateral.value),
-      userMaxBorrow: BigNumber.from(result.userMaxBorrow),
+      collateralPrice: result.collateralPrice,
+      mimLeftToBorrow: result.marketMaxBorrow,
+      maximumCollateralRatio: result.maximumCollateralRatio, // NOTICE nod used except test files
+      oracleExchangeRate: result.oracleExchangeRate,
+      totalBorrowed: result.totalBorrowed,
+      tvl: result.totalCollateral.value,
+      userMaxBorrow: result.userMaxBorrow,
       updatePrice,
-      alternativeData: {
-        collateralPrice: result.collateralPrice,
-        mimLeftToBorrow: result.marketMaxBorrow,
-        maximumCollateralRatio: result.maximumCollateralRatio,
-        oracleExchangeRate: result.oracleExchangeRate,
-        totalBorrowed: result.totalBorrowed,
-        tvl: result.totalCollateral.value,
-        userMaxBorrow: result.userMaxBorrow,
-      },
     };
   });
 };

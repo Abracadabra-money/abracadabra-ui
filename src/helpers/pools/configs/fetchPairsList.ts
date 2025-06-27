@@ -29,9 +29,21 @@ export const fetchPairsList = async (
   else if (!subgraphUrl && poolId) return checkLocalPairById(chainId, poolId);
 
   const query = createPairsRequest(poolId);
-  const { data } = await axios.post(subgraphUrl, { query });
+  try {
+    const { data } = await axios.post(subgraphUrl, { query });
 
-  return data.data;
+    return data.data;
+  } catch (error) {
+    console.log("Error fetching pairs list", subgraphUrl);
+
+    const pairsByChain = checkLocalPairsByChain(chainId);
+    if (poolId) {
+      const pair = pairsByChain.pairs.find((pair) => pair.id === poolId);
+      return { pair: pair as GraphPairConfig };
+    }
+
+    return pairsByChain;
+  }
 };
 
 const checkLocalPairsByChain = (chainId: number) => {
