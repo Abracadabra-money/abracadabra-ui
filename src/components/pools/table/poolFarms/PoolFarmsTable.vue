@@ -18,7 +18,7 @@
         />
       </div>
 
-      <button class="filters" @click="$emit('openMobileFiltersPopup')">
+      <button class="filters" @click="openMobileFiltersPopup">
         <img class="filters-icon" src="@/assets/images/filters.png" />
       </button>
 
@@ -59,6 +59,15 @@
         </div>
       </div>
     </div>
+
+    <Teleport to="#pool-farms-page">
+      <FiltersPopup
+        v-if="isFiltersPopupOpened"
+        :sortersData="tableKeys"
+        @updateSortKey="updateSortKeys"
+        @close="closeFiltersPopup"
+      />
+    </Teleport>
   </div>
 </template>
 
@@ -75,10 +84,6 @@ export default {
       required: true,
     },
     poolsLoading: { type: Boolean },
-    tableKeys: {
-      type: Array,
-      required: true,
-    },
   },
 
   data() {
@@ -90,6 +95,27 @@ export default {
       sortOrder: "up" as SortOrder,
       selectedChains: [] as number[],
       isFiltersPopupOpened: false,
+      tableKeys: [
+        {
+          tableKey: "Pool name",
+        },
+        {
+          tableKey: "Staked TVL",
+          tooltip:
+            "Represents the total value from the pool that LPers have staked.",
+          isSortingCriterion: true,
+        },
+        {
+          tableKey: "Rewards",
+          tooltip:
+            "Tokens that LPers receive as rewards for participating in staking.",
+        },
+        {
+          tableKey: "APR",
+          tooltip: "Annual percentage rate.",
+          isSortingCriterion: true,
+        },
+      ],
     };
   },
 
@@ -274,6 +300,14 @@ export default {
           return a >= ARBITRUM_CHAIN_ID || b <= ARBITRUM_CHAIN_ID ? -1 : 1;
         });
     },
+
+    openMobileFiltersPopup() {
+      this.isFiltersPopupOpened = true;
+    },
+
+    closeFiltersPopup() {
+      this.isFiltersPopupOpened = false;
+    },
   },
 
   components: {
@@ -298,6 +332,9 @@ export default {
     ),
     BaseSearchEmpty: defineAsyncComponent(
       () => import("@/components/base/BaseSearchEmpty.vue")
+    ),
+    FiltersPopup: defineAsyncComponent(
+      () => import("@/components/myPositions/FiltersPopup.vue")
     ),
   },
 
