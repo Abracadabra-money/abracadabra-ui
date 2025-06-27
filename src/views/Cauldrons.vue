@@ -44,13 +44,13 @@
 <script lang="ts">
 import { defineAsyncComponent } from "vue";
 import { mapGetters, mapMutations } from "vuex";
-// @ts-ignore
-import { getMarketList } from "@/helpers/cauldron/lists/getMarketList";
-import type { CauldronListItem } from "@/helpers/cauldron/lists/getMarketList";
-import { getMaxLeverageMultiplier } from "@/helpers/cauldron/getMaxLeverageMultiplier";
-import { fetchCauldronsAprs } from "@/helpers/collateralsApy/fetchCauldronsAprs";
 import { dataRefresher } from "@/helpers/dataRefresher";
 import type { RefresherInfo } from "@/helpers/dataRefresher";
+import { getMarketList } from "@/helpers/cauldron/lists/getMarketList";
+import type { CauldronListItem } from "@/helpers/cauldron/lists/getMarketList";
+import { fetchCauldronsAprs } from "@/helpers/collateralsApy/fetchCauldronsAprs";
+import { getMaxLeverageMultiplier } from "@/helpers/cauldron/getMaxLeverageMultiplier";
+import { getMaxLeverageMultiplierPayload } from "@/helpers/migrationHelpers/payloadHelpers";
 
 type Data = {
   cauldrons: any;
@@ -146,7 +146,15 @@ export default {
             cauldron.config.contract.address.toLowerCase() as keyof typeof this.aprs
           ];
 
-        const multiplier = getMaxLeverageMultiplier(cauldron, true);
+        const payload = getMaxLeverageMultiplierPayload(cauldron);
+
+        const multiplier = getMaxLeverageMultiplier(
+          payload.oracleExchangeRate,
+          payload.mcr,
+          payload.collateralDecimals,
+          payload.userBorrowAmount,
+          payload.userCollateralAmount
+        );
 
         cauldron.apr = apr
           ? {
