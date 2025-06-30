@@ -60,7 +60,7 @@
       </div>
     </div>
 
-    <Teleport to="#pool-farms-page">
+    <Teleport to="#app">
       <FiltersPopup
         v-if="isFiltersPopupOpened"
         :sortersData="tableKeys"

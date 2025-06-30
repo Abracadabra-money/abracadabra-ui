@@ -1,5 +1,5 @@
 <template>
-  <div class="cauldrons-page" id="cauldrons-page">
+  <div class="cauldrons-page">
     <div class="banner-container">
       <div class="cauldrons-container">
         <div class="text-wrap">

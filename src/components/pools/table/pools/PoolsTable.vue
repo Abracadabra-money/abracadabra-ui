@@ -88,7 +88,7 @@
       </div>
     </div>
 
-    <Teleport to="#pools-page">
+    <Teleport to="#app">
       <FiltersPopup
         v-if="isFiltersPopupOpened"
         :sortersData="tableKeys"

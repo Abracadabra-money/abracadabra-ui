@@ -1,5 +1,5 @@
 <template>
-  <div class="pools-page" id="pools-page" v-if="pools">
+  <div class="pools-page" v-if="pools">
     <div class="pools-container">
       <PoolsInfo :pools="pools" />
 

@@ -59,7 +59,7 @@
       </div>
     </div>
 
-    <Teleport to="#cauldrons-page">
+    <Teleport to="#app">
       <FiltersPopup
         v-if="isFiltersPopupOpened"
         :sortersData="tableKeys.slice(1)"
