@@ -48,7 +48,7 @@
         />
       </div>
 
-      <button class="filters" @click="$emit('openMobileFiltersPopup')">
+      <button class="filters" @click="openMobileFiltersPopup">
         <img class="filters-icon" src="@/assets/images/filters.png" />
       </button>
 
@@ -87,6 +87,17 @@
         </div>
       </div>
     </div>
+
+    <Teleport to="#app">
+      <FiltersPopup
+        v-show="isFiltersPopupOpened"
+        :sortersData="tableKeys"
+        :filtersData="filtersData"
+        :presetSorter="presetPopupSorter"
+        @updateSortKey="updateSortKeys"
+        @close="closeFiltersPopup"
+      />
+    </Teleport>
   </div>
 </template>
 
@@ -103,7 +114,7 @@ import {
 import { formatPercent } from "@/helpers/filters";
 import type { MagicLPInfo } from "@/helpers/pools/swap/types";
 import { formatUnits } from "viem";
-import type { SortOrder } from "@/types/sorting";
+import type { SortOrder, FilterData, PickedSorter } from "@/types/sorting";
 
 const formattedFeeTiersArray = feeTiersArray.map((feeTier) =>
   formatPercent(formatUnits(feeTier, FEE_TIER_DECIMALS))
@@ -116,10 +127,6 @@ export default {
       required: true,
     },
     poolsLoading: { type: Boolean },
-    tableKeys: {
-      type: Array,
-      required: true,
-    },
   },
 
   data() {
@@ -136,6 +143,35 @@ export default {
       feeTierOptions: [...formattedFeeTiersArray],
       selectedFeeTiers: [...formattedFeeTiersArray],
       isFiltersPopupOpened: false,
+      presetPopupSorter: {
+        sorter: { tableKey: "TVL" },
+        order: "up",
+      } as PickedSorter,
+      tableKeys: [
+        {
+          tableKey: "Pool name",
+        },
+        {
+          tableKey: "TVL",
+          tooltip: "Total Value Locked.",
+          isSortingCriterion: true,
+        },
+        {
+          tableKey: "Fee Tier",
+          tooltip:
+            "Fee that trader pays when exchanging one token for another within the pool.",
+        },
+        {
+          tableKey: "Pool type",
+          tooltip: "Indicates how liquidity is concentrated within the pool.",
+        },
+        {
+          tableKey: "Staking APR",
+          tooltip:
+            "Reward token(s) and total APR for staking the pool's LP tokens.",
+          isSortingCriterion: true,
+        },
+      ],
     };
   },
 
@@ -197,6 +233,25 @@ export default {
     deprecatedButtonText() {
       if (this.showActivePools) return " Show Deprecated pools";
       return "Hide Deprecated pools";
+    },
+
+    filtersData(): FilterData[] {
+      return [
+        {
+          filterKey: "poolType",
+          text: "Pool type",
+          options: [...poolTypesArray],
+          emitter: this.updatePoolTypeFilter,
+        },
+        {
+          filterKey: "feeTier",
+          text: "Fee tier",
+          options: feeTiersArray.map((feeTier) =>
+            formatPercent(formatUnits(feeTier, FEE_TIER_DECIMALS))
+          ),
+          emitter: this.updateFeeTierFilter,
+        },
+      ];
     },
   },
 
@@ -414,6 +469,14 @@ export default {
         : [...this.feeTierOptions];
       this.selectedFeeTiers = updatedSelectedOptions;
     },
+
+    openMobileFiltersPopup() {
+      this.isFiltersPopupOpened = true;
+    },
+
+    closeFiltersPopup() {
+      this.isFiltersPopupOpened = false;
+    },
   },
 
   components: {
@@ -441,6 +504,9 @@ export default {
     ),
     BaseSearchEmpty: defineAsyncComponent(
       () => import("@/components/base/BaseSearchEmpty.vue")
+    ),
+    FiltersPopup: defineAsyncComponent(
+      () => import("@/components/myPositions/FiltersPopup.vue")
     ),
   },
 

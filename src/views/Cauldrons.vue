@@ -25,19 +25,10 @@
           :cauldrons="cauldrons"
           :cauldronsLoading="refresherInfo.isLoading"
           :aprsLoading="aprsLoading"
-          :tableKeys="tableKeys"
-          @openMobileFiltersPopup="openMobileFiltersPopup"
           ref="cauldronsTable"
         />
       </div>
     </div>
-
-    <FiltersPopup
-      v-if="isFiltersPopupOpened"
-      :sortersData="tableKeys.slice(1)"
-      @updateSortKey="updateSortKeys"
-      @close="isFiltersPopupOpened = false"
-    />
   </div>
 </template>
 
@@ -57,7 +48,6 @@ type Data = {
   aprs: any;
   aprsLoading: boolean;
   isFiltersPopupOpened: boolean;
-  tableKeys: any;
   refresherInfo: RefresherInfo<any[]>;
 };
 
@@ -70,36 +60,6 @@ export default {
       aprs: {},
       aprsLoading: true,
       isFiltersPopupOpened: false,
-      tableKeys: [
-        {
-          tableKey: "Collateral",
-        },
-        {
-          tableKey: "TVL",
-          tooltip: "Total Value Locked.",
-          isSortingCriterion: true,
-        },
-        {
-          tableKey: "TMB",
-          tooltip: "Total MIM Borrowed.",
-          isSortingCriterion: true,
-        },
-        {
-          tableKey: "MIMS LB",
-          tooltip: "MIMs left to be Borrowed.",
-          isSortingCriterion: true,
-        },
-        {
-          tableKey: "Interest",
-          tooltip: "Annualised percent that your debt will increase each year.",
-          isSortingCriterion: true,
-        },
-        {
-          tableKey: "APR",
-          tooltip: "Annualised Percentage Return Range.",
-          isSortingCriterion: true,
-        },
-      ],
       refresherInfo: {
         refresher: null as unknown as dataRefresher<any[]>,
         remainingTime: 0,
@@ -166,14 +126,6 @@ export default {
       });
     },
 
-    openMobileFiltersPopup(): void {
-      this.isFiltersPopupOpened = true;
-    },
-
-    updateSortKeys(key: any, order: any): void {
-      (this.$refs.cauldronsTable as any).updateSortKeys(key, order);
-    },
-
     checkLocalData(): void {
       if (this.localCauldronsList.isCreated) {
         this.cauldrons = this.localCauldronsList.data;
@@ -238,9 +190,6 @@ export default {
     CauldronsTable: defineAsyncComponent(
       // @ts-ignore
       () => import("@/components/cauldrons/CauldronsTable.vue")
-    ),
-    FiltersPopup: defineAsyncComponent(
-      () => import("@/components/myPositions/FiltersPopup.vue")
     ),
   },
 };

@@ -17,7 +17,7 @@
         @selectAllChains="selectAllChains"
       />
 
-      <button class="filters" @click="$emit('openMobileFiltersPopup')">
+      <button class="filters" @click="openMobileFiltersPopup">
         <img class="filters-icon" src="@/assets/images/filters.png" />
       </button>
 
@@ -58,6 +58,15 @@
         </div>
       </div>
     </div>
+
+    <Teleport to="#app">
+      <FiltersPopup
+        v-show="isFiltersPopupOpened"
+        :sortersData="tableKeys.slice(1)"
+        @updateSortKey="updateSortKeys"
+        @close="closeFiltersPopup"
+      />
+    </Teleport>
   </div>
 </template>
 
@@ -73,10 +82,6 @@ export default {
     },
     cauldronsLoading: { type: Boolean },
     aprsLoading: { type: Boolean },
-    tableKeys: {
-      type: Array,
-      required: true,
-    },
   },
 
   data() {
@@ -88,6 +93,36 @@ export default {
       sortOrder: true,
       selectedChains: [],
       isFiltersPopupOpened: false,
+      tableKeys: [
+        {
+          tableKey: "Collateral",
+        },
+        {
+          tableKey: "TVL",
+          tooltip: "Total Value Locked.",
+          isSortingCriterion: true,
+        },
+        {
+          tableKey: "TMB",
+          tooltip: "Total MIM Borrowed.",
+          isSortingCriterion: true,
+        },
+        {
+          tableKey: "MIMS LB",
+          tooltip: "MIMs left to be Borrowed.",
+          isSortingCriterion: true,
+        },
+        {
+          tableKey: "Interest",
+          tooltip: "Annualised percent that your debt will increase each year.",
+          isSortingCriterion: true,
+        },
+        {
+          tableKey: "APR",
+          tooltip: "Annualised Percentage Return Range.",
+          isSortingCriterion: true,
+        },
+      ],
     };
   },
 
@@ -330,6 +365,13 @@ export default {
           return a >= ARBITRUM_CHAIN_ID || b <= ARBITRUM_CHAIN_ID ? -1 : 1;
         });
     },
+
+    openMobileFiltersPopup() {
+      this.isFiltersPopupOpened = true;
+    },
+    closeFiltersPopup() {
+      this.isFiltersPopupOpened = false;
+    },
   },
 
   components: {
@@ -354,6 +396,9 @@ export default {
     ),
     BaseSearchEmpty: defineAsyncComponent(() =>
       import("@/components/base/BaseSearchEmpty.vue")
+    ),
+    FiltersPopup: defineAsyncComponent(() =>
+      import("@/components/myPositions/FiltersPopup.vue")
     ),
   },
 

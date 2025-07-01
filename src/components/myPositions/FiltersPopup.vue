@@ -85,28 +85,32 @@
 
 <script lang="ts">
 import { defineAsyncComponent, type PropType } from "vue";
-import type { FilterData, SortOrder, SorterData } from "@/types/sorting";
+import type {
+  FilterData,
+  PickedFilterOption,
+  PickedSorter,
+  SortOrder,
+  SorterData,
+} from "@/types/sorting";
 
-type PickedSorter = {
-  sorter: SorterData;
-  order: SortOrder;
-};
-
-type PickedFilterOption = {
-  name: string;
-  value: boolean;
+type FiltersOptionsPickedByKey = {
+  [filterKey: string]: {
+    emitter: (options: string[]) => void;
+    options: PickedFilterOption[];
+  };
 };
 
 export default {
   props: {
     filtersData: { type: Array as PropType<FilterData[]> },
     sortersData: { type: Array as PropType<SorterData[]>, required: true },
+    presetSorter: { type: Object as PropType<PickedSorter>, default: null },
   },
 
   data() {
     return {
       picked: null as PickedSorter | null,
-      filtersOptionsPickedByKey: {} as any,
+      filtersOptionsPickedByKey: {} as FiltersOptionsPickedByKey,
     };
   },
 
@@ -126,6 +130,7 @@ export default {
 
     pickOption(filterKey: string, option: string) {
       let valueToSet = false;
+
       const optionIndex = this.filtersOptionsPickedByKey[
         filterKey
       ].options.findIndex((element: PickedFilterOption) => {
@@ -173,10 +178,11 @@ export default {
       options.forEach((option: string) => {
         this.filtersOptionsPickedByKey[filterKey].options.push({
           name: option,
-          picked: false,
+          value: true,
         });
       });
     });
+    this.picked = this.presetSorter;
   },
 
   components: {
