@@ -10,6 +10,7 @@ import { getElixirApy } from "@/helpers/collateralsApy/getElixirApy";
 import { getUsd0ppApy } from "@/helpers/collateralsApy/getUsd0ppApy";
 import { getMagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy";
 import { getMaxLeverageMultiplier } from "@/helpers/cauldron/getMaxLeverageMultiplier";
+import { getMaxLeverageMultiplierPayload } from "@/helpers/migrationHelpers/payloadHelpers";
 
 //NOTICE: check comments below
 // import { getMagicApeApy } from "@/helpers/collateralsApy/getMagicApeApy";
@@ -119,7 +120,15 @@ export const getCollateralApr = async (cauldron) => {
       ? parseLocalApr.aprs[contract.address.toLowerCase()].apr
       : await fetchCollateralApy(cauldron, chainId, contract.address);
 
-  const multiplier = getMaxLeverageMultiplier(cauldron, true);
+  const payload = getMaxLeverageMultiplierPayload(cauldron);
+
+  const multiplier = getMaxLeverageMultiplier(
+    payload.oracleExchangeRate,
+    payload.mcr,
+    payload.collateralDecimals,
+    payload.userBorrowAmount,
+    payload.userCollateralAmount
+  );
 
   return { value: collateralApy, multiplier };
 };

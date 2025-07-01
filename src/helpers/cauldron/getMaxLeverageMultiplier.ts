@@ -1,73 +1,66 @@
-import {
-  getLeverageAmounts,
-  getLiquidationPrice,
-  PERCENT_PRESITION,
-} from "@/helpers/cauldron/utils";
+import { parseUnits } from "viem";
 import { BigNumber, utils } from "ethers";
+import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
 import type { CauldronInfo } from "@/helpers/cauldron/types";
-import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
+import { getLeverageAmounts } from "@/helpers/migrationHelpers/utils";
+import { getLiquidationPrice } from "@/helpers/migrationHelpers/utils";
 
 const MIM_DECIMALS = 18;
+const BASE_SLIPPAGE = 100n; // 1%
 
 export const getMaxLeverageMultiplier = (
-  { mainParams, config, userPosition }: any,
-  ignoreUserPosition = true,
-  depositAmount: BigNumber = BigNumber.from(0),
-  slippage: BigNumber = expandDecimals(1, 2)
+  oracleExchangeRate: bigint,
+  mcr: number,
+  collateralDecimals: number,
+  userBorrowAmount: bigint,
+  userCollateralAmount: bigint,
+  ignoreUserPosition: boolean = true,
+  depositAmount: bigint = 0n,
+  slippage: bigint = BASE_SLIPPAGE
 ) => {
-  const { mcr } = config;
-  const { oracleExchangeRate } = mainParams;
-  const { decimals } = config.collateralInfo;
-  let userBorrowAmount = userPosition.borrowInfo.userBorrowAmount;
-  const { userCollateralAmount } = userPosition.collateralInfo;
-  let positionExpectedCollateral = userCollateralAmount.add(depositAmount);
+  let borrowAmount = userBorrowAmount;
+  let positionExpectedCollateral = userCollateralAmount + depositAmount;
 
   if (ignoreUserPosition) {
-    positionExpectedCollateral = utils.parseUnits("10", decimals);
-    userBorrowAmount = BigNumber.from(0);
+    positionExpectedCollateral = parseUnits("10", collateralDecimals);
+    borrowAmount = 0n;
   }
 
   // if user position is empty
-  const testCollateral = positionExpectedCollateral.gt(0)
-    ? positionExpectedCollateral
-    : utils.parseUnits("10", decimals);
+  const collateralAmount =
+    positionExpectedCollateral > 0n
+      ? positionExpectedCollateral
+      : parseUnits("10", collateralDecimals);
 
-  const collateralPrice = expandDecimals(1, 18 + decimals).div(
-    BigNumber.from(oracleExchangeRate)
-  );
+  const collateralPrice =
+    parseUnits("1", 18 + collateralDecimals) / oracleExchangeRate;
 
   let multiplier = 2;
   let isLiquidation = false;
 
   while (!isLiquidation) {
-    const multiplierParsed = utils.parseUnits(
-      parseFloat(String(multiplier)).toFixed(2),
-      PERCENT_PRESITION
-    );
+    const multiplierParsed = parseUnits(String(multiplier), PERCENT_PRESITION);
 
     const leverageAmounts = getLeverageAmounts(
-      //@ts-ignore
-      testCollateral,
+      collateralAmount,
       multiplierParsed,
-      //@ts-ignore
       slippage,
-      BigNumber.from(oracleExchangeRate)
+      oracleExchangeRate
     );
 
-    const finalCollateralAmount = testCollateral.add(
-      leverageAmounts.amountToMin
-    );
+    const finalCollateralAmount =
+      collateralAmount + leverageAmounts.amountToMin;
 
-    const finalBorrowPart = userBorrowAmount.add(leverageAmounts.amountFrom);
+    const finalBorrowPart = borrowAmount + leverageAmounts.amountFrom;
 
     const liquidationPrice = getLiquidationPrice(
       finalBorrowPart,
       finalCollateralAmount,
       mcr - 1, // liquidation protection
-      decimals
+      collateralDecimals
     );
 
-    if (liquidationPrice.gt(collateralPrice)) {
+    if (liquidationPrice > collateralPrice) {
       isLiquidation = true;
       multiplier -= 0.1;
       break;

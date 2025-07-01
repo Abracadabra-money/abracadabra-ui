@@ -43,7 +43,6 @@ import {
   PERCENT_PRESITION,
 } from "@/helpers/cauldron/utils";
 import {
-  getMaxLeverageMultiplier,
   getBorrowAmountByMultiplier,
   getLeverageMultiplierByBorrowAmount,
 } from "@/helpers/cauldron/getMaxLeverageMultiplier";
@@ -53,6 +52,8 @@ import { defineAsyncComponent } from "vue";
 import { formatToFixed } from "@/helpers/filters";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import { applySlippageToMinOut } from "@/helpers/gm/applySlippageToMinOut";
+import { getMaxLeverageMultiplier } from "@/helpers/cauldron/getMaxLeverageMultiplier";
+import { getMaxLeverageMultiplierPayload } from "@/helpers/migrationHelpers/payloadHelpers";
 
 const MIM_DECIMALS = 18;
 
@@ -60,9 +61,11 @@ export default {
   props: {
     slippage: {
       type: BigNumber,
+      required: true,
     },
     depositCollateralAmount: {
       type: BigNumber,
+      default: BigNumber.from(0),
     },
     leverageAmounts: {
       default: {
@@ -256,13 +259,22 @@ export default {
     },
 
     getMaxLeverageMultiplier() {
-      const maxMultiplier = getMaxLeverageMultiplier(
+      const payload = getMaxLeverageMultiplierPayload(
         this.cauldron,
         false,
-        //@ts-ignore
         this.depositCollateralAmount,
-        //@ts-ignore
-        this.slippage!
+        this.slippage
+      );
+
+      const maxMultiplier = getMaxLeverageMultiplier(
+        payload.oracleExchangeRate,
+        payload.mcr,
+        payload.collateralDecimals,
+        payload.userBorrowAmount,
+        payload.userCollateralAmount,
+        payload.ignoreUserPosition,
+        payload.depositAmount,
+        payload.slippage
       );
 
       if (maxMultiplier < this.multiplier) this.multiplier = maxMultiplier;
