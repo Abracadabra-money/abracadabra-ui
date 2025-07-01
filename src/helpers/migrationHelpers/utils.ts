@@ -21,7 +21,7 @@ export function expandDecimals(n: bigint, decimals: number): bigint {
   return n * BigInt(Math.pow(10, decimals));
 }
 
-export const getLiquidationPriceBigint = (
+export const getLiquidationPrice = (
   borrowAmount: bigint,
   collateralAmount: bigint,
   mcr: number,
