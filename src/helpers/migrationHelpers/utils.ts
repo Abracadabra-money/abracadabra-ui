@@ -2,7 +2,7 @@
 
 import { parseUnits, formatUnits } from "viem";
 import { applySlippageToMinOutBigInt } from "../gm/applySlippageToMinOut";
-import type { AlternativePositionHealth } from "../cauldron/types";
+import type { PositionHealth, PositionHealthStatus } from "../cauldron/types";
 
 const MIM_DECIMALS = 18;
 const COLATERIZATION_PRECISION = 5;
@@ -131,11 +131,11 @@ export const getMaxCollateralToRemoveBigint = (
   return maxToRemove > collateralAmount ? collateralAmount : maxToRemove;
 };
 
-export const getPositionHealthBigint = (
+export const getPositionHealth = (
   liquidationPrice: bigint,
   oracleExchangeRate: bigint,
   collateralDecimals: number
-): AlternativePositionHealth => {
+): PositionHealth => {
   if (oracleExchangeRate === 0n) return { percent: 0n, status: "safe" };
 
   const collateralPrice =
@@ -145,14 +145,12 @@ export const getPositionHealthBigint = (
     (liquidationPrice * parseUnits("1", PERCENT_PRESITION) * 100n) /
     collateralPrice;
 
-  const status = getHealthStatusBigint(percent);
+  const status = getHealthStatus(percent);
 
   return { percent, status };
 };
 
-const getHealthStatusBigint = (
-  riskPercent: bigint
-): "safe" | "medium" | "high" => {
+const getHealthStatus = (riskPercent: bigint): PositionHealthStatus => {
   const percent = Number(formatUnits(riskPercent, PERCENT_PRESITION));
 
   if (percent >= 0 && percent <= 70) return "safe";

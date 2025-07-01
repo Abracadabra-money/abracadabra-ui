@@ -1,8 +1,7 @@
-import { BigNumber, utils } from "ethers";
-import { formatUnits, parseUnits } from "viem";
+import { BigNumber } from "ethers";
+import { parseUnits } from "viem";
 import { expandDecimals } from "../gm/fee/expandDecials";
 import { applySlippageToMinOut } from "@/helpers/gm/applySlippageToMinOut";
-import type { AlternativePositionHealth } from "./types";
 
 const MIM_DECIMALS = 18;
 const COLATERIZATION_PRESITION = 5;
@@ -151,62 +150,6 @@ export const getMaxCollateralToRemove = (
     : maxToRemoveLeft;
 
   return maxToRemove.gt(collateralAmount) ? collateralAmount : maxToRemove;
-};
-
-export const getPositionHealth = (
-  liquidationPrice: BigNumber,
-  oracleExchangeRate: BigNumber,
-  collateralDecimals: number
-  // healthMultiplier: number // ?
-) => {
-  if (oracleExchangeRate.eq(0))
-    return { percent: BigNumber.from(0), status: "safe" };
-
-  const collateralPrice = expandDecimals(1, 18 + collateralDecimals).div(
-    oracleExchangeRate
-  );
-
-  const percent = expandDecimals(liquidationPrice, PERCENT_PRESITION)
-    .mul(100)
-    .div(collateralPrice);
-
-  const status = getHealthStatus(percent);
-
-  return { percent, status };
-};
-
-export const getAlternativePositionHealth = (
-  liquidationPrice: bigint,
-  oracleExchangeRate: bigint,
-  collateralDecimals: number
-): AlternativePositionHealth => {
-  if (!oracleExchangeRate) return { percent: 0n, status: "safe" };
-
-  const expandDecimals = parseUnits("1", 18 + collateralDecimals);
-
-  const collateralPrice = expandDecimals / oracleExchangeRate;
-
-  const percent = (liquidationPrice * 10000n) / collateralPrice;
-
-  const status = getAlternativeHealthStatus(percent);
-
-  return { percent, status };
-};
-
-const getHealthStatus = (riskPercent: BigNumber) => {
-  const percent = Number(utils.formatUnits(riskPercent, PERCENT_PRESITION));
-
-  if (percent >= 0 && percent <= 70) return "safe";
-  if (percent > 70 && percent <= 90) return "medium";
-  return "high";
-};
-
-const getAlternativeHealthStatus = (riskPercent: bigint) => {
-  const percent = Number(formatUnits(riskPercent, PERCENT_PRESITION));
-
-  if (percent >= 0 && percent <= 70) return "safe";
-  if (percent > 70 && percent <= 90) return "medium";
-  return "high";
 };
 
 export const getLeverageAmounts = (

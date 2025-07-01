@@ -38,7 +38,6 @@
 import {
   getLeverageAmounts,
   getLiquidationPrice,
-  getPositionHealth,
   applyBorrowFee,
   PERCENT_PRESITION,
 } from "@/helpers/cauldron/utils";
@@ -54,6 +53,8 @@ import { trimZeroDecimals } from "@/helpers/numbers";
 import { applySlippageToMinOut } from "@/helpers/gm/applySlippageToMinOut";
 import { getMaxLeverageMultiplier } from "@/helpers/cauldron/getMaxLeverageMultiplier";
 import { getMaxLeverageMultiplierPayload } from "@/helpers/migrationHelpers/payloadHelpers";
+import { getPositionHealth } from "@/helpers/migrationHelpers/utils";
+import { parseGetPositionHealthResult } from "@/helpers/migrationHelpers/resultParsers";
 
 const MIM_DECIMALS = 18;
 
@@ -162,10 +163,12 @@ export default {
       const { oracleExchangeRate } = this.cauldron.mainParams;
       const { decimals } = this.cauldron.config.collateralInfo;
 
-      const { status } = getPositionHealth(
-        this.expectedLiquidationPrice,
-        BigNumber.from(oracleExchangeRate),
-        decimals
+      const { status } = parseGetPositionHealthResult(
+        getPositionHealth(
+          this.expectedLiquidationPrice.toBigInt(),
+          oracleExchangeRate,
+          decimals
+        )
       );
 
       return status;
