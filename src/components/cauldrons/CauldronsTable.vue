@@ -61,7 +61,7 @@
 
     <Teleport to="#app">
       <FiltersPopup
-        v-if="isFiltersPopupOpened"
+        v-show="isFiltersPopupOpened"
         :sortersData="tableKeys.slice(1)"
         @updateSortKey="updateSortKeys"
         @close="closeFiltersPopup"

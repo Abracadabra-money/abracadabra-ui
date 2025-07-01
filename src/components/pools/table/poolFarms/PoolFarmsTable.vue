@@ -62,8 +62,9 @@
 
     <Teleport to="#app">
       <FiltersPopup
-        v-if="isFiltersPopupOpened"
+        v-show="isFiltersPopupOpened"
         :sortersData="tableKeys"
+        :presetSorter="presetPopupSorter"
         @updateSortKey="updateSortKeys"
         @close="closeFiltersPopup"
       />
@@ -75,7 +76,7 @@
 import { defineAsyncComponent, type PropType } from "vue";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 import type { MagicLPInfo } from "@/helpers/pools/swap/types";
-import type { SortOrder } from "@/types/sorting";
+import type { PickedSorter, SortOrder } from "@/types/sorting";
 
 export default {
   props: {
@@ -95,6 +96,10 @@ export default {
       sortOrder: "up" as SortOrder,
       selectedChains: [] as number[],
       isFiltersPopupOpened: false,
+      presetPopupSorter: {
+        sorter: { tableKey: "Staked TVL" },
+        order: "up",
+      } as PickedSorter,
       tableKeys: [
         {
           tableKey: "Pool name",

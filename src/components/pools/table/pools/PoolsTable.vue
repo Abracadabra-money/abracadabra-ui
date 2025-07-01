@@ -90,9 +90,10 @@
 
     <Teleport to="#app">
       <FiltersPopup
-        v-if="isFiltersPopupOpened"
+        v-show="isFiltersPopupOpened"
         :sortersData="tableKeys"
         :filtersData="filtersData"
+        :presetSorter="presetPopupSorter"
         @updateSortKey="updateSortKeys"
         @close="closeFiltersPopup"
       />
@@ -113,7 +114,7 @@ import {
 import { formatPercent } from "@/helpers/filters";
 import type { MagicLPInfo } from "@/helpers/pools/swap/types";
 import { formatUnits } from "viem";
-import type { SortOrder, FilterData } from "@/types/sorting";
+import type { SortOrder, FilterData, PickedSorter } from "@/types/sorting";
 
 const formattedFeeTiersArray = feeTiersArray.map((feeTier) =>
   formatPercent(formatUnits(feeTier, FEE_TIER_DECIMALS))
@@ -142,6 +143,10 @@ export default {
       feeTierOptions: [...formattedFeeTiersArray],
       selectedFeeTiers: [...formattedFeeTiersArray],
       isFiltersPopupOpened: false,
+      presetPopupSorter: {
+        sorter: { tableKey: "TVL" },
+        order: "up",
+      } as PickedSorter,
       tableKeys: [
         {
           tableKey: "Pool name",

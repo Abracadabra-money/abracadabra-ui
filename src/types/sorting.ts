@@ -7,6 +7,16 @@ export type SorterData = {
   isSortingCriterion?: boolean;
 };
 
+export type PickedSorter = {
+  sorter: SorterData;
+  order: SortOrder;
+};
+
+export type PickedFilterOption = {
+  name: string;
+  value: boolean;
+};
+
 export type PositionsSortKey =
   | "positionHealth"
   | "collateralDepositedUsd"
