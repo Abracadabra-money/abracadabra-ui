@@ -6,6 +6,7 @@ import { getLeverageAmounts } from "@/helpers/migrationHelpers/utils";
 import { getLiquidationPrice } from "@/helpers/migrationHelpers/utils";
 
 const MIM_DECIMALS = 18;
+const BASE_SLIPPAGE = 100n; // 1%
 
 export const getMaxLeverageMultiplier = (
   oracleExchangeRate: bigint,
@@ -15,7 +16,7 @@ export const getMaxLeverageMultiplier = (
   userCollateralAmount: bigint,
   ignoreUserPosition: boolean = true,
   depositAmount: bigint = 0n,
-  slippage: bigint = 100n
+  slippage: bigint = BASE_SLIPPAGE
 ) => {
   let borrowAmount = userBorrowAmount;
   let positionExpectedCollateral = userCollateralAmount + depositAmount;
