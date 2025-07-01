@@ -1,22 +1,10 @@
 <template>
-  <div class="pools-page" v-if="pools">
+  <div class="pool-farms-page" v-if="pools">
     <div class="pools-container">
       <PoolsInfo :pools="pools" isFarms />
 
-      <PoolFarmsTable
-        :pools="pools"
-        :poolsLoading="refresherInfo.isLoading"
-        :tableKeys="tableKeys"
-        ref="poolFarmsTable"
-        @openMobileFiltersPopup="isFiltersPopupOpened = true"
-      />
+      <PoolFarmsTable :pools="pools" :poolsLoading="refresherInfo.isLoading" />
     </div>
-    <FiltersPopup
-      v-if="isFiltersPopupOpened"
-      :sortersData="tableKeys"
-      @updateSortKey="updateSortKeys"
-      @close="isFiltersPopupOpened = false"
-    />
   </div>
 </template>
 
@@ -34,28 +22,6 @@ export default {
     return {
       pools: [] as any[],
       poolConfigs: [] as PoolConfig[],
-      tableKeys: [
-        {
-          tableKey: "Pool name",
-        },
-        {
-          tableKey: "Staked TVL",
-          tooltip:
-            "Represents the total value from the pool that LPers have staked.",
-          isSortingCriterion: true,
-        },
-        {
-          tableKey: "Rewards",
-          tooltip:
-            "Tokens that LPers receive as rewards for participating in staking.",
-        },
-        {
-          tableKey: "APR",
-          tooltip: "Annual percentage rate.",
-          isSortingCriterion: true,
-        },
-      ],
-      isFiltersPopupOpened: false,
       refresherInfo: {
         refresher: null as unknown as dataRefresher<any[]>,
         remainingTime: 0,
@@ -139,10 +105,6 @@ export default {
         }
       );
     },
-
-    updateSortKeys(key: any, order: any) {
-      (this.$refs.poolFarmsTable as any).updateSortKeys(key, order);
-    },
   },
 
   async created() {
@@ -163,15 +125,12 @@ export default {
     PoolFarmsTable: defineAsyncComponent(
       () => import("@/components/pools/table/poolFarms/PoolFarmsTable.vue")
     ),
-    FiltersPopup: defineAsyncComponent(
-      () => import("@/components/myPositions/FiltersPopup.vue")
-    ),
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.pools-page {
+.pool-farms-page {
   min-height: 100vh;
   width: 100%;
   height: 100%;

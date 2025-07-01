@@ -48,8 +48,9 @@
     </div>
 
     <FiltersPopup
-      v-if="isFiltersPopupOpened"
+      v-show="isFiltersPopupOpened"
       :sortersData="sortersData"
+      :presetSorter="presetPopupSorter"
       @updateSortKey="updateSortKey"
       @close="isFiltersPopupOpened = false"
     />
@@ -75,7 +76,12 @@ import {
 } from "@/helpers/cauldron/position/getUserOpenPositions";
 import type { Address } from "viem";
 import type { UserTotalAssets } from "@/helpers/cauldron/types";
-import type { PositionsSortKey, SorterData, SortOrder } from "@/types/sorting";
+import type {
+  PickedSorter,
+  PositionsSortKey,
+  SorterData,
+  SortOrder,
+} from "@/types/sorting";
 import axios from "axios";
 import { ELIXIR_POTIONS_URL } from "@/constants/global";
 import { LS_ELIXIR_RARE_KEY } from "@/helpers/dataStore";
@@ -97,6 +103,10 @@ export default {
       totalAssets: null as unknown as UserTotalAssets | null,
       sortKey: "mimBorrowed" as PositionsSortKey,
       sortOrder: "up" as SortOrder,
+      presetPopupSorter: {
+        sorter: { tableKey: "mimBorrowed" },
+        order: "down",
+      } as PickedSorter,
       isFiltersPopupOpened: false,
       userElixirInfo: null as any,
       elixirRate: 0,
