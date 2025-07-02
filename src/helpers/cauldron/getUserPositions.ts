@@ -127,10 +127,12 @@ export const getUserPositions = async (
       decimals
     );
 
-    const leftToDrop = collateralPrice - Number(liquidationPrice);
+    const formattedLiquidationPrice = Number(formatUnits(liquidationPrice, 18));
+
+    const leftToDrop = collateralPrice - formattedLiquidationPrice;
 
     const positionHealth = calculatePositionHealth(
-      Number(liquidationPrice),
+      formattedLiquidationPrice,
       collateralPrice,
       config?.cauldronSettings.healthMultiplier,
       Number(userPosition.borrowValue),
@@ -169,7 +171,7 @@ export const getUserPositions = async (
         userBorrowPart: BigNumber.from(userBorrowPart),
       },
       oracleRate: BigNumber.from(oracleExchangeRate),
-      liquidationPrice: Number(liquidationPrice),
+      liquidationPrice: formattedLiquidationPrice,
       positionHealth,
       collateralDeposited,
       collateralDepositedUsd,
