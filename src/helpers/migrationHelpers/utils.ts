@@ -56,7 +56,7 @@ export const getMaxToBorrowBigint = (
   return maxToBorrowLeft < 0n ? 0n : maxToBorrowLeft;
 };
 
-export const getUserLtvBigint = (
+export const getUserLtv = (
   collateralAmount: bigint,
   userBorrowAmount: bigint,
   oracleExchangeRate: bigint
@@ -82,7 +82,7 @@ export const getMimToBorrowByLtvBigint = (
 ): bigint => {
   if (ltv > mcr) return 0n;
 
-  const currentLtv = getUserLtvBigint(
+  const currentLtv = getUserLtv(
     collateralAmount,
     userBorrowAmount,
     oracleExchangeRate
@@ -115,7 +115,7 @@ export const getMaxCollateralToRemoveBigint = (
 ): bigint => {
   if (userBorrowAmount === 0n) return collateralAmount;
 
-  const currentLtv = getUserLtvBigint(
+  const currentLtv = getUserLtv(
     collateralAmount,
     userBorrowAmount,
     oracleExchangeRate
