@@ -23,7 +23,6 @@
 
 <script lang="ts">
 import {
-  getLiquidationPrice,
   PERCENT_PRESITION,
   getMaxCollateralToRemove,
 } from "@/helpers/cauldron/utils";
@@ -140,15 +139,6 @@ export default {
       return expectedCollateralAmount.lt(0)
         ? BigNumber.from(0)
         : expectedCollateralAmount;
-    },
-
-    expectedLiquidationPrice() {
-      return getLiquidationPrice(
-        this.expectedBorrowAmount,
-        this.expectedCollateralAmount,
-        this.cauldron.config.mcr,
-        this.cauldron.config.collateralInfo.decimals
-      );
     },
 
     isWrapAllowed() {
