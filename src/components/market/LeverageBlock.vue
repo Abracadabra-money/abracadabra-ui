@@ -37,7 +37,6 @@
 <script lang="ts">
 import {
   getLeverageAmounts,
-  getLiquidationPrice,
   applyBorrowFee,
   PERCENT_PRESITION,
 } from "@/helpers/cauldron/utils";
@@ -53,8 +52,10 @@ import { trimZeroDecimals } from "@/helpers/numbers";
 import { applySlippageToMinOut } from "@/helpers/gm/applySlippageToMinOut";
 import { getMaxLeverageMultiplier } from "@/helpers/cauldron/getMaxLeverageMultiplier";
 import { getMaxLeverageMultiplierPayload } from "@/helpers/migrationHelpers/payloadHelpers";
-import { getPositionHealth } from "@/helpers/migrationHelpers/utils";
-import { parseGetPositionHealthResult } from "@/helpers/migrationHelpers/resultParsers";
+import {
+  getPositionHealth,
+  getLiquidationPrice,
+} from "@/helpers/migrationHelpers/utils";
 
 const MIM_DECIMALS = 18;
 
@@ -150,25 +151,21 @@ export default {
       ).add(userBorrowAmount);
     },
 
-    expectedLiquidationPrice() {
-      return getLiquidationPrice(
-        this.expectedBorrowAmount,
-        this.expectedCollateralAmount,
-        this.cauldron.config.mcr,
-        this.cauldron.config.collateralInfo.decimals
-      );
-    },
-
     positionHealth() {
       const { oracleExchangeRate } = this.cauldron.mainParams;
       const { decimals } = this.cauldron.config.collateralInfo;
 
-      const { status } = parseGetPositionHealthResult(
-        getPositionHealth(
-          this.expectedLiquidationPrice.toBigInt(),
-          oracleExchangeRate,
-          decimals
-        )
+      const expectedLiquidationPrice = getLiquidationPrice(
+        this.expectedBorrowAmount.toBigInt(),
+        this.expectedCollateralAmount.toBigInt(),
+        this.cauldron.config.mcr,
+        this.cauldron.config.collateralInfo.decimals
+      );
+
+      const { status } = getPositionHealth(
+        expectedLiquidationPrice,
+        oracleExchangeRate,
+        decimals
       );
 
       return status;
