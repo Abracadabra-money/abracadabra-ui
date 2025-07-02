@@ -8,11 +8,13 @@ import {
   alternativeApplyBorrowFee,
   getLiquidationPrice,
   getAlternativeLiquidationPrice,
-  getPositionHealth,
-  getAlternativePositionHealth,
 } from "@/helpers/cauldron/utils";
 import { BigNumber } from "ethers";
 import { parseUnits } from "viem";
+import { parseGetPositionHealthResult } from "@/helpers/migrationHelpers/resultParsers";
+import {
+  getPositionHealth,
+} from "../migrationHelpers/utils";
 
 // todo validateCookByAction
 export const getExpectedPostition = (
@@ -51,11 +53,12 @@ export const getExpectedPostition = (
     cauldron.config!.collateralInfo.decimals
   );
 
-  const positionHealth = getPositionHealth(
-    liquidationPrice,
-    BigNumber.from(cauldron.mainParams.oracleExchangeRate),
-    //@ts-ignore
-    cauldron.config!.collateralInfo.decimals
+  const positionHealth = parseGetPositionHealthResult(
+    getPositionHealth(
+      liquidationPrice.toBigInt(),
+      cauldron.mainParams.oracleExchangeRate,
+      cauldron.config!.collateralInfo.decimals
+    )
   );
 
   return {
@@ -112,7 +115,7 @@ export const getAlternativeExpectedPostition = (
     config.collateralInfo.decimals
   );
 
-  const positionHealth = getAlternativePositionHealth(
+  const positionHealth = getPositionHealth(
     liquidationPrice,
     oracleExchangeRate,
     config.collateralInfo.decimals

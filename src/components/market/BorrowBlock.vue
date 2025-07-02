@@ -25,14 +25,17 @@
 </template>
 
 <script lang="ts">
+import { getLiquidationPrice } from "@/helpers/cauldron/utils";
+import { getPositionHealth } from "@/helpers/migrationHelpers/utils";
+
 import {
   applyBorrowFee,
-  getLiquidationPrice,
   getMaxToBorrow,
   getMimToBorrowByLtv,
-  getPositionHealth,
   getUserLtv,
 } from "@/helpers/cauldron/utils";
+
+import { parseGetPositionHealthResult } from "@/helpers/migrationHelpers/resultParsers";
 import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { mapActions, mapGetters, mapMutations } from "vuex";
@@ -143,10 +146,12 @@ export default {
         this.cauldron.config.collateralInfo.decimals
       );
 
-      const { status } = getPositionHealth(
-        expectedLiquidationPrice,
-        BigNumber.from(oracleExchangeRate),
-        decimals
+      const { status } = parseGetPositionHealthResult(
+        getPositionHealth(
+          expectedLiquidationPrice.toBigInt(),
+          oracleExchangeRate,
+          decimals
+        )
       );
 
       return status;

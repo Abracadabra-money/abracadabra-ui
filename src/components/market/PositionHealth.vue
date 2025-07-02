@@ -32,8 +32,8 @@
 import {
   PERCENT_PRESITION,
   getAlternativeLiquidationPrice,
-  getAlternativePositionHealth,
 } from "@/helpers/cauldron/utils";
+import { getPositionHealth } from "@/helpers/migrationHelpers/utils";
 import { formatUnits } from "viem";
 import { defineAsyncComponent } from "vue";
 import { formatToFixed } from "@/helpers/filters";
@@ -58,7 +58,7 @@ export default {
         decimals
       );
 
-      const { percent, status } = getAlternativePositionHealth(
+      const { percent, status } = getPositionHealth(
         expectedLiquidationPrice,
         oracleExchangeRate,
         decimals

@@ -8,7 +8,6 @@ import { ZERO_ADDRESS } from "@/constants/gm";
 import { ARBITRUM_CHAIN_ID } from "@/constants/global";
 import degenBoxInfo from "@/configs/contracts/degenBox";
 import type {
-  PositionHealth,
   PositionHealthStatus,
   UserPositions,
 } from "@/helpers/cauldron/types";
@@ -20,7 +19,7 @@ import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { getLensAddress } from "@/helpers/cauldron/getLensAddress";
 import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
 import type { ExtendedContractInfo } from "@/configs/contracts/types";
-import { getAlternativePositionHealth } from "@/helpers/cauldron/utils";
+import { getPositionHealth } from "../migrationHelpers/utils";
 
 const emptyPosition: UserPositions = {
   oracleRate: BigNumber.from("0"),
@@ -151,7 +150,7 @@ export const getUserPositions = async (
       leftToDrop
     );
 
-    const alternativePositionHealth = getAlternativePositionHealth(
+    const alternativePositionHealth = getPositionHealth(
       bigintLiquidationPrice,
       oracleExchangeRate,
       decimals
@@ -296,7 +295,7 @@ const calculatePositionHealth = (
   healthMultiplier: any,
   userBorrowAmount: number,
   leftToDrop: number
-): PositionHealth => {
+): { percent: number; status: PositionHealthStatus } => {
   if (userBorrowAmount.toString() === "0" || isNaN(+liquidationPrice))
     return { percent: 100, status: "high" };
 
