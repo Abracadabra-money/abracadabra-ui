@@ -53,7 +53,7 @@ import { defineAsyncComponent } from "vue";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import { MAX_ALLOWANCE_VALUE } from "@/constants/global";
 import { getChainConfig } from "@/helpers/chains/getChainsInfo";
-import { applyTokenWrapperRate } from "@/helpers/cauldron/utils";
+import { applyTokenWrapperRate } from "@/helpers/migrationHelpers/utils";
 import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
 
 type ActiveToken = {
@@ -237,7 +237,13 @@ export default {
       const { decimals } = this.cauldron.config.collateralInfo;
 
       const collateralTokenAmount = this.useUnwrapToken
-        ? applyTokenWrapperRate(value, tokensRate, decimals)
+        ? BigNumber.from(
+            applyTokenWrapperRate(
+              value.toBigInt(),
+              tokensRate.toBigInt(),
+              decimals
+            )
+          )
         : value;
 
       const unwrapTokenAmount = this.useUnwrapToken ? value : BigNumber.from(0);
