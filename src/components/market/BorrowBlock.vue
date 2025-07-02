@@ -28,13 +28,13 @@
 import {
   getPositionHealth,
   getLiquidationPrice,
+  getUserLtv,
 } from "@/helpers/migrationHelpers/utils";
 
 import {
   applyBorrowFee,
   getMaxToBorrow,
   getMimToBorrowByLtv,
-  getUserLtv,
 } from "@/helpers/cauldron/utils";
 import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
@@ -42,6 +42,7 @@ import { mapActions, mapGetters, mapMutations } from "vuex";
 import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
+import { formatUnits } from "viem";
 const MIM_PRICE = 1;
 
 export default {
@@ -123,11 +124,11 @@ export default {
     },
 
     positionLtv() {
-      const positionLtv = utils.formatUnits(
+      const positionLtv = formatUnits(
         getUserLtv(
-          this.expectedCollateralAmount,
-          this.expectedBorrowAmount,
-          BigNumber.from(this.cauldron.mainParams.oracleExchangeRate)
+          this.expectedCollateralAmount.toBigInt(),
+          this.expectedBorrowAmount.toBigInt(),
+          this.cauldron.mainParams.oracleExchangeRate
         ),
         PERCENT_PRESITION
       );
