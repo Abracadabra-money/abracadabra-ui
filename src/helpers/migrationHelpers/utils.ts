@@ -215,7 +215,7 @@ export const applyBorrowFeeBigint = (
 };
 
 // NOTICE: we expect unwrapped token decimals = wrapped decimals
-export const applyTokenWrapperRateBigint = (
+export const applyTokenWrapperRate = (
   unwrappedTokenAmount: bigint,
   tokensRate: bigint,
   unwrappedTokenDecimals: number

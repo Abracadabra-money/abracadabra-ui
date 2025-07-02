@@ -229,14 +229,3 @@ export const alternativeApplyBorrowFee = (
 
   return borrowAmount + fee;
 };
-
-// NOTICE: we expect unwrapped token decimals = wrapped decimals
-export const applyTokenWrapperRate = (
-  unwrappedTokenAmount: BigNumber,
-  tokensRate: BigNumber,
-  unwrappedTokenDecimals: number
-): BigNumber => {
-  return expandDecimals(unwrappedTokenAmount, unwrappedTokenDecimals).div(
-    tokensRate
-  );
-};
