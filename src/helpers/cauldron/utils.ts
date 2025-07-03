@@ -125,33 +125,6 @@ export const getMimToBorrowByLtv = (
   return mimToBorrow;
 };
 
-export const getMaxCollateralToRemove = (
-  collateralAmount: BigNumber,
-  userBorrowAmount: BigNumber,
-  mcr: BigNumber,
-  oracleExchangeRate: BigNumber
-) => {
-  if (userBorrowAmount.eq(0)) return collateralAmount;
-
-  const currentLtv = getUserLtv(
-    collateralAmount,
-    userBorrowAmount,
-    oracleExchangeRate
-  );
-
-  const minCollateralAmount = currentLtv
-    .mul(collateralAmount)
-    .div(mcr.sub(FENCING_AGAINST_LIQUIDATION));
-
-  const maxToRemoveLeft = collateralAmount.sub(minCollateralAmount);
-
-  const maxToRemove = maxToRemoveLeft.lt(0)
-    ? BigNumber.from(0)
-    : maxToRemoveLeft;
-
-  return maxToRemove.gt(collateralAmount) ? collateralAmount : maxToRemove;
-};
-
 export const getLeverageAmounts = (
   collateralAmount: BigNumber,
   leverageMultiplyer: BigNumber, // 1e2

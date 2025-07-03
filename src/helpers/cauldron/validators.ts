@@ -2,10 +2,12 @@ import type { ActionConfig, CauldronInfo } from "@/helpers/cauldron/types";
 import { getCookTypeByAction, ACTION_TYPES } from "./getCookActionType";
 import { getExpectedPostition } from "./getExpectedPosition";
 import { expandDecimals } from "../gm/fee/expandDecials";
-import { getMaxToBorrow, getMaxCollateralToRemove } from "./utils";
+import { getMaxToBorrow } from "./utils";
+import { getMaxCollateralToRemove } from "@/helpers/migrationHelpers/utils";
 import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
 import type { Address } from "viem";
 import { BigNumber } from "ethers";
+import { parseUnits } from "viem";
 
 export const WARNING_TYPES = {
   DEPOSIT_ALLOWANCE: 0,
@@ -332,8 +334,7 @@ const validateRemoveCollateral = (
   const { withdrawAmount, deleverageAmounts } = amounts;
   const { userCollateralAmount } = cauldron.userPosition.collateralInfo;
 
-  //@ts-ignore
-  const mcr = expandDecimals(cauldron.config!.mcr, PERCENT_PRESITION);
+  const mcr = parseUnits(cauldron.config!.mcr.toString(), PERCENT_PRESITION);
 
   let withdrawableAmountCheck = true;
 
@@ -349,10 +350,11 @@ const validateRemoveCollateral = (
     : userCollateralAmount;
 
   const maxToRemove = getMaxCollateralToRemove(
-    expectedCollateralAmount,
-    expectPosition.mimAmount,
+    expectedCollateralAmount.toBigInt(),
+    expectPosition.mimAmount.toBigInt(),
     mcr,
-    BigNumber.from(oracleExchangeRate)
+    oracleExchangeRate,
+    false
   );
 
   const positionMaxToRemoveCheck = withdrawAmount.lte(maxToRemove);

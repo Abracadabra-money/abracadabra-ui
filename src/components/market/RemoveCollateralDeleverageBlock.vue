@@ -25,13 +25,12 @@
 import {
   PERCENT_PRESITION,
   getMaxCollateralToRemove,
-} from "@/helpers/cauldron/utils";
-import { formatUnits } from "viem";
+} from "@/helpers/migrationHelpers/utils";
+import { formatUnits, parseUnits } from "viem";
 import type { PropType } from "vue";
 import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { formatToFixed } from "@/helpers/filters";
-import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
 import { trimZeroDecimals } from "@/helpers/numbers";
 import type { CauldronInfo } from "@/helpers/cauldron/types";
 
@@ -92,7 +91,10 @@ export default {
       //@ts-ignore
       const { amountFrom } = this.deleverageAmounts;
 
-      const mcr = expandDecimals(this.cauldron.config.mcr, PERCENT_PRESITION);
+      const mcr = parseUnits(
+        this.cauldron.config.mcr.toString(),
+        PERCENT_PRESITION
+      );
 
       // after swap
       let expectedCollateralAmount = userCollateralAmount
@@ -102,10 +104,11 @@ export default {
         : userCollateralAmount.sub(amountFrom);
 
       const maxToRemove = getMaxCollateralToRemove(
-        expectedCollateralAmount,
-        this.expectedBorrowAmount,
+        expectedCollateralAmount.toBigInt(),
+        this.expectedBorrowAmount.toBigInt(),
         mcr,
-        BigNumber.from(oracleExchangeRate)
+        oracleExchangeRate,
+        false
       );
 
       if (maxToRemove.gt(userCollateralAmount)) return userCollateralAmount;
