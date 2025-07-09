@@ -30,7 +30,7 @@
       <div>
         <h3 class="title">TMB</h3>
         <div class="value">
-          {{ formatLargeSum(cauldron.mainParams.totalBorrowed) }}
+          {{ totalBorrowed(cauldron.mainParams.totalBorrowed) }}
         </div>
       </div>
 
@@ -105,6 +105,13 @@ export default {
     },
 
     formatLargeSum(value: bigint, decimals = 18): string {
+      return formatLargeSum(formatUnits(value, decimals));
+    },
+
+    totalBorrowed(value: bigint, decimals = 18): string {
+      const { id, chainId } = this.cauldron.config;
+      if (id === 3 && chainId === 42161) return "N/A";
+
       return formatLargeSum(formatUnits(value, decimals));
     },
   },
