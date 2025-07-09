@@ -4,7 +4,12 @@
       <div class="actions-block">
         <div class="actions-head">
           <h3>{{ activeTab }}</h3>
-          <Tabs :name="activeTab" :items="tabItems" @select="changeTab" />
+          <Tabs
+            :name="activeTab"
+            :items="tabItems"
+            @select="changeTab"
+            :disabledTabs="['stake']"
+          />
           <button class="mobile-btn" @click="updateChartToggle">
             <ChartIcon :fill="chartToggle ? '#ffffff' : '#7088CC'" />
           </button>
@@ -109,7 +114,7 @@ import { openConnectPopup } from "@/helpers/connect/utils";
 export default {
   data() {
     return {
-      activeTab: "stake",
+      activeTab: "unstake",
       tabItems: ["stake", "unstake"],
       selectedNetwork: 42161,
       availableNetworks: [42161],
@@ -255,8 +260,9 @@ export default {
       if (!this.isUnsupportedChain) return "Switch Network";
       if (this.isInsufficientBalance) return "Insufficient balance";
       if (!this.isTokenApproved) return "Approve";
-      if (!this.isStakeAction) return "Unstake";
-      return "Stake";
+      // if (!this.isStakeAction) return "Unstake";
+      return "Unstake";
+      // return "Stake";
     },
   },
 
