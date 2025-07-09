@@ -62,7 +62,7 @@ import { mapGetters } from "vuex";
 import { formatUnits } from "viem";
 import { defineAsyncComponent } from "vue";
 import { formatLargeSum } from "@/helpers/filters";
-import { BERA_BARTIO_CHAIN_ID } from "@/constants/global";
+import { ARBITRUM_CHAIN_ID, BERA_BARTIO_CHAIN_ID } from "@/constants/global";
 import { getTokenLinkData } from "@/helpers/getTokenLinkData";
 import { getChainConfig } from "@/helpers/chains/getChainsInfo";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
@@ -101,6 +101,10 @@ export default {
     },
 
     totalMimBorrowed() {
+      const { id, chainId } = this.cauldron.config;
+
+      if (id === 3 && chainId === ARBITRUM_CHAIN_ID) return "N/A";
+
       return formatLargeSum(
         formatUnits(this.cauldron.mainParams.totalBorrowed, 18)
       );

@@ -74,6 +74,11 @@ export const getMainParams = async (
       ? localInterest
       : Number(result.interestPerYear) / 100;
 
+    const totalBorrowed =
+      configs[index].id === 3 && configs[index].chainId === 42161
+        ? 0n
+        : result.totalBorrowed;
+
     return {
       borrowFee: Number(result.borrowFee) / 100,
       interest,
@@ -82,7 +87,7 @@ export const getMainParams = async (
       mimLeftToBorrow: result.marketMaxBorrow,
       maximumCollateralRatio: result.maximumCollateralRatio, // NOTICE nod used except test files
       oracleExchangeRate: result.oracleExchangeRate,
-      totalBorrowed: result.totalBorrowed,
+      totalBorrowed,
       tvl: result.totalCollateral.value,
       userMaxBorrow: result.userMaxBorrow,
       updatePrice,

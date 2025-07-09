@@ -130,7 +130,7 @@ const config: Array<CauldronConfig> = [
       isDegenBox: true,
       strategyLink:
         "https://abracadabramoney.gitbook.io/learn/intro/stake/mglp",
-      isDepreciated: false,
+      isDepreciated: true,
       acceptUseDefaultBalance: false,
       healthMultiplier: 1,
       hasAccountBorrowLimit: true,

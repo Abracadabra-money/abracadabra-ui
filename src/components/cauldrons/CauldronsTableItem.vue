@@ -21,7 +21,7 @@
     <div class="column">${{ formatLargeSum(cauldron.mainParams.tvl) }}</div>
 
     <div class="column">
-      {{ formatLargeSum(cauldron.mainParams.totalBorrowed) }}
+      {{ totalBorrowed(cauldron.mainParams.totalBorrowed) }}
     </div>
 
     <div class="column">
@@ -80,6 +80,13 @@ export default {
     goToMarket(cauldron: CauldronListItem): RouterLinkParams {
       const { chainId, id } = cauldron.config;
       return { name: "Market", params: { chainId, cauldronId: id } };
+    },
+
+    totalBorrowed(value: bigint, decimals = 18): string {
+      const { id, chainId } = this.cauldron.config;
+      if (id === 3 && chainId === 42161) return "N/A";
+
+      return formatLargeSum(formatUnits(value, decimals));
     },
 
     formatLargeSum(value: bigint, decimals = 18): string {
