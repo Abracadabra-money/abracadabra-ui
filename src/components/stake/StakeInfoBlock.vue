@@ -8,13 +8,13 @@
       </span>
     </div>
 
-    <div class="row">
+    <!-- <div class="row">
       <span class="title">APR</span>
       <span class="value" v-if="apr">{{ apr }}%</span>
       <div class="loader-wrap" v-else>
         <BaseLoader type="loader" />
       </div>
-    </div>
+    </div> -->
 
     <div class="underline"></div>
 
@@ -27,7 +27,7 @@
       </span>
       <span class="balance">
         <span> {{ formatTokenBalance(mainToken.balance) }}</span>
-        <span class="price">{{ formatUSD(mainToken.balanceUsd) }}</span>
+        <!-- <span class="price">{{ formatUSD(mainToken.balanceUsd) }}</span> -->
       </span>
     </div>
 
@@ -38,7 +38,7 @@
       </span>
       <span class="balance">
         <span> {{ formatTokenBalance(stakeToken.balance) }}</span>
-        <span class="price">{{ formatUSD(stakeToken.balanceUsd) }}</span>
+        <!-- <span class="price">{{ formatUSD(stakeToken.balanceUsd) }}</span> -->
       </span>
     </div>
   </div>

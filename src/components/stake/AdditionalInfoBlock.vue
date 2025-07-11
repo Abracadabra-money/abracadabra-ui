@@ -22,9 +22,9 @@
         {{ formatTokenBalance(config.amount, config.decimals) }}
       </p>
 
-      <p class="price">
+      <!-- <p class="price">
         {{ formatUSD(config.amountUsd, config.decimals) }}
-      </p>
+      </p> -->
     </div>
   </div>
 </template>

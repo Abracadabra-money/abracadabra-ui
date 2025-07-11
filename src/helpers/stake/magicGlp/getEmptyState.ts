@@ -103,8 +103,8 @@ export const getEmptyState = async (
   );
   const totalRewardsAmountUsd = +totalRewardsAmount * parseRewardTokenPrice;
 
-  const mainTokenPrice = ((MIM_PRICE * ONE_ETHER_VIEM) /
-    oracleExchangeRate.result) as bigint;
+  const mainTokenPrice = 0n;
+  // ((MIM_PRICE * ONE_ETHER_VIEM) / oracleExchangeRate.result) as bigint;
   const totalSupplyUsd =
     ((totalSupply.result as bigint) * mainTokenPrice) / ONE_ETHER_VIEM;
 
