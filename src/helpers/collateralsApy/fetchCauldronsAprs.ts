@@ -38,7 +38,7 @@ export const fetchCauldronsAprs = async (cauldrons: CauldronListItem[]) => {
     filterCrvCauldronsAndGetAprs(cauldrons),
     getAndFormatElixirApr(),
     getAndFormatApr(USD0_CAULDRON_ADDRESS, getUsd0ppApy),
-    getAndFormatGlpAprs(),
+    // getAndFormatGlpAprs(),
     getGmCauldronsAprs(cauldrons, arb_provider),
   ];
 
@@ -64,7 +64,7 @@ const getLSAprsAndCheckForExpiration = () => {
     if (!parsedLocalApr) return;
 
     const createdAt = parsedLocalApr.timestamp;
-    
+
     if (checkIfExpired(createdAt) || !createdAt) return;
 
     const aprs = parsedLocalApr.aprs;
@@ -170,19 +170,19 @@ const getAndFormatElixirApr = async () => {
   });
 };
 
-const getAndFormatGlpAprs = async () => {
-  const GlpCauldronAddress =
-    "0x5698135CA439f21a57bDdbe8b582C62f090406D5".toLowerCase();
-  const MagicGlpCauldronAddress =
-    "0x726413d7402fF180609d0EBc79506df8633701B1".toLowerCase();
+// const getAndFormatGlpAprs = async () => {
+//   const GlpCauldronAddress =
+//     "0x5698135CA439f21a57bDdbe8b582C62f090406D5".toLowerCase();
+//   const MagicGlpCauldronAddress =
+//     "0x726413d7402fF180609d0EBc79506df8633701B1".toLowerCase();
 
-  const response = await getMagicGlpApy(ARBITRUM_CHAIN_ID);
+//   const response = await getMagicGlpApy(ARBITRUM_CHAIN_ID);
 
-  return [
-    { [GlpCauldronAddress]: response.glpApy },
-    { [MagicGlpCauldronAddress]: response.magicGlpApy },
-  ];
-};
+//   return [
+//     { [GlpCauldronAddress]: response.glpApy },
+//     { [MagicGlpCauldronAddress]: response.magicGlpApy },
+//   ];
+// };
 
 const getGmCauldronsAprs = async (
   cauldrons: CauldronListItem[],
