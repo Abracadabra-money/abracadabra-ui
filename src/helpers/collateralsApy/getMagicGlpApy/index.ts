@@ -1,4 +1,7 @@
-import { contracts, rpc } from "@/helpers/collateralsApy/getMagicGlpApy/constants";
+import {
+  contracts,
+  rpc,
+} from "@/helpers/collateralsApy/getMagicGlpApy/constants";
 import { getPrices } from "@/helpers/collateralsApy/getMagicGlpApy/getPrices";
 import type { MagicGlpApy } from "@/helpers/collateralsApy/getMagicGlpApy/types";
 import { calculatedApy } from "@/helpers/collateralsApy/getMagicGlpApy/calculatedApy";
@@ -8,6 +11,7 @@ import { getRandomWalletAddress } from "@/helpers/utils/createRandomAddress";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 
 export const getMagicGlpApy = async (chainId: number): Promise<MagicGlpApy> => {
+  return { glpApy: 0, magicGlpApy: 0 };
   const currentRpc = rpc[chainId as keyof typeof rpc];
   if (!currentRpc) return { glpApy: 0, magicGlpApy: 0 };
 

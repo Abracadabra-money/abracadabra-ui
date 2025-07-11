@@ -31,7 +31,7 @@
               :icon="fromToken.icon"
               :name="fromToken.name"
               :max="fromToken.balance"
-              :tokenPrice="formatUnits(fromToken.price, fromToken.decimals)"
+              :tokenPrice="''"
               @updateInputValue="updateMainValue"
             />
           </div>
@@ -43,7 +43,7 @@
               :icon="toToken.icon"
               :name="toToken.name"
               :value="expectedAmount"
-              :tokenPrice="formatUnits(toToken.price, toToken.decimals)"
+              :tokenPrice="''"
             />
           </div>
 

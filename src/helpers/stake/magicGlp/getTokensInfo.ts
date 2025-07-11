@@ -52,8 +52,8 @@ export const getTokensInfo = async (
     ],
   });
 
-  const mainTokenPrice =
-    (MIM_PRICE * ONE_ETHER_VIEM) / (oracleExchangeRate.result as bigint);
+  const mainTokenPrice = 0n;
+  // (MIM_PRICE * ONE_ETHER_VIEM) / (oracleExchangeRate.result as bigint);
   const tokenRate =
     ((magicGlpAmount.result as bigint) * ONE_ETHER_VIEM) /
     (totalSupply.result as bigint);
