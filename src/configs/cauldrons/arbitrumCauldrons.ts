@@ -175,7 +175,7 @@ const config: Array<CauldronConfig> = [
       address: "0xa919730e82d8D2EF8459115b72Fa42D6292f65e9",
       abi: magicGlpSwapperAbi,
     },
-    mainParamStateOverrides: [{
+    stateOverrides: [{
       // Set proper oracle
       address: "0x4ED0935ecC03D7FcEfb059e279BCD910a02F284C",
       stateDiff: [{

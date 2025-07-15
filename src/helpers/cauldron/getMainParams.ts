@@ -41,7 +41,7 @@ export const getMainParams = async (
   const lensAddress = getLensAddress(chainId);
   const publicClient = getPublicClient(chainId);
 
-  const stateOverride = compact(configs.map(({ mainParamStateOverrides }) => mainParamStateOverrides)).flat();
+  const stateOverride = compact(configs.map(({ stateOverrides }) => stateOverrides)).flat();
   const marketInfo: MarketInfoResponse[] = await publicClient.multicall({
     contracts: configs.map((config: any) => {
       const methodName =

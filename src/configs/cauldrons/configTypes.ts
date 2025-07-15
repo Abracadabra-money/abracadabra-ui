@@ -95,5 +95,5 @@ export type CauldronConfig = {
     address: Address;
     abi: any;
   };
-  mainParamStateOverrides?: StateOverride;
+  stateOverrides?: StateOverride;
 };
