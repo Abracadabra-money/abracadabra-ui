@@ -1,10 +1,11 @@
 import { BigNumber } from "ethers";
-import type { Address } from "viem";
+import type { Address, PublicClient } from "viem";
 import lensAbi from "@/abis/marketLens.js";
 import type { MainParams } from "@/helpers/cauldron/types";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import { getLensAddress } from "@/helpers/cauldron/getLensAddress";
 import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
+import { compact } from "lodash";
 
 interface MarketInfoResponse {
   result: {
@@ -40,6 +41,7 @@ export const getMainParams = async (
   const lensAddress = getLensAddress(chainId);
   const publicClient = getPublicClient(chainId);
 
+  const stateOverride = compact(configs.map(({ mainParamStateOverrides }) => mainParamStateOverrides)).flat();
   const marketInfo: MarketInfoResponse[] = await publicClient.multicall({
     contracts: configs.map((config: any) => {
       const methodName =
@@ -54,12 +56,18 @@ export const getMainParams = async (
         args: [config.contract.address],
       };
     }),
+    stateOverride,
   });
+  if (chainId === 42161) {
+    console.log(stateOverride)
+    console.log(marketInfo)
+  }
 
   const contractExchangeRate: bigint | null = cauldron
     ? await publicClient.readContract({
         ...cauldron,
         functionName: "exchangeRate",
+        stateOverride,
       })
     : null;
 
