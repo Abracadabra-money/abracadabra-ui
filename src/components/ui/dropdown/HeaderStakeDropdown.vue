@@ -40,7 +40,7 @@
           <p class="link-description">Stake Spell</p>
         </router-link>
 
-        <!-- <router-link class="list-link" :to="{ name: 'magicGLP' }">
+        <router-link class="list-link" :to="{ name: 'magicGLP' }">
           <div class="link-title">
             <span class="stake-token">
               <img
@@ -60,7 +60,7 @@
             </div>
           </div>
           <p class="link-description">Stake GLP</p>
-        </router-link> -->
+        </router-link>
       </div>
     </TransitionWrapper>
   </div>
@@ -111,7 +111,7 @@ export default {
 
   async created() {
     this.getSpellApr();
-    // this.getGlpApr();
+    this.getGlpApr();
   },
 
   components: {

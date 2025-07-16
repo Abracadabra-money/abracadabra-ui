@@ -54,11 +54,11 @@ const routes: Array<RouteRecordRaw> = [
     name: "StakeSpell",
     component: () => import("@/views/stake/Spell.vue"),
   },
-  // {
-  //   path: "/magicGLP",
-  //   name: "magicGLP",
-  //   component: () => import("@/views/stake/MGLP.vue"),
-  // },
+  {
+    path: "/magicGLP",
+    name: "magicGLP",
+    component: () => import("@/views/stake/MGLP.vue"),
+  },
   {
     path: "/my-positions",
     name: "MyPositions",
