@@ -4,12 +4,7 @@
       <div class="actions-block">
         <div class="actions-head">
           <h3>{{ activeTab }}</h3>
-          <Tabs
-            :name="activeTab"
-            :items="tabItems"
-            @select="changeTab"
-            :disabledTabs="['stake']"
-          />
+          <Tabs :name="activeTab" :items="tabItems" @select="changeTab" />
           <button class="mobile-btn" @click="updateChartToggle">
             <ChartIcon :fill="chartToggle ? '#ffffff' : '#7088CC'" />
           </button>
@@ -55,7 +50,7 @@
 
           <div class="btn-wrap">
             <BaseButton
-              primary
+              error
               :disabled="isActionDisabled"
               @click="actionHandler"
               >{{ actionButtonText }}</BaseButton
@@ -114,7 +109,7 @@ import { openConnectPopup } from "@/helpers/connect/utils";
 export default {
   data() {
     return {
-      activeTab: "unstake",
+      activeTab: "stake",
       tabItems: ["stake", "unstake"],
       selectedNetwork: 42161,
       availableNetworks: [42161],
@@ -169,10 +164,11 @@ export default {
     },
 
     isActionDisabled() {
-      if (!this.account) return false;
-      if (!this.isUnsupportedChain) return false;
-      if (!this.inputAmount) return true;
-      return this.isInsufficientBalance;
+      return true;
+      // if (!this.account) return false;
+      // if (!this.isUnsupportedChain) return false;
+      // if (!this.inputAmount) return true;
+      // return this.isInsufficientBalance;
     },
 
     stakeInfo() {
@@ -256,12 +252,13 @@ export default {
     },
 
     actionButtonText() {
-      if (!this.account && this.isUnsupportedChain) return "Connect wallet";
-      if (!this.isUnsupportedChain) return "Switch Network";
-      if (this.isInsufficientBalance) return "Insufficient balance";
-      if (!this.isTokenApproved) return "Approve";
-      // if (!this.isStakeAction) return "Unstake";
-      return "Unstake";
+      return "Temporary Depracated";
+      // if (!this.account && this.isUnsupportedChain) return "Connect wallet";
+      // if (!this.isUnsupportedChain) return "Switch Network";
+      // if (this.isInsufficientBalance) return "Insufficient balance";
+      // if (!this.isTokenApproved) return "Approve";
+      // // if (!this.isStakeAction) return "Unstake";
+      // return "Unstake";
       // return "Stake";
     },
   },
@@ -350,40 +347,41 @@ export default {
     },
 
     async actionHandler() {
-      if (this.isActionDisabled) return false;
+      return false;
+      // if (this.isActionDisabled) return false;
 
-      if (!this.account && this.isUnsupportedChain) return openConnectPopup();
+      // if (!this.account && this.isUnsupportedChain) return openConnectPopup();
 
-      if (!this.isUnsupportedChain) {
-        switchNetwork(this.selectedNetwork);
-        return false;
-      }
-      if (!this.isTokenApproved) {
-        await this.approveTokenHandler();
-        return false;
-      }
+      // if (!this.isUnsupportedChain) {
+      //   switchNetwork(this.selectedNetwork);
+      //   return false;
+      // }
+      // if (!this.isTokenApproved) {
+      //   await this.approveTokenHandler();
+      //   return false;
+      // }
 
-      const notificationId = await this.createNotification(
-        notification.pending
-      );
+      // const notificationId = await this.createNotification(
+      //   notification.pending
+      // );
 
-      const methodName = this.isStakeAction ? "deposit" : "redeem";
+      // const methodName = this.isStakeAction ? "deposit" : "redeem";
 
-      const { error } = (await actions[methodName](
-        this.mainToken.contract,
-        this.inputAmount,
-        this.account
-      )) as { error?: string };
+      // const { error } = (await actions[methodName](
+      //   this.mainToken.contract,
+      //   this.inputAmount,
+      //   this.account
+      // )) as { error?: string };
 
-      if (error) {
-        await this.deleteNotification(notificationId);
-        await this.createNotification(error);
-      } else {
-        await this.createOrUpdateInfo();
-        this.inputValue = "";
-        await this.deleteNotification(notificationId);
-        await this.createNotification(notification.success);
-      }
+      // if (error) {
+      //   await this.deleteNotification(notificationId);
+      //   await this.createNotification(error);
+      // } else {
+      //   await this.createOrUpdateInfo();
+      //   this.inputValue = "";
+      //   await this.deleteNotification(notificationId);
+      //   await this.createNotification(notification.success);
+      // }
     },
 
     checkLocalData() {
