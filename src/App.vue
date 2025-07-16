@@ -26,7 +26,7 @@
   </div>
   <NotificationContainer />
   <PopupsWrapper />
-  <!-- <Banner /> -->
+  <GlpBanner />
   <SkullBanner />
   <OldAllowanceBanner />
   <TenderlyMod />
@@ -67,7 +67,9 @@ export default {
     MlpMigrationBanner: defineAsyncComponent(() =>
       import("@/components/ui/MlpMigrationBanner.vue")
     ),
-    // Banner: defineAsyncComponent(() => import("@/components/ui/Banner.vue")),
+    GlpBanner: defineAsyncComponent(() =>
+      import("@/components/ui/GLpBanner.vue")
+    ),
     SkullBanner: defineAsyncComponent(() =>
       import("@/components/ui/SkullBanner.vue")
     ),
