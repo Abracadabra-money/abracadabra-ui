@@ -53,7 +53,7 @@
             <RoundCheckMarkIcon :checked="!!poolType" />
           </span>
           <p class="empty-state-description">
-            Select Pool Type for your Pool to enable ‘’K’’ and Fee Tier settigns
+            Select Pool Type for your Pool to enable ‘’K’’ and Fee Tier settings
           </p>
         </div>
       </EmptyState>

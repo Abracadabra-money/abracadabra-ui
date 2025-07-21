@@ -252,12 +252,12 @@ export default {
     },
 
     actionButtonText() {
-      return "Temporary Depracated";
+      return "Temporary Deprecated";
       // if (!this.account && this.isUnsupportedChain) return "Connect wallet";
       // if (!this.isUnsupportedChain) return "Switch Network";
       // if (this.isInsufficientBalance) return "Insufficient balance";
       // if (!this.isTokenApproved) return "Approve";
-      // // if (!this.isStakeAction) return "Unstake";
+      // if (!this.isStakeAction) return "Unstake";
       // return "Unstake";
       // return "Stake";
     },
