@@ -3,6 +3,7 @@
 import { parseUnits, formatUnits } from "viem";
 import { applySlippageToMinOutBigInt } from "../gm/applySlippageToMinOut";
 import type { PositionHealth, PositionHealthStatus } from "../cauldron/types";
+import { BigNumber } from "ethers";
 
 const MIM_DECIMALS = 18;
 const COLATERIZATION_PRECISION = 5;
@@ -107,13 +108,32 @@ export const getMimToBorrowByLtvBigint = (
   return mimToBorrow > leftToBorrow ? leftToBorrow : mimToBorrow;
 };
 
-export const getMaxCollateralToRemoveBigint = (
+// NOTICE: remove overloads
+export function getMaxCollateralToRemove(
   collateralAmount: bigint,
   userBorrowAmount: bigint,
   mcr: bigint,
-  oracleExchangeRate: bigint
-): bigint => {
-  if (userBorrowAmount === 0n) return collateralAmount;
+  oracleExchangeRate: bigint,
+  returnBigint: true
+): bigint;
+
+export function getMaxCollateralToRemove(
+  collateralAmount: bigint,
+  userBorrowAmount: bigint,
+  mcr: bigint,
+  oracleExchangeRate: bigint,
+  returnBigint: false
+): BigNumber;
+
+export function getMaxCollateralToRemove(
+  collateralAmount: bigint,
+  userBorrowAmount: bigint,
+  mcr: bigint,
+  oracleExchangeRate: bigint,
+  returnBigint: boolean
+): bigint | BigNumber {
+  if (userBorrowAmount === 0n)
+    return returnBigint ? collateralAmount : BigNumber.from(collateralAmount);
 
   const currentLtv = getUserLtv(
     collateralAmount,
@@ -128,8 +148,12 @@ export const getMaxCollateralToRemoveBigint = (
 
   const maxToRemove = maxToRemoveLeft < 0n ? 0n : maxToRemoveLeft;
 
-  return maxToRemove > collateralAmount ? collateralAmount : maxToRemove;
-};
+  const finalAmount =
+    maxToRemove > collateralAmount ? collateralAmount : maxToRemove;
+
+  return returnBigint ? finalAmount : BigNumber.from(finalAmount);
+}
+//
 
 export const getPositionHealth = (
   liquidationPrice: bigint,
