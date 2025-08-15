@@ -45,16 +45,16 @@ const config = {
   },
   rewards: [
     {
-      name: "GM (ETH/USDC)",
+      name: "GMeth",
       decimals: 18,
-      icon: useImage("@/assets/images/tokens/GM_ETH.png"),
+      icon: useImage("assets/images/tokens/GM_ETH.png"),
       address: "0x70d95587d40A2caf56bd97485aB3Eec10Bee6336",
       cauldron: "0x2b02bBeAb8eCAb792d3F4DDA7a76f63Aa21934FA",
     },
     {
       name: "GLP",
       decimals: 18,
-      icon: useImage("@/assets/images/tokens/GLP.png"),
+      icon: useImage("assets/images/tokens/GLP.png"),
       address: "0x5402B5F40310bDED796c7D0F3FF6683f5C0cFfdf",
       cauldron: "0x5698135CA439f21a57bDdbe8b582C62f090406D5",
     },

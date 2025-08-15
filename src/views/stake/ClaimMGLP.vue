@@ -48,7 +48,7 @@
                 <div class="token-info">
                   <img
                     class="token-icon"
-                    src="@/assets/images/tokens/GM_ETH.png"
+                    :src="token.icon"
                     alt="MGLP token icon"
                   />
 
