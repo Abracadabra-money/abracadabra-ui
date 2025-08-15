@@ -54,7 +54,9 @@
 
                   <div class="col">
                     <div class="claim-token-name">{{ token.name }}</div>
-                    <div class="claim-percent">{{ token.percent }}</div>
+                    <div class="claim-percent">
+                      {{ token.percent || "0.00" }}
+                    </div>
                   </div>
                 </div>
 
