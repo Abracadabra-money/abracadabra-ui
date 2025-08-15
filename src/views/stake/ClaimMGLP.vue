@@ -201,7 +201,7 @@ export default {
     },
 
     async createClaimInfo() {
-      return await getClaimInfo(this.chainId, this.account);
+      return await getClaimInfo(ARBITRUM_CHAIN_ID, this.account);
     },
 
     createDataRefresher() {
