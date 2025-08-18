@@ -1,4 +1,4 @@
-import type { Address, StateOverride } from "viem";
+import type { Address } from "viem";
 
 type CauldronSettings = {
   isSwappersActive: boolean;
@@ -95,5 +95,4 @@ export type CauldronConfig = {
     address: Address;
     abi: any;
   };
-  stateOverrides?: StateOverride;
 };

@@ -41,9 +41,6 @@ export const getMainParams = async (
   const lensAddress = getLensAddress(chainId);
   const publicClient = getPublicClient(chainId);
 
-  const stateOverride = compact(
-    configs.map(({ stateOverrides }) => stateOverrides)
-  ).flat();
   const marketInfo: MarketInfoResponse[] = await publicClient.multicall({
     contracts: configs.map((config: any) => {
       const methodName =
@@ -58,10 +55,8 @@ export const getMainParams = async (
         args: [config.contract.address],
       };
     }),
-    stateOverride,
   });
   if (chainId === 42161) {
-    console.log(stateOverride);
     console.log(marketInfo);
   }
 
@@ -69,7 +64,6 @@ export const getMainParams = async (
     ? await publicClient.readContract({
         ...cauldron,
         functionName: "exchangeRate",
-        stateOverride,
       })
     : null;
 
