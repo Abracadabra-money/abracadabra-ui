@@ -109,9 +109,6 @@ export default {
     },
 
     totalBorrowed(value: bigint, decimals = 18): string {
-      const { id, chainId } = this.cauldron.config;
-      if (id === 3 && chainId === 42161) return "N/A";
-
       return formatLargeSum(formatUnits(value, decimals));
     },
   },

@@ -101,10 +101,6 @@ export default {
     },
 
     totalMimBorrowed() {
-      const { id, chainId } = this.cauldron.config;
-
-      if (id === 3 && chainId === ARBITRUM_CHAIN_ID) return "N/A";
-
       return formatLargeSum(
         formatUnits(this.cauldron.mainParams.totalBorrowed, 18)
       );

@@ -126,11 +126,10 @@ const config: Array<CauldronConfig> = [
     borrowFee: 0,
     version: 4,
     cauldronSettings: {
-      isSwappersActive: true,
+      isSwappersActive: false,
       is0xSwap: true,
       isDegenBox: true,
-      strategyLink:
-        "https://abracadabramoney.gitbook.io/learn/intro/stake/mglp",
+      strategyLink: "",
       isDepreciated: true,
       acceptUseDefaultBalance: false,
       healthMultiplier: 1,
@@ -175,21 +174,28 @@ const config: Array<CauldronConfig> = [
       address: "0xa919730e82d8D2EF8459115b72Fa42D6292f65e9",
       abi: magicGlpSwapperAbi,
     },
-    stateOverrides: [{
-      // Set proper oracle
-      address: "0x4ED0935ecC03D7FcEfb059e279BCD910a02F284C",
-      stateDiff: [{
-        slot: numberToHex(2, { size: 32 }),
-        value: pad("0xa0fc5f7f1a72ae4842b89d5aa42fb8870b599a4b"),
-      }]
-    }, {
-      // Set actual GLP token on MagicGLP
-      address: "0x85667409a723684Fe1e57Dd1ABDe8D88C2f54214",
-      stateDiff: [{
-        slot: numberToHex(6, { size: 32 }),
-        value: pad("0x5402b5f40310bded796c7d0f3ff6683f5c0cffdf"),
-      }]
-    }]
+    stateOverrides: [
+      {
+        // Set proper oracle
+        address: "0x4ED0935ecC03D7FcEfb059e279BCD910a02F284C",
+        stateDiff: [
+          {
+            slot: numberToHex(2, { size: 32 }),
+            value: pad("0xa0fc5f7f1a72ae4842b89d5aa42fb8870b599a4b"),
+          },
+        ],
+      },
+      {
+        // Set actual GLP token on MagicGLP
+        address: "0x85667409a723684Fe1e57Dd1ABDe8D88C2f54214",
+        stateDiff: [
+          {
+            slot: numberToHex(6, { size: 32 }),
+            value: pad("0x5402b5f40310bded796c7d0f3ff6683f5c0cffdf"),
+          },
+        ],
+      },
+    ],
   },
   {
     icon: useImage(`assets/images/tokens/GM_ARB.png`),
