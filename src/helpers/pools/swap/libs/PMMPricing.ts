@@ -22,7 +22,7 @@ export const sellBaseToken = (state: PMMState, payBaseAmount: bigint) => {
       newR = RState.ABOVE_ONE;
       if (receiveQuoteAmount > backToOneReceiveQuote) {
         // [Important corner case!] may enter this branch when some precision problem happens. And consequently contribute to negative spare quote amount
-        // to make sure spare quote>=0, mannually set receiveQuote=backToOneReceiveQuote
+        // to make sure spare quote>=0, manually set receiveQuote=backToOneReceiveQuote
         receiveQuoteAmount = backToOneReceiveQuote;
       }
     } else if (payBaseAmount === backToOnePayBase) {

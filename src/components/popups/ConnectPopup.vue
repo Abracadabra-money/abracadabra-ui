@@ -5,7 +5,7 @@
         <img class="book-icon" src="@/assets/images/connect/book.png" alt="" />
         <h3 class="title">Connect your wallet</h3>
         <p class="text">
-          Select the prefered wallet fromthe options to access the app
+          Select the preferred wallet fromthe options to access the app
           functionality
         </p>
       </div>
