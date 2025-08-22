@@ -138,7 +138,7 @@ const config: Array<CauldronConfig> = [
       localBorrowAmountLimit: false,
       hasCrvClaimLogic: false,
       isMagicGLP: true,
-      isAprExist: true,
+      isAprExist: false,
     },
     contract: {
       name: "CauldronV4",
