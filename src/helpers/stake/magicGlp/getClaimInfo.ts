@@ -58,7 +58,7 @@ const config = {
   },
   rewards: [
     {
-      name: "GMeth",
+      name: "gmETH",
       decimals: 18,
       icon: useImage("assets/images/tokens/GM_ETH.png"),
       address: "0x70d95587d40A2caf56bd97485aB3Eec10Bee6336",

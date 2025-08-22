@@ -3,14 +3,12 @@
     <div class="claim-wrap" v-if="claimInfo">
       <div class="actions-block">
         <div>
-          <h3 class="title">Claim MagicGLP compensation</h3>
-          <h4 class="subtitle">
-            Use your favourite assets as collateral to borrow
-          </h4>
+          <h3 class="title">Redeem MagicGLP</h3>
+          <h4 class="subtitle">Your MGLP can be redeemed now!</h4>
         </div>
 
         <div class="action-form">
-          <h4 class="form-title">MagicGLP to withdraw</h4>
+          <h4 class="form-title">Balance changes</h4>
 
           <div class="stake-info-wrap">
             <h5 class="stake-info-title">MagicGLP to burn</h5>
@@ -138,7 +136,7 @@ export default {
       if (!this.account && this.isUnsupportedChain) return "Connect wallet";
       if (!this.isUnsupportedChain) return "Switch Network";
       if (!this.isClaimAvailable) return "Nothing to claim";
-      return "Commit";
+      return "Redeem";
     },
   },
 
@@ -242,7 +240,7 @@ export default {
 }
 
 .claim-wrap {
-  max-width: 550px;
+  max-width: 520px;
   width: 100%;
   padding: 124px 15px 90px;
   display: flex;
@@ -255,6 +253,7 @@ export default {
   gap: 20px;
   display: flex;
   flex-direction: column;
+  width: 100%;
 }
 
 .title {
