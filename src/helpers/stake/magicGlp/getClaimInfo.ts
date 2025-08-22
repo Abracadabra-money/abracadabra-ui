@@ -90,14 +90,14 @@ export const getClaimInfo = async (chainId: number, account: Address) => {
 
   if (!userMagicGlpBalance) return getEmptyClaimInfo();
 
-  const claimPreview = await getPreviewClaim(userMagicGlpBalance);
+  const claimPreview = await publicClient.readContract({
+    address: config.mainToken.address,
+    abi: config.mainToken.abi,
+    functionName: "previewClaim",
+    args: [userMagicGlpBalance],
+  });
 
-  // const claimPreview = await publicClient.readContract({
-  //   address: config.mainToken.address,
-  //   abi: config.mainToken.abi,
-  //   functionName: "previewClaim",
-  //   args: [userMagicGlpBalance],
-  // });
+  console.log("claimPreview", claimPreview);
 
   const parsedBalance = Number(
     formatUnits(userMagicGlpBalance, config.mainToken.decimals)
@@ -139,20 +139,6 @@ const getEmptyClaimInfo = () => {
   };
 };
 
-const getPreviewClaim = async (userBalance: bigint) => {
-  const provider = new ethers.providers.JsonRpcProvider(
-    "https://virtual.arbitrum.eu.rpc.tenderly.co/ad8fb495-a9f7-45a3-9e9a-85650d98ba8d"
-  );
-
-  const contract = new ethers.Contract(
-    config.mainToken.address,
-    config.mainToken.abi,
-    provider
-  );
-
-  return await contract.previewClaim(userBalance);
-};
-
 const getRewardsTokenRate = async (publicClient: any, rewards: Reward[]) => {
   const rewardsPrice = await publicClient.multicall({
     contracts: rewards.map((reward) => {
@@ -180,7 +166,7 @@ const getRewardsInfo = async (
       (item: any) => item.token === reward.address
     );
 
-    const claimAmount = previewItem?.amount?.toBigInt?.() || 0n;
+    const claimAmount = previewItem?.amount || 0n;
     const claimAmountUsd = (claimAmount * 10n ** 18n) / rewardsRate[index];
 
     return {
