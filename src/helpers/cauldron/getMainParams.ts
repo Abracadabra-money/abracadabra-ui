@@ -56,9 +56,6 @@ export const getMainParams = async (
       };
     }),
   });
-  if (chainId === 42161) {
-    console.log(marketInfo);
-  }
 
   const contractExchangeRate: bigint | null = cauldron
     ? await publicClient.readContract({

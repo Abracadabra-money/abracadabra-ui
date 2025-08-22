@@ -218,13 +218,6 @@ export default {
     },
 
     isWrapAllowed() {
-      if (
-        this.cauldron.config.chainId === 42161 &&
-        this.cauldron.config.id === 3
-      ) {
-        return false;
-      }
-
       return (
         this.cauldron?.config?.wrapInfo &&
         !this.cauldron?.config?.wrapInfo?.isHiddenWrap

@@ -152,20 +152,6 @@ const config: Array<CauldronConfig> = [
       abi: tokensAbi.magicGLP,
     },
     mimInfo,
-    wrapInfo: {
-      isHiddenWrap: false,
-      useUnwrappedByDefault: true,
-      unwrappedToken: {
-        name: "GLP",
-        icon: useImage(`assets/images/tokens/GLP.png`),
-        address: "0x5402B5F40310bDED796c7D0F3FF6683f5C0cFfdf",
-        abi: tokensAbi.sGLP,
-      },
-      wrapper: {
-        address: "0x565adE5536Ab84018e00d6d7f56E7a300717c10b",
-        abi: degenBoxERC4626Wrapper,
-      },
-    },
     leverageInfo: {
       address: "0xeA06aC85984AFCbD4B6C6d0E46dBEb06f11313a6",
       abi: magicGlpLevSwapperAbi,
