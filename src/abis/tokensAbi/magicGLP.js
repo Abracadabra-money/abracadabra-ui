@@ -1,19 +1,15 @@
 export default [
-  {
-    inputs: [
-      { internalType: "contract ERC20", name: "__asset", type: "address" },
-      { internalType: "string", name: "_name", type: "string" },
-      { internalType: "string", name: "_symbol", type: "string" },
-    ],
-    stateMutability: "nonpayable",
-    type: "constructor",
-  },
+  { inputs: [], name: "ErrClaimDisabled", type: "error" },
+  { inputs: [], name: "ErrInvalidToken", type: "error" },
   {
     inputs: [{ internalType: "address", name: "", type: "address" }],
     name: "ErrNotStrategyExecutor",
     type: "error",
   },
+  { inputs: [], name: "ErrTokenAlreadyExists", type: "error" },
   { inputs: [], name: "ErrZeroShares", type: "error" },
+  { inputs: [], name: "IndexOutOfBounds", type: "error" },
+  { inputs: [], name: "Reentrancy", type: "error" },
   {
     anonymous: false,
     inputs: [
@@ -73,20 +69,35 @@ export default [
   {
     anonymous: false,
     inputs: [
+      { indexed: true, internalType: "address", name: "user", type: "address" },
       {
         indexed: true,
         internalType: "address",
-        name: "previous",
+        name: "token",
         type: "address",
       },
       {
-        indexed: true,
-        internalType: "address",
-        name: "current",
-        type: "address",
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "shares",
+        type: "uint256",
       },
     ],
-    name: "LogRewardHandlerChanged",
+    name: "LogClaim",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: false, internalType: "bool", name: "enabled", type: "bool" },
+    ],
+    name: "LogClaimEnabled",
     type: "event",
   },
   {
@@ -94,18 +105,12 @@ export default [
     inputs: [
       {
         indexed: true,
-        internalType: "contract ERC20",
-        name: "previous",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "contract ERC20",
-        name: "current",
+        internalType: "address",
+        name: "token",
         type: "address",
       },
     ],
-    name: "LogStakedGlpChanged",
+    name: "LogClaimTokenAdded",
     type: "event",
   },
   {
@@ -114,12 +119,11 @@ export default [
       {
         indexed: true,
         internalType: "address",
-        name: "executor",
+        name: "token",
         type: "address",
       },
-      { indexed: false, internalType: "bool", name: "allowed", type: "bool" },
     ],
-    name: "LogStrategyExecutorChanged",
+    name: "LogClaimTokenRemoved",
     type: "event",
   },
   {
@@ -193,7 +197,6 @@ export default [
     name: "Withdraw",
     type: "event",
   },
-  { stateMutability: "nonpayable", type: "fallback" },
   {
     inputs: [],
     name: "DOMAIN_SEPARATOR",
@@ -206,6 +209,13 @@ export default [
     name: "_asset",
     outputs: [{ internalType: "contract ERC20", name: "", type: "address" }],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "token", type: "address" }],
+    name: "addClaimToken",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -243,10 +253,52 @@ export default [
     type: "function",
   },
   {
+    inputs: [{ internalType: "uint256", name: "shares", type: "uint256" }],
+    name: "claim",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "claimEnabled",
+    outputs: [{ internalType: "bool", name: "", type: "bool" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "claimOwnership",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "uint256", name: "index", type: "uint256" }],
+    name: "claimToken",
+    outputs: [{ internalType: "address", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "token", type: "address" }],
+    name: "claimTokenSupported",
+    outputs: [{ internalType: "bool", name: "", type: "bool" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "claimTokens",
+    outputs: [{ internalType: "address[]", name: "", type: "address[]" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "claimTokensLength",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -278,6 +330,20 @@ export default [
     name: "deposit",
     outputs: [{ internalType: "uint256", name: "shares", type: "uint256" }],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "bool", name: "enable", type: "bool" }],
+    name: "enableClaim",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "isEntered",
+    outputs: [{ internalType: "bool", name: "entered", type: "bool" }],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -362,6 +428,33 @@ export default [
     type: "function",
   },
   {
+    inputs: [{ internalType: "uint256", name: "shares", type: "uint256" }],
+    name: "previewClaim",
+    outputs: [
+      {
+        components: [
+          { internalType: "address", name: "token", type: "address" },
+          { internalType: "uint256", name: "amount", type: "uint256" },
+        ],
+        internalType: "struct MagicGlpRewardHandlerV2.ClaimData[]",
+        name: "",
+        type: "tuple[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "address", name: "token", type: "address" },
+      { internalType: "uint256", name: "shares", type: "uint256" },
+    ],
+    name: "previewClaimToken",
+    outputs: [{ internalType: "uint256", name: "amount", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [{ internalType: "uint256", name: "assets", type: "uint256" }],
     name: "previewDeposit",
     outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
@@ -401,6 +494,13 @@ export default [
     type: "function",
   },
   {
+    inputs: [{ internalType: "address", name: "token", type: "address" }],
+    name: "removeClaimToken",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "rewardHandler",
     outputs: [{ internalType: "address", name: "", type: "address" }],
@@ -408,31 +508,16 @@ export default [
     type: "function",
   },
   {
-    inputs: [
-      { internalType: "address", name: "_rewardHandler", type: "address" },
+    inputs: [],
+    name: "rewardRouter",
+    outputs: [
+      {
+        internalType: "contract IGmxRewardRouterV2",
+        name: "",
+        type: "address",
+      },
     ],
-    name: "setRewardHandler",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      { internalType: "contract ERC20", name: "_sGlp", type: "address" },
-    ],
-    name: "setStakedGlp",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      { internalType: "address", name: "executor", type: "address" },
-      { internalType: "bool", name: "value", type: "bool" },
-    ],
-    name: "setStrategyExecutor",
-    outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "view",
     type: "function",
   },
   {

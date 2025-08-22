@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import type { Address, PublicClient } from "viem";
+import type { Address } from "viem";
 import lensAbi from "@/abis/marketLens.js";
 import type { MainParams } from "@/helpers/cauldron/types";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
@@ -7,7 +7,7 @@ import { getLensAddress } from "@/helpers/cauldron/getLensAddress";
 import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
 import { compact } from "lodash";
 
-interface MarketInfoResponse {
+export interface MarketInfoResponse {
   result: {
     borrowFee: bigint;
     cauldron: Address;
@@ -41,7 +41,6 @@ export const getMainParams = async (
   const lensAddress = getLensAddress(chainId);
   const publicClient = getPublicClient(chainId);
 
-  const stateOverride = compact(configs.map(({ stateOverrides }) => stateOverrides)).flat();
   const marketInfo: MarketInfoResponse[] = await publicClient.multicall({
     contracts: configs.map((config: any) => {
       const methodName =
@@ -56,18 +55,12 @@ export const getMainParams = async (
         args: [config.contract.address],
       };
     }),
-    stateOverride,
   });
-  if (chainId === 42161) {
-    console.log(stateOverride)
-    console.log(marketInfo)
-  }
 
   const contractExchangeRate: bigint | null = cauldron
     ? await publicClient.readContract({
         ...cauldron,
         functionName: "exchangeRate",
-        stateOverride,
       })
     : null;
 
@@ -82,11 +75,6 @@ export const getMainParams = async (
       ? localInterest
       : Number(result.interestPerYear) / 100;
 
-    const totalBorrowed =
-      configs[index].id === 3 && configs[index].chainId === 42161
-        ? 0n
-        : result.totalBorrowed;
-
     return {
       borrowFee: Number(result.borrowFee) / 100,
       interest,
@@ -95,7 +83,7 @@ export const getMainParams = async (
       mimLeftToBorrow: result.marketMaxBorrow,
       maximumCollateralRatio: result.maximumCollateralRatio, // NOTICE nod used except test files
       oracleExchangeRate: result.oracleExchangeRate,
-      totalBorrowed,
+      totalBorrowed: result.totalBorrowed,
       tvl: result.totalCollateral.value,
       userMaxBorrow: result.userMaxBorrow,
       updatePrice,
