@@ -58,7 +58,6 @@ export const getUserPositions = async (
   const lensAddress: Address = getLensAddress(chainId);
   const publicClient: PublicClient = getPublicClient(chainId);
 
-  const stateOverride = compact(configs.map(({ stateOverrides }) => stateOverrides)).flat();
   const userPositions: any = await publicClient.multicall({
     contracts: configs
       .map((config: CauldronConfig) => {
@@ -90,7 +89,6 @@ export const getUserPositions = async (
         ];
       })
       .flat(2),
-    stateOverride,
   });
 
   const collaterallInOrders = await getOrdersCollateralBalance(
