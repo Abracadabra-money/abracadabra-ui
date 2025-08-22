@@ -97,8 +97,6 @@ export const getClaimInfo = async (chainId: number, account: Address) => {
     args: [userMagicGlpBalance],
   });
 
-  console.log("claimPreview", claimPreview);
-
   const parsedBalance = Number(
     formatUnits(userMagicGlpBalance, config.mainToken.decimals)
   );
