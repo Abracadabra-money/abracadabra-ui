@@ -130,7 +130,7 @@ const config: Array<CauldronConfig> = [
       is0xSwap: true,
       isDegenBox: true,
       strategyLink: "",
-      isDepreciated: false,
+      isDepreciated: true,
       acceptUseDefaultBalance: false,
       healthMultiplier: 1,
       hasAccountBorrowLimit: true,
