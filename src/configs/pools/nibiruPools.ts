@@ -47,6 +47,48 @@ const nibiruPools: Array<PoolConfig | AdditionalPoolConfig> = [
       lpFeeRate: 500000000000000n,
     },
   },
+  {
+    id: "0xF526160cA6251543B99EB953aD2e45B6d9fed454",
+    chainId: NIBIRU_CHAIN_ID,
+    name: "MIM / sUSDa",
+    icon: useImage(`assets/images/tokens/MIM-sUSDa.png`),
+    decimals: 18,
+    contract: {
+      address: "0xF526160cA6251543B99EB953aD2e45B6d9fed454",
+      abi: mLpV2Abi,
+    },
+    baseToken: {
+      name: "MIM",
+      icon: useImage(`assets/images/tokens/MIM.png`),
+      decimals: 18,
+      contract: {
+        address: "0xfCfc58685101e2914cBCf7551B432500db84eAa8",
+        abi: erc20Abi,
+      },
+      isPopular: true,
+    },
+    quoteToken: {
+      name: "sUSDa",
+      icon: useImage(`assets/images/tokens/sUSDa.png`),
+      decimals: 18,
+      contract: {
+        address: "0x84f682626302EA7BCA2A7c338b84863292131319",
+        abi: erc20Abi,
+      },
+      isPopular: true,
+    },
+    settings: {
+      isNew: true,
+      isDeprecated: false,
+      isMim: false,
+      mlpVersion: 2,
+    },
+    initialParameters: {
+      I: 1000000000000000000n,
+      K: 250000000000000n,
+      lpFeeRate: 500000000000000n,
+    },
+  },
 ];
 
 export default nibiruPools;
