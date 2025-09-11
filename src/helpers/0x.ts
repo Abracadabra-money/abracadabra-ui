@@ -14,7 +14,7 @@ const SLIPPAGE_ACCURACY = 1e4;
 const SLIPPAGE_DECIMALS = 4;
 
 const SWAP_PROXY_ENDPOINT =
-  "https://api.0xdreamy.dev/functions/v1/zeroex/swap/allowance-holder/quote";
+  "https://api.mimswap.io/functions/v1/zeroex/swap/allowance-holder/quote";
 
 export type Swap0xV2Response = {
   buyAmount: BigNumber;
