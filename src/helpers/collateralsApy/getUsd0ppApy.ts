@@ -13,7 +13,7 @@ const magicUsd0ppHarvesterAddress = "0x80014629Ca75441599A1efd2283E3f71A8EC0AAB"
 const feeCollectableAbi = parseAbi(["function feeBips() view returns (uint256)"]);
 
 const usualChainId = mainnet.id;
-const endpoint = "https://api.0xdreamy.dev/functions/v1/usd0pp-rewards"; // Wraps https://app.usual.money/api/rewards/rates
+const endpoint = "https://api.mimswap.io/functions/v1/usd0pp-rewards"; // Wraps https://app.usual.money/api/rewards/rates
 
 
 export const getUsd0ppApy = async (): Promise<number> => {
