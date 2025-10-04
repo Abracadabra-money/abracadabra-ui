@@ -27,6 +27,7 @@
   <NotificationContainer />
   <PopupsWrapper />
   <SkullBanner />
+  <BannerBeam />
   <OldAllowanceBanner />
   <TenderlyMod />
 </template>
@@ -35,7 +36,6 @@
 import { defineAsyncComponent } from "vue";
 import { useAnimation } from "@/helpers/useAnimation/useAnimation";
 import { checkLocation } from "@/helpers/useLocation";
-// import Banner from "./components/ui/Banner.vue";
 
 export default {
   data() {
@@ -74,6 +74,9 @@ export default {
     ),
     TenderlyMod: defineAsyncComponent(() =>
       import("@/components/tenderly/TenderlyMod.vue")
+    ),
+    BannerBeam: defineAsyncComponent(() =>
+      import("@/components/ui/BannerBeam.vue")
     ),
   },
 };
