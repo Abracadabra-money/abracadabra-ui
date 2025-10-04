@@ -284,34 +284,39 @@ export default {
     },
 
     actionState() {
-      if (!this.account) return { disable: false, text: "Connect wallet" };
+      // if (!this.account) return { disable: false, text: "Connect wallet" };
 
-      if (this.isWrongChain) return { disable: false, text: "Switch Chain" };
+      // if (this.isWrongChain) return { disable: false, text: "Switch Chain" };
 
-      if (!this.fromChainConfig)
-        return { disable: true, text: "Select Origin Chain" };
+      // if (!this.fromChainConfig)
+      //   return { disable: true, text: "Select Origin Chain" };
 
-      if (!this.toChainConfig)
-        return { disable: true, text: "Select Destination Chain" };
+      // if (!this.toChainConfig)
+      //   return { disable: true, text: "Select Destination Chain" };
 
-      if (this.inputAmount === 0n) return { disable: true, text: "Set amount" };
+      // if (this.inputAmount === 0n) return { disable: true, text: "Set amount" };
 
-      if (this.isInsufficientBalance)
-        return { disable: true, text: "Insufficient balance" };
+      // if (this.isInsufficientBalance)
+      //   return { disable: true, text: "Insufficient balance" };
 
-      if (this.isEnterDstAddress)
-        return { disable: true, text: "Set destination address" };
+      // if (this.isEnterDstAddress)
+      //   return { disable: true, text: "Set destination address" };
 
-      if (this.dstAddressError)
-        return { disable: true, text: "Set destination address" };
+      // if (this.dstAddressError)
+      //   return { disable: true, text: "Set destination address" };
 
-      if (!this.isTokenApproved) return { disable: false, text: "Approve" };
+      // if (!this.isTokenApproved) return { disable: false, text: "Approve" };
 
-      if (this.isApproving) return { disable: true, text: "Approving" };
+      // if (this.isApproving) return { disable: true, text: "Approving" };
 
-      if (this.isBeaming) return { disable: true, text: "Beaming" };
+      // if (this.isBeaming) return { disable: true, text: "Beaming" };
 
-      return { disable: false, text: "Beam" };
+      // return { disable: false, text: "Beam" };
+
+      return {
+        disable: true,
+        text: "Currently unavailable",
+      };
     },
 
     tabsInfo() {
