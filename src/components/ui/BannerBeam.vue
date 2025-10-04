@@ -19,7 +19,7 @@
 export default {
   data() {
     return {
-      closeClicked: !!localStorage.getItem("GMXBannerClosed"),
+      closeClicked: !!localStorage.getItem("BeamBannerClosed"),
     };
   },
   computed: {
@@ -29,7 +29,7 @@ export default {
   },
   methods: {
     closeBanner() {
-      localStorage.setItem("GMXBannerClosed", "true");
+      localStorage.setItem("BeamBannerClosed", "true");
       this.closeClicked = true;
     },
   },
