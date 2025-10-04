@@ -284,9 +284,9 @@ export default {
     },
 
     actionState() {
-      if (!this.account) return { disable: false, text: "Connect wallet" };
+      // if (!this.account) return { disable: false, text: "Connect wallet" };
 
-      if (this.isWrongChain) return { disable: false, text: "Switch Chain" };
+      // if (this.isWrongChain) return { disable: false, text: "Switch Chain" };
 
       // if (!this.fromChainConfig)
       //   return { disable: true, text: "Select Origin Chain" };
