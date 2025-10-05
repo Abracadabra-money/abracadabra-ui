@@ -27,7 +27,6 @@
   <NotificationContainer />
   <PopupsWrapper />
   <SkullBanner />
-  <BannerBeam />
   <OldAllowanceBanner />
   <TenderlyMod />
 </template>
@@ -74,9 +73,6 @@ export default {
     ),
     TenderlyMod: defineAsyncComponent(() =>
       import("@/components/tenderly/TenderlyMod.vue")
-    ),
-    BannerBeam: defineAsyncComponent(() =>
-      import("@/components/ui/BannerBeam.vue")
     ),
   },
 };
