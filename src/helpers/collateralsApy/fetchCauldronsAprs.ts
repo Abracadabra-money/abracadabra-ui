@@ -36,7 +36,7 @@ export const fetchCauldronsAprs = async (cauldrons: CauldronListItem[]) => {
   const aprFetchingTasks = [
     getAndFormatApr(LUSD_CAULDRON_ADDRESS, getLUSDApy),
     filterCrvCauldronsAndGetAprs(cauldrons),
-    getAndFormatElixirApr(),
+    // getAndFormatElixirApr(),
     getAndFormatApr(USD0_CAULDRON_ADDRESS, getUsd0ppApy),
     // getAndFormatGlpAprs(),
     getGmCauldronsAprs(cauldrons, arb_provider),
