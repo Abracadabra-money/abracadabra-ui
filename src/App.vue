@@ -34,22 +34,10 @@
 <script>
 import { defineAsyncComponent } from "vue";
 import { useAnimation } from "@/helpers/useAnimation/useAnimation";
-import { checkLocation } from "@/helpers/useLocation";
 
 export default {
-  data() {
-    return {};
-  },
-
   methods: {
     ...useAnimation("fade"),
-  },
-
-  async beforeCreate() {
-    const isRestricted = await checkLocation();
-    if (isRestricted) {
-      document.location.href = "https://abracadabra.money/location";
-    }
   },
 
   components: {
