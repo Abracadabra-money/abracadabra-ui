@@ -24,3 +24,5 @@ export const AVALANCHE_WAWAX_ADDRESS: Address =
   "0xb31f66aa3c1e785363f0875a1b74e27b85fd66c7";
 export const AVALANCHE_MGLP_ADDRESS: Address =
   "0x5efc10c353fa30c5758037fdf0a233e971ecc2e0";
+export const MAINNET_MIM_ADDRESS: Address =
+  "0x99D8a9C45b2ecA8864373A26D1459e3Dff1e17F3";

@@ -17,9 +17,9 @@
 import { mapGetters } from "vuex";
 import { formatToFixed } from "@/helpers/filters";
 import tokensInfo from "@/configs/tokens/mim";
-import { tokensChainLink } from "@/configs/chainLink/config";
-import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
-
+import { MAINNET_CHAIN_ID } from "@/constants/global";
+import { MAINNET_MIM_ADDRESS } from "@/constants/tokensAddress";
+import { getCoinsPrices } from "@/helpers/prices/defiLlama";
 export default {
   data() {
     return {
@@ -81,16 +81,14 @@ export default {
   },
 
   async created() {
-    this.mimPrice = await getTokenPriceByChain(
-      tokensChainLink.mim.chainId,
-      tokensChainLink.mim.address
-    );
+    this.mimPrice = (
+      await getCoinsPrices(MAINNET_CHAIN_ID, [MAINNET_MIM_ADDRESS])
+    )[0].price;
 
     this.updateMimPrice = setInterval(async () => {
-      this.mimPrice = await getTokenPriceByChain(
-        tokensChainLink.mim.chainId,
-        tokensChainLink.mim.address
-      );
+      this.mimPrice = (
+        await getCoinsPrices(MAINNET_CHAIN_ID, [MAINNET_MIM_ADDRESS])
+      )[0].price;
     }, 15000);
   },
 

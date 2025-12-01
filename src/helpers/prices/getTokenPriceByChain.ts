@@ -7,13 +7,18 @@ export const getTokenPriceByChain = async (
   chainId: number,
   address: Address
 ) => {
-  const publicClient = getPublicClient(chainId);
+  try {
+    const publicClient = getPublicClient(chainId);
 
-  const response: any = await publicClient.readContract({
-    address,
-    abi: chainLinkAbi,
-    functionName: "latestAnswer",
-  });
+    const response: any = await publicClient.readContract({
+      address,
+      abi: chainLinkAbi,
+      functionName: "latestAnswer",
+    });
 
-  return +formatUnits(response, 8);
+    return +formatUnits(response, 8);
+  } catch (error) {
+    console.log("getTokenPriceByChain error", chainId);
+    return 0;
+  }
 };
