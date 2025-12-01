@@ -161,6 +161,9 @@ import { getApprovalEncode } from "@/helpers/getRevokeApprovalSignature";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 import { openConnectPopup } from "@/helpers/connect/utils";
 import { dataRefresher } from "@/helpers/dataRefresher";
+import { MAINNET_CHAIN_ID } from "@/constants/global";
+import { MAINNET_MIM_ADDRESS } from "@/constants/tokensAddress";
+import { getCoinsPrices } from "@/helpers/prices/defiLlama";
 
 const ethPrivilegedMasterContract =
   "0xb2EBF227188E44ac268565C73e0fCd82D4Bfb1E3";
@@ -521,10 +524,9 @@ export default {
 
       this.mimBalance = this.$ethers.utils.formatUnits(mimBalance, 18);
 
-      this.mimBalanceUsd = await getTokenPriceByChain(
-        tokensChainLink.mim.chainId,
-        tokensChainLink.mim.address
-      );
+      this.mimBalanceUsd = (
+        await getCoinsPrices(MAINNET_CHAIN_ID, [MAINNET_MIM_ADDRESS])
+      )[0].price;
     },
 
     async createAethClaimLogic() {
@@ -552,10 +554,9 @@ export default {
 
       this.mimBalance = this.$ethers.utils.formatUnits(mimBalance, 18);
 
-      this.mimBalanceUsd = await getTokenPriceByChain(
-        tokensChainLink.mim.chainId,
-        tokensChainLink.mim.address
-      );
+      this.mimBalanceUsd = (
+        await getCoinsPrices(MAINNET_CHAIN_ID, [MAINNET_MIM_ADDRESS])
+      )[0].price;
     },
   },
 

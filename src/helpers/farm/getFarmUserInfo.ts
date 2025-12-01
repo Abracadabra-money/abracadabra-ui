@@ -2,6 +2,9 @@ import { tokensChainLink } from "@/configs/chainLink/config";
 import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 import type { FarmAccountInfo, FarmItem } from "@/configs/farms/types";
 import { formatUnits, type Address } from "viem";
+import { MAINNET_CHAIN_ID } from "@/constants/global";
+import { MAINNET_MIM_ADDRESS } from "@/constants/tokensAddress";
+import { getCoinsPrices } from "../prices/defiLlama";
 
 export type UserInfo = {
   amount: string;
@@ -71,21 +74,36 @@ const getSLPBalances = async (
 
   //MIM or SPELL
   const token0Name =
-    farmItemConfig.depositedBalance?.token0.name.toLocaleLowerCase();
+    farmItemConfig.depositedBalance?.token0?.name.toLocaleLowerCase();
 
-  const token0Price = await getTokenPriceByChain(
-    tokensChainLink[token0Name as keyof typeof tokensChainLink].chainId,
-    tokensChainLink[token0Name as keyof typeof tokensChainLink].address
-  );
+  let token0Price = 0;
+
+  if (token0Name === "MIM") {
+    token0Price = (
+      await getCoinsPrices(MAINNET_CHAIN_ID, [MAINNET_MIM_ADDRESS])
+    )[0].price;
+  } else {
+    token0Price = await getTokenPriceByChain(
+      tokensChainLink[token0Name as keyof typeof tokensChainLink]?.chainId,
+      tokensChainLink[token0Name as keyof typeof tokensChainLink]?.address
+    );
+  }
 
   // ETH always
   const token1Name =
     farmItemConfig.depositedBalance?.token1.name.toLocaleLowerCase();
 
-  const token1Price = await getTokenPriceByChain(
-    tokensChainLink[token1Name as keyof typeof tokensChainLink].chainId,
-    tokensChainLink[token1Name as keyof typeof tokensChainLink].address
-  );
+  let token1Price = 0;
+  if (token1Name === "MIM") {
+    token1Price = (
+      await getCoinsPrices(MAINNET_CHAIN_ID, [MAINNET_MIM_ADDRESS])
+    )[0].price;
+  } else {
+    token1Price = await getTokenPriceByChain(
+      tokensChainLink[token1Name as keyof typeof tokensChainLink].chainId,
+      tokensChainLink[token1Name as keyof typeof tokensChainLink].address
+    );
+  }
 
   const token0Amount: number = Number(formatUnits(reserves[0], 18));
 
@@ -110,12 +128,12 @@ const getSLPBalances = async (
 
   return {
     token0: {
-      name: farmItemConfig.depositedBalance?.token0.name || "",
+      name: farmItemConfig.depositedBalance?.token0?.name || "",
       amount: token0UserAmount,
       amountInUsd: token0UserAmount * token0Price,
     },
     token1: {
-      name: farmItemConfig.depositedBalance?.token1.name || "",
+      name: farmItemConfig.depositedBalance?.token1?.name || "",
       amount: token1UserAmount,
       amountInUsd: token1UserAmount * token1Price,
     },

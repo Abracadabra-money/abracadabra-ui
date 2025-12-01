@@ -5,12 +5,18 @@ import { useImage } from "@/helpers/useImage";
 import executorAbi from "@/abis/beam/executor";
 import spellConfigs from "@/configs/tokens/spell";
 import { beamConfigs } from "@/configs/beam/beamConfigs";
-import { tokensChainLink } from "@/configs/chainLink/config";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
-import { getNativeTokensPrice } from "@/helpers/prices/defiLlama";
+import {
+  getCoinsPrices,
+  getNativeTokensPrice,
+} from "@/helpers/prices/defiLlama";
 import type { BeamUserInfo, BeamConfig } from "@/helpers/beam/types";
 import type { BeamInfo, BeamTokenConfig } from "@/helpers/beam/types";
-import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
+import {
+  MAINNET_MIM_ADDRESS,
+  MAINNET_SPELL_ADDRESS,
+} from "@/constants/tokensAddress";
+import { MAINNET_CHAIN_ID } from "@/constants/global";
 
 const PACKET_TYPE: number = 1;
 
@@ -178,12 +184,12 @@ const getTokenInfo = async (tokenType: number, fromChainConfig: any) => {
     tokenConfig!.image = useImage("assets/images/tokens/MIM.png");
   }
 
-  const activeTokenSymbol = tokenType === 0 ? "mim" : "spell";
+  const activeTokenAddress =
+    tokenType === 0 ? MAINNET_MIM_ADDRESS : MAINNET_SPELL_ADDRESS;
 
-  const tokenPrice = await getTokenPriceByChain(
-    tokensChainLink[activeTokenSymbol].chainId,
-    tokensChainLink[activeTokenSymbol].address
-  );
+  const tokenPrice = (
+    await getCoinsPrices(MAINNET_CHAIN_ID, [activeTokenAddress])
+  )[0].price;
 
   return { tokenConfig, tokenPrice };
 };

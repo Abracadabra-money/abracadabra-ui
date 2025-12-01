@@ -64,16 +64,16 @@
 import { defineAsyncComponent } from "vue";
 import { formatUnits, parseUnits } from "viem";
 import { approveToken } from "@/helpers/approval";
-import { BLAST_CHAIN_ID } from "@/constants/global";
+import { BLAST_CHAIN_ID, MAINNET_CHAIN_ID } from "@/constants/global";
 import { formatTokenBalance } from "@/helpers/filters";
 import { openConnectPopup } from "@/helpers/connect/utils";
 import { mapGetters, mapActions, mapMutations } from "vuex";
-import { tokensChainLink } from "@/configs/chainLink/config";
 import notification from "@/helpers/notification/notification";
 import { switchNetwork } from "@/helpers/chains/switchNetwork";
 import { withdraw } from "@/helpers/blast/stake/actions/withdraw";
-import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
 import { withdrawLocked } from "@/helpers/blast/stake/actions/withdrawLocked";
+import { MAINNET_MIM_ADDRESS } from "@/constants/tokensAddress";
+import { getCoinsPrices } from "@/helpers/prices/defiLlama";
 
 export default {
   emits: ["updateStakeInfo"],
@@ -323,10 +323,9 @@ export default {
   },
 
   async created() {
-    this.mimPrice = await getTokenPriceByChain(
-      tokensChainLink.mim.chainId,
-      tokensChainLink.mim.address
-    );
+    this.mimPrice = (
+      await getCoinsPrices(MAINNET_CHAIN_ID, [MAINNET_MIM_ADDRESS])
+    )[0].price;
   },
 
   components: {

@@ -13,10 +13,14 @@ import type {
   ContractInfo,
 } from "@/configs/farms/types";
 import type { Address } from "viem";
-import { tokensChainLink } from "@/configs/chainLink/config";
-import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
+import { getCoinsPrices } from "@/helpers/prices/defiLlama";
 import { createMultiRewardFarm } from "./createMultiRewardFarm";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
+import { MAINNET_CHAIN_ID } from "@/constants/global";
+import {
+  MAINNET_MIM_ADDRESS,
+  MAINNET_SPELL_ADDRESS,
+} from "@/constants/tokensAddress";
 
 export const emptyFarmData: FarmItem = {
   name: "",
@@ -70,15 +74,13 @@ export const createFarmData = async (
   if (farmInfo.isMultiReward)
     return await createMultiRewardFarm(farmInfo, account);
 
-  const MIMPrice = await getTokenPriceByChain(
-    tokensChainLink.mim.chainId,
-    tokensChainLink.mim.address
-  );
+  const MIMPrice = (
+    await getCoinsPrices(MAINNET_CHAIN_ID, [MAINNET_MIM_ADDRESS])
+  )[0].price;
 
-  const SPELLPrice = await getTokenPriceByChain(
-    tokensChainLink.spell.chainId,
-    tokensChainLink.spell.address
-  );
+  const SPELLPrice = (
+    await getCoinsPrices(MAINNET_CHAIN_ID, [MAINNET_SPELL_ADDRESS])
+  )[0].price;
 
   const poolInfo: PoolInfo = await getPoolInfo(
     farmInfo.contract,

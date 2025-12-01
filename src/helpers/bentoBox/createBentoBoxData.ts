@@ -3,11 +3,12 @@ import bentoContractsInfo from "@/configs/contracts/master";
 import degenContractsInfo from "@/configs/contracts/degenBox";
 import type { Address } from "viem";
 import type { ExtendedContractInfo } from "@/configs/contracts/types";
-import { getTokenPriceByChain } from "@/helpers/prices/getTokenPriceByChain";
-import { tokensChainLink } from "@/configs/chainLink/config";
 import { getPublicClient } from "@/helpers/chains/getChainsInfo";
 import type { BentoBoxData } from "@/helpers/bentoBox/types";
 import type { MimInfo } from "@/configs/tokens/types";
+import { MAINNET_CHAIN_ID } from "@/constants/global";
+import { MAINNET_MIM_ADDRESS } from "@/constants/tokensAddress";
+import { getCoinsPrices } from "../prices/defiLlama";
 
 export const createBentoBoxDatas = async (
   account: Address
@@ -42,10 +43,9 @@ export const createBentoBoxData = async (
     (contractInfo: ExtendedContractInfo) => contractInfo.chainId === chainId
   );
 
-  const mimPrice = await getTokenPriceByChain(
-    tokensChainLink.mim.chainId,
-    tokensChainLink.mim.address
-  );
+  const mimPrice = (
+    await getCoinsPrices(MAINNET_CHAIN_ID, [MAINNET_MIM_ADDRESS])
+  )[0].price;
 
   const [bentoAllowance, degenAllowance, mimBalance]: any =
     await publicClient.multicall({
