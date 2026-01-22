@@ -25,11 +25,12 @@ import { BigNumber, utils } from "ethers";
 import { defineAsyncComponent } from "vue";
 import { mapGetters } from "vuex";
 import { trimZeroDecimals } from "@/helpers/numbers";
-import { getMaxCollateralToRemove } from "@/helpers/cauldron/utils";
-import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
-import { PERCENT_PRESITION } from "@/helpers/cauldron/utils";
+import {
+  getMaxCollateralToRemove,
+  PERCENT_PRESITION,
+} from "@/helpers/migrationHelpers/utils";
 import { formatToFixed } from "@/helpers/filters";
-import { formatUnits } from "viem";
+import { formatUnits, parseUnits } from "viem";
 
 export default {
   props: {
@@ -105,14 +106,18 @@ export default {
       const { userBorrowAmount } = this.cauldron.userPosition.borrowInfo;
       const { oracleExchangeRate } = this.cauldron.mainParams;
 
-      const mcr = expandDecimals(this.cauldron.config.mcr, PERCENT_PRESITION);
+      const mcr = parseUnits(
+        this.cauldron.config.mcr.toString(),
+        PERCENT_PRESITION
+      );
       const expectedBorrowAmount = userBorrowAmount.sub(this.repayAmount);
 
       const maxToRemove = getMaxCollateralToRemove(
-        userCollateralAmount,
-        expectedBorrowAmount,
+        userCollateralAmount.toBigInt(),
+        expectedBorrowAmount.toBigInt(),
         mcr,
-        BigNumber.from(oracleExchangeRate)
+        oracleExchangeRate,
+        false
       );
 
       if (maxToRemove.gt(userCollateralAmount)) return userCollateralAmount;
