@@ -17,13 +17,13 @@ export const DEFAULT_MAINNET_RPC = "https://ethereum.publicnode.com";
 export const DEFAULT_ARBITRUM_RPC = "https://arbitrum-one-rpc.publicnode.com";
 export const DEFAULT_BLAST_RPC = "https://rpc.blast.io";
 export const DEFAULT_KAVA_RPC = "https://evm.kava.io";
-export const DEFAULT_AVALANCHE_RPC = "https://avalanche.drpc.org";
+export const DEFAULT_AVALANCHE_RPC = "https://avalanche-c-chain-rpc.publicnode.com";
 export const DEFAULT_OPTIMISM_RPC = "https://optimism-rpc.publicnode.com";
 export const DEFAULT_FANTOM_RPC = "https://fantom-rpc.publicnode.com";
 export const DEFAULT_BSC_RPC = "https://bsc-pokt.nodies.app";
 export const DEFAULT_POLYGON_RPC = "https://polygon-rpc.com";
 export const DEFAULT_MOONRIVER_RPC =
-  "https://rpc.api.moonriver.moonbeam.network";
+  "https://moonriver-rpc.publicnode.com";
 export const DEFAULT_BASE_RPC = "https://base-rpc.publicnode.com";
 export const DEFAULT_LINEA_RPC = "https://linea-rpc.publicnode.com";
 export const DEFAULT_NIBIRU_RPC = "https://evm-rpc.nibiru.fi";
@@ -40,6 +40,8 @@ export const badRequestListRpc = [
   "https://optimism.llamarpc.com",
   "https://polygon.llamarpc.com",
   "https://rpc.ankr.com/bsc",
+  "https://moonriver.public.blastapi.io",
+  "https://evm.kava.io"
 ];
 
 export const rpcList = {
@@ -126,8 +128,8 @@ export const rpcList = {
     DEFAULT_MOONRIVER_RPC,
     "https://moonriver-rpc.publicnode.com",
     "https://moonriver.drpc.org",
-    "https://moonriver-rpc.dwellir.com",
-    "https://moonriver.public.blastapi.io",
+    //"https://moonriver-rpc.dwellir.com",
+    //"https://moonriver.public.blastapi.io",
   ],
   [BASE_CHAIN_ID]: [
     ...base.rpcUrls.default.http,

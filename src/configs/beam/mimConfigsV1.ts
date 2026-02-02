@@ -203,13 +203,13 @@ export const mimConfigsV1: BeamConfig[] = [
     icon: getChainIcon(1285),
     chainName: "Moonriver",
     contract: {
-      address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
-      abi: abi.OFTWrapper,
+      address: "0xeF2dBDfeC54c466F7Ff92C9c5c75aBB6794f0195",
+      abi: abi.LzIndirectOFTV2,
     },
     outboundProofType: 2,
     relayer: "0xe9AE261D3aFf7d3fCCF38Fa2d612DD3897e07B2d",
     settings: {
-      contractVersion: 2,
+      contractVersion: 1,
       disabledDestinationChains: [80094, 6900],
       lzChainId: 167,
     },
