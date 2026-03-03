@@ -1,6 +1,6 @@
 <template>
-  <AppHeader />
-  <div class="router-wrap" :style="pageBackground">
+  <AppHeader v-if="!isFullPage" />
+  <div v-if="!isFullPage" class="router-wrap" :style="pageBackground">
     <img
       class="mim-top-bg"
       src="@/assets/images/main-mim-top-bg.png"
@@ -24,11 +24,13 @@
       </TransitionGroup>
     </router-view>
   </div>
-  <NotificationContainer />
-  <PopupsWrapper />
-  <SkullBanner />
-  <OldAllowanceBanner />
-  <TenderlyMod />
+  <router-view v-if="isFullPage" />
+  <NotificationContainer v-if="!isFullPage" />
+  <PopupsWrapper v-if="!isFullPage" />
+  <V2AnnouncementBanner v-if="!isFullPage" />
+  <SkullBanner v-if="!isFullPage" />
+  <OldAllowanceBanner v-if="!isFullPage" />
+  <TenderlyMod v-if="!isFullPage" />
 </template>
 
 <script>
@@ -39,6 +41,12 @@ import { checkLocation } from "@/helpers/useLocation";
 export default {
   data() {
     return {};
+  },
+
+  computed: {
+    isFullPage() {
+      return !!this.$route.meta?.hideAppLayout;
+    },
   },
 
   methods: {
@@ -64,6 +72,9 @@ export default {
     ),
     MlpMigrationBanner: defineAsyncComponent(() =>
       import("@/components/ui/MlpMigrationBanner.vue")
+    ),
+    V2AnnouncementBanner: defineAsyncComponent(() =>
+      import("@/components/ui/V2AnnouncementBanner.vue")
     ),
     SkullBanner: defineAsyncComponent(() =>
       import("@/components/ui/SkullBanner.vue")
