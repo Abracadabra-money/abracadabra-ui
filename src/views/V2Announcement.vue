@@ -1879,7 +1879,7 @@ export default {
 .support-btn {
   position: fixed;
   bottom: 24px;
-  right: 24px;
+  right: 30px;
   width: 60px;
   height: 74px;
   background: transparent;
@@ -2422,8 +2422,8 @@ export default {
   }
 
   .support-btn {
-    bottom: 90px;
-    right: 16px;
+    bottom: 60px;
+    right: 10px;
     width: 50px;
     height: 62px;
   }
