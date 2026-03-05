@@ -509,8 +509,8 @@
           <h3 class="cta-title">Ready for private DeFi banking?</h3>
           <p class="cta-text">Join the beta waitlist to get early access to V2. Card access is subject to KYC approval
             and jurisdiction eligibility.</p>
-          <div class="cta-buttons">
-            <span class="btn btn-primary" style="cursor: default;">Beta Access Coming Soon</span>
+          <div>
+            <span class="cta-title" style="cursor: default;">Beta Access Coming Soon</span>
           </div>
         </div>
       </article>
