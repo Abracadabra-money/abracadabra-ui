@@ -73,7 +73,7 @@ export default {
     toAnnouncement() {
       this.$router.push({ name: "V2Announcement" });
     },
-  },
+  }
 };
 </script>
 
