@@ -12,7 +12,6 @@
       </TransitionGroup>
     </router-view>
   </div>
-  <router-view />
   <NotificationContainer />
   <PopupsWrapper />
   <V2AnnouncementBanner />
@@ -30,8 +29,6 @@ export default {
   data() {
     return {};
   },
-
-
 
   methods: {
     ...useAnimation("fade"),
