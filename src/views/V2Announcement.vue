@@ -530,14 +530,8 @@
         </div>
         <form
           class="sticky-signup-form"
-          name="v2-beta-signup"
-          method="POST"
-          data-netlify="true"
-          netlify-honeypot="bot-field"
           @submit.prevent="handleSignupSubmit"
         >
-          <input type="hidden" name="form-name" value="v2-beta-signup">
-          <p style="display:none"><input name="bot-field"></p>
           <input
             v-model="signupEmail"
             type="email"
@@ -646,6 +640,7 @@
 
 <script lang="ts">
 const HEYANON_API = import.meta.env.VITE_APP_HEYANON_API;
+const SIGNUP_API = import.meta.env.VITE_APP_SIGNUP_API;
 
 export default {
   name: "V2Announcement",
@@ -721,14 +716,10 @@ export default {
       this.signupLoading = true;
 
       try {
-        const formData = new URLSearchParams();
-        formData.append("form-name", "v2-beta-signup");
-        formData.append("email", this.signupEmail);
-
-        await fetch("/", {
+        await fetch(SIGNUP_API, {
           method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: formData.toString(),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: this.signupEmail }),
         });
 
         this.signupState = "submitted";
