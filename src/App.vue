@@ -1,23 +1,11 @@
 <template>
   <AppHeader />
   <div class="router-wrap" :style="pageBackground">
-    <img
-      class="mim-top-bg"
-      src="@/assets/images/main-mim-top-bg.png"
-      alt="Mim"
-    />
-    <img
-      class="mim-bottom-bg"
-      src="@/assets/images/main-mim-bottom-bg.png"
-      alt="Mim"
-    />
+    <img class="mim-top-bg" src="@/assets/images/main-mim-top-bg.png" alt="Mim" />
+    <img class="mim-bottom-bg" src="@/assets/images/main-mim-bottom-bg.png" alt="Mim" />
     <MlpMigrationBanner />
     <router-view v-slot="{ Component, route }">
-      <TransitionGroup
-        @before-enter="beforeEnter"
-        @enter="enter"
-        @leave="leave"
-      >
+      <TransitionGroup @before-enter="beforeEnter" @enter="enter" @leave="leave">
         <div :key="route.name">
           <component :is="Component" />
         </div>
@@ -26,6 +14,7 @@
   </div>
   <NotificationContainer />
   <PopupsWrapper />
+  <V2AnnouncementBanner />
   <SkullBanner />
   <OldAllowanceBanner />
   <TenderlyMod />
@@ -64,6 +53,9 @@ export default {
     ),
     MlpMigrationBanner: defineAsyncComponent(() =>
       import("@/components/ui/MlpMigrationBanner.vue")
+    ),
+    V2AnnouncementBanner: defineAsyncComponent(() =>
+      import("@/components/ui/V2AnnouncementBanner.vue")
     ),
     SkullBanner: defineAsyncComponent(() =>
       import("@/components/ui/SkullBanner.vue")
