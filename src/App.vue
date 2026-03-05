@@ -1,36 +1,24 @@
 <template>
-  <AppHeader v-if="!isFullPage" />
-  <div v-if="!isFullPage" class="router-wrap" :style="pageBackground">
-    <img
-      class="mim-top-bg"
-      src="@/assets/images/main-mim-top-bg.png"
-      alt="Mim"
-    />
-    <img
-      class="mim-bottom-bg"
-      src="@/assets/images/main-mim-bottom-bg.png"
-      alt="Mim"
-    />
+  <AppHeader />
+  <div class="router-wrap" :style="pageBackground">
+    <img class="mim-top-bg" src="@/assets/images/main-mim-top-bg.png" alt="Mim" />
+    <img class="mim-bottom-bg" src="@/assets/images/main-mim-bottom-bg.png" alt="Mim" />
     <MlpMigrationBanner />
     <router-view v-slot="{ Component, route }">
-      <TransitionGroup
-        @before-enter="beforeEnter"
-        @enter="enter"
-        @leave="leave"
-      >
+      <TransitionGroup @before-enter="beforeEnter" @enter="enter" @leave="leave">
         <div :key="route.name">
           <component :is="Component" />
         </div>
       </TransitionGroup>
     </router-view>
   </div>
-  <router-view v-if="isFullPage" />
-  <NotificationContainer v-if="!isFullPage" />
-  <PopupsWrapper v-if="!isFullPage" />
-  <V2AnnouncementBanner v-if="!isFullPage" />
-  <SkullBanner v-if="!isFullPage" />
-  <OldAllowanceBanner v-if="!isFullPage" />
-  <TenderlyMod v-if="!isFullPage" />
+  <router-view />
+  <NotificationContainer />
+  <PopupsWrapper />
+  <V2AnnouncementBanner />
+  <SkullBanner />
+  <OldAllowanceBanner />
+  <TenderlyMod />
 </template>
 
 <script>
@@ -43,11 +31,7 @@ export default {
     return {};
   },
 
-  computed: {
-    isFullPage() {
-      return !!this.$route.meta?.hideAppLayout;
-    },
-  },
+
 
   methods: {
     ...useAnimation("fade"),
