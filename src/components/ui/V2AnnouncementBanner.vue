@@ -167,26 +167,30 @@ export default {
 
 @media screen and (max-width: 768px) {
   .v2-banner {
-    padding: 12px 40px 12px 12px;
-    max-width: calc(100% - 20px);
+    padding: 16px;
+    max-width: calc(100% - 24px);
+    flex-direction: column;
+    top: 80px;
   }
 
   .v2-banner-content {
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 12px;
+    text-align: center;
   }
 
   .v2-banner-icon {
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
   }
 
   .v2-banner-text {
-    flex-basis: calc(100% - 42px);
+    flex-basis: calc(100% - 36px);
+    text-align: left;
   }
 
   .v2-banner-title {
-    font-size: 14px;
+    font-size: 15px;
   }
 
   .v2-banner-subtitle {
@@ -200,8 +204,16 @@ export default {
   }
 
   .close-btn {
-    top: 8px;
-    right: 8px;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 16px;
+    height: 16px;
+    opacity: 0.5;
+
+    &:hover {
+      opacity: 1;
+    }
   }
 }
 </style>
