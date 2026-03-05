@@ -127,12 +127,6 @@ const routes: Array<RouteRecordRaw> = [
   //  component: () => import("@/views/stake/StakeList.vue"),
   //},
   {
-    path: "/v2-announcement",
-    name: "V2Announcement",
-    component: () => import("@/views/V2Announcement.vue"),
-    meta: { hideAppLayout: true },
-  },
-  {
     path: "/:catchAll(.*)",
     redirect: "/",
   },
