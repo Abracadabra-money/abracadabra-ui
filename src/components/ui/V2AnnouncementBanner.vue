@@ -71,7 +71,7 @@ export default {
 
   methods: {
     toAnnouncement() {
-      this.$router.push({ name: "V2Announcement" });
+      window.location.href = 'https://abracadabra.money/v2-announcement';
     },
   }
 };
