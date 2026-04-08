@@ -100,6 +100,10 @@ export const getUserPositions = async (
   return configs.map((config: CauldronConfig, index: number) => {
     if (!userPositions) return emptyPosition;
 
+    if(userPositions[index * 4].error) {
+      return emptyPosition;
+    }
+
     const decimals = config.collateralInfo.decimals;
     const mcr = config.mcr;
     const oracleExchangeRate: bigint = userPositions[index * 4 + 1].result;
