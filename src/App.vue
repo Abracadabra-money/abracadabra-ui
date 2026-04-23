@@ -1,5 +1,5 @@
 <template>
-  <AppHeader />
+  <!-- <AppHeader /> -->
   <div class="router-wrap" :style="pageBackground">
     <img class="mim-top-bg" src="@/assets/images/main-mim-top-bg.png" alt="Mim" />
     <img class="mim-bottom-bg" src="@/assets/images/main-mim-bottom-bg.png" alt="Mim" />
@@ -42,9 +42,9 @@ export default {
   },
 
   components: {
-    AppHeader: defineAsyncComponent(() =>
-      import("@/components/app/AppHeader.vue")
-    ),
+    // AppHeader: defineAsyncComponent(() =>
+    //   import("@/components/app/AppHeader.vue")
+    // ),
     NotificationContainer: defineAsyncComponent(() =>
       import("@/components/notifications/NotificationContainer.vue")
     ),
