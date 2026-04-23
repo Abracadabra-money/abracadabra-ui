@@ -40,10 +40,10 @@
     <BurgerButton />
   </header>
 
-  <!-- <NotifiSubscriptionCardModal
+  <NotifiSubscriptionCardModal
     :isOpenNotifiModal="isOpenNotifiModal"
     @toggleNotifiModal="toggleNotifiModal"
-  /> -->
+  />
 </template>
 
 <script>
