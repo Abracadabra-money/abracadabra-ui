@@ -3,9 +3,9 @@
 import poolsAbi from "@/abis/borrowPoolsAbi/index";
 import tokensAbi from "@/abis/tokensAbi/index";
 import swapAbi from "@/abis/swap";
-import zeroXLevSwapperAbi from "@/abis/zeroXLevSwapper";
+// import zeroXLevSwapperAbi from "@/abis/zeroXLevSwapper";
 import reverseSwapAbi from "@/abis/reverseSwap";
-import zeroXLiqSwapperAbi from "@/abis/zeroXLiqSwapper";
+// import zeroXLiqSwapperAbi from "@/abis/zeroXLiqSwapper";
 import degenBoxERC4626Wrapper from "@/abis/lp/DegenBoxERC4626Wrapper";
 import ERC4626LevSwapper from "@/abis/ERC4626LevSwapper";
 import ERC4626LiqSwapper from "@/abis/ERC4626LiqSwapper";
@@ -13,7 +13,7 @@ import ConvexWrapperLevSwapper from "@/abis/ConvexWrapperLevSwapper";
 import YearnLevSwapper from "@/abis/YearnLevSwapper";
 import ConvexWrapperSwapper from "@/abis/ConvexWrapperSwapper";
 import YearnSwapper from "@/abis/YearnSwapper";
-import SDEUSDSwapper from "@/abis/SDEUSDSwapper";
+// import SDEUSDSwapper from "@/abis/SDEUSDSwapper";
 import { useImage } from "@/helpers/useImage";
 import { GNOSIS_SAFE_ADDRESS } from "@/constants/global";
 import stargateLPSwapper from "@/abis/stargateLPSwapper";
@@ -21,7 +21,7 @@ import stargateLPLevSwapper from "@/abis/stargateLPLevSwapper";
 
 import type { CauldronConfig } from "@/configs/cauldrons/configTypes";
 
-import erc20Abi from "@/abis/farm/erc20Abi";
+// import erc20Abi from "@/abis/farm/erc20Abi";
 
 const mimInfo = {
   name: "MIM",
@@ -435,48 +435,48 @@ const config: Array<CauldronConfig> = [
   //     abi: reverseSwapAbi,
   //   },
   // },
-  {
-    icon: useImage(`assets/images/tokens/ALCX.png`),
-    name: "ALCX",
-    chainId: 1,
-    id: 13,
-    liquidationFee: 12.5,
-    mcr: 75,
-    borrowFee: 0.5,
-    version: 2,
-    cauldronSettings: {
-      isSwappersActive: true,
-      isDegenBox: false,
-      strategyLink: false,
-      isDepreciated: true,
-      acceptUseDefaultBalance: false,
-      healthMultiplier: 1,
-      hasAccountBorrowLimit: false,
-      hasWithdrawableLimit: false,
-      localBorrowAmountLimit: false,
-      hasCrvClaimLogic: false,
-    },
-    contract: {
-      name: "CauldronV2Flat",
-      address: "0x7b7473a76D6ae86CE19f7352A1E89F6C9dc39020",
-      abi: poolsAbi.CauldronV2Flat,
-    },
-    collateralInfo: {
-      name: "ALCX",
-      decimals: 18,
-      address: "0xdBdb4d16EdA451D0503b854CF79D55697F90c8DF",
-      abi: tokensAbi.ALCX,
-    },
-    mimInfo,
-    leverageInfo: {
-      address: "0xf9BAE4c8C6e933d4D9dcAc611715024a1Ecb7527",
-      abi: swapAbi,
-    },
-    deleverageInfo: {
-      address: "0xB63Eb840dAEE054d9971DeDFeCBE0667A08C51F8",
-      abi: reverseSwapAbi,
-    },
-  },
+  // {
+  //   icon: useImage(`assets/images/tokens/ALCX.png`),
+  //   name: "ALCX",
+  //   chainId: 1,
+  //   id: 13,
+  //   liquidationFee: 12.5,
+  //   mcr: 75,
+  //   borrowFee: 0.5,
+  //   version: 2,
+  //   cauldronSettings: {
+  //     isSwappersActive: true,
+  //     isDegenBox: false,
+  //     strategyLink: false,
+  //     isDepreciated: true,
+  //     acceptUseDefaultBalance: false,
+  //     healthMultiplier: 1,
+  //     hasAccountBorrowLimit: false,
+  //     hasWithdrawableLimit: false,
+  //     localBorrowAmountLimit: false,
+  //     hasCrvClaimLogic: false,
+  //   },
+  // contract: {
+  //   name: "CauldronV2Flat",
+  //   address: "0x7b7473a76D6ae86CE19f7352A1E89F6C9dc39020",
+  //   abi: poolsAbi.CauldronV2Flat,
+  // },
+  // collateralInfo: {
+  //   name: "ALCX",
+  //   decimals: 18,
+  //   address: "0xdBdb4d16EdA451D0503b854CF79D55697F90c8DF",
+  //   abi: tokensAbi.ALCX,
+  // },
+  //   mimInfo,
+  //   leverageInfo: {
+  //     address: "0xf9BAE4c8C6e933d4D9dcAc611715024a1Ecb7527",
+  //     abi: swapAbi,
+  //   },
+  //   deleverageInfo: {
+  //     address: "0xB63Eb840dAEE054d9971DeDFeCBE0667A08C51F8",
+  //     abi: reverseSwapAbi,
+  //   },
+  // },
   // {
   //   icon: useImage(`assets/images/tokens/FTM.png`),
   //   name: "FTM",
