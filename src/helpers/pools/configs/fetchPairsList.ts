@@ -32,10 +32,23 @@ export const fetchPairsList = async (
   try {
     const { data } = await axios.post(subgraphUrl, { query });
 
-    return data.data;
-  } catch (error) {
-    console.log("Error fetching pairs list", subgraphUrl);
+    // Subgraph reachable but returned empty / errored payload → fallback to local
+    const payload = data?.data;
+    const isEmpty =
+      !payload ||
+      (poolId ? !payload.pair : !payload.pairs || payload.pairs.length === 0);
 
+    if (isEmpty) {
+      const pairsByChain = checkLocalPairsByChain(chainId);
+      if (poolId) {
+        const pair = pairsByChain.pairs.find((pair) => pair.id === poolId);
+        return { pair: pair as GraphPairConfig };
+      }
+      return pairsByChain;
+    }
+
+    return payload;
+  } catch (error) {
     const pairsByChain = checkLocalPairsByChain(chainId);
     if (poolId) {
       const pair = pairsByChain.pairs.find((pair) => pair.id === poolId);

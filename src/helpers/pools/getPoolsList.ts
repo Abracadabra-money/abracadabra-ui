@@ -20,8 +20,7 @@ export const getPoolsList = async (
           );
           return successfulResults;
         })
-        .catch((error) => {
-          console.log("something went wrong", error);
+        .catch(() => {
           return [];
         })
     )
