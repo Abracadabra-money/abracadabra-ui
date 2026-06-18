@@ -98,19 +98,19 @@
 </template>
 
 <script lang="ts">
+import { getDeleverageAmounts } from "@/helpers/cauldron/utils";
 import {
-  getDeleverageAmounts,
   PERCENT_PRESITION,
   getMaxCollateralToRemove,
-} from "@/helpers/cauldron/utils";
+} from "@/helpers/migrationHelpers/utils";
 import { mapGetters } from "vuex";
 import { BigNumber } from "ethers";
 import type { PropType } from "vue";
 // @ts-ignore
 import tempMixin from "@/mixins/temp";
 import { defineAsyncComponent } from "vue";
-import { expandDecimals } from "@/helpers/gm/fee/expandDecials";
 import type { CauldronInfo, SwapAmounts } from "@/helpers/cauldron/types";
+import { parseUnits } from "viem";
 
 export default {
   emits: ["updateToggle", "updateAmounts"],
@@ -159,15 +159,19 @@ export default {
       //@ts-ignore
       const { amountFrom } = this.actionConfig.amounts.deleverageAmounts;
 
-      const mcr = expandDecimals(this.cauldron.config.mcr, PERCENT_PRESITION);
+      const mcr = parseUnits(
+        this.cauldron.config.mcr.toString(),
+        PERCENT_PRESITION
+      );
 
       // after swap
       const expectedCollateralAmount = userCollateralAmount.sub(amountFrom);
       const maxToRemove = getMaxCollateralToRemove(
-        expectedCollateralAmount,
-        this.expectedBorrowAmount,
+        expectedCollateralAmount.toBigInt(),
+        this.expectedBorrowAmount.toBigInt(),
         mcr,
-        BigNumber.from(oracleExchangeRate)
+        oracleExchangeRate,
+        false
       );
 
       if (maxToRemove.gt(userCollateralAmount)) return userCollateralAmount;
