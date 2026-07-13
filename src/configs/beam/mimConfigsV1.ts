@@ -63,13 +63,13 @@ export const mimConfigsV1: BeamConfig[] = [
     icon: getChainIcon(2222),
     chainName: "KAVA",
     contract: {
-      address: "0x287176dfBEC7E8cee0f876FC7B52960ee1784AdC",
-      abi: abi.OFTWrapper,
+      address: "0xc7a161Cfd0e133d289B13692b636B8e8B5CD8d8c",
+      abi: abi.LzIndirectOFTV2,
     },
     outboundProofType: 2,
     relayer: "0xcb566e3B6934Fa77258d68ea18E931fa75e1aaAa",
     settings: {
-      contractVersion: 2,
+      contractVersion: 1,
       disabledDestinationChains: [81457, 80094, 6900],
       lzChainId: 177,
     },
